@@ -1,0 +1,22 @@
+{
+  "name": "num2words",
+  "version": "0.0.1",
+  "description": "Convert numbers to words",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/forzagreen/num2words.git"
+  },
+  "keywords": [
+    "num2words"
+  ],
+  "author": "Wael TELLAT",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/forzagreen/num2words/issues"
+  },
+  "homepage": "https://github.com/forzagreen/num2words#readme"
+}
