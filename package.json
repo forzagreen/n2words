@@ -1,5 +1,5 @@
 {
-  "name": "num2words",
+  "name": "n2words",
   "version": "0.0.1",
   "description": "Convert numbers to words",
   "main": "index.js",
@@ -9,17 +9,17 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/forzagreen/num2words.git"
+    "url": "git+https://github.com/forzagreen/n2words.git"
   },
   "keywords": [
-    "num2words"
+    "n2words"
   ],
   "author": "Wael TELLAT",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/forzagreen/num2words/issues"
+    "url": "https://github.com/forzagreen/n2words/issues"
   },
-  "homepage": "https://github.com/forzagreen/num2words#readme",
+  "homepage": "https://github.com/forzagreen/n2words#readme",
   "devDependencies": {
     "coveralls": "^3.0.3",
     "mocha": "^6.0.2",

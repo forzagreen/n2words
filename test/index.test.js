@@ -1,5 +1,5 @@
 const assert = require('assert');
-const num2words = require('../index.js');
+const n2words = require('../index.js');
 
 const testCasesEnglish = [
   [0, 'zero'],
@@ -208,15 +208,15 @@ const testCasesSpanish = [
 ]
 
 
-describe('num2words', function () {
+describe('n2words', function () {
   it('should set English as default language', function() {
-    assert.equal(num2words(12), 'twelve')
-    assert.equal(num2words(356), 'three hundred and fifty-six')
+    assert.equal(n2words(12), 'twelve')
+    assert.equal(n2words(356), 'three hundred and fifty-six')
   })
 
   it('should throw an error for unsupported languages', function () {
     assert.throws(function () {
-      num2words(2, {lang: 'aaa'})
+      n2words(2, {lang: 'aaa'})
     }, Error)
   });
 });
@@ -224,7 +224,7 @@ describe('num2words', function () {
 describe('English', function () {
   it('should convert numbers correctly (English)', function () {
     for (let i = 0; i < testCasesEnglish.length; i++) {
-      assert.equal(num2words(testCasesEnglish[i][0], { lang: 'en' }), testCasesEnglish[i][1])
+      assert.equal(n2words(testCasesEnglish[i][0], { lang: 'en' }), testCasesEnglish[i][1])
     }
   });
 });
@@ -232,7 +232,7 @@ describe('English', function () {
 describe('French', function () {
   it('should convert numbers correctly (French)', function () {
     for (let i = 0; i < testCasesFrench.length; i++) {
-      assert.equal(num2words(testCasesFrench[i][0], { lang: 'fr' }), testCasesFrench[i][1])     
+      assert.equal(n2words(testCasesFrench[i][0], { lang: 'fr' }), testCasesFrench[i][1])     
     }
   });
 });
@@ -240,7 +240,7 @@ describe('French', function () {
 describe('Spanish', function () {
   it('should convert numbers correctly (Spanish)', function () {
     for (let i = 0; i < testCasesSpanish.length; i++) {
-      assert.equal(num2words(testCasesSpanish[i][0], { lang: 'es' }), testCasesSpanish[i][1])
+      assert.equal(n2words(testCasesSpanish[i][0], { lang: 'es' }), testCasesSpanish[i][1])
     }
   });
 });
