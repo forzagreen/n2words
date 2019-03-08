@@ -4,7 +4,8 @@
   "description": "Convert numbers to words",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "nyc --reporter=html --reporter=text mocha",
+    "coverage": "nyc report --reporter=text-lcov | coveralls"
   },
   "repository": {
     "type": "git",
@@ -18,5 +19,10 @@
   "bugs": {
     "url": "https://github.com/forzagreen/num2words/issues"
   },
-  "homepage": "https://github.com/forzagreen/num2words#readme"
+  "homepage": "https://github.com/forzagreen/num2words#readme",
+  "devDependencies": {
+    "coveralls": "^3.0.3",
+    "mocha": "^6.0.2",
+    "nyc": "^13.3.0"
+  }
 }
