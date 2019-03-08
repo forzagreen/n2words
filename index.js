@@ -1,5 +1,5 @@
 "use strict";
-exports = module.exports = num2words;
+exports = module.exports = n2words;
 
 
 const supportedLanguages = ['en', 'fr', 'es']
@@ -10,7 +10,7 @@ const supportedLanguages = ['en', 'fr', 'es']
  * @param {Number} n The number to convert
  */
 
-function num2words(n, options) {
+function n2words(n, options) {
   var lang = "EN";        // default language
   if (options) {     
     if(options.lang) {    // lang is given in options

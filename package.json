@@ -1,6 +1,6 @@
 {
   "name": "n2words",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "Convert numbers to words",
   "main": "index.js",
   "scripts": {
@@ -12,10 +12,19 @@
     "url": "git+https://github.com/forzagreen/n2words.git"
   },
   "keywords": [
-    "n2words"
+    "n2words",
+    "convert",
+    "number",
+    "word",
+    "text",
+    "natural",
+    "language",
+    "english",
+    "french",
+    "spanish"
   ],
   "author": "Wael TELLAT",
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/forzagreen/n2words/issues"
   },

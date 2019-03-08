@@ -8,7 +8,7 @@ js module to convert numbers to words
 ## Install
 
 ```
-npm install forzagreen/n2words
+npm install --save n2words
 ```
 
 ## Usage
