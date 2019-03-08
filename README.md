@@ -1,4 +1,8 @@
 # num2words
+
+[![Build Status](https://travis-ci.org/forzagreen/num2words.svg?branch=master)](https://travis-ci.org/forzagreen/num2words)
+[![Coverage Status](https://coveralls.io/repos/github/forzagreen/num2words/badge.svg?branch=master)](https://coveralls.io/github/forzagreen/num2words?branch=master)
+
 js module to convert numbers to words
 
 ## Usage
