@@ -5,10 +5,16 @@
 
 js module to convert numbers to words
 
+## Install
+
+```
+npm install forzagreen/num2words
+```
+
 ## Usage
 
 ```js
-var num2words = require('.')
+var num2words = require('num2words')
 
 num2words(123)                 // 'one hundred and twenty-three'
 
@@ -18,7 +24,8 @@ num2words(123, {lang: 'es'})   // 'ciento veintitrés'
 
 ```
 
-Currently supported languages are:
+### Supported Languages:
+
 - `en` (English, default)
 - `es` (Spanish)
 - `fr` (French)

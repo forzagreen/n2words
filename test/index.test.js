@@ -104,7 +104,7 @@ const testCasesFrench = [
   [287, 'deux cent quatre-vingt-sept'],
   // [300.42, 'trois cents virgule quatre deux'],
   [356, 'trois cent cinquante-six'],
-  // [400, 'quatre cents'],         // FIXME
+  [400, 'quatre cents'],
   [434, 'quatre cent trente-quatre'],
   [578, 'cinq cent soixante-dix-huit'],
   [689, 'six cent quatre-vingt-neuf'],
@@ -127,17 +127,17 @@ const testCasesFrench = [
   [9539, 'neuf mille cinq cent trente-neuf'],
   [1000000, 'un million'],
   [1000001, 'un million un'],
-  // [4000000, 'quatre millions'],
-  // [4000004, 'quatre millions quatre'],
-  // [4300000, 'quatre millions trois cent mille'],
-  // [80000000, 'quatre-vingts millions'],
-  // [300000000, 'trois cents millions'],
-  // [10000000000000, 'dix billions'],
-  // [10000000000010, 'dix billions dix'],
-  // [100000000000000, 'cent billions'],
-  // [1000000000000000000, 'un trillion'],
-  // [1000000000000000000000, 'un trilliard'],
-  // [10000000000000000000000000, 'dix quadrillions']
+  [4000000, 'quatre millions'],
+  [4000004, 'quatre millions quatre'],
+  [4300000, 'quatre millions trois cent mille'],
+  [80000000, 'quatre-vingts millions'],
+  [300000000, 'trois cents millions'],
+  [10000000000000, 'dix billions'],
+  [10000000000010, 'dix billions dix'],
+  [100000000000000, 'cent billions'],
+  [1000000000000000000, 'un trillion'],
+  // [1000000000000000000000, 'un trilliard'],         //FIXME
+  // [10000000000000000000000000, 'dix quadrillions']  //FIXME
 ]
 
 const testCasesSpanish = [
@@ -199,12 +199,12 @@ const testCasesSpanish = [
   [9539, 'nueve mil quinientos treinta y nueve'],
   [1000000, 'un millón'],
   [1000001, 'un millón uno'],
-  // [4000000, 'cuatro millones'], // FIXME
-  // [10000000000000, 'diez billones'],
-  // [100000000000000, 'cien billones'],
-  // [1000000000000000000, 'un trillón'],
-  // [1000000000000000000000, 'mil trillones'],
-  // [10000000000000000000000000, 'diez cuatrillones']
+  [4000000, 'cuatro millones'], // FIXME
+  [10000000000000, 'diez billones'],
+  [100000000000000, 'cien billones'],
+  [1000000000000000000, 'un trillón'],
+  [1000000000000000000000, 'mil trillones'],
+  // [10000000000000000000000000, 'diez cuatrillones']  // FIXME
 ]
 
 
