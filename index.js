@@ -2,7 +2,7 @@
 exports = module.exports = n2words;
 
 
-var supportedLanguages = ['en', 'fr', 'es', 'de', 'pt']
+var supportedLanguages = ['en', 'fr', 'es', 'de', 'pt', 'it']
 
 /**
  * Converts numbers to their written form.
@@ -293,6 +293,75 @@ function Num2Word_PT() {
       ntext = " " + ntext
     }
     return { [`${ctext}${ntext}`]: cnum * nnum }
+  }
+}
+
+
+function Num2Word_IT() {
+  const ZERO = "zero"
+  const CARDINAL_WORDS = [
+    ZERO, "uno", "due", "tre", "quattro", "cinque", "sei", "sette", "otto",
+    "nove", "dieci", "undici", "dodici", "tredici", "quattordici", "quindici",
+    "sedici", "diciassette", "diciotto", "diciannove"
+  ]
+  const STR_TENS = { "2": "venti", "3": "trenta", "4": "quaranta", "6": "sessanta" }
+
+  this.accentuate = (string) => {
+    var splittedString = string.split(' ');
+
+    const result = splittedString.map((word) => {
+      if (word.slice(-3) == "tre" && word.length > 3) return word.replace(/tré/g, 'tre').slice(0, -3) + 'tré';
+      else return word.replace(/tré/g, 'tre')
+    });
+    return result.join(' ')
+  }
+  this.omitIfZero = (numberToString) => {
+    if (numberToString == ZERO) return ""
+    else return numberToString
+  }
+  this.phoneticContraction = (string) => {
+    return string.replace(/oo/g, 'o').replace(/ao/g, 'o').replace(/io/g, 'o').replace(/au/g, 'u')
+  }
+
+  this.tensToCardinal = (number) => {
+    var tens = Math.floor(number / 10);
+    var units = number % 10
+    var prefix
+    if (Object.values(STR_TENS).indexOf(tens) > -1) prefix = STR_TENS[tens]
+    else prefix = CARDINAL_WORDS[tens].slice(0, -1) + "anta"
+    var postfix = this.omitIfZero(CARDINAL_WORDS[units])
+    return this.phoneticContraction(prefix + postfix)
+  }
+
+  this.hundredsToCardinal = (number) => {
+    //TODO
+  }
+
+  this.thousandsToCardinal = (number) => {
+    //TODO
+  }
+
+  this.bigNumberToCardinal = (number) => {
+    //TODO
+  }
+
+
+  this.toCardinal = (number) => {
+    var words = ""
+    
+    if (number < 20) {
+      words = CARDINAL_WORDS[number]
+    } else if (number < 100) {
+      words = this.tensToCardinal(number)
+    } else if (number < 1000) {
+      words = this.hundredsToCardinal(number)
+    } else if (number < 1000000) {
+      words = this.thousandsToCardinal(number)
+    } else {
+      words = this.bigNumberToCardinal(number)
+    }
+
+    return this.accentuate(words)
   }
 }
 
