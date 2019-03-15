@@ -305,6 +305,7 @@ function Num2Word_IT() {
     "sedici", "diciassette", "diciotto", "diciannove"
   ]
   const STR_TENS = { "2": "venti", "3": "trenta", "4": "quaranta", "6": "sessanta" }
+  const EXPONENT_PREFIXES = [ZERO, "m", "b", "tr", "quadr", "quint", "sest", "sett", "ott", "nov", "dec"]
 
   this.accentuate = (string) => {
     var splittedString = string.split(' ');
@@ -327,28 +328,68 @@ function Num2Word_IT() {
     var tens = Math.floor(number / 10);
     var units = number % 10
     var prefix
-    if (Object.values(STR_TENS).indexOf(tens) > -1) prefix = STR_TENS[tens]
-    else prefix = CARDINAL_WORDS[tens].slice(0, -1) + "anta"
+    if (Object.values(STR_TENS).indexOf(tens) > -1) {
+      prefix = STR_TENS[tens]
+    } else {
+      prefix = CARDINAL_WORDS[tens].slice(0, -1) + "anta"
+    }
     var postfix = this.omitIfZero(CARDINAL_WORDS[units])
     return this.phoneticContraction(prefix + postfix)
   }
 
   this.hundredsToCardinal = (number) => {
-    //TODO
+    var hundreds = Math.floor(number / 100);
+    var prefix = "cento"
+    if (hundreds != 1) {
+      prefix = CARDINAL_WORDS[hundreds] + prefix
+    }
+    var postfix = this.omitIfZero(this.toCardinal(number % 100))
+    return this.phoneticContraction(prefix + postfix)
   }
 
   this.thousandsToCardinal = (number) => {
-    //TODO
+    var thousands = Math.floor(number / 1000);
+    var prefix;
+    if (thousands == 1) {
+      prefix = "mille"
+    } else {
+      prefix = this.toCardinal(thousands) + 'mila'
+    }
+    var postfix = this.omitIfZero(this.toCardinal(number % 1000))
+    return prefix + postfix
+  }
+
+  this.exponentLengthToString = (exponentLength) => {
+    var prefix = EXPONENT_PREFIXES[Math.floor(exponentLength / 6)]
+    if (exponentLength % 6 == 0) {
+      return prefix + 'ilione'
+    } else {
+      return prefix + 'iliardo'
+    }
   }
 
   this.bigNumberToCardinal = (number) => {
     //TODO
+    var digits = Array.from(String(number))
+    var predigits = (digits.length % 3 == 0) ? 3 : digits.length % 3
+    var multiplier //TODO
+    var exponent //TODO
+    var prefix;
+    var infix = exponentLengthToString(exponent.length)
+    if (multiplier.toString() == "1") {
+      prefix = "un"
+    } else {
+      prefix = this.toCardinal(parseInt(exponent.join('')))
+      infix = " " //TODO 157 + 'i'
+    }
+
+    //TODO ...
   }
 
 
   this.toCardinal = (number) => {
     var words = ""
-    
+
     if (number < 20) {
       words = CARDINAL_WORDS[number]
     } else if (number < 100) {
