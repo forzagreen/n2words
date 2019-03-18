@@ -12,10 +12,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Throw exception for too large numbers.
 
 ### Changed
-- Grunt
+- TODO
 
 ### Fixed
 - Something
+
+## [1.1.0] - 2019-03-18
+### Added
+- Support for languages: `de`, `pt`.
 
 ## [1.0.0] - 2019-03-08
 ### Added

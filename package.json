@@ -1,6 +1,6 @@
 {
   "name": "n2words",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Convert numbers to words",
   "main": "index.js",
   "scripts": {
@@ -21,7 +21,9 @@
     "language",
     "english",
     "french",
-    "spanish"
+    "spanish",
+    "german",
+    "portuguese"
   ],
   "author": "Wael TELLAT",
   "license": "MIT",
