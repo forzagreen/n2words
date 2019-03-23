@@ -376,12 +376,13 @@ const testCasesItalian = [
   [7232, 'settemiladuecentotrentadue'],
   [8569, 'ottomilacinquecentosessantanove'],
   [9539, 'novemilacinquecentotrentanove'],
-  // [1000000, 'un milione'], // FIXME
+  [1000000, 'un milione'],
+  [1000000000, 'un miliardo'],
   [1000001, 'un milione e uno'],
-  // [4000000, 'quattro milioni'],
-  // [10000000000000, 'dieci bilioni'],
-  // [100000000000000, 'cento bilioni'],
-  // [1000000000000000000, 'un trilione']
+  [4000000, 'quattro milioni'],
+  [10000000000000, 'dieci bilioni'],
+  [100000000000000, 'cento bilioni'],
+  [1000000000000000000, 'un trilione']
 ]
 
 describe('n2words', function () {
@@ -437,11 +438,11 @@ describe('Portuguese', function () {
   });
 });
 
-describe.only('Italian', function () {
+describe('Italian', function () {
   it('should convert numbers correctly (Italian)', function () {
     for (let i = 0; i < testCasesItalian.length; i++) {
-      console.log(testCasesItalian[i][0], n2words(testCasesItalian[i][0], { lang: 'it' }), testCasesItalian[i][1])
       assert.equal(n2words(testCasesItalian[i][0], { lang: 'it' }), testCasesItalian[i][1])
     }
   });
 });
+

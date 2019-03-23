@@ -387,10 +387,10 @@ function Num2Word_IT() {
       infix = " " + infix.slice(0,-1) + "i"; // without last element
     }
     var isSetsEqual = (a, b) => a.size === b.size && [...a].every(value => b.has(value));
-    if (!isSetsEqual(exponent, new Set(['0']))) {
+    if (!isSetsEqual(new Set(exponent), new Set(['0']))) {
       postfix = this.toCardinal(parseInt(exponent.join('')))
-      if (postfix.hasOwnProperty(' e ')) {
-        infix += ", "
+      if (postfix.includes(' e ')) {
+        infix += ", " // for very large numbers
       } else {
         infix += " e "
       }

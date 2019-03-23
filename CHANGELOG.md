@@ -6,16 +6,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
-- Support for `it` (Italian)
-- Support for browser. Minifier.
-- Support for command line. Sync up with num2words-py
-- Throw exception for too large numbers.
+- N/A
 
 ### Changed
-- TODO
+- N/A
 
 ### Fixed
-- Something
+- N/A
+
+## [1.2.0] - 2019-03-23
+### Added
+- Support for language: `it`.
 
 ## [1.1.0] - 2019-03-18
 ### Added
