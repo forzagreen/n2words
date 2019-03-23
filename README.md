@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/forzagreen/n2words.svg?branch=master)](https://travis-ci.org/forzagreen/n2words)
 [![Coverage Status](https://coveralls.io/repos/github/forzagreen/n2words/badge.svg?branch=master)](https://coveralls.io/github/forzagreen/n2words?branch=master)
-![npm](https://img.shields.io/npm/v/n2words.svg)
+[![npm](https://img.shields.io/npm/v/n2words.svg)](https://www.npmjs.com/package/n2words)
 
 Convert numbers to words
 
