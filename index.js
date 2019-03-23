@@ -316,10 +316,15 @@ function Num2Word_IT() {
     });
     return result.join(' ')
   }
+
   this.omitIfZero = (numberToString) => {
-    if (numberToString == ZERO) return ""
-    else return numberToString
+    if (numberToString == ZERO) {
+      return ""
+    } else {
+      return numberToString
+    }
   }
+
   this.phoneticContraction = (string) => {
     return string.replace(/oo/g, 'o').replace(/ao/g, 'o').replace(/io/g, 'o').replace(/au/g, 'u')
   }
@@ -328,7 +333,7 @@ function Num2Word_IT() {
     var tens = Math.floor(number / 10);
     var units = number % 10
     var prefix
-    if (Object.values(STR_TENS).indexOf(tens) > -1) {
+    if (STR_TENS.hasOwnProperty(tens)) {
       prefix = STR_TENS[tens]
     } else {
       prefix = CARDINAL_WORDS[tens].slice(0, -1) + "anta"
@@ -369,21 +374,30 @@ function Num2Word_IT() {
   }
 
   this.bigNumberToCardinal = (number) => {
-    //TODO
     var digits = Array.from(String(number))
     var predigits = (digits.length % 3 == 0) ? 3 : digits.length % 3
-    var multiplier //TODO
-    var exponent //TODO
-    var prefix;
-    var infix = exponentLengthToString(exponent.length)
+    var multiplier = digits.slice(0, predigits); // first `predigits` elements
+    var exponent = digits.slice(predigits); // without the first `predigits` elements
+    var prefix, postfix;
+    var infix = this.exponentLengthToString(exponent.length)
     if (multiplier.toString() == "1") {
-      prefix = "un"
+      prefix = "un "
     } else {
-      prefix = this.toCardinal(parseInt(exponent.join('')))
-      infix = " " //TODO 157 + 'i'
+      prefix = this.toCardinal(parseInt(multiplier.join('')))
+      infix = " " + infix.slice(0,-1) + "i"; // without last element
     }
-
-    //TODO ...
+    var isSetsEqual = (a, b) => a.size === b.size && [...a].every(value => b.has(value));
+    if (!isSetsEqual(exponent, new Set(['0']))) {
+      postfix = this.toCardinal(parseInt(exponent.join('')))
+      if (postfix.hasOwnProperty(' e ')) {
+        infix += ", "
+      } else {
+        infix += " e "
+      }
+    } else {
+      postfix = ''
+    }
+    return prefix + infix + postfix
   }
 
 
