@@ -32,9 +32,10 @@
     "url": "https://github.com/forzagreen/n2words/issues"
   },
   "homepage": "https://github.com/forzagreen/n2words#readme",
+  "dependencies": {},
   "devDependencies": {
-    "coveralls": "^3.0.4",
-    "mocha": "^6.1.4",
+    "coveralls": "^3.0.5",
+    "mocha": "^6.2.0",
     "nyc": "^14.1.1"
   }
 }
