@@ -505,6 +505,9 @@ function Num2Word_TR() {
   this.order_of_last_zero_digit = 0
 
   this.toCardinal = (value) => {
+    if (parseInt(value) == 0) {
+      return "sıfır"
+    }
     this.splitnum(value)
     var wrd = ""
     if (this.order_of_last_zero_digit >= this.integers_to_read[0].length) {
@@ -623,7 +626,7 @@ function Num2Word_TR() {
         } else {
           last_read_digit_order = (reading_triplet_order - 1) * 3 + this.total_digits_outside_triplets
         }
-        if (!(JSON.stringify(this.integers_to_read[0].slice(last_read_digit_order, last_read_digit_order + 3) == "000"))) {
+        if (this.integers_to_read[0].slice(last_read_digit_order, last_read_digit_order + 3) != "000") {
           if (this.integers_to_read[0][last_read_digit_order] != "0") {
             wrd += this.HUNDREDS[this.integers_to_read[0][last_read_digit_order]] || ""
             if (this.order_of_last_zero_digit == this.integers_to_read[0].length - last_read_digit_order - 1) {
@@ -660,7 +663,7 @@ function Num2Word_TR() {
                 return wrd
               }
               if (i == 2) {
-                if (!(JSON.stringify(this.integers_to_read[0].slice(last_read_digit_order, last_read_digit_order + 2) == "00"))) {
+                if (this.integers_to_read[0].slice(last_read_digit_order, last_read_digit_order + 2) != "00") {
                   wrd += this.CARDINAL_ONES[this.integers_to_read[0][last_read_digit_order + 2]] || ""
                 } else if (this.integers_to_read[0][last_read_digit_order + 2] != "1") {
                   wrd += this.CARDINAL_ONES[this.integers_to_read[0][last_read_digit_order + 2]] || ""
@@ -675,14 +678,14 @@ function Num2Word_TR() {
               }
             }
             else {
-              if (!(JSON.stringify(this.integers_to_read[0].slice(last_read_digit_order, last_read_digit_order + 2) == "00"))) {
+              if (this.integers_to_read[0].slice(last_read_digit_order, last_read_digit_order + 2) != "00") {
                 wrd += this.CARDINAL_ONES[this.integers_to_read[0][last_read_digit_order + 2]] || ""
               } else {
                 if (i == 2) {
-                  if (!(JSON.stringify(this.integers_to_read[0].slice(last_read_digit_order, last_read_digit_order + 2) == "00"))) {
+                  if (this.integers_to_read[0].slice(last_read_digit_order, last_read_digit_order + 2) != "00") {
                     wrd += this.CARDINAL_ONES[this.integers_to_read[0][last_read_digit_order + 2]] || ""
                   }
-                  else if (!(JSON.stringify(this.integers_to_read[0].slice(last_read_digit_order, last_read_digit_order + 2) == "1"))) {
+                  else if (this.integers_to_read[0].slice(last_read_digit_order, last_read_digit_order + 2) != "1") {
                     wrd += this.CARDINAL_ONES[this.integers_to_read[0][last_read_digit_order + 2]] || ""
                   }
                 }
