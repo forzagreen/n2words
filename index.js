@@ -685,7 +685,7 @@ function Num2Word_TR() {
                   if (this.integers_to_read[0].slice(last_read_digit_order, last_read_digit_order + 2) != "00") {
                     wrd += this.CARDINAL_ONES[this.integers_to_read[0][last_read_digit_order + 2]] || ""
                   }
-                  else if (this.integers_to_read[0].slice(last_read_digit_order, last_read_digit_order + 2) != "1") {
+                  else if (this.integers_to_read[0][last_read_digit_order + 2] != "1") {
                     wrd += this.CARDINAL_ONES[this.integers_to_read[0][last_read_digit_order + 2]] || ""
                   }
                 }
