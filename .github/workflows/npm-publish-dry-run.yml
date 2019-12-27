@@ -25,4 +25,4 @@ jobs:
         npm publish --dry-run
       env:
         CI: true
-        NPM_SECRET: ${{ NPM_SECRET }}
+        NPM_TOKEN: ${{ NPM_TOKEN }}
