@@ -1,6 +1,7 @@
 .github
 .travis.yml
 test/
+.npmrc
 
 ###### Copied from .gitignore ######
 
