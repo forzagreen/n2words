@@ -14,6 +14,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - N/A
 
+## [1.3.0] - 2019-12-28
+### Added
+- Support for language: `tr`.
+- CI/CD with GitHub Actions.
+- `.npmignore` and publish from CI/CD.
+### Changed
+- Split tests to a file per languague
+- Update dev packages
+
 ## [1.2.0] - 2019-03-23
 ### Added
 - Support for language: `it`.
