@@ -1,13 +1,12 @@
-name: NPM Publish
+name: npm publish
 
 on:
   push:
     tags:
-    - '*'
+    - v*
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     strategy:
@@ -20,7 +19,7 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: ${{ matrix.node-version }}
-    - name: npm install, build, and test
+    - name: npm install, build, test, and publish
       run: |
         npm install
         npm run build --if-present
