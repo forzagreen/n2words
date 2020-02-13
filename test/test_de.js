@@ -53,12 +53,15 @@ const testCasesGerman = [
   [7232, 'siebentausendzweihundertzweiunddreißig'],
   [8569, 'achttausendfünfhundertneunundsechzig'],
   [9539, 'neuntausendfünfhundertneununddreißig'],
-  [1000000, 'eine million'],
-  [1000001, 'eine million eins'],
-  [4000000, 'vier millionen'],
-  [10000000000000, 'zehn billionen'],
-  [100000000000000, 'einhundert billionen'],
-  [1000000000000000000, 'eine trillion']
+  [1000000, 'eine Million'],
+  [1000001, 'eine Million eins'],
+  [4000000, 'vier Millionen'],
+  [4000000000, 'vier Milliarden'],
+  [1000000000, 'eine Milliarde'],
+  [10000000000000, 'zehn Billionen'],
+  [100000000000000, 'einhundert Billionen'],
+  [4500072900000111, 'vier Billiarden fünfhundert Billionen zweiundsiebzig Milliarden neunhundert Millionen einhundertelf'],
+  [1000000000000000000, 'eine Trillion']
 ]
 
 describe('German', function () {
