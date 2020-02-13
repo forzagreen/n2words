@@ -14,6 +14,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - N/A
 
+## [1.3.2] - 2020-02-14
+### Fixed
+- Capital letter in German: [#2](https://github.com/forzagreen/n2words/issues/2)
+- Replace `eval` with `if else` : [#1](https://github.com/forzagreen/n2words/issues/1)
+### Changed
+- Update `mochajs` test package to `v7.0.1`
+
 ## [1.3.1] - 2019-12-28
 ### Added
 - Support for new language: `tr`.
