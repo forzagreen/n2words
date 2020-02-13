@@ -19,7 +19,22 @@ function n2words(n, options) {
     }
   }
 
-  var num = eval(`new Num2Word_${lang}()`);
+  let num;
+  if (lang === 'EN') {
+    num = new Num2Word_EN();
+  } else if (lang === 'FR') {
+    num = new Num2Word_FR();
+  } else if (lang === 'ES') {
+    num = new Num2Word_ES();
+  } else if (lang === 'DE') {
+    num = new Num2Word_DE();
+  } else if (lang === 'PT') {
+    num = new Num2Word_PT();
+  } else if (lang === 'IT') {
+    num = new Num2Word_IT();
+  } else if (lang === 'TR') {
+    num = new Num2Word_TR();
+  }
   return num.toCardinal(n);
 }
 
