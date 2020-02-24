@@ -341,7 +341,7 @@ function Num2Word_IT() {
   }
 
   this.phoneticContraction = (string) => {
-    return string.replace(/oo/g, 'o').replace(/ao/g, 'o').replace(/io/g, 'o').replace(/au/g, 'u')
+    return string.replace(/oo/g, 'o').replace(/ao/g, 'o').replace(/io/g, 'o').replace(/au/g, 'u').replace(/iu/g, 'u')
   }
 
   this.tensToCardinal = (number) => {
