@@ -1,5 +1,7 @@
 language: node_js
 cache: npm
+env:
+  - NPM_TOKEN=xxxx
 node_js:
   - "node"
 after_success: npm run coverage
