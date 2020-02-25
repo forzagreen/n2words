@@ -767,17 +767,13 @@ function Num2Word_RU() {
   }
 
   this.pluralize = (n, forms) => {
-    var form;
+    var form = 2
     if ((n % 100 < 10) || (n % 100 > 20)) {
       if (n % 10 == 1) { 
         form = 0
       } else if ((5 > n % 10) && (n % 10 > 1)) {
         form = 1
-      } else {
-        form = 2
       }
-    } else {
-      form = 2
     }
     return forms[form]
   }
