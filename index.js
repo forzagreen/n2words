@@ -2,7 +2,7 @@
 exports = module.exports = n2words;
 
 
-var supportedLanguages = ['en', 'fr', 'es', 'de', 'pt', 'it', 'tr', 'ru']
+var supportedLanguages = ['en', 'fr', 'es', 'de', 'pt', 'it', 'tr', 'ru', 'cz']
 
 /**
  * Converts numbers to their written form.
@@ -36,6 +36,8 @@ function n2words(n, options) {
     num = new Num2Word_TR();
   } else if (lang === 'RU') {
     num = new Num2Word_RU();
+  } else if (lang === 'CZ') {
+    num = new Num2Word_CZ();
   }
   return num.toCardinal(n);
 }
@@ -116,7 +118,6 @@ function Num2Word_Base() {
     return words
   }
 }
-
 
 function Num2Word_EN() {
   Num2Word_Base.call(this);
@@ -720,13 +721,13 @@ function Num2Word_TR() {
 function Num2Word_RU() {
   // Num2Word_Base.call(this);
   this.feminine = false
-  const ZERO = "ноль"
-  const ONES = {1: "один", 2: "два", 3: "три", 4: "четыре", 5: "пять", 6: "шесть", 7: "семь", 8: "восемь", 9: "девять"}
-  const ONES_FEMININE = {1: "одна", 2: "две", 3: "три", 4: "четыре", 5: "пять", 6: "шесть", 7: "семь", 8: "восемь", 9: "девять"}
-  const TENS = {0: "десять", 1: "одиннадцать", 2: "двенадцать", 3: "тринадцать", 4: "четырнадцать", 5: "пятнадцать", 6: "шестнадцать", 7: "семнадцать", 8: "восемнадцать", 9: "девятнадцать"}
-  const TWENTIES = {2: "двадцать", 3: "тридцать", 4: "сорок", 5: "пятьдесят", 6: "шестьдесят", 7: "семьдесят", 8: "восемьдесят", 9: "девяносто"}
-  const HUNDREDS = {1: "сто", 2: "двести", 3: "триста", 4: "четыреста", 5: "пятьсот", 6: "шестьсот", 7: "семьсот", 8: "восемьсот", 9: "девятьсот"}
-  const THOUSANDS = {
+  this.ZERO = "ноль"
+  this.ONES = {1: "один", 2: "два", 3: "три", 4: "четыре", 5: "пять", 6: "шесть", 7: "семь", 8: "восемь", 9: "девять"}
+  this.ONES_FEMININE = {1: "одна", 2: "две", 3: "три", 4: "четыре", 5: "пять", 6: "шесть", 7: "семь", 8: "восемь", 9: "девять"}
+  this.TENS = {0: "десять", 1: "одиннадцать", 2: "двенадцать", 3: "тринадцать", 4: "четырнадцать", 5: "пятнадцать", 6: "шестнадцать", 7: "семнадцать", 8: "восемнадцать", 9: "девятнадцать"}
+  this.TWENTIES = {2: "двадцать", 3: "тридцать", 4: "сорок", 5: "пятьдесят", 6: "шестьдесят", 7: "семьдесят", 8: "восемьдесят", 9: "девяносто"}
+  this.HUNDREDS = {1: "сто", 2: "двести", 3: "триста", 4: "четыреста", 5: "пятьсот", 6: "шестьсот", 7: "семьсот", 8: "восемьсот", 9: "девятьсот"}
+  this.THOUSANDS = {
     1: ['тысяча', 'тысячи', 'тысяч'], // 10^ 3
     2: ['миллион', 'миллиона', 'миллионов'], // 10^ 6
     3: ['миллиард', 'миллиарда', 'миллиардов'], // 10^ 9
@@ -765,24 +766,20 @@ function Num2Word_RU() {
   }
 
   this.pluralize = (n, forms) => {
-    var form
+    var form = 2
     if ((n % 100 < 10) || (n % 100 > 20)) {
       if (n % 10 == 1) { 
         form = 0
       } else if ((5 > n % 10) && (n % 10 > 1)) {
         form = 1
-      } else {
-        form = 2
       }
-    } else {
-      form = 2
     }
     return forms[form]
   }
 
   this.toCardinal = (number) => {
     if (parseInt(number) == 0) {
-      return ZERO
+      return this.ZERO
     }
     var words = []
     var chunks = this.splitbyx(JSON.stringify(number), 3)
@@ -793,15 +790,73 @@ function Num2Word_RU() {
       i = i - 1
       if (x == 0) { continue; }
       var [n1, n2, n3] = this.get_digits(x)
-      if (n3 > 0) { words.push(HUNDREDS[n3]); }
-      if (n2 > 1) { words.push(TWENTIES[n2]); }
-      if (n2 == 1) { words.push(TENS[n1]); }
+      if (n3 > 0) { words.push(this.HUNDREDS[n3]); }
+      if (n2 > 1) { words.push(this.TWENTIES[n2]); }
+      if (n2 == 1) { words.push(this.TENS[n1]); }
       else if (n1 > 0) {
-        var ones = (i == 1 || this.feminine && i == 0) ? ONES_FEMININE : ONES
+        var ones = (i == 1 || this.feminine && i == 0) ? this.ONES_FEMININE : this.ONES
         words.push(ones[n1])
       }
       if (i > 0) {
-        words.push(this.pluralize(x, THOUSANDS[i]))
+        words.push(this.pluralize(x, this.THOUSANDS[i]))
+      }
+    }
+    return words.join(' ')
+  }
+}
+
+function Num2Word_CZ() {
+  Num2Word_RU.call(this)
+
+  this.ZERO = "nula"
+  this.ONES = {1: "jedna", 2: "dva", 3: "tři", 4: "čtyři", 5: "pět", 6: "šest", 7: "sedm", 8: "osm", 9: "devět"}
+  this.TENS = {0: "deset", 1: "jedenáct", 2: "dvanáct", 3: "třináct", 4: "čtrnáct", 5: "patnáct", 6: "šestnáct", 7: "sedmnáct", 8: "osmnáct", 9: "devatenáct"}
+  this.TWENTIES = {2: "dvacet", 3: "třicet", 4: "čtyřicet", 5: "padesát", 6: "šedesát", 7: "sedmdesát", 8: "osmdesát", 9: "devadesát"}
+  this.HUNDREDS = {1: "sto", 2: "dvěstě", 3: "třista", 4: "čtyřista", 5: "pětset", 6: "šestset", 7: "sedmset", 8: "osmset", 9: "devětset"}
+  this.THOUSANDS = {
+    1: ['tisíc', 'tisíce', 'tisíc'], // 10^ 3
+    2: ['milion', 'miliony', 'milionů'], // 10^ 6
+    3: ['miliarda', 'miliardy', 'miliard'], // 10^ 9
+    4: ['bilion', 'biliony', 'bilionů'], // 10^ 12
+    5: ['biliarda', 'biliardy', 'biliard'], // 10^ 15
+    6: ['trilion', 'triliony', 'trilionů'], // 10^ 18
+    7: ['triliarda', 'triliardy', 'triliard'], // 10^ 21
+    8: ['kvadrilion', 'kvadriliony', 'kvadrilionů'], // 10^ 24
+    9: ['kvadriliarda', 'kvadriliardy', 'kvadriliard'], // 10^ 27
+    10: ['quintillion', 'quintilliony', 'quintillionů'], // 10^ 30
+  }
+
+  this.pluralize = (n, forms) => {
+    var form = 2;
+    if (n == 1) {
+      form = 0
+    } else if (((5 > n % 10) && (n % 10 > 1)) && (n % 100 < 10 || n % 100 > 20)) {
+      form = 1
+    }
+    return forms[form]
+  }
+
+  this.toCardinal = (number) => {
+    if (parseInt(number) == 0) {
+      return this.ZERO
+    }
+    var words = []
+    var chunks = this.splitbyx(JSON.stringify(number), 3)
+    var i = chunks.length
+    for (let j = 0; j < chunks.length; j++) {
+      var x = chunks[j];
+      var ones = []
+      i = i - 1
+      if (x == 0) { continue; }
+      var [n1, n2, n3] = this.get_digits(x)
+      if (n3 > 0) { words.push(this.HUNDREDS[n3]); }
+      if (n2 > 1) { words.push(this.TWENTIES[n2]); }
+      if (n2 == 1) { words.push(this.TENS[n1]); }
+      else if (n1 > 0 && !(i > 0 && x == 1)) {
+        words.push(this.ONES[n1])
+      }
+      if (i > 0) {
+        words.push(this.pluralize(x, this.THOUSANDS[i]))
       }
     }
     return words.join(' ')
