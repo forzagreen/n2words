@@ -723,7 +723,7 @@ function Num2Word_RU() {
   const ZERO = "ноль"
   const ONES = {1: "один", 2: "два", 3: "три", 4: "четыре", 5: "пять", 6: "шесть", 7: "семь", 8: "восемь", 9: "девять"}
   const ONES_FEMININE = {1: "одна", 2: "две", 3: "три", 4: "четыре", 5: "пять", 6: "шесть", 7: "семь", 8: "восемь", 9: "девять"}
-  const TENS = {1: "одиннадцать", 2: "двенадцать", 3: "тринадцать", 4: "четырнадцать", 5: "пятнадцать", 6: "шестнадцать", 7: "семнадцать", 8: "восемнадцать", 9: "девятнадцать"}
+  const TENS = {0: "десять", 1: "одиннадцать", 2: "двенадцать", 3: "тринадцать", 4: "четырнадцать", 5: "пятнадцать", 6: "шестнадцать", 7: "семнадцать", 8: "восемнадцать", 9: "девятнадцать"}
   const TWENTIES = {2: "двадцать", 3: "тридцать", 4: "сорок", 5: "пятьдесят", 6: "шестьдесят", 7: "семьдесят", 8: "восемьдесят", 9: "девяносто"}
   const HUNDREDS = {1: "сто", 2: "двести", 3: "триста", 4: "четыреста", 5: "пятьсот", 6: "шестьсот", 7: "семьсот", 8: "восемьсот", 9: "девятьсот"}
   const THOUSANDS = {
@@ -765,11 +765,17 @@ function Num2Word_RU() {
   }
 
   this.pluralize = (n, forms) => {
-    var forms = []
-    var form = 2
+    var form
     if ((n % 100 < 10) || (n % 100 > 20)) {
-      if (n % 100 == 1) { form = 0; }
-      else if (5 > n % 10 > 1) { form = 1; }
+      if (n % 10 == 1) { 
+        form = 0
+      } else if ((5 > n % 10) && (n % 10 > 1)) {
+        form = 1
+      } else {
+        form = 2
+      }
+    } else {
+      form = 2
     }
     return forms[form]
   }
@@ -780,26 +786,24 @@ function Num2Word_RU() {
     }
     var words = []
     var chunks = this.splitbyx(JSON.stringify(number), 3)
-    console.log(chunks)
     var i = chunks.length
     for (let j = 0; j < chunks.length; j++) {
-      const x = chunks[j];
-      i -= 1
+      var x = chunks[j];
+      var ones = []
+      i = i - 1
       if (x == 0) { continue; }
       var [n1, n2, n3] = this.get_digits(x)
-      console.log(n1, n2, n3)
       if (n3 > 0) { words.push(HUNDREDS[n3]); }
       if (n2 > 1) { words.push(TWENTIES[n2]); }
       if (n2 == 1) { words.push(TENS[n1]); }
       else if (n1 > 0) {
-        var ones = (i == 1 || (this.feminine && i == 0)) ? ONES_FEMININE : ONES
+        var ones = (i == 1 || this.feminine && i == 0) ? ONES_FEMININE : ONES
         words.push(ones[n1])
       }
       if (i > 0) {
         words.push(this.pluralize(x, THOUSANDS[i]))
       }
     }
-    console.log(words)
     return words.join(' ')
   }
 }
