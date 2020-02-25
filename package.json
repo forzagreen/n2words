@@ -1,6 +1,6 @@
 {
   "name": "n2words",
-  "version": "1.3.2",
+  "version": "1.4.0",
   "description": "Convert numbers to words",
   "main": "index.js",
   "scripts": {
@@ -25,7 +25,8 @@
     "german",
     "portuguese",
     "italian",
-    "turkish"
+    "turkish",
+    "russian"
   ],
   "author": "Wael TELLAT",
   "license": "MIT",

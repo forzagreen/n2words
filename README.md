@@ -33,4 +33,5 @@ n2words(123, {lang: 'es'})   // 'ciento veintitrés'
 - `fr` (French)
 - `it` (Italian)
 - `pt` (Portuguese)
+- `ru` (Russian)
 - `tr` (Turkish)
