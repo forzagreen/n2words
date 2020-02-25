@@ -14,7 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - N/A
 
-## [1.4.0] - 2020-02-25
+## [1.4.1] - 2020-02-25
 ### Added
 - New language: `dk` Danish [#9](https://github.com/forzagreen/n2words/pull/9)
 - New language: `no` Norwegian [#8](https://github.com/forzagreen/n2words/pull/8)
