@@ -28,6 +28,7 @@ n2words(123, {lang: 'es'})   // 'ciento veintitrés'
 ### Supported Languages:
 
 - `en` (English, default)
+- `cz` (Czech)
 - `de` (German)
 - `es` (Spanish)
 - `fr` (French)
