@@ -14,6 +14,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - N/A
 
+## [1.4.0] - 2020-02-25
+### Added
+- New language: `dk` Danish [#9](https://github.com/forzagreen/n2words/pull/9)
+- New language: `no` Norwegian [#8](https://github.com/forzagreen/n2words/pull/8)
+- New language: `cz` Czech [#7](https://github.com/forzagreen/n2words/pull/7)
+- New language: `ru` Russian [#6](https://github.com/forzagreen/n2words/pull/6)
+
+### Changed
+- CI/CD: use a fake NPM_TOKEN
+
+### Fixed
+- Fix 21 in italian : [#4](https://github.com/forzagreen/n2words/issues/4) , [#5](https://github.com/forzagreen/n2words/pull/5)
+
 ## [1.3.2] - 2020-02-14
 ### Fixed
 - Capital letter in German: [#2](https://github.com/forzagreen/n2words/issues/2)

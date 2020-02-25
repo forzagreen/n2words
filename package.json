@@ -1,7 +1,7 @@
 {
   "name": "n2words",
   "version": "1.4.0",
-  "description": "Convert numbers to words",
+  "description": "Convert numbers to words, in multiple languages",
   "main": "index.js",
   "scripts": {
     "test": "nyc --reporter=html --reporter=text mocha",

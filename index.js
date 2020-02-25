@@ -1,7 +1,6 @@
 "use strict";
 exports = module.exports = n2words;
 
-
 var supportedLanguages = ['en', 'fr', 'es', 'de', 'pt', 'it', 'tr', 'ru', 'cz', 'no', 'dk']
 
 /**
@@ -267,7 +266,6 @@ function Num2Word_DE() {
   }
 }
 
-
 function Num2Word_PT() {
   Num2Word_Base.call(this);
 
@@ -317,7 +315,6 @@ function Num2Word_PT() {
     return { [`${ctext}${ntext}`]: cnum * nnum }
   }
 }
-
 
 function Num2Word_IT() {
   const ZERO = "zero"
@@ -892,7 +889,6 @@ function Num2Word_DK() {
     var ntext = Object.keys(next)[0], nnum = parseInt(Object.values(next)[0])
     var val = 1
     if (nnum == 100 || nnum == 1000) { next = { [`et${ntext}`]: nnum } }
-    
     if (cnum == 1) {
       if (nnum < 1000000 || this.ordflag) { return next }
       ctext = "en"
@@ -911,9 +907,7 @@ function Num2Word_DK() {
         var temp = ntext
         ntext = ctext
         ctext = temp + "og"
-      } else if (cnum >= 1000000) {
-        ctext += " "
-      }
+      } else if (cnum >= 1000000) { ctext += " " }
       val = cnum + nnum
     }
     var word = ctext + ntext

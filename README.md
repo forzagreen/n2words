@@ -1,6 +1,6 @@
 # n2words
 
-[![Build Status](https://travis-ci.org/forzagreen/n2words.svg?branch=master)](https://travis-ci.org/forzagreen/n2words)
+[![Node CI](https://github.com/forzagreen/n2words/workflows/Node%20CI/badge.svg?branch=master)](https://github.com/forzagreen/n2words/actions)
 [![Coverage Status](https://coveralls.io/repos/github/forzagreen/n2words/badge.svg?branch=master)](https://coveralls.io/github/forzagreen/n2words?branch=master)
 [![npm](https://img.shields.io/npm/v/n2words.svg)](https://www.npmjs.com/package/n2words)
 
