@@ -4,7 +4,7 @@
 [![Coverage Status](https://coveralls.io/repos/github/forzagreen/n2words/badge.svg?branch=master)](https://coveralls.io/github/forzagreen/n2words?branch=master)
 [![npm](https://img.shields.io/npm/v/n2words.svg)](https://www.npmjs.com/package/n2words)
 
-Convert numbers to words
+Convert numbers to words, in multiple languages
 
 ## Install
 
@@ -33,6 +33,7 @@ n2words(123, {lang: 'es'})   // 'ciento veintitrés'
 - `es` (Spanish)
 - `fr` (French)
 - `it` (Italian)
+- `no` (Norwegian)
 - `pt` (Portuguese)
 - `ru` (Russian)
 - `tr` (Turkish)
