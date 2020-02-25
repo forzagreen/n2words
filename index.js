@@ -119,7 +119,6 @@ function Num2Word_Base() {
   }
 }
 
-
 function Num2Word_EN() {
   Num2Word_Base.call(this);
 
