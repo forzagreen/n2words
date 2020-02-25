@@ -2,7 +2,7 @@
 exports = module.exports = n2words;
 
 
-var supportedLanguages = ['en', 'fr', 'es', 'de', 'pt', 'it', 'tr']
+var supportedLanguages = ['en', 'fr', 'es', 'de', 'pt', 'it', 'tr', 'ru']
 
 /**
  * Converts numbers to their written form.
@@ -34,6 +34,8 @@ function n2words(n, options) {
     num = new Num2Word_IT();
   } else if (lang === 'TR') {
     num = new Num2Word_TR();
+  } else if (lang === 'RU') {
+    num = new Num2Word_RU();
   }
   return num.toCardinal(n);
 }
@@ -415,7 +417,6 @@ function Num2Word_IT() {
     return prefix + infix + postfix
   }
 
-
   this.toCardinal = (number) => {
     var words = ""
 
@@ -436,8 +437,6 @@ function Num2Word_IT() {
 }
 
 function Num2Word_TR() {
-
-
   this.precision = 2
   this.splitnum = (value) => {
     var float_digits = JSON.stringify(value * 10 ** this.precision)
@@ -716,4 +715,91 @@ function Num2Word_TR() {
     return wrd
   }
   
+}
+
+function Num2Word_RU() {
+  // Num2Word_Base.call(this);
+  this.feminine = false
+  const ZERO = "ноль"
+  const ONES = {1: "один", 2: "два", 3: "три", 4: "четыре", 5: "пять", 6: "шесть", 7: "семь", 8: "восемь", 9: "девять"}
+  const ONES_FEMININE = {1: "одна", 2: "две", 3: "три", 4: "четыре", 5: "пять", 6: "шесть", 7: "семь", 8: "восемь", 9: "девять"}
+  const TENS = {1: "одиннадцать", 2: "двенадцать", 3: "тринадцать", 4: "четырнадцать", 5: "пятнадцать", 6: "шестнадцать", 7: "семнадцать", 8: "восемнадцать", 9: "девятнадцать"}
+  const TWENTIES = {2: "двадцать", 3: "тридцать", 4: "сорок", 5: "пятьдесят", 6: "шестьдесят", 7: "семьдесят", 8: "восемьдесят", 9: "девяносто"}
+  const HUNDREDS = {1: "сто", 2: "двести", 3: "триста", 4: "четыреста", 5: "пятьсот", 6: "шестьсот", 7: "семьсот", 8: "восемьсот", 9: "девятьсот"}
+  const THOUSANDS = {
+    1: ['тысяча', 'тысячи', 'тысяч'], // 10^ 3
+    2: ['миллион', 'миллиона', 'миллионов'], // 10^ 6
+    3: ['миллиард', 'миллиарда', 'миллиардов'], // 10^ 9
+    4: ['триллион', 'триллиона', 'триллионов'], // 10^ 12
+    5: ['квадриллион', 'квадриллиона', 'квадриллионов'], // 10^ 15
+    6: ['квинтиллион', 'квинтиллиона', 'квинтиллионов'], // 10^ 18
+    7: ['секстиллион', 'секстиллиона', 'секстиллионов'], // 10^ 21
+    8: ['септиллион', 'септиллиона', 'септиллионов'], // 10^ 24
+    9: ['октиллион', 'октиллиона', 'октиллионов'], // 10^ 27
+    10: ['нониллион', 'нониллиона', 'нониллионов'] // 10^ 30
+  }
+
+  this.splitbyx = (n, x, format_int = true) => {
+    var results = []
+    var l = n.length
+    var result;
+    if (l > x) {
+      var start = l % x
+      if (start > 0) {
+        result = n.slice(0, start)
+        if (format_int) {results.push(parseInt(result));} else {results.push(result);}
+      }
+      for (let i = start; i < l; i += x) {
+        result = n.slice(i, i+x)
+        if (format_int) {results.push(parseInt(result));} else {results.push(result);}
+      }
+    } else {
+      if (format_int) {results.push(parseInt(n));} else {results.push(n);}
+    }
+    return results
+  }
+
+  this.get_digits = (n) => {
+    var a = Array.from(JSON.stringify(n).padStart(3, '0').slice(-3)).reverse()
+    return a.map(e => parseInt(e))
+  }
+
+  this.pluralize = (n, forms) => {
+    var forms = []
+    var form = 2
+    if ((n % 100 < 10) || (n % 100 > 20)) {
+      if (n % 100 == 1) { form = 0; }
+      else if (5 > n % 10 > 1) { form = 1; }
+    }
+    return forms[form]
+  }
+
+  this.toCardinal = (number) => {
+    if (parseInt(number) == 0) {
+      return ZERO
+    }
+    var words = []
+    var chunks = this.splitbyx(JSON.stringify(number), 3)
+    console.log(chunks)
+    var i = chunks.length
+    for (let j = 0; j < chunks.length; j++) {
+      const x = chunks[j];
+      i -= 1
+      if (x == 0) { continue; }
+      var [n1, n2, n3] = this.get_digits(x)
+      console.log(n1, n2, n3)
+      if (n3 > 0) { words.push(HUNDREDS[n3]); }
+      if (n2 > 1) { words.push(TWENTIES[n2]); }
+      if (n2 == 1) { words.push(TENS[n1]); }
+      else if (n1 > 0) {
+        var ones = (i == 1 || (this.feminine && i == 0)) ? ONES_FEMININE : ONES
+        words.push(ones[n1])
+      }
+      if (i > 0) {
+        words.push(this.pluralize(x, THOUSANDS[i]))
+      }
+    }
+    console.log(words)
+    return words.join(' ')
+  }
 }
