@@ -20,7 +20,7 @@ function n2words(n, options) {
   if (options) {     
     if(options.lang) {    // lang is given in options
       if (supportedLanguages.indexOf(options.lang) != -1) lang = options.lang.toUpperCase()
-      else throw Error(`ERROR: Unsupported language. Supported languages are: ${supportedLanguages.join(", ")}`)
+      else throw Error(`ERROR: Unsupported language. Supported languages are: ${supportedLanguages.sort().join(", ")}`)
     }
   }
 
