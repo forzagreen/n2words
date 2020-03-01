@@ -50,6 +50,7 @@ n2words is available on [jsDelivr](https://www.jsdelivr.com/package/npm/n2words)
 - `pt` (Portuguese)
 - `ru` (Russian)
 - `tr` (Turkish)
+- `uk` (Ukrainian)
 
 ## License
 
