@@ -4,13 +4,9 @@
 [![Coverage Status](https://coveralls.io/repos/github/forzagreen/n2words/badge.svg?branch=master)](https://coveralls.io/github/forzagreen/n2words?branch=master)
 [![npm](https://img.shields.io/npm/v/n2words.svg)](https://www.npmjs.com/package/n2words)
 
-Convert numbers to words, in multiple languages
+n2words onverts numbers to words. It supports multiple languages.
 
-## Install
-
-```
-npm install --save n2words
-```
+n2words is a lightweight, easy to use package, with no dependencies. It works both in Node.js and in browsers.
 
 ## Usage
 
@@ -25,7 +21,22 @@ n2words(123, {lang: 'es'})   // 'ciento veintitrés'
 
 ```
 
-### Supported Languages:
+## Install
+
+### Node.js
+
+```sh
+npm install n2words
+```
+
+### Browser:
+
+```html
+<script src="n2words.min.js"></script>
+```
+n2words is available on [jsDelivr](https://www.jsdelivr.com/package/npm/n2words).
+
+## Supported Languages:
 
 - `en` (English, default)
 - `cz` (Czech)
@@ -38,3 +49,7 @@ n2words(123, {lang: 'es'})   // 'ciento veintitrés'
 - `pt` (Portuguese)
 - `ru` (Russian)
 - `tr` (Turkish)
+
+## License
+
+MIT
