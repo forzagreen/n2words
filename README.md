@@ -51,5 +51,4 @@ n2words is available on [jsDelivr](https://www.jsdelivr.com/package/npm/n2words)
 - `tr` (Turkish)
 
 ## License
-
 MIT
