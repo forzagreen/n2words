@@ -2,6 +2,7 @@
 .travis.yml
 test/
 .npmrc
+Gruntfile.js
 
 ###### Copied from .gitignore ######
 

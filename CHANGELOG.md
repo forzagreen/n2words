@@ -6,7 +6,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
-- Add browser compatibility using Babel and Grunt.
+- N/A
+
+### Changed
+- N/A
+
+### Fixed
+- N/A
+
+## [1.5.0] - 2020-03-01
+### Added
+- Add browser compatibility, using Babel and Grunt.
+- New language: `lv` Latvian [#14](https://github.com/forzagreen/n2words/pull/14)
+- New language: `lt` Lithuanian [#13](https://github.com/forzagreen/n2words/pull/13)
+- New language: `uk` Ukrainian [#12](https://github.com/forzagreen/n2words/pull/12)
+- New language: `pl` Polish [#11](https://github.com/forzagreen/n2words/pull/11)
 
 ### Changed
 - N/A
