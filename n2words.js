@@ -1080,7 +1080,6 @@ function Num2Word_LT() {
 
 function Num2Word_LV() {
   Num2Word_RU.call(this)
-  this.feminine = false
   this.ZERO = "nulle"
   this.ONES = { 1: 'viens', 2: 'divi', 3: 'trīs', 4: 'četri', 5: 'pieci', 6: 'seši', 7: 'septiņi', 8: 'astoņi', 9: 'deviņi' }
   this.TENS = { 0: 'desmit', 1: 'vienpadsmit', 2: 'divpadsmit', 3: 'trīspadsmit', 4: 'četrpadsmit', 5: 'piecpadsmit', 6: 'sešpadsmit', 7: 'septiņpadsmit', 8: 'astoņpadsmit', 9: 'deviņpadsmit' }
