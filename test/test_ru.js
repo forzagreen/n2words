@@ -1,5 +1,5 @@
 const assert = require('assert');
-const n2words = require('../index.js');
+const n2words = require('../n2words.js');
 
 const testCasesRussian = [
   [0, 'ноль'],

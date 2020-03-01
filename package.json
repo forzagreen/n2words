@@ -2,10 +2,11 @@
   "name": "n2words",
   "version": "1.4.1",
   "description": "Convert numbers to words, in multiple languages",
-  "main": "index.js",
+  "main": "n2words.js",
   "scripts": {
     "test": "nyc --reporter=html --reporter=text mocha",
-    "coverage": "nyc report --reporter=text-lcov | coveralls"
+    "coverage": "nyc report --reporter=text-lcov | coveralls",
+    "grunt": "grunt"
   },
   "repository": {
     "type": "git",
@@ -39,7 +40,10 @@
   "homepage": "https://github.com/forzagreen/n2words#readme",
   "dependencies": {},
   "devDependencies": {
+    "babel-preset-minify": "^0.5.1",
     "coveralls": "^3.0.9",
+    "grunt": "^1.0.4",
+    "grunt-babel": "^8.0.0",
     "mocha": "^7.0.1",
     "nyc": "^15.0.0"
   }

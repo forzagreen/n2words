@@ -1,5 +1,5 @@
 const assert = require('assert');
-const n2words = require('../index.js');
+const n2words = require('../n2words.js');
 
 describe('n2words', function () {
   it('should set English as default language', function () {
