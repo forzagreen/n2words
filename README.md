@@ -39,6 +39,7 @@ n2words is available on [jsDelivr](https://www.jsdelivr.com/package/npm/n2words)
 ## Supported Languages:
 
 - `en` (English, default)
+- `ar` (Arabic)
 - `cz` (Czech)
 - `dk` (Danish)
 - `de` (German)
