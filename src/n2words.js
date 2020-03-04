@@ -1,21 +1,21 @@
-import Num2Word_AR from './classes/Num2Word_AR';
-import Num2Word_CZ from './classes/Num2Word_CZ';
-import Num2Word_DE from './classes/Num2Word_DE';
-import Num2Word_DK from './classes/Num2Word_DK';
-import Num2Word_EN from './classes/Num2Word_EN';
-import Num2Word_ES from './classes/Num2Word_ES';
-import Num2Word_FR from './classes/Num2Word_FR';
-import Num2Word_HE from './classes/Num2Word_HE';
-import Num2Word_IT from './classes/Num2Word_IT';
-import Num2Word_KO from './classes/Num2Word_KO';
-import Num2Word_LT from './classes/Num2Word_LT';
-import Num2Word_LV from './classes/Num2Word_LV';
-import Num2Word_NO from './classes/Num2Word_NO';
-import Num2Word_PL from './classes/Num2Word_PL';
-import Num2Word_PT from './classes/Num2Word_PT';
-import Num2Word_RU from './classes/Num2Word_RU';
-import Num2Word_TR from './classes/Num2Word_TR';
-import Num2Word_UK from './classes/Num2Word_UK';
+import Num2Word_AR from './i18n/AR';
+import Num2Word_CZ from './i18n/CZ';
+import Num2Word_DE from './i18n/DE';
+import Num2Word_DK from './i18n/DK';
+import Num2Word_EN from './i18n/EN';
+import Num2Word_ES from './i18n/ES';
+import Num2Word_FR from './i18n/FR';
+import Num2Word_HE from './i18n/HE';
+import Num2Word_IT from './i18n/IT';
+import Num2Word_KO from './i18n/KO';
+import Num2Word_LT from './i18n/LT';
+import Num2Word_LV from './i18n/LV';
+import Num2Word_NO from './i18n/NO';
+import Num2Word_PL from './i18n/PL';
+import Num2Word_PT from './i18n/PT';
+import Num2Word_RU from './i18n/RU';
+import Num2Word_TR from './i18n/TR';
+import Num2Word_UK from './i18n/UK';
 
 /**
  * Converts numbers to their written form.
@@ -24,8 +24,7 @@ import Num2Word_UK from './classes/Num2Word_UK';
  * @param {number} n - The number to convert
  * @param {Object} [options={lang: "en"}] - Language
  */
-
-export default function n2words(n, options) {
+export default function(n, options) {
   var lang = "EN";        // default language
   var supportedLanguages = ['en', 'fr', 'es', 'de', 'pt', 'it', 'tr', 'ru', 'cz', 'no', 'dk', 'pl', 'uk', 'lt', 'lv', 'ar', 'he', 'ko'];
   if (options) {     
@@ -73,5 +72,6 @@ export default function n2words(n, options) {
   } else if (lang === 'KO') {
     num = new Num2Word_KO();
   }
+
   return num.toCardinal(n);
 }

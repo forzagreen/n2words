@@ -1,4 +1,4 @@
-export default function Num2Word_TR() {
+export default function() {
     this.precision = 2
     this.splitnum = (value) => {
       var float_digits = JSON.stringify(value * 10 ** this.precision)

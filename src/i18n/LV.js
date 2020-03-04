@@ -1,6 +1,6 @@
-import Num2Word_RU from './Num2Word_RU';
+import Num2Word_RU from './RU';
 
-export default function Num2Word_LV() {
+export default function() {
     Num2Word_RU.call(this)
     this.ZERO = "nulle"
     this.ONES = { 1: 'viens', 2: 'divi', 3: 'trīs', 4: 'četri', 5: 'pieci', 6: 'seši', 7: 'septiņi', 8: 'astoņi', 9: 'deviņi' }

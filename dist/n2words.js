@@ -91,7 +91,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 0);
+/******/ 	return __webpack_require__(__webpack_require__.s = 3);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -99,14 +99,219 @@ return /******/ (function(modules) { // webpackBootstrap
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+/* harmony default export */ __webpack_exports__["a"] = (function () {
+  var _this = this;
+
+  this.getValueFromCards = function (elem) {
+    //100
+    for (var i = 0; i < _this.cards.length; i++) {
+      if (_this.cards[i].hasOwnProperty(elem)) {
+        return _this.cards[i][elem];
+      }
+    }
+  };
+
+  this.splitnum = function (value) {
+    for (var i = 0; i < _this.cards.length; i++) {
+      var elem = parseInt(Object.keys(_this.cards[i])[0]); //100
+
+      if (elem > value) {
+        continue;
+      }
+
+      var out = [];
+      var div, mod;
+
+      if (value == 0) {
+        div = 1;
+        mod = 0;
+      } else {
+        div = Math.floor(value / elem);
+        mod = value % elem;
+      }
+
+      if (div == 1) {
+        out.push(_defineProperty({}, _this.getValueFromCards(1), 1)); //'one'
+      } else {
+        if (div == value) {
+          return [(div * _this.getValueFromCards(elem), div * elem)];
+        }
+
+        out.push(_this.splitnum(div));
+      }
+
+      out.push(_defineProperty({}, _this.getValueFromCards(elem), elem));
+
+      if (mod) {
+        out.push(_this.splitnum(mod));
+      }
+
+      return out;
+    }
+  };
+
+  this.clean = function (val) {
+    var out = val;
+
+    while (val.length != 1) {
+      out = [];
+      var left = val[0],
+          right = val[1];
+
+      if (!Array.isArray(left) && !Array.isArray(right)) {
+        // both json objects, not arrays
+        out.push(_this.merge(left, right));
+
+        if (val.slice(2).length > 0) {
+          //all but first 2 elems
+          out.push(val.slice(2));
+        }
+      } else {
+        for (var i = 0; i < val.length; i++) {
+          var elem = val[i];
+
+          if (Array.isArray(elem)) {
+            if (elem.length == 1) out.push(elem[0]);else out.push(_this.clean(elem));
+          } else {
+            out.push(elem);
+          }
+        }
+      }
+
+      val = out;
+    }
+
+    return out[0];
+  };
+
+  this.postClean = function (out0) {
+    return out0;
+  };
+
+  this.toCardinal = function (value) {
+    var val = _this.splitnum(value);
+
+    var preWords = Object.keys(_this.clean(val))[0];
+
+    var words = _this.postClean(preWords);
+
+    return words;
+  };
+});
+
+/***/ }),
+/* 1 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var _classes_Num2Word__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(0);
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+
+/* harmony default export */ __webpack_exports__["a"] = (function () {
+  _classes_Num2Word__WEBPACK_IMPORTED_MODULE_0__[/* default */ "a"].call(this);
+  this.cards = [{
+    "1000000000000000000000000000": 'octillion'
+  }, {
+    "1000000000000000000000000": 'septillion'
+  }, {
+    "1000000000000000000000": 'sextillion'
+  }, {
+    "1000000000000000000": 'quintillion'
+  }, {
+    "1000000000000000": 'quadrillion'
+  }, {
+    "1000000000000": 'trillion'
+  }, {
+    "1000000000": 'billion'
+  }, {
+    "1000000": 'million'
+  }, {
+    "1000": 'thousand'
+  }, {
+    "100": 'hundred'
+  }, {
+    "90": 'ninety'
+  }, {
+    "80": 'eighty'
+  }, {
+    "70": 'seventy'
+  }, {
+    "60": 'sixty'
+  }, {
+    "50": 'fifty'
+  }, {
+    "40": 'forty'
+  }, {
+    "30": 'thirty'
+  }, {
+    "20": 'twenty'
+  }, {
+    "19": 'nineteen'
+  }, {
+    "18": 'eighteen'
+  }, {
+    "17": 'seventeen'
+  }, {
+    "16": 'sixteen'
+  }, {
+    "15": 'fifteen'
+  }, {
+    "14": 'fourteen'
+  }, {
+    "13": 'thirteen'
+  }, {
+    "12": 'twelve'
+  }, {
+    "11": 'eleven'
+  }, {
+    "10": 'ten'
+  }, {
+    "9": 'nine'
+  }, {
+    "8": 'eight'
+  }, {
+    "7": 'seven'
+  }, {
+    "6": 'six'
+  }, {
+    "5": 'five'
+  }, {
+    "4": 'four'
+  }, {
+    "3": 'three'
+  }, {
+    "2": 'two'
+  }, {
+    "1": 'one'
+  }, {
+    "0": 'zero'
+  }];
+
+  this.merge = function (lpair, rpair) {
+    //{'one':1}, {'hundred':100}
+    var ltext = Object.keys(lpair)[0],
+        lnum = parseInt(Object.values(lpair)[0]);
+    var rtext = Object.keys(rpair)[0],
+        rnum = parseInt(Object.values(rpair)[0]);
+    if (lnum == 1 && rnum < 100) return _defineProperty({}, rtext, rnum);else if (100 > lnum && lnum > rnum) return _defineProperty({}, "".concat(ltext, "-").concat(rtext), lnum + rnum);else if (lnum >= 100 && 100 > rnum) return _defineProperty({}, "".concat(ltext, " and ").concat(rtext), lnum + rnum);else if (rnum > lnum) return _defineProperty({}, "".concat(ltext, " ").concat(rtext), lnum * rnum);
+    return _defineProperty({}, "".concat(ltext, " ").concat(rtext), lnum + rnum);
+  };
+});
+
+/***/ }),
+/* 2 */,
+/* 3 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
 // ESM COMPAT FLAG
 __webpack_require__.r(__webpack_exports__);
 
-// EXPORTS
-__webpack_require__.d(__webpack_exports__, "default", function() { return /* binding */ n2words; });
-
-// CONCATENATED MODULE: ./src/classes/Num2Word_AR.js
-function Num2Word_AR() {
+// CONCATENATED MODULE: ./src/i18n/AR.js
+/* harmony default export */ var AR = (function () {
   var _this = this;
 
   this.integer_value = 0;
@@ -228,8 +433,8 @@ function Num2Word_AR() {
 
     return ret_val.trim();
   };
-}
-// CONCATENATED MODULE: ./src/classes/Num2Word_RU.js
+});
+// CONCATENATED MODULE: ./src/i18n/RU.js
 function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
 
 function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance"); }
@@ -238,7 +443,7 @@ function _iterableToArrayLimit(arr, i) { if (!(Symbol.iterator in Object(arr) ||
 
 function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
-function Num2Word_RU() {
+/* harmony default export */ var RU = (function () {
   var _this = this;
 
   // Num2Word_Base.call(this);
@@ -430,21 +635,21 @@ function Num2Word_RU() {
 
     return words.join(' ');
   };
-}
-// CONCATENATED MODULE: ./src/classes/Num2Word_CZ.js
-function Num2Word_CZ_slicedToArray(arr, i) { return Num2Word_CZ_arrayWithHoles(arr) || Num2Word_CZ_iterableToArrayLimit(arr, i) || Num2Word_CZ_nonIterableRest(); }
+});
+// CONCATENATED MODULE: ./src/i18n/CZ.js
+function CZ_slicedToArray(arr, i) { return CZ_arrayWithHoles(arr) || CZ_iterableToArrayLimit(arr, i) || CZ_nonIterableRest(); }
 
-function Num2Word_CZ_nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance"); }
+function CZ_nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance"); }
 
-function Num2Word_CZ_iterableToArrayLimit(arr, i) { if (!(Symbol.iterator in Object(arr) || Object.prototype.toString.call(arr) === "[object Arguments]")) { return; } var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
+function CZ_iterableToArrayLimit(arr, i) { if (!(Symbol.iterator in Object(arr) || Object.prototype.toString.call(arr) === "[object Arguments]")) { return; } var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
 
-function Num2Word_CZ_arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
+function CZ_arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
 
-function Num2Word_CZ() {
+/* harmony default export */ var CZ = (function () {
   var _this = this;
 
-  Num2Word_RU.call(this);
+  RU.call(this);
   this.ZERO = "nula";
   this.ONES = {
     1: "jedna",
@@ -546,7 +751,7 @@ function Num2Word_CZ() {
       }
 
       var _this$get_digits = _this.get_digits(x),
-          _this$get_digits2 = Num2Word_CZ_slicedToArray(_this$get_digits, 3),
+          _this$get_digits2 = CZ_slicedToArray(_this$get_digits, 3),
           n1 = _this$get_digits2[0],
           n2 = _this$get_digits2[1],
           n3 = _this$get_digits2[2];
@@ -572,115 +777,16 @@ function Num2Word_CZ() {
 
     return words.join(' ');
   };
-}
-// CONCATENATED MODULE: ./src/classes/Num2Word_Base.js
+});
+// EXTERNAL MODULE: ./src/classes/Num2Word.js
+var Num2Word = __webpack_require__(0);
+
+// CONCATENATED MODULE: ./src/i18n/DE.js
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
-function Num2Word_Base() {
-  var _this = this;
 
-  this.getValueFromCards = function (elem) {
-    //100
-    for (var i = 0; i < _this.cards.length; i++) {
-      if (_this.cards[i].hasOwnProperty(elem)) {
-        return _this.cards[i][elem];
-      }
-    }
-  };
-
-  this.splitnum = function (value) {
-    for (var i = 0; i < _this.cards.length; i++) {
-      var elem = parseInt(Object.keys(_this.cards[i])[0]); //100
-
-      if (elem > value) {
-        continue;
-      }
-
-      var out = [];
-      var div, mod;
-
-      if (value == 0) {
-        div = 1;
-        mod = 0;
-      } else {
-        div = Math.floor(value / elem);
-        mod = value % elem;
-      }
-
-      if (div == 1) {
-        out.push(_defineProperty({}, _this.getValueFromCards(1), 1)); //'one'
-      } else {
-        if (div == value) {
-          return [(div * _this.getValueFromCards(elem), div * elem)];
-        }
-
-        out.push(_this.splitnum(div));
-      }
-
-      out.push(_defineProperty({}, _this.getValueFromCards(elem), elem));
-
-      if (mod) {
-        out.push(_this.splitnum(mod));
-      }
-
-      return out;
-    }
-  };
-
-  this.clean = function (val) {
-    var out = val;
-
-    while (val.length != 1) {
-      out = [];
-      var left = val[0],
-          right = val[1];
-
-      if (!Array.isArray(left) && !Array.isArray(right)) {
-        // both json objects, not arrays
-        out.push(_this.merge(left, right));
-
-        if (val.slice(2).length > 0) {
-          //all but first 2 elems
-          out.push(val.slice(2));
-        }
-      } else {
-        for (var i = 0; i < val.length; i++) {
-          var elem = val[i];
-
-          if (Array.isArray(elem)) {
-            if (elem.length == 1) out.push(elem[0]);else out.push(_this.clean(elem));
-          } else {
-            out.push(elem);
-          }
-        }
-      }
-
-      val = out;
-    }
-
-    return out[0];
-  };
-
-  this.postClean = function (out0) {
-    return out0;
-  };
-
-  this.toCardinal = function (value) {
-    var val = _this.splitnum(value);
-
-    var preWords = Object.keys(_this.clean(val))[0];
-
-    var words = _this.postClean(preWords);
-
-    return words;
-  };
-}
-// CONCATENATED MODULE: ./src/classes/Num2Word_DE.js
-function Num2Word_DE_defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
-
-function Num2Word_DE() {
-  Num2Word_Base.call(this);
+/* harmony default export */ var DE = (function () {
+  Num2Word["a" /* default */].call(this);
   this.cards = [{
     "1000000000000000000000000000": 'Quadrilliarde'
   }, {
@@ -767,9 +873,9 @@ function Num2Word_DE() {
 
     if (cnum == 1) {
       if (nnum == 100 || nnum == 1000) {
-        return Num2Word_DE_defineProperty({}, "ein".concat(ntext), nnum);
+        return _defineProperty({}, "ein".concat(ntext), nnum);
       } else if (nnum < 1000000) {
-        return Num2Word_DE_defineProperty({}, ntext, nnum);
+        return _defineProperty({}, ntext, nnum);
       }
 
       ctext = "eine";
@@ -807,17 +913,17 @@ function Num2Word_DE() {
       val = cnum + nnum;
     }
 
-    return Num2Word_DE_defineProperty({}, "".concat(ctext).concat(ntext), val);
+    return _defineProperty({}, "".concat(ctext).concat(ntext), val);
   };
-}
-// CONCATENATED MODULE: ./src/classes/Num2Word_DK.js
-function Num2Word_DK_defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+});
+// CONCATENATED MODULE: ./src/i18n/DK.js
+function DK_defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 
-function Num2Word_DK() {
+/* harmony default export */ var DK = (function () {
   var _this = this;
 
-  Num2Word_Base.call(this);
+  Num2Word["a" /* default */].call(this);
   this.ordflag = false;
   this.cards = [{
     "1000000000000000000000000000": 'quadrillarder'
@@ -905,7 +1011,7 @@ function Num2Word_DK() {
     var val = 1;
 
     if (nnum == 100 || nnum == 1000) {
-      next = Num2Word_DK_defineProperty({}, "et".concat(ntext), nnum);
+      next = DK_defineProperty({}, "et".concat(ntext), nnum);
     }
 
     if (cnum == 1) {
@@ -945,111 +1051,20 @@ function Num2Word_DK() {
     }
 
     var word = ctext + ntext;
-    return Num2Word_DK_defineProperty({}, "".concat(word), val);
+    return DK_defineProperty({}, "".concat(word), val);
   };
-}
-// CONCATENATED MODULE: ./src/classes/Num2Word_EN.js
-function Num2Word_EN_defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+});
+// EXTERNAL MODULE: ./src/i18n/EN.js
+var EN = __webpack_require__(1);
+
+// CONCATENATED MODULE: ./src/i18n/ES.js
+function ES_defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 
-function Num2Word_EN() {
-  Num2Word_Base.call(this);
-  this.cards = [{
-    "1000000000000000000000000000": 'octillion'
-  }, {
-    "1000000000000000000000000": 'septillion'
-  }, {
-    "1000000000000000000000": 'sextillion'
-  }, {
-    "1000000000000000000": 'quintillion'
-  }, {
-    "1000000000000000": 'quadrillion'
-  }, {
-    "1000000000000": 'trillion'
-  }, {
-    "1000000000": 'billion'
-  }, {
-    "1000000": 'million'
-  }, {
-    "1000": 'thousand'
-  }, {
-    "100": 'hundred'
-  }, {
-    "90": 'ninety'
-  }, {
-    "80": 'eighty'
-  }, {
-    "70": 'seventy'
-  }, {
-    "60": 'sixty'
-  }, {
-    "50": 'fifty'
-  }, {
-    "40": 'forty'
-  }, {
-    "30": 'thirty'
-  }, {
-    "20": 'twenty'
-  }, {
-    "19": 'nineteen'
-  }, {
-    "18": 'eighteen'
-  }, {
-    "17": 'seventeen'
-  }, {
-    "16": 'sixteen'
-  }, {
-    "15": 'fifteen'
-  }, {
-    "14": 'fourteen'
-  }, {
-    "13": 'thirteen'
-  }, {
-    "12": 'twelve'
-  }, {
-    "11": 'eleven'
-  }, {
-    "10": 'ten'
-  }, {
-    "9": 'nine'
-  }, {
-    "8": 'eight'
-  }, {
-    "7": 'seven'
-  }, {
-    "6": 'six'
-  }, {
-    "5": 'five'
-  }, {
-    "4": 'four'
-  }, {
-    "3": 'three'
-  }, {
-    "2": 'two'
-  }, {
-    "1": 'one'
-  }, {
-    "0": 'zero'
-  }];
-
-  this.merge = function (lpair, rpair) {
-    //{'one':1}, {'hundred':100}
-    var ltext = Object.keys(lpair)[0],
-        lnum = parseInt(Object.values(lpair)[0]);
-    var rtext = Object.keys(rpair)[0],
-        rnum = parseInt(Object.values(rpair)[0]);
-    if (lnum == 1 && rnum < 100) return Num2Word_EN_defineProperty({}, rtext, rnum);else if (100 > lnum && lnum > rnum) return Num2Word_EN_defineProperty({}, "".concat(ltext, "-").concat(rtext), lnum + rnum);else if (lnum >= 100 && 100 > rnum) return Num2Word_EN_defineProperty({}, "".concat(ltext, " and ").concat(rtext), lnum + rnum);else if (rnum > lnum) return Num2Word_EN_defineProperty({}, "".concat(ltext, " ").concat(rtext), lnum * rnum);
-    return Num2Word_EN_defineProperty({}, "".concat(ltext, " ").concat(rtext), lnum + rnum);
-  };
-}
-// CONCATENATED MODULE: ./src/classes/Num2Word_ES.js
-function Num2Word_ES_defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
-
-function Num2Word_ES() {
+/* harmony default export */ var ES = (function () {
   var _this = this;
 
-  Num2Word_Base.call(this);
+  Num2Word["a" /* default */].call(this);
   this.gender_stem = "o";
   this.cards = [{
     "1000000000000000000000000": 'cuatrillón'
@@ -1146,7 +1161,7 @@ function Num2Word_ES() {
         nnum = parseInt(Object.values(next)[0]);
 
     if (cnum == 1) {
-      if (nnum < 1000000) return Num2Word_ES_defineProperty({}, ntext, nnum);
+      if (nnum < 1000000) return ES_defineProperty({}, ntext, nnum);
       ctext = "un";
     } else if (cnum == 100 && nnum % 1000 != 0) {
       ctext += "t" + _this.gender_stem;
@@ -1154,10 +1169,10 @@ function Num2Word_ES() {
 
     if (nnum < cnum) {
       if (cnum < 100) {
-        return Num2Word_ES_defineProperty({}, "".concat(ctext, " y ").concat(ntext), cnum + nnum);
+        return ES_defineProperty({}, "".concat(ctext, " y ").concat(ntext), cnum + nnum);
       }
 
-      return Num2Word_ES_defineProperty({}, "".concat(ctext, " ").concat(ntext), cnum + nnum);
+      return ES_defineProperty({}, "".concat(ctext, " ").concat(ntext), cnum + nnum);
     } else if (nnum % 1000000 == 0 && cnum > 1) {
       ntext = ntext.slice(0, -3) + "lones";
     }
@@ -1177,15 +1192,15 @@ function Num2Word_ES() {
       ntext = " " + ntext;
     }
 
-    return Num2Word_ES_defineProperty({}, "".concat(ctext).concat(ntext), cnum * nnum);
+    return ES_defineProperty({}, "".concat(ctext).concat(ntext), cnum * nnum);
   };
-}
-// CONCATENATED MODULE: ./src/classes/Num2Word_FR.js
-function Num2Word_FR_defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+});
+// CONCATENATED MODULE: ./src/i18n/FR.js
+function FR_defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 
-function Num2Word_FR() {
-  Num2Word_Base.call(this);
+/* harmony default export */ var FR = (function () {
+  Num2Word["a" /* default */].call(this);
   this.cards = [{
     "1000000000000000000000000000": 'quadrilliard'
   }, {
@@ -1269,7 +1284,7 @@ function Num2Word_FR() {
 
     if (cnum == 1) {
       if (nnum < 1000000) {
-        return Num2Word_FR_defineProperty({}, ntext, nnum);
+        return FR_defineProperty({}, ntext, nnum);
       }
     } else {
       if (((cnum - 80) % 100 == 0 || cnum % 100 == 0 && cnum < 1000) && nnum < 1000000 && ctext[ctext.length - 1] == "s") {
@@ -1282,28 +1297,28 @@ function Num2Word_FR() {
     }
 
     if (nnum < cnum && cnum < 100) {
-      if (nnum % 10 == 1 && cnum != 80) return Num2Word_FR_defineProperty({}, "".concat(ctext, " et ").concat(ntext), cnum + nnum);
-      return Num2Word_FR_defineProperty({}, "".concat(ctext, "-").concat(ntext), cnum + nnum);
+      if (nnum % 10 == 1 && cnum != 80) return FR_defineProperty({}, "".concat(ctext, " et ").concat(ntext), cnum + nnum);
+      return FR_defineProperty({}, "".concat(ctext, "-").concat(ntext), cnum + nnum);
     }
 
-    if (nnum > cnum) return Num2Word_FR_defineProperty({}, "".concat(ctext, " ").concat(ntext), cnum * nnum);
-    return Num2Word_FR_defineProperty({}, "".concat(ctext, " ").concat(ntext), cnum + nnum);
+    if (nnum > cnum) return FR_defineProperty({}, "".concat(ctext, " ").concat(ntext), cnum * nnum);
+    return FR_defineProperty({}, "".concat(ctext, " ").concat(ntext), cnum + nnum);
   };
-}
-// CONCATENATED MODULE: ./src/classes/Num2Word_HE.js
-function Num2Word_HE_slicedToArray(arr, i) { return Num2Word_HE_arrayWithHoles(arr) || Num2Word_HE_iterableToArrayLimit(arr, i) || Num2Word_HE_nonIterableRest(); }
+});
+// CONCATENATED MODULE: ./src/i18n/HE.js
+function HE_slicedToArray(arr, i) { return HE_arrayWithHoles(arr) || HE_iterableToArrayLimit(arr, i) || HE_nonIterableRest(); }
 
-function Num2Word_HE_nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance"); }
+function HE_nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance"); }
 
-function Num2Word_HE_iterableToArrayLimit(arr, i) { if (!(Symbol.iterator in Object(arr) || Object.prototype.toString.call(arr) === "[object Arguments]")) { return; } var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
+function HE_iterableToArrayLimit(arr, i) { if (!(Symbol.iterator in Object(arr) || Object.prototype.toString.call(arr) === "[object Arguments]")) { return; } var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
 
-function Num2Word_HE_arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
+function HE_arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
 
-function Num2Word_HE() {
+/* harmony default export */ var HE = (function () {
   var _this = this;
 
-  Num2Word_RU.call(this);
+  RU.call(this);
   this.ZERO = "אפס";
   this.AND = 'ו';
   this.ONES = {
@@ -1376,7 +1391,7 @@ function Num2Word_HE() {
       }
 
       var _this$get_digits = _this.get_digits(x),
-          _this$get_digits2 = Num2Word_HE_slicedToArray(_this$get_digits, 3),
+          _this$get_digits2 = HE_slicedToArray(_this$get_digits, 3),
           n1 = _this$get_digits2[0],
           n2 = _this$get_digits2[1],
           n3 = _this$get_digits2[2];
@@ -1415,8 +1430,8 @@ function Num2Word_HE() {
 
     return words.join(' ');
   };
-}
-// CONCATENATED MODULE: ./src/classes/Num2Word_IT.js
+});
+// CONCATENATED MODULE: ./src/i18n/IT.js
 function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
 
 function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
@@ -1425,7 +1440,7 @@ function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.
 
 function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
 
-function Num2Word_IT() {
+/* harmony default export */ var IT = (function () {
   var _this = this;
 
   var ZERO = "zero";
@@ -1568,13 +1583,13 @@ function Num2Word_IT() {
 
     return _this.accentuate(words);
   };
-}
-// CONCATENATED MODULE: ./src/classes/Num2Word_KO.js
-function Num2Word_KO_defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+});
+// CONCATENATED MODULE: ./src/i18n/KO.js
+function KO_defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 
-function Num2Word_KO() {
-  Num2Word_Base.call(this);
+/* harmony default export */ var KO = (function () {
+  Num2Word["a" /* default */].call(this);
   this.cards = [{
     '10000000000000000000000000000': '양'
   }, {
@@ -1622,23 +1637,23 @@ function Num2Word_KO() {
         lnum = parseInt(Object.values(lpair)[0]);
     var rtext = Object.keys(rpair)[0],
         rnum = parseInt(Object.values(rpair)[0]);
-    if (lnum == 1 && rnum <= 10000) return Num2Word_KO_defineProperty({}, rtext, rnum);else if (10000 > lnum && lnum > rnum) return Num2Word_KO_defineProperty({}, "".concat(ltext).concat(rtext), lnum + rnum);else if (lnum >= 10000 && lnum > rnum) return Num2Word_KO_defineProperty({}, "".concat(ltext, " ").concat(rtext), lnum + rnum);else return Num2Word_KO_defineProperty({}, "".concat(ltext).concat(rtext), lnum * rnum);
+    if (lnum == 1 && rnum <= 10000) return KO_defineProperty({}, rtext, rnum);else if (10000 > lnum && lnum > rnum) return KO_defineProperty({}, "".concat(ltext).concat(rtext), lnum + rnum);else if (lnum >= 10000 && lnum > rnum) return KO_defineProperty({}, "".concat(ltext, " ").concat(rtext), lnum + rnum);else return KO_defineProperty({}, "".concat(ltext).concat(rtext), lnum * rnum);
   };
-}
-// CONCATENATED MODULE: ./src/classes/Num2Word_LT.js
-function Num2Word_LT_slicedToArray(arr, i) { return Num2Word_LT_arrayWithHoles(arr) || Num2Word_LT_iterableToArrayLimit(arr, i) || Num2Word_LT_nonIterableRest(); }
+});
+// CONCATENATED MODULE: ./src/i18n/LT.js
+function LT_slicedToArray(arr, i) { return LT_arrayWithHoles(arr) || LT_iterableToArrayLimit(arr, i) || LT_nonIterableRest(); }
 
-function Num2Word_LT_nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance"); }
+function LT_nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance"); }
 
-function Num2Word_LT_iterableToArrayLimit(arr, i) { if (!(Symbol.iterator in Object(arr) || Object.prototype.toString.call(arr) === "[object Arguments]")) { return; } var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
+function LT_iterableToArrayLimit(arr, i) { if (!(Symbol.iterator in Object(arr) || Object.prototype.toString.call(arr) === "[object Arguments]")) { return; } var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
 
-function Num2Word_LT_arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
+function LT_arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
 
-function Num2Word_LT() {
+/* harmony default export */ var LT = (function () {
   var _this = this;
 
-  Num2Word_RU.call(this);
+  RU.call(this);
   this.feminine = false;
   this.ZERO = "nulis";
   this.ONES = {
@@ -1703,7 +1718,7 @@ function Num2Word_LT() {
     var form = 1;
 
     var _this$get_digits = _this.get_digits(n),
-        _this$get_digits2 = Num2Word_LT_slicedToArray(_this$get_digits, 3),
+        _this$get_digits2 = LT_slicedToArray(_this$get_digits, 3),
         n1 = _this$get_digits2[0],
         n2 = _this$get_digits2[1],
         n3 = _this$get_digits2[2];
@@ -1737,7 +1752,7 @@ function Num2Word_LT() {
       }
 
       var _this$get_digits3 = _this.get_digits(x),
-          _this$get_digits4 = Num2Word_LT_slicedToArray(_this$get_digits3, 3),
+          _this$get_digits4 = LT_slicedToArray(_this$get_digits3, 3),
           n1 = _this$get_digits4[0],
           n2 = _this$get_digits4[1],
           n3 = _this$get_digits4[2];
@@ -1773,21 +1788,21 @@ function Num2Word_LT() {
 
     return words.join(' ');
   };
-}
-// CONCATENATED MODULE: ./src/classes/Num2Word_LV.js
-function Num2Word_LV_slicedToArray(arr, i) { return Num2Word_LV_arrayWithHoles(arr) || Num2Word_LV_iterableToArrayLimit(arr, i) || Num2Word_LV_nonIterableRest(); }
+});
+// CONCATENATED MODULE: ./src/i18n/LV.js
+function LV_slicedToArray(arr, i) { return LV_arrayWithHoles(arr) || LV_iterableToArrayLimit(arr, i) || LV_nonIterableRest(); }
 
-function Num2Word_LV_nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance"); }
+function LV_nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance"); }
 
-function Num2Word_LV_iterableToArrayLimit(arr, i) { if (!(Symbol.iterator in Object(arr) || Object.prototype.toString.call(arr) === "[object Arguments]")) { return; } var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
+function LV_iterableToArrayLimit(arr, i) { if (!(Symbol.iterator in Object(arr) || Object.prototype.toString.call(arr) === "[object Arguments]")) { return; } var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
 
-function Num2Word_LV_arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
+function LV_arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
 
-function Num2Word_LV() {
+/* harmony default export */ var LV = (function () {
   var _this = this;
 
-  Num2Word_RU.call(this);
+  RU.call(this);
   this.ZERO = "nulle";
   this.ONES = {
     1: 'viens',
@@ -1870,7 +1885,7 @@ function Num2Word_LV() {
       }
 
       var _this$get_digits = _this.get_digits(x),
-          _this$get_digits2 = Num2Word_LV_slicedToArray(_this$get_digits, 3),
+          _this$get_digits2 = LV_slicedToArray(_this$get_digits, 3),
           n1 = _this$get_digits2[0],
           n2 = _this$get_digits2[1],
           n3 = _this$get_digits2[2];
@@ -1903,13 +1918,13 @@ function Num2Word_LV() {
 
     return words.join(' ');
   };
-}
-// CONCATENATED MODULE: ./src/classes/Num2Word_NO.js
-function Num2Word_NO_defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+});
+// CONCATENATED MODULE: ./src/i18n/NO.js
+function NO_defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 
-function Num2Word_NO() {
-  Num2Word_Base.call(this);
+/* harmony default export */ var NO = (function () {
+  Num2Word["a" /* default */].call(this);
   this.cards = [{
     "1000000000000000000000000000000000": 'quintillard'
   }, {
@@ -1998,24 +2013,24 @@ function Num2Word_NO() {
         lnum = parseInt(Object.values(lpair)[0]);
     var rtext = Object.keys(rpair)[0],
         rnum = parseInt(Object.values(rpair)[0]);
-    if (lnum == 1 && rnum < 100) return Num2Word_NO_defineProperty({}, rtext, rnum);else if (100 > lnum && lnum > rnum) return Num2Word_NO_defineProperty({}, "".concat(ltext, "-").concat(rtext), lnum + rnum);else if (lnum >= 100 && 100 > rnum) return Num2Word_NO_defineProperty({}, "".concat(ltext, " og ").concat(rtext), lnum + rnum);else if (rnum > lnum) return Num2Word_NO_defineProperty({}, "".concat(ltext, " ").concat(rtext), lnum * rnum);
-    return Num2Word_NO_defineProperty({}, "".concat(ltext, ", ").concat(rtext), lnum + rnum);
+    if (lnum == 1 && rnum < 100) return NO_defineProperty({}, rtext, rnum);else if (100 > lnum && lnum > rnum) return NO_defineProperty({}, "".concat(ltext, "-").concat(rtext), lnum + rnum);else if (lnum >= 100 && 100 > rnum) return NO_defineProperty({}, "".concat(ltext, " og ").concat(rtext), lnum + rnum);else if (rnum > lnum) return NO_defineProperty({}, "".concat(ltext, " ").concat(rtext), lnum * rnum);
+    return NO_defineProperty({}, "".concat(ltext, ", ").concat(rtext), lnum + rnum);
   };
-}
-// CONCATENATED MODULE: ./src/classes/Num2Word_PL.js
-function Num2Word_PL_slicedToArray(arr, i) { return Num2Word_PL_arrayWithHoles(arr) || Num2Word_PL_iterableToArrayLimit(arr, i) || Num2Word_PL_nonIterableRest(); }
+});
+// CONCATENATED MODULE: ./src/i18n/PL.js
+function PL_slicedToArray(arr, i) { return PL_arrayWithHoles(arr) || PL_iterableToArrayLimit(arr, i) || PL_nonIterableRest(); }
 
-function Num2Word_PL_nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance"); }
+function PL_nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance"); }
 
-function Num2Word_PL_iterableToArrayLimit(arr, i) { if (!(Symbol.iterator in Object(arr) || Object.prototype.toString.call(arr) === "[object Arguments]")) { return; } var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
+function PL_iterableToArrayLimit(arr, i) { if (!(Symbol.iterator in Object(arr) || Object.prototype.toString.call(arr) === "[object Arguments]")) { return; } var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
 
-function Num2Word_PL_arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
+function PL_arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
 
-function Num2Word_PL() {
+/* harmony default export */ var PL = (function () {
   var _this = this;
 
-  Num2Word_RU.call(this);
+  RU.call(this);
   this.feminine = false;
   this.ZERO = "zero";
   this.ONES = {
@@ -2117,7 +2132,7 @@ function Num2Word_PL() {
       }
 
       var _this$get_digits = _this.get_digits(x),
-          _this$get_digits2 = Num2Word_PL_slicedToArray(_this$get_digits, 3),
+          _this$get_digits2 = PL_slicedToArray(_this$get_digits, 3),
           n1 = _this$get_digits2[0],
           n2 = _this$get_digits2[1],
           n3 = _this$get_digits2[2];
@@ -2143,15 +2158,15 @@ function Num2Word_PL() {
 
     return words.join(' ');
   };
-}
-// CONCATENATED MODULE: ./src/classes/Num2Word_PT.js
-function Num2Word_PT_defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+});
+// CONCATENATED MODULE: ./src/i18n/PT.js
+function PT_defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 
-function Num2Word_PT() {
+/* harmony default export */ var PT = (function () {
   var _this = this;
 
-  Num2Word_Base.call(this);
+  Num2Word["a" /* default */].call(this);
   this.cards = [{
     "1000000000000000000000000": 'quatrilião'
   }, {
@@ -2254,7 +2269,7 @@ function Num2Word_PT() {
         nnum = parseInt(Object.values(next)[0]);
 
     if (cnum == 1) {
-      if (nnum < 1000000) return Num2Word_PT_defineProperty({}, ntext, nnum);
+      if (nnum < 1000000) return PT_defineProperty({}, ntext, nnum);
       ctext = "um";
     } else if (cnum == 100 && nnum % 1000 != 0) {
       ctext = "cento";
@@ -2264,7 +2279,7 @@ function Num2Word_PT() {
       // if (cnum < 100) {
       //   return { [`${ctext} e ${ntext}`]: cnum + nnum }
       // }
-      return Num2Word_PT_defineProperty({}, "".concat(ctext, " e ").concat(ntext), cnum + nnum);
+      return PT_defineProperty({}, "".concat(ctext, " e ").concat(ntext), cnum + nnum);
     } else if (nnum % 1000000000 == 0 && cnum > 1) {
       ntext = ntext.slice(0, -4) + "liões";
     } else if (nnum % 1000000 == 0 && cnum > 1) {
@@ -2280,11 +2295,11 @@ function Num2Word_PT() {
       ntext = " " + ntext;
     }
 
-    return Num2Word_PT_defineProperty({}, "".concat(ctext).concat(ntext), cnum * nnum);
+    return PT_defineProperty({}, "".concat(ctext).concat(ntext), cnum * nnum);
   };
-}
-// CONCATENATED MODULE: ./src/classes/Num2Word_TR.js
-function Num2Word_TR() {
+});
+// CONCATENATED MODULE: ./src/i18n/TR.js
+/* harmony default export */ var TR = (function () {
   var _this = this;
 
   this.precision = 2;
@@ -2591,11 +2606,11 @@ function Num2Word_TR() {
 
     return wrd;
   };
-}
-// CONCATENATED MODULE: ./src/classes/Num2Word_UK.js
+});
+// CONCATENATED MODULE: ./src/i18n/UK.js
 
-function Num2Word_UK() {
-  Num2Word_RU.call(this);
+/* harmony default export */ var UK = (function () {
+  RU.call(this);
   this.feminine = false;
   this.ZERO = "нуль";
   this.ONES = {
@@ -2675,7 +2690,7 @@ function Num2Word_UK() {
     10: ['нонiльйон', 'нонiльйони', 'нонiльйонiв'] // 10^ 30
 
   };
-}
+});
 // CONCATENATED MODULE: ./src/n2words.js
 
 
@@ -2703,7 +2718,7 @@ function Num2Word_UK() {
  * @param {Object} [options={lang: "en"}] - Language
  */
 
-function n2words(n, options) {
+/* harmony default export */ var n2words = __webpack_exports__["default"] = (function (n, options) {
   var lang = "EN"; // default language
 
   var supportedLanguages = ['en', 'fr', 'es', 'de', 'pt', 'it', 'tr', 'ru', 'cz', 'no', 'dk', 'pl', 'uk', 'lt', 'lv', 'ar', 'he', 'ko'];
@@ -2718,46 +2733,46 @@ function n2words(n, options) {
   var num;
 
   if (lang === 'EN') {
-    num = new Num2Word_EN();
+    num = new EN["a" /* default */]();
   } else if (lang === 'FR') {
-    num = new Num2Word_FR();
+    num = new FR();
   } else if (lang === 'ES') {
-    num = new Num2Word_ES();
+    num = new ES();
   } else if (lang === 'DE') {
-    num = new Num2Word_DE();
+    num = new DE();
   } else if (lang === 'PT') {
-    num = new Num2Word_PT();
+    num = new PT();
   } else if (lang === 'IT') {
-    num = new Num2Word_IT();
+    num = new IT();
   } else if (lang === 'TR') {
-    num = new Num2Word_TR();
+    num = new TR();
   } else if (lang === 'RU') {
-    num = new Num2Word_RU();
+    num = new RU();
   } else if (lang === 'CZ') {
-    num = new Num2Word_CZ();
+    num = new CZ();
   } else if (lang === 'NO') {
-    num = new Num2Word_NO();
+    num = new NO();
   } else if (lang === 'DK') {
-    num = new Num2Word_DK();
+    num = new DK();
   } else if (lang === 'PL') {
-    num = new Num2Word_PL();
+    num = new PL();
   } else if (lang === 'UK') {
-    num = new Num2Word_UK();
+    num = new UK();
   } else if (lang === 'LT') {
-    num = new Num2Word_LT();
+    num = new LT();
   } else if (lang === 'LV') {
-    num = new Num2Word_LV();
+    num = new LV();
   } else if (lang === 'AR') {
-    num = new Num2Word_AR();
+    num = new AR();
   } else if (lang === 'HE') {
     // only for numbers <= 9999
-    num = new Num2Word_HE();
+    num = new HE();
   } else if (lang === 'KO') {
-    num = new Num2Word_KO();
+    num = new KO();
   }
 
   return num.toCardinal(n);
-}
+});
 
 /***/ })
 /******/ ]);

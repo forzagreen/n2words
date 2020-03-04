@@ -1,4 +1,4 @@
-export default function Num2Word_AR() {
+export default function() {
     this.integer_value = 0
     this._decimalValue = 0
     this.number = 0

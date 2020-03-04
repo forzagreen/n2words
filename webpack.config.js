@@ -6,6 +6,8 @@ module.exports = {
     entry: {
         'n2words': './src/n2words.js',
         'n2words.min': './src/n2words.js',
+        'n2words_EN': './src/n2words_EN.js',
+        'n2words_EN.min': './src/n2words_EN.js'
     },
     output: {
         library: 'n2words',

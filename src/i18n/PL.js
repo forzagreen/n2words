@@ -1,6 +1,6 @@
-import Num2Word_RU from './Num2Word_RU';
+import Num2Word_RU from './RU';
 
-export default function Num2Word_PL() {
+export default function() {
     Num2Word_RU.call(this)
     this.feminine = false
     this.ZERO = "zero"

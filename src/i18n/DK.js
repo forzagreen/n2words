@@ -1,6 +1,6 @@
-import Num2Word_Base from './Num2Word_Base';
+import Num2Word_Base from '../classes/Num2Word';
 
-export default function Num2Word_DK() {
+export default function() {
     Num2Word_Base.call(this);
     this.ordflag = false
     this.cards = [{"1000000000000000000000000000": 'quadrillarder'}, {"1000000000000000000000000": 'quadrillioner'}, {"1000000000000000000000": 'trillarder'}, {"1000000000000000000": 'trillioner'}, {"1000000000000000": 'billarder'}, {"1000000000000": 'billioner'}, {"1000000000": 'millarder'}, {"1000000": 'millioner'}, {"1000": 'tusind'}, {"100": 'hundrede'}, {"90": 'halvfems'}, {"80": 'firs'}, {"70": 'halvfjerds'}, {"60": 'treds'}, {"50": 'halvtreds'}, {"40": 'fyrre'}, {"30": 'tredive'}, {"20": 'tyve'}, {"19": 'nitten'}, {"18": 'atten'}, {"17": 'sytten'}, {"16": 'seksten'}, {"15": 'femten'}, {"14": 'fjorten'}, {"13": 'tretten'}, {"12": 'tolv'}, {"11": 'elleve'}, {"10": 'ti'}, {"9": 'ni'}, {"8": 'otte'}, {"7": 'syv'}, {"6": 'seks'}, {"5": 'fem'}, {"4": 'fire'}, {"3": 'tre'}, {"2": 'to'}, {"1": 'et'}, {"0": 'nul'}]

@@ -1,4 +1,4 @@
-export default function Num2Word_Base() {
+export default function() {
   this.getValueFromCards = (elem) => { //100
     for (var i = 0; i < this.cards.length; i++) {
       if (this.cards[i].hasOwnProperty(elem)) {

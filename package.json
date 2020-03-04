@@ -4,8 +4,8 @@
   "description": "Convert numbers to words, in multiple languages",
   "main": "dist/n2words.min.js",
   "scripts": {
-    "test": "ava ./tests/tests.js --verbose",
-    "coverage": "nyc --reporter=lcov --reporter=text-summary ava ./tests/tests.js",
+    "test": "ava ./test/tests.js --verbose",
+    "coverage": "nyc ava ./test/tests.js",
     "build": "npx webpack --config webpack.config.js"
   },
   "repository": {
@@ -61,6 +61,12 @@
   "ava": {
     "require": [
       "esm"
+    ]
+  },
+  "nyc": {
+    "reporter": [
+      "lcov",
+      "text"
     ]
   }
 }

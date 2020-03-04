@@ -1,6 +1,6 @@
-import Num2Word_Base from './Num2Word_Base';
+import Num2Word_Base from '../classes/Num2Word';
 
-export default function Num2Word_ES() {
+export default function() {
     Num2Word_Base.call(this);
   
     this.gender_stem = "o"

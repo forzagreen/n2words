@@ -1,5 +1,5 @@
 const test = require('ava');
-import n2words from '../dist/n2words';
+import n2words from '../dist/n2words_EN';
 
 const testCasesEnglish = [
   [0, 'zero'],
