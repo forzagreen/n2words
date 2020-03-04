@@ -1,4 +1,4 @@
-const test = require('ava');
+import test from 'ava';
 import n2words from '../dist/n2words';
 
 import AR from './i18n/AR';
