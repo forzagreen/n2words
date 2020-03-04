@@ -34,7 +34,10 @@
     "polish",
     "ukrainian",
     "lithuanian",
-    "latvian"
+    "latvian",
+    "arabic",
+    "hebrew",
+    "korean"
   ],
   "author": "Wael TELLAT",
   "license": "MIT",
