@@ -1,7 +1,4 @@
-const test = require('ava');
-import n2words from '../dist/n2words';
-
-const testCasesLithuanian = [
+export default [
   [0, 'nulis'],
   [1, 'vienas'],
   [2, 'du'],
@@ -58,10 +55,4 @@ const testCasesLithuanian = [
   [10000000000000, 'dešimt trilijonų'],
   [100000000000000, 'vienas šimtas trilijonų'],
   [1000000000000000000, 'vienas kvintilijonas']
-]
-
-test('Lithuanian', t => {
-  for (let i = 0; i < testCasesLithuanian.length; i++) {
-      t.is(n2words(testCasesLithuanian[i][0], { lang: 'lt' }), testCasesLithuanian[i][1])
-  }
-});
+];

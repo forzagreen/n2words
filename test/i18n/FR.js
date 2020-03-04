@@ -1,7 +1,4 @@
-const test = require('ava');
-import n2words from '../dist/n2words';
-
-const testCasesFrench = [
+export default [
   [0, 'zéro'],
   [1, 'un'],
   [2, 'deux'],
@@ -71,10 +68,4 @@ const testCasesFrench = [
   [1000000000000000000, 'un trillion'],
   // [1000000000000000000000, 'un trilliard'],         //FIXME
   // [10000000000000000000000000, 'dix quadrillions']  //FIXME
-]
-
-test('French', t => {
-  for (let i = 0; i < testCasesFrench.length; i++) {
-    t.is(n2words(testCasesFrench[i][0], { lang: 'fr' }), testCasesFrench[i][1])
-  }
-});
+];

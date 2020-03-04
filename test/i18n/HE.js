@@ -1,7 +1,4 @@
-const test = require('ava');
-import n2words from '../dist/n2words';
-
-const testCasesHebrew = [
+export default [
   [0, 'אפס'],
   [1, 'אחת'],
   [2, 'שתים'],
@@ -59,11 +56,4 @@ const testCasesHebrew = [
   // [10000000000000, ''],
   // [100000000000000, ''],
   // [1000000000000000000, '']
-]
-
-
-test('Hebrew', t => {
-  for (let i = 0; i < testCasesHebrew.length; i++) {
-    t.is(n2words(testCasesHebrew[i][0], { lang: 'he' }), testCasesHebrew[i][1])
-  }
-});
+];

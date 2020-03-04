@@ -1,7 +1,4 @@
-const test = require('ava');
-import n2words from '../dist/n2words';
-
-const testCasesKorean = [
+export default [
   [0, '영'],
   [1, '일'],
   [2, '이'],
@@ -58,10 +55,4 @@ const testCasesKorean = [
   [10000000000000, '십조'],
   [100000000000000, '백조'],
   [1000000000000000000, '백경']
-]
-
-test('Korean', t => {
-  for (let i = 0; i < testCasesKorean.length; i++) {
-    t.is(n2words(testCasesKorean[i][0], { lang: 'ko' }), testCasesKorean[i][1])
-  }
-});
+];
