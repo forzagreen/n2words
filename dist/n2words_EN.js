@@ -309,13 +309,6 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _i18n_EN__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(1);
 
-/**
- * Converts numbers to their written form.
- *
- * @constructor
- * @param {number} n - The number to convert
- */
-
 /* harmony default export */ __webpack_exports__["default"] = (function (n) {
   return new _i18n_EN__WEBPACK_IMPORTED_MODULE_0__[/* default */ "a"]().toCardinal(n);
 });
