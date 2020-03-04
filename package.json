@@ -47,15 +47,15 @@
   "homepage": "https://github.com/forzagreen/n2words#readme",
   "dependencies": {},
   "devDependencies": {
-    "ava": "^3.5.0",
     "@babel/core": "^7.8.6",
     "@babel/preset-env": "^7.8.6",
+    "ava": "^3.5.0",
     "babel-loader": "^8.0.6",
     "coveralls": "^3.0.9",
     "eslint": "^6.8.0",
     "esm": "^3.2.25",
     "nyc": "^15.0.0",
-    "uglifyjs-webpack-plugin": "^2.2.0",
+    "terser-webpack-plugin": "^2.3.5",
     "webpack": "^4.42.0",
     "webpack-cli": "^3.3.11"
   },
