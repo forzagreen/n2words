@@ -4,9 +4,8 @@
   "description": "Convert numbers to words, in multiple languages",
   "main": "n2words.js",
   "scripts": {
-    "test": "nyc --reporter=html --reporter=text mocha",
-    "coverage": "nyc report --reporter=text-lcov | coveralls",
-    "grunt": "grunt"
+    "test": "ava ./test/test_en.js --verbose",
+    "build": "npx webpack --config webpack.config.js"
   },
   "repository": {
     "type": "git",
@@ -47,11 +46,20 @@
   "homepage": "https://github.com/forzagreen/n2words#readme",
   "dependencies": {},
   "devDependencies": {
-    "babel-preset-minify": "^0.5.1",
-    "coveralls": "^3.0.9",
-    "grunt": "^1.0.4",
-    "grunt-babel": "^8.0.0",
-    "mocha": "^7.0.1",
-    "nyc": "^15.0.0"
+    "ava": "^3.5.0",
+    "@babel/core": "^7.8.6",
+    "@babel/preset-env": "^7.8.6",
+    "babel-loader": "^8.0.6",
+    "eslint": "^6.8.0",
+    "esm": "^3.2.25",
+    "nyc": "^15.0.0",
+    "uglifyjs-webpack-plugin": "^2.2.0",
+    "webpack": "^4.42.0",
+    "webpack-cli": "^3.3.11"
+  },
+  "ava": {
+    "require": [
+      "esm"
+    ]
   }
 }

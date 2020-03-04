@@ -1,5 +1,5 @@
 const assert = require('assert');
-const n2words = require('../n2words.js');
+const n2words = require('../dist/n2words.min.js');
 
 const testCasesArabic = [
   [0, 'صفر'],
