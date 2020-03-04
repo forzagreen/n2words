@@ -1,5 +1,5 @@
-const assert = require('assert');
-const n2words = require('../dist/n2words.min.js');
+const test = require('ava');
+import n2words from '../dist/n2words';
 
 const testCasesRussian = [
   [0, 'ноль'],
@@ -61,10 +61,8 @@ const testCasesRussian = [
 ]
 
 
-describe('Russian', function () {
-  it('should convert numbers correctly (Russian)', function () {
-    for (let i = 0; i < testCasesRussian.length; i++) {
-      assert.equal(n2words(testCasesRussian[i][0], { lang: 'ru' }), testCasesRussian[i][1])
-    }
-  });
+test('Russian', t => {
+  for (let i = 0; i < testCasesRussian.length; i++) {
+    t.is(n2words(testCasesRussian[i][0], { lang: 'ru' }), testCasesRussian[i][1])
+  }
 });

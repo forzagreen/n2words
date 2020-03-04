@@ -3,5 +3,18 @@ require('./test_cz');
 require('./test_de');
 require('./test_dk');
 require('./test_en');
+require('./test_es');
+require('./test_fr');
+require('./test_he');
+require('./test_it');
+require('./test_ko');
+require('./test_lt');
+require('./test_lv');
+require('./test_no');
+require('./test_pl');
+require('./test_pt');
+require('./test_ru');
+require('./test_tr');
+require('./test_uk');
 
 require('./test_defaults');
