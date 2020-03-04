@@ -1,5 +1,5 @@
-const assert = require('assert');
-const n2words = require('../dist/n2words.min.js');
+const test = require('ava');
+import n2words from '../dist/n2words';
 
 const testCasesArabic = [
   [0, 'صفر'],
@@ -60,10 +60,8 @@ const testCasesArabic = [
   [1000000000000000000, 'واحد كوينتليون']
 ]
 
-describe('Arabic', function () {
-  it('should convert numbers correctly (Arabic)', function () {
-    for (let i = 0; i < testCasesArabic.length; i++) {
-      assert.equal(n2words(testCasesArabic[i][0], { lang: 'ar' }), testCasesArabic[i][1])
-    }
-  });
+test('Arabic', t =>  {
+  for (let i = 0; i < testCasesArabic.length; i++) {
+    t.is(n2words(testCasesArabic[i][0], { lang: 'ar' }), testCasesArabic[i][1])
+  }
 });

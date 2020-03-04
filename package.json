@@ -4,7 +4,7 @@
   "description": "Convert numbers to words, in multiple languages",
   "main": "n2words.js",
   "scripts": {
-    "test": "ava ./test/test_en.js --verbose",
+    "test": "ava ./tests/tests.js --verbose",
     "build": "npx webpack --config webpack.config.js"
   },
   "repository": {

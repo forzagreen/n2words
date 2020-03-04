@@ -1,4 +1,6 @@
-function Num2Word_HE() {
+import Num2Word_RU from './Num2Word_RU';
+
+export default function Num2Word_HE() {
     Num2Word_RU.call(this)
     this.ZERO = "אפס"
     this.AND = 'ו'

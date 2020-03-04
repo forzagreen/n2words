@@ -1,4 +1,21 @@
+import Num2Word_AR from './classes/Num2Word_AR';
+import Num2Word_CZ from './classes/Num2Word_CZ';
+import Num2Word_DE from './classes/Num2Word_DE';
+import Num2Word_DK from './classes/Num2Word_DK';
 import Num2Word_EN from './classes/Num2Word_EN';
+import Num2Word_ES from './classes/Num2Word_ES';
+import Num2Word_FR from './classes/Num2Word_FR';
+import Num2Word_HE from './classes/Num2Word_HE';
+import Num2Word_IT from './classes/Num2Word_IT';
+import Num2Word_KO from './classes/Num2Word_KO';
+import Num2Word_LT from './classes/Num2Word_LT';
+import Num2Word_LV from './classes/Num2Word_LV';
+import Num2Word_NO from './classes/Num2Word_NO';
+import Num2Word_PL from './classes/Num2Word_PL';
+import Num2Word_PT from './classes/Num2Word_PT';
+import Num2Word_RU from './classes/Num2Word_RU';
+import Num2Word_TR from './classes/Num2Word_TR';
+import Num2Word_UK from './classes/Num2Word_UK';
 
 /**
  * Converts numbers to their written form.

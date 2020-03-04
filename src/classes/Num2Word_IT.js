@@ -1,4 +1,4 @@
-function Num2Word_IT() {
+export default function Num2Word_IT() {
     const ZERO = "zero"
     const CARDINAL_WORDS = [
       ZERO, "uno", "due", "tre", "quattro", "cinque", "sei", "sette", "otto",

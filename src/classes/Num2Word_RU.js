@@ -1,4 +1,4 @@
-function Num2Word_RU() {
+export default function Num2Word_RU() {
     // Num2Word_Base.call(this);
     this.feminine = false
     this.ZERO = "ноль"

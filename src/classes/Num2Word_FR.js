@@ -1,4 +1,6 @@
-function Num2Word_FR() {
+import Num2Word_Base from './Num2Word_Base';
+
+export default function Num2Word_FR() {
     Num2Word_Base.call(this);
   
     this.cards = [{"1000000000000000000000000000": 'quadrilliard'}, {"1000000000000000000000000": 'quadrillion'}, {"1000000000000000000000": 'trilliard'}, {"1000000000000000000": 'trillion'},{ "1000000000000000": 'billiard' }, { "1000000000000": 'billion' }, { "1000000000": 'milliard' }, { "1000000": 'million' }, { "1000": 'mille' }, { "100": 'cent' }, { "80": 'quatre-vingts' }, { "60": 'soixante' }, { "50": 'cinquante' }, { "40": 'quarante' }, { "30": 'trente' }, { "20": 'vingt' }, { "19": 'dix-neuf' }, { "18": 'dix-huit' }, { "17": 'dix-sept' }, { "16": 'seize' }, { "15": 'quinze' }, { "14": 'quatorze' }, { "13": 'treize' }, { "12": 'douze' }, { "11": 'onze' }, { "10": 'dix' }, { "9": 'neuf' }, { "8": 'huit' }, { "7": 'sept' }, { "6": 'six' }, { "5": 'cinq' }, { "4": 'quatre' }, { "3": 'trois' }, { "2": 'deux' }, { "1": 'un' }, { "0": 'zéro' }]

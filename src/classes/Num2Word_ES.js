@@ -1,4 +1,6 @@
-function Num2Word_ES() {
+import Num2Word_Base from './Num2Word_Base';
+
+export default function Num2Word_ES() {
     Num2Word_Base.call(this);
   
     this.gender_stem = "o"
