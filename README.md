@@ -10,7 +10,8 @@ n2words is a lightweight, easy to use package, with no dependencies. It works bo
 
 ## Usage
 
-***CommonJS***
+### CommonJS
+
 ```js
 var n2words = require('n2words')
 
@@ -21,7 +22,8 @@ n2words(123, {lang: 'fr'})   // 'cent vingt-trois'
 n2words(123, {lang: 'es'})   // 'ciento veintitrés'
 ```
 
-***ES6***
+### ES6
+
 ```js
 import n2words from 'n2words/src/n2words';
 
