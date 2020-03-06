@@ -1,5 +1,5 @@
 import test from 'ava';
-import n2words from '../dist/n2words';
+import n2words from '../dist/n2words.js';
 
 import AR from './i18n/AR';
 import CZ from './i18n/CZ';
@@ -42,7 +42,7 @@ const i18n = {
 };
 
 Object.keys(i18n).forEach(language => {
-    test(language, t =>  {
+    test(language, t => {
         i18n[language].forEach(problem => {
             t.is(n2words(problem[0], { lang: language }), problem[1]);
         });
@@ -57,5 +57,5 @@ test('should set English as default language', t => {
 test('should throw an error for unsupported languages', t => {
     t.throws(() => {
         n2words(2, { lang: 'aaa' });
-    }, {instanceOf: Error});
+    }, { instanceOf: Error });
 });

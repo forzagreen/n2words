@@ -14,7 +14,7 @@ module.exports = {
         libraryTarget: 'umd',
         filename: '[name].js',
         path: path.resolve(__dirname, 'dist'),
-        globalObject: 'typeof self !== \'undefined\' ? self : this'
+        globalObject: 'this'
     },
     optimization: {
         minimize: true,

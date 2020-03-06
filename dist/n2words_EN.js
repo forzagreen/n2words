@@ -7,7 +7,7 @@
 		exports["n2words"] = factory();
 	else
 		root["n2words"] = factory();
-})(typeof self !== 'undefined' ? self : this, function() {
+})(this, function() {
 return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
