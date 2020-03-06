@@ -14,20 +14,22 @@ n2words is a lightweight, easy to use package, with no dependencies. It works bo
 
 ```js
 var n2words = require('n2words')
-
-n2words(123)                 // 'one hundred and twenty-three'
-
-n2words(123, {lang: 'en'})   // 'one hundred and twenty-three'
-n2words(123, {lang: 'fr'})   // 'cent vingt-trois'
-n2words(123, {lang: 'es'})   // 'ciento veintitrés'
 ```
 
 ### ES6
 
 ```js
 import n2words from 'n2words/src/n2words';
+```
 
-n2words(123); // 'one hundred and twenty-three'
+### Example
+
+```js
+n2words(123)                 // 'one hundred and twenty-three'
+
+n2words(123, {lang: 'en'})   // 'one hundred and twenty-three'
+n2words(123, {lang: 'fr'})   // 'cent vingt-trois'
+n2words(123, {lang: 'es'})   // 'ciento veintitrés'
 ```
 
 ## Install
@@ -43,9 +45,10 @@ npm install n2words
 ```html
 <script src="n2words.min.js"></script>
 ```
+
 n2words is available on [jsDelivr](https://www.jsdelivr.com/package/npm/n2words).
 
-## Supported Languages:
+## Supported Languages
 
 - `en` (English, default)
 - `ar` (Arabic)
