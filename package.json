@@ -47,10 +47,11 @@
   "homepage": "https://github.com/forzagreen/n2words#readme",
   "dependencies": {},
   "devDependencies": {
-    "@babel/core": "^7.8.6",
-    "@babel/preset-env": "^7.8.6",
+    "@babel/core": "^7.8.7",
+    "@babel/preset-env": "^7.8.7",
     "ava": "^3.5.0",
     "babel-loader": "^8.0.6",
+    "core-js": "^3.6.4",
     "eslint": "^6.8.0",
     "esm": "^3.2.25",
     "nyc": "^15.0.0",
