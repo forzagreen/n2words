@@ -12,6 +12,7 @@ module.exports = {
     output: {
         library: 'n2words',
         libraryTarget: 'umd',
+        libraryExport: 'default',
         filename: '[name].js',
         path: path.resolve(__dirname, 'dist'),
         globalObject: 'this'
