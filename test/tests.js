@@ -1,5 +1,5 @@
 import test from 'ava';
-import n2words from '../dist/n2words.js';
+import n2words from '../src/n2words.js';
 
 import AR from './i18n/AR';
 import CZ from './i18n/CZ';
