@@ -4,6 +4,7 @@
   "description": "Convert numbers to words, in multiple languages",
   "main": "dist/n2words.min.js",
   "scripts": {
+    "lint": "eslint --config ./.eslintrc.js ./src",
     "test": "ava ./test/tests.js --verbose",
     "coverage": "nyc ava ./test/tests.js",
     "build": "npx webpack --config webpack.config.js"

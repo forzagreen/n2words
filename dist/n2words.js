@@ -1981,81 +1981,81 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 /* harmony default export */ __webpack_exports__["a"] = (function () {
   _classes_Num2Word__WEBPACK_IMPORTED_MODULE_5__[/* default */ "a"].call(this);
   this.cards = [{
-    "1000000000000000000000000000": 'octillion'
+    '1000000000000000000000000000': 'octillion'
   }, {
-    "1000000000000000000000000": 'septillion'
+    '1000000000000000000000000': 'septillion'
   }, {
-    "1000000000000000000000": 'sextillion'
+    '1000000000000000000000': 'sextillion'
   }, {
-    "1000000000000000000": 'quintillion'
+    '1000000000000000000': 'quintillion'
   }, {
-    "1000000000000000": 'quadrillion'
+    '1000000000000000': 'quadrillion'
   }, {
-    "1000000000000": 'trillion'
+    '1000000000000': 'trillion'
   }, {
-    "1000000000": 'billion'
+    '1000000000': 'billion'
   }, {
-    "1000000": 'million'
+    '1000000': 'million'
   }, {
-    "1000": 'thousand'
+    '1000': 'thousand'
   }, {
-    "100": 'hundred'
+    '100': 'hundred'
   }, {
-    "90": 'ninety'
+    '90': 'ninety'
   }, {
-    "80": 'eighty'
+    '80': 'eighty'
   }, {
-    "70": 'seventy'
+    '70': 'seventy'
   }, {
-    "60": 'sixty'
+    '60': 'sixty'
   }, {
-    "50": 'fifty'
+    '50': 'fifty'
   }, {
-    "40": 'forty'
+    '40': 'forty'
   }, {
-    "30": 'thirty'
+    '30': 'thirty'
   }, {
-    "20": 'twenty'
+    '20': 'twenty'
   }, {
-    "19": 'nineteen'
+    '19': 'nineteen'
   }, {
-    "18": 'eighteen'
+    '18': 'eighteen'
   }, {
-    "17": 'seventeen'
+    '17': 'seventeen'
   }, {
-    "16": 'sixteen'
+    '16': 'sixteen'
   }, {
-    "15": 'fifteen'
+    '15': 'fifteen'
   }, {
-    "14": 'fourteen'
+    '14': 'fourteen'
   }, {
-    "13": 'thirteen'
+    '13': 'thirteen'
   }, {
-    "12": 'twelve'
+    '12': 'twelve'
   }, {
-    "11": 'eleven'
+    '11': 'eleven'
   }, {
-    "10": 'ten'
+    '10': 'ten'
   }, {
-    "9": 'nine'
+    '9': 'nine'
   }, {
-    "8": 'eight'
+    '8': 'eight'
   }, {
-    "7": 'seven'
+    '7': 'seven'
   }, {
-    "6": 'six'
+    '6': 'six'
   }, {
-    "5": 'five'
+    '5': 'five'
   }, {
-    "4": 'four'
+    '4': 'four'
   }, {
-    "3": 'three'
+    '3': 'three'
   }, {
-    "2": 'two'
+    '2': 'two'
   }, {
-    "1": 'one'
+    '1': 'one'
   }, {
-    "0": 'zero'
+    '0': 'zero'
   }];
 
   this.merge = function (lpair, rpair) {
@@ -4904,18 +4904,18 @@ var es_string_trim = __webpack_require__(121);
   this.integer_value = 0;
   this._decimalValue = 0;
   this.number = 0;
-  this.ZERO = "صفر"; // this.isCurrencyPartNameFeminine = true
+  this.ZERO = 'صفر'; // this.isCurrencyPartNameFeminine = true
   // this.isCurrencyNameFeminine = false
 
-  this.arabicOnes = ["", "واحد", "اثنان", "ثلاثة", "أربعة", "خمسة", "ستة", "سبعة", "ثمانية", "تسعة", "عشرة", "أحد عشر", "اثنا عشر", "ثلاثة عشر", "أربعة عشر", "خمسة عشر", "ستة عشر", "سبعة عشر", "ثمانية عشر", "تسعة عشر"];
-  this.arabicFeminineOnes = ["", "إحدى", "اثنتان", "ثلاث", "أربع", "خمس", "ست", "سبع", "ثمان", "تسع", "عشر", "إحدى عشرة", "اثنتا عشرة", "ثلاث عشرة", "أربع عشرة", "خمس عشرة", "ست عشرة", "سبع عشرة", "ثماني عشرة", "تسع عشرة"];
-  this.arabicTens = ["عشرون", "ثلاثون", "أربعون", "خمسون", "ستون", "سبعون", "ثمانون", "تسعون"];
-  this.arabicHundreds = ["", "مائة", "مئتان", "ثلاثمائة", "أربعمائة", "خمسمائة", "ستمائة", "سبعمائة", "ثمانمائة", "تسعمائة"];
-  this.arabicAppendedTwos = ["مئتا", "ألفا", "مليونا", "مليارا", "تريليونا", "كوادريليونا", "كوينتليونا", "سكستيليونا"];
-  this.arabicTwos = ["مئتان", "ألفان", "مليونان", "ملياران", "تريليونان", "كوادريليونان", "كوينتليونان", "سكستيليونان"];
-  this.arabicGroup = ["مائة", "ألف", "مليون", "مليار", "تريليون", "كوادريليون", "كوينتليون", "سكستيليون"];
-  this.arabicAppendedGroup = ["", "ألفاً", "مليوناً", "ملياراً", "تريليوناً", "كوادريليوناً", "كوينتليوناً", "سكستيليوناً"];
-  this.arabicPluralGroups = ["", "آلاف", "ملايين", "مليارات", "تريليونات", "كوادريليونات", "كوينتليونات", "سكستيليونات"];
+  this.arabicOnes = ['', 'واحد', 'اثنان', 'ثلاثة', 'أربعة', 'خمسة', 'ستة', 'سبعة', 'ثمانية', 'تسعة', 'عشرة', 'أحد عشر', 'اثنا عشر', 'ثلاثة عشر', 'أربعة عشر', 'خمسة عشر', 'ستة عشر', 'سبعة عشر', 'ثمانية عشر', 'تسعة عشر'];
+  this.arabicFeminineOnes = ['', 'إحدى', 'اثنتان', 'ثلاث', 'أربع', 'خمس', 'ست', 'سبع', 'ثمان', 'تسع', 'عشر', 'إحدى عشرة', 'اثنتا عشرة', 'ثلاث عشرة', 'أربع عشرة', 'خمس عشرة', 'ست عشرة', 'سبع عشرة', 'ثماني عشرة', 'تسع عشرة'];
+  this.arabicTens = ['عشرون', 'ثلاثون', 'أربعون', 'خمسون', 'ستون', 'سبعون', 'ثمانون', 'تسعون'];
+  this.arabicHundreds = ['', 'مائة', 'مئتان', 'ثلاثمائة', 'أربعمائة', 'خمسمائة', 'ستمائة', 'سبعمائة', 'ثمانمائة', 'تسعمائة'];
+  this.arabicAppendedTwos = ['مئتا', 'ألفا', 'مليونا', 'مليارا', 'تريليونا', 'كوادريليونا', 'كوينتليونا', 'سكستيليونا'];
+  this.arabicTwos = ['مئتان', 'ألفان', 'مليونان', 'ملياران', 'تريليونان', 'كوادريليونان', 'كوينتليونان', 'سكستيليونان'];
+  this.arabicGroup = ['مائة', 'ألف', 'مليون', 'مليار', 'تريليون', 'كوادريليون', 'كوينتليون', 'سكستيليون'];
+  this.arabicAppendedGroup = ['', 'ألفاً', 'مليوناً', 'ملياراً', 'تريليوناً', 'كوادريليوناً', 'كوينتليوناً', 'سكستيليوناً'];
+  this.arabicPluralGroups = ['', 'آلاف', 'ملايين', 'مليارات', 'تريليونات', 'كوادريليونات', 'كوينتليونات', 'سكستيليونات'];
 
   this.digit_feminine_status = function (digit, group_level) {
     // if ((group_level == -1 && this.isCurrencyPartNameFeminine) || (group_level == 0 && this.isCurrencyNameFeminine)) {
@@ -4927,7 +4927,7 @@ var es_string_trim = __webpack_require__(121);
   this.process_arabic_group = function (group_number, group_level, remaining_number) {
     var tens = group_number % 100;
     var hundreds = group_number / 100;
-    var ret_val = "";
+    var ret_val = '';
 
     if (parseInt(hundreds) > 0) {
       ret_val = tens == 0 && parseInt(hundreds) == 2 ? _this.arabicAppendedTwos[0] : _this.arabicHundreds[parseInt(hundreds)];
@@ -4938,14 +4938,14 @@ var es_string_trim = __webpack_require__(121);
         if (tens == 2 && parseInt(hundreds) == 0 && group_level > 0) {
           ret_val = [2000, 2000000, 2000000000, 2000000000000, 2000000000000000, 2000000000000000000].indexOf(_this.integer_value) != -1 ? _this.arabicAppendedTwos[parseInt(group_level)] : _this.arabicTwos[parseInt(group_level)];
         } else {
-          if (ret_val != "") {
-            ret_val += " و ";
+          if (ret_val != '') {
+            ret_val += ' و ';
           }
 
           if (tens == 1 && group_level > 0 && hundreds == 0) {
-            ret_val += "";
+            ret_val += '';
           } else if ((tens == 1 || tens == 2) && (group_level == 0 || group_level == -1) && hundreds == 0 && remaining_number == 0) {
-            ret_val += "";
+            ret_val += '';
           } else {
             ret_val += _this.digit_feminine_status(parseInt(tens), group_level);
           }
@@ -4955,15 +4955,15 @@ var es_string_trim = __webpack_require__(121);
         tens = tens / 10 - 2;
 
         if (ones > 0) {
-          if (ret_val != "" && tens < 4) {
-            ret_val += " و ";
+          if (ret_val != '' && tens < 4) {
+            ret_val += ' و ';
           }
 
           ret_val += _this.digit_feminine_status(ones, group_level);
         }
 
-        if (ret_val != "" && ones != 0) {
-          ret_val += " و ";
+        if (ret_val != '' && ones != 0) {
+          ret_val += ' و ';
         }
 
         ret_val += _this.arabicTens[parseInt(tens)];
@@ -4992,27 +4992,27 @@ var es_string_trim = __webpack_require__(121);
       if (group_description != '') {
         if (group > 0) {
           if (ret_val != '') {
-            ret_val = " و " + ret_val;
+            ret_val = ' و ' + ret_val;
           }
 
           if (number_to_process != 2) {
             if (number_to_process % 100 != 1) {
               if (3 <= number_to_process && number_to_process <= 10) {
-                ret_val = _this.arabicPluralGroups[group] + " " + ret_val;
+                ret_val = _this.arabicPluralGroups[group] + ' ' + ret_val;
               } else {
                 if (ret_val != '') {
-                  ret_val = _this.arabicAppendedGroup[group] + " " + ret_val;
+                  ret_val = _this.arabicAppendedGroup[group] + ' ' + ret_val;
                 } else {
-                  ret_val = _this.arabicGroup[group] + " " + ret_val;
+                  ret_val = _this.arabicGroup[group] + ' ' + ret_val;
                 }
               }
             } else {
-              ret_val = _this.arabicGroup[group] + " " + ret_val;
+              ret_val = _this.arabicGroup[group] + ' ' + ret_val;
             }
           }
         }
 
-        ret_val = group_description + " " + ret_val;
+        ret_val = group_description + ' ' + ret_val;
       }
 
       group += 1;
@@ -5098,61 +5098,61 @@ function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
   // Num2Word_Base.call(this);
   this.feminine = false;
-  this.ZERO = "ноль";
+  this.ZERO = 'ноль';
   this.ONES = {
-    1: "один",
-    2: "два",
-    3: "три",
-    4: "четыре",
-    5: "пять",
-    6: "шесть",
-    7: "семь",
-    8: "восемь",
-    9: "девять"
+    1: 'один',
+    2: 'два',
+    3: 'три',
+    4: 'четыре',
+    5: 'пять',
+    6: 'шесть',
+    7: 'семь',
+    8: 'восемь',
+    9: 'девять'
   };
   this.ONES_FEMININE = {
-    1: "одна",
-    2: "две",
-    3: "три",
-    4: "четыре",
-    5: "пять",
-    6: "шесть",
-    7: "семь",
-    8: "восемь",
-    9: "девять"
+    1: 'одна',
+    2: 'две',
+    3: 'три',
+    4: 'четыре',
+    5: 'пять',
+    6: 'шесть',
+    7: 'семь',
+    8: 'восемь',
+    9: 'девять'
   };
   this.TENS = {
-    0: "десять",
-    1: "одиннадцать",
-    2: "двенадцать",
-    3: "тринадцать",
-    4: "четырнадцать",
-    5: "пятнадцать",
-    6: "шестнадцать",
-    7: "семнадцать",
-    8: "восемнадцать",
-    9: "девятнадцать"
+    0: 'десять',
+    1: 'одиннадцать',
+    2: 'двенадцать',
+    3: 'тринадцать',
+    4: 'четырнадцать',
+    5: 'пятнадцать',
+    6: 'шестнадцать',
+    7: 'семнадцать',
+    8: 'восемнадцать',
+    9: 'девятнадцать'
   };
   this.TWENTIES = {
-    2: "двадцать",
-    3: "тридцать",
-    4: "сорок",
-    5: "пятьдесят",
-    6: "шестьдесят",
-    7: "семьдесят",
-    8: "восемьдесят",
-    9: "девяносто"
+    2: 'двадцать',
+    3: 'тридцать',
+    4: 'сорок',
+    5: 'пятьдесят',
+    6: 'шестьдесят',
+    7: 'семьдесят',
+    8: 'восемьдесят',
+    9: 'девяносто'
   };
   this.HUNDREDS = {
-    1: "сто",
-    2: "двести",
-    3: "триста",
-    4: "четыреста",
-    5: "пятьсот",
-    6: "шестьсот",
-    7: "семьсот",
-    8: "восемьсот",
-    9: "девятьсот"
+    1: 'сто',
+    2: 'двести',
+    3: 'триста',
+    4: 'четыреста',
+    5: 'пятьсот',
+    6: 'шестьсот',
+    7: 'семьсот',
+    8: 'восемьсот',
+    9: 'девятьсот'
   };
   this.THOUSANDS = {
     1: ['тысяча', 'тысячи', 'тысяч'],
@@ -5274,7 +5274,7 @@ function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
       if (n2 == 1) {
         words.push(_this.TENS[n1]);
       } else if (n1 > 0) {
-        var ones = i == 1 || _this.feminine && i == 0 ? _this.ONES_FEMININE : _this.ONES;
+        ones = i == 1 || _this.feminine && i == 0 ? _this.ONES_FEMININE : _this.ONES;
         words.push(ones[n1]);
       }
 
@@ -5313,50 +5313,50 @@ function CZ_arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
   var _this = this;
 
   RU.call(this);
-  this.ZERO = "nula";
+  this.ZERO = 'nula';
   this.ONES = {
-    1: "jedna",
-    2: "dva",
-    3: "tři",
-    4: "čtyři",
-    5: "pět",
-    6: "šest",
-    7: "sedm",
-    8: "osm",
-    9: "devět"
+    1: 'jedna',
+    2: 'dva',
+    3: 'tři',
+    4: 'čtyři',
+    5: 'pět',
+    6: 'šest',
+    7: 'sedm',
+    8: 'osm',
+    9: 'devět'
   };
   this.TENS = {
-    0: "deset",
-    1: "jedenáct",
-    2: "dvanáct",
-    3: "třináct",
-    4: "čtrnáct",
-    5: "patnáct",
-    6: "šestnáct",
-    7: "sedmnáct",
-    8: "osmnáct",
-    9: "devatenáct"
+    0: 'deset',
+    1: 'jedenáct',
+    2: 'dvanáct',
+    3: 'třináct',
+    4: 'čtrnáct',
+    5: 'patnáct',
+    6: 'šestnáct',
+    7: 'sedmnáct',
+    8: 'osmnáct',
+    9: 'devatenáct'
   };
   this.TWENTIES = {
-    2: "dvacet",
-    3: "třicet",
-    4: "čtyřicet",
-    5: "padesát",
-    6: "šedesát",
-    7: "sedmdesát",
-    8: "osmdesát",
-    9: "devadesát"
+    2: 'dvacet',
+    3: 'třicet',
+    4: 'čtyřicet',
+    5: 'padesát',
+    6: 'šedesát',
+    7: 'sedmdesát',
+    8: 'osmdesát',
+    9: 'devadesát'
   };
   this.HUNDREDS = {
-    1: "sto",
-    2: "dvěstě",
-    3: "třista",
-    4: "čtyřista",
-    5: "pětset",
-    6: "šestset",
-    7: "sedmset",
-    8: "osmset",
-    9: "devětset"
+    1: 'sto',
+    2: 'dvěstě',
+    3: 'třista',
+    4: 'čtyřista',
+    5: 'pětset',
+    6: 'šestset',
+    7: 'sedmset',
+    8: 'osmset',
+    9: 'devětset'
   };
   this.THOUSANDS = {
     1: ['tisíc', 'tisíce', 'tisíc'],
@@ -5406,7 +5406,6 @@ function CZ_arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
     for (var j = 0; j < chunks.length; j++) {
       var x = chunks[j];
-      var ones = [];
       i = i - 1;
 
       if (x == 0) {
@@ -5469,81 +5468,81 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 /* harmony default export */ var DE = (function () {
   Num2Word["a" /* default */].call(this);
   this.cards = [{
-    "1000000000000000000000000000": 'Quadrilliarde'
+    '1000000000000000000000000000': 'Quadrilliarde'
   }, {
-    "1000000000000000000000000": 'Quadrillion'
+    '1000000000000000000000000': 'Quadrillion'
   }, {
-    "1000000000000000000000": 'Trilliarde'
+    '1000000000000000000000': 'Trilliarde'
   }, {
-    "1000000000000000000": 'Trillion'
+    '1000000000000000000': 'Trillion'
   }, {
-    "1000000000000000": 'Billiarde'
+    '1000000000000000': 'Billiarde'
   }, {
-    "1000000000000": 'Billion'
+    '1000000000000': 'Billion'
   }, {
-    "1000000000": 'Milliarde'
+    '1000000000': 'Milliarde'
   }, {
-    "1000000": 'Million'
+    '1000000': 'Million'
   }, {
-    "1000": 'tausend'
+    '1000': 'tausend'
   }, {
-    "100": 'hundert'
+    '100': 'hundert'
   }, {
-    "90": 'neunzig'
+    '90': 'neunzig'
   }, {
-    "80": 'achtzig'
+    '80': 'achtzig'
   }, {
-    "70": 'siebzig'
+    '70': 'siebzig'
   }, {
-    "60": 'sechzig'
+    '60': 'sechzig'
   }, {
-    "50": 'fünfzig'
+    '50': 'fünfzig'
   }, {
-    "40": 'vierzig'
+    '40': 'vierzig'
   }, {
-    "30": 'dreißig'
+    '30': 'dreißig'
   }, {
-    "20": 'zwanzig'
+    '20': 'zwanzig'
   }, {
-    "19": 'neunzehn'
+    '19': 'neunzehn'
   }, {
-    "18": 'achtzehn'
+    '18': 'achtzehn'
   }, {
-    "17": 'siebzehn'
+    '17': 'siebzehn'
   }, {
-    "16": 'sechzehn'
+    '16': 'sechzehn'
   }, {
-    "15": 'fünfzehn'
+    '15': 'fünfzehn'
   }, {
-    "14": 'vierzehn'
+    '14': 'vierzehn'
   }, {
-    "13": 'dreizehn'
+    '13': 'dreizehn'
   }, {
-    "12": 'zwölf'
+    '12': 'zwölf'
   }, {
-    "11": 'elf'
+    '11': 'elf'
   }, {
-    "10": 'zehn'
+    '10': 'zehn'
   }, {
-    "9": 'neun'
+    '9': 'neun'
   }, {
-    "8": 'acht'
+    '8': 'acht'
   }, {
-    "7": 'sieben'
+    '7': 'sieben'
   }, {
-    "6": 'sechs'
+    '6': 'sechs'
   }, {
-    "5": 'fünf'
+    '5': 'fünf'
   }, {
-    "4": 'vier'
+    '4': 'vier'
   }, {
-    "3": 'drei'
+    '3': 'drei'
   }, {
-    "2": 'zwei'
+    '2': 'zwei'
   }, {
-    "1": 'eins'
+    '1': 'eins'
   }, {
-    "0": 'null'
+    '0': 'null'
   }];
 
   this.merge = function (curr, next) {
@@ -5559,7 +5558,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         return _defineProperty({}, ntext, nnum);
       }
 
-      ctext = "eine";
+      ctext = 'eine';
     }
 
     var val = 0;
@@ -5567,28 +5566,28 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     if (nnum > cnum) {
       if (nnum >= 1000000) {
         if (cnum > 1) {
-          if (ntext[ntext.length - 1] == "e") {
-            ntext += "n";
+          if (ntext[ntext.length - 1] == 'e') {
+            ntext += 'n';
           } else {
-            ntext += "en";
+            ntext += 'en';
           }
         }
 
-        ctext += " ";
+        ctext += ' ';
       }
 
       val = cnum * nnum;
     } else {
       if (nnum < 10 && 10 < cnum && cnum < 100) {
         if (nnum == 1) {
-          ntext = "ein";
+          ntext = 'ein';
         }
 
         var temp = ntext;
         ntext = ctext;
         ctext = "".concat(temp, "und");
       } else if (cnum >= 1000000) {
-        ctext += " ";
+        ctext += ' ';
       }
 
       val = cnum + nnum;
@@ -5612,81 +5611,81 @@ function DK_defineProperty(obj, key, value) { if (key in obj) { Object.definePro
   Num2Word["a" /* default */].call(this);
   this.ordflag = false;
   this.cards = [{
-    "1000000000000000000000000000": 'quadrillarder'
+    '1000000000000000000000000000': 'quadrillarder'
   }, {
-    "1000000000000000000000000": 'quadrillioner'
+    '1000000000000000000000000': 'quadrillioner'
   }, {
-    "1000000000000000000000": 'trillarder'
+    '1000000000000000000000': 'trillarder'
   }, {
-    "1000000000000000000": 'trillioner'
+    '1000000000000000000': 'trillioner'
   }, {
-    "1000000000000000": 'billarder'
+    '1000000000000000': 'billarder'
   }, {
-    "1000000000000": 'billioner'
+    '1000000000000': 'billioner'
   }, {
-    "1000000000": 'millarder'
+    '1000000000': 'millarder'
   }, {
-    "1000000": 'millioner'
+    '1000000': 'millioner'
   }, {
-    "1000": 'tusind'
+    '1000': 'tusind'
   }, {
-    "100": 'hundrede'
+    '100': 'hundrede'
   }, {
-    "90": 'halvfems'
+    '90': 'halvfems'
   }, {
-    "80": 'firs'
+    '80': 'firs'
   }, {
-    "70": 'halvfjerds'
+    '70': 'halvfjerds'
   }, {
-    "60": 'treds'
+    '60': 'treds'
   }, {
-    "50": 'halvtreds'
+    '50': 'halvtreds'
   }, {
-    "40": 'fyrre'
+    '40': 'fyrre'
   }, {
-    "30": 'tredive'
+    '30': 'tredive'
   }, {
-    "20": 'tyve'
+    '20': 'tyve'
   }, {
-    "19": 'nitten'
+    '19': 'nitten'
   }, {
-    "18": 'atten'
+    '18': 'atten'
   }, {
-    "17": 'sytten'
+    '17': 'sytten'
   }, {
-    "16": 'seksten'
+    '16': 'seksten'
   }, {
-    "15": 'femten'
+    '15': 'femten'
   }, {
-    "14": 'fjorten'
+    '14': 'fjorten'
   }, {
-    "13": 'tretten'
+    '13': 'tretten'
   }, {
-    "12": 'tolv'
+    '12': 'tolv'
   }, {
-    "11": 'elleve'
+    '11': 'elleve'
   }, {
-    "10": 'ti'
+    '10': 'ti'
   }, {
-    "9": 'ni'
+    '9': 'ni'
   }, {
-    "8": 'otte'
+    '8': 'otte'
   }, {
-    "7": 'syv'
+    '7': 'syv'
   }, {
-    "6": 'seks'
+    '6': 'seks'
   }, {
-    "5": 'fem'
+    '5': 'fem'
   }, {
-    "4": 'fire'
+    '4': 'fire'
   }, {
-    "3": 'tre'
+    '3': 'tre'
   }, {
-    "2": 'to'
+    '2': 'to'
   }, {
-    "1": 'et'
+    '1': 'et'
   }, {
-    "0": 'nul'
+    '0': 'nul'
   }];
 
   this.merge = function (curr, next) {
@@ -5705,32 +5704,32 @@ function DK_defineProperty(obj, key, value) { if (key in obj) { Object.definePro
         return next;
       }
 
-      ctext = "en";
+      ctext = 'en';
     }
 
     if (nnum > cnum) {
       if (nnum >= 1000000) {
-        ctext += " ";
+        ctext += ' ';
       }
 
       val = cnum * nnum;
     } else {
       if (cnum >= 100 && cnum < 1000) {
-        ctext += " og ";
+        ctext += ' og ';
       } else if (cnum >= 1000 && cnum <= 100000) {
-        ctext += "e og ";
+        ctext += 'e og ';
       }
 
       if (nnum < 10 && 10 < cnum && cnum < 100) {
         if (nnum == 1) {
-          ntext = "en";
+          ntext = 'en';
         }
 
         var temp = ntext;
         ntext = ctext;
-        ctext = temp + "og";
+        ctext = temp + 'og';
       } else if (cnum >= 1000000) {
-        ctext += " ";
+        ctext += ' ';
       }
 
       val = cnum + nnum;
@@ -5758,93 +5757,93 @@ function ES_defineProperty(obj, key, value) { if (key in obj) { Object.definePro
   var _this = this;
 
   Num2Word["a" /* default */].call(this);
-  this.gender_stem = "o";
+  this.gender_stem = 'o';
   this.cards = [{
-    "1000000000000000000000000": 'cuatrillón'
+    '1000000000000000000000000': 'cuatrillón'
   }, {
-    "1000000000000000000": 'trillón'
+    '1000000000000000000': 'trillón'
   }, {
-    "1000000000000": 'billón'
+    '1000000000000': 'billón'
   }, {
-    "1000000": 'millón'
+    '1000000': 'millón'
   }, {
-    "1000": 'mil'
+    '1000': 'mil'
   }, {
-    "100": 'cien'
+    '100': 'cien'
   }, {
-    "90": 'noventa'
+    '90': 'noventa'
   }, {
-    "80": 'ochenta'
+    '80': 'ochenta'
   }, {
-    "70": 'setenta'
+    '70': 'setenta'
   }, {
-    "60": 'sesenta'
+    '60': 'sesenta'
   }, {
-    "50": 'cincuenta'
+    '50': 'cincuenta'
   }, {
-    "40": 'cuarenta'
+    '40': 'cuarenta'
   }, {
-    "30": 'treinta'
+    '30': 'treinta'
   }, {
-    "29": 'veintinueve'
+    '29': 'veintinueve'
   }, {
-    "28": 'veintiocho'
+    '28': 'veintiocho'
   }, {
-    "27": 'veintisiete'
+    '27': 'veintisiete'
   }, {
-    "26": 'veintiséis'
+    '26': 'veintiséis'
   }, {
-    "25": 'veinticinco'
+    '25': 'veinticinco'
   }, {
-    "24": 'veinticuatro'
+    '24': 'veinticuatro'
   }, {
-    "23": 'veintitrés'
+    '23': 'veintitrés'
   }, {
-    "22": 'veintidós'
+    '22': 'veintidós'
   }, {
-    "21": 'veintiuno'
+    '21': 'veintiuno'
   }, {
-    "20": 'veinte'
+    '20': 'veinte'
   }, {
-    "19": 'diecinueve'
+    '19': 'diecinueve'
   }, {
-    "18": 'dieciocho'
+    '18': 'dieciocho'
   }, {
-    "17": 'diecisiete'
+    '17': 'diecisiete'
   }, {
-    "16": 'dieciseis'
+    '16': 'dieciseis'
   }, {
-    "15": 'quince'
+    '15': 'quince'
   }, {
-    "14": 'catorce'
+    '14': 'catorce'
   }, {
-    "13": 'trece'
+    '13': 'trece'
   }, {
-    "12": 'doce'
+    '12': 'doce'
   }, {
-    "11": 'once'
+    '11': 'once'
   }, {
-    "10": 'diez'
+    '10': 'diez'
   }, {
-    "9": 'nueve'
+    '9': 'nueve'
   }, {
-    "8": 'ocho'
+    '8': 'ocho'
   }, {
-    "7": 'siete'
+    '7': 'siete'
   }, {
-    "6": 'seis'
+    '6': 'seis'
   }, {
-    "5": 'cinco'
+    '5': 'cinco'
   }, {
-    "4": 'cuatro'
+    '4': 'cuatro'
   }, {
-    "3": 'tres'
+    '3': 'tres'
   }, {
-    "2": 'dos'
+    '2': 'dos'
   }, {
-    "1": 'uno'
+    '1': 'uno'
   }, {
-    "0": 'cero'
+    '0': 'cero'
   }];
 
   this.merge = function (curr, next) {
@@ -5855,9 +5854,9 @@ function ES_defineProperty(obj, key, value) { if (key in obj) { Object.definePro
 
     if (cnum == 1) {
       if (nnum < 1000000) return ES_defineProperty({}, ntext, nnum);
-      ctext = "un";
+      ctext = 'un';
     } else if (cnum == 100 && nnum % 1000 != 0) {
-      ctext += "t" + _this.gender_stem;
+      ctext += 't' + _this.gender_stem;
     }
 
     if (nnum < cnum) {
@@ -5867,22 +5866,22 @@ function ES_defineProperty(obj, key, value) { if (key in obj) { Object.definePro
 
       return ES_defineProperty({}, "".concat(ctext, " ").concat(ntext), cnum + nnum);
     } else if (nnum % 1000000 == 0 && cnum > 1) {
-      ntext = ntext.slice(0, -3) + "lones";
+      ntext = ntext.slice(0, -3) + 'lones';
     }
 
     if (nnum == 100) {
       if (cnum == 5) {
-        ctext = "quinien";
-        ntext = "";
+        ctext = 'quinien';
+        ntext = '';
       } else if (cnum == 7) {
-        ctext = "sete";
+        ctext = 'sete';
       } else if (cnum == 9) {
-        ctext = "nove";
+        ctext = 'nove';
       }
 
-      ntext += "t" + _this.gender_stem + "s";
+      ntext += 't' + _this.gender_stem + 's';
     } else {
-      ntext = " " + ntext;
+      ntext = ' ' + ntext;
     }
 
     return ES_defineProperty({}, "".concat(ctext).concat(ntext), cnum * nnum);
@@ -5902,77 +5901,77 @@ function FR_defineProperty(obj, key, value) { if (key in obj) { Object.definePro
 /* harmony default export */ var FR = (function () {
   Num2Word["a" /* default */].call(this);
   this.cards = [{
-    "1000000000000000000000000000": 'quadrilliard'
+    '1000000000000000000000000000': 'quadrilliard'
   }, {
-    "1000000000000000000000000": 'quadrillion'
+    '1000000000000000000000000': 'quadrillion'
   }, {
-    "1000000000000000000000": 'trilliard'
+    '1000000000000000000000': 'trilliard'
   }, {
-    "1000000000000000000": 'trillion'
+    '1000000000000000000': 'trillion'
   }, {
-    "1000000000000000": 'billiard'
+    '1000000000000000': 'billiard'
   }, {
-    "1000000000000": 'billion'
+    '1000000000000': 'billion'
   }, {
-    "1000000000": 'milliard'
+    '1000000000': 'milliard'
   }, {
-    "1000000": 'million'
+    '1000000': 'million'
   }, {
-    "1000": 'mille'
+    '1000': 'mille'
   }, {
-    "100": 'cent'
+    '100': 'cent'
   }, {
-    "80": 'quatre-vingts'
+    '80': 'quatre-vingts'
   }, {
-    "60": 'soixante'
+    '60': 'soixante'
   }, {
-    "50": 'cinquante'
+    '50': 'cinquante'
   }, {
-    "40": 'quarante'
+    '40': 'quarante'
   }, {
-    "30": 'trente'
+    '30': 'trente'
   }, {
-    "20": 'vingt'
+    '20': 'vingt'
   }, {
-    "19": 'dix-neuf'
+    '19': 'dix-neuf'
   }, {
-    "18": 'dix-huit'
+    '18': 'dix-huit'
   }, {
-    "17": 'dix-sept'
+    '17': 'dix-sept'
   }, {
-    "16": 'seize'
+    '16': 'seize'
   }, {
-    "15": 'quinze'
+    '15': 'quinze'
   }, {
-    "14": 'quatorze'
+    '14': 'quatorze'
   }, {
-    "13": 'treize'
+    '13': 'treize'
   }, {
-    "12": 'douze'
+    '12': 'douze'
   }, {
-    "11": 'onze'
+    '11': 'onze'
   }, {
-    "10": 'dix'
+    '10': 'dix'
   }, {
-    "9": 'neuf'
+    '9': 'neuf'
   }, {
-    "8": 'huit'
+    '8': 'huit'
   }, {
-    "7": 'sept'
+    '7': 'sept'
   }, {
-    "6": 'six'
+    '6': 'six'
   }, {
-    "5": 'cinq'
+    '5': 'cinq'
   }, {
-    "4": 'quatre'
+    '4': 'quatre'
   }, {
-    "3": 'trois'
+    '3': 'trois'
   }, {
-    "2": 'deux'
+    '2': 'deux'
   }, {
-    "1": 'un'
+    '1': 'un'
   }, {
-    "0": 'zéro'
+    '0': 'zéro'
   }];
 
   this.merge = function (curr, next) {
@@ -5987,12 +5986,12 @@ function FR_defineProperty(obj, key, value) { if (key in obj) { Object.definePro
         return FR_defineProperty({}, ntext, nnum);
       }
     } else {
-      if (((cnum - 80) % 100 == 0 || cnum % 100 == 0 && cnum < 1000) && nnum < 1000000 && ctext[ctext.length - 1] == "s") {
+      if (((cnum - 80) % 100 == 0 || cnum % 100 == 0 && cnum < 1000) && nnum < 1000000 && ctext[ctext.length - 1] == 's') {
         ctext = ctext.slice(0, -1); //without last elem
       }
 
-      if (cnum < 1000 && nnum != 1000 && ntext[ntext.length - 1] != "s" && nnum % 100 == 0) {
-        ntext += "s";
+      if (cnum < 1000 && nnum != 1000 && ntext[ntext.length - 1] != 's' && nnum % 100 == 0) {
+        ntext += 's';
       }
     }
 
@@ -6032,7 +6031,7 @@ function HE_arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
   var _this = this;
 
   RU.call(this);
-  this.ZERO = "אפס";
+  this.ZERO = 'אפס';
   this.AND = 'ו';
   this.ONES = {
     1: 'אחת',
@@ -6200,27 +6199,27 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 /* harmony default export */ var IT = (function () {
   var _this = this;
 
-  var ZERO = "zero";
-  var CARDINAL_WORDS = [ZERO, "uno", "due", "tre", "quattro", "cinque", "sei", "sette", "otto", "nove", "dieci", "undici", "dodici", "tredici", "quattordici", "quindici", "sedici", "diciassette", "diciotto", "diciannove"];
+  var ZERO = 'zero';
+  var CARDINAL_WORDS = [ZERO, 'uno', 'due', 'tre', 'quattro', 'cinque', 'sei', 'sette', 'otto', 'nove', 'dieci', 'undici', 'dodici', 'tredici', 'quattordici', 'quindici', 'sedici', 'diciassette', 'diciotto', 'diciannove'];
   var STR_TENS = {
-    "2": "venti",
-    "3": "trenta",
-    "4": "quaranta",
-    "6": "sessanta"
+    '2': 'venti',
+    '3': 'trenta',
+    '4': 'quaranta',
+    '6': 'sessanta'
   };
-  var EXPONENT_PREFIXES = [ZERO, "m", "b", "tr", "quadr", "quint", "sest", "sett", "ott", "nov", "dec"];
+  var EXPONENT_PREFIXES = [ZERO, 'm', 'b', 'tr', 'quadr', 'quint', 'sest', 'sett', 'ott', 'nov', 'dec'];
 
   this.accentuate = function (string) {
     var splittedString = string.split(' ');
     var result = splittedString.map(function (word) {
-      if (word.slice(-3) == "tre" && word.length > 3) return word.replace(/tré/g, 'tre').slice(0, -3) + 'tré';else return word.replace(/tré/g, 'tre');
+      if (word.slice(-3) == 'tre' && word.length > 3) return word.replace(/tré/g, 'tre').slice(0, -3) + 'tré';else return word.replace(/tré/g, 'tre');
     });
     return result.join(' ');
   };
 
   this.omitIfZero = function (numberToString) {
     if (numberToString == ZERO) {
-      return "";
+      return '';
     } else {
       return numberToString;
     }
@@ -6238,7 +6237,7 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
     if (STR_TENS.hasOwnProperty(tens)) {
       prefix = STR_TENS[tens];
     } else {
-      prefix = CARDINAL_WORDS[tens].slice(0, -1) + "anta";
+      prefix = CARDINAL_WORDS[tens].slice(0, -1) + 'anta';
     }
 
     var postfix = _this.omitIfZero(CARDINAL_WORDS[units]);
@@ -6248,7 +6247,7 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 
   this.hundredsToCardinal = function (number) {
     var hundreds = Math.floor(number / 100);
-    var prefix = "cento";
+    var prefix = 'cento';
 
     if (hundreds != 1) {
       prefix = CARDINAL_WORDS[hundreds] + prefix;
@@ -6264,7 +6263,7 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
     var prefix;
 
     if (thousands == 1) {
-      prefix = "mille";
+      prefix = 'mille';
     } else {
       prefix = _this.toCardinal(thousands) + 'mila';
     }
@@ -6295,11 +6294,11 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 
     var infix = _this.exponentLengthToString(exponent.length);
 
-    if (multiplier.toString() == "1") {
-      prefix = "un ";
+    if (multiplier.toString() == '1') {
+      prefix = 'un ';
     } else {
       prefix = _this.toCardinal(parseInt(multiplier.join('')));
-      infix = " " + infix.slice(0, -1) + "i"; // without last element
+      infix = ' ' + infix.slice(0, -1) + 'i'; // without last element
     }
 
     var isSetsEqual = function isSetsEqual(a, b) {
@@ -6312,9 +6311,9 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
       postfix = _this.toCardinal(parseInt(exponent.join('')));
 
       if (postfix.includes(' e ')) {
-        infix += ", "; // for very large numbers
+        infix += ', '; // for very large numbers
       } else {
-        infix += " e ";
+        infix += ' e ';
       }
     } else {
       postfix = '';
@@ -6324,7 +6323,7 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
   };
 
   this.toCardinal = function (number) {
-    var words = "";
+    var words = '';
 
     if (number < 20) {
       words = CARDINAL_WORDS[number];
@@ -6431,7 +6430,7 @@ function LT_arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
   RU.call(this);
   this.feminine = false;
-  this.ZERO = "nulis";
+  this.ZERO = 'nulis';
   this.ONES = {
     1: 'vienas',
     2: 'du',
@@ -6592,7 +6591,7 @@ function LV_arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
   var _this = this;
 
   RU.call(this);
-  this.ZERO = "nulle";
+  this.ZERO = 'nulle';
   this.ONES = {
     1: 'viens',
     2: 'divi',
@@ -6721,85 +6720,85 @@ function NO_defineProperty(obj, key, value) { if (key in obj) { Object.definePro
 /* harmony default export */ var NO = (function () {
   Num2Word["a" /* default */].call(this);
   this.cards = [{
-    "1000000000000000000000000000000000": 'quintillard'
+    '1000000000000000000000000000000000': 'quintillard'
   }, {
-    "1000000000000000000000000000000": 'quintillion'
+    '1000000000000000000000000000000': 'quintillion'
   }, {
-    "1000000000000000000000000000": 'quadrillard'
+    '1000000000000000000000000000': 'quadrillard'
   }, {
-    "1000000000000000000000000": 'quadrillion'
+    '1000000000000000000000000': 'quadrillion'
   }, {
-    "1000000000000000000000": 'trillard'
+    '1000000000000000000000': 'trillard'
   }, {
-    "1000000000000000000": 'trillion'
+    '1000000000000000000': 'trillion'
   }, {
-    "1000000000000000": 'billard'
+    '1000000000000000': 'billard'
   }, {
-    "1000000000000": 'billion'
+    '1000000000000': 'billion'
   }, {
-    "1000000000": 'millard'
+    '1000000000': 'millard'
   }, {
-    "1000000": 'million'
+    '1000000': 'million'
   }, {
-    "1000": 'tusen'
+    '1000': 'tusen'
   }, {
-    "100": 'hundre'
+    '100': 'hundre'
   }, {
-    "90": 'nitti'
+    '90': 'nitti'
   }, {
-    "80": 'åtti'
+    '80': 'åtti'
   }, {
-    "70": 'sytti'
+    '70': 'sytti'
   }, {
-    "60": 'seksti'
+    '60': 'seksti'
   }, {
-    "50": 'femti'
+    '50': 'femti'
   }, {
-    "40": 'førti'
+    '40': 'førti'
   }, {
-    "30": 'tretti'
+    '30': 'tretti'
   }, {
-    "20": 'tjue'
+    '20': 'tjue'
   }, {
-    "19": 'nitten'
+    '19': 'nitten'
   }, {
-    "18": 'atten'
+    '18': 'atten'
   }, {
-    "17": 'sytten'
+    '17': 'sytten'
   }, {
-    "16": 'seksten'
+    '16': 'seksten'
   }, {
-    "15": 'femten'
+    '15': 'femten'
   }, {
-    "14": 'fjorten'
+    '14': 'fjorten'
   }, {
-    "13": 'tretten'
+    '13': 'tretten'
   }, {
-    "12": 'tolv'
+    '12': 'tolv'
   }, {
-    "11": 'elleve'
+    '11': 'elleve'
   }, {
-    "10": 'ti'
+    '10': 'ti'
   }, {
-    "9": 'ni'
+    '9': 'ni'
   }, {
-    "8": 'åtte'
+    '8': 'åtte'
   }, {
-    "7": 'syv'
+    '7': 'syv'
   }, {
-    "6": 'seks'
+    '6': 'seks'
   }, {
-    "5": 'fem'
+    '5': 'fem'
   }, {
-    "4": 'fire'
+    '4': 'fire'
   }, {
-    "3": 'tre'
+    '3': 'tre'
   }, {
-    "2": 'to'
+    '2': 'to'
   }, {
-    "1": 'en'
+    '1': 'en'
   }, {
-    "0": 'null'
+    '0': 'null'
   }];
 
   this.merge = function (lpair, rpair) {
@@ -6840,7 +6839,7 @@ function PL_arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
   RU.call(this);
   this.feminine = false;
-  this.ZERO = "zero";
+  this.ZERO = 'zero';
   this.ONES = {
     1: 'jeden',
     2: 'dwa',
@@ -6994,84 +6993,84 @@ function PT_defineProperty(obj, key, value) { if (key in obj) { Object.definePro
 
   Num2Word["a" /* default */].call(this);
   this.cards = [{
-    "1000000000000000000000000": 'quatrilião'
+    '1000000000000000000000000': 'quatrilião'
   }, {
-    "1000000000000000000": 'trilião'
+    '1000000000000000000': 'trilião'
   }, {
-    "1000000000000": 'bilião'
+    '1000000000000': 'bilião'
   }, {
-    "1000000": 'milião'
+    '1000000': 'milião'
   }, {
-    "1000": 'mil'
+    '1000': 'mil'
   }, {
-    "100": 'cem'
+    '100': 'cem'
   }, {
-    "90": 'noventa'
+    '90': 'noventa'
   }, {
-    "80": 'oitenta'
+    '80': 'oitenta'
   }, {
-    "70": 'setenta'
+    '70': 'setenta'
   }, {
-    "60": 'sessenta'
+    '60': 'sessenta'
   }, {
-    "50": 'cinquenta'
+    '50': 'cinquenta'
   }, {
-    "40": 'quarenta'
+    '40': 'quarenta'
   }, {
-    "30": 'trinta'
+    '30': 'trinta'
   }, {
-    "20": 'vinte'
+    '20': 'vinte'
   }, {
-    "19": 'dezanove'
+    '19': 'dezanove'
   }, {
-    "18": 'dezoito'
+    '18': 'dezoito'
   }, {
-    "17": 'dezassete'
+    '17': 'dezassete'
   }, {
-    "16": 'dezasseis'
+    '16': 'dezasseis'
   }, {
-    "15": 'quinze'
+    '15': 'quinze'
   }, {
-    "14": 'catorze'
+    '14': 'catorze'
   }, {
-    "13": 'treze'
+    '13': 'treze'
   }, {
-    "12": 'doze'
+    '12': 'doze'
   }, {
-    "11": 'onze'
+    '11': 'onze'
   }, {
-    "10": 'dez'
+    '10': 'dez'
   }, {
-    "9": 'nove'
+    '9': 'nove'
   }, {
-    "8": 'oito'
+    '8': 'oito'
   }, {
-    "7": 'sete'
+    '7': 'sete'
   }, {
-    "6": 'seis'
+    '6': 'seis'
   }, {
-    "5": 'cinco'
+    '5': 'cinco'
   }, {
-    "4": 'quatro'
+    '4': 'quatro'
   }, {
-    "3": 'três'
+    '3': 'três'
   }, {
-    "2": 'dois'
+    '2': 'dois'
   }, {
-    "1": 'um'
+    '1': 'um'
   }, {
-    "0": 'zero'
+    '0': 'zero'
   }];
   this.hundreds = {
-    "1": "cento",
-    "2": "duzentos",
-    "3": "trezentos",
-    "4": "quatrocentos",
-    "5": "quinhentos",
-    "6": "seiscentos",
-    "7": "setecentos",
-    "8": "oitocentos",
-    "9": "novecentos"
+    '1': 'cento',
+    '2': 'duzentos',
+    '3': 'trezentos',
+    '4': 'quatrocentos',
+    '5': 'quinhentos',
+    '6': 'seiscentos',
+    '7': 'setecentos',
+    '8': 'oitocentos',
+    '9': 'novecentos'
   };
 
   this.postClean = function (words) {
@@ -7096,9 +7095,9 @@ function PT_defineProperty(obj, key, value) { if (key in obj) { Object.definePro
 
     if (cnum == 1) {
       if (nnum < 1000000) return PT_defineProperty({}, ntext, nnum);
-      ctext = "um";
+      ctext = 'um';
     } else if (cnum == 100 && nnum % 1000 != 0) {
-      ctext = "cento";
+      ctext = 'cento';
     }
 
     if (nnum < cnum) {
@@ -7107,18 +7106,18 @@ function PT_defineProperty(obj, key, value) { if (key in obj) { Object.definePro
       // }
       return PT_defineProperty({}, "".concat(ctext, " e ").concat(ntext), cnum + nnum);
     } else if (nnum % 1000000000 == 0 && cnum > 1) {
-      ntext = ntext.slice(0, -4) + "liões";
+      ntext = ntext.slice(0, -4) + 'liões';
     } else if (nnum % 1000000 == 0 && cnum > 1) {
-      ntext = ntext.slice(0, -4) + "lhões";
+      ntext = ntext.slice(0, -4) + 'lhões';
     }
 
     if (ntext == 'milião') ntext = 'milhão';
 
     if (nnum == 100) {
       ctext = _this.hundreds[cnum];
-      ntext = "";
+      ntext = '';
     } else {
-      ntext = " " + ntext;
+      ntext = ' ' + ntext;
     }
 
     return PT_defineProperty({}, "".concat(ctext).concat(ntext), cnum * nnum);
@@ -7145,7 +7144,7 @@ var es_string_repeat = __webpack_require__(148);
     if (parseInt(value) != 0) {
       _this.integers_to_read = [JSON.stringify(parseInt(value)), float_digits.slice(float_digits.length - _this.precision, float_digits.length)];
     } else {
-      _this.integers_to_read = ["0", "0".repeat(_this.precision - float_digits.length) + float_digits.slice(float_digits.length - _this.precision, float_digits.length)];
+      _this.integers_to_read = ['0', '0'.repeat(_this.precision - float_digits.length) + float_digits.slice(float_digits.length - _this.precision, float_digits.length)];
     }
 
     if (_this.integers_to_read[0].length % 3 > 0) {
@@ -7156,7 +7155,7 @@ var es_string_repeat = __webpack_require__(148);
 
     _this.total_digits_outside_triplets = _this.integers_to_read[0].length % 3;
 
-    var okunacak = _this.integers_to_read[0].split("").reverse();
+    var okunacak = _this.integers_to_read[0].split('').reverse();
 
     _this.order_of_last_zero_digit = 0;
     var found = 0;
@@ -7171,45 +7170,45 @@ var es_string_repeat = __webpack_require__(148);
   };
 
   this.CARDINAL_ONES = {
-    "1": "bir",
-    "2": "iki",
-    "3": "üç",
-    "4": "dört",
-    "5": "beş",
-    "6": "altı",
-    "7": "yedi",
-    "8": "sekiz",
-    "9": "dokuz"
+    '1': 'bir',
+    '2': 'iki',
+    '3': 'üç',
+    '4': 'dört',
+    '5': 'beş',
+    '6': 'altı',
+    '7': 'yedi',
+    '8': 'sekiz',
+    '9': 'dokuz'
   };
   this.CARDINAL_TENS = {
-    "1": "on",
-    "2": "yirmi",
-    "3": "otuz",
-    "4": "kırk",
-    "5": "elli",
-    "6": "altmış",
-    "7": "yetmiş",
-    "8": "seksen",
-    "9": "doksan"
+    '1': 'on',
+    '2': 'yirmi',
+    '3': 'otuz',
+    '4': 'kırk',
+    '5': 'elli',
+    '6': 'altmış',
+    '7': 'yetmiş',
+    '8': 'seksen',
+    '9': 'doksan'
   };
   this.HUNDREDS = {
-    "2": "iki",
-    "3": "üç",
-    "4": "dört",
-    "5": "beş",
-    "6": "altı",
-    "7": "yedi",
-    "8": "sekiz",
-    "9": "dokuz"
+    '2': 'iki',
+    '3': 'üç',
+    '4': 'dört',
+    '5': 'beş',
+    '6': 'altı',
+    '7': 'yedi',
+    '8': 'sekiz',
+    '9': 'dokuz'
   };
-  this.CARDINAL_HUNDRED = ["yüz", ""];
+  this.CARDINAL_HUNDRED = ['yüz', ''];
   this.CARDINAL_TRIPLETS = {
-    1: "bin",
-    2: "milyon",
-    3: "milyar",
-    4: "trilyon",
-    5: "katrilyon",
-    6: "kentilyon"
+    1: 'bin',
+    2: 'milyon',
+    3: 'milyar',
+    4: 'trilyon',
+    5: 'katrilyon',
+    6: 'kentilyon'
   };
   this.integers_to_read = [];
   this.total_triplets_to_read = 0;
@@ -7218,12 +7217,12 @@ var es_string_repeat = __webpack_require__(148);
 
   this.toCardinal = function (value) {
     if (parseInt(value) == 0) {
-      return "sıfır";
+      return 'sıfır';
     }
 
     _this.splitnum(value);
 
-    var wrd = "";
+    var wrd = '';
 
     if (_this.order_of_last_zero_digit >= _this.integers_to_read[0].length) {
       return wrd;
@@ -7232,13 +7231,13 @@ var es_string_repeat = __webpack_require__(148);
     if (_this.total_triplets_to_read == 1) {
       if (_this.total_digits_outside_triplets == 2) {
         if (_this.order_of_last_zero_digit == 1) {
-          wrd += _this.CARDINAL_TENS[_this.integers_to_read[0][0]] || "";
+          wrd += _this.CARDINAL_TENS[_this.integers_to_read[0][0]] || '';
           return wrd;
         }
 
         if (_this.order_of_last_zero_digit == 0) {
-          wrd += _this.CARDINAL_TENS[_this.integers_to_read[0][0]] || "";
-          wrd += _this.CARDINAL_ONES[_this.integers_to_read[0][1]] || "";
+          wrd += _this.CARDINAL_TENS[_this.integers_to_read[0][0]] || '';
+          wrd += _this.CARDINAL_ONES[_this.integers_to_read[0][1]] || '';
         }
 
         return wrd;
@@ -7246,30 +7245,30 @@ var es_string_repeat = __webpack_require__(148);
 
       if (_this.total_digits_outside_triplets == 1) {
         if (_this.order_of_last_zero_digit == 0) {
-          wrd += _this.CARDINAL_ONES[_this.integers_to_read[0][0]] || "";
+          wrd += _this.CARDINAL_ONES[_this.integers_to_read[0][0]] || '';
           return wrd;
         }
       }
 
       if (_this.total_digits_outside_triplets == 0) {
         if (_this.order_of_last_zero_digit == 2) {
-          wrd += _this.HUNDREDS[_this.integers_to_read[0][0]] || "";
+          wrd += _this.HUNDREDS[_this.integers_to_read[0][0]] || '';
           wrd += _this.CARDINAL_HUNDRED[0];
           return wrd;
         }
 
         if (_this.order_of_last_zero_digit == 1) {
-          wrd += _this.HUNDREDS[_this.integers_to_read[0][0]] || "";
+          wrd += _this.HUNDREDS[_this.integers_to_read[0][0]] || '';
           wrd += _this.CARDINAL_HUNDRED[0];
-          wrd += _this.CARDINAL_TENS[_this.integers_to_read[0][1]] || "";
+          wrd += _this.CARDINAL_TENS[_this.integers_to_read[0][1]] || '';
           return wrd;
         }
 
         if (_this.order_of_last_zero_digit == 0) {
-          wrd += _this.HUNDREDS[_this.integers_to_read[0][0]] || "";
+          wrd += _this.HUNDREDS[_this.integers_to_read[0][0]] || '';
           wrd += _this.CARDINAL_HUNDRED[0];
-          wrd += _this.CARDINAL_TENS[_this.integers_to_read[0][1]] || "";
-          wrd += _this.CARDINAL_ONES[_this.integers_to_read[0][2]] || "";
+          wrd += _this.CARDINAL_TENS[_this.integers_to_read[0][1]] || '';
+          wrd += _this.CARDINAL_ONES[_this.integers_to_read[0][2]] || '';
           return wrd;
         }
       }
@@ -7278,29 +7277,29 @@ var es_string_repeat = __webpack_require__(148);
     if (_this.total_triplets_to_read >= 2) {
       if (_this.total_digits_outside_triplets == 2) {
         if (_this.order_of_last_zero_digit == _this.integers_to_read[0].length - 1) {
-          wrd += _this.CARDINAL_TENS[_this.integers_to_read[0][0]] || "";
+          wrd += _this.CARDINAL_TENS[_this.integers_to_read[0][0]] || '';
           wrd += _this.CARDINAL_TRIPLETS[_this.total_triplets_to_read - 1];
           return wrd;
         }
 
         if (_this.order_of_last_zero_digit == _this.integers_to_read[0].length - 2) {
-          wrd += _this.CARDINAL_TENS[_this.integers_to_read[0][0]] || "";
-          wrd += _this.CARDINAL_ONES[_this.integers_to_read[0][1]] || "";
+          wrd += _this.CARDINAL_TENS[_this.integers_to_read[0][0]] || '';
+          wrd += _this.CARDINAL_ONES[_this.integers_to_read[0][1]] || '';
           wrd += _this.CARDINAL_TRIPLETS[_this.total_triplets_to_read - 1];
           return wrd;
         }
 
         if (_this.order_of_last_zero_digit < _this.integers_to_read[0].length - 2) {
-          wrd += _this.CARDINAL_TENS[_this.integers_to_read[0][0]] || "";
-          wrd += _this.CARDINAL_ONES[_this.integers_to_read[0][1]] || "";
+          wrd += _this.CARDINAL_TENS[_this.integers_to_read[0][0]] || '';
+          wrd += _this.CARDINAL_ONES[_this.integers_to_read[0][1]] || '';
           wrd += _this.CARDINAL_TRIPLETS[_this.total_triplets_to_read - 1];
         }
       }
 
       if (_this.total_digits_outside_triplets == 1) {
         if (_this.order_of_last_zero_digit == _this.integers_to_read[0].length - 1) {
-          if (!(_this.total_triplets_to_read == 2 && _this.integers_to_read[0][0] == "1")) {
-            wrd += _this.CARDINAL_ONES[_this.integers_to_read[0][0]] || "";
+          if (!(_this.total_triplets_to_read == 2 && _this.integers_to_read[0][0] == '1')) {
+            wrd += _this.CARDINAL_ONES[_this.integers_to_read[0][0]] || '';
           }
 
           wrd += _this.CARDINAL_TRIPLETS[_this.total_triplets_to_read - 1];
@@ -7308,8 +7307,8 @@ var es_string_repeat = __webpack_require__(148);
         }
 
         if (_this.order_of_last_zero_digit < _this.integers_to_read[0].length - 1) {
-          if (!(_this.total_triplets_to_read == 2 && _this.integers_to_read[0][0] == "1")) {
-            wrd += _this.CARDINAL_ONES[_this.integers_to_read[0][0]] || "";
+          if (!(_this.total_triplets_to_read == 2 && _this.integers_to_read[0][0] == '1')) {
+            wrd += _this.CARDINAL_ONES[_this.integers_to_read[0][0]] || '';
           }
 
           wrd += _this.CARDINAL_TRIPLETS[_this.total_triplets_to_read - 1];
@@ -7318,36 +7317,36 @@ var es_string_repeat = __webpack_require__(148);
 
       if (_this.total_digits_outside_triplets == 0) {
         if (_this.order_of_last_zero_digit == _this.integers_to_read[0].length - 1) {
-          wrd += _this.HUNDREDS[_this.integers_to_read[0][0]] || "";
+          wrd += _this.HUNDREDS[_this.integers_to_read[0][0]] || '';
           wrd += _this.CARDINAL_HUNDRED[0];
           wrd += _this.CARDINAL_TRIPLETS[_this.total_triplets_to_read - 1];
           return wrd;
         }
 
         if (_this.order_of_last_zero_digit == _this.integers_to_read[0].length - 2) {
-          wrd += _this.HUNDREDS[_this.integers_to_read[0][0]] || "";
+          wrd += _this.HUNDREDS[_this.integers_to_read[0][0]] || '';
           wrd += _this.CARDINAL_HUNDRED[0];
-          wrd += _this.CARDINAL_TENS[_this.integers_to_read[0][1]] || "";
+          wrd += _this.CARDINAL_TENS[_this.integers_to_read[0][1]] || '';
           wrd += _this.CARDINAL_TRIPLETS[_this.total_triplets_to_read - 1];
           return wrd;
         }
 
         if (_this.order_of_last_zero_digit == _this.integers_to_read[0].length - 3) {
-          wrd += _this.HUNDREDS[_this.integers_to_read[0][0]] || "";
+          wrd += _this.HUNDREDS[_this.integers_to_read[0][0]] || '';
           wrd += _this.CARDINAL_HUNDRED[0];
-          wrd += _this.CARDINAL_TENS[_this.integers_to_read[0][1]] || "";
-          wrd += _this.CARDINAL_ONES[_this.integers_to_read[0][2]] || "";
+          wrd += _this.CARDINAL_TENS[_this.integers_to_read[0][1]] || '';
+          wrd += _this.CARDINAL_ONES[_this.integers_to_read[0][2]] || '';
           wrd += _this.CARDINAL_TRIPLETS[_this.total_triplets_to_read - 1];
           return wrd;
         }
 
         if (_this.order_of_last_zero_digit < _this.integers_to_read[0].length - 3) {
-          wrd += _this.HUNDREDS[_this.integers_to_read[0][0]] || "";
+          wrd += _this.HUNDREDS[_this.integers_to_read[0][0]] || '';
           wrd += _this.CARDINAL_HUNDRED[0];
-          wrd += _this.CARDINAL_TENS[_this.integers_to_read[0][1]] || "";
+          wrd += _this.CARDINAL_TENS[_this.integers_to_read[0][1]] || '';
 
-          if (!(_this.total_triplets_to_read == 2 && _this.integers_to_read[0][2] == "1")) {
-            wrd += _this.CARDINAL_ONES[_this.integers_to_read[0][2]] || "";
+          if (!(_this.total_triplets_to_read == 2 && _this.integers_to_read[0][2] == '1')) {
+            wrd += _this.CARDINAL_ONES[_this.integers_to_read[0][2]] || '';
           }
 
           wrd += _this.CARDINAL_TRIPLETS[_this.total_triplets_to_read - 1];
@@ -7363,9 +7362,9 @@ var es_string_repeat = __webpack_require__(148);
           last_read_digit_order = (reading_triplet_order - 1) * 3 + _this.total_digits_outside_triplets;
         }
 
-        if (_this.integers_to_read[0].slice(last_read_digit_order, last_read_digit_order + 3) != "000") {
-          if (_this.integers_to_read[0][last_read_digit_order] != "0") {
-            wrd += _this.HUNDREDS[_this.integers_to_read[0][last_read_digit_order]] || "";
+        if (_this.integers_to_read[0].slice(last_read_digit_order, last_read_digit_order + 3) != '000') {
+          if (_this.integers_to_read[0][last_read_digit_order] != '0') {
+            wrd += _this.HUNDREDS[_this.integers_to_read[0][last_read_digit_order]] || '';
 
             if (_this.order_of_last_zero_digit == _this.integers_to_read[0].length - last_read_digit_order - 1) {
               if (i == 1) {
@@ -7381,33 +7380,33 @@ var es_string_repeat = __webpack_require__(148);
             }
           }
 
-          if (_this.integers_to_read[0][last_read_digit_order + 1] != "0") {
+          if (_this.integers_to_read[0][last_read_digit_order + 1] != '0') {
             if (_this.order_of_last_zero_digit == _this.integers_to_read[0].length - last_read_digit_order - 2) {
               if (i == 1) {
-                wrd += _this.CARDINAL_TENS[_this.integers_to_read[0][last_read_digit_order + 1]] || "";
+                wrd += _this.CARDINAL_TENS[_this.integers_to_read[0][last_read_digit_order + 1]] || '';
                 return wrd;
               } else if (i > 1) {
-                wrd += _this.CARDINAL_TENS[_this.integers_to_read[0][last_read_digit_order + 1]] || "";
+                wrd += _this.CARDINAL_TENS[_this.integers_to_read[0][last_read_digit_order + 1]] || '';
                 wrd += _this.CARDINAL_TRIPLETS[i - 1];
                 return wrd;
               }
             } else {
-              wrd += _this.CARDINAL_TENS[_this.integers_to_read[0][last_read_digit_order + 1]] || "";
+              wrd += _this.CARDINAL_TENS[_this.integers_to_read[0][last_read_digit_order + 1]] || '';
             }
           }
 
-          if (_this.integers_to_read[0][last_read_digit_order + 2] != "0") {
+          if (_this.integers_to_read[0][last_read_digit_order + 2] != '0') {
             if (_this.order_of_last_zero_digit == _this.integers_to_read[0].length - last_read_digit_order - 3) {
               if (i == 1) {
-                wrd += _this.CARDINAL_ONES[_this.integers_to_read[0][last_read_digit_order + 2]] || "";
+                wrd += _this.CARDINAL_ONES[_this.integers_to_read[0][last_read_digit_order + 2]] || '';
                 return wrd;
               }
 
               if (i == 2) {
-                if (_this.integers_to_read[0].slice(last_read_digit_order, last_read_digit_order + 2) != "00") {
-                  wrd += _this.CARDINAL_ONES[_this.integers_to_read[0][last_read_digit_order + 2]] || "";
-                } else if (_this.integers_to_read[0][last_read_digit_order + 2] != "1") {
-                  wrd += _this.CARDINAL_ONES[_this.integers_to_read[0][last_read_digit_order + 2]] || "";
+                if (_this.integers_to_read[0].slice(last_read_digit_order, last_read_digit_order + 2) != '00') {
+                  wrd += _this.CARDINAL_ONES[_this.integers_to_read[0][last_read_digit_order + 2]] || '';
+                } else if (_this.integers_to_read[0][last_read_digit_order + 2] != '1') {
+                  wrd += _this.CARDINAL_ONES[_this.integers_to_read[0][last_read_digit_order + 2]] || '';
                 }
 
                 wrd += _this.CARDINAL_TRIPLETS[i - 1];
@@ -7415,19 +7414,19 @@ var es_string_repeat = __webpack_require__(148);
               }
 
               if (i > 2) {
-                wrd += _this.CARDINAL_ONES[_this.integers_to_read[0][last_read_digit_order + 2]] || "";
+                wrd += _this.CARDINAL_ONES[_this.integers_to_read[0][last_read_digit_order + 2]] || '';
                 wrd += _this.CARDINAL_TRIPLETS[i - 1];
                 return wrd;
               }
             } else {
-              if (_this.integers_to_read[0].slice(last_read_digit_order, last_read_digit_order + 2) != "00") {
-                wrd += _this.CARDINAL_ONES[_this.integers_to_read[0][last_read_digit_order + 2]] || "";
+              if (_this.integers_to_read[0].slice(last_read_digit_order, last_read_digit_order + 2) != '00') {
+                wrd += _this.CARDINAL_ONES[_this.integers_to_read[0][last_read_digit_order + 2]] || '';
               } else {
                 if (i == 2) {
-                  if (_this.integers_to_read[0].slice(last_read_digit_order, last_read_digit_order + 2) != "00") {
-                    wrd += _this.CARDINAL_ONES[_this.integers_to_read[0][last_read_digit_order + 2]] || "";
-                  } else if (_this.integers_to_read[0][last_read_digit_order + 2] != "1") {
-                    wrd += _this.CARDINAL_ONES[_this.integers_to_read[0][last_read_digit_order + 2]] || "";
+                  if (_this.integers_to_read[0].slice(last_read_digit_order, last_read_digit_order + 2) != '00') {
+                    wrd += _this.CARDINAL_ONES[_this.integers_to_read[0][last_read_digit_order + 2]] || '';
+                  } else if (_this.integers_to_read[0][last_read_digit_order + 2] != '1') {
+                    wrd += _this.CARDINAL_ONES[_this.integers_to_read[0][last_read_digit_order + 2]] || '';
                   }
                 }
               }
@@ -7447,7 +7446,7 @@ var es_string_repeat = __webpack_require__(148);
 /* harmony default export */ var UK = (function () {
   RU.call(this);
   this.feminine = false;
-  this.ZERO = "нуль";
+  this.ZERO = 'нуль';
   this.ONES = {
     1: 'один',
     2: 'два',
@@ -7557,14 +7556,14 @@ var es_string_repeat = __webpack_require__(148);
  */
 
 /* harmony default export */ var n2words = __webpack_exports__["default"] = (function (n, options) {
-  var lang = "EN"; // default language
+  var lang = 'EN'; // default language
 
   var supportedLanguages = ['en', 'fr', 'es', 'de', 'pt', 'it', 'tr', 'ru', 'cz', 'no', 'dk', 'pl', 'uk', 'lt', 'lv', 'ar', 'he', 'ko'];
 
   if (options) {
     if (options.lang) {
       // lang is given in options
-      if (supportedLanguages.indexOf(options.lang) != -1) lang = options.lang.toUpperCase();else throw Error("ERROR: Unsupported language. Supported languages are: ".concat(supportedLanguages.sort().join(", ")));
+      if (supportedLanguages.indexOf(options.lang) != -1) lang = options.lang.toUpperCase();else throw Error('ERROR: Unsupported language. Supported languages are:' + supportedLanguages.sort().join(', '));
     }
   }
 

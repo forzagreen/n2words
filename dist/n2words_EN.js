@@ -1369,81 +1369,81 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 /* harmony default export */ __webpack_exports__["a"] = (function () {
   _classes_Num2Word__WEBPACK_IMPORTED_MODULE_5__[/* default */ "a"].call(this);
   this.cards = [{
-    "1000000000000000000000000000": 'octillion'
+    '1000000000000000000000000000': 'octillion'
   }, {
-    "1000000000000000000000000": 'septillion'
+    '1000000000000000000000000': 'septillion'
   }, {
-    "1000000000000000000000": 'sextillion'
+    '1000000000000000000000': 'sextillion'
   }, {
-    "1000000000000000000": 'quintillion'
+    '1000000000000000000': 'quintillion'
   }, {
-    "1000000000000000": 'quadrillion'
+    '1000000000000000': 'quadrillion'
   }, {
-    "1000000000000": 'trillion'
+    '1000000000000': 'trillion'
   }, {
-    "1000000000": 'billion'
+    '1000000000': 'billion'
   }, {
-    "1000000": 'million'
+    '1000000': 'million'
   }, {
-    "1000": 'thousand'
+    '1000': 'thousand'
   }, {
-    "100": 'hundred'
+    '100': 'hundred'
   }, {
-    "90": 'ninety'
+    '90': 'ninety'
   }, {
-    "80": 'eighty'
+    '80': 'eighty'
   }, {
-    "70": 'seventy'
+    '70': 'seventy'
   }, {
-    "60": 'sixty'
+    '60': 'sixty'
   }, {
-    "50": 'fifty'
+    '50': 'fifty'
   }, {
-    "40": 'forty'
+    '40': 'forty'
   }, {
-    "30": 'thirty'
+    '30': 'thirty'
   }, {
-    "20": 'twenty'
+    '20': 'twenty'
   }, {
-    "19": 'nineteen'
+    '19': 'nineteen'
   }, {
-    "18": 'eighteen'
+    '18': 'eighteen'
   }, {
-    "17": 'seventeen'
+    '17': 'seventeen'
   }, {
-    "16": 'sixteen'
+    '16': 'sixteen'
   }, {
-    "15": 'fifteen'
+    '15': 'fifteen'
   }, {
-    "14": 'fourteen'
+    '14': 'fourteen'
   }, {
-    "13": 'thirteen'
+    '13': 'thirteen'
   }, {
-    "12": 'twelve'
+    '12': 'twelve'
   }, {
-    "11": 'eleven'
+    '11': 'eleven'
   }, {
-    "10": 'ten'
+    '10': 'ten'
   }, {
-    "9": 'nine'
+    '9': 'nine'
   }, {
-    "8": 'eight'
+    '8': 'eight'
   }, {
-    "7": 'seven'
+    '7': 'seven'
   }, {
-    "6": 'six'
+    '6': 'six'
   }, {
-    "5": 'five'
+    '5': 'five'
   }, {
-    "4": 'four'
+    '4': 'four'
   }, {
-    "3": 'three'
+    '3': 'three'
   }, {
-    "2": 'two'
+    '2': 'two'
   }, {
-    "1": 'one'
+    '1': 'one'
   }, {
-    "0": 'zero'
+    '0': 'zero'
   }];
 
   this.merge = function (lpair, rpair) {
