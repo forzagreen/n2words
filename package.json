@@ -64,5 +64,11 @@
     "require": [
       "esm"
     ]
+  },
+  "c8": {
+    "all": true,
+    "include": [
+      "src/"
+    ]
   }
 }
