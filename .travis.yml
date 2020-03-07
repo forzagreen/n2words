@@ -4,4 +4,7 @@ env:
   - NPM_TOKEN=xxxx
 node_js:
   - "node"
-after_success: npm run coverage
+after_success:
+  - npm install --save-dev coveralls
+  - npm run coverage
+  - npx nyc report --reporter=text-lcov | coveralls

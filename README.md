@@ -4,39 +4,49 @@
 [![Coverage Status](https://coveralls.io/repos/github/forzagreen/n2words/badge.svg?branch=master)](https://coveralls.io/github/forzagreen/n2words?branch=master)
 [![npm](https://img.shields.io/npm/v/n2words.svg)](https://www.npmjs.com/package/n2words)
 
-n2words onverts numbers to words. It supports multiple languages.
+n2words converts numbers to words. It supports multiple languages.
 
 n2words is a lightweight, easy to use package, with no dependencies. It works both in Node.js and in browsers.
 
-## Usage
-
-```js
-var n2words = require('n2words')
-
-n2words(123)                 // 'one hundred and twenty-three'
-
-n2words(123, {lang: 'en'})   // 'one hundred and twenty-three'
-n2words(123, {lang: 'fr'})   // 'cent vingt-trois'
-n2words(123, {lang: 'es'})   // 'ciento veintitrés'
-
-```
-
 ## Install
-
-### Node.js
 
 ```sh
 npm install n2words
 ```
 
-### Browser:
+n2words is available on [jsDelivr](https://www.jsdelivr.com/package/npm/n2words).
+
+## Usage
+
+### CommonJS
+
+```js
+var n2words = require('n2words')
+```
+
+### ES6
+
+```js
+import n2words from 'n2words/src/n2words'
+```
+
+### Browser
 
 ```html
 <script src="n2words.min.js"></script>
 ```
-n2words is available on [jsDelivr](https://www.jsdelivr.com/package/npm/n2words).
 
-## Supported Languages:
+## Example
+
+```js
+n2words(123)                 // 'one hundred and twenty-three'
+
+n2words(123, {lang: 'en'})   // 'one hundred and twenty-three'
+n2words(123, {lang: 'fr'})   // 'cent vingt-trois'
+n2words(123, {lang: 'es'})   // 'ciento veintitrés'
+```
+
+## Supported Languages
 
 - `en` (English, default)
 - `ar` (Arabic)
