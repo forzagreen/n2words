@@ -36,7 +36,7 @@ import n2words from 'n2words/src/n2words'
 <script src="n2words.min.js"></script>
 ```
 
-### Example
+## Example
 
 ```js
 n2words(123)                 // 'one hundred and twenty-three'
