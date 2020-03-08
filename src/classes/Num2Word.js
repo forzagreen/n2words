@@ -1,7 +1,7 @@
 export default function() {
   this.getValueFromCards = (elem) => { //100
     for (var i = 0; i < this.cards.length; i++) {
-      if (this.cards[i].hasOwnProperty(elem)) {
+      if (Object.prototype.hasOwnProperty.call(this.cards[i], elem)) {
         return this.cards[i][elem];
       }
     }

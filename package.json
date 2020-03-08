@@ -71,8 +71,8 @@
       "src/"
     ],
     "reporter": [
-        "lcov",
-        "text"
+      "lcov",
+      "text"
     ]
   }
 }

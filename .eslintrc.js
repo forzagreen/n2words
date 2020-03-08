@@ -14,5 +14,6 @@ module.exports = {
         "sourceType": "module"
     },
     "rules": {
+        "eol-last": [1, "always"]
     }
 };

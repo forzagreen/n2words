@@ -34,7 +34,7 @@ export default function() {
     var tens = Math.floor(number / 10);
     var units = number % 10;
     var prefix;
-    if (STR_TENS.hasOwnProperty(tens)) {
+    if (Object.prototype.hasOwnProperty.call(STR_TENS, tens)) {
       prefix = STR_TENS[tens];
     } else {
       prefix = CARDINAL_WORDS[tens].slice(0, -1) + 'anta';
