@@ -24,7 +24,7 @@ export default function() {
   
   this.pluralize = (n, forms) => {
     var form = 1;
-    var [n1, n2, n3] = this.get_digits(n);
+    var [n1, n2] = this.get_digits(n);
     if (n2 == 1 || n1 == 0 || n == 0) {
       form = 2;
     } else if (n1 == 1) {

@@ -26,7 +26,7 @@ export default function() {
   this.arabicGroup = ['مائة', 'ألف', 'مليون', 'مليار', 'تريليون', 'كوادريليون', 'كوينتليون', 'سكستيليون' ];
   this.arabicAppendedGroup = ['', 'ألفاً', 'مليوناً', 'ملياراً', 'تريليوناً', 'كوادريليوناً', 'كوينتليوناً', 'سكستيليوناً' ];
   this.arabicPluralGroups = ['', 'آلاف', 'ملايين', 'مليارات', 'تريليونات', 'كوادريليونات', 'كوينتليونات', 'سكستيليونات' ];
-  this.digit_feminine_status = (digit, group_level) => {
+  this.digit_feminine_status = (digit/*, group_level*/) => {
     // if ((group_level == -1 && this.isCurrencyPartNameFeminine) || (group_level == 0 && this.isCurrencyNameFeminine)) {
     //   return this.arabicFeminineOnes[parseInt(digit)]
     // }

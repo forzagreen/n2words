@@ -7,4 +7,4 @@ node_js:
 after_success:
   - npm install --save-dev coveralls
   - npm run coverage
-  - npx nyc report --reporter=text-lcov | coveralls
+  - npx c8 report --reporter=text-lcov | coveralls

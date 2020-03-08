@@ -4917,7 +4917,9 @@ var es_string_trim = __webpack_require__(121);
   this.arabicAppendedGroup = ['', 'ألفاً', 'مليوناً', 'ملياراً', 'تريليوناً', 'كوادريليوناً', 'كوينتليوناً', 'سكستيليوناً'];
   this.arabicPluralGroups = ['', 'آلاف', 'ملايين', 'مليارات', 'تريليونات', 'كوادريليونات', 'كوينتليونات', 'سكستيليونات'];
 
-  this.digit_feminine_status = function (digit, group_level) {
+  this.digit_feminine_status = function (digit
+  /*, group_level*/
+  ) {
     // if ((group_level == -1 && this.isCurrencyPartNameFeminine) || (group_level == 0 && this.isCurrencyNameFeminine)) {
     //   return this.arabicFeminineOnes[parseInt(digit)]
     // }
@@ -6493,10 +6495,9 @@ function LT_arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
     var form = 1;
 
     var _this$get_digits = _this.get_digits(n),
-        _this$get_digits2 = LT_slicedToArray(_this$get_digits, 3),
+        _this$get_digits2 = LT_slicedToArray(_this$get_digits, 2),
         n1 = _this$get_digits2[0],
-        n2 = _this$get_digits2[1],
-        n3 = _this$get_digits2[2];
+        n2 = _this$get_digits2[1];
 
     if (n2 == 1 || n1 == 0 || n == 0) {
       form = 2;
