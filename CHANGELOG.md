@@ -14,6 +14,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - N/A
 
+## [1.6.0] - 2020-03-08
+### Added
+- Compatibility: CommonJS, ES6, Browser.
+- New language: `ar` Arabic [#15](https://github.com/forzagreen/n2words/pull/15)
+- New language: `ko` Korean [#18](https://github.com/forzagreen/n2words/pull/18)
+- New language: `he` Hebrew [#17](https://github.com/forzagreen/n2words/pull/17)
+
+### Changed
+- Refactor project structure. Thanks to [@MeekLogic](https://github.com/MeekLogic) ! [#16](https://github.com/forzagreen/n2words/pull/16) [#19](https://github.com/forzagreen/n2words/pull/19)
+  - Build with [webpack](https://webpack.js.org)
+  - Unit tests with [ava](https://github.com/avajs/ava) 
+  - Coverage migrated to [c8](https://github.com/bcoe/c8) : [#20](https://github.com/forzagreen/n2words/pull/20)
+  - Linter: [ESLint](https://eslint.org)
+  - Modules
+
+
+
 ## [1.5.0] - 2020-03-01
 ### Added
 - Add browser compatibility, using Babel and Grunt.
