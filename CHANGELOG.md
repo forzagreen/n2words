@@ -4,15 +4,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
-### Added
-- N/A
 
-### Changed
-- N/A
+## [1.6.1] - 2020-03-09
 
 ### Fixed
-- N/A
+- Include src/ in npm publish: [#21](https://github.com/forzagreen/n2words/issues/21)
+
 
 ## [1.6.0] - 2020-03-08
 ### Added
@@ -39,11 +36,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - New language: `uk` Ukrainian [#12](https://github.com/forzagreen/n2words/pull/12)
 - New language: `pl` Polish [#11](https://github.com/forzagreen/n2words/pull/11)
 
-### Changed
-- N/A
-
-### Fixed
-- N/A
 
 ## [1.4.1] - 2020-02-25
 ### Added
