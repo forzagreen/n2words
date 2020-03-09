@@ -2,9 +2,6 @@
 .travis.yml
 test/
 .npmrc
-webpack.config.js
-.eslintrc.js
-src/
 
 ###### Copied from .gitignore ######
 
