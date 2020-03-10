@@ -35,7 +35,6 @@ jobs:
 
     - name: Coveralls Finished
       uses: coverallsapp/github-action@master
-      if: matrix.node-version == 13.x
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         parallel-finished: true
