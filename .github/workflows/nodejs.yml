@@ -16,20 +16,23 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v1
       with:
         node-version: ${{ matrix.node-version }}
-    - name: npm install, build, test, and run coverage
-      run: |
-        npm install
-        npm run lint
-        npm run build
-        npm coverage
+
+    - run: npm install
+    - run: npm run lint
+    - run: npm run build
+    - run: npm coverage
+
     - name: Coveralls
       uses: coverallsapp/github-action@master
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
+
     - run: npm publish --dry-run
+
       env:
         CI: true
