@@ -1,6 +1,10 @@
 name: Node CI
 
-on: [push, pull_request]
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
 
 jobs:
   build:
@@ -11,17 +15,21 @@ jobs:
         node-version: [8.x, 10.x, 12.x, 13.x]
 
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v2
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v1
       with:
         node-version: ${{ matrix.node-version }}
-    - name: npm install, build, and test
+    - name: npm install, build, test, and run coverage
       run: |
         npm install
+        npm run lint
         npm run build
-        npm run test
-        npm publish --dry-run
+        npm coverage
+    - name: Coveralls
+      uses: coverallsapp/github-action@master
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+    - run: npm publish --dry-run
       env:
         CI: true
-        NPM_TOKEN: xxxx
