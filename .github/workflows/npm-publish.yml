@@ -3,28 +3,32 @@ name: npm publish
 on:
   push:
     tags:
-    - v*
+      - v*
 
 jobs:
-  build:
+  publish:
     runs-on: ubuntu-latest
 
-    strategy:
-      matrix:
-        node-version: [12.x]
-
     steps:
-    - uses: actions/checkout@v1
-    - name: Use Node.js ${{ matrix.node-version }}
+    - uses: actions/checkout@v2
+
+    - name: Setup .npmrc file, and use Node.js 12.x
       uses: actions/setup-node@v1
       with:
-        node-version: ${{ matrix.node-version }}
-    - name: npm install, build, test, and publish
-      run: |
-        npm install
-        npm run build
-        npm run test
-        npm publish
+        node-version: '12.x'
+        registry-url: 'https://registry.npmjs.org'
+
+    - run: npm install
+    - run: npm run lint
+    - run: npm run build
+    - run: npm run coverage
+    - name: Coveralls
+      uses: coverallsapp/github-action@master
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Publish to npm
+      run: npm publish
       env:
         CI: true
-        NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+        NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
