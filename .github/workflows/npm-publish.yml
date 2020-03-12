@@ -4,18 +4,16 @@ on:
   push:
     tags:
       - v*
-    branches:
-      - cicd/*
 
 jobs:
-  build:
+  publish:
     runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v2
 
-    # Setup .npmrc file to publish to npm
-    - uses: actions/setup-node@v1
+    - name: Setup .npmrc file, and use Node.js 12.x
+      uses: actions/setup-node@v1
       with:
         node-version: '12.x'
         registry-url: 'https://registry.npmjs.org'
@@ -30,7 +28,7 @@ jobs:
         github-token: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Publish to npm
-      run: npm publish --dry-run
+      run: npm publish
       env:
         CI: true
         NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
