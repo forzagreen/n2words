@@ -7,7 +7,7 @@
     "lint": "eslint --config ./.eslintrc.js ./src/**/*.mjs",
     "test": "ava ./test/tests.mjs --verbose",
     "coverage": "c8 ava ./test/tests.mjs",
-    "build": "npx webpack --config webpack.config.js"
+    "build": "webpack --config webpack.config.js"
   },
   "repository": {
     "type": "git",
@@ -55,14 +55,13 @@
     "c8": "^7.1.0",
     "core-js": "^3.6.4",
     "eslint": "^6.8.0",
-    "esm": "^3.2.25",
     "terser-webpack-plugin": "^2.3.5",
     "webpack": "^4.42.0",
     "webpack-cli": "^3.3.11"
   },
   "ava": {
-    "require": [
-      "esm"
+    "nodeArguments": [
+        "--experimental-modules"
     ]
   },
   "c8": {
