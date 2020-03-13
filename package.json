@@ -4,9 +4,9 @@
   "description": "Convert numbers to words, in multiple languages",
   "main": "dist/n2words.min.js",
   "scripts": {
-    "lint": "eslint --config ./.eslintrc.js ./src",
-    "test": "ava ./test/tests.js --verbose",
-    "coverage": "c8 ava ./test/tests.js",
+    "lint": "eslint --config ./.eslintrc.js ./src/**/*.mjs",
+    "test": "ava ./test/tests.mjs --verbose",
+    "coverage": "c8 ava ./test/tests.mjs",
     "build": "npx webpack --config webpack.config.js"
   },
   "repository": {

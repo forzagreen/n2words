@@ -284,19 +284,14 @@ exports.f = DESCRIPTORS ? nativeDefineProperty : function defineProperty(O, P, A
 
 /***/ }),
 /* 9 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
+/***/ (function(__webpack_module__, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony import */ var core_js_modules_es_array_is_array__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(20);
-/* harmony import */ var core_js_modules_es_array_is_array__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(core_js_modules_es_array_is_array__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var core_js_modules_es_array_slice__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(23);
-/* harmony import */ var core_js_modules_es_array_slice__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(core_js_modules_es_array_slice__WEBPACK_IMPORTED_MODULE_1__);
 /* harmony import */ var core_js_modules_es_object_define_property__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(16);
-/* harmony import */ var core_js_modules_es_object_define_property__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(core_js_modules_es_object_define_property__WEBPACK_IMPORTED_MODULE_2__);
 /* harmony import */ var core_js_modules_es_object_keys__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(17);
-/* harmony import */ var core_js_modules_es_object_keys__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(core_js_modules_es_object_keys__WEBPACK_IMPORTED_MODULE_3__);
 /* harmony import */ var core_js_modules_es_parse_int__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(7);
-/* harmony import */ var core_js_modules_es_parse_int__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(core_js_modules_es_parse_int__WEBPACK_IMPORTED_MODULE_4__);
 
 
 
@@ -311,7 +306,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
   this.getValueFromCards = function (elem) {
     //100
     for (var i = 0; i < _this.cards.length; i++) {
-      if (_this.cards[i].hasOwnProperty(elem)) {
+      if (Object.prototype.hasOwnProperty.call(_this.cards[i], elem)) {
         return _this.cards[i][elem];
       }
     }
@@ -1955,20 +1950,15 @@ module.exports = version && +version;
 
 /***/ }),
 /* 66 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
+/***/ (function(__webpack_module__, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony import */ var core_js_modules_es_array_concat__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(24);
-/* harmony import */ var core_js_modules_es_array_concat__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(core_js_modules_es_array_concat__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var core_js_modules_es_object_define_property__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(16);
-/* harmony import */ var core_js_modules_es_object_define_property__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(core_js_modules_es_object_define_property__WEBPACK_IMPORTED_MODULE_1__);
 /* harmony import */ var core_js_modules_es_object_keys__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(17);
-/* harmony import */ var core_js_modules_es_object_keys__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(core_js_modules_es_object_keys__WEBPACK_IMPORTED_MODULE_2__);
 /* harmony import */ var core_js_modules_es_object_values__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(21);
-/* harmony import */ var core_js_modules_es_object_values__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(core_js_modules_es_object_values__WEBPACK_IMPORTED_MODULE_3__);
 /* harmony import */ var core_js_modules_es_parse_int__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(7);
-/* harmony import */ var core_js_modules_es_parse_int__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(core_js_modules_es_parse_int__WEBPACK_IMPORTED_MODULE_4__);
-/* harmony import */ var _classes_Num2Word__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(9);
+/* harmony import */ var _classes_Num2Word_mjs__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(9);
 
 
 
@@ -1979,7 +1969,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
 
 /* harmony default export */ __webpack_exports__["a"] = (function () {
-  _classes_Num2Word__WEBPACK_IMPORTED_MODULE_5__[/* default */ "a"].call(this);
+  _classes_Num2Word_mjs__WEBPACK_IMPORTED_MODULE_5__[/* default */ "a"].call(this);
   this.cards = [{
     '1000000000000000000000000000': 'octillion'
   }, {
@@ -4873,7 +4863,7 @@ $({ target: 'String', proto: true }, {
 /***/ }),
 /* 149 */,
 /* 150 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
+/***/ (function(__webpack_module__, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 // ESM COMPAT FLAG
@@ -4894,7 +4884,7 @@ var es_parse_int = __webpack_require__(7);
 // EXTERNAL MODULE: ./node_modules/core-js/modules/es.string.trim.js
 var es_string_trim = __webpack_require__(121);
 
-// CONCATENATED MODULE: ./src/i18n/AR.js
+// CONCATENATED MODULE: ./src/i18n/AR.mjs
 
 
 
@@ -5068,7 +5058,7 @@ var es_array_slice = __webpack_require__(23);
 // EXTERNAL MODULE: ./node_modules/core-js/modules/es.string.pad-start.js
 var es_string_pad_start = __webpack_require__(132);
 
-// CONCATENATED MODULE: ./src/i18n/RU.js
+// CONCATENATED MODULE: ./src/i18n/RU.mjs
 
 
 
@@ -5288,7 +5278,7 @@ function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
     return words.join(' ');
   };
 });
-// CONCATENATED MODULE: ./src/i18n/CZ.js
+// CONCATENATED MODULE: ./src/i18n/CZ.mjs
 
 
 
@@ -5454,10 +5444,10 @@ var es_object_keys = __webpack_require__(17);
 // EXTERNAL MODULE: ./node_modules/core-js/modules/es.object.values.js
 var es_object_values = __webpack_require__(21);
 
-// EXTERNAL MODULE: ./src/classes/Num2Word.js
+// EXTERNAL MODULE: ./src/classes/Num2Word.mjs
 var Num2Word = __webpack_require__(9);
 
-// CONCATENATED MODULE: ./src/i18n/DE.js
+// CONCATENATED MODULE: ./src/i18n/DE.mjs
 
 
 
@@ -5598,7 +5588,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     return _defineProperty({}, "".concat(ctext).concat(ntext), val);
   };
 });
-// CONCATENATED MODULE: ./src/i18n/DK.js
+// CONCATENATED MODULE: ./src/i18n/DK.mjs
 
 
 
@@ -5741,10 +5731,10 @@ function DK_defineProperty(obj, key, value) { if (key in obj) { Object.definePro
     return DK_defineProperty({}, "".concat(word), val);
   };
 });
-// EXTERNAL MODULE: ./src/i18n/EN.js
+// EXTERNAL MODULE: ./src/i18n/EN.mjs
 var EN = __webpack_require__(66);
 
-// CONCATENATED MODULE: ./src/i18n/ES.js
+// CONCATENATED MODULE: ./src/i18n/ES.mjs
 
 
 
@@ -5889,7 +5879,7 @@ function ES_defineProperty(obj, key, value) { if (key in obj) { Object.definePro
     return ES_defineProperty({}, "".concat(ctext).concat(ntext), cnum * nnum);
   };
 });
-// CONCATENATED MODULE: ./src/i18n/FR.js
+// CONCATENATED MODULE: ./src/i18n/FR.mjs
 
 
 
@@ -6006,7 +5996,7 @@ function FR_defineProperty(obj, key, value) { if (key in obj) { Object.definePro
     return FR_defineProperty({}, "".concat(ctext, " ").concat(ntext), cnum + nnum);
   };
 });
-// CONCATENATED MODULE: ./src/i18n/HE.js
+// CONCATENATED MODULE: ./src/i18n/HE.mjs
 
 
 
@@ -6166,7 +6156,7 @@ var es_string_replace = __webpack_require__(118);
 // EXTERNAL MODULE: ./node_modules/core-js/modules/es.string.split.js
 var es_string_split = __webpack_require__(119);
 
-// CONCATENATED MODULE: ./src/i18n/IT.js
+// CONCATENATED MODULE: ./src/i18n/IT.mjs
 
 
 
@@ -6236,7 +6226,7 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
     var units = number % 10;
     var prefix;
 
-    if (STR_TENS.hasOwnProperty(tens)) {
+    if (Object.prototype.hasOwnProperty.call(STR_TENS, tens)) {
       prefix = STR_TENS[tens];
     } else {
       prefix = CARDINAL_WORDS[tens].slice(0, -1) + 'anta';
@@ -6342,7 +6332,7 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
     return _this.accentuate(words);
   };
 });
-// CONCATENATED MODULE: ./src/i18n/KO.js
+// CONCATENATED MODULE: ./src/i18n/KO.mjs
 
 
 
@@ -6404,7 +6394,7 @@ function KO_defineProperty(obj, key, value) { if (key in obj) { Object.definePro
     if (lnum == 1 && rnum <= 10000) return KO_defineProperty({}, rtext, rnum);else if (10000 > lnum && lnum > rnum) return KO_defineProperty({}, "".concat(ltext).concat(rtext), lnum + rnum);else if (lnum >= 10000 && lnum > rnum) return KO_defineProperty({}, "".concat(ltext, " ").concat(rtext), lnum + rnum);else return KO_defineProperty({}, "".concat(ltext).concat(rtext), lnum * rnum);
   };
 });
-// CONCATENATED MODULE: ./src/i18n/LT.js
+// CONCATENATED MODULE: ./src/i18n/LT.mjs
 
 
 
@@ -6565,7 +6555,7 @@ function LT_arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
     return words.join(' ');
   };
 });
-// CONCATENATED MODULE: ./src/i18n/LV.js
+// CONCATENATED MODULE: ./src/i18n/LV.mjs
 
 
 
@@ -6708,7 +6698,7 @@ function LV_arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
     return words.join(' ');
   };
 });
-// CONCATENATED MODULE: ./src/i18n/NO.js
+// CONCATENATED MODULE: ./src/i18n/NO.mjs
 
 
 
@@ -6812,7 +6802,7 @@ function NO_defineProperty(obj, key, value) { if (key in obj) { Object.definePro
     return NO_defineProperty({}, "".concat(ltext, ", ").concat(rtext), lnum + rnum);
   };
 });
-// CONCATENATED MODULE: ./src/i18n/PL.js
+// CONCATENATED MODULE: ./src/i18n/PL.mjs
 
 
 
@@ -6973,7 +6963,7 @@ var es_regexp_constructor = __webpack_require__(146);
 // EXTERNAL MODULE: ./node_modules/core-js/modules/es.string.match.js
 var es_string_match = __webpack_require__(147);
 
-// CONCATENATED MODULE: ./src/i18n/PT.js
+// CONCATENATED MODULE: ./src/i18n/PT.mjs
 
 
 
@@ -7127,7 +7117,7 @@ function PT_defineProperty(obj, key, value) { if (key in obj) { Object.definePro
 // EXTERNAL MODULE: ./node_modules/core-js/modules/es.string.repeat.js
 var es_string_repeat = __webpack_require__(148);
 
-// CONCATENATED MODULE: ./src/i18n/TR.js
+// CONCATENATED MODULE: ./src/i18n/TR.mjs
 
 
 
@@ -7442,7 +7432,7 @@ var es_string_repeat = __webpack_require__(148);
     return wrd;
   };
 });
-// CONCATENATED MODULE: ./src/i18n/UK.js
+// CONCATENATED MODULE: ./src/i18n/UK.mjs
 
 /* harmony default export */ var UK = (function () {
   RU.call(this);
@@ -7526,7 +7516,7 @@ var es_string_repeat = __webpack_require__(148);
 
   };
 });
-// CONCATENATED MODULE: ./src/n2words.js
+// CONCATENATED MODULE: ./src/n2words.mjs
 
 
 
