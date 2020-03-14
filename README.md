@@ -27,7 +27,9 @@ var n2words = require('n2words')
 ### ES6
 
 ```js
-import n2words from 'n2words/src/n2words'
+import n2words from 'n2words'
+// or to import source ES Modules without bundle and polyfills
+import n2words from 'n2words/src/n2words.mjs'
 ```
 
 ### Browser

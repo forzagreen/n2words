@@ -4,10 +4,10 @@
   "description": "Convert numbers to words, in multiple languages",
   "main": "dist/n2words.min.js",
   "scripts": {
-    "lint": "eslint --config ./.eslintrc.js ./src",
+    "lint": "eslint --config ./.eslintrc.js ./src/**/*.mjs",
     "test": "ava ./test/tests.js --verbose",
     "coverage": "c8 ava ./test/tests.js",
-    "build": "npx webpack --config webpack.config.js"
+    "build": "webpack --config webpack.config.js"
   },
   "repository": {
     "type": "git",
