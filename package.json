@@ -1,6 +1,6 @@
 {
   "name": "n2words",
-  "version": "1.6.1",
+  "version": "1.6.2",
   "description": "Convert numbers to words, in multiple languages",
   "main": "dist/n2words.min.js",
   "scripts": {

@@ -5,6 +5,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [1.6.2] - 2020-03-15
+
+### Changed
+- Improve CI/CD: drop TravisCI, use Coveralls from Github Actions [#24](https://github.com/forzagreen/n2words/issues/24), [#25](https://github.com/forzagreen/n2words/issues/25)
+- Rename source ES Modules with .mjs extension [#26](https://github.com/forzagreen/n2words/issues/26)
+
+
 ## [1.6.1] - 2020-03-09
 
 ### Fixed
