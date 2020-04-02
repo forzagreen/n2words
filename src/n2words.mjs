@@ -10,6 +10,7 @@ import Num2Word_IT from './i18n/IT.mjs';
 import Num2Word_KO from './i18n/KO.mjs';
 import Num2Word_LT from './i18n/LT.mjs';
 import Num2Word_LV from './i18n/LV.mjs';
+import Num2Word_NL from './i18n/NL.mjs';
 import Num2Word_NO from './i18n/NO.mjs';
 import Num2Word_PL from './i18n/PL.mjs';
 import Num2Word_PT from './i18n/PT.mjs';
@@ -26,7 +27,7 @@ import Num2Word_UK from './i18n/UK.mjs';
  */
 export default function(n, options) {
   var lang = 'EN';        // default language
-  var supportedLanguages = ['en', 'fr', 'es', 'de', 'pt', 'it', 'tr', 'ru', 'cz', 'no', 'dk', 'pl', 'uk', 'lt', 'lv', 'ar', 'he', 'ko'];
+  var supportedLanguages = ['en', 'fr', 'es', 'de', 'pt', 'it', 'tr', 'ru', 'cz', 'no', 'dk', 'pl', 'uk', 'lt', 'lv', 'ar', 'he', 'ko', 'nl'];
   if (options) {     
     if(options.lang) {    // lang is given in options
       if (supportedLanguages.indexOf(options.lang) != -1) lang = options.lang.toUpperCase();
@@ -71,6 +72,8 @@ export default function(n, options) {
     num = new Num2Word_HE();
   } else if (lang === 'KO') {
     num = new Num2Word_KO();
+  } else if (lang === 'NL') {
+    num = new Num2Word_NL();
   }
 
   return num.toCardinal(n);
