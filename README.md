@@ -62,6 +62,7 @@ n2words(123, {lang: 'es'})   // 'ciento veintitrés'
 - `ko` (Korean)
 - `lt` (Lithuanian)
 - `lv` (Latvian)
+- `nl` (Nederlands)
 - `no` (Norwegian)
 - `pl` (Polish)
 - `pt` (Portuguese)
