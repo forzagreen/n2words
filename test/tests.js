@@ -13,6 +13,7 @@ import IT from './i18n/IT.mjs';
 import KO from './i18n/KO.mjs';
 import LT from './i18n/LT.mjs';
 import LV from './i18n/LV.mjs';
+import NL from "./i18n/NL.mjs";
 import NO from './i18n/NO.mjs';
 import PL from './i18n/PL.mjs';
 import PT from './i18n/PT.mjs';
@@ -33,6 +34,7 @@ const i18n = {
     "ko": KO,
     "lt": LT,
     "lv": LV,
+     "nl": NL,
     "no": NO,
     "pl": PL,
     "pt": PT,
