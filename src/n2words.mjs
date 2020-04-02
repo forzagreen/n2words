@@ -27,7 +27,7 @@ import Num2Word_UK from './i18n/UK.mjs';
  */
 export default function(n, options) {
   var lang = 'EN';        // default language
-  var supportedLanguages = ['en', 'fr', 'es', 'de', 'pt', 'it', 'tr', 'ru', 'cz', 'no', 'dk', 'pl', 'uk', 'lt', 'lv', 'ar', 'he', 'ko','nl'];
+  var supportedLanguages = ['en', 'fr', 'es', 'de', 'pt', 'it', 'tr', 'ru', 'cz', 'no', 'dk', 'pl', 'uk', 'lt', 'lv', 'ar', 'he', 'ko', 'nl'];
   if (options) {     
     if(options.lang) {    // lang is given in options
       if (supportedLanguages.indexOf(options.lang) != -1) lang = options.lang.toUpperCase();
