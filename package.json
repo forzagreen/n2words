@@ -1,6 +1,6 @@
 {
   "name": "n2words",
-  "version": "1.6.2",
+  "version": "1.7.0",
   "description": "Convert numbers to words, in multiple languages",
   "main": "dist/n2words.min.js",
   "scripts": {
@@ -50,16 +50,16 @@
   "homepage": "https://github.com/forzagreen/n2words#readme",
   "dependencies": {},
   "devDependencies": {
-    "@babel/core": "^7.8.7",
-    "@babel/preset-env": "^7.8.7",
-    "ava": "^3.5.0",
-    "babel-loader": "^8.0.6",
+    "@babel/core": "^7.9.0",
+    "@babel/preset-env": "^7.9.0",
+    "ava": "^3.5.2",
+    "babel-loader": "^8.1.0",
     "c8": "^7.1.0",
     "core-js": "^3.6.4",
     "eslint": "^6.8.0",
     "esm": "^3.2.25",
     "terser-webpack-plugin": "^2.3.5",
-    "webpack": "^4.42.0",
+    "webpack": "^4.42.1",
     "webpack-cli": "^3.3.11"
   },
   "ava": {

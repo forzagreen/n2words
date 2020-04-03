@@ -5,6 +5,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [1.7.0] - 2020-04-03
+### Added
+- New language: `nl` Dutch [#27](https://github.com/forzagreen/n2words/pull/27). Thanks to [@jvanaert](https://github.com/jvanaert) ! 
+- New language: `sr` Serbian [#29](https://github.com/forzagreen/n2words/pull/29)
+
+
 ## [1.6.2] - 2020-03-15
 
 ### Changed
