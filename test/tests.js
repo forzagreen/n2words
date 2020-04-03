@@ -18,6 +18,7 @@ import NO from './i18n/NO.mjs';
 import PL from './i18n/PL.mjs';
 import PT from './i18n/PT.mjs';
 import RU from './i18n/RU.mjs';
+import SR from './i18n/SR.mjs';
 import TR from './i18n/TR.mjs';
 import UK from './i18n/UK.mjs';
 
@@ -39,6 +40,7 @@ const i18n = {
     "pl": PL,
     "pt": PT,
     "ru": RU,
+    "sr": SR,
     "tr": TR,
     "uk": UK
 };
