@@ -67,6 +67,7 @@ n2words(123, {lang: 'es'})   // 'ciento veintitrés'
 - `pl` (Polish)
 - `pt` (Portuguese)
 - `ru` (Russian)
+- `sr` (Serbian)
 - `tr` (Turkish)
 - `uk` (Ukrainian)
 

@@ -1,0 +1,64 @@
+import Num2Word_RU from './RU.mjs';
+
+export default function () {
+  Num2Word_RU.call(this);
+
+  this.ZERO = 'nula';
+  this.ONES = { 1: ['jedan', 'jedna'], 2: ['dva', 'dve'], 3: ['tri', 'tri'], 4: ['četiri', 'četiri'], 5: ['pet', 'pet'], 6: ['šest', 'šest'], 7: ['sedam', 'sedam'], 8: ['osam', 'osam'], 9: ['devet', 'devet'] }
+  this.TENS = { 0: 'deset', 1: 'jedanaest', 2: 'dvanaest', 3: 'trinaest', 4: 'četrnaest', 5: 'petnaest', 6: 'šesnaest', 7: 'sedamnaest', 8: 'osamnaest', 9: 'devetnaest'}
+  this.TWENTIES = { 2: 'dvadeset', 3: 'trideset', 4: 'četrdeset', 5: 'pedeset', 6: 'šezdeset', 7: 'sedamdeset', 8: 'osamdeset', 9: 'devedeset' }
+  this.HUNDREDS = { 1: 'sto', 2: 'dvesta', 3: 'trista', 4: 'četristo', 5: 'petsto', 6: 'šesto', 7: 'sedamsto', 8: 'osamsto', 9: 'devetsto' }
+  this.SCALE = {
+    0: ['', '', '', false],
+    1: ['hiljada', 'hiljade', 'hiljada', true], // 10 ^ 3
+    2: ['milion', 'miliona', 'miliona', false], // 10 ^ 6
+    3: ['bilion', 'biliona', 'biliona', false], // 10 ^ 9
+    4: ['trilion', 'triliona', 'triliona', false], // 10 ^ 12
+    5: ['kvadrilion', 'kvadriliona', 'kvadriliona', false], // 10 ^ 15
+    6: ['kvintilion', 'kvintiliona', 'kvintiliona', false], // 10 ^ 18
+    7: ['sekstilion', 'sekstiliona', 'sekstiliona', false], // 10 ^ 21
+    8: ['septilion', 'septiliona', 'septiliona', false], // 10 ^ 24
+    9: ['oktilion', 'oktiliona', 'oktiliona', false], // 10 ^ 27
+    10: ['nonilion', 'noniliona', 'noniliona', false], // 10 ^ 30
+  }
+  this.feminine = false
+
+  this.pluralize = (n, forms) => {
+    var form = 2;
+    if ((n % 100 < 10) || (n % 100 > 20)) {
+      if (n % 10 == 1) {
+        form = 0
+      } else if ((1 < n % 10) && (n % 10 < 5)) {
+        form = 1
+      }
+    }
+    return forms[form];
+  };
+
+  this.toCardinal = (number) => {
+    if (parseInt(number) == 0) {
+      return this.ZERO;
+    }
+    var words = [];
+    var chunks = this.splitbyx(JSON.stringify(number), 3);
+    var i = chunks.length;
+    for (let j = 0; j < chunks.length; j++) {
+      var x = chunks[j];
+      i = i - 1;
+      // if (x == 0) { continue; }
+      var [n1, n2, n3] = this.get_digits(x);
+      if (n3 > 0) { words.push(this.HUNDREDS[n3]); }
+      if (n2 > 1) { words.push(this.TWENTIES[n2]); }
+      if (n2 == 1) { words.push(this.TENS[n1]); }
+      else if (n1 > 0) {
+        var is_feminine = (this.feminine || this.SCALE[i][3])
+        var gender_idx = is_feminine ? 1 : 0;
+        words.push(this.ONES[n1][gender_idx]);
+      }
+      if ((i > 0) && (x != 0)) {
+        words.push(this.pluralize(x, this.SCALE[i]));
+      }
+    }
+    return words.join(' ');
+  };
+}

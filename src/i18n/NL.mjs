@@ -33,7 +33,7 @@ export default function() {
         ctext = `${ctext}en`;
       } else if(nnum < 13 && cnum >= 1000 ) {
         ntext = ` en ${ntext}`;
-      }else if (cnum >= 1000000) {
+      } else if (cnum >= 1000000) {
        ctext += ' ';
       } else {
         if(cnum === 1000) {
