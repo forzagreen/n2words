@@ -54,5 +54,5 @@ export default [
   [4000000, 'čtyři miliony'],
   [10000000000000, 'deset bilionů'],
   [100000000000000, 'sto bilionů'],
-  [1000000000000000000, 'trilion']
+  [1000000000000000000, 'trilion'],
 ];

@@ -2,7 +2,7 @@ import Num2Word_RU from './RU.mjs';
 
 export default function() {
   Num2Word_RU.call(this);
-  
+
   this.ZERO = 'nula';
   this.ONES = {1: 'jedna', 2: 'dva', 3: 'tři', 4: 'čtyři', 5: 'pět', 6: 'šest', 7: 'sedm', 8: 'osm', 9: 'devět'};
   this.TENS = {0: 'deset', 1: 'jedenáct', 2: 'dvanáct', 3: 'třináct', 4: 'čtrnáct', 5: 'patnáct', 6: 'šestnáct', 7: 'sedmnáct', 8: 'osmnáct', 9: 'devatenáct'};
@@ -20,33 +20,40 @@ export default function() {
     9: ['kvadriliarda', 'kvadriliardy', 'kvadriliard'], // 10^ 27
     10: ['quintillion', 'quintilliony', 'quintillionů'], // 10^ 30
   };
-  
+
   this.pluralize = (n, forms) => {
-    var form = 2;
+    let form = 2;
     if (n == 1) {
       form = 0;
-    } else if (((5 > n % 10) && (n % 10 > 1)) && (n % 100 < 10 || n % 100 > 20)) {
+    } else if (((n % 10 < 5) && (n % 10 > 1)) && (n % 100 < 10 || n % 100 > 20)) {
       form = 1;
     }
     return forms[form];
   };
-  
+
   this.toCardinal = (number) => {
     if (parseInt(number) == 0) {
       return this.ZERO;
     }
-    var words = [];
-    var chunks = this.splitbyx(JSON.stringify(number), 3);
-    var i = chunks.length;
+    const words = [];
+    const chunks = this.splitbyx(JSON.stringify(number), 3);
+    let i = chunks.length;
     for (let j = 0; j < chunks.length; j++) {
-      var x = chunks[j];
+      const x = chunks[j];
       i = i - 1;
-      if (x == 0) { continue; }
-      var [n1, n2, n3] = this.get_digits(x);
-      if (n3 > 0) { words.push(this.HUNDREDS[n3]); }
-      if (n2 > 1) { words.push(this.TWENTIES[n2]); }
-      if (n2 == 1) { words.push(this.TENS[n1]); }
-      else if (n1 > 0 && !(i > 0 && x == 1)) {
+      if (x == 0) {
+        continue;
+      }
+      const [n1, n2, n3] = this.get_digits(x);
+      if (n3 > 0) {
+        words.push(this.HUNDREDS[n3]);
+      }
+      if (n2 > 1) {
+        words.push(this.TWENTIES[n2]);
+      }
+      if (n2 == 1) {
+        words.push(this.TENS[n1]);
+      } else if (n1 > 0 && !(i > 0 && x == 1)) {
         words.push(this.ONES[n1]);
       }
       if (i > 0) {

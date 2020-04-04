@@ -54,5 +54,5 @@ export default [
   [4000000, 'četiri miliona'],
   [10000000000000, 'deset triliona'],
   [100000000000000, 'sto triliona'],
-  [1000000000000000000, 'jedan kvintilion']
+  [1000000000000000000, 'jedan kvintilion'],
 ];

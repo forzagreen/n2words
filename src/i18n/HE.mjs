@@ -4,23 +4,25 @@ export default function() {
   Num2Word_RU.call(this);
   this.ZERO = 'אפס';
   this.AND = 'ו';
-  this.ONES = { 1: 'אחת', 2: 'שתים', 3: 'שלש', 4: 'ארבע', 5: 'חמש', 6: 'שש', 7: 'שבע', 8: 'שמונה', 9: 'תשע' };
-  this.TENS = { 0: 'עשר', 1: 'אחת עשרה', 2: 'שתים עשרה', 3: 'שלש עשרה', 4: 'ארבע עשרה', 5: 'חמש עשרה', 6: 'שש עשרה', 7: 'שבע עשרה', 8: 'שמונה עשרה', 9: 'תשע עשרה' };
-  this.TWENTIES = { 2: 'עשרים', 3: 'שלשים', 4: 'ארבעים', 5: 'חמישים', 6: 'ששים', 7: 'שבעים', 8: 'שמונים', 9: 'תשעים' };
-  this.HUNDREDS = { 1: 'מאה', 2: 'מאתיים', 3: 'מאות' };
-  this.THOUSANDS = { 1: 'אלף', 2: 'אלפיים', 3: 'שלשת אלפים', 4: 'ארבעת אלפים', 5: 'חמשת אלפים', 6: 'ששת אלפים', 7: 'שבעת אלפים', 8: 'שמונת אלפים', 9: 'תשעת אלפים' };
+  this.ONES = {1: 'אחת', 2: 'שתים', 3: 'שלש', 4: 'ארבע', 5: 'חמש', 6: 'שש', 7: 'שבע', 8: 'שמונה', 9: 'תשע'};
+  this.TENS = {0: 'עשר', 1: 'אחת עשרה', 2: 'שתים עשרה', 3: 'שלש עשרה', 4: 'ארבע עשרה', 5: 'חמש עשרה', 6: 'שש עשרה', 7: 'שבע עשרה', 8: 'שמונה עשרה', 9: 'תשע עשרה'};
+  this.TWENTIES = {2: 'עשרים', 3: 'שלשים', 4: 'ארבעים', 5: 'חמישים', 6: 'ששים', 7: 'שבעים', 8: 'שמונים', 9: 'תשעים'};
+  this.HUNDREDS = {1: 'מאה', 2: 'מאתיים', 3: 'מאות'};
+  this.THOUSANDS = {1: 'אלף', 2: 'אלפיים', 3: 'שלשת אלפים', 4: 'ארבעת אלפים', 5: 'חמשת אלפים', 6: 'ששת אלפים', 7: 'שבעת אלפים', 8: 'שמונת אלפים', 9: 'תשעת אלפים'};
   this.toCardinal = (number) => {
     if (parseInt(number) == 0) {
       return this.ZERO;
     }
-    var words = [];
-    var chunks = this.splitbyx(JSON.stringify(number), 3);
-    var i = chunks.length;
+    const words = [];
+    const chunks = this.splitbyx(JSON.stringify(number), 3);
+    let i = chunks.length;
     for (let j = 0; j < chunks.length; j++) {
-      var x = chunks[j];
+      const x = chunks[j];
       i = i - 1;
-      if (x == 0) { continue; }
-      var [n1, n2, n3] = this.get_digits(x);
+      if (x == 0) {
+        continue;
+      }
+      const [n1, n2, n3] = this.get_digits(x);
       if (i > 0) {
         words.push(this.THOUSANDS[n1]);
         continue;
@@ -32,9 +34,12 @@ export default function() {
           words.push(this.ONES[n3] + ' ' + this.HUNDREDS[3]);
         }
       }
-      if (n2 > 1) { words.push(this.TWENTIES[n2]); }
-      if (n2 == 1) { words.push(this.TENS[n1]); }
-      else if (n1 > 0 && !(i > 0 && x == 1)) {
+      if (n2 > 1) {
+        words.push(this.TWENTIES[n2]);
+      }
+      if (n2 == 1) {
+        words.push(this.TENS[n1]);
+      } else if (n1 > 0 && !(i > 0 && x == 1)) {
         words.push(this.ONES[n1]);
       }
       if (i > 0) {
