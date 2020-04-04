@@ -1,0 +1,5 @@
+# Automatically handle line endings
+* text=auto
+
+# Don't add these files to git archives
+CHANGELOG.md export-ignore
