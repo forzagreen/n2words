@@ -278,7 +278,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
   var _this = this;
 
   this.getValueFromCards = function (elem) {
-    //100
+    // 100
     for (var i = 0; i < _this.cards.length; i++) {
       if (Object.prototype.hasOwnProperty.call(_this.cards[i], elem)) {
         return _this.cards[i][elem];
@@ -288,14 +288,15 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
   this.splitnum = function (value) {
     for (var i = 0; i < _this.cards.length; i++) {
-      var elem = parseInt(Object.keys(_this.cards[i])[0]); //100
+      var elem = parseInt(Object.keys(_this.cards[i])[0]); // 100
 
       if (elem > value) {
         continue;
       }
 
       var out = [];
-      var div, mod;
+      var div = void 0;
+      var mod = void 0;
 
       if (value == 0) {
         div = 1;
@@ -306,7 +307,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       }
 
       if (div == 1) {
-        out.push(_defineProperty({}, _this.getValueFromCards(1), 1)); //'one'
+        out.push(_defineProperty({}, _this.getValueFromCards(1), 1)); // 'one'
       } else {
         if (div == value) {
           return [(div * _this.getValueFromCards(elem), div * elem)];
@@ -330,15 +331,15 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
     while (val.length != 1) {
       out = [];
-      var left = val[0],
-          right = val[1];
+      var left = val[0];
+      var right = val[1];
 
       if (!Array.isArray(left) && !Array.isArray(right)) {
         // both json objects, not arrays
         out.push(_this.merge(left, right));
 
         if (val.slice(2).length > 0) {
-          //all but first 2 elems
+          // all but first 2 elems
           out.push(val.slice(2));
         }
       } else {
@@ -1439,11 +1440,11 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
   }];
 
   this.merge = function (lpair, rpair) {
-    //{'one':1}, {'hundred':100}
-    var ltext = Object.keys(lpair)[0],
-        lnum = parseInt(Object.values(lpair)[0]);
-    var rtext = Object.keys(rpair)[0],
-        rnum = parseInt(Object.values(rpair)[0]);
+    // {'one':1}, {'hundred':100}
+    var ltext = Object.keys(lpair)[0];
+    var lnum = parseInt(Object.values(lpair)[0]);
+    var rtext = Object.keys(rpair)[0];
+    var rnum = parseInt(Object.values(rpair)[0]);
     if (lnum == 1 && rnum < 100) return _defineProperty({}, rtext, rnum);else if (100 > lnum && lnum > rnum) return _defineProperty({}, "".concat(ltext, "-").concat(rtext), lnum + rnum);else if (lnum >= 100 && 100 > rnum) return _defineProperty({}, "".concat(ltext, " and ").concat(rtext), lnum + rnum);else if (rnum > lnum) return _defineProperty({}, "".concat(ltext, " ").concat(rtext), lnum * rnum);
     return _defineProperty({}, "".concat(ltext, " ").concat(rtext), lnum + rnum);
   };

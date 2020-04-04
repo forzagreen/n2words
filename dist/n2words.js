@@ -278,7 +278,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
   var _this = this;
 
   this.getValueFromCards = function (elem) {
-    //100
+    // 100
     for (var i = 0; i < _this.cards.length; i++) {
       if (Object.prototype.hasOwnProperty.call(_this.cards[i], elem)) {
         return _this.cards[i][elem];
@@ -288,14 +288,15 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
   this.splitnum = function (value) {
     for (var i = 0; i < _this.cards.length; i++) {
-      var elem = parseInt(Object.keys(_this.cards[i])[0]); //100
+      var elem = parseInt(Object.keys(_this.cards[i])[0]); // 100
 
       if (elem > value) {
         continue;
       }
 
       var out = [];
-      var div, mod;
+      var div = void 0;
+      var mod = void 0;
 
       if (value == 0) {
         div = 1;
@@ -306,7 +307,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       }
 
       if (div == 1) {
-        out.push(_defineProperty({}, _this.getValueFromCards(1), 1)); //'one'
+        out.push(_defineProperty({}, _this.getValueFromCards(1), 1)); // 'one'
       } else {
         if (div == value) {
           return [(div * _this.getValueFromCards(elem), div * elem)];
@@ -330,15 +331,15 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
     while (val.length != 1) {
       out = [];
-      var left = val[0],
-          right = val[1];
+      var left = val[0];
+      var right = val[1];
 
       if (!Array.isArray(left) && !Array.isArray(right)) {
         // both json objects, not arrays
         out.push(_this.merge(left, right));
 
         if (val.slice(2).length > 0) {
-          //all but first 2 elems
+          // all but first 2 elems
           out.push(val.slice(2));
         }
       } else {
@@ -2096,11 +2097,11 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
   }];
 
   this.merge = function (lpair, rpair) {
-    //{'one':1}, {'hundred':100}
-    var ltext = Object.keys(lpair)[0],
-        lnum = parseInt(Object.values(lpair)[0]);
-    var rtext = Object.keys(rpair)[0],
-        rnum = parseInt(Object.values(rpair)[0]);
+    // {'one':1}, {'hundred':100}
+    var ltext = Object.keys(lpair)[0];
+    var lnum = parseInt(Object.values(lpair)[0]);
+    var rtext = Object.keys(rpair)[0];
+    var rnum = parseInt(Object.values(rpair)[0]);
     if (lnum == 1 && rnum < 100) return _defineProperty({}, rtext, rnum);else if (100 > lnum && lnum > rnum) return _defineProperty({}, "".concat(ltext, "-").concat(rtext), lnum + rnum);else if (lnum >= 100 && 100 > rnum) return _defineProperty({}, "".concat(ltext, " and ").concat(rtext), lnum + rnum);else if (rnum > lnum) return _defineProperty({}, "".concat(ltext, " ").concat(rtext), lnum * rnum);
     return _defineProperty({}, "".concat(ltext, " ").concat(rtext), lnum + rnum);
   };
@@ -4936,7 +4937,7 @@ var es_string_trim = __webpack_require__(122);
   this.arabicPluralGroups = ['', 'آلاف', 'ملايين', 'مليارات', 'تريليونات', 'كوادريليونات', 'كوينتليونات', 'سكستيليونات'];
 
   this.digit_feminine_status = function (digit
-  /*, group_level*/
+  /* , group_level */
   ) {
     // if ((group_level == -1 && this.isCurrencyPartNameFeminine) || (group_level == 0 && this.isCurrencyNameFeminine)) {
     //   return this.arabicFeminineOnes[parseInt(digit)]
@@ -4998,14 +4999,14 @@ var es_string_trim = __webpack_require__(122);
       return _this.ZERO;
     }
 
-    temp_number = number;
+    var temp_number = number;
     _this.integer_value = number;
     var ret_val = '';
     var group = 0;
 
     while (temp_number > 0) {
       var number_to_process = parseInt(temp_number % 1000);
-      var temp_number = parseInt(temp_number / 1000);
+      temp_number = parseInt(temp_number / 1000);
 
       var group_description = _this.process_arabic_group(number_to_process, group, Math.floor(temp_number));
 
@@ -5017,7 +5018,7 @@ var es_string_trim = __webpack_require__(122);
 
           if (number_to_process != 2) {
             if (number_to_process % 100 != 1) {
-              if (3 <= number_to_process && number_to_process <= 10) {
+              if (number_to_process >= 3 && number_to_process <= 10) {
                 ret_val = _this.arabicPluralGroups[group] + ' ' + ret_val;
               } else {
                 if (ret_val != '') {
@@ -5257,7 +5258,7 @@ function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
     if (n % 100 < 10 || n % 100 > 20) {
       if (n % 10 == 1) {
         form = 0;
-      } else if (5 > n % 10 && n % 10 > 1) {
+      } else if (n % 10 < 5 && n % 10 > 1) {
         form = 1;
       }
     }
@@ -5421,7 +5422,7 @@ function CZ_arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
     if (n == 1) {
       form = 0;
-    } else if (5 > n % 10 && n % 10 > 1 && (n % 100 < 10 || n % 100 > 20)) {
+    } else if (n % 10 < 5 && n % 10 > 1 && (n % 100 < 10 || n % 100 > 20)) {
       form = 1;
     }
 
@@ -5509,82 +5510,82 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
   }, {
     '1000000000000000000000': 'Trilliarde'
   }, {
-    '1000000000000000000': 'Trillion'
+    1000000000000000000: 'Trillion'
   }, {
-    '1000000000000000': 'Billiarde'
+    1000000000000000: 'Billiarde'
   }, {
-    '1000000000000': 'Billion'
+    1000000000000: 'Billion'
   }, {
-    '1000000000': 'Milliarde'
+    1000000000: 'Milliarde'
   }, {
-    '1000000': 'Million'
+    1000000: 'Million'
   }, {
-    '1000': 'tausend'
+    1000: 'tausend'
   }, {
-    '100': 'hundert'
+    100: 'hundert'
   }, {
-    '90': 'neunzig'
+    90: 'neunzig'
   }, {
-    '80': 'achtzig'
+    80: 'achtzig'
   }, {
-    '70': 'siebzig'
+    70: 'siebzig'
   }, {
-    '60': 'sechzig'
+    60: 'sechzig'
   }, {
-    '50': 'fünfzig'
+    50: 'fünfzig'
   }, {
-    '40': 'vierzig'
+    40: 'vierzig'
   }, {
-    '30': 'dreißig'
+    30: 'dreißig'
   }, {
-    '20': 'zwanzig'
+    20: 'zwanzig'
   }, {
-    '19': 'neunzehn'
+    19: 'neunzehn'
   }, {
-    '18': 'achtzehn'
+    18: 'achtzehn'
   }, {
-    '17': 'siebzehn'
+    17: 'siebzehn'
   }, {
-    '16': 'sechzehn'
+    16: 'sechzehn'
   }, {
-    '15': 'fünfzehn'
+    15: 'fünfzehn'
   }, {
-    '14': 'vierzehn'
+    14: 'vierzehn'
   }, {
-    '13': 'dreizehn'
+    13: 'dreizehn'
   }, {
-    '12': 'zwölf'
+    12: 'zwölf'
   }, {
-    '11': 'elf'
+    11: 'elf'
   }, {
-    '10': 'zehn'
+    10: 'zehn'
   }, {
-    '9': 'neun'
+    9: 'neun'
   }, {
-    '8': 'acht'
+    8: 'acht'
   }, {
-    '7': 'sieben'
+    7: 'sieben'
   }, {
-    '6': 'sechs'
+    6: 'sechs'
   }, {
-    '5': 'fünf'
+    5: 'fünf'
   }, {
-    '4': 'vier'
+    4: 'vier'
   }, {
-    '3': 'drei'
+    3: 'drei'
   }, {
-    '2': 'zwei'
+    2: 'zwei'
   }, {
-    '1': 'eins'
+    1: 'eins'
   }, {
-    '0': 'null'
+    0: 'null'
   }];
 
   this.merge = function (curr, next) {
-    var ctext = Object.keys(curr)[0],
-        cnum = parseInt(Object.values(curr)[0]);
-    var ntext = Object.keys(next)[0],
-        nnum = parseInt(Object.values(next)[0]);
+    var ctext = Object.keys(curr)[0];
+    var cnum = parseInt(Object.values(curr)[0]);
+    var ntext = Object.keys(next)[0];
+    var nnum = parseInt(Object.values(next)[0]);
 
     if (cnum == 1) {
       if (nnum == 100 || nnum == 1000) {
@@ -5613,7 +5614,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
       val = cnum * nnum;
     } else {
-      if (nnum < 10 && 10 < cnum && cnum < 100) {
+      if (nnum < 10 && cnum > 10 && cnum < 100) {
         if (nnum == 1) {
           ntext = 'ein';
         }
@@ -5724,10 +5725,10 @@ function DK_defineProperty(obj, key, value) { if (key in obj) { Object.definePro
   }];
 
   this.merge = function (curr, next) {
-    var ctext = Object.keys(curr)[0],
-        cnum = parseInt(Object.values(curr)[0]);
-    var ntext = Object.keys(next)[0],
-        nnum = parseInt(Object.values(next)[0]);
+    var ctext = Object.keys(curr)[0];
+    var cnum = parseInt(Object.values(curr)[0]);
+    var ntext = Object.keys(next)[0];
+    var nnum = parseInt(Object.values(next)[0]);
     var val = 1;
 
     if (nnum == 100 || nnum == 1000) {
@@ -5882,10 +5883,10 @@ function ES_defineProperty(obj, key, value) { if (key in obj) { Object.definePro
   }];
 
   this.merge = function (curr, next) {
-    var ctext = Object.keys(curr)[0],
-        cnum = parseInt(Object.values(curr)[0]);
-    var ntext = Object.keys(next)[0],
-        nnum = parseInt(Object.values(next)[0]);
+    var ctext = Object.keys(curr)[0];
+    var cnum = parseInt(Object.values(curr)[0]);
+    var ntext = Object.keys(next)[0];
+    var nnum = parseInt(Object.values(next)[0]);
 
     if (cnum == 1) {
       if (nnum < 1000000) return ES_defineProperty({}, ntext, nnum);
@@ -6011,10 +6012,10 @@ function FR_defineProperty(obj, key, value) { if (key in obj) { Object.definePro
 
   this.merge = function (curr, next) {
     // {'cent':100}, {'vingt-cinq':25}
-    var ctext = Object.keys(curr)[0],
-        cnum = parseInt(Object.values(curr)[0]);
-    var ntext = Object.keys(next)[0],
-        nnum = parseInt(Object.values(next)[0]);
+    var ctext = Object.keys(curr)[0];
+    var cnum = parseInt(Object.values(curr)[0]);
+    var ntext = Object.keys(next)[0];
+    var nnum = parseInt(Object.values(next)[0]);
 
     if (cnum == 1) {
       if (nnum < 1000000) {
@@ -6022,7 +6023,7 @@ function FR_defineProperty(obj, key, value) { if (key in obj) { Object.definePro
       }
     } else {
       if (((cnum - 80) % 100 == 0 || cnum % 100 == 0 && cnum < 1000) && nnum < 1000000 && ctext[ctext.length - 1] == 's') {
-        ctext = ctext.slice(0, -1); //without last elem
+        ctext = ctext.slice(0, -1); // without last elem
       }
 
       if (cnum < 1000 && nnum != 1000 && ntext[ntext.length - 1] != 's' && nnum % 100 == 0) {
@@ -6337,7 +6338,8 @@ function IT_arrayLikeToArray(arr, len) { if (len == null || len > arr.length) le
 
     var exponent = digits.slice(predigits); // without the first `predigits` elements
 
-    var prefix, postfix;
+    var prefix;
+    var postfix;
 
     var infix = _this.exponentLengthToString(exponent.length);
 
@@ -6442,10 +6444,10 @@ function KO_defineProperty(obj, key, value) { if (key in obj) { Object.definePro
   }];
 
   this.merge = function (lpair, rpair) {
-    var ltext = Object.keys(lpair)[0],
-        lnum = parseInt(Object.values(lpair)[0]);
-    var rtext = Object.keys(rpair)[0],
-        rnum = parseInt(Object.values(rpair)[0]);
+    var ltext = Object.keys(lpair)[0];
+    var lnum = parseInt(Object.values(lpair)[0]);
+    var rtext = Object.keys(rpair)[0];
+    var rnum = parseInt(Object.values(rpair)[0]);
     if (lnum == 1 && rnum <= 10000) return KO_defineProperty({}, rtext, rnum);else if (10000 > lnum && lnum > rnum) return KO_defineProperty({}, "".concat(ltext).concat(rtext), lnum + rnum);else if (lnum >= 10000 && lnum > rnum) return KO_defineProperty({}, "".concat(ltext, " ").concat(rtext), lnum + rnum);else return KO_defineProperty({}, "".concat(ltext).concat(rtext), lnum * rnum);
   };
 });
@@ -6786,82 +6788,82 @@ function NL_defineProperty(obj, key, value) { if (key in obj) { Object.definePro
   }, {
     '1000000000000000000000': 'triljard'
   }, {
-    '1000000000000000000': 'triljoen'
+    1000000000000000000: 'triljoen'
   }, {
-    '1000000000000000': 'biljard'
+    1000000000000000: 'biljard'
   }, {
-    '1000000000000': 'biljoen'
+    1000000000000: 'biljoen'
   }, {
-    '1000000000': 'miljard'
+    1000000000: 'miljard'
   }, {
-    '1000000': 'miljoen'
+    1000000: 'miljoen'
   }, {
-    '1000': 'duizend'
+    1000: 'duizend'
   }, {
-    '100': 'honderd'
+    100: 'honderd'
   }, {
-    '90': 'negentig'
+    90: 'negentig'
   }, {
-    '80': 'tachtig'
+    80: 'tachtig'
   }, {
-    '70': 'zeventig'
+    70: 'zeventig'
   }, {
-    '60': 'zestig'
+    60: 'zestig'
   }, {
-    '50': 'vijftig'
+    50: 'vijftig'
   }, {
-    '40': 'veertig'
+    40: 'veertig'
   }, {
-    '30': 'dertig'
+    30: 'dertig'
   }, {
-    '20': 'twintig'
+    20: 'twintig'
   }, {
-    '19': 'negentien'
+    19: 'negentien'
   }, {
-    '18': 'achtien'
+    18: 'achtien'
   }, {
-    '17': 'zeventien'
+    17: 'zeventien'
   }, {
-    '16': 'zestien'
+    16: 'zestien'
   }, {
-    '15': 'vijftien'
+    15: 'vijftien'
   }, {
-    '14': 'veertien'
+    14: 'veertien'
   }, {
-    '13': 'dertien'
+    13: 'dertien'
   }, {
-    '12': 'twaalf'
+    12: 'twaalf'
   }, {
-    '11': 'elf'
+    11: 'elf'
   }, {
-    '10': 'tien'
+    10: 'tien'
   }, {
-    '9': 'negen'
+    9: 'negen'
   }, {
-    '8': 'acht'
+    8: 'acht'
   }, {
-    '7': 'zeven'
+    7: 'zeven'
   }, {
-    '6': 'zes'
+    6: 'zes'
   }, {
-    '5': 'vijf'
+    5: 'vijf'
   }, {
-    '4': 'vier'
+    4: 'vier'
   }, {
-    '3': 'drie'
+    3: 'drie'
   }, {
-    '2': 'twee'
+    2: 'twee'
   }, {
-    '1': 'een'
+    1: 'een'
   }, {
-    '0': 'nul'
+    0: 'nul'
   }];
 
   this.merge = function (curr, next) {
-    var ctext = Object.keys(curr)[0],
-        cnum = parseInt(Object.values(curr)[0]);
-    var ntext = Object.keys(next)[0],
-        nnum = parseInt(Object.values(next)[0]);
+    var ctext = Object.keys(curr)[0];
+    var cnum = parseInt(Object.values(curr)[0]);
+    var ntext = Object.keys(next)[0];
+    var nnum = parseInt(Object.values(next)[0]);
 
     if (cnum == 1) {
       if (nnum < 1000000) {
@@ -6882,7 +6884,7 @@ function NL_defineProperty(obj, key, value) { if (key in obj) { Object.definePro
 
       val = cnum * nnum;
     } else {
-      if (nnum < 10 && 10 < cnum && cnum < 100) {
+      if (nnum < 10 && cnum > 10 && cnum < 100) {
         var temp = ntext;
         ntext = ctext;
         ctext = "".concat(temp, "en");
@@ -6927,84 +6929,84 @@ function NO_defineProperty(obj, key, value) { if (key in obj) { Object.definePro
   }, {
     '1000000000000000000000': 'trillard'
   }, {
-    '1000000000000000000': 'trillion'
+    1000000000000000000: 'trillion'
   }, {
-    '1000000000000000': 'billard'
+    1000000000000000: 'billard'
   }, {
-    '1000000000000': 'billion'
+    1000000000000: 'billion'
   }, {
-    '1000000000': 'millard'
+    1000000000: 'millard'
   }, {
-    '1000000': 'million'
+    1000000: 'million'
   }, {
-    '1000': 'tusen'
+    1000: 'tusen'
   }, {
-    '100': 'hundre'
+    100: 'hundre'
   }, {
-    '90': 'nitti'
+    90: 'nitti'
   }, {
-    '80': 'åtti'
+    80: 'åtti'
   }, {
-    '70': 'sytti'
+    70: 'sytti'
   }, {
-    '60': 'seksti'
+    60: 'seksti'
   }, {
-    '50': 'femti'
+    50: 'femti'
   }, {
-    '40': 'førti'
+    40: 'førti'
   }, {
-    '30': 'tretti'
+    30: 'tretti'
   }, {
-    '20': 'tjue'
+    20: 'tjue'
   }, {
-    '19': 'nitten'
+    19: 'nitten'
   }, {
-    '18': 'atten'
+    18: 'atten'
   }, {
-    '17': 'sytten'
+    17: 'sytten'
   }, {
-    '16': 'seksten'
+    16: 'seksten'
   }, {
-    '15': 'femten'
+    15: 'femten'
   }, {
-    '14': 'fjorten'
+    14: 'fjorten'
   }, {
-    '13': 'tretten'
+    13: 'tretten'
   }, {
-    '12': 'tolv'
+    12: 'tolv'
   }, {
-    '11': 'elleve'
+    11: 'elleve'
   }, {
-    '10': 'ti'
+    10: 'ti'
   }, {
-    '9': 'ni'
+    9: 'ni'
   }, {
-    '8': 'åtte'
+    8: 'åtte'
   }, {
-    '7': 'syv'
+    7: 'syv'
   }, {
-    '6': 'seks'
+    6: 'seks'
   }, {
-    '5': 'fem'
+    5: 'fem'
   }, {
-    '4': 'fire'
+    4: 'fire'
   }, {
-    '3': 'tre'
+    3: 'tre'
   }, {
-    '2': 'to'
+    2: 'to'
   }, {
-    '1': 'en'
+    1: 'en'
   }, {
-    '0': 'null'
+    0: 'null'
   }];
 
   this.merge = function (lpair, rpair) {
-    //{'one':1}, {'hundred':100}
-    var ltext = Object.keys(lpair)[0],
-        lnum = parseInt(Object.values(lpair)[0]);
-    var rtext = Object.keys(rpair)[0],
-        rnum = parseInt(Object.values(rpair)[0]);
-    if (lnum == 1 && rnum < 100) return NO_defineProperty({}, rtext, rnum);else if (100 > lnum && lnum > rnum) return NO_defineProperty({}, "".concat(ltext, "-").concat(rtext), lnum + rnum);else if (lnum >= 100 && 100 > rnum) return NO_defineProperty({}, "".concat(ltext, " og ").concat(rtext), lnum + rnum);else if (rnum > lnum) return NO_defineProperty({}, "".concat(ltext, " ").concat(rtext), lnum * rnum);
+    // {'one':1}, {'hundred':100}
+    var ltext = Object.keys(lpair)[0];
+    var lnum = parseInt(Object.values(lpair)[0]);
+    var rtext = Object.keys(rpair)[0];
+    var rnum = parseInt(Object.values(rpair)[0]);
+    if (lnum == 1 && rnum < 100) return NO_defineProperty({}, rtext, rnum);else if (lnum < 100 && lnum > rnum) return NO_defineProperty({}, "".concat(ltext, "-").concat(rtext), lnum + rnum);else if (lnum >= 100 && rnum < 100) return NO_defineProperty({}, "".concat(ltext, " og ").concat(rtext), lnum + rnum);else if (rnum > lnum) return NO_defineProperty({}, "".concat(ltext, " ").concat(rtext), lnum * rnum);
     return NO_defineProperty({}, "".concat(ltext, ", ").concat(rtext), lnum + rnum);
   };
 });
@@ -7116,7 +7118,7 @@ function PL_arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
     if (n == 1) {
       form = 0;
-    } else if (5 > n % 10 && n % 10 > 1 && (n % 100 < 10 || n % 100 > 20)) {
+    } else if (n % 10 < 5 && n % 10 > 1 && (n % 100 < 10 || n % 100 > 20)) {
       form = 1;
     }
 
@@ -7199,82 +7201,82 @@ function PT_defineProperty(obj, key, value) { if (key in obj) { Object.definePro
   this.cards = [{
     '1000000000000000000000000': 'quatrilião'
   }, {
-    '1000000000000000000': 'trilião'
+    1000000000000000000: 'trilião'
   }, {
-    '1000000000000': 'bilião'
+    1000000000000: 'bilião'
   }, {
-    '1000000': 'milião'
+    1000000: 'milião'
   }, {
-    '1000': 'mil'
+    1000: 'mil'
   }, {
-    '100': 'cem'
+    100: 'cem'
   }, {
-    '90': 'noventa'
+    90: 'noventa'
   }, {
-    '80': 'oitenta'
+    80: 'oitenta'
   }, {
-    '70': 'setenta'
+    70: 'setenta'
   }, {
-    '60': 'sessenta'
+    60: 'sessenta'
   }, {
-    '50': 'cinquenta'
+    50: 'cinquenta'
   }, {
-    '40': 'quarenta'
+    40: 'quarenta'
   }, {
-    '30': 'trinta'
+    30: 'trinta'
   }, {
-    '20': 'vinte'
+    20: 'vinte'
   }, {
-    '19': 'dezanove'
+    19: 'dezanove'
   }, {
-    '18': 'dezoito'
+    18: 'dezoito'
   }, {
-    '17': 'dezassete'
+    17: 'dezassete'
   }, {
-    '16': 'dezasseis'
+    16: 'dezasseis'
   }, {
-    '15': 'quinze'
+    15: 'quinze'
   }, {
-    '14': 'catorze'
+    14: 'catorze'
   }, {
-    '13': 'treze'
+    13: 'treze'
   }, {
-    '12': 'doze'
+    12: 'doze'
   }, {
-    '11': 'onze'
+    11: 'onze'
   }, {
-    '10': 'dez'
+    10: 'dez'
   }, {
-    '9': 'nove'
+    9: 'nove'
   }, {
-    '8': 'oito'
+    8: 'oito'
   }, {
-    '7': 'sete'
+    7: 'sete'
   }, {
-    '6': 'seis'
+    6: 'seis'
   }, {
-    '5': 'cinco'
+    5: 'cinco'
   }, {
-    '4': 'quatro'
+    4: 'quatro'
   }, {
-    '3': 'três'
+    3: 'três'
   }, {
-    '2': 'dois'
+    2: 'dois'
   }, {
-    '1': 'um'
+    1: 'um'
   }, {
-    '0': 'zero'
+    0: 'zero'
   }];
   this.hundreds = {
-    '1': 'cento',
-    '2': 'duzentos',
-    '3': 'trezentos',
-    '4': 'quatrocentos',
-    '5': 'quinhentos',
-    '6': 'seiscentos',
-    '7': 'setecentos',
-    '8': 'oitocentos',
-    '9': 'novecentos'
+    1: 'cento',
+    2: 'duzentos',
+    3: 'trezentos',
+    4: 'quatrocentos',
+    5: 'quinhentos',
+    6: 'seiscentos',
+    7: 'setecentos',
+    8: 'oitocentos',
+    9: 'novecentos'
   };
 
   this.postClean = function (words) {
@@ -7292,10 +7294,10 @@ function PT_defineProperty(obj, key, value) { if (key in obj) { Object.definePro
   };
 
   this.merge = function (curr, next) {
-    var ctext = Object.keys(curr)[0],
-        cnum = parseInt(Object.values(curr)[0]);
-    var ntext = Object.keys(next)[0],
-        nnum = parseInt(Object.values(next)[0]);
+    var ctext = Object.keys(curr)[0];
+    var cnum = parseInt(Object.values(curr)[0]);
+    var ntext = Object.keys(next)[0];
+    var nnum = parseInt(Object.values(next)[0]);
 
     if (cnum == 1) {
       if (nnum < 1000000) return PT_defineProperty({}, ntext, nnum);
@@ -7437,7 +7439,7 @@ function SR_arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
     if (n % 100 < 10 || n % 100 > 20) {
       if (n % 10 == 1) {
         form = 0;
-      } else if (1 < n % 10 && n % 10 < 5) {
+      } else if (n % 10 > 1 && n % 10 < 5) {
         form = 1;
       }
     }
@@ -7537,36 +7539,36 @@ var es_string_repeat = __webpack_require__(149);
   };
 
   this.CARDINAL_ONES = {
-    '1': 'bir',
-    '2': 'iki',
-    '3': 'üç',
-    '4': 'dört',
-    '5': 'beş',
-    '6': 'altı',
-    '7': 'yedi',
-    '8': 'sekiz',
-    '9': 'dokuz'
+    1: 'bir',
+    2: 'iki',
+    3: 'üç',
+    4: 'dört',
+    5: 'beş',
+    6: 'altı',
+    7: 'yedi',
+    8: 'sekiz',
+    9: 'dokuz'
   };
   this.CARDINAL_TENS = {
-    '1': 'on',
-    '2': 'yirmi',
-    '3': 'otuz',
-    '4': 'kırk',
-    '5': 'elli',
-    '6': 'altmış',
-    '7': 'yetmiş',
-    '8': 'seksen',
-    '9': 'doksan'
+    1: 'on',
+    2: 'yirmi',
+    3: 'otuz',
+    4: 'kırk',
+    5: 'elli',
+    6: 'altmış',
+    7: 'yetmiş',
+    8: 'seksen',
+    9: 'doksan'
   };
   this.HUNDREDS = {
-    '2': 'iki',
-    '3': 'üç',
-    '4': 'dört',
-    '5': 'beş',
-    '6': 'altı',
-    '7': 'yedi',
-    '8': 'sekiz',
-    '9': 'dokuz'
+    2: 'iki',
+    3: 'üç',
+    4: 'dört',
+    5: 'beş',
+    6: 'altı',
+    7: 'yedi',
+    8: 'sekiz',
+    9: 'dokuz'
   };
   this.CARDINAL_HUNDRED = ['yüz', ''];
   this.CARDINAL_TRIPLETS = {
@@ -7722,9 +7724,10 @@ var es_string_repeat = __webpack_require__(149);
 
       for (var i = _this.total_triplets_to_read - 1; i > 0; i--) {
         var reading_triplet_order = _this.total_triplets_to_read - i;
+        var last_read_digit_order = void 0;
 
         if (_this.total_digits_outside_triplets == 0) {
-          var last_read_digit_order = reading_triplet_order * 3;
+          last_read_digit_order = reading_triplet_order * 3;
         } else {
           last_read_digit_order = (reading_triplet_order - 1) * 3 + _this.total_digits_outside_triplets;
         }
@@ -7916,6 +7919,7 @@ var es_string_repeat = __webpack_require__(149);
 
 
 
+var supportedLanguages = ['en', 'fr', 'es', 'de', 'pt', 'it', 'tr', 'ru', 'cz', 'no', 'dk', 'pl', 'uk', 'lt', 'lv', 'ar', 'he', 'ko', 'nl', 'sr'];
 /**
  * Converts numbers to their written form.
  *
@@ -7927,12 +7931,10 @@ var es_string_repeat = __webpack_require__(149);
 /* harmony default export */ var n2words = __webpack_exports__["default"] = (function (n, options) {
   var lang = 'EN'; // default language
 
-  var supportedLanguages = ['en', 'fr', 'es', 'de', 'pt', 'it', 'tr', 'ru', 'cz', 'no', 'dk', 'pl', 'uk', 'lt', 'lv', 'ar', 'he', 'ko', 'nl', 'sr'];
-
   if (options) {
     if (options.lang) {
       // lang is given in options
-      if (supportedLanguages.indexOf(options.lang) != -1) lang = options.lang.toUpperCase();else throw Error('ERROR: Unsupported language. Supported languages are:' + supportedLanguages.sort().join(', '));
+      if (supportedLanguages.indexOf(options.lang) !== -1) lang = options.lang.toUpperCase();else throw Error('ERROR: Unsupported language. Supported languages are:' + supportedLanguages.sort().join(', '));
     }
   }
 
