@@ -1,4 +1,3 @@
-/* eslint-disable camelcase */
 import Num2Word_AR from './i18n/AR.mjs';
 import Num2Word_CZ from './i18n/CZ.mjs';
 import Num2Word_DE from './i18n/DE.mjs';
