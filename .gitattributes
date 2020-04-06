@@ -5,6 +5,3 @@
 *.js  text eol=lf
 *.cjs text eol=lf
 *.mjs text eol=lf
-
-# Don't add these files to git archives
-CHANGELOG.md export-ignore
