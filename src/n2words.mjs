@@ -19,6 +19,8 @@ import Num2Word_SR from './i18n/SR.mjs';
 import Num2Word_TR from './i18n/TR.mjs';
 import Num2Word_UK from './i18n/UK.mjs';
 
+const supportedLanguages = ['en', 'fr', 'es', 'de', 'pt', 'it', 'tr', 'ru', 'cz', 'no', 'dk', 'pl', 'uk', 'lt', 'lv', 'ar', 'he', 'ko', 'nl', 'sr'];
+
 /**
  * Converts numbers to their written form.
  *
@@ -27,11 +29,11 @@ import Num2Word_UK from './i18n/UK.mjs';
  * @param {Object} [options={lang: "en"}] - Language
  */
 export default function(n, options) {
-  var lang = 'EN';        // default language
-  var supportedLanguages = ['en', 'fr', 'es', 'de', 'pt', 'it', 'tr', 'ru', 'cz', 'no', 'dk', 'pl', 'uk', 'lt', 'lv', 'ar', 'he', 'ko', 'nl', 'sr'];
-  if (options) {     
-    if(options.lang) {    // lang is given in options
-      if (supportedLanguages.indexOf(options.lang) != -1) lang = options.lang.toUpperCase();
+  let lang = 'EN'; // default language
+
+  if (options) {
+    if (options.lang) { // lang is given in options
+      if (supportedLanguages.indexOf(options.lang) !== -1) lang = options.lang.toUpperCase();
       else throw Error('ERROR: Unsupported language. Supported languages are:' + supportedLanguages.sort().join(', '));
     }
   }
@@ -69,7 +71,7 @@ export default function(n, options) {
     num = new Num2Word_LV();
   } else if (lang === 'AR') {
     num = new Num2Word_AR();
-  } else if (lang === 'HE') {  // only for numbers <= 9999
+  } else if (lang === 'HE') { // only for numbers <= 9999
     num = new Num2Word_HE();
   } else if (lang === 'KO') {
     num = new Num2Word_KO();

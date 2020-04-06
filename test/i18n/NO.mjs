@@ -54,5 +54,5 @@ export default [
   [4000000, 'fire million'],
   [10000000000000, 'ti billion'],
   [100000000000000, 'en hundre billion'],
-  [1000000000000000000, 'en trillion']
+  [1000000000000000000, 'en trillion'],
 ];

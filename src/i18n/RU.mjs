@@ -17,63 +17,82 @@ export default function() {
     7: ['секстиллион', 'секстиллиона', 'секстиллионов'], // 10^ 21
     8: ['септиллион', 'септиллиона', 'септиллионов'], // 10^ 24
     9: ['октиллион', 'октиллиона', 'октиллионов'], // 10^ 27
-    10: ['нониллион', 'нониллиона', 'нониллионов'] // 10^ 30
+    10: ['нониллион', 'нониллиона', 'нониллионов'], // 10^ 30
   };
-  
+
   this.splitbyx = (n, x, format_int = true) => {
-    var results = [];
-    var l = n.length;
-    var result;
+    const results = [];
+    const l = n.length;
+    let result;
     if (l > x) {
-      var start = l % x;
+      const start = l % x;
       if (start > 0) {
         result = n.slice(0, start);
-        if (format_int) {results.push(parseInt(result));} else {results.push(result);}
+        if (format_int) {
+          results.push(parseInt(result));
+        } else {
+          results.push(result);
+        }
       }
       for (let i = start; i < l; i += x) {
-        result = n.slice(i, i+x);
-        if (format_int) {results.push(parseInt(result));} else {results.push(result);}
+        result = n.slice(i, i + x);
+        if (format_int) {
+          results.push(parseInt(result));
+        } else {
+          results.push(result);
+        }
       }
     } else {
-      if (format_int) {results.push(parseInt(n));} else {results.push(n);}
+      if (format_int) {
+        results.push(parseInt(n));
+      } else {
+        results.push(n);
+      }
     }
     return results;
   };
-  
+
   this.get_digits = (n) => {
-    var a = Array.from(JSON.stringify(n).padStart(3, '0').slice(-3)).reverse();
-    return a.map(e => parseInt(e));
+    const a = Array.from(JSON.stringify(n).padStart(3, '0').slice(-3)).reverse();
+    return a.map((e) => parseInt(e));
   };
-  
+
   this.pluralize = (n, forms) => {
-    var form = 2;
+    let form = 2;
     if ((n % 100 < 10) || (n % 100 > 20)) {
-      if (n % 10 == 1) { 
+      if (n % 10 == 1) {
         form = 0;
-      } else if ((5 > n % 10) && (n % 10 > 1)) {
+      } else if ((n % 10 < 5) && (n % 10 > 1)) {
         form = 1;
       }
     }
     return forms[form];
   };
-  
+
   this.toCardinal = (number) => {
     if (parseInt(number) == 0) {
       return this.ZERO;
     }
-    var words = [];
-    var chunks = this.splitbyx(JSON.stringify(number), 3);
-    var i = chunks.length;
+    const words = [];
+    const chunks = this.splitbyx(JSON.stringify(number), 3);
+    let i = chunks.length;
     for (let j = 0; j < chunks.length; j++) {
-      var x = chunks[j];
-      var ones = [];
+      const x = chunks[j];
+      let ones = [];
       i = i - 1;
-      if (x == 0) { continue; }
-      var [n1, n2, n3] = this.get_digits(x);
-      if (n3 > 0) { words.push(this.HUNDREDS[n3]); }
-      if (n2 > 1) { words.push(this.TWENTIES[n2]); }
-      if (n2 == 1) { words.push(this.TENS[n1]); }
-      else if (n1 > 0) {
+      if (x == 0) {
+        continue;
+      }
+      const [n1, n2, n3] = this.get_digits(x);
+      if (n3 > 0) {
+        words.push(this.HUNDREDS[n3]);
+      }
+      if (n2 > 1) {
+        words.push(this.TWENTIES[n2]);
+      }
+      if (n2 == 1) {
+        words.push(this.TENS[n1]);
+      } else if (n1 > 0) {
         ones = (i == 1 || this.feminine && i == 0) ? this.ONES_FEMININE : this.ONES;
         words.push(ones[n1]);
       }

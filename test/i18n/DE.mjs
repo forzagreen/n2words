@@ -57,5 +57,5 @@ export default [
   [10000000000000, 'zehn Billionen'],
   [100000000000000, 'einhundert Billionen'],
   [4500072900000111, 'vier Billiarden fünfhundert Billionen zweiundsiebzig Milliarden neunhundert Millionen einhundertelf'],
-  [1000000000000000000, 'eine Trillion']
+  [1000000000000000000, 'eine Trillion'],
 ];

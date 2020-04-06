@@ -4,9 +4,10 @@
   "description": "Convert numbers to words, in multiple languages",
   "main": "dist/n2words.min.js",
   "scripts": {
-    "lint": "eslint --config ./.eslintrc.js ./src/**/*.mjs",
-    "test": "ava ./test/tests.js --verbose",
-    "coverage": "c8 ava ./test/tests.js",
+    "lint": "eslint --config .eslintrc.json src/ test/ --ext=mjs",
+    "lint:fix": "eslint --config .eslintrc.json src/ test/ --ext=mjs --fix",
+    "test": "ava --verbose",
+    "coverage": "c8 ava",
     "build": "webpack --config webpack.config.js"
   },
   "repository": {
@@ -57,12 +58,20 @@
     "c8": "^7.1.0",
     "core-js": "^3.6.4",
     "eslint": "^6.8.0",
+    "eslint-config-google": "^0.14.0",
+    "eslint-plugin-ava": "^10.2.0",
+    "eslint-plugin-import": "^2.20.2",
+    "eslint-plugin-node": "^11.1.0",
     "esm": "^3.2.25",
     "terser-webpack-plugin": "^2.3.5",
     "webpack": "^4.42.1",
     "webpack-cli": "^3.3.11"
   },
   "ava": {
+    "files": [
+      "test/**/*",
+      "!test/i18n"
+    ],
     "require": [
       "esm"
     ]
