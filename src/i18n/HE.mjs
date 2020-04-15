@@ -1,5 +1,8 @@
 import Num2Word_RU from './RU.mjs';
 
+/**
+ *
+ */
 export default function() {
   Num2Word_RU.call(this);
   this.ZERO = 'אפס';

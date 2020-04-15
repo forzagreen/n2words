@@ -24,9 +24,9 @@ const supportedLanguages = ['en', 'fr', 'es', 'de', 'pt', 'it', 'tr', 'ru', 'cz'
 /**
  * Converts numbers to their written form.
  *
- * @constructor
+ * @class
  * @param {number} n - The number to convert
- * @param {Object} [options={lang: "en"}] - Language
+ * @param {object} [options={lang: "en"}] - Language
  */
 export default function(n, options) {
   let lang = 'EN'; // default language

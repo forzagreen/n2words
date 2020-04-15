@@ -1,7 +1,7 @@
-# Automatically handle line endings
+# Automatically convert to native line endings
 * text=auto
 
-# Force line endings for these files
+# Force Unix (LF) line endings
 *.js  text eol=lf
 *.cjs text eol=lf
 *.mjs text eol=lf

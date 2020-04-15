@@ -1,3 +1,6 @@
+/**
+ *
+ */
 export default function() {
   this.precision = 2;
   this.splitnum = (value) => {
