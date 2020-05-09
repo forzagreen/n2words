@@ -1,3 +1,6 @@
+/**
+ *
+ */
 export default function() {
   // Num2Word_Base.call(this);
   this.feminine = false;

@@ -1,5 +1,8 @@
 import Num2Word_Base from '../classes/Num2Word.mjs';
 
+/**
+ *
+ */
 export default function() {
   Num2Word_Base.call(this);
 

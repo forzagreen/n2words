@@ -1,19 +1,20 @@
 {
   "env": {
     "browser": true,
+    "commonjs": true,
     "es6": true,
     "es2017": true,
     "es2020": true,
-    "commonjs": true,
     "node": true
   },
   "extends": [
     "eslint:recommended",
+    "google",
     "plugin:ava/recommended",
-    "plugin:node/recommended-module",
+    "plugin:node/recommended",
     "plugin:import/errors",
     "plugin:import/warnings",
-    "google"
+    "plugin:jsdoc/recommended"
   ],
   "globals": {
     "Atomics": "readonly",
@@ -25,8 +26,9 @@
   },
   "rules": {
     "max-len": "warn",
+    "require-jsdoc": "off",
+    "valid-jsdoc": "off",
     "no-invalid-this": "warn",
-    "camelcase": "warn",
-    "require-jsdoc": "warn"
+    "camelcase": "warn"
   }
 }
