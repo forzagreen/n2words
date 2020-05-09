@@ -7,6 +7,12 @@
     "es2020": true,
     "node": true
   },
+  "plugins": [
+    "ava",
+    "node",
+    "import",
+    "jsdoc"
+  ],
   "extends": [
     "eslint:recommended",
     "google",

@@ -16,6 +16,7 @@ module.exports = {
     filename: '[name].js',
     path: path.resolve(__dirname, 'dist'),
     globalObject: 'this',
+    ecmaVersion: 5,
   },
   optimization: {
     minimize: true,
@@ -42,5 +43,8 @@ module.exports = {
         },
       },
     }],
+  },
+  experiments: {
+    mjs: true,
   },
 };
