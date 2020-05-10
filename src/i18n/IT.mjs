@@ -1,6 +1,3 @@
-/**
- *
- */
 export default function() {
   const ZERO = 'zero';
   const CARDINAL_WORDS = [

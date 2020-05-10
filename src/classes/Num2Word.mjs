@@ -1,6 +1,3 @@
-/**
- *
- */
 export default function() {
   this.getValueFromCards = (elem) => { // 100
     for (let i = 0; i < this.cards.length; i++) {

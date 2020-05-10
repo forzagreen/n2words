@@ -8,7 +8,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [10.x, 11.x, 12.x, 13.x]
+        node-version: [10.x, 11.x, 12.x, 13.x, 14.x]
 
     steps:
     - uses: actions/checkout@v2
@@ -27,15 +27,22 @@ jobs:
       uses: coverallsapp/github-action@master
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
+        flag-name: ${{ matrix.node-version }}
         parallel: true
 
+    - run: npm publish --dry-run
+
+    env:
+      CI: true
+
+  finish:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
     - name: Coveralls Finished
       uses: coverallsapp/github-action@master
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         parallel-finished: true
-
-    - run: npm publish --dry-run
-
-      env:
-        CI: true
+    env:
+      CI: true
