@@ -1,28 +1,16 @@
 const path = require('path');
-const TerserPlugin = require('terser-webpack-plugin');
 
 module.exports = {
   mode: 'production',
-  entry: {
-    'n2words': './src/n2words.mjs',
-    'n2words.min': './src/n2words.mjs',
-    'n2words_EN': './src/n2words_EN.mjs',
-    'n2words_EN.min': './src/n2words_EN.mjs',
-  },
+  entry: './src/n2words.mjs',
   output: {
     library: 'n2words',
     libraryTarget: 'umd',
     libraryExport: 'default',
-    filename: '[name].js',
+    filename: 'n2words.js',
     path: path.resolve(__dirname, 'dist'),
     globalObject: 'this',
     ecmaVersion: 5,
-  },
-  optimization: {
-    minimize: true,
-    minimizer: [new TerserPlugin({
-      include: /\.min\.js$/,
-    })],
   },
   module: {
     rules: [{
