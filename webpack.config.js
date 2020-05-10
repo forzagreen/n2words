@@ -2,7 +2,7 @@ const path = require('path');
 
 module.exports = {
   mode: 'production',
-  entry: './src/n2words.mjs',
+  entry: './lib/n2words.mjs',
   output: {
     library: 'n2words',
     libraryTarget: 'umd',

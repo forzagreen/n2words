@@ -1,6 +1,6 @@
 import test from 'ava';
 
-import n2words from '../src/n2words.mjs';
+import n2words from '../lib/n2words.mjs';
 import AR from './i18n/AR.mjs';
 import CZ from './i18n/CZ.mjs';
 import DE from './i18n/DE.mjs';

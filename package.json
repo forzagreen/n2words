@@ -4,7 +4,7 @@
   "description": "Convert numbers to words, in multiple languages",
   "main": "dist/n2words.js",
   "scripts": {
-    "lint": "eslint --config .eslintrc.json src/ test/ --ext .mjs",
+    "lint": "eslint --config .eslintrc.json lib/ test/ --ext .mjs",
     "lint:fix": "npm run lint -- --fix",
     "test": "ava --verbose",
     "coverage": "c8 ava",
@@ -79,7 +79,7 @@
   "c8": {
     "all": true,
     "include": [
-      "src/"
+      "lib/"
     ],
     "reporter": [
       "lcov",
