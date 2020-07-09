@@ -76,7 +76,7 @@ export default function(n, options) {
   } else if (lang === 'KO') {
     num = new Num2Word_KO();
   } else if (lang === 'NL') {
-    num = new Num2Word_NL();
+    num = new Num2Word_NL(options);
   } else if (lang === 'SR') {
     num = new Num2Word_SR();
   }

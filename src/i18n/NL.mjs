@@ -1,9 +1,56 @@
 import Num2Word_Base from '../classes/Num2Word.mjs';
 
-export default function() {
+export default function(options) {
   Num2Word_Base.call(this);
 
-  this.cards = [{'1000000000000000000000000000': 'quadriljard'}, {'1000000000000000000000000': 'quadriljoen'}, {'1000000000000000000000': 'triljard'}, {1000000000000000000: 'triljoen'}, {1000000000000000: 'biljard'}, {1000000000000: 'biljoen'}, {1000000000: 'miljard'}, {1000000: 'miljoen'}, {1000: 'duizend'}, {100: 'honderd'}, {90: 'negentig'}, {80: 'tachtig'}, {70: 'zeventig'}, {60: 'zestig'}, {50: 'vijftig'}, {40: 'veertig'}, {30: 'dertig'}, {20: 'twintig'}, {19: 'negentien'}, {18: 'achtien'}, {17: 'zeventien'}, {16: 'zestien'}, {15: 'vijftien'}, {14: 'veertien'}, {13: 'dertien'}, {12: 'twaalf'}, {11: 'elf'}, {10: 'tien'}, {9: 'negen'}, {8: 'acht'}, {7: 'zeven'}, {6: 'zes'}, {5: 'vijf'}, {4: 'vier'}, {3: 'drie'}, {2: 'twee'}, {1: 'een'}, {0: 'nul'}];
+  const defaultOptions = {
+    includeOptionalAnd: false,
+    noHundredPairs: false,
+  };
+
+  const localOptions = Object.assign({}, defaultOptions, options);
+
+  this.cards = [
+    {'1000000000000000000000000000': 'quadriljard'},
+    {'1000000000000000000000000': 'quadriljoen'},
+    {'1000000000000000000000': 'triljard'},
+    {1000000000000000000: 'triljoen'},
+    {1000000000000000: 'biljard'},
+    {1000000000000: 'biljoen'},
+    {1000000000: 'miljard'},
+    {1000000: 'miljoen'},
+    {1000: 'duizend'},
+    {100: 'honderd'},
+    {90: 'negentig'},
+    {80: 'tachtig'},
+    {70: 'zeventig'},
+    {60: 'zestig'},
+    {50: 'vijftig'},
+    {40: 'veertig'},
+    {30: 'dertig'},
+    {20: 'twintig'},
+    {19: 'negentien'},
+    {18: 'achtien'},
+    {17: 'zeventien'},
+    {16: 'zestien'},
+    {15: 'vijftien'},
+    {14: 'veertien'},
+    {13: 'dertien'},
+    {12: 'twaalf'},
+    {11: 'elf'},
+    {10: 'tien'},
+    {9: 'negen'},
+    {8: 'acht'},
+    {7: 'zeven'},
+    {6: 'zes'},
+    {5: 'vijf'},
+    {4: 'vier'},
+    {3: 'drie'},
+    {2: 'twee'},
+    {1: 'een'},
+    {0: 'nul'},
+  ];
+
   this.merge = (curr, next) => {
     let ctext = Object.keys(curr)[0]; const cnum = parseInt(Object.values(curr)[0]);
     let ntext = Object.keys(next)[0]; const nnum = parseInt(Object.values(next)[0]);
@@ -26,10 +73,11 @@ export default function() {
       if (nnum < 10 && cnum > 10 && cnum < 100) {
         const temp = ntext;
         ntext = ctext;
-        ctext = `${temp}en`;
-      } else if (nnum < 13 && cnum < 1000) {
+        const andtxt = temp.endsWith('e') ? 'ën' : 'en';
+        ctext = `${temp}${andtxt}`;
+      } else if (nnum < 13 && cnum < 1000 && localOptions.includeOptionalAnd) {
         ctext = `${ctext}en`;
-      } else if (nnum < 13 && cnum >= 1000) {
+      } else if (nnum < 13 && cnum >= 1000 && localOptions.includeOptionalAnd) {
         ntext = ` en ${ntext}`;
       } else if (cnum >= 1000000) {
         ctext += ' ';
@@ -41,5 +89,18 @@ export default function() {
       val = cnum + nnum;
     }
     return {[`${ctext}${ntext}`]: val};
+  };
+
+  const old_toCardinal = this.toCardinal;
+  this.toCardinal = (value) => {
+    if (value >= 1100 && value < 10000 && !localOptions.noHundredPairs) {
+      const high = Math.floor(value / 100);
+      const low = value % 100;
+      if (high % 10 !== 0) {
+        return old_toCardinal(high) + 'honderd' +
+          (low ? (localOptions.includeOptionalAnd ? ' en ' : ' ') + old_toCardinal(low) : '');
+      }
+    }
+    return old_toCardinal(value);
   };
 }
