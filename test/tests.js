@@ -48,7 +48,10 @@ const i18n = {
 Object.keys(i18n).forEach((language) => {
   test(language, (t) => {
     i18n[language].forEach((problem) => {
-      t.is(n2words(problem[0], {lang: language}), problem[1]);
+      t.is(
+          n2words(problem[0], Object.assign({lang: language}, problem[2])),
+          problem[1],
+      );
     });
   });
 });

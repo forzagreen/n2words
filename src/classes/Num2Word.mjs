@@ -70,7 +70,7 @@ export default function() {
     return out[0];
   };
 
-  this.postClean = (out0) => out0;
+  this.postClean = (out0) => out0.trimRight();
 
   this.toCardinal = (value) => {
     const val = this.splitnum(value);
