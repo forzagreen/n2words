@@ -4,10 +4,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.7.1] - 2020-07-10
+### Changed
+- Dutch (`nl`) Improvements [#31](https://github.com/forzagreen/n2words/issues/31) and [#32](https://github.com/forzagreen/n2words/pull/32).
+- Normalize line endings and improve linting [#30](https://github.com/forzagreen/n2words/pull/30).
 
 ## [1.7.0] - 2020-04-03
 ### Added
-- New language: `nl` Dutch [#27](https://github.com/forzagreen/n2words/pull/27). Thanks to [@jvanaert](https://github.com/jvanaert) ! 
+- New language: `nl` Dutch [#27](https://github.com/forzagreen/n2words/pull/27). Thanks to [@jvanaert](https://github.com/jvanaert) !
 - New language: `sr` Serbian [#29](https://github.com/forzagreen/n2words/pull/29)
 
 
@@ -34,7 +38,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Refactor project structure. Thanks to [@MeekLogic](https://github.com/MeekLogic) ! [#16](https://github.com/forzagreen/n2words/pull/16) [#19](https://github.com/forzagreen/n2words/pull/19)
   - Build with [webpack](https://webpack.js.org)
-  - Unit tests with [ava](https://github.com/avajs/ava) 
+  - Unit tests with [ava](https://github.com/avajs/ava)
   - Coverage migrated to [c8](https://github.com/bcoe/c8) : [#20](https://github.com/forzagreen/n2words/pull/20)
   - Linter: [ESLint](https://eslint.org)
   - Modules
