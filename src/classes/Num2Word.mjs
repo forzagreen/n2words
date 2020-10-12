@@ -94,7 +94,7 @@ export default function() {
         const decimal = this.scannum(splittedValue[1]);
         const strInteger = this.format(integer);
         const strDecimal = decimal.reduce((prev, curr) => prev + ' ' + curr);
-        return `${strInteger} ${this.comma} ${strDecimal}`;
+        return `${strInteger} ${this.separator_word} ${strDecimal}`;
       }
     } else {
       return undefined;
