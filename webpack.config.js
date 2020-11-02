@@ -10,12 +10,14 @@ module.exports = {
     filename: 'n2words.js',
     path: path.resolve(__dirname, 'dist'),
     globalObject: 'this',
-    ecmaVersion: 5,
   },
   module: {
     rules: [{
       test: /\.m?js$/,
       exclude: /(node_modules|bower_components)/,
+      resolve: {
+        fullySpecified: false,
+      },
       use: {
         loader: 'babel-loader',
         options: {
@@ -31,8 +33,5 @@ module.exports = {
         },
       },
     }],
-  },
-  experiments: {
-    mjs: true,
   },
 };
