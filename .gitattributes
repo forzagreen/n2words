@@ -1,7 +1,5 @@
-# Automatically handle line endings
+# Automatically convert to native line endings
 * text=auto
 
-# Force line endings for these files
-*.js  text eol=lf
-*.cjs text eol=lf
-*.mjs text eol=lf
+# Force Unix (LF) line endings
+package-lock.json  text eol=lf
