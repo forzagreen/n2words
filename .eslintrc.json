@@ -5,6 +5,7 @@
     "es6": true,
     "es2017": true,
     "es2020": true,
+    "es2021": true,
     "node": true
   },
   "plugins": [
@@ -15,27 +16,30 @@
   ],
   "extends": [
     "eslint:recommended",
-    "google",
     "plugin:ava/recommended",
     "plugin:node/recommended",
     "plugin:import/errors",
     "plugin:import/warnings",
     "plugin:jsdoc/recommended"
   ],
-  "globals": {
-    "Atomics": "readonly",
-    "SharedArrayBuffer": "readonly"
-  },
   "parserOptions": {
-    "ecmaVersion": 2020,
+    "ecmaVersion": 2021,
     "sourceType": "module"
   },
   "rules": {
-    "max-len": "warn",
-    "require-jsdoc": "off",
-    "valid-jsdoc": "off",
+    "max-len": ["warn", {
+      "code": 120
+    }],
+    "linebreak-style": "off",
     "jsdoc/require-jsdoc": "off",
-    "no-invalid-this": "warn",
-    "camelcase": "warn"
+    "import/unambiguous": "error",
+    "import/no-commonjs": "error",
+    "import/no-amd": "error",
+    "import/no-nodejs-modules": "error",
+    "import/no-deprecated": "error",
+    "import/extensions": ["error", "always"],
+    "import/no-unresolved": ["error", {
+      "commonjs": true
+    }]
   }
 }
