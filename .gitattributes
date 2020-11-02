@@ -2,6 +2,4 @@
 * text=auto
 
 # Force Unix (LF) line endings
-*.js  text eol=lf
-*.cjs text eol=lf
-*.mjs text eol=lf
+package-lock.json  text eol=lf
