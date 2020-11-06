@@ -41,11 +41,11 @@ import n2words from 'n2words/lib/n2words.mjs'
 ## Example
 
 ```js
-n2words(123)                 // 'one hundred and twenty-three'
+n2words(123) // 'one hundred and twenty-three'
 
-n2words(123, {lang: 'en'})   // 'one hundred and twenty-three'
-n2words(123, {lang: 'fr'})   // 'cent vingt-trois'
-n2words(123, {lang: 'es'})   // 'ciento veintitrés'
+n2words(123, {lang: 'en'}) // 'one hundred and twenty-three'
+n2words(123, {lang: 'fr'}) // 'cent vingt-trois'
+n2words(123, {lang: 'es'}) // 'ciento veintitrés'
 ```
 
 ## Supported Languages
@@ -57,6 +57,7 @@ n2words(123, {lang: 'es'})   // 'ciento veintitrés'
 - `de` (German)
 - `es` (Spanish)
 - `fr` (French)
+- `fa` (Farsi)
 - `he` (Hebrew)
 - `it` (Italian)
 - `ko` (Korean)

@@ -8,6 +8,7 @@ import DK from './i18n/DK.mjs';
 import EN from './i18n/EN.mjs';
 import ES from './i18n/ES.mjs';
 import FR from './i18n/FR.mjs';
+import FA from './i18n/FA.mjs';
 import HE from './i18n/HE.mjs';
 import IT from './i18n/IT.mjs';
 import KO from './i18n/KO.mjs';
@@ -29,6 +30,7 @@ const i18n = {
   'dk': DK,
   'en': EN,
   'es': ES,
+  'fa': FA,
   'fr': FR,
   'he': HE,
   'it': IT,
@@ -49,8 +51,8 @@ Object.keys(i18n).forEach((language) => {
   test(language, (t) => {
     i18n[language].forEach((problem) => {
       t.is(
-          n2words(problem[0], Object.assign({lang: language}, problem[2])),
-          problem[1],
+        n2words(problem[0], Object.assign({ lang: language }, problem[2])),
+        problem[1]
       );
     });
   });
@@ -62,7 +64,10 @@ test('should set English as default language', (t) => {
 });
 
 test('should throw an error for unsupported languages', (t) => {
-  t.throws(() => {
-    n2words(2, {lang: 'aaa'});
-  }, {instanceOf: Error});
+  t.throws(
+    () => {
+      n2words(2, { lang: 'aaa' });
+    },
+    { instanceOf: Error }
+  );
 });
