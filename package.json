@@ -40,7 +40,9 @@
     "hebrew",
     "korean",
     "dutch",
-    "serbian"
+    "serbian",
+    "farsi",
+    "persian"
   ],
   "author": "Wael TELLAT",
   "license": "MIT",
