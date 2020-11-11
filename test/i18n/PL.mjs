@@ -1,4 +1,13 @@
 export default [
+  [0.01, 'zero przecinek zero jeden'],
+  [1.007, 'jeden przecinek zero zero siedem'],
+  [1.7, 'jeden przecinek siedem'],
+  [17.42, 'siedemnaście przecinek czterdzieści dwa'],
+  [27.312, 'dwadzieścia siedem przecinek trzysta dwanaście'],
+  [53.486, 'pięćdziesiąt trzy przecinek czterysta osiemdziesiąt sześć'],
+  [300.42, 'trzysta przecinek czterdzieści dwa'],
+  [4196.42, 'cztery tysiące sto dziewięćdzisiąt sześć przecinek czterdzieści dwa'],
+
   [0, 'zero'],
   [1, 'jeden'],
   [2, 'dwa'],

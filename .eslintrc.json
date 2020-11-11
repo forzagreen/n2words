@@ -28,7 +28,7 @@
   },
   "rules": {
     "max-len": ["warn", {
-      "code": 120
+      "code": 130
     }],
     "linebreak-style": "off",
     "jsdoc/require-jsdoc": "off",

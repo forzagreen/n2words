@@ -1,4 +1,12 @@
 export default [
+  [0.01, 'zero vírgula zero um'],
+  [1.007, 'um vírgula zero zero sete'],
+  [1.7, 'um vírgula sete'],
+  [17.42, 'dezassete vírgula quarenta e dois'],
+  [27.312, 'vinte e sete vírgula trezentos e doze'],
+  [53.486, 'cinquenta e três vírgula quatrocentos e oitenta e seis'],
+  [300.42, 'trezentos vírgula quarenta e dois'],
+  [4196.42, 'quatro mil cento e noventa e seis vírgula quarenta e dois'],
   [0, 'zero'],
   [1, 'um'],
   [2, 'dois'],
