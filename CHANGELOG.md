@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.8.0] - 2020-11-11
+### Added
+- Support for decimal numbers [#34](https://github.com/forzagreen/n2words/pull/34), [#39](https://github.com/forzagreen/n2words/pull/39). Thanks to [@dylandoamaral](https://github.com/dylandoamaral) !
+- New language: `fa` Farsi/Persian [#38](https://github.com/forzagreen/n2words/pull/38). Thanks to [@omarius](https://github.com/omarius) !
+
+### Changed
+- Update dev dependencies, move src/ to lib/ [#36](https://github.com/forzagreen/n2words/pull/36). Thanks to [@TylerVigario](https://github.com/TylerVigario) !
+
+
 ## [1.7.1] - 2020-07-10
 ### Changed
 - Dutch (`nl`) Improvements [#31](https://github.com/forzagreen/n2words/issues/31) and [#32](https://github.com/forzagreen/n2words/pull/32).
