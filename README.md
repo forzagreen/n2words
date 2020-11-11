@@ -48,6 +48,11 @@ n2words(123, {lang: 'fr'}) // 'cent vingt-trois'
 n2words(123, {lang: 'es'}) // 'ciento veintitrés'
 ```
 
+## Features
+
+- Cardinal numbers
+- Decimal numbers
+
 ## Supported Languages
 
 - `en` (English, default)

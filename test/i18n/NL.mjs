@@ -1,4 +1,13 @@
 export default [
+  [0.01, 'nul komma nul een'],
+  [1.007, 'een komma nul nul zeven'],
+  [1.7, 'een komma zeven'],
+  [17.42, 'zeventien komma tweeënveertig'],
+  [27.312, 'zevenentwintig komma driehonderdtwaalf'],
+  [53.486, 'drieënvijftig komma vierhonderdzesentachtig'],
+  [300.42, 'driehonderd komma tweeënveertig'],
+  [4196.42, 'eenenveertighonderd zesennegentig komma tweeënveertig'],
+
   [0, 'nul'],
   [1, 'een'],
   [2, 'twee'],

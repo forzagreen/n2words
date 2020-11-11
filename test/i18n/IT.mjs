@@ -1,4 +1,13 @@
 export default [
+  [0.01, 'zero virgola zero uno'],
+  [1.007, 'uno virgola zero zero sette'],
+  [1.7, 'uno virgola sette'],
+  [17.42, 'diciassette virgola quarantadue'],
+  [27.312, 'ventisette virgola trecentododici'],
+  [53.486, 'cinquantatré virgola quattrocentottantasei'],
+  [300.42, 'trecento virgola quarantadue'],
+  [4196.42, 'quattromilacentonovantasei virgola quarantadue'],
+
   [0, 'zero'],
   [1, 'uno'],
   [2, 'due'],

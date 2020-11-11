@@ -1,4 +1,13 @@
 export default [
+  [0.01, 'nulle komats nulle viens'],
+  [1.007, 'viens komats nulle nulle septiņi'],
+  [1.7, 'viens komats septiņi'],
+  [17.42, 'septiņpadsmit komats četrdesmit divi'],
+  [27.312, 'divdesmit septiņi komats trīs simti divpadsmit'],
+  [53.486, 'piecdesmit trīs komats četri simti astoņdesmit seši'],
+  [300.42, 'trīs simti komats četrdesmit divi'],
+  [4196.42, 'četri tūkstoši simts deviņdesmit seši komats četrdesmit divi'],
+
   [0, 'nulle'],
   [1, 'viens'],
   [2, 'divi'],

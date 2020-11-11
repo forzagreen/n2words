@@ -1,4 +1,13 @@
 export default [
+  [0.01, 'nula celá nula jedna'],
+  [1.007, 'jedna celá nula nula sedm'],
+  [1.7, 'jedna celá sedm'],
+  [17.42, 'sedmnáct celá čtyřicet dva'],
+  [27.312, 'dvacet sedm celá třista dvanáct'],
+  [53.486, 'padesát tři celá čtyřista osmdesát šest'],
+  [300.42, 'třista celá čtyřicet dva'],
+  [4196.42, 'čtyři tisíce sto devadesát šest celá čtyřicet dva'],
+
   [0, 'nula'],
   [1, 'jedna'],
   [2, 'dva'],

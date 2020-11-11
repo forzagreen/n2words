@@ -1,4 +1,13 @@
 export default [
+  [0.01, 'nul komma nul et'],
+  [1.007, 'et komma nul nul syv'],
+  [1.7, 'et komma syv'],
+  [17.42, 'sytten komma toogfyrre'],
+  [27.312, 'syvogtyve komma trehundrede og tolv'],
+  [53.486, 'treoghalvtreds komma firehundrede og seksogfirs'],
+  [300.42, 'trehundrede komma toogfyrre'],
+  [4196.42, 'firetusinde og ethundrede og seksoghalvfems komma toogfyrre'],
+
   [0, 'nul'],
   [1, 'et'],
   [2, 'to'],

@@ -1,4 +1,13 @@
 export default [
+  [0.01, 'nulis kablelis nulis vienas'],
+  [1.007, 'vienas kablelis nulis nulis septyni'],
+  [1.7, 'vienas kablelis septyni'],
+  [17.42, 'septyniolika kablelis keturiasdešimt du'],
+  [27.312, 'dvidešimt septyni kablelis trys šimtai dvylika'],
+  [53.486, 'penkiasdešimt trys kablelis keturi šimtai aštuoniasdešimt šeši'],
+  [300.42, 'trys šimtai kablelis keturiasdešimt du'],
+  [4196.42, 'keturi tūkstančiai vienas šimtas devyniasdešimt šeši kablelis keturiasdešimt du'],
+
   [0, 'nulis'],
   [1, 'vienas'],
   [2, 'du'],

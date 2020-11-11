@@ -1,4 +1,13 @@
 export default [
+  [0.01, 'sıfırvirgülsıfırbir'],
+  [1.7, 'birvirgülyedi'],
+  [1.007, 'birvirgülsıfırsıfıryedi'],
+  [17.42, 'onyedivirgülkırkiki'],
+  [27.312, 'yirmiyedivirgülüçyüzoniki'],
+  [53.486, 'elliüçvirgüldörtyüzseksenaltı'],
+  [300.42, 'üçyüzvirgülkırkiki'],
+  [4196.42, 'dörtbinyüzdoksanaltıvirgülkırkiki'],
+
   [0, 'sıfır'],
   [1, 'bir'],
   [2, 'iki'],

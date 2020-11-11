@@ -1,4 +1,13 @@
 export default [
+  [0.007, 'nula zapeta nula nula sedam'],
+  [0.01, 'nula zapeta nula jedan'],
+  [1.7, 'jedan zapeta sedam'],
+  [17.42, 'sedamnaest zapeta četrdeset dva'],
+  [27.312, 'dvadeset sedam zapeta trista dvanaest'],
+  [53.486, 'pedeset tri zapeta četristo osamdeset šest'],
+  [300.42, 'trista zapeta četrdeset dva'],
+  [4196.42, 'četiri hiljade sto devedeset šest zapeta četrdeset dva'],
+
   [0, 'nula'],
   [1, 'jedan'],
   [2, 'dva'],
