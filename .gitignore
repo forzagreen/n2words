@@ -68,7 +68,7 @@ typings/
 .vscode
 
 # build files
-
+dist/
 
 # webpack preparation files
 webpack/
