@@ -7,7 +7,7 @@
     "lint": "eslint --config .eslintrc.json lib/ test/ --ext .mjs",
     "test": "ava --verbose",
     "coverage": "c8 ava",
-    "build": "webpack --config webpack.config.js --progress"
+    "build": "node webpack_prepare.js && webpack --config webpack.config.js --progress"
   },
   "repository": {
     "type": "git",

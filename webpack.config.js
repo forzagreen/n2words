@@ -1,13 +1,31 @@
 const path = require('path');
+const fs = require('fs');
+
+const dir = 'webpack';
+
+function getEntries() {
+  const files = fs.readdirSync(dir);
+  const res = {};
+  for (let i=0; i<files.length; i++) {
+    const file = files[i];
+    // e.g. n2words_KO.mjs => KO
+    const lang = /_(..)\./.exec(file)[1];
+    res[`n2words_${lang}`] = `./${dir}/n2words_${lang}.mjs`;
+  }
+  return res;
+}
 
 module.exports = {
   mode: 'production',
-  entry: './lib/n2words.mjs',
+  entry: {
+    ...getEntries(),
+    'n2words': './lib/n2words.mjs'
+  },
   output: {
     library: 'n2words',
     libraryTarget: 'umd',
     libraryExport: 'default',
-    filename: 'n2words.js',
+    filename: '[name].js',
     path: path.resolve(__dirname, 'dist'),
     globalObject: 'this',
   },
