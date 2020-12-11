@@ -8,6 +8,10 @@ export default [
   [300.42, 'tre hundre komma førti-to'],
   [4196.42, 'fire tusen, en hundre og nitti-seks komma førti-to'],
 
+  [-17.42, 'minus sytten komma førti-to'],
+  [-1, 'minus en'],
+  [-20, 'minus tjue'],
+
   [0, 'null'],
   [1, 'en'],
   [2, 'to'],

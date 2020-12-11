@@ -8,6 +8,10 @@ export default [
   [300.42, 'trescientos punto cuarenta y dos'],
   [4196.42, 'cuatro mil ciento noventa y seis punto cuarenta y dos'],
 
+  [-17.42, 'menos diecisiete punto cuarenta y dos'],
+  [-1, 'menos uno'],
+  [-20, 'menos veinte'],
+
   [0, 'cero'],
   [1, 'uno'],
   [2, 'dos'],

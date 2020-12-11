@@ -8,6 +8,10 @@ export default [
   [300.42, 'trīs simti komats četrdesmit divi'],
   [4196.42, 'četri tūkstoši simts deviņdesmit seši komats četrdesmit divi'],
 
+  [-17.42, 'mīnus septiņpadsmit komats četrdesmit divi'],
+  [-1, 'mīnus viens'],
+  [-20, 'mīnus divdesmit'],
+
   [0, 'nulle'],
   [1, 'viens'],
   [2, 'divi'],

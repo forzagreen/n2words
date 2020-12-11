@@ -7,6 +7,11 @@ export default [
   [53.486, 'cinquenta e três vírgula quatrocentos e oitenta e seis'],
   [300.42, 'trezentos vírgula quarenta e dois'],
   [4196.42, 'quatro mil cento e noventa e seis vírgula quarenta e dois'],
+
+  [-17.42, 'menos dezassete vírgula quarenta e dois'],
+  [-1, 'menos um'],
+  [-20, 'menos vinte'],
+
   [0, 'zero'],
   [1, 'um'],
   [2, 'dois'],

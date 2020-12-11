@@ -8,6 +8,10 @@ export default [
   [300.42, 'trista zapeta četrdeset dva'],
   [4196.42, 'četiri hiljade sto devedeset šest zapeta četrdeset dva'],
 
+  [-17.42, 'minus sedamnaest zapeta četrdeset dva'],
+  [-1, 'minus jedan'],
+  [-20, 'minus dvadeset'],
+
   [0, 'nula'],
   [1, 'jedan'],
   [2, 'dva'],
