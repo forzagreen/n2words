@@ -8,6 +8,10 @@ export default [
   [300.42, 'trzysta przecinek czterdzieści dwa'],
   [4196.42, 'cztery tysiące sto dziewięćdzisiąt sześć przecinek czterdzieści dwa'],
 
+  [-17.42, 'minus siedemnaście przecinek czterdzieści dwa'],
+  [-1, 'minus jeden'],
+  [-20, 'minus dwadzieścia'],
+
   [0, 'zero'],
   [1, 'jeden'],
   [2, 'dwa'],

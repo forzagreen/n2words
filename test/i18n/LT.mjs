@@ -8,6 +8,10 @@ export default [
   [300.42, 'trys šimtai kablelis keturiasdešimt du'],
   [4196.42, 'keturi tūkstančiai vienas šimtas devyniasdešimt šeši kablelis keturiasdešimt du'],
 
+  [-17.42, 'minus septyniolika kablelis keturiasdešimt du'],
+  [-1, 'minus vienas'],
+  [-20, 'minus dvidešimt'],
+
   [0, 'nulis'],
   [1, 'vienas'],
   [2, 'du'],

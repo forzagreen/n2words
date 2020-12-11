@@ -11,6 +11,11 @@ export default [
   [300.42, 'üç yüz virgül kırk iki'],
   [4196.42, 'dört bin yüz doksan altı virgül kırk iki'],
 
+  [-17.42, 'eksi on yedi virgül kırk iki'],
+  [-1, 'eksi bir'],
+  [-20, 'eksi yirmi'],
+  [-1.7, 'eksibirvirgülyedi', { dropSpaces: true }],
+
   [0, 'sıfır'],
   [0, 'sıfır', { dropSpaces: true }],
   [0, 'sıfır', { dropSpaces: false }],

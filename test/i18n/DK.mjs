@@ -8,6 +8,10 @@ export default [
   [300.42, 'trehundrede komma toogfyrre'],
   [4196.42, 'firetusinde og ethundrede og seksoghalvfems komma toogfyrre'],
 
+  [-17.42, 'minus sytten komma toogfyrre'],
+  [-1, 'minus et'],
+  [-20, 'minus tyve'],
+
   [0, 'nul'],
   [1, 'et'],
   [2, 'to'],

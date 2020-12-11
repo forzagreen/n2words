@@ -7,6 +7,10 @@ export default [
   [300.42, 'three hundred point forty-two'],
   [4196.42, 'four thousand one hundred and ninety-six point forty-two'],
 
+  [-17.42, 'minus seventeen point forty-two'],
+  [-1, 'minus one'],
+  [-20, 'minus twenty'],
+
   [0, 'zero'],
   [1, 'one'],
   [2, 'two'],

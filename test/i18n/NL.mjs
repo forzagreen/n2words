@@ -8,6 +8,10 @@ export default [
   [300.42, 'driehonderd komma tweeënveertig'],
   [4196.42, 'eenenveertighonderd zesennegentig komma tweeënveertig'],
 
+  [-17.42, 'min zeventien komma tweeënveertig'],
+  [-1, 'min een'],
+  [-20, 'min twintig'],
+
   [0, 'nul'],
   [1, 'een'],
   [2, 'twee'],

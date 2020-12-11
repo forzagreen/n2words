@@ -8,6 +8,10 @@ export default [
   [300.42, 'trois cents virgule quarante-deux'],
   [4196.42, 'quatre mille cent quatre-vingt-seize virgule quarante-deux'],
 
+  [-17.42, 'moins dix-sept virgule quarante-deux'],
+  [-1, 'moins un'],
+  [-20, 'moins vingt'],
+
   [0, 'zéro'],
   [1, 'un'],
   [2, 'deux'],

@@ -8,6 +8,10 @@ export default [
   [300.42, 'třista celá čtyřicet dva'],
   [4196.42, 'čtyři tisíce sto devadesát šest celá čtyřicet dva'],
 
+  [-17.42, 'mínus sedmnáct celá čtyřicet dva'],
+  [-1, 'mínus jedna'],
+  [-20, 'mínus dvacet'],
+
   [0, 'nula'],
   [1, 'jedna'],
   [2, 'dva'],

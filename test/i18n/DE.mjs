@@ -8,6 +8,10 @@ export default [
   [300.42, 'dreihundert komma zweiundvierzig'],
   [4196.42, 'viertausendeinhundertsechsundneunzig komma zweiundvierzig'],
 
+  [-17.42, 'minus siebzehn komma zweiundvierzig'],
+  [-1, 'minus eins'],
+  [-20, 'minus zwanzig'],
+
   [0, 'null'],
   [1, 'eins'],
   [2, 'zwei'],
