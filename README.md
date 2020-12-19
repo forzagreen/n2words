@@ -2,7 +2,8 @@
 
 [![Node CI](https://github.com/forzagreen/n2words/workflows/Node%20CI/badge.svg?branch=master)](https://github.com/forzagreen/n2words/actions)
 [![Coverage Status](https://coveralls.io/repos/github/forzagreen/n2words/badge.svg?branch=master)](https://coveralls.io/github/forzagreen/n2words?branch=master)
-[![npm](https://img.shields.io/npm/v/n2words.svg)](https://www.npmjs.com/package/n2words)
+[![npm](https://img.shields.io/npm/v/n2words.svg)](https://npmjs.com/package/n2words)
+[![Gitter](https://img.shields.io/gitter/room/forzagreen/n2words)](https://gitter.im/forzagreen/n2words)
 
 n2words converts numbers to words. It supports multiple languages.
 
@@ -14,7 +15,7 @@ n2words is a lightweight, easy to use package, with no dependencies. It works bo
 npm install n2words
 ```
 
-n2words is available on [jsDelivr](https://www.jsdelivr.com/package/npm/n2words).
+n2words is available on [jsDelivr](https://jsdelivr.com/package/npm/n2words).
 
 ## Usage
 
@@ -35,23 +36,25 @@ import n2words from 'n2words/lib/n2words.mjs'
 ### Browser
 
 ```html
-<script src="n2words.min.js"></script>
+<script src="n2words.js"></script>
 ```
 
 ## Example
 
 ```js
-n2words(123) // 'one hundred and twenty-three'
+n2words(123)   // 'one hundred and twenty-three'
+n2words(-1.5)  // 'minus one point five'
 
-n2words(123, {lang: 'en'}) // 'one hundred and twenty-three'
-n2words(123, {lang: 'fr'}) // 'cent vingt-trois'
-n2words(123, {lang: 'es'}) // 'ciento veintitrés'
+n2words(123, {lang: 'en'})  // 'one hundred and twenty-three'
+n2words(123, {lang: 'fr'})  // 'cent vingt-trois'
+n2words(123, {lang: 'es'})  // 'ciento veintitrés'
 ```
 
 ## Features
 
 - Cardinal numbers
 - Decimal numbers
+- Negative numbers
 
 ## Supported Languages
 
@@ -77,6 +80,14 @@ n2words(123, {lang: 'es'}) // 'ciento veintitrés'
 - `sr` (Serbian)
 - `tr` (Turkish)
 - `uk` (Ukrainian)
+- `zh` (Chinese)
+
+
+## Contributing
+
+You can help by adding a new language, or by imporving existing languages (report issues, verify the correctness of unit tests, add more test cases...).
+
+All help is welcome !
 
 ## License
 
