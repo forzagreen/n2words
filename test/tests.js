@@ -22,29 +22,31 @@ import RU from './i18n/RU.mjs';
 import SR from './i18n/SR.mjs';
 import TR from './i18n/TR.mjs';
 import UK from './i18n/UK.mjs';
+import ZH from './i18n/ZH.mjs';
 
 const i18n = {
-  'ar': AR,
-  'cz': CZ,
-  'de': DE,
-  'dk': DK,
-  'en': EN,
-  'es': ES,
-  'fa': FA,
-  'fr': FR,
-  'he': HE,
-  'it': IT,
-  'ko': KO,
-  'lt': LT,
-  'lv': LV,
-  'nl': NL,
-  'no': NO,
-  'pl': PL,
-  'pt': PT,
-  'ru': RU,
-  'sr': SR,
-  'tr': TR,
-  'uk': UK,
+  ar: AR,
+  cz: CZ,
+  de: DE,
+  dk: DK,
+  en: EN,
+  es: ES,
+  fa: FA,
+  fr: FR,
+  he: HE,
+  it: IT,
+  ko: KO,
+  lt: LT,
+  lv: LV,
+  nl: NL,
+  no: NO,
+  pl: PL,
+  pt: PT,
+  ru: RU,
+  sr: SR,
+  tr: TR,
+  uk: UK,
+  zh: ZH,
 };
 
 Object.keys(i18n).forEach((language) => {
