@@ -64,6 +64,7 @@ n2words(123, {lang: 'es'}) // 'ciento veintitrés'
 - `fr` (French)
 - `fa` (Farsi)
 - `he` (Hebrew)
+- `hu` (Hungarian)
 - `it` (Italian)
 - `ko` (Korean)
 - `lt` (Lithuanian)
