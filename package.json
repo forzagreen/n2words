@@ -4,7 +4,7 @@
   "description": "Convert numbers to words, in multiple languages",
   "main": "dist/n2words.js",
   "scripts": {
-    "lint": "eslint --config .eslintrc.json lib/ test/ --ext .mjs",
+    "lint": "eslint --config .eslintrc.json lib/ test/",
     "test": "ava --verbose",
     "coverage": "c8 ava",
     "build": "webpack --config webpack.config.js --progress"
