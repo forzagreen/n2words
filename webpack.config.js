@@ -1,5 +1,3 @@
-const path = require('path');
-
 module.exports = {
   mode: 'production',
   entry: './lib/n2words.mjs',
@@ -8,7 +6,6 @@ module.exports = {
     libraryTarget: 'umd',
     libraryExport: 'default',
     filename: 'n2words.js',
-    path: path.resolve(__dirname, 'dist'),
     globalObject: 'this',
   },
   module: {
@@ -26,7 +23,7 @@ module.exports = {
               '@babel/preset-env',
               {
                 useBuiltIns: 'usage',
-                corejs: '3.6',
+                corejs: '3.8',
               },
             ],
           ],
