@@ -51,9 +51,9 @@ const i18n = {
   zh: ZH,
 };
 
-Object.keys(i18n).forEach((language) => {
-  test(language, (t) => {
-    i18n[language].forEach((problem) => {
+Object.keys(i18n).forEach(language => {
+  test(language, t => {
+    i18n[language].forEach(problem => {
       t.is(
         n2words(problem[0], Object.assign({ lang: language }, problem[2])),
         problem[1]
@@ -62,12 +62,12 @@ Object.keys(i18n).forEach((language) => {
   });
 });
 
-test('should set English as default language', (t) => {
+test('should set English as default language', t => {
   t.is(n2words(12), 'twelve');
   t.is(n2words(356), 'three hundred and fifty-six');
 });
 
-test('should throw an error for unsupported languages', (t) => {
+test('should throw an error for unsupported languages', t => {
   t.throws(
     () => {
       n2words(2, { lang: 'aaa' });
