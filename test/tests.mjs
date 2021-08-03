@@ -1,3 +1,4 @@
+/* eslint-disable import/max-dependencies */
 import test from 'ava';
 
 import n2words from '../lib/n2words.mjs';

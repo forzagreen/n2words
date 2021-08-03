@@ -12,22 +12,17 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    - name: Setup .npmrc file, and use Node.js 12.x
-      uses: actions/setup-node@v1
+    - name: Setup Node.js v12
+      uses: actions/setup-node@v2
       with:
-        node-version: '12.x'
+        node-version: '12'
         registry-url: 'https://registry.npmjs.org'
 
     - run: npm install
     - run: npm run lint
     - run: npm run build
-    - run: npm run coverage
-    - name: Coveralls
-      uses: coverallsapp/github-action@master
-      with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Publish to npm
+    - name: Publish to NPM
       run: npm publish
       env:
         CI: true
