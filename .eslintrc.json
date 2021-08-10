@@ -22,24 +22,83 @@
     "plugin:import/warnings",
     "plugin:jsdoc/recommended"
   ],
+  "overrides": [{
+    "files": ["*.js", "*.mjs"]
+  }],
   "parserOptions": {
     "ecmaVersion": 2021,
     "sourceType": "module"
   },
   "rules": {
-    "max-len": ["warn", {
-      "code": 130
-    }],
+    // Ignore platform dependent linebreak
     "linebreak-style": "off",
-    "jsdoc/require-jsdoc": "off",
+    // Remove maximum length limit
+    "max-len": "off",
+    // Enforce camelCase for variable names
+    "camelcase": ["error", {
+      "properties": "never"
+    }],
+    // Enforce indent of two spaces
+    "indent": [
+      "error", 2, {
+        "SwitchCase": 1
+      }
+    ],
+    // Remove trailing whitespace
+    "no-trailing-spaces": "error",
+    // Enforce use of single quotes
+    "quotes": ["error", "single"],
+    // Enforce use of semicolon to end lines
+    "semi": "error",
+    // Enforce consistent spacing before & after arrow function
+    "arrow-spacing": "error",
+    // Enforce omitting parentheses when unnecessary for arrow functions
+    "arrow-parens": ["error", "as-needed"],
+    // Disallow multiple imports of same module
+    "no-duplicate-imports": "error",
+    // Enforce let or const instead of var
+    "no-var": "error",
+    // Enforce consistent brace style usage (1TBS default)
+    "brace-style": "error",
+    //
+    // -- IMPORT RULES --
+    //
+    // Report any invalid exports, i.e. re-export of the same name
+    "import/export": "error",
+    // Report modules without exports, or exports without matching import in another module
+    "import/no-unused-modules": "error",
+    // Report potentially ambiguous parse goal (script vs. module)
     "import/unambiguous": "error",
+    // Report CommonJS require calls and module.exports or exports.*
     "import/no-commonjs": "error",
+    // Report AMD require and define calls
     "import/no-amd": "error",
+    // No Node.js builtin modules
     "import/no-nodejs-modules": "error",
+    // Report imported names marked with @deprecated documentation tag
     "import/no-deprecated": "error",
+    // Ensure all imports appear before other statements
+    "import/first": "error",
+    // Ensure consistent use of file extension within the import path
     "import/extensions": ["error", "always"],
+    // Enforce a newline after import statements
+    "import/newline-after-import": "error",
+    // Ensure imports point to a file/module that can be resolved
     "import/no-unresolved": ["error", {
       "commonjs": true
-    }]
+    }],
+    // Limit the maximum number of dependencies a module can have
+    "import/max-dependencies": "error",
+    // Prefer a default export if module exports a single name
+    "import/prefer-default-export": "error",
+    // Forbid unassigned imports
+    "import/no-unassigned-import": ["error", {
+      "allow": ["**/app.mjs"]
+    }],
+    //
+    // -- JSDOC RULES --
+    //
+    // Checks for presence of jsdoc comments, on class declarations as well as functions
+    "jsdoc/require-jsdoc": "off"
   }
 }
