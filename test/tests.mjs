@@ -68,11 +68,27 @@ test('should set English as default language', t => {
   t.is(n2words(356), 'three hundred and fifty-six');
 });
 
+test('should accept valid string numbers', t => {
+  t.is(n2words('12'), 'twelve');
+  t.is(n2words('0012'), 'twelve');
+  t.is(n2words('.1'), 'zero point one');
+  t.is(n2words(' -12.6 '), 'minus twelve point six');
+});
+
 test('should throw an error for unsupported languages', t => {
   t.throws(
     () => {
       n2words(2, { lang: 'aaa' });
     },
     { instanceOf: Error }
+  );
+});
+
+test('should throw an error for invalid numbers', t => {
+  t.throws(
+    () => {
+      n2words('foobar');
+    },
+    { instanceOf: TypeError }
   );
 });
