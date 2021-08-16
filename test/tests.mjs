@@ -12,6 +12,7 @@ import FR from './i18n/FR.mjs';
 import FA from './i18n/FA.mjs';
 import HE from './i18n/HE.mjs';
 import HU from './i18n/HU.mjs';
+import ID from './i18n/ID.mjs';
 import IT from './i18n/IT.mjs';
 import KO from './i18n/KO.mjs';
 import LT from './i18n/LT.mjs';
@@ -37,6 +38,7 @@ const i18n = {
   fr: FR,
   he: HE,
   hu: HU,
+  id: ID,
   it: IT,
   ko: KO,
   lt: LT,
