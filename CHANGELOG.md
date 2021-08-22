@@ -5,6 +5,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [1.9.1] - 2021-08-14
+### Changed
+- Configs: update dependencies, linting, camelCase [#51](https://github.com/forzagreen/n2words/pull/51). Thanks to [@TylerVigario](https://github.com/TylerVigario) !
+
+### Fixed
+- Fix Polish translation [#49](https://github.com/forzagreen/n2words/pull/49). Thanks to [@krzyhan](https://github.com/krzyhan) !
+
 ## [1.9.0] - 2020-12-19
 ### Added
 - New language: `zh` Chinese [#43](https://github.com/forzagreen/n2words/pull/43). Thanks to [@ljinke](https://github.com/ljinke) !

@@ -11,6 +11,7 @@ import FR from './i18n/FR.mjs';
 import FA from './i18n/FA.mjs';
 import HE from './i18n/HE.mjs';
 import HU from './i18n/HU.mjs';
+import ID from './i18n/ID.mjs';
 import IT from './i18n/IT.mjs';
 import KO from './i18n/KO.mjs';
 import LT from './i18n/LT.mjs';
@@ -36,6 +37,7 @@ const i18n = {
   fr: FR,
   he: HE,
   hu: HU,
+  id: ID,
   it: IT,
   ko: KO,
   lt: LT,
@@ -67,11 +69,27 @@ test('should set English as default language', t => {
   t.is(n2words(356), 'three hundred and fifty-six');
 });
 
+test('should accept valid string numbers', t => {
+  t.is(n2words('12'), 'twelve');
+  t.is(n2words('0012'), 'twelve');
+  t.is(n2words('.1'), 'zero point one');
+  t.is(n2words(' -12.6 '), 'minus twelve point six');
+});
+
 test('should throw an error for unsupported languages', t => {
   t.throws(
     () => {
       n2words(2, { lang: 'aaa' });
     },
     { instanceOf: Error }
+  );
+});
+
+test('should throw an error for invalid numbers', t => {
+  t.throws(
+    () => {
+      n2words('foobar');
+    },
+    { instanceOf: TypeError }
   );
 });
