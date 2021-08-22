@@ -23,14 +23,29 @@ n2words is available on [jsDelivr](https://jsdelivr.com/package/npm/n2words).
 
 ```js
 var n2words = require('n2words')
+
+// Dynamic Import (source files)
+import('n2words/lib/n2words.mjs').then(n2words => {
+    // Available via "default" method
+    n2words.default(100)
+})
+
+// Individual languages
+import('n2words/lib/i18n/EN.mjs').then(n2wordsEN => {
+    n2wordsEN.default(100)
+})
 ```
 
-### ES6
+### ESM
 
 ```js
 import n2words from 'n2words'
-// or to import source ES Modules without bundle and polyfills
+
+// ES6+
 import n2words from 'n2words/lib/n2words.mjs'
+
+// Individual languages
+import n2wordsEN from 'n2words/lib/i18n/EN.mjs'
 ```
 
 ### Browser
