@@ -5,6 +5,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [1.10.0] - 2021-08-22
+### Added
+- New language: `id` Indonesian [#58](https://github.com/forzagreen/n2words/pull/58).
+
+### Changed
+- Migrate to ES6 classes [#55](https://github.com/forzagreen/n2words/pull/55). Thanks to [@TylerVigario](https://github.com/TylerVigario) !
+
+### Fixed
+- Accept numbers as string [#57](https://github.com/forzagreen/n2words/pull/57).
+
+
 ## [1.9.1] - 2021-08-14
 ### Changed
 - Configs: update dependencies, linting, camelCase [#51](https://github.com/forzagreen/n2words/pull/51). Thanks to [@TylerVigario](https://github.com/TylerVigario) !
