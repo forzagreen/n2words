@@ -10,7 +10,7 @@ n2words converts numbers to words. It supports multiple languages.
 n2words is a lightweight, easy to use package, with no dependencies. It works both in Node.js and in browsers.
 
 
-## Example
+## How To
 
 ```js
 n2words(123)   // 'one hundred and twenty-three'
