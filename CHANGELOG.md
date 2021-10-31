@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Correct translation of number 18 for NL.mjs [#59](https://github.com/forzagreen/n2words/pull/59). Thanks to [@K4CZP3R](https://github.com/K4CZP3R) !
+- Update dev dependencies.
 
 
 ## [1.10.0] - 2021-08-22
