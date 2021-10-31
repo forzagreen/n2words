@@ -5,6 +5,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [1.10.1] - 2021-10-31
+
+### Fixed
+- Correct translation of number 18 for NL.mjs [#59](https://github.com/forzagreen/n2words/pull/59). Thanks to [@K4CZP3R](https://github.com/K4CZP3R) !
+
+
 ## [1.10.0] - 2021-08-22
 ### Added
 - New language: `id` Indonesian [#58](https://github.com/forzagreen/n2words/pull/58).

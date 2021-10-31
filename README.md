@@ -9,6 +9,19 @@ n2words converts numbers to words. It supports multiple languages.
 
 n2words is a lightweight, easy to use package, with no dependencies. It works both in Node.js and in browsers.
 
+
+## Example
+
+```js
+n2words(123)   // 'one hundred and twenty-three'
+n2words(-1.5)  // 'minus one point five'
+
+n2words(123, {lang: 'fr'})  // 'cent vingt-trois'
+n2words(123, {lang: 'es'})  // 'ciento veintitrés'
+n2words(123, {lang: 'ar'})  // 'مائة و ثلاثة و عشرون'
+```
+
+
 ## Install
 
 ```sh
@@ -52,17 +65,6 @@ import n2wordsEN from 'n2words/lib/i18n/EN.mjs'
 
 ```html
 <script src="n2words.js"></script>
-```
-
-## Example
-
-```js
-n2words(123)   // 'one hundred and twenty-three'
-n2words(-1.5)  // 'minus one point five'
-
-n2words(123, {lang: 'en'})  // 'one hundred and twenty-three'
-n2words(123, {lang: 'fr'})  // 'cent vingt-trois'
-n2words(123, {lang: 'es'})  // 'ciento veintitrés'
 ```
 
 ## Features
