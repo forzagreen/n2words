@@ -3,7 +3,7 @@
 [![Node CI](https://github.com/forzagreen/n2words/workflows/Node%20CI/badge.svg?branch=master)](https://github.com/forzagreen/n2words/actions)
 [![Coverage Status](https://coveralls.io/repos/github/forzagreen/n2words/badge.svg?branch=master)](https://coveralls.io/github/forzagreen/n2words?branch=master)
 [![npm](https://img.shields.io/npm/v/n2words.svg)](https://npmjs.com/package/n2words)
-[![Gitter](https://img.shields.io/gitter/room/forzagreen/n2words)](https://gitter.im/forzagreen/n2words)
+[![npm](https://img.shields.io/npm/dw/n2words)](https://npmjs.com/package/n2words)
 
 n2words converts numbers to words. It supports multiple languages.
 
