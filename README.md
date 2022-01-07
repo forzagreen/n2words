@@ -84,6 +84,7 @@ import n2wordsEN from 'n2words/lib/i18n/EN.mjs'
 - `fr` (French)
 - `fa` (Farsi)
 - `he` (Hebrew)
+- `hr` (Croatian)
 - `hu` (Hungarian)
 - `id` (Indonesian)
 - `it` (Italian)
