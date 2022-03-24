@@ -6,6 +6,7 @@
     "es2017": true,
     "es2020": true,
     "es2021": true,
+    "es2022": true,
     "node": true
   },
   "plugins": [
@@ -26,7 +27,7 @@
     "files": ["*.js", "*.mjs"]
   }],
   "parserOptions": {
-    "ecmaVersion": 2021,
+    "ecmaVersion": "latest",
     "sourceType": "module"
   },
   "rules": {
