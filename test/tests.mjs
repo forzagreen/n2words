@@ -1,4 +1,6 @@
 /* eslint-disable import/max-dependencies */
+/* eslint-disable import/no-unresolved */
+/* eslint-disable node/no-missing-import */
 import test from 'ava';
 import n2words from '../lib/n2words.mjs';
 import AR from './i18n/AR.mjs';

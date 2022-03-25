@@ -12,9 +12,6 @@ module.exports = {
     rules: [{
       test: /\.m?js$/,
       exclude: /node_modules/,
-      resolve: {
-        fullySpecified: false,
-      },
       use: {
         loader: 'babel-loader',
         options: {
@@ -23,7 +20,7 @@ module.exports = {
               '@babel/preset-env',
               {
                 useBuiltIns: 'usage',
-                corejs: '3.16',
+                corejs: '3.21.1',
               },
             ],
           ],

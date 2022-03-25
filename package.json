@@ -55,19 +55,19 @@
   },
   "homepage": "https://github.com/forzagreen/n2words#readme",
   "devDependencies": {
-    "@babel/core": "^7.16.0",
-    "@babel/preset-env": "^7.16.0",
-    "ava": "^3.15.0",
+    "@babel/core": "^7.17.7",
+    "@babel/preset-env": "^7.16.11",
+    "ava": "^4.1.0",
     "babel-loader": "^8.2.3",
-    "c8": "^7.10.0",
-    "core-js": "^3.19.0",
-    "eslint": "^8.1.0",
-    "eslint-plugin-ava": "^13.1.0",
-    "eslint-plugin-import": "^2.25.2",
-    "eslint-plugin-jsdoc": "^37.0.3",
+    "c8": "^7.11.0",
+    "core-js": "^3.21.1",
+    "eslint": "^8.11.0",
+    "eslint-plugin-ava": "^13.2.0",
+    "eslint-plugin-import": "^2.25.4",
+    "eslint-plugin-jsdoc": "^38.0.4",
     "eslint-plugin-node": "^11.1.0",
-    "webpack": "^5.61.0",
-    "webpack-cli": "^4.9.1"
+    "webpack": "^5.70.0",
+    "webpack-cli": "^4.9.2"
   },
   "ava": {
     "files": [
