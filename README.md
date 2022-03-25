@@ -5,10 +5,7 @@
 [![npm](https://img.shields.io/npm/v/n2words.svg)](https://npmjs.com/package/n2words)
 [![npm](https://img.shields.io/npm/dw/n2words)](https://npmjs.com/package/n2words)
 
-n2words converts numbers to words. It supports multiple languages.
-
-n2words is a lightweight, easy to use package, with no dependencies. It works both in Node.js and in browsers.
-
+n2words is a library that converts a numerical number into an written number. We have support for multiple languages (25 and growing) and our package is lightweight, modular, and has minimal dependecies.
 
 ## How To
 
@@ -21,14 +18,13 @@ n2words(123, {lang: 'es'})  // 'ciento veintitrés'
 n2words(123, {lang: 'ar'})  // 'مائة و ثلاثة و عشرون'
 ```
 
-
 ## Install
 
 ```sh
 npm install n2words
 ```
 
-n2words is available on [jsDelivr](https://jsdelivr.com/package/npm/n2words).
+n2words is also available on [jsDelivr](https://jsdelivr.com/package/npm/n2words).
 
 ## Usage
 
@@ -54,10 +50,10 @@ import('n2words/lib/i18n/EN.mjs').then(n2wordsEN => {
 ```js
 import n2words from 'n2words'
 
-// ES6+
+// Source file
 import n2words from 'n2words/lib/n2words.mjs'
 
-// Individual languages
+// Individual languages (recommended)
 import n2wordsEN from 'n2words/lib/i18n/EN.mjs'
 ```
 
@@ -100,7 +96,6 @@ import n2wordsEN from 'n2words/lib/i18n/EN.mjs'
 - `tr` (Turkish)
 - `uk` (Ukrainian)
 - `zh` (Chinese)
-
 
 ## Contributing
 
