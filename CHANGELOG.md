@@ -5,6 +5,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [1.11.1] - 2022-04-08
+
+### Changed
+- Improve README [#67](https://github.com/forzagreen/n2words/pull/67) [#66](https://github.com/forzagreen/n2words/pull/66). Thanks to [@TylerVigario](https://github.com/TylerVigario) !
+- Update dev dependencies (Webpack, ESLint...) [#65](https://github.com/forzagreen/n2words/pull/65). Thanks to [@TylerVigario](https://github.com/TylerVigario) !
+
+
 ## [1.11.0] - 2022-01-08
 
 ### Added
