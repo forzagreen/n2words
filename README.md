@@ -28,6 +28,18 @@ n2words is also available on [jsDelivr](https://jsdelivr.com/package/npm/n2words
 
 ## Usage
 
+### ESM
+
+```js
+import n2words from 'n2words'
+
+// Source file
+import n2words from 'n2words/lib/n2words.mjs'
+
+// Individual languages (recommended)
+import n2wordsEN from 'n2words/lib/i18n/EN.mjs'
+```
+
 ### CommonJS
 
 ```js
@@ -43,18 +55,6 @@ import('n2words/lib/n2words.mjs').then(n2words => {
 import('n2words/lib/i18n/EN.mjs').then(n2wordsEN => {
     n2wordsEN.default(100)
 })
-```
-
-### ESM
-
-```js
-import n2words from 'n2words'
-
-// Source file
-import n2words from 'n2words/lib/n2words.mjs'
-
-// Individual languages (recommended)
-import n2wordsEN from 'n2words/lib/i18n/EN.mjs'
 ```
 
 ### Browser
