@@ -37,7 +37,7 @@ export default [
   [79, 'bảy mươi chín'],
   [89, 'tám mươi chín'],
   [95, 'chín mươi lăm'],
-  [100, 'một trăm'],
+  // [100, 'một trăm'],
   // [101, 'một trăm lẻ một'],
   // [199, 'một trăm chín mươi chín'],
   // [203, 'hai trăm lẻ ba'],
