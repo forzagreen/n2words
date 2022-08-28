@@ -95,6 +95,7 @@ import('n2words/lib/i18n/EN.mjs').then(n2wordsEN => {
 - `sr` (Serbian)
 - `tr` (Turkish)
 - `uk` (Ukrainian)
+- `vi` (Vietnamese)
 - `zh` (Chinese)
 
 ## Contributing

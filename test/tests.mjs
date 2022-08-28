@@ -27,6 +27,7 @@ import RU from './i18n/RU.mjs';
 import SR from './i18n/SR.mjs';
 import TR from './i18n/TR.mjs';
 import UK from './i18n/UK.mjs';
+import VI from './i18n/VI.mjs';
 import ZH from './i18n/ZH.mjs';
 
 const i18n = {
@@ -54,6 +55,7 @@ const i18n = {
   sr: SR,
   tr: TR,
   uk: UK,
+  vi: VI,
   zh: ZH,
 };
 
