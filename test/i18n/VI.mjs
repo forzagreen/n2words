@@ -8,9 +8,9 @@ export default [
   [300.42, 'ba trăm phẩy bốn mươi hai'],
   [4196.42, 'bốn nghìn một trăm chín mươi sáu phẩy bốn mươi hai'],
 
-  [-17.42, 'trừ mười bảy phẩy bốn mươi hai'],
-  [-1, 'trừ một'],
-  [-20, 'trừ hai mươi'],
+  [-17.42, 'âm mười bảy phẩy bốn mươi hai'],
+  [-1, 'âm một'],
+  [-20, 'âm hai mươi'],
 
   [0, 'không'],
   [1, 'một'],
