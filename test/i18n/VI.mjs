@@ -1,17 +1,16 @@
 export default [
-  // TODO: Write tests for negative and decimal numbers
-  // [0.01, 'không phẩy không một'],
-  // [0.007, 'không phẩy không không bảy'],
-  // [5.5, 'năm phẩy năm mươi'],
-  // [17.42, 'mười bảy phẩy bốn mươi hai'],
-  // [27.312, 'hai mươi bảy phẩy ba mươi mốt'],
-  // [53.486, 'năm mươi ba phẩy bốn mươi chín'],
-  // [300.42, 'ba trăm phẩy bốn mươi hai'],
-  // [4196.42, 'bốn nghìn một trăm chín mươi sáu phẩy bốn mươi hai'],
+  [0.01, 'không phẩy không một'],
+  [0.007, 'không phẩy không không bảy'],
+  [5.5, 'năm phẩy năm'],
+  [17.42, 'mười bảy phẩy bốn mươi hai'],
+  [27.312, 'hai mươi bảy phẩy ba trăm mười hai'],
+  [53.486, 'năm mươi ba phẩy bốn trăm tám mươi sáu'],
+  [300.42, 'ba trăm phẩy bốn mươi hai'],
+  [4196.42, 'bốn nghìn một trăm chín mươi sáu phẩy bốn mươi hai'],
 
-  // [-17.42, 'ba phẩy bốn mươi hai'],
-  // [-1, 'mười chín'],
-  // [-20, 'không']
+  [-17.42, 'trừ mười bảy phẩy bốn mươi hai'],
+  [-1, 'trừ một'],
+  [-20, 'trừ hai mươi'],
 
   [0, 'không'],
   [1, 'một'],
@@ -42,6 +41,7 @@ export default [
   [199, 'một trăm chín mươi chín'],
   [203, 'hai trăm lẻ ba'],
   [287, 'hai trăm tám mươi bảy'],
+  [312, 'ba trăm mười hai'],
   [356, 'ba trăm năm mươi sáu'],
   [400, 'bốn trăm'],
   [434, 'bốn trăm ba mươi bốn'],
