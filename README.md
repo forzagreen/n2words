@@ -5,7 +5,9 @@
 [![npm](https://img.shields.io/npm/v/n2words.svg)](https://npmjs.com/package/n2words)
 [![npm](https://img.shields.io/npm/dw/n2words)](https://npmjs.com/package/n2words)
 
-n2words is a library that converts a numerical number into a written number. We have support for multiple languages (25 and growing) and our package is lightweight, modular and has no dependencies.
+n2words is a library that converts a numerical number into a written number.
+
+We have support for multiple languages (26 and growing) and our package is lightweight, modular and has no dependencies.
 
 ## How To
 
@@ -95,6 +97,7 @@ import('n2words/lib/i18n/EN.mjs').then(n2wordsEN => {
 - `sr` (Serbian)
 - `tr` (Turkish)
 - `uk` (Ukrainian)
+- `vi` (Vietnamese)
 - `zh` (Chinese)
 
 ## Contributing
