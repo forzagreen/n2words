@@ -7,7 +7,7 @@
 
 n2words is a library that converts a numerical number into a written number.
 
-We have support for multiple languages (26 and growing) and our package is lightweight, modular and has no dependencies.
+We have support for multiple languages (27 and growing) and our package is lightweight, modular and has no dependencies.
 
 ## How To
 
