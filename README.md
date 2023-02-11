@@ -75,6 +75,7 @@ import('n2words/lib/i18n/EN.mjs').then(n2wordsEN => {
 
 - `en` (English, default)
 - `ar` (Arabic)
+- `az` (Azerbaijani)
 - `cz` (Czech)
 - `dk` (Danish)
 - `de` (German)
