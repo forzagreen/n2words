@@ -4,6 +4,7 @@
 import test from 'ava';
 import n2words from '../lib/n2words.mjs';
 import AR from './i18n/AR.mjs';
+import AZ from './i18n/AZ.mjs';
 import CZ from './i18n/CZ.mjs';
 import DE from './i18n/DE.mjs';
 import DK from './i18n/DK.mjs';
@@ -32,6 +33,7 @@ import ZH from './i18n/ZH.mjs';
 
 const i18n = {
   ar: AR,
+  az: AZ,
   cz: CZ,
   de: DE,
   dk: DK,
