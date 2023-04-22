@@ -30,7 +30,7 @@ import TR from './i18n/TR.mjs';
 import UK from './i18n/UK.mjs';
 import VI from './i18n/VI.mjs';
 import ZH from './i18n/ZH.mjs';
-import { isNumber } from '../lib/util.mjs';
+import { isNumeric } from '../lib/util.mjs';
 
 const i18n = {
   ar: AR,
@@ -103,25 +103,25 @@ test('should throw an error for invalid numbers', t => {
   );
 });
 
-test('isNumber should return true for a valid number', (t) => {
-  t.true(isNumber(42));
-  t.true(isNumber('42'));
-  t.true(isNumber('3.14'));
-  t.true(isNumber(0));
+test('isNumeric should return true for a valid number', (t) => {
+  t.true(isNumeric(42));
+  t.true(isNumeric('42'));
+  t.true(isNumeric('3.14'));
+  t.true(isNumeric(0));
 });
 
-test('isNumber should return false for an invalid number', (t) => {
-  t.false(isNumber(NaN));
-  t.false(isNumber(''));
-  t.false(isNumber(null));
-  t.false(isNumber(undefined));
-  t.false(isNumber('foo'));
+test('isNumeric should return false for an invalid number', (t) => {
+  t.false(isNumeric(NaN));
+  t.false(isNumeric(''));
+  t.false(isNumeric(null));
+  t.false(isNumeric(undefined));
+  t.false(isNumeric('foo'));
 });
 
-test('isNumber should return false for non-number types', (t) => {
-  t.false(isNumber(true));
-  t.false(isNumber(false));
-  t.false(isNumber({}));
-  t.false(isNumber([]));
-  t.false(isNumber(() => {}));
+test('isNumeric should return false for non-number types', (t) => {
+  t.false(isNumeric(true));
+  t.false(isNumeric(false));
+  t.false(isNumeric({}));
+  t.false(isNumeric([]));
+  t.false(isNumeric(() => {}));
 });
