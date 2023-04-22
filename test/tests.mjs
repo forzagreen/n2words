@@ -116,6 +116,9 @@ test('isNumeric should return false for an invalid number', (t) => {
   t.false(isNumeric(null));
   t.false(isNumeric(undefined));
   t.false(isNumeric('foo'));
+  t.false(isNumeric('3px'));
+  t.false(isNumeric('35$'));
+  t.false(isNumeric('57%'));
 });
 
 test('isNumeric should return false for non-number types', (t) => {
