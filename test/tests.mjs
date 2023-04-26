@@ -88,6 +88,11 @@ test('error on unsupported languages', t => {
   t.throws(
     () => {
       n2words(2, { lang: 'aaa' });
+    },
+    { instanceOf: Error }
+  );
+  t.throws(
+    () => {
       n2words(2, 'en');
     },
     { instanceOf: Error }
@@ -98,10 +103,30 @@ test('error on invalid numbers', t => {
   t.throws(
     () => {
       n2words('foobar');
+    },
+    { instanceOf: Error }
+  );
+  t.throws(
+    () => {
       n2words(false);
+    },
+    { instanceOf: Error }
+  );
+  t.throws(
+    () => {
       n2words('3px');
+    },
+    { instanceOf: Error }
+  );
+  t.throws(
+    () => {
       n2words(NaN);
-      n2words(' ');
+    },
+    { instanceOf: Error }
+  );
+  t.throws(
+    () => {
+      n2words('');
     },
     { instanceOf: Error }
   );
