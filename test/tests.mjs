@@ -72,32 +72,37 @@ Object.keys(i18n).forEach(language => {
   });
 });
 
-test('should set English as default language', t => {
+test('english is default', t => {
   t.is(n2words(12), 'twelve');
   t.is(n2words(356), 'three hundred and fifty-six');
 });
 
-test('should accept valid string numbers', t => {
+test('accept valid string numbers', t => {
   t.is(n2words('12'), 'twelve');
   t.is(n2words('0012'), 'twelve');
   t.is(n2words('.1'), 'zero point one');
   t.is(n2words(' -12.6 '), 'minus twelve point six');
 });
 
-test('should throw an error for unsupported languages', t => {
+test('error on unsupported languages', t => {
   t.throws(
     () => {
       n2words(2, { lang: 'aaa' });
+      n2words(2, 'en');
     },
     { instanceOf: Error }
   );
 });
 
-test('should throw an error for invalid numbers', t => {
+test('error on invalid numbers', t => {
   t.throws(
     () => {
       n2words('foobar');
+      n2words(false);
+      n2words('3px');
+      n2words(NaN);
+      n2words(' ');
     },
-    { instanceOf: TypeError }
+    { instanceOf: Error }
   );
 });
