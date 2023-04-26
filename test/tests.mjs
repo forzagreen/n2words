@@ -130,4 +130,10 @@ test('error on invalid numbers', t => {
     },
     { instanceOf: Error }
   );
+  t.throws(
+    () => {
+      n2words(' ');
+    },
+    { instanceOf: Error }
+  );
 });
