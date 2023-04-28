@@ -1,9 +1,9 @@
 /* eslint-disable import/no-nodejs-modules */
-import n2words from './lib/i18n/EN.mjs';
+import n2words from '../lib/i18n/EN.mjs';
 import * as readline from 'node:readline/promises';
-import {stdin, stdout} from 'node:process';
+import {stdin as input, stdout as output} from 'node:process';
 
-const rl = readline.createInterface({stdin, stdout});
+const rl = readline.createInterface({input, output});
 
 console.log(n2words(await rl.question('Value to convert?')));
 
