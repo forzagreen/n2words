@@ -5,6 +5,6 @@ import {stdin as input, stdout as output} from 'node:process';
 
 const rl = readline.createInterface({input, output});
 
-console.log(n2words(await rl.question('Value to convert?')));
+console.log(n2words(await rl.question('Value to convert? ')));
 
 rl.close();
