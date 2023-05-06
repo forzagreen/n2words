@@ -6,6 +6,7 @@
   "scripts": {
     "lint": "eslint --config .eslintrc.json lib/ test/",
     "test": "ava --verbose",
+    "test:en": "npm run test -- -- --lang en",
     "coverage": "c8 ava",
     "build": "webpack --config webpack.config.js --progress"
   },
