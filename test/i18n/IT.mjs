@@ -75,5 +75,5 @@ export default [
   [4000000, 'quattro milioni'],
   [10000000000000, 'dieci bilioni'],
   [100000000000000, 'cento bilioni'],
-  [1000000000000000000, 'un trilione'],
+  [1000000000000000000n, 'un trilione'],
 ];

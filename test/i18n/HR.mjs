@@ -67,5 +67,5 @@ export default [
   [4000000, 'četiri milijuna'],
   [10000000000000, 'deset bilijuna'],
   [100000000000000, 'sto bilijuna'],
-  [1000000000000000000, 'jedan trilijun'],
+  [1000000000000000000n, 'jedan trilijun']
 ];

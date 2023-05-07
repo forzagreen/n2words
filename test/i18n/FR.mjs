@@ -72,7 +72,7 @@ export default [
   [10000000000000, 'dix billions'],
   [10000000000010, 'dix billions dix'],
   [100000000000000, 'cent billions'],
-  [1000000000000000000, 'un trillion'],
-  // [1000000000000000000000, 'un trilliard'],         //FIXME
-  // [10000000000000000000000000, 'dix quadrillions']  //FIXME
+  [1000000000000000000n, 'un trillion'],
+  [1000000000000000000000n, 'un trilliard'],
+  [10000000000000000000000000n, 'dix quadrillions']
 ];

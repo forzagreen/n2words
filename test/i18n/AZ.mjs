@@ -106,5 +106,5 @@ export default [
   [1000000000001, 'bir trilyon bir'],
   [10000000000000, 'on trilyon'],
   [100000000000000, 'yüz trilyon'],
-  [1000000000000000000, 'bir kentilyon'],
+  [1000000000000000000n, 'bir kentilyon'],
 ];

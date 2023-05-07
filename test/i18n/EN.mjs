@@ -67,7 +67,8 @@ export default [
   [4000000, 'four million'],
   [10000000000000, 'ten trillion'],
   [100000000000000, 'one hundred trillion'],
-  [1000000000000000000, 'one quintillion'],
-  // [1000000000000000000000, 'one sextillion'],    //FIXME
-  // [10000000000000000000000000, 'ten septillion'] //FIXME
+  [9007199254740995n, 'nine quadrillion seven trillion one hundred and ninety-nine billion two hundred and fifty-four million seven hundred and forty thousand nine hundred and ninety-five'],
+  [1000000000000000000n, 'one quintillion'],
+  [1000000000000000000000n, 'one sextillion'],
+  [10000000000000000000000000n, 'ten septillion']
 ];

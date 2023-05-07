@@ -68,5 +68,5 @@ export default [
   [4000000, 'bốn triệu'],
   [10000000000000, 'mười nghìn tỷ'],
   [100000000000000, 'một trăm nghìn tỷ'],
-  [1000000000000000000, 'một Quintillion'],
+  [1000000000000000000n, 'một Quintillion'],
 ];

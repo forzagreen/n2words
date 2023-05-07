@@ -67,7 +67,7 @@ export default [
   [4000000, 'cuatro millones'], // FIXME
   [10000000000000, 'diez billones'],
   [100000000000000, 'cien billones'],
-  [1000000000000000000, 'un trillón'],
-  [1000000000000000000000, 'mil trillones'],
-  // [10000000000000000000000000, 'diez cuatrillones']  // FIXME
+  [1000000000000000000n, 'un trillón'],
+  [1000000000000000000000n, 'mil trillones'],
+  [10000000000000000000000000n, 'diez cuatrillones']
 ];
