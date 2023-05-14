@@ -46,6 +46,7 @@ jobs:
         output-file-path: output.txt
         external-data-json-path: ./cache/benchmark-data.json
         fail-on-alert: true
+        alert-threshold: '120%'
         github-token: ${{ secrets.GITHUB_TOKEN }}
         comment-on-alert: true
         alert-comment-cc-users: '@TylerVigario'
