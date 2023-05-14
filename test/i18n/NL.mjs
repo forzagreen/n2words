@@ -136,5 +136,5 @@ export default [
     ' miljoen honderdenelf',
     {includeOptionalAnd: true},
   ],
-  [1000000000000000000, 'een triljoen'],
+  [1000000000000000000n, 'een triljoen'],
 ];

@@ -67,5 +67,5 @@ export default [
   [4000000, 'empat juta'],
   [10000000000000, 'sepuluh triliun'],
   [100000000000000, 'seratus triliun'],
-  [1000000000000000000, 'satu kuantiliun'],
+  [1000000000000000000n, 'satu kuantiliun'],
 ];

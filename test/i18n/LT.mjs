@@ -67,5 +67,5 @@ export default [
   [4000000, 'keturi milijonai'],
   [10000000000000, 'dešimt trilijonų'],
   [100000000000000, 'vienas šimtas trilijonų'],
-  [1000000000000000000, 'vienas kvintilijonas'],
+  [1000000000000000000n, 'vienas kvintilijonas'],
 ];
