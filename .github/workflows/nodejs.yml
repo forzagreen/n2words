@@ -30,6 +30,15 @@ jobs:
         flag-name: ${{ matrix.node }}
         parallel: true
 
+    - name: Run benchmark
+      run: node bench.mjs | tee output.txt
+
+    - name: Store benchmark result
+      uses: benchmark-action/github-action-benchmark@v1
+      with:
+        tool: 'benchmarkjs'
+        output-file-path: output.txt
+
     - run: npm publish --dry-run
 
     env:
