@@ -8,7 +8,7 @@ jobs:
 
     strategy:
       matrix:
-        node: ['16', '18', '19', '20']
+        node: [16, 18, 19, 20]
 
     steps:
     - uses: actions/checkout@v3
@@ -17,6 +17,7 @@ jobs:
       uses: actions/setup-node@v3
       with:
         node-version: ${{ matrix.node }}
+        cache: 'npm'
 
     - run: npm ci
     - run: npm run lint
@@ -30,10 +31,28 @@ jobs:
         flag-name: ${{ matrix.node }}
         parallel: true
 
-    - run: npm publish --dry-run
+    - name: Run benchmark
+      run: node bench.mjs | tee output.txt
 
-    env:
-      CI: true
+    - name: Download previous benchmark data
+      uses: actions/cache@v1
+      with:
+        path: ./cache
+        key: ${{ runner.os }}-benchmark
+
+    - name: Store benchmark result
+      uses: benchmark-action/github-action-benchmark@v1
+      with:
+        tool: 'benchmarkjs'
+        output-file-path: output.txt
+        external-data-json-path: ./cache/benchmark-data.json
+        fail-on-alert: true
+        alert-threshold: '120%'
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        comment-on-alert: true
+        alert-comment-cc-users: '@TylerVigario'
+
+    - run: npm publish --dry-run
 
   finish:
     needs: build
@@ -44,5 +63,3 @@ jobs:
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         parallel-finished: true
-    env:
-      CI: true

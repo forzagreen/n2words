@@ -8,7 +8,8 @@
     "test": "ava --verbose",
     "test:en": "npm run test -- -- --lang en",
     "coverage": "c8 ava",
-    "build": "webpack --config webpack.config.js --progress"
+    "build": "webpack --config webpack.config.js --progress",
+    "benchmark": "node bench.mjs"
   },
   "repository": {
     "type": "git",
@@ -62,6 +63,7 @@
     "@babel/preset-env": "^7.21.4",
     "ava": "^5.2.0",
     "babel-loader": "^9.1.2",
+    "benchmark": "^2.1.4",
     "c8": "^7.13.0",
     "core-js": "^3.30.1",
     "eslint": "^8.39.0",
@@ -69,6 +71,7 @@
     "eslint-plugin-import": "^2.27.5",
     "eslint-plugin-jsdoc": "^43.0.7",
     "eslint-plugin-node": "^11.1.0",
+    "microtime": "^3.1.1",
     "webpack": "^5.80.0",
     "webpack-cli": "^5.0.2"
   },
