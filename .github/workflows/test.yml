@@ -1,4 +1,4 @@
-name: Node CI
+name: Test
 
 on: [push, pull_request]
 
@@ -30,27 +30,6 @@ jobs:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         flag-name: ${{ matrix.node }}
         parallel: true
-
-    - name: Run benchmark
-      run: node bench.mjs | tee output.txt
-
-    - name: Download previous benchmark data
-      uses: actions/cache@v1
-      with:
-        path: ./cache
-        key: ${{ runner.os }}-benchmark
-
-    - name: Store benchmark result
-      uses: benchmark-action/github-action-benchmark@v1
-      with:
-        tool: 'benchmarkjs'
-        output-file-path: output.txt
-        external-data-json-path: ./cache/benchmark-data.json
-        fail-on-alert: true
-        alert-threshold: '120%'
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-        comment-on-alert: true
-        alert-comment-cc-users: '@TylerVigario'
 
     - run: npm publish --dry-run
 
