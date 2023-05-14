@@ -15,7 +15,7 @@
     "url": "git+https://github.com/forzagreen/n2words.git"
   },
   "engines": {
-    "node": "16 >=18"
+    "node": "16 || >=18"
   },
   "keywords": [
     "n2words",
