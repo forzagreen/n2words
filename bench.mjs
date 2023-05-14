@@ -4,7 +4,7 @@ import n2words from './lib/i18n/EN.mjs';
 const suite = new Benchmark.Suite();
 
 suite
-  .add('9007199254740995', () => {
+  .add('9007199254740991', () => {
     n2words(9007199254740991);
   })
   .on('cycle', event => {
