@@ -60,11 +60,31 @@ const i18n = {
   'zh': n2wordsZH
 };
 
-Object.keys(i18n).forEach(lang => {
-  suite.add(lang, () => {
-    i18n[lang](9007199254740991);
+const args = process.argv;
+args.slice(2);
+
+let language;
+let value = 9007199254740991;
+
+for (let i = 1; i < args.length; i++) {
+  if (args[i] == '--lang' || args[i] == '--language') {
+    language = args[i + 1];
+  } else if (args[i] == '--value') {
+    value = args[i + 1];
+  }
+}
+
+if (language) {
+  suite.add(language, () => {
+    i18n[language](value);
   });
-});
+} else {
+  Object.keys(i18n).forEach(language => {
+    suite.add(language, () => {
+      i18n[language](value);
+    });
+  });
+}
 
 suite
   .on('cycle', event => {
