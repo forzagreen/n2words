@@ -1,12 +1,11 @@
 {
   "name": "n2words",
-  "version": "1.13.0",
+  "version": "1.14.0",
   "description": "Convert numbers to words, in multiple languages",
   "main": "dist/n2words.js",
   "scripts": {
     "lint": "eslint --config .eslintrc.json lib/ test/",
     "test": "ava --verbose",
-    "test:en": "npm run test -- -- --lang en",
     "coverage": "c8 ava",
     "build": "webpack --config webpack.config.js --progress",
     "bench": "node bench.mjs"
