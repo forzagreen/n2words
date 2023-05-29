@@ -68,3 +68,10 @@ test('error on invalid numbers', t => {
     { instanceOf: Error }
   );
 });
+
+test('can change params', t => {
+  t.is(n2words(-100, {
+    lang: 'ar',
+    negativeWord: 'سالب'
+  }), 'سالب مائة');
+});
