@@ -4,6 +4,7 @@
 [![Coverage Status](https://coveralls.io/repos/github/forzagreen/n2words/badge.svg?branch=master)](https://coveralls.io/github/forzagreen/n2words?branch=master)
 [![npm](https://img.shields.io/npm/v/n2words.svg)](https://npmjs.com/package/n2words)
 [![npm](https://img.shields.io/npm/dw/n2words)](https://npmjs.com/package/n2words)
+[![](https://data.jsdelivr.com/v1/package/npm/n2words/badge)](https://www.jsdelivr.com/package/npm/n2words)
 
 n2words is a library that converts a numerical number into a written number.
 
