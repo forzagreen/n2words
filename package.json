@@ -2,7 +2,9 @@
   "name": "n2words",
   "version": "1.15.0",
   "description": "Convert numbers to words, in multiple languages",
-  "main": "dist/n2words.js",
+  "main": "dist/n2words.node.js",
+  "module": "dist/n2words.module.js",
+  "type": "module",
   "scripts": {
     "lint": "eslint --config .eslintrc.json lib/ test/",
     "test": "ava --verbose",
@@ -10,13 +12,13 @@
     "build": "webpack --config webpack.config.js --progress",
     "bench": "node bench.mjs"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/forzagreen/n2words.git"
-  },
+  "repository": "github:forzagreen/n2words",
   "engines": {
     "node": "16 || >=18"
   },
+  "browserslist": [
+    "defaults"
+  ],
   "keywords": [
     "n2words",
     "convert",

@@ -72,6 +72,10 @@ if (parameter == '--language' || parameter == '--lang') {
   });
 }
 
+/**
+ * Run i18n tests for specific language
+ * @param {string} language language code to run
+ */
 function testLanguage(language) {
   test(language, t => {
     i18n[language].forEach(problem => {

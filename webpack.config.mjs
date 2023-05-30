@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   mode: 'production',
   entry: './lib/n2words.mjs',
   output: {
@@ -21,7 +21,6 @@ module.exports = {
               {
                 useBuiltIns: 'usage',
                 corejs: '3.30.2',
-                targets: 'defaults',
               },
             ],
           ],
