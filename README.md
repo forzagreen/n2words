@@ -34,8 +34,6 @@ n2words is also available on [jsDelivr](https://jsdelivr.com/package/npm/n2words
 
 ```js
 import n2words from 'n2words'
-
-n2words(100)
 ```
 
 ### CommonJS
@@ -44,7 +42,7 @@ n2words(100)
 // Dynamic Import
 import('n2words').then(n2words => {
     // Available via "default" method
-    n2words.default(100)
+    n2words.default(100) // one-hundred
 })
 ```
 
@@ -52,7 +50,6 @@ import('n2words').then(n2words => {
 
 ```html
 <script src="n2words.js"></script>
-
 <script>
     n2words(100)
 </script>
