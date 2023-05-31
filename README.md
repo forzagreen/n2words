@@ -57,7 +57,11 @@ import('n2words/i18n/EN.js').then(n2wordsEN => {
 ### Browser
 
 ```html
-<script src="dist/n2words.js"></script>
+<script src="n2words.js"></script>
+
+<script>
+    n2words(100)
+</script>
 ```
 
 ## Features
