@@ -6,7 +6,7 @@
 [![npm](https://img.shields.io/npm/dw/n2words)](https://npmjs.com/package/n2words)
 [![](https://data.jsdelivr.com/v1/package/npm/n2words/badge)](https://www.jsdelivr.com/package/npm/n2words)
 
-__n2words__ converts a numerical number into a written one, supports [27 languages](https://github.com/forzagreen/n2words#supported-languages), and has zero dependencies.
+__n2words__ converts numerical numbers into written ones, supports [27 languages](https://github.com/forzagreen/n2words#supported-languages), and has zero dependencies.
 
 ## Example
 
@@ -19,15 +19,13 @@ n2words(123, {lang: 'es'})  // 'ciento veintitrés'
 n2words(123, {lang: 'ar'})  // 'مائة و ثلاثة و عشرون'
 ```
 
-See the [Wiki](https://github.com/forzagreen/n2words/wiki) for examples and advanced usage.
+See the [Wiki](https://github.com/forzagreen/n2words/wiki) for examples and advanced usage like [importing only specific languages](https://github.com/forzagreen/n2words/wiki/Importing-only-specific-languages).
 
 ## Install
 
 ```sh
 npm install n2words
 ```
-
-n2words is also available on [jsDelivr](https://jsdelivr.com/package/npm/n2words).
 
 ## Usage
 
@@ -37,10 +35,9 @@ n2words is also available on [jsDelivr](https://jsdelivr.com/package/npm/n2words
 import n2words from 'n2words'
 ```
 
-### CommonJS
+### CommonJS ([dynamic import](https://nodejs.org/api/esm.html#import-expressions))
 
 ```js
-// Dynamic Import
 import('n2words').then(n2words => {
     // Available via "default" method
     n2words.default(100)
@@ -50,13 +47,13 @@ import('n2words').then(n2words => {
 ### Browser
 
 ```html
-<script src="n2words.js"></script>
+<script src="./n2words.js"></script>
 <script>
     n2words(100)
 </script>
 ```
 
-You can also [import only specific languages](https://github.com/forzagreen/n2words/wiki/Importing-only-specific-languages) if you don't need all of them.
+n2words is also available on [jsDelivr](https://www.jsdelivr.com/package/npm/n2words).
 
 ## Supported Languages
 
@@ -90,7 +87,8 @@ You can also [import only specific languages](https://github.com/forzagreen/n2wo
 
 ## Contributing
 
-__This library is in active development.__ We are looking to improve the design and process for language contributors as well as add more languages.
+__This library is in active development.__ We are looking to improve the design and process for language contributors and to add more languages. Bug reports and feature requests are also extremely helpful!
+
 ## License
 
 [MIT](https://github.com/forzagreen/n2words/blob/master/LICENSE)
