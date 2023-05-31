@@ -6,7 +6,7 @@
 [![npm](https://img.shields.io/npm/dw/n2words)](https://npmjs.com/package/n2words)
 [![](https://data.jsdelivr.com/v1/package/npm/n2words/badge)](https://www.jsdelivr.com/package/npm/n2words)
 
-__n2words__ converts a numerical number into a written one. We support [27 languages](https://github.com/forzagreen/n2words#supported-languages) (and growing) while having zero dependencies.
+__n2words__ converts a numerical number into a written one, supports [27 languages](https://github.com/forzagreen/n2words#supported-languages), and has zero dependencies.
 
 ## Example
 
