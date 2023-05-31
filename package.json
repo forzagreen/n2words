@@ -2,22 +2,6 @@
   "name": "n2words",
   "version": "1.15.0",
   "description": "Convert numbers to words, in multiple languages",
-  "type":"module",
-  "exports": {
-    ".": "./lib/n2words.js",
-    "./i18n/": "./lib/i18n/"
-  },
-  "scripts": {
-    "lint": "eslint --config .eslintrc.json lib/ test/",
-    "test": "ava --verbose",
-    "coverage": "c8 ava",
-    "build": "webpack --config webpack.config.js --progress",
-    "bench": "node bench.js"
-  },
-  "repository": "github:forzagreen/n2words",
-  "engines": {
-    "node": "16 || >=18"
-  },
   "keywords": [
     "n2words",
     "convert",
@@ -55,12 +39,44 @@
     "vietnamese",
     "azerbaijani"
   ],
-  "author": "Wael TELLAT",
-  "license": "MIT",
+  "homepage": "https://github.com/forzagreen/n2words#readme",
   "bugs": {
     "url": "https://github.com/forzagreen/n2words/issues"
   },
-  "homepage": "https://github.com/forzagreen/n2words#readme",
+  "repository": "github:forzagreen/n2words",
+  "license": "MIT",
+  "author": "Wael TELLAT",
+  "contributors": [
+    "Tyler Vigario <TylerVigario90@gmail.com>"
+  ],
+  "type": "module",
+  "exports": {
+    ".": "./lib/n2words.js",
+    "./i18n/": "./lib/i18n/"
+  },
+  "scripts": {
+    "bench": "node bench.js",
+    "build": "webpack --config webpack.config.js --progress",
+    "coverage": "c8 ava",
+    "lint": "eslint --config .eslintrc.json lib/ test/",
+    "test": "ava --verbose"
+  },
+  "ava": {
+    "files": [
+      "test/**/*",
+      "!test/i18n"
+    ]
+  },
+  "c8": {
+    "all": true,
+    "include": [
+      "lib/"
+    ],
+    "reporter": [
+      "lcov",
+      "text"
+    ]
+  },
   "devDependencies": {
     "@babel/core": "^7.22.1",
     "@babel/preset-env": "^7.22.4",
@@ -78,20 +94,7 @@
     "webpack": "^5.84.1",
     "webpack-cli": "^5.1.1"
   },
-  "ava": {
-    "files": [
-      "test/**/*",
-      "!test/i18n"
-    ]
-  },
-  "c8": {
-    "all": true,
-    "include": [
-      "lib/"
-    ],
-    "reporter": [
-      "lcov",
-      "text"
-    ]
+  "engines": {
+    "node": "16 || >=18"
   }
 }
