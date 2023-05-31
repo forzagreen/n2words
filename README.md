@@ -35,28 +35,15 @@ n2words is also available on [jsDelivr](https://jsdelivr.com/package/npm/n2words
 
 ```js
 import n2words from 'n2words'
-
-// Source file
-import n2words from 'n2words/lib/n2words.mjs'
-
-// Individual languages (recommended)
-import n2wordsEN from 'n2words/lib/i18n/EN.mjs'
 ```
 
 ### CommonJS
 
 ```js
-var n2words = require('n2words')
-
-// Dynamic Import (source files)
-import('n2words/lib/n2words.mjs').then(n2words => {
+// Dynamic Import
+import('n2words').then(n2words => {
     // Available via "default" method
-    n2words.default(100)
-})
-
-// Individual languages
-import('n2words/lib/i18n/EN.mjs').then(n2wordsEN => {
-    n2wordsEN.default(100)
+    n2words.default(100) // one-hundred
 })
 ```
 
@@ -64,6 +51,9 @@ import('n2words/lib/i18n/EN.mjs').then(n2wordsEN => {
 
 ```html
 <script src="n2words.js"></script>
+<script>
+    n2words(100)
+</script>
 ```
 
 ## Features

@@ -2,21 +2,6 @@
   "name": "n2words",
   "version": "1.15.0",
   "description": "Convert numbers to words, in multiple languages",
-  "main": "dist/n2words.js",
-  "scripts": {
-    "lint": "eslint --config .eslintrc.json lib/ test/",
-    "test": "ava --verbose",
-    "coverage": "c8 ava",
-    "build": "webpack --config webpack.config.js --progress",
-    "bench": "node bench.mjs"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/forzagreen/n2words.git"
-  },
-  "engines": {
-    "node": "16 || >=18"
-  },
   "keywords": [
     "n2words",
     "convert",
@@ -54,28 +39,31 @@
     "vietnamese",
     "azerbaijani"
   ],
-  "author": "Wael TELLAT",
-  "license": "MIT",
+  "homepage": "https://github.com/forzagreen/n2words#readme",
   "bugs": {
     "url": "https://github.com/forzagreen/n2words/issues"
   },
-  "homepage": "https://github.com/forzagreen/n2words#readme",
-  "devDependencies": {
-    "@babel/core": "^7.22.1",
-    "@babel/preset-env": "^7.22.4",
-    "ava": "^5.3.0",
-    "babel-loader": "^9.1.2",
-    "benchmark": "^2.1.4",
-    "c8": "^7.14.0",
-    "core-js": "^3.30.2",
-    "eslint": "^8.41.0",
-    "eslint-plugin-ava": "^14.0.0",
-    "eslint-plugin-import": "^2.27.5",
-    "eslint-plugin-jsdoc": "^45.0.0",
-    "eslint-plugin-node": "^11.1.0",
-    "microtime": "^3.1.1",
-    "webpack": "^5.84.1",
-    "webpack-cli": "^5.1.1"
+  "repository": "github:forzagreen/n2words",
+  "license": "MIT",
+  "author": "Wael TELLAT",
+  "contributors": [
+    "Tyler Vigario <TylerVigario90@gmail.com>"
+  ],
+  "type": "module",
+  "exports": {
+    ".": "./lib/n2words.js",
+    "./i18n/": "./lib/i18n/"
+  },
+  "files": [
+    "lib/*",
+    "build/*"
+  ],
+  "scripts": {
+    "bench": "node bench.js",
+    "build": "webpack --config webpack.config.js --progress",
+    "coverage": "c8 ava",
+    "lint": "eslint --config .eslintrc.json lib/ test/",
+    "test": "ava --verbose"
   },
   "ava": {
     "files": [
@@ -92,5 +80,25 @@
       "lcov",
       "text"
     ]
+  },
+  "devDependencies": {
+    "@babel/core": "^7.22.1",
+    "@babel/preset-env": "^7.22.4",
+    "ava": "^5.3.0",
+    "babel-loader": "^9.1.2",
+    "benchmark": "^2.1.4",
+    "c8": "^7.14.0",
+    "core-js": "^3.30.2",
+    "eslint": "^8.41.0",
+    "eslint-plugin-ava": "^14.0.0",
+    "eslint-plugin-import": "^2.27.5",
+    "eslint-plugin-jsdoc": "^46.0.0",
+    "eslint-plugin-node": "^11.1.0",
+    "microtime": "^3.1.1",
+    "webpack": "^5.84.1",
+    "webpack-cli": "^5.1.1"
+  },
+  "engines": {
+    "node": "16 || >=18"
   }
 }

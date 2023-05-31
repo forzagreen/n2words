@@ -1,13 +1,6 @@
 {
   "env": {
-    "browser": true,
-    "commonjs": true,
-    "es6": true,
-    "es2017": true,
-    "es2020": true,
-    "es2021": true,
-    "es2022": true,
-    "node": true
+    "es2022": true
   },
   "plugins": [
     "ava",
@@ -23,12 +16,8 @@
     "plugin:import/warnings",
     "plugin:jsdoc/recommended"
   ],
-  "overrides": [{
-    "files": ["*.js", "*.mjs"]
-  }],
   "parserOptions": {
-    "ecmaVersion": "latest",
-    "sourceType": "module"
+    "ecmaVersion": "latest"
   },
   "rules": {
     // Ignore platform dependent linebreak
@@ -64,8 +53,6 @@
     //
     // -- IMPORT RULES --
     //
-    // Report any invalid exports, i.e. re-export of the same name
-    "import/export": "error",
     // Report modules without exports, or exports without matching import in another module
     "import/no-unused-modules": "error",
     // Report potentially ambiguous parse goal (script vs. module)
@@ -84,18 +71,12 @@
     "import/extensions": ["error", "always"],
     // Enforce a newline after import statements
     "import/newline-after-import": "error",
-    // Ensure imports point to a file/module that can be resolved
-    "import/no-unresolved": ["error", {
-      "commonjs": true
-    }],
     // Limit the maximum number of dependencies a module can have
     "import/max-dependencies": "error",
     // Prefer a default export if module exports a single name
     "import/prefer-default-export": "error",
     // Forbid unassigned imports
-    "import/no-unassigned-import": ["error", {
-      "allow": ["**/app.mjs"]
-    }]
+    "import/no-unassigned-import": ["error"]
     //
     // -- JSDOC RULES --
     //
