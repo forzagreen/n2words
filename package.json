@@ -2,23 +2,22 @@
   "name": "n2words",
   "version": "1.15.0",
   "description": "Convert numbers to words, in multiple languages",
-  "main": "dist/n2words.node.js",
-  "module": "dist/n2words.module.js",
-  "type": "module",
+  "type":"module",
+  "exports": {
+    ".": "./lib/n2words.js",
+    "./i18n/": "./lib/i18n/"
+  },
   "scripts": {
     "lint": "eslint --config .eslintrc.json lib/ test/",
     "test": "ava --verbose",
     "coverage": "c8 ava",
     "build": "webpack --config webpack.config.js --progress",
-    "bench": "node bench.mjs"
+    "bench": "node bench.js"
   },
   "repository": "github:forzagreen/n2words",
   "engines": {
     "node": "16 || >=18"
   },
-  "browserslist": [
-    "defaults"
-  ],
   "keywords": [
     "n2words",
     "convert",
@@ -73,7 +72,7 @@
     "eslint": "^8.41.0",
     "eslint-plugin-ava": "^14.0.0",
     "eslint-plugin-import": "^2.27.5",
-    "eslint-plugin-jsdoc": "^45.0.0",
+    "eslint-plugin-jsdoc": "^46.0.0",
     "eslint-plugin-node": "^11.1.0",
     "microtime": "^3.1.1",
     "webpack": "^5.84.1",
