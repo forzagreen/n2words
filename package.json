@@ -54,6 +54,9 @@
     ".": "./lib/n2words.js",
     "./i18n/": "./lib/i18n/"
   },
+  "files": [
+    "lib/*"
+  ],
   "scripts": {
     "bench": "node bench.js",
     "build": "webpack --config webpack.config.js --progress",

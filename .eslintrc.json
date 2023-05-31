@@ -1,10 +1,7 @@
 {
   "env": {
-    "es6": true,
-    "es2017": true,
-    "es2020": true,
-    "es2021": true,
-    "es2022": true
+    "es2022": true,
+    "node": true
   },
   "plugins": [
     "ava",
@@ -20,12 +17,8 @@
     "plugin:import/warnings",
     "plugin:jsdoc/recommended"
   ],
-  "overrides": [{
-    "files": ["*.js", "*.mjs"]
-  }],
   "parserOptions": {
-    "ecmaVersion": "latest",
-    "sourceType": "module"
+    "ecmaVersion": "latest"
   },
   "rules": {
     // Ignore platform dependent linebreak
