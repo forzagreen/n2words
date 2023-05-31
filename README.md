@@ -35,8 +35,7 @@ n2words is also available on [jsDelivr](https://jsdelivr.com/package/npm/n2words
 ```js
 import n2words from 'n2words'
 
-// Individual languages (recommended)
-import n2wordsEN from 'n2words/i18n/EN.js'
+n2words(100)
 ```
 
 ### CommonJS
@@ -46,11 +45,6 @@ import n2wordsEN from 'n2words/i18n/EN.js'
 import('n2words').then(n2words => {
     // Available via "default" method
     n2words.default(100)
-})
-
-// Individual languages
-import('n2words/i18n/EN.js').then(n2wordsEN => {
-    n2wordsEN.default(100)
 })
 ```
 
