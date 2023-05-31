@@ -1,6 +1,4 @@
-# custom
-.coveralls.yml
-index.html
+dist
 
 # Logs
 logs
