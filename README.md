@@ -6,11 +6,9 @@
 [![npm](https://img.shields.io/npm/dw/n2words)](https://npmjs.com/package/n2words)
 [![](https://data.jsdelivr.com/v1/package/npm/n2words/badge)](https://www.jsdelivr.com/package/npm/n2words)
 
-n2words is a library that converts a numerical number into a written number.
+__n2words__ converts a numerical number into a written one. We support [27 languages](https://github.com/forzagreen/n2words#supported-languages) (and growing) and have zero dependencies.
 
-We have support for multiple languages (27 and growing) and our package is lightweight, modular and has no dependencies.
-
-## How To
+## Example
 
 ```js
 n2words(123)   // 'one hundred and twenty-three'
@@ -20,6 +18,8 @@ n2words(123, {lang: 'fr'})  // 'cent vingt-trois'
 n2words(123, {lang: 'es'})  // 'ciento veintitrés'
 n2words(123, {lang: 'ar'})  // 'مائة و ثلاثة و عشرون'
 ```
+
+See the [Wiki](https://github.com/forzagreen/n2words/wiki) for examples and advanced usage.
 
 ## Install
 
@@ -43,7 +43,7 @@ import n2words from 'n2words'
 // Dynamic Import
 import('n2words').then(n2words => {
     // Available via "default" method
-    n2words.default(100) // one-hundred
+    n2words.default(100)
 })
 ```
 
@@ -56,11 +56,7 @@ import('n2words').then(n2words => {
 </script>
 ```
 
-## Features
-
-- Cardinal numbers
-- Decimal numbers
-- Negative numbers
+You can also [import only specific languages](https://github.com/forzagreen/n2words/wiki/Importing-only-specific-languages) if you don't need all of them.
 
 ## Supported Languages
 
@@ -94,10 +90,7 @@ import('n2words').then(n2words => {
 
 ## Contributing
 
-You can help by adding new languages or by improving existing ones. Also, reporting issues, verifying the correctness of unit tests or adding more test cases is extremely helpful.
-
-All help is welcome!
-
+__This library is in active development.__ We are looking to improve the design and process for language contributors as well as add more languages.
 ## License
 
-MIT
+[MIT](https://github.com/forzagreen/n2words/blob/master/LICENSE)
