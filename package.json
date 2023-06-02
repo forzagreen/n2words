@@ -47,13 +47,16 @@
   "license": "MIT",
   "author": "Wael TELLAT",
   "contributors": [
-    "Tyler Vigario <TylerVigario90@gmail.com>"
+    "Tyler Vigario (https://github.com/TylerVigario)"
   ],
+  "sideEffects": false,
   "type": "module",
   "exports": {
     ".": "./lib/n2words.js",
     "./i18n/": "./lib/i18n/"
   },
+  "jsdelivr": "dist/n2words.js",
+  "unpkg": "dist/n2words.js",
   "files": [
     "lib/*",
     "dist/*"
@@ -92,10 +95,10 @@
     "eslint": "^8.41.0",
     "eslint-plugin-ava": "^14.0.0",
     "eslint-plugin-import": "^2.27.5",
-    "eslint-plugin-jsdoc": "^46.0.0",
+    "eslint-plugin-jsdoc": "^46.1.0",
     "eslint-plugin-node": "^11.1.0",
     "microtime": "^3.1.1",
-    "webpack": "^5.84.1",
+    "webpack": "^5.85.0",
     "webpack-cli": "^5.1.1"
   },
   "engines": {

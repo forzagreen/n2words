@@ -77,10 +77,5 @@
     "import/prefer-default-export": "error",
     // Forbid unassigned imports
     "import/no-unassigned-import": ["error"]
-    //
-    // -- JSDOC RULES --
-    //
-    // Checks for presence of jsdoc comments, on class declarations as well as functions
-    //"jsdoc/require-jsdoc": "off"
   }
 }

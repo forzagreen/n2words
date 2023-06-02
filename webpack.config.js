@@ -1,6 +1,7 @@
 export default {
   mode: 'production',
   entry: './lib/n2words.js',
+  node: false,
   output: {
     filename: 'n2words.js',
     globalObject: 'this',
