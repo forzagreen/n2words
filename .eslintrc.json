@@ -72,7 +72,7 @@
     // Enforce a newline after import statements
     "import/newline-after-import": "error",
     // Limit the maximum number of dependencies a module can have
-    "import/max-dependencies": "error",
+    //"import/max-dependencies": "error",
     // Prefer a default export if module exports a single name
     "import/prefer-default-export": "error",
     // Forbid unassigned imports

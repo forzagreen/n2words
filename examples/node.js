@@ -1,5 +1,6 @@
 /* eslint-disable import/no-nodejs-modules */
 import n2words from '../lib/i18n/EN.js';
+// eslint-disable-next-line import/no-unresolved, node/no-missing-import
 import * as readline from 'node:readline/promises';
 import {stdin as input, stdout as output} from 'node:process';
 
