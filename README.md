@@ -38,9 +38,8 @@ import n2words from 'n2words'
 ### CommonJS ([dynamic import](https://nodejs.org/api/esm.html#import-expressions))
 
 ```js
-import('n2words').then(n2words => {
-    // Available via "default" method
-    n2words.default(100)
+import('n2words').then(({default: n2words}) => {
+    n2words(100)
 })
 ```
 
