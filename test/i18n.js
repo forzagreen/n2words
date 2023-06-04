@@ -3,62 +3,62 @@
 /* eslint-disable node/no-missing-import */
 import test from 'ava';
 import n2words from '../lib/n2words.js';
-import AR from './i18n/AR.js';
-import AZ from './i18n/AZ.js';
-import CZ from './i18n/CZ.js';
-import DE from './i18n/DE.js';
-import DK from './i18n/DK.js';
-import EN from './i18n/EN.js';
-import ES from './i18n/ES.js';
-import FR from './i18n/FR.js';
-import FA from './i18n/FA.js';
-import HE from './i18n/HE.js';
-import HR from './i18n/HR.js';
-import HU from './i18n/HU.js';
-import ID from './i18n/ID.js';
-import IT from './i18n/IT.js';
-import KO from './i18n/KO.js';
-import LT from './i18n/LT.js';
-import LV from './i18n/LV.js';
-import NL from './i18n/NL.js';
-import NO from './i18n/NO.js';
-import PL from './i18n/PL.js';
-import PT from './i18n/PT.js';
-import RU from './i18n/RU.js';
-import SR from './i18n/SR.js';
-import TR from './i18n/TR.js';
-import UK from './i18n/UK.js';
-import VI from './i18n/VI.js';
-import ZH from './i18n/ZH.js';
+import ar from './i18n/ar.js';
+import az from './i18n/az.js';
+import cz from './i18n/cz.js';
+import de from './i18n/de.js';
+import dk from './i18n/dk.js';
+import en from './i18n/en.js';
+import es from './i18n/es.js';
+import fr from './i18n/fr.js';
+import fa from './i18n/fa.js';
+import he from './i18n/he.js';
+import hr from './i18n/hr.js';
+import hu from './i18n/hu.js';
+import id from './i18n/id.js';
+import it from './i18n/it.js';
+import ko from './i18n/ko.js';
+import lt from './i18n/lt.js';
+import lv from './i18n/lv.js';
+import nl from './i18n/nl.js';
+import no from './i18n/no.js';
+import pl from './i18n/pl.js';
+import pt from './i18n/pt.js';
+import ru from './i18n/ru.js';
+import sr from './i18n/sr.js';
+import tr from './i18n/tr.js';
+import uk from './i18n/uk.js';
+import vi from './i18n/vi.js';
+import zh from './i18n/zh.js';
 
-const i18n = {
-  ar: AR,
-  az: AZ,
-  cz: CZ,
-  de: DE,
-  dk: DK,
-  en: EN,
-  es: ES,
-  fa: FA,
-  fr: FR,
-  he: HE,
-  hr: HR,
-  hu: HU,
-  id: ID,
-  it: IT,
-  ko: KO,
-  lt: LT,
-  lv: LV,
-  nl: NL,
-  no: NO,
-  pl: PL,
-  pt: PT,
-  ru: RU,
-  sr: SR,
-  tr: TR,
-  uk: UK,
-  vi: VI,
-  zh: ZH,
+const tests = {
+  'ar': ar,
+  'az': az,
+  'cz': cz,
+  'de': de,
+  'dk': dk,
+  'en': en,
+  'es': es,
+  'fa': fa,
+  'fr': fr,
+  'he': he,
+  'hr': hr,
+  'hu': hu,
+  'id': id,
+  'it': it,
+  'ko': ko,
+  'lt': lt,
+  'lv': lv,
+  'nl': nl,
+  'no': no,
+  'pl': pl,
+  'pt': pt,
+  'ru': ru,
+  'sr': sr,
+  'tr': tr,
+  'uk': uk,
+  'vi': vi,
+  'zh': zh,
 };
 
 const parameter = process.argv[2];
@@ -67,7 +67,7 @@ const value = process.argv[3];
 if (parameter == '--language' || parameter == '--lang') {
   testLanguage(value);
 } else {
-  Object.keys(i18n).forEach(language => {
+  Object.keys(tests).forEach(language => {
     testLanguage(language);
   });
 }
@@ -78,7 +78,7 @@ if (parameter == '--language' || parameter == '--lang') {
  */
 function testLanguage(language) {
   test(language, t => {
-    i18n[language].forEach(problem => {
+    tests[language].forEach(problem => {
       t.is(
         n2words(problem[0], Object.assign({lang: language}, problem[2])),
         problem[1]

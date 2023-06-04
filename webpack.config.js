@@ -1,12 +1,13 @@
 export default {
   mode: 'production',
   entry: './lib/n2words.js',
+  node: false,
   output: {
     filename: 'n2words.js',
     globalObject: 'this',
     library: {
       name: 'n2words',
-      type: 'umd',
+      type: 'umd2',
       export: 'default'
     }
   },
