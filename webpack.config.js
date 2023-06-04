@@ -7,7 +7,7 @@ export default {
     globalObject: 'this',
     library: {
       name: 'n2words',
-      type: 'umd',
+      type: 'umd2',
       export: 'default'
     }
   },

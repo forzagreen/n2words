@@ -1,3 +1,5 @@
+/* eslint-disable node/no-unsupported-features/es-syntax */
+/* eslint-disable import/no-nodejs-modules */
 import Benchmark from 'benchmark';
 
 const suite = new Benchmark.Suite();
