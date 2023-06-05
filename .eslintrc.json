@@ -77,5 +77,6 @@
     "import/prefer-default-export": "error",
     // Forbid unassigned imports
     "import/no-unassigned-import": ["error"]
-  }
+  },
+  "root": true
 }
