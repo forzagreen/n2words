@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>n2words Browser Test</title>
+  </head>
+  <body>
+    <p id="result"></p>
+  </body>
+  <script src="../../dist/n2words.js"></script>
+  <script>
+    window.onload = () => {
+      document.getElementById('result').innerText = 'Result: ' + (n2words(1) === 'one' ? 'Success' : 'Failure');
+    }
+  </script>
+</html>

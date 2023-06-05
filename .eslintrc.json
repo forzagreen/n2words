@@ -76,6 +76,13 @@
     // Prefer a default export if module exports a single name
     "import/prefer-default-export": "error",
     // Forbid unassigned imports
-    "import/no-unassigned-import": ["error"]
-  }
+    "import/no-unassigned-import": ["error"],
+    //
+    "ava/no-ignored-test-files": ["error", {
+      "files": [
+        "test/*"
+      ]
+    }]
+  },
+  "root": true
 }
