@@ -74,7 +74,8 @@
   },
   "ava": {
     "files": [
-      "test/*"
+      "test/*",
+      "!test/web.js"
     ]
   },
   "c8": {
