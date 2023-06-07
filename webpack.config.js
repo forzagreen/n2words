@@ -2,6 +2,7 @@ export default {
   mode: 'production',
   entry: './lib/n2words.js',
   node: false,
+  devtool: 'source-map',
   output: {
     filename: 'n2words.js',
     globalObject: 'this',
@@ -9,7 +10,7 @@ export default {
       name: 'n2words',
       type: 'umd2',
       export: 'default'
-    }
+    },
   },
   module: {
     rules: [{

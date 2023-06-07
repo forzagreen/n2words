@@ -1,4 +1,7 @@
-dist
+dist/
+
+# Generated typing files
+*.d.ts
 
 # Logs
 logs

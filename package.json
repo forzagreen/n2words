@@ -59,17 +59,19 @@
   "unpkg": "dist/n2words.js",
   "files": [
     "lib/*",
-    "dist/*"
+    "dist/*",
+    "types/*"
   ],
   "scripts": {
     "bench": "node bench.js",
     "build": "webpack --config webpack.config.js --progress",
+    "build:types": "npx -p typescript tsc lib/n2words.js dist/n2words.js --declaration --allowJs --emitDeclarationOnly",
     "coverage": "c8 ava",
     "lint": "eslint --config .eslintrc.json lib/ test/ bench.js",
     "test": "ava --verbose",
+    "test:cjs": "ava --verbose test/import.cjs",
     "test:core": "ava --verbose test/core.js",
     "test:i18n": "ava --verbose test/i18n.js",
-    "test:cjs": "ava --verbose test/import.cjs",
     "test:web": "ava --verbose test/web.js"
   },
   "ava": {
@@ -100,7 +102,7 @@
     "eslint": "^8.42.0",
     "eslint-plugin-ava": "^14.0.0",
     "eslint-plugin-import": "^2.27.5",
-    "eslint-plugin-jsdoc": "^46.2.4",
+    "eslint-plugin-jsdoc": "^46.2.5",
     "eslint-plugin-node": "^11.1.0",
     "microtime": "^3.1.1",
     "selenium-webdriver": "^4.9.2",
