@@ -1,6 +1,6 @@
 {
   "name": "n2words",
-  "version": "1.16.3",
+  "version": "1.16.4",
   "description": "n2words converts a numerical number into a written one, supports 27 languages and has zero dependencies.",
   "keywords": [
     "n2words",
@@ -65,7 +65,7 @@
   "scripts": {
     "bench": "node bench.js",
     "build": "webpack --config webpack.config.js --progress",
-    "build:types": "npx -p typescript tsc lib/n2words.js dist/n2words.js --declaration --allowJs --emitDeclarationOnly",
+    "build:types": "npx -p typescript tsc lib/n2words.js dist/n2words.js --target esnext --module nodenext --declaration --allowJs --emitDeclarationOnly",
     "coverage": "c8 ava",
     "lint": "eslint --config .eslintrc.json lib/ test/ bench.js",
     "test": "ava --verbose",
