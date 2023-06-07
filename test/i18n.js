@@ -79,7 +79,7 @@ function testLanguage(language) {
   test(language, t => {
     tests[language].forEach(problem => {
       t.is(
-        n2words(problem[0], Object.assign({lang: language}, problem[2])),
+        n2words(problem[0], Object.assign({ lang: language }, problem[2])),
         problem[1]
       );
     });

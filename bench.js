@@ -21,11 +21,11 @@ for (let i = 1; i < args.length; i++) {
 if (i18n) {
   await benchLanguage(i18n);
 } else {
-  const {default: fs} = await import('fs/promises');
+  const { default: fs } = await import('fs/promises');
 
   const files = await fs.readdir('./lib/i18n');
 
-  for(let i = 0; i < files.length; i++) {
+  for (let i = 0; i < files.length; i++) {
     await benchLanguage(files[i].replace('.js', ''));
   }
 }
@@ -43,7 +43,7 @@ suite
  * @param {string} i18n Language identifier.
  */
 async function benchLanguage(i18n) {
-  const {default: language} = await import('./lib/i18n/' + i18n + '.js');
+  const { default: language } = await import('./lib/i18n/' + i18n + '.js');
 
   suite.add(i18n, () => {
     language(value);

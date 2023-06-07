@@ -1,7 +1,7 @@
 /* eslint-disable import/no-nodejs-modules */
 // eslint-disable-next-line import/no-unresolved, node/no-missing-import
 import test from 'ava';
-import {Browser, Builder, By, until} from 'selenium-webdriver';
+import { Browser, Builder, By, until } from 'selenium-webdriver';
 // eslint-disable-next-line import/no-unassigned-import
 import 'chromedriver';
 import * as process from 'node:process';
