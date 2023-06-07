@@ -59,11 +59,13 @@
   "unpkg": "dist/n2words.js",
   "files": [
     "lib/*",
-    "dist/*"
+    "dist/*",
+    "types/*"
   ],
   "scripts": {
     "bench": "node bench.js",
     "build": "webpack --config webpack.config.js --progress",
+    "build:types": "npx -p typescript tsc lib/n2words.js dist/n2words.js --declaration --allowJs --emitDeclarationOnly",
     "coverage": "c8 ava",
     "lint": "eslint --config .eslintrc.json lib/ test/ bench.js",
     "test": "ava --verbose",
