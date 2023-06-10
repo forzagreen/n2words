@@ -1,6 +1,8 @@
 /* eslint-disable node/no-unsupported-features/es-syntax */
 /* eslint-disable import/no-nodejs-modules */
 import Benchmark from 'benchmark';
+import * as fs from 'fs';
+import chalk from 'chalk';
 
 const suite = new Benchmark.Suite();
 
@@ -19,20 +21,23 @@ for (let i = 1; i < args.length; i++) {
 }
 
 if (i18n) {
-  await benchLanguage(i18n);
+  if (fs.existsSync('./lib/i18n/' + i18n + '.js')) {
+    await benchLanguage(i18n);
+  } else {
+    console.error(chalk.red('\ni18n language file does not exist: ' + i18n + '.js\n'));
+  }
 } else {
-  const { default: fs } = await import('fs/promises');
-
-  const files = await fs.readdir('./lib/i18n');
+  const files = fs.readdirSync('./lib/i18n');
 
   for (let i = 0; i < files.length; i++) {
-    await benchLanguage(files[i].replace('.js', ''));
+    if (files[i].includes('.js')) {
+      await benchLanguage(files[i].replace('.js', ''));
+    }
   }
 }
 
 suite
   .on('cycle', event => {
-    // Output benchmark result by converting benchmark result to string
     console.log(String(event.target));
   })
   .run();
