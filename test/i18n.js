@@ -29,6 +29,9 @@ import tr from './i18n/tr.js';
 import uk from './i18n/uk.js';
 import vi from './i18n/vi.js';
 import zh from './i18n/zh.js';
+// eslint-disable-next-line import/no-nodejs-modules
+import * as fs from 'fs';
+import chalk from 'chalk';
 
 const tests = {
   'ar': ar,
@@ -64,7 +67,11 @@ const parameter = process.argv[2];
 const value = process.argv[3];
 
 if (parameter == '--language' || parameter == '--lang') {
-  testLanguage(value);
+  if (fs.existsSync('./lib/i18n/' + value + '.js')) {
+    testLanguage(value);
+  } else {
+    console.error(chalk.red('\ni18n language file does not exist: ' + value + '.js\n'));
+  }
 } else {
   Object.keys(tests).forEach(language => {
     testLanguage(language);

@@ -16,6 +16,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
+      with:
+        persist-credentials: false
 
     - name: Setup Node.js ${{ matrix.node }}
       uses: actions/setup-node@v3
@@ -29,7 +31,7 @@ jobs:
     - run: npm run coverage
 
     - name: Coveralls Parallel
-      uses: coverallsapp/github-action@master
+      uses: coverallsapp/github-action@v2
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         flag-name: ${{ matrix.node }}
@@ -42,7 +44,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Coveralls Finished
-      uses: coverallsapp/github-action@master
+      uses: coverallsapp/github-action@v2
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         parallel-finished: true
+        carryforward: "16,18,20"
