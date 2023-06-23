@@ -68,7 +68,7 @@ test('error on invalid numbers', t => {
   );
 });
 
-test('can change params', t => {
+test('change internal params', t => {
   t.is(n2words(-100, {
     lang: 'ar',
     negativeWord: 'سالب'
