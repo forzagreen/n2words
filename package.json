@@ -103,11 +103,11 @@
     "eslint": "^8.43.0",
     "eslint-plugin-ava": "^14.0.0",
     "eslint-plugin-import": "^2.27.5",
-    "eslint-plugin-jsdoc": "^46.2.6",
+    "eslint-plugin-jsdoc": "^46.4.0",
     "eslint-plugin-node": "^11.1.0",
     "microtime": "^3.1.1",
     "selenium-webdriver": "^4.10.0",
-    "webpack": "^5.87.0",
+    "webpack": "^5.88.0",
     "webpack-cli": "^5.1.4"
   },
   "engines": {
