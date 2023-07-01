@@ -86,7 +86,7 @@ n2words is also available on [jsDelivr](https://www.jsdelivr.com/package/npm/n2w
 
 ## Contributing
 
-__This library is in active development.__ We are looking to improve the design and process for language contributors and to add more languages. Bug reports and feature requests are also extremely helpful!
+__This library is in active development.__ We want to improve the design and process for language contributors and add more languages. Bug reports and feature requests are also beneficial!
 
 ## License
 
