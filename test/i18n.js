@@ -9,8 +9,9 @@ import de from './i18n/de.js';
 import dk from './i18n/dk.js';
 import en from './i18n/en.js';
 import es from './i18n/es.js';
-import fr from './i18n/fr.js';
 import fa from './i18n/fa.js';
+import fr from './i18n/fr.js';
+import frBE from './i18n/fr-BE.js';
 import he from './i18n/he.js';
 import hr from './i18n/hr.js';
 import hu from './i18n/hu.js';
@@ -43,6 +44,7 @@ const tests = {
   'es': es,
   'fa': fa,
   'fr': fr,
+  'fr-BE': frBE,
   'he': he,
   'hr': hr,
   'hu': hu,
