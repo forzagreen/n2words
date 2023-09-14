@@ -13,7 +13,7 @@ test('lang fallback', t => {
   t.is(n2words(70, { lang: 'fr-BE' }), 'septante');
   t.is(n2words(70, { lang: 'fr-BE-XX' }), 'septante');
   t.is(n2words(70, { lang: 'fr-BE-XX-XX-XX-XX-XX' }), 'septante');
-})
+});
 
 test('accept valid string numbers', t => {
   t.is(n2words('12'), 'twelve');
