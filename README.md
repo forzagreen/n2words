@@ -64,6 +64,7 @@ n2words is also available on [jsDelivr](https://www.jsdelivr.com/package/npm/n2w
 - `de` (German)
 - `es` (Spanish)
 - `fr` (French)
+- `fr-BE` (French (Belgium))
 - `fa` (Farsi)
 - `he` (Hebrew)
 - `hr` (Croatian)

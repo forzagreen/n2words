@@ -7,6 +7,14 @@ test('english is default', t => {
   t.is(n2words(356), 'three hundred and fifty-six');
 });
 
+test('lang fallback', t => {
+  t.is(n2words(70, { lang: 'fr' }), 'soixante-dix');
+  t.is(n2words(70, { lang: 'fr-XX' }), 'soixante-dix');
+  t.is(n2words(70, { lang: 'fr-BE' }), 'septante');
+  t.is(n2words(70, { lang: 'fr-BE-XX' }), 'septante');
+  t.is(n2words(70, { lang: 'fr-BE-XX-XX-XX-XX-XX' }), 'septante');
+});
+
 test('accept valid string numbers', t => {
   t.is(n2words('12'), 'twelve');
   t.is(n2words('0012'), 'twelve');
