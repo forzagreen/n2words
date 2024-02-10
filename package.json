@@ -65,7 +65,7 @@
   "scripts": {
     "bench": "node bench.js",
     "build": "webpack --config webpack.config.js --progress",
-    "build:types": "npx -p typescript tsc lib/n2words.js dist/n2words.js --target es6 --module esnext --allowJs --declaration --emitDeclarationOnly",
+    "build:types": "npx -p typescript tsc lib/n2words.js dist/n2words.js --target es6 --module nodenext --allowJs --declaration --emitDeclarationOnly",
     "coverage": "c8 ava",
     "lint": "eslint --config .eslintrc.json lib/ test/ examples/ bench.js",
     "test": "ava --verbose",
@@ -103,7 +103,7 @@
     "eslint": "^8.56.0",
     "eslint-plugin-ava": "^14.0.0",
     "eslint-plugin-import": "^2.29.1",
-    "eslint-plugin-jsdoc": "^46.10.1",
+    "eslint-plugin-jsdoc": "^48.0.6",
     "eslint-plugin-node": "^11.1.0",
     "microtime": "^3.1.1",
     "selenium-webdriver": "^4.17.0",
