@@ -20,6 +20,7 @@ test('accept valid string numbers', t => {
   t.is(n2words('0012'), 'twelve');
   t.is(n2words('.1'), 'zero point one');
   t.is(n2words(' -12.6 '), 'minus twelve point six');
+  t.is(n2words(' -12.606'), 'minus twelve point six hundred and six');
 });
 
 test('error on unsupported languages', t => {
