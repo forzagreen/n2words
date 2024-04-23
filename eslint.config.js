@@ -1,55 +1,57 @@
-{
-  "env": {
-    "es2022": true
+// eslint.config.js
+export default [{
+  env: {
+    es2022: true
   },
-  "plugins": [
+  plugins: [
+    '@stylistic/js',
     "ava",
-    "node",
     "import",
-    "jsdoc"
+    "jsdoc",
+    "node"
   ],
-  "extends": [
+  extends: [
     "eslint:recommended",
     "plugin:ava/recommended",
     "plugin:node/recommended",
-    "plugin:import/errors",
-    "plugin:import/warnings",
     "plugin:jsdoc/recommended"
   ],
-  "parserOptions": {
-    "ecmaVersion": "latest"
+  parserOptions: {
+    ecmaVersion: "latest"
   },
-  "rules": {
-    // Ignore platform dependent linebreak
-    "linebreak-style": "off",
-    // Remove maximum length limit
-    "max-len": "off",
+  rules: {
+    //
+    // -- DEFAULT RULES --
+    //
     // Enforce camelCase for variable names
-    "camelcase": ["error", {
-      "properties": "never"
+    camelcase: ["error", {
+      properties: "never"
     }],
+    // Disallow multiple imports of same module
+    "no-duplicate-imports": "error",
+    // Enforce let or const instead of var
+    "no-var": "error",
+    //
+    // -- STYLISTIC RULES --
+    //
+    // Enforce omitting parentheses when unnecessary for arrow functions
+    "@stylistic/js/arrow-parens": ["error", "as-needed"],
+    // Enforce consistent spacing before & after arrow function
+    "@stylistic/js/arrow-spacing": "error",
+    // Enforce consistent brace style usage (1TBS default)
+    "@stylistic/js/brace-style": "error",
     // Enforce indent of two spaces
-    "indent": [
+    "@stylistic/js/indent": [
       "error", 2, {
         "SwitchCase": 1
       }
     ],
     // Remove trailing whitespace
-    "no-trailing-spaces": "error",
+    "@stylistic/js/no-trailing-spaces": "error",
     // Enforce use of single quotes
-    "quotes": ["error", "single"],
+    "@stylistic/js/quotes": ["error", "single"],
     // Enforce use of semicolon to end lines
-    "semi": "error",
-    // Enforce consistent spacing before & after arrow function
-    "arrow-spacing": "error",
-    // Enforce omitting parentheses when unnecessary for arrow functions
-    "arrow-parens": ["error", "as-needed"],
-    // Disallow multiple imports of same module
-    "no-duplicate-imports": "error",
-    // Enforce let or const instead of var
-    "no-var": "error",
-    // Enforce consistent brace style usage (1TBS default)
-    "brace-style": "error",
+    "@stylistic/js/semi": "error",
     //
     // -- IMPORT RULES --
     //
@@ -69,20 +71,16 @@
     "import/first": "error",
     // Ensure consistent use of file extension within the import path
     "import/extensions": ["error", "always"],
-    // Enforce a newline after import statements
-    "import/newline-after-import": "error",
-    // Limit the maximum number of dependencies a module can have
-    //"import/max-dependencies": "error",
-    // Prefer a default export if module exports a single name
-    "import/prefer-default-export": "error",
     // Forbid unassigned imports
     "import/no-unassigned-import": ["error"],
     //
+    // -- AVA RULES --
+    //
     "ava/no-ignored-test-files": ["error", {
-      "files": [
+      files: [
         "test/*"
       ]
     }]
   },
-  "root": true
-}
+  root: true
+}];
