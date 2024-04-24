@@ -2,14 +2,14 @@
 import js from "@eslint/js";
 import stylisticJs from '@stylistic/eslint-plugin-js';
 import ava from 'eslint-plugin-ava';
-import node from 'eslint-plugin-node';
+import node from 'eslint-plugin-n';
 import jsdoc from 'eslint-plugin-jsdoc';
 
 export default [
   js.configs.recommended,
   ava.configs.recommended,
-  node.configs.recommended,
-  jsdoc.configs.recommended,
+  node.configs['flat/recommended'],
+  jsdoc.configs['flat/recommended'],
   {
     plugins: {
       '@stylistic/js': stylisticJs,
