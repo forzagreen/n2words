@@ -1,5 +1,5 @@
 /* eslint-disable import/no-nodejs-modules */
-// eslint-disable-next-line import/no-unresolved, node/no-missing-import
+// eslint-disable-next-line import/no-unresolved
 import test from 'ava';
 import { Browser, Builder, By, until } from 'selenium-webdriver';
 // eslint-disable-next-line import/no-unassigned-import

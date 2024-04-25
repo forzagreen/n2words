@@ -1,5 +1,3 @@
-/* eslint-disable node/no-unsupported-features/es-syntax */
-/* eslint-disable import/no-nodejs-modules */
 import Benchmark from 'benchmark';
 import * as fs from 'fs';
 import chalk from 'chalk';

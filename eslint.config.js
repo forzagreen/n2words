@@ -1,7 +1,9 @@
 // eslint.config.js
-import js from "@eslint/js";
+// eslint-disable-next-line n/no-extraneous-import
+import js from '@eslint/js';
 import stylisticJs from '@stylistic/eslint-plugin-js';
 import ava from 'eslint-plugin-ava';
+import import from 'eslint-plugin-import';
 import node from 'eslint-plugin-n';
 import jsdoc from 'eslint-plugin-jsdoc';
 
@@ -14,7 +16,7 @@ export default [
     plugins: {
       '@stylistic/js': stylisticJs,
       ava,
-      "import": "import",
+      import,
       node,
       jsdoc
     },
@@ -23,34 +25,34 @@ export default [
       // -- DEFAULT RULES --
       //
       // Enforce camelCase for variable names
-      camelcase: ["error", {
-        properties: "never"
+      camelcase: ['error', {
+        properties: 'never'
       }],
       // Disallow multiple imports of same module
-      "no-duplicate-imports": "error",
+      'no-duplicate-imports': 'error',
       // Enforce let or const instead of var
-      "no-var": "error",
+      'no-var': 'error',
       //
       // -- STYLISTIC RULES --
       //
       // Enforce omitting parentheses when unnecessary for arrow functions
-      "@stylistic/js/arrow-parens": ["error", "as-needed"],
+      '@stylistic/js/arrow-parens': ['error', 'as-needed'],
       // Enforce consistent spacing before & after arrow function
-      "@stylistic/js/arrow-spacing": "error",
+      '@stylistic/js/arrow-spacing': 'error',
       // Enforce consistent brace style usage (1TBS default)
-      "@stylistic/js/brace-style": "error",
+      '@stylistic/js/brace-style': 'error',
       // Enforce indent of two spaces
-      "@stylistic/js/indent": [
-        "error", 2, {
-          "SwitchCase": 1
+      '@stylistic/js/indent': [
+        'error', 2, {
+          'SwitchCase': 1
         }
       ],
       // Remove trailing whitespace
-      "@stylistic/js/no-trailing-spaces": "error",
+      '@stylistic/js/no-trailing-spaces': 'error',
       // Enforce use of single quotes
-      "@stylistic/js/quotes": ["error", "single"],
+      '@stylistic/js/quotes': ['error', 'single'],
       // Enforce use of semicolon to end lines
-      "@stylistic/js/semi": "error",
+      '@stylistic/js/semi': 'error',
       //
       // -- IMPORT RULES --
       //

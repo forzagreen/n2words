@@ -1,4 +1,4 @@
-// eslint-disable-next-line import/no-unresolved, node/no-missing-import
+// eslint-disable-next-line import/no-unresolved
 import test from 'ava';
 import n2words from '../lib/n2words.js';
 
