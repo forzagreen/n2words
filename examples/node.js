@@ -1,8 +1,9 @@
-/* eslint-disable import/no-nodejs-modules */
+//// eslint-disable import/no-nodejs-modules
 import chalk from 'chalk';
 import * as fs from 'fs';
 import { stdin as input, stdout as output } from 'node:process';
-// eslint-disable-next-line import/no-unresolved
+//// eslint-disable-next-line import/no-unresolved
+// eslint-disable-next-line n/no-unsupported-features/node-builtins
 import * as readline from 'node:readline/promises';
 
 const rl = readline.createInterface({ input, output });
