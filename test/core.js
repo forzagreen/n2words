@@ -59,7 +59,7 @@ test('error on invalid numbers', t => {
   );
   t.throws(
     () => {
-      n2words(NaN);
+      n2words(Number.NaN);
     },
     { instanceOf: Error }
   );

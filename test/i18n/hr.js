@@ -62,10 +62,10 @@ export default [
   [7232, 'sedam tisuća dvjesto trideset dva'],
   [8569, 'osam tisuća petsto šezdeset devet'],
   [9539, 'devet tisuća petsto trideset devet'],
-  [1000000, 'jedan milijun'],
-  [1000001, 'jedan milijun jedan'],
-  [4000000, 'četiri milijuna'],
-  [10000000000000, 'deset bilijuna'],
-  [100000000000000, 'sto bilijuna'],
-  [1000000000000000000n, 'jedan trilijun']
+  [1_000_000, 'jedan milijun'],
+  [1_000_001, 'jedan milijun jedan'],
+  [4_000_000, 'četiri milijuna'],
+  [10_000_000_000_000, 'deset bilijuna'],
+  [100_000_000_000_000, 'sto bilijuna'],
+  [1_000_000_000_000_000_000n, 'jedan trilijun']
 ];

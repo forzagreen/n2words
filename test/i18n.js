@@ -31,7 +31,7 @@ import uk from './i18n/uk.js';
 import vi from './i18n/vi.js';
 import zh from './i18n/zh.js';
 //// eslint-disable-next-line import/no-nodejs-modules
-import * as fs from 'fs';
+import * as fs from 'node:fs';
 import chalk from 'chalk';
 
 const tests = {
@@ -75,9 +75,9 @@ if (parameter == '--language' || parameter == '--lang') {
     console.error(chalk.red('\ni18n language file does not exist: ' + value + '.js\n'));
   }
 } else {
-  Object.keys(tests).forEach(language => {
+  for (const language of Object.keys(tests)) {
     testLanguage(language);
-  });
+  }
 }
 
 /**
@@ -86,11 +86,11 @@ if (parameter == '--language' || parameter == '--lang') {
  */
 function testLanguage(language) {
   test(language, t => {
-    tests[language].forEach(problem => {
+    for (const problem of tests[language]) {
       t.is(
         n2words(problem[0], Object.assign({ lang: language }, problem[2])),
         problem[1]
       );
-    });
+    }
   });
 }
