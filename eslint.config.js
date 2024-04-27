@@ -3,20 +3,20 @@
 import js from '@eslint/js';
 import stylisticJs from '@stylistic/eslint-plugin-js';
 import ava from 'eslint-plugin-ava';
-import import from 'eslint-plugin-import';
+//import import from 'eslint-plugin-import';
 import node from 'eslint-plugin-n';
 import jsdoc from 'eslint-plugin-jsdoc';
 
 export default [
   js.configs.recommended,
-  ava.configs.recommended,
+  ava.configs['flat/recommended'],
   node.configs['flat/recommended'],
   jsdoc.configs['flat/recommended'],
   {
     plugins: {
       '@stylistic/js': stylisticJs,
       ava,
-      import,
+      //import,
       node,
       jsdoc
     },
@@ -57,29 +57,29 @@ export default [
       // -- IMPORT RULES --
       //
       // Report modules without exports, or exports without matching import in another module
-      "import/no-unused-modules": "error",
+      /*'import/no-unused-modules': 'error',
       // Report potentially ambiguous parse goal (script vs. module)
-      "import/unambiguous": "error",
+      'import/unambiguous': 'error',
       // Report CommonJS require calls and module.exports or exports.*
-      "import/no-commonjs": "error",
+      'import/no-commonjs': 'error',
       // Report AMD require and define calls
-      "import/no-amd": "error",
+      'import/no-amd': 'error',
       // No Node.js builtin modules
-      "import/no-nodejs-modules": "error",
+      'import/no-nodejs-modules': 'error',
       // Report imported names marked with @deprecated documentation tag
-      "import/no-deprecated": "error",
+      'import/no-deprecated': 'error',
       // Ensure all imports appear before other statements
-      "import/first": "error",
+      'import/first': 'error',
       // Ensure consistent use of file extension within the import path
-      "import/extensions": ["error", "always"],
+      'import/extensions': ['error', 'always'],
       // Forbid unassigned imports
-      "import/no-unassigned-import": ["error"],
+      'import/no-unassigned-import': ['error'],*/
       //
       // -- AVA RULES --
       //
-      "ava/no-ignored-test-files": ["error", {
+      'ava/no-ignored-test-files': ['error', {
         files: [
-          "test/*"
+          'test/*'
         ]
       }]
     }
