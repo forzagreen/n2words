@@ -1,5 +1,5 @@
 export default [
-  // //TODO: add support for HE decimal numbers
+  // TODO add support for HE decimal numbers
   // [0.01, 'אפס'],
   // [1.007, 'אחד'],
   // [1.7, 'אחד'],
@@ -63,7 +63,7 @@ export default [
   [7232, 'שבעת אלפים מאתיים שלשים ושתים'],
   [8569, 'שמונת אלפים חמש מאות ששים ותשע'],
   [9539, 'תשעת אלפים חמש מאות שלשים ותשע'],
-  // //TODO: add support for HE numbers > 9999
+  // TODO add support for HE numbers > 9999
   // [1000000, ''],
   // [1000001, ''],
   // [4000000, ''],

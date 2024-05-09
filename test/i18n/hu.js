@@ -63,10 +63,10 @@ export default [
   [8569, 'nyolcezer-ötszázhatvankilenc'],
   [9539, 'kilencezer-ötszázharminckilenc'],
 
-  [1000000, 'egymillió'],
-  [1000001, 'egymillió-egy'],
-  [4000000, 'négymillió'],
-  [10000000000000, 'tízbillió'],
-  [100000000000000, 'százbillió'],
-  [1000000000000000000n, 'egytrillió'],
+  [1_000_000, 'egymillió'],
+  [1_000_001, 'egymillió-egy'],
+  [4_000_000, 'négymillió'],
+  [10_000_000_000_000, 'tízbillió'],
+  [100_000_000_000_000, 'százbillió'],
+  [1_000_000_000_000_000_000n, 'egytrillió'],
 ];

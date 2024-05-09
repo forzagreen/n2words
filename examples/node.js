@@ -1,6 +1,6 @@
 //// eslint-disable import/no-nodejs-modules
 import chalk from 'chalk';
-import * as fs from 'fs';
+import * as fs from 'node:fs';
 import { stdin as input, stdout as output } from 'node:process';
 //// eslint-disable-next-line import/no-unresolved
 // eslint-disable-next-line n/no-unsupported-features/node-builtins

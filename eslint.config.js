@@ -1,24 +1,27 @@
 // eslint.config.js
-// eslint-disable-next-line n/no-extraneous-import
 import js from '@eslint/js';
 import stylisticJs from '@stylistic/eslint-plugin-js';
 import ava from 'eslint-plugin-ava';
+// TODO [+eslint-plugin-import] Re-enable plugin after ESLint v9 support has been worked out
 //import import from 'eslint-plugin-import';
 import node from 'eslint-plugin-n';
 import jsdoc from 'eslint-plugin-jsdoc';
+import unicorn from 'eslint-plugin-unicorn';
 
 export default [
   js.configs.recommended,
   ava.configs['flat/recommended'],
   node.configs['flat/recommended'],
   jsdoc.configs['flat/recommended'],
+  unicorn.configs['flat/recommended'],
   {
     plugins: {
       '@stylistic/js': stylisticJs,
       ava,
+      // TODO [+eslint-plugin-import] Re-enable plugin after ESLint v9 support has been worked out
       //import,
       node,
-      jsdoc
+      jsdoc,
     },
     rules: {
       //
@@ -53,6 +56,7 @@ export default [
       '@stylistic/js/quotes': ['error', 'single'],
       // Enforce use of semicolon to end lines
       '@stylistic/js/semi': 'error',
+      // TODO [+eslint-plugin-import] Re-enable plugin after ESLint v9 support has been worked out
       //
       // -- IMPORT RULES --
       //
@@ -81,6 +85,16 @@ export default [
         files: [
           'test/*'
         ]
-      }]
+      }],
+      //
+      // -- UNICORN RULES --
+      //
+      // Enforce a case style for filenames
+      'unicorn/filename-case': ['error', {
+        'case': 'kebabCase',
+        'ignore': [
+          '^[a-z]{2,4}(-[A-Z][a-z]{3})?(-([A-Z]{2}|[0-9]{3}))?(.*)$', // IETF RFC 5646 (Locale file naming)
+        ]
+      }],
     }
   }];

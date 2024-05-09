@@ -1,23 +1,23 @@
 import Benchmark from 'benchmark';
-import * as fs from 'fs';
+import * as fs from 'node:fs';
 import chalk from 'chalk';
 
 const suite = new Benchmark.Suite();
 
 // Parse CLI arguments
-const args = process.argv;
-args.slice(2);
+const arguments_ = process.argv;
+arguments_.slice(2);
 
 // Default argument values
 let i18n;
 let value = Number.MAX_SAFE_INTEGER;
 
 // Look for matching CLI arguments
-for (let i = 1; i < args.length; i++) {
-  if (args[i] == '--lang' || args[i] == '--language') {
-    i18n = args[i + 1];
-  } else if (args[i] == '--value') {
-    value = args[i + 1];
+for (let index = 1; index < arguments_.length; index++) {
+  if (arguments_[index] == '--lang' || arguments_[index] == '--language') {
+    i18n = arguments_[index + 1];
+  } else if (arguments_[index] == '--value') {
+    value = arguments_[index + 1];
   }
 }
 
@@ -36,11 +36,11 @@ if (i18n) {
   const files = fs.readdirSync('./lib/i18n');
 
   // Loop through files
-  for (let i = 0; i < files.length; i++) {
+  for (const file of files) {
     // Make sure file is JavaScript
-    if (files[i].includes('.js')) {
+    if (file.includes('.js')) {
       // Queue language file benchmark
-      await benchLanguage(files[i].replace('.js', ''));
+      await benchLanguage(file.replace('.js', ''));
     }
   }
 }

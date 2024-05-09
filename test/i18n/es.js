@@ -62,12 +62,14 @@ export default [
   [7232, 'siete mil doscientos treinta y dos'],
   [8569, 'ocho mil quinientos sesenta y nueve'],
   [9539, 'nueve mil quinientos treinta y nueve'],
-  [1000000, 'un millón'],
-  [1000001, 'un millón uno'],
-  [4000000, 'cuatro millones'], // FIXME
-  [10000000000000, 'diez billones'],
-  [100000000000000, 'cien billones'],
-  [1000000000000000000n, 'un trillón'],
-  [1000000000000000000000n, 'mil trillones'],
-  //[10000000000000000000000000n, 'diez cuatrillones'] // FIXME
+  [1_000_000, 'un millón'],
+  [1_000_001, 'un millón uno'],
+  // FIXME
+  [4_000_000, 'cuatro millones'],
+  [10_000_000_000_000, 'diez billones'],
+  [100_000_000_000_000, 'cien billones'],
+  [1_000_000_000_000_000_000n, 'un trillón'],
+  [1_000_000_000_000_000_000_000n, 'mil trillones'],
+  // FIXME
+  //[10000000000000000000000000n, 'diez cuatrillones']
 ];

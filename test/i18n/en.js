@@ -62,13 +62,13 @@ export default [
   [7232, 'seven thousand two hundred and thirty-two'],
   [8569, 'eight thousand five hundred and sixty-nine'],
   [9539, 'nine thousand five hundred and thirty-nine'],
-  [1000000, 'one million'],
-  [1000001, 'one million and one'],
-  [4000000, 'four million'],
-  [10000000000000, 'ten trillion'],
-  [100000000000000, 'one hundred trillion'],
-  [9007199254740995n, 'nine quadrillion seven trillion one hundred and ninety-nine billion two hundred and fifty-four million seven hundred and forty thousand nine hundred and ninety-five'],
-  [1000000000000000000n, 'one quintillion'],
-  [1000000000000000000000n, 'one sextillion'],
-  [10000000000000000000000000n, 'ten septillion']
+  [1_000_000, 'one million'],
+  [1_000_001, 'one million and one'],
+  [4_000_000, 'four million'],
+  [10_000_000_000_000, 'ten trillion'],
+  [100_000_000_000_000, 'one hundred trillion'],
+  [9_007_199_254_740_995n, 'nine quadrillion seven trillion one hundred and ninety-nine billion two hundred and fifty-four million seven hundred and forty thousand nine hundred and ninety-five'],
+  [1_000_000_000_000_000_000n, 'one quintillion'],
+  [1_000_000_000_000_000_000_000n, 'one sextillion'],
+  [10_000_000_000_000_000_000_000_000n, 'ten septillion']
 ];
