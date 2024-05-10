@@ -1,4 +1,4 @@
-# Automatically convert to native line endings
+# Automatically convert to native line endings, in case people don't have core.autocrlf set
 * text=auto
 
 # Force Unix (LF) line endings
