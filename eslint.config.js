@@ -1,4 +1,3 @@
-// eslint.config.js
 import js from '@eslint/js';
 import stylisticJs from '@stylistic/eslint-plugin-js';
 import ava from 'eslint-plugin-ava';
@@ -56,10 +55,17 @@ export default [
       '@stylistic/js/quotes': ['error', 'single'],
       // Enforce use of semicolon to end lines
       '@stylistic/js/semi': 'error',
-      // TODO [+eslint-plugin-import] Re-enable plugin after ESLint v9 support has been worked out
+      //
+      // -- JSDOC RULES --
+      //
+      // Reports invalid alignment of JSDoc block lines
+      'jsdoc/check-line-alignment': 'error',
+      // Reports on JSDoc texts that serve only to restate their attached name.
+      'jsdoc/informative-docs': 'error',
       //
       // -- IMPORT RULES --
       //
+      // TODO [+eslint-plugin-import] Re-enable plugin after ESLint v9 support has been worked out
       // Report modules without exports, or exports without matching import in another module
       /*'import/no-unused-modules': 'error',
       // Report potentially ambiguous parse goal (script vs. module)

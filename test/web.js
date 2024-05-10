@@ -14,8 +14,9 @@ if (fs.existsSync('./dist/n2words.js')) {
 }
 
 /**
- * Test browser
- * @param {string} browser See `Browser`
+ * Use browser to confirm working state of project.
+ * @param {string} browser Browser object to use.
+ * @see `Browser`
  */
 async function testBrowser(browser) {
   test(browser, async t => {
