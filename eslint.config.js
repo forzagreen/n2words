@@ -16,11 +16,6 @@ export default [
   {
     plugins: {
       '@stylistic/js': stylisticJs,
-      ava,
-      // TODO [+eslint-plugin-import] Re-enable plugin after ESLint v9 support has been worked out
-      //import,
-      node,
-      jsdoc,
     },
     rules: {
       //
