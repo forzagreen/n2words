@@ -43,7 +43,10 @@
   "bugs": {
     "url": "https://github.com/forzagreen/n2words/issues"
   },
-  "repository": "github:forzagreen/n2words",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/forzagreen/n2words.git"
+  },
   "license": "MIT",
   "author": "Wael TELLAT",
   "contributors": [
