@@ -12,7 +12,7 @@ jobs:
 
     strategy:
       matrix:
-        node: [18, 20, 21, 22]
+        node: [18, 20, 22]
 
     steps:
     - uses: actions/checkout@v4
@@ -48,4 +48,4 @@ jobs:
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         parallel-finished: true
-        carryforward: "18,20,21"
+        carryforward: "18,20,22"
