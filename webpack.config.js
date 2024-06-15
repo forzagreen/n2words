@@ -40,6 +40,10 @@ export default {
   }
 };
 
+/**
+ * Get available languages
+ * @returns {object} Object including file name and path to file
+ */
 function getLanguages() {
   const languages = {};
 
