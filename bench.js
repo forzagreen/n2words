@@ -1,5 +1,5 @@
 import Benchmark from 'benchmark';
-import * as fs from 'node:fs';
+import { existsSync, readdirSync } from 'node:fs';
 import chalk from 'chalk';
 
 const suite = new Benchmark.Suite();
@@ -24,23 +24,23 @@ for (let index = 1; index < arguments_.length; index++) {
 // If language is defined
 if (i18n) {
   // Check if language file exists
-  if (fs.existsSync('./lib/i18n/' + i18n + '.js')) {
+  if (existsSync('./lib/i18n/' + i18n + '.js')) {
     // Queue specific language benchmark
-    await benchLanguage(i18n);
+    await benchFile('i18n/' + i18n);
   } else {
     // Log error to console
     console.error(chalk.red('\ni18n language file does not exist: ' + i18n + '.js\n'));
   }
 } else {
   // Load all files in language directory
-  const files = fs.readdirSync('./lib/i18n');
+  const files = readdirSync('./lib/i18n');
 
   // Loop through files
   for (const file of files) {
     // Make sure file is JavaScript
     if (file.includes('.js')) {
       // Queue language file benchmark
-      await benchLanguage(file.replace('.js', ''));
+      await benchFile('i18n/' + file.replace('.js', ''));
     }
   }
 }
@@ -55,12 +55,13 @@ suite
 
 /**
  * Queue language test file for benchmarking.
- * @param {string} i18n Language identifier.
+ * @param {string} file Library file.
+ * @param {object} options Options for language file.
  */
-async function benchLanguage(i18n) {
-  const { default: language } = await import('./lib/i18n/' + i18n + '.js');
+async function benchFile(file, options) {
+  const { default: n2words } = await import('./lib/' + file + '.js');
 
-  suite.add(i18n, () => {
-    language(value);
+  suite.add(file, async () => {
+    n2words(value, options);
   });
 }

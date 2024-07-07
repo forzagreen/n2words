@@ -1,4 +1,4 @@
-import * as fs from 'node:fs';
+import { readdirSync } from 'node:fs';
 
 export default {
   mode: 'production',
@@ -48,7 +48,7 @@ function getLanguages() {
   const languages = {};
 
   // Load all files in language directory
-  const files = fs.readdirSync('./lib/i18n');
+  const files = readdirSync('./lib/i18n');
 
   // Loop through files
   for (const file of files) {

@@ -15,9 +15,7 @@ if (fs.existsSync('./lib/i18n/' + lang + '.js')) {
 
   const { default: n2words } = await import('../lib/i18n/' + lang + '.js');
 
-  const result = n2words(value, {
-    lang: lang
-  });
+  const result = n2words(value);
 
   console.log('\n' + chalk.bold(result) + '\n');
 } else {

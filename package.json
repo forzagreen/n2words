@@ -108,7 +108,7 @@
     "core-js": "^3.37.1",
     "eslint": "^9.6.0",
     "eslint-plugin-ava": "^15.0.1",
-    "eslint-plugin-jsdoc": "^48.5.0",
+    "eslint-plugin-jsdoc": "^48.5.2",
     "eslint-plugin-n": "^17.9.0",
     "eslint-plugin-unicorn": "^54.0.0",
     "markdownlint-cli2": "^0.13.0",
