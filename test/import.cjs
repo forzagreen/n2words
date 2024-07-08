@@ -6,6 +6,6 @@ test('CommonJS', async t => {
 
   t.plan(2);
 
-  t.true(typeof n2words === 'function');
-  t.true(n2words(1) === 'one');
+  t.true(typeof await n2words === 'function');
+  t.true(await n2words(1) === 'one');
 });
