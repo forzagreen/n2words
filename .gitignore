@@ -63,7 +63,10 @@ typings/
 .env
 
 # next.js build output
-.next
+.next/
 
 # VSCode project config
-.vscode
+.vscode/
+
+# JSDoc
+docs/
