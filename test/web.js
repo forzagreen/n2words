@@ -5,13 +5,8 @@ import { Browser, Builder, By, until } from 'selenium-webdriver';
 //// eslint-disable-next-line import/no-unassigned-import
 import 'chromedriver';
 import { cwd } from 'node:process';
-import { existsSync } from 'node:fs';
 
-if (existsSync('./dist/n2words.js')) {
-  await testBrowser(Browser.CHROME);
-} else {
-  console.error('ERROR: You must run "npm run build" first.');
-}
+await testBrowser(Browser.CHROME);
 
 /**
  * Use browser to confirm working state of project.

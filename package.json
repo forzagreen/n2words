@@ -63,7 +63,7 @@
   ],
   "scripts": {
     "bench": "node bench.js",
-    "build:types": "npx -p typescript tsc lib/n2words.js dist/n2words.js --target es6 --module nodenext --allowJs --declaration --emitDeclarationOnly",
+    "build:types": "npx -p typescript tsc lib/n2words.js lib/n2words.js --target es6 --module nodenext --allowJs --declaration --emitDeclarationOnly",
     "coverage": "c8 ava",
     "docs": "jsdoc -c ./conf.json",
     "lint": "npm run lint:js && npm run lint:md",
