@@ -17,8 +17,6 @@ async function testBrowser(browser) {
   test(browser, async t => {
     const driver = new Builder().forBrowser(browser).build();
 
-    console.log(`file://${cwd()}/test/web/index.html`);
-
     await driver.get(`file://${cwd()}/test/web/index.html`);
 
     await driver.wait(
