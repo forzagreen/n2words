@@ -8,11 +8,12 @@
   <body>
     <p id="result"></p>
   </body>
-  <script type="module" src="../../lib/n2words.js"></script>
-  <script>
-    window.onload = () => {
+  <script type="module">
+    window.onload = async () => {
+      const { default: n2words } = await import('../../lib/n2words.js');
+
       document.getElementById('result').innerText =
-        'Result: ' + (n2words(1) === 'one' ? 'Success' : 'Failure');
+        'Result: ' + (await n2words(1) === 'one' ? 'Success' : 'Failure');
     };
   </script>
 </html>

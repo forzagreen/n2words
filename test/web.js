@@ -15,7 +15,11 @@ await testBrowser(Browser.CHROME);
  */
 async function testBrowser(browser) {
   test(browser, async t => {
-    const driver = new Builder().forBrowser(browser).build();
+    const options = new Chrome.Options();
+    const driver = new Builder()
+      .forBrowser(browser)
+      .setChromeOptions(options.addArguments('--disable-web-security'))
+      .build();
 
     await driver.get(`file://${cwd()}/test/web/index.html`);
 
