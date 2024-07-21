@@ -11,6 +11,10 @@ const chromeOptions = new chrome.Options();
 chromeOptions.addArguments('--disable-web-security');
 
 await testBrowser(Browser.CHROME, chromeOptions);
+//await testBrowser(Browser.EDGE);
+await testBrowser(Browser.FIREFOX);
+//await testBrowser(Browser.INTERNET_EXPLORER);
+//await testBrowser(Browser.SAFARI);
 
 /**
  * Use browser to confirm working state of project.
