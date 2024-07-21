@@ -7,6 +7,7 @@ import chrome from 'selenium-webdriver/chrome.js';
 import 'chromedriver';
 import { cwd } from 'node:process';
 
+// Disable Chrome CORS
 const chromeOptions = new chrome.Options();
 chromeOptions.addArguments('--disable-web-security');
 
@@ -27,6 +28,10 @@ async function testBrowser(browser, options) {
     const driver = new Builder()
       .forBrowser(browser)
       .setChromeOptions(options)
+      .setEdgeOptions(options)
+      .setFirefoxOptions(options)
+      .setIeOptions(options)
+      .setSafariOptions(options)
       .build();
 
     await driver.get(`file://${cwd()}/test/web/index.html`);
