@@ -25,7 +25,7 @@ test('accept valid string numbers', async t => {
 
 test('error on unsupported languages', async t => {
   await t.throwsAsync(n2words(2, { lang: 'aaa' }), { instanceOf: Error });
-  await t.throwsAsync(n2words(2, 'en'), { instanceOf: Error });
+  await t.throwsAsync(n2words(2, 'en'), { instanceOf: TypeError });
 });
 
 test('error on invalid numbers', async t => {

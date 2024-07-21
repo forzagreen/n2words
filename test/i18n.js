@@ -19,7 +19,7 @@ async function testLanguage(language) {
   test(language, async t => {
     const { default: testFile } = await import('./i18n/' + language + '.js');
 
-    if (typeof testFile === Error || typeof testFile === TypeError) {
+    if (testFile instanceof Error || testFile instanceof TypeError) {
       t.fail('Missing test file.');
     }
 
