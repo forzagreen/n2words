@@ -14,9 +14,9 @@ __n2words__ converts numerical numbers into written ones, supports [27 languages
 n2words(123)   // 'one hundred and twenty-three'
 n2words(-1.5)  // 'minus one point five'
 
-n2words(123, {lang: 'fr'})  // 'cent vingt-trois'
-n2words(123, {lang: 'es'})  // 'ciento veintitrés'
-n2words(123, {lang: 'ar'})  // 'مائة و ثلاثة و عشرون'
+n2words(123, {language: 'fr'})  // 'cent vingt-trois'
+n2words(123, {language: 'es'})  // 'ciento veintitrés'
+n2words(123, {language: 'ar'})  // 'مائة و ثلاثة و عشرون'
 ```
 
 See the [Wiki](https://github.com/forzagreen/n2words/wiki) for examples and advanced usage like [importing only specific languages](https://github.com/forzagreen/n2words/wiki/Importing-only-specific-languages).
