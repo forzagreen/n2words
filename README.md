@@ -32,23 +32,55 @@ npm install n2words
 ### ESM
 
 ```js
-import n2words from 'n2words'
+// Default import
+import n2words from 'n2words';
+n2words(100); // "one hundred"
+
+// Named import
+import { n2words } from 'n2words';
+n2words(100); // "one hundred"
 ```
 
-### CommonJS ([dynamic import](https://nodejs.org/api/esm.html#import-expressions))
+### TypeScript
+
+```typescript
+import n2words, { N2WordsOptions } from 'n2words';
+
+// With TypeScript type checking
+const options: N2WordsOptions = { 
+  lang: 'fr',
+  negativeWord: 'négatif'
+};
+
+n2words(42, options); // "quarante-deux"
+```
+
+### CommonJS
 
 ```js
+// Using require (CommonJS)
+const { n2words } = require('n2words');
+n2words(100); // "one hundred"
+
+// Or using dynamic import
 import('n2words').then(({default: n2words}) => {
-    n2words(100)
-})
+    n2words(100); // "one hundred"
+});
 ```
 
 ### Browser
 
 ```html
-<script src="./n2words.js"></script>
+<!-- UMD version for direct browser usage -->
+<script src="https://cdn.jsdelivr.net/npm/n2words/dist/umd/n2words.js"></script>
 <script>
-    n2words(100)
+    n2words(100); // "one hundred"
+</script>
+
+<!-- Modern browsers can use the ESM version -->
+<script type="module">
+    import n2words from 'https://cdn.jsdelivr.net/npm/n2words/dist/esm/n2words.js';
+    console.log(n2words(100)); // "one hundred"
 </script>
 ```
 

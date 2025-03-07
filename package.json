@@ -54,20 +54,36 @@
   ],
   "sideEffects": false,
   "type": "module",
+  "main": "./dist/cjs/n2words.js",
+  "module": "./dist/esm/n2words.js",
+  "types": "./dist/types/n2words.d.ts",
   "exports": {
-    ".": "./lib/n2words.js",
-    "./i18n/*.js": "./lib/i18n/*.js"
+    ".": {
+      "types": "./dist/types/n2words.d.ts",
+      "import": "./dist/esm/n2words.js",
+      "require": "./dist/cjs/n2words.js",
+      "default": "./dist/esm/n2words.js"
+    },
+    "./i18n/*": {
+      "types": "./dist/types/i18n/*.d.ts",
+      "import": "./dist/esm/i18n/*.js",
+      "require": "./dist/cjs/i18n/*.js",
+      "default": "./dist/esm/i18n/*.js"
+    }
   },
-  "jsdelivr": "dist/n2words.js",
-  "unpkg": "dist/n2words.js",
+  "jsdelivr": "dist/umd/n2words.js",
+  "unpkg": "dist/umd/n2words.js",
   "files": [
     "lib/*",
     "dist/*"
   ],
   "scripts": {
     "bench": "node bench.js",
-    "build": "webpack --progress",
-    "build:types": "npx -p typescript tsc lib/n2words.js dist/n2words.js --target es6 --module nodenext --allowJs --declaration --emitDeclarationOnly",
+    "build": "npm run build:esm && npm run build:cjs && npm run build:umd && npm run build:types",
+    "build:esm": "mkdir -p dist/esm && cp -r lib/* dist/esm/",
+    "build:cjs": "webpack --env target=cjs",
+    "build:umd": "webpack --env target=umd",
+    "build:types": "tsc --skipLibCheck",
     "coverage": "c8 ava",
     "docs": "jsdoc -c ./conf.json",
     "lint": "npm run lint:js && npm run lint:md",
