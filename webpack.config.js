@@ -1,43 +1,71 @@
 import { readdirSync } from 'node:fs';
+import path from 'node:path';
 
-export default {
-  mode: 'production',
-  entry: {
-    n2words: './lib/n2words.js',
-    ...getLanguages()
-  },
-  node: false,
-  devtool: 'source-map',
-  output: {
-    filename: '[name].js',
-    globalObject: 'this',
-    library: {
-      name: 'n2words',
-      type: 'umd2',
-      export: 'default'
+export default (env) => {
+  const target = env.target || 'umd';
+  
+  // Configure output based on target
+  const outputConfig = {
+    cjs: {
+      path: path.resolve('dist', 'cjs'),
+      filename: '[name].js',
+      library: {
+        type: 'commonjs2'
+      }
     },
-  },
-  module: {
-    rules: [{
-      test: /\.js$/,
-      exclude: /node_modules/,
-      use: {
-        loader: 'babel-loader',
-        options: {
-          presets: [
-            [
-              '@babel/preset-env',
-              {
-                useBuiltIns: 'usage',
-                corejs: '3.37.1',
-                targets: 'defaults'
-              },
+    esm: {
+      path: path.resolve('dist', 'esm'),
+      filename: '[name].js',
+      library: {
+        type: 'module'
+      }
+    },
+    umd: {
+      path: path.resolve('dist', 'umd'),
+      filename: '[name].js',
+      globalObject: 'this',
+      library: {
+        name: 'n2words',
+        type: 'umd2',
+        export: ['default', 'n2words']
+      }
+    }
+  }[target];
+
+  return {
+    mode: 'production',
+    entry: {
+      n2words: './lib/n2words.js',
+      ...getLanguages()
+    },
+    experiments: target === 'esm' ? { outputModule: true } : {},
+    node: false,
+    devtool: 'source-map',
+    output: outputConfig,
+    module: {
+      rules: [{
+        test: /\.js$/,
+        exclude: /node_modules/,
+        use: {
+          loader: 'babel-loader',
+          options: {
+            presets: [
+              [
+                '@babel/preset-env',
+                {
+                  useBuiltIns: 'usage',
+                  corejs: '3.37.1',
+                  targets: target === 'esm' ? {
+                    esmodules: true
+                  } : 'defaults'
+                },
+              ],
             ],
-          ],
+          },
         },
-      },
-    }],
-  }
+      }],
+    }
+  };
 };
 
 /**
