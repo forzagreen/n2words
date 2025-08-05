@@ -97,8 +97,5 @@ export default [
           '^[a-z]{2,4}(-[A-Z][a-z]{3})?(-([A-Z]{2}|[0-9]{3}))?(.*)$', // IETF RFC 5646 (Locale file naming)
         ]
       }],
-      // Ignore because Array#toReversed() was introduced in Node 20.
-      // TODO: enable rule when Node 18 is dropped.
-      'unicorn/no-array-reverse': 'off',
     }
   }];
