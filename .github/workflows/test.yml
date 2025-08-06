@@ -48,4 +48,4 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           parallel-finished: true
-          carryforward: '18,20,22'
+          carryforward: '20,22,24'
