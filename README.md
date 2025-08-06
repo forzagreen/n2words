@@ -16,7 +16,7 @@ n2words(-1.5)  // 'minus one point five'
 
 n2words(123, {lang: 'fr'})  // 'cent vingt-trois'
 n2words(123, {lang: 'es'})  // 'ciento veintitrés'
-n2words(123, {lang: 'ar'})  // 'مائة و ثلاثة و عشرون'
+n2words(123, {lang: 'ar'})  // 'مائة وثلاثة وعشرون'
 ```
 
 See the [Wiki](https://github.com/forzagreen/n2words/wiki) for examples and advanced usage like [importing only specific languages](https://github.com/forzagreen/n2words/wiki/Importing-only-specific-languages).
@@ -41,6 +41,12 @@ import n2words from 'n2words'
 import('n2words').then(({default: n2words}) => {
     n2words(100)
 })
+```
+
+Or:
+```js
+const { default: n2words } = await import("n2words");
+n2words(100)
 ```
 
 ### Browser
