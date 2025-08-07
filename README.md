@@ -44,6 +44,7 @@ import('n2words').then(({default: n2words}) => {
 ```
 
 Or:
+
 ```js
 const { default: n2words } = await import("n2words");
 n2words(100)
