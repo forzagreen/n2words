@@ -70,3 +70,6 @@ typings/
 
 # JSDoc
 docs/
+
+# JetBrain generated folder
+.idea

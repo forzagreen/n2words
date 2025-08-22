@@ -82,4 +82,8 @@ test('change internal params', t => {
     lang: 'ar',
     negativeWord: 'سالب'
   }), 'سالب مائة');
+  t.is(n2words(2824, {
+    lang: 'fr',
+    separator: '-'
+  }), 'deux-mille-huit-cent-vingt-quatre');
 });
