@@ -86,4 +86,12 @@ test('change internal params', t => {
     lang: 'fr',
     separator: '-'
   }), 'deux-mille-huit-cent-vingt-quatre');
+  t.is(n2words(21_602, {
+    lang: 'fr',
+    separator: '-'
+  }), 'vingt-et-un-mille-six-cent-deux');
+  t.is(n2words(142.61, {
+    lang: 'fr',
+    separator: '-'
+  }), 'cent-quarante-deux virgule soixante-et-un');
 });
