@@ -82,4 +82,16 @@ test('change internal params', t => {
     lang: 'ar',
     negativeWord: 'سالب'
   }), 'سالب مائة');
+  t.is(n2words(2824, {
+    lang: 'fr',
+    withHyphenSeparator: true,
+  }), 'deux-mille-huit-cent-vingt-quatre');
+  t.is(n2words(21_602, {
+    lang: 'fr',
+    withHyphenSeparator: true,
+  }), 'vingt-et-un-mille-six-cent-deux');
+  t.is(n2words(142.61, {
+    lang: 'fr',
+    withHyphenSeparator: true,
+  }), 'cent-quarante-deux-virgule-soixante-et-un');
 });
