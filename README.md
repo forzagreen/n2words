@@ -16,7 +16,7 @@ n2words(-1.5)  // 'minus one point five'
 
 n2words(123, {lang: 'fr'})  // 'cent vingt-trois'
 n2words(123, {lang: 'es'})  // 'ciento veintitrés'
-n2words(123, {lang: 'ar'})  // 'مائة و ثلاثة و عشرون'
+n2words(123, {lang: 'ar'})  // 'مائة وثلاثة وعشرون'
 ```
 
 See the [Wiki](https://github.com/forzagreen/n2words/wiki) for examples and advanced usage like [importing only specific languages](https://github.com/forzagreen/n2words/wiki/Importing-only-specific-languages).
