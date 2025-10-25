@@ -1,7 +1,7 @@
 # n2words
 
-[![Test](https://github.com/forzagreen/n2words/workflows/Test/badge.svg?branch=master)](https://github.com/forzagreen/n2words/actions)
-[![Coverage Status](https://coveralls.io/repos/github/forzagreen/n2words/badge.svg?branch=master)](https://coveralls.io/github/forzagreen/n2words?branch=master)
+[![CI](https://github.com/forzagreen/n2words/actions/workflows/test.yml/badge.svg)](https://github.com/forzagreen/n2words/actions/workflows/test.yml)
+[![Coverage Status](https://coveralls.io/repos/github/forzagreen/n2words/badge.svg?branch=main)](https://coveralls.io/github/forzagreen/n2words?branch=main)
 [![npm](https://img.shields.io/npm/v/n2words.svg)](https://npmjs.com/package/n2words)
 [![npm](https://img.shields.io/npm/dw/n2words)](https://npmjs.com/package/n2words)
 [![jsDelivr](https://data.jsdelivr.com/v1/package/npm/n2words/badge)](https://www.jsdelivr.com/package/npm/n2words)
@@ -91,4 +91,4 @@ __This library is in active development.__ We want to improve the design and pro
 
 ## License
 
-[MIT](https://github.com/forzagreen/n2words/blob/master/LICENSE)
+[MIT](https://github.com/forzagreen/n2words/blob/main/LICENSE)
