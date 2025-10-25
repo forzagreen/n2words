@@ -1,6 +1,6 @@
 {
   "name": "n2words",
-  "version": "1.23.1",
+  "version": "1.23.2",
   "description": "n2words converts a numerical number into a written one, supports 28 languages and has zero dependencies.",
   "keywords": [
     "n2words",
