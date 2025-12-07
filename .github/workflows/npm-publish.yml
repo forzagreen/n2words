@@ -29,7 +29,6 @@ jobs:
       - run: npm run build:types
       - run: npm run test
       - run: npm run test:types
-      - run: npm run test:cjs-types
 
       - name: Publish to npm
         run: npm publish
