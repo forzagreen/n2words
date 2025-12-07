@@ -1,4 +1,6 @@
-## Contributing to n2words
+# n2words
+
+## Contributing
 
 This repository converts numbers into words for many languages. If you'd like to
 add a new language or improve an existing one, follow these guidelines to keep
@@ -44,6 +46,7 @@ class XxLanguage extends BaseLanguage {
 ```
 
 Notes:
+
 - Use `BigInt` literals (e.g. `1000n`) in `cards` so the algorithm handles large
   numbers correctly.
 - Prefer `BaseLanguage` when your language fits the highest-matching-card
