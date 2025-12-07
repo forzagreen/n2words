@@ -11,13 +11,13 @@ import n2words from '../lib/n2words.js'
  */
 
 // Default language and basic conversion
-test('api › english is default', t => {
+test('english is default', t => {
   t.is(n2words(12), 'twelve')
   t.is(n2words(356), 'three hundred and fifty-six')
 })
 
 // Language fallback and locale variants
-test('api › lang fallback', t => {
+test('lang fallback', t => {
   t.is(n2words(70, { lang: 'fr' }), 'soixante-dix')
   t.is(n2words(70, { lang: 'fr-XX' }), 'soixante-dix')
   t.is(n2words(70, { lang: 'fr-BE' }), 'septante')
@@ -26,7 +26,7 @@ test('api › lang fallback', t => {
 })
 
 // Input format validation
-test('api › accept valid string numbers', t => {
+test('accept valid string numbers', t => {
   t.is(n2words('12'), 'twelve')
   t.is(n2words('0012'), 'twelve')
   t.is(n2words('.1'), 'zero point one')

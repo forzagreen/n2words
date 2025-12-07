@@ -46,7 +46,7 @@ for (const file of files) {
 
   const lang = file.replace('.js', '')
 
-  test(`smoke ${lang}`, async t => {
+  test(`${lang}`, async t => {
     const module = await import('../lib/i18n/' + file)
     const converter = module.default || module
 

@@ -1,7 +1,7 @@
 {
   "name": "n2words",
   "version": "1.23.2",
-  "description": "n2words converts a numerical number into a written one, supports 28 languages and has zero dependencies.",
+  "description": "n2words converts a numerical number into a written one, supports 29 languages and has zero dependencies.",
   "keywords": [
     "n2words",
     "convert",
@@ -55,35 +55,54 @@
   "sideEffects": false,
   "type": "module",
   "exports": {
-    ".": "./lib/n2words.js",
-    "./i18n/*.js": "./lib/i18n/*.js"
+    ".": {
+      "import": "./lib/n2words.js",
+      "types": "./types/n2words.d.ts"
+    },
+    "./i18n/*": {
+      "import": "./lib/i18n/*.js",
+      "types": "./types/i18n/*.d.ts"
+    }
   },
   "jsdelivr": "dist/n2words.js",
   "unpkg": "dist/n2words.js",
+  "main": "lib/n2words.js",
+  "types": "types/n2words.d.ts",
+  "typesVersions": {
+    "*": {
+      "n2words/*": [
+        "types/*"
+      ]
+    }
+  },
   "files": [
     "lib/*",
-    "dist/*"
+    "dist/*",
+    "types/*"
   ],
   "scripts": {
     "bench": "node bench.js",
     "build": "webpack --progress",
-    "build:types": "npx -p typescript tsc lib/n2words.js dist/n2words.js --target es6 --module nodenext --allowJs --declaration --emitDeclarationOnly",
+    "build:types": "tsc --project tsconfig.json",
     "coverage": "c8 ava",
     "docs": "jsdoc -c ./conf.json",
     "lint": "npm run lint:js && npm run lint:md",
     "lint:js": "npx standard lib/ test/ examples/ *.js",
     "lint:md": "markdownlint-cli2 *.md",
     "test": "ava --verbose",
-    "test:cjs": "ava --verbose test/import.cjs",
-    "test:core": "ava --verbose test/core.js",
-    "test:i18n": "ava --verbose test/i18n.js",
-    "test:web": "ava --verbose test/web.js"
+    "test:web": "ava --verbose test/web.js",
+    "test:types": "tsx test/typescript-smoke.ts"
   },
   "ava": {
     "files": [
-      "test/*",
-      "!test/web.js"
-    ]
+      "test/*.js",
+      "!test/web.js",
+      "!test/web/*"
+    ],
+    "extensions": [
+      "js"
+    ],
+    "timeout": "30s"
   },
   "c8": {
     "all": true,
@@ -106,10 +125,12 @@
     "chromedriver": "^143.0.0",
     "core-js": "^3.47.0",
     "jsdoc": "^4.0.5",
-    "markdownlint-cli2": "^0.19.1",
+    "markdownlint-cli2": "^0.20.0",
     "microtime": "^3.1.1",
     "selenium-webdriver": "^4.39.0",
     "standard": "^17.1.2",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3",
     "webpack": "^5.103.0",
     "webpack-cli": "^6.0.1"
   },

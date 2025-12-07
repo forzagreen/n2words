@@ -30,6 +30,7 @@ jobs:
       - run: npm ci
       - run: npm run lint
       - run: npm run build
+      - run: npm run build:types
       - run: npm run coverage
 
       - name: Coveralls Parallel
@@ -39,6 +40,8 @@ jobs:
           flag-name: ${{ matrix.node }}
           parallel: true
 
+      - run: npm run test:types
+      - run: npm run test:cjs-types
       - run: npm pack --dry-run
 
   finish:

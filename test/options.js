@@ -12,14 +12,14 @@ import n2words from '../lib/n2words.js'
  */
 
 // Language-specific parameter configuration
-test('options › custom negative word (Arabic)', t => {
+test('custom negative word (Arabic)', t => {
   t.is(n2words(-100, {
     lang: 'ar',
     negativeWord: 'سالب'
   }), 'سالب مائة')
 })
 
-test('options › hyphen separator (French)', t => {
+test('hyphen separator (French)', t => {
   t.is(n2words(2824, {
     lang: 'fr',
     withHyphenSeparator: true
@@ -30,7 +30,7 @@ test('options › hyphen separator (French)', t => {
   }), 'vingt-et-un-mille-six-cent-deux')
 })
 
-test('options › hyphen separator with decimals (French)', t => {
+test('hyphen separator with decimals (French)', t => {
   t.is(n2words(142.61, {
     lang: 'fr',
     withHyphenSeparator: true

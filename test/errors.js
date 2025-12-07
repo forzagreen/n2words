@@ -11,7 +11,7 @@ import n2words from '../lib/n2words.js'
  */
 
 // Invalid language codes
-test('errors › unsupported language', t => {
+test('unsupported language', t => {
   t.throws(
     () => {
       n2words(2, { lang: 'aaa' })
@@ -21,7 +21,7 @@ test('errors › unsupported language', t => {
 })
 
 // Invalid options format
-test('errors › options must be object', t => {
+test('options must be object', t => {
   t.throws(
     () => {
       n2words(2, 'en')
@@ -31,7 +31,7 @@ test('errors › options must be object', t => {
 })
 
 // Invalid number formats
-test('errors › invalid number format', t => {
+test('invalid number format', t => {
   t.throws(
     () => {
       n2words('foobar')
@@ -40,7 +40,7 @@ test('errors › invalid number format', t => {
   )
 })
 
-test('errors › non-numeric types', t => {
+test('non-numeric types', t => {
   t.throws(
     () => {
       n2words(false)
@@ -49,7 +49,7 @@ test('errors › non-numeric types', t => {
   )
 })
 
-test('errors › string with units', t => {
+test('string with units', t => {
   t.throws(
     () => {
       n2words('3px')
@@ -58,7 +58,7 @@ test('errors › string with units', t => {
   )
 })
 
-test('errors › NaN', t => {
+test('NaN', t => {
   t.throws(
     () => {
       n2words(Number.NaN)
@@ -67,7 +67,7 @@ test('errors › NaN', t => {
   )
 })
 
-test('errors › empty string', t => {
+test('empty string', t => {
   t.throws(
     () => {
       n2words('')
@@ -76,7 +76,7 @@ test('errors › empty string', t => {
   )
 })
 
-test('errors › whitespace only', t => {
+test('whitespace only', t => {
   t.throws(
     () => {
       n2words(' ')
@@ -85,6 +85,6 @@ test('errors › whitespace only', t => {
   )
 })
 
-test('errors › invalid options type', t => {
+test('invalid options type', t => {
   t.throws(() => n2words(2, 123), { instanceOf: TypeError })
 })
