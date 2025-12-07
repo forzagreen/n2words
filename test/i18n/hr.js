@@ -68,4 +68,4 @@ export default [
   [10_000_000_000_000, 'deset bilijuna'],
   [100_000_000_000_000, 'sto bilijuna'],
   [1_000_000_000_000_000_000n, 'jedan trilijun']
-];
+]

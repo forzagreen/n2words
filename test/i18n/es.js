@@ -69,7 +69,7 @@ export default [
   [10_000_000_000_000, 'diez billones'],
   [100_000_000_000_000, 'cien billones'],
   [1_000_000_000_000_000_000n, 'un trillón'],
-  [1_000_000_000_000_000_000_000n, 'mil trillones'],
+  [1_000_000_000_000_000_000_000n, 'mil trillones']
   // FIXME
-  //[10000000000000000000000000n, 'diez cuatrillones']
-];
+  // [10000000000000000000000000n, 'diez cuatrillones']
+]

@@ -122,7 +122,7 @@ export default [
   // Very large numbers
   [1_000_000_000_000_000_000n, 'un cvintilion'],
   [1_000_000_000_000_000_000_000n, 'un sextilion'],
-  [1_000_000_000_000_000_000_000_000n, 'un septilion'],
+  [1_000_000_000_000_000_000_000_000n, 'un septilion']
 
   // Feminine form tests (when feminine option is true)
   // These would be tested separately with feminine: true option
@@ -130,4 +130,4 @@ export default [
   // [2, 'două', { feminine: true }],
   // [21, 'douăzeci și una', { feminine: true }],
   // [1001, 'o mie una', { feminine: true }],
-];
+]
