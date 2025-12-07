@@ -2,6 +2,16 @@ import test from 'ava'
 import n2words from '../lib/n2words.js'
 import { readdirSync } from 'node:fs'
 
+/**
+ * Comprehensive Language-Specific Tests
+ *
+ * Each language module defines an array of [input, expectedOutput, options] tuples.
+ * These tests verify that each language correctly handles a comprehensive set of
+ * test cases specific to that language's number formatting rules.
+ *
+ * Test files are located in test/i18n/*.js and are loaded dynamically.
+ */
+
 const files = readdirSync('./test/i18n')
 
 for (const file of files) {

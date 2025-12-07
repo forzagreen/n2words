@@ -1,6 +1,6 @@
 const test = require('ava')
 
-test('CommonJS', async t => {
+test('import', async t => {
   const { default: n2words } = await import('../lib/n2words.js')
 
   t.plan(2)
