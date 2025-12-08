@@ -12,22 +12,27 @@ permissions:
 jobs:
   publish:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
 
     steps:
       - uses: actions/checkout@v5
         with:
           persist-credentials: false
+
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
           node-version: '24'
           registry-url: 'https://registry.npmjs.org'
-      - name: Update npm to latest
-        run: npm install -g npm@latest
-      - run: npm ci
+          cache: 'npm'
+
+      - run: npm ci --prefer-offline
+      - run: npm run lint
       - run: npm run build:web
       - run: npm run build:types
       - run: npm run test
 
       - name: Publish to npm
         run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

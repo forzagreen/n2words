@@ -64,7 +64,7 @@ This file gives targeted, actionable guidance for AI coding agents working in th
 - **Files to inspect for examples:**
   - `lib/i18n/en.js` — canonical use of `BaseLanguage` and `cards` + optimized `merge()` implementation.
   - `lib/i18n/pt.js` — advanced optimizations: pre-compiled regex, simplified merge() logic.
-  - `lib/i18n/ru.js` — use of `SlavicLanguage` with three-form pluralization (shared by 8+ languages).
+  - `lib/i18n/ru.js` — use of `SlavicLanguage` with three-form pluralization (shared by 9 languages).
   - `lib/classes/base-language.js` — essential algorithms for card-based systems.
   - `lib/classes/slavic-language.js` — reusable base for Slavic/Baltic languages with complex pluralization.
   - `lib/classes/abstract-language.js` — essential algorithms and optimizations.
@@ -74,12 +74,13 @@ This file gives targeted, actionable guidance for AI coding agents working in th
   - `scripts/add-language.js` — automated language boilerplate generator.
   - `scripts/validate-language.js` — implementation validation tool.
   - `LANGUAGE_GUIDE.md` — comprehensive guide for adding new languages.
-  - `LANGUAGE_GUIDE.md` — comprehensive guide for adding new languages.
+  - `BIGINT-GUIDE.md` — detailed BigInt usage guide for language developers.
 
 - **Environment / runtime:**
   - Node supported versions: `^20 || ^22 || >=24` (declared in `package.json`).
   - Tests may rely on modern Node features such as BigInt and numeric separators.
-  - Browser support: Chrome and Firefox (via Selenium WebDriver).
+  - Browser support: Defaults to `'defaults'` query (100% of browsers in-use, as defined by browserslist).
+  - Browser tests: Chrome and Firefox (via Selenium WebDriver).
 
 - **When editing:**
   - Keep exports and filenames consistent with `lib/` layout.

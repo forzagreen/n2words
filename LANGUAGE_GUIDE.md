@@ -51,9 +51,10 @@ If you need more control, follow the [manual process in CONTRIBUTING.md](./CONTR
 
 #### Cards Array
 
-- Ordered pairs of `[value, word]` using BigInt
+- Ordered pairs of `[value, word]` using BigInt literals
 - MUST be in descending order
 - Covers all number patterns in your language
+- **Important**: Always use `n` suffix for BigInt literals (e.g., `1000n` not `1000`)
 
 ```javascript
 [
@@ -378,6 +379,16 @@ const merged = leftWords[0] + ' ' + rightWords[0]
 const merged = [...leftWords, ...rightWords].join(' ')
 ```
 
+## BigInt Requirements
+
+All language implementations must use BigInt literals in specific contexts:
+
+- **Cards arrays**: Use `1000n`, not `1000`
+- **Comparisons**: When comparing BigInt values, use `value === 1n`
+- **Arithmetic**: BigInt operations require BigInt operands
+
+See [BIGINT-GUIDE.md](./BIGINT-GUIDE.md) for comprehensive guidance on BigInt usage.
+
 ## Reference Implementations
 
 Study these examples:
@@ -386,10 +397,12 @@ Study these examples:
 - **Optimized**: `lib/i18n/pt.js` - Advanced optimizations
 - **Complex**: `lib/i18n/fr.js` - Special rules
 - **Non-Latin**: `lib/i18n/ar.js`, `lib/i18n/zh.js` - Different scripts
+- **Slavic**: `lib/i18n/ru.js` - Three-form pluralization pattern
 
 ## Getting Help
 
 - Check [CONTRIBUTING.md](./CONTRIBUTING.md) for general guidelines
-- Review existing language implementations
+- Review [BIGINT-GUIDE.md](./BIGINT-GUIDE.md) for BigInt usage
+- Study existing language implementations
 - Open an issue if you have questions
 - The community is here to help!

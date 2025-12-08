@@ -98,5 +98,6 @@ Get-ChildItem lib/i18n/*.js | ForEach-Object {
 
 ## See Also
 
-- [LANGUAGE_GUIDE.md](../LANGUAGE_GUIDE.md) - Comprehensive implementation guide
-- [CONTRIBUTING.md](../CONTRIBUTING.md) - Contribution guidelines
+- [LANGUAGE_GUIDE.md](../LANGUAGE_GUIDE.md) - Comprehensive language implementation guide
+- [BIGINT-GUIDE.md](../BIGINT-GUIDE.md) - BigInt usage guide for language developers
+- [CONTRIBUTING.md](../CONTRIBUTING.md) - General contribution guidelines

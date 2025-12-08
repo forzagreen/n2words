@@ -24,7 +24,7 @@ This interactive script will:
 
 After running the script, you'll need to:
 
-- Fill in the `cards` array with number words
+- Fill in the `cards` array with number words (using BigInt literals like `1000n`)
 - Implement the `merge()` method for your language's grammar
 - Complete the test cases with expected outputs
 
@@ -33,6 +33,12 @@ To validate your implementation:
 ```powershell
 npm run lang:validate xx  # Replace 'xx' with your language code
 ```
+
+### Important Resources
+
+- [LANGUAGE_GUIDE.md](./LANGUAGE_GUIDE.md) - Comprehensive implementation guide
+- [BIGINT-GUIDE.md](./BIGINT-GUIDE.md) - Critical BigInt usage guide
+- [scripts/README.md](./scripts/README.md) - Tooling documentation
 
 ### Manual Process (Alternative)
 
@@ -79,11 +85,12 @@ class XxLanguage extends BaseLanguage {
 
 Notes:
 
-- Use `BigInt` literals (e.g. `1000n`) in `cards` so the algorithm handles large
-  numbers correctly.
+- **Critical**: Use `BigInt` literals (e.g. `1000n`) in `cards` so the algorithm handles large
+  numbers correctly. See [BIGINT-GUIDE.md](./BIGINT-GUIDE.md) for detailed guidance.
 - Prefer `BaseLanguage` when your language fits the highest-matching-card
-  algorithm pattern. Use `AbstractLanguage` if you need a different composition
-  strategy; in that case implement `toCardinal(wholeNumber)`.
+  algorithm pattern. Use `SlavicLanguage` for languages with three-form pluralization.
+  Use `AbstractLanguage` if you need a different composition strategy; in that case
+  implement `toCardinal(wholeNumber)`.
 - For decimals, rely on `AbstractLanguage.decimalToCardinal()` unless your
   language has very unique decimal rules.
 
