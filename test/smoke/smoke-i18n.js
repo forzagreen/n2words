@@ -1,5 +1,7 @@
 import test from 'ava'
 import { readdirSync } from 'node:fs'
+import { dirname, resolve } from 'node:path'
+import { fileURLToPath } from 'node:url'
 
 /**
  * Smoke Tests for All Language Implementations
@@ -16,6 +18,7 @@ import { readdirSync } from 'node:fs'
  * - Decimals with leading zeros (3.005, 0.0001)
  * - Negative numbers (-5)
  */
+const __dirname = dirname(fileURLToPath(import.meta.url))
 const inputs = [
   0,
   1,
@@ -39,7 +42,7 @@ const inputs = [
   -5
 ]
 
-const files = readdirSync('./lib/i18n')
+const files = readdirSync(resolve(__dirname, '../../lib/i18n'))
 
 for (const file of files) {
   if (!file.endsWith('.js')) continue
@@ -47,7 +50,7 @@ for (const file of files) {
   const lang = file.replace('.js', '')
 
   test(`${lang}`, async t => {
-    const module = await import('../lib/i18n/' + file)
+    const module = await import('../../lib/i18n/' + file)
     const converter = module.default || module
 
     for (const input of inputs) {

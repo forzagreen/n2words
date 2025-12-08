@@ -25,10 +25,9 @@ jobs:
       - name: Update npm to latest
         run: npm install -g npm@latest
       - run: npm ci
-      - run: npm run build
+      - run: npm run build:web
       - run: npm run build:types
       - run: npm run test
-      - run: npm run test:types
 
       - name: Publish to npm
         run: npm publish

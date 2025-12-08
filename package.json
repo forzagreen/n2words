@@ -82,22 +82,28 @@
   ],
   "scripts": {
     "bench": "node bench.js",
-    "build": "webpack --progress",
+    "build:web": "webpack --progress",
     "build:types": "tsc --project tsconfig.json",
-    "coverage": "c8 ava",
+    "coverage": "c8 npm run test:core",
     "docs": "jsdoc -c ./conf.json",
     "lint": "npm run lint:js && npm run lint:md",
     "lint:js": "npx standard lib/ test/ examples/ *.js",
     "lint:md": "markdownlint-cli2 *.md",
-    "test": "ava --verbose",
+    "test": "npm run test:core && npm run test:types",
+    "test:core": "npm run test:unit && npm run test:integration && npm run test:smoke && npm run test:i18n",
+    "test:unit": "ava --verbose test/unit/*.js",
+    "test:integration": "ava --verbose test/integration/*.js",
+    "test:smoke": "ava --verbose test/smoke/*.js",
+    "test:i18n": "ava --verbose test/i18n.js",
     "test:web": "ava --verbose test/web.js",
     "test:types": "tsx test/typescript-smoke.ts"
   },
   "ava": {
     "files": [
-      "test/*.js",
-      "!test/web.js",
-      "!test/web/*"
+      "test/unit/*.js",
+      "test/integration/*.js",
+      "test/smoke/*.js",
+      "test/i18n.js"
     ],
     "extensions": [
       "js"

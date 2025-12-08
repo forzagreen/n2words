@@ -1,5 +1,5 @@
 import test from 'ava'
-import n2words from '../lib/n2words.js'
+import n2words from '../../lib/n2words.js'
 
 /**
  * Options and Parameters Tests
