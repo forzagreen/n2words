@@ -85,7 +85,7 @@ Or import specific languages:
 ## Supported Languages
 
 | Code | Language | Code | Language |
-|------|----------|------|----------|
+| --- | --- | --- | --- |
 | `en` | English | `ar` | Arabic |
 | `fr` | French | `es` | Spanish |
 | `de` | German | `it` | Italian |
@@ -100,7 +100,7 @@ Or import specific languages:
 | `ko` | Korean | `zh` | Chinese |
 | `vi` | Vietnamese | `id` | Indonesian |
 | `hr` | Croatian | `sr` | Serbian |
-| `fr-BE` | French (Belgium) |
+| `fr-BE` | French (Belgium) | | |
 
 ## API Options
 
@@ -115,7 +115,7 @@ interface N2WordsOptions {
 Performance benchmarks (ops/sec) on latest hardware:
 
 | Language | Performance |
-|----------|-------------|
+| --- | --- |
 | Arabic (ar) | ~180k ops/sec |
 | Indonesian (id) | ~160k ops/sec |
 | Vietnamese (vi) | ~165k ops/sec |
