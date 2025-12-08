@@ -19,7 +19,7 @@ let compareResults = false
 // Look for matching CLI arguments
 for (let index = 1; index < arguments_.length; index++) {
   if (arguments_[index] === '--lang' || arguments_[index] === '--language') {
-    i18n = arguments_[index + 1]
+    i18n = arguments_[index + 1].toLowerCase()
   } else if (arguments_[index] === '--value') {
     value = arguments_[index + 1]
   } else if (arguments_[index] === '--save') {
