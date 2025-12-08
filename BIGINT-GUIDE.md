@@ -16,14 +16,14 @@ This guide explains **when and where** to use JavaScript's `BigInt` type when im
 
 ## Quick Reference
 
-### ✅ **MUST** use BigInt literals (`n` suffix):
+### ✅ MUST use BigInt literals (n suffix)
 
 1. **Cards arrays** in `BaseLanguage` subclasses
 2. **BigInt comparisons** (when comparing against `wholeNumber` or values known to be BigInt)
 3. **BigInt arithmetic** (division, modulo, multiplication with BigInt operands)
 4. **BigInt literals in conditionals** (when comparing BigInt values)
 
-### ❌ **DO NOT** use BigInt literals:
+### ❌ DO NOT use BigInt literals
 
 1. **Regular number comparisons** (e.g., array indices, string lengths, regular numbers)
 2. **JavaScript numeric literals** in non-BigInt contexts (e.g., `Math.pow(10, 3)`)
@@ -59,9 +59,7 @@ Number(1n) === 1     // true
 BigInt(100) === 100n // true
 ```
 
-### Data Flow in n2words
-
-```
+```javascript
 User Input (number | string | bigint)
     ↓
 AbstractLanguage.floatToCardinal()
@@ -81,11 +79,12 @@ Final string output
 
 ## When BigInt is Required
 
-### 1. Cards Arrays (`BaseLanguage` subclasses)
+### 1. Cards Arrays (BaseLanguage subclasses)
 
 **WHY:** The `toCardMatches()` method in `BaseLanguage` performs BigInt arithmetic (`rem / card[0]`, `rem % card[0]`). If `card[0]` is a regular number, this throws a TypeError.
 
 **Pattern:**
+
 ```javascript
 // ✅ CORRECT: All values use BigInt literals
 constructor(options) {
@@ -111,6 +110,7 @@ constructor(options) {
 ```
 
 **Files affected:**
+
 - All `lib/i18n/*.js` files that extend `BaseLanguage` (24 languages: en, de, fr, es, pt, dk, no, nl, az, tr, ko, zh, hu, it)
 
 ### 2. BigInt Comparisons in `merge()` Methods
@@ -118,6 +118,7 @@ constructor(options) {
 **WHY:** The `merge()` method receives word-pair objects where values are BigInt (e.g., `{ 'one': 1n }`). Comparing these with number literals uses strict equality, which returns `false` for type mismatches.
 
 **Pattern:**
+
 ```javascript
 // ✅ CORRECT: Compare BigInt with BigInt
 merge(leftPair, rightPair) {
@@ -150,6 +151,7 @@ merge(leftPair, rightPair) {
 ```
 
 **Files affected:**
+
 - `lib/i18n/en.js` (lines 89-110)
 - `lib/i18n/de.js` (lines 88-120)
 - `lib/i18n/dk.js` (lines 86-121)
@@ -168,6 +170,7 @@ merge(leftPair, rightPair) {
 **WHY:** The `toCardinal()` method in `SlavicLanguage` uses BigInt arithmetic for chunk processing (`x % 10n`, `x % 100n`, `x / 10n`). All comparisons must use BigInt literals.
 
 **Pattern:**
+
 ```javascript
 // ✅ CORRECT: BigInt literals in conditionals and arithmetic
 toCardinal(number) {
@@ -216,6 +219,7 @@ toCardinal(number) {
 ```
 
 **Files affected:**
+
 - `lib/classes/slavic-language.js` (base class)
 - `lib/i18n/ru.js`, `cz.js`, `pl.js`, `uk.js`, `sr.js`, `hr.js`, `he.js`, `lt.js`, `lv.js` (9 languages)
 
@@ -224,6 +228,7 @@ toCardinal(number) {
 **WHY:** Languages with custom conversion logic (not using `BaseLanguage` or `SlavicLanguage`) often still process BigInt values passed from `floatToCardinal()`.
 
 **Pattern:**
+
 ```javascript
 // ✅ CORRECT: Handle BigInt in custom algorithms
 toCardinal(number) {
@@ -258,6 +263,7 @@ convertMore1000(number) {
 ```
 
 **Files affected:**
+
 - `lib/i18n/ar.js` (Arabic: custom group processing)
 - `lib/i18n/vi.js` (Vietnamese: thousand-power algorithm)
 - `lib/i18n/ro.js` (Romanian: custom chunk processing)
@@ -271,6 +277,7 @@ convertMore1000(number) {
 ### 1. Regular Number Operations
 
 **When to use regular numbers:**
+
 - Array indices: `chunks[0]`, `words.length`
 - String operations: `value.indexOf('.')`, `str.length`
 - Math operations: `Math.pow(10, 3)`, `Math.floor(n / 10)`
@@ -278,6 +285,7 @@ convertMore1000(number) {
 - Object lookups: `this.ones[5]` (keys are always strings/numbers)
 
 **Pattern:**
+
 ```javascript
 // ✅ CORRECT: Regular numbers for array/string operations
 const chunks = this.splitByX(number.toString(), 3)  // 3 is a number
@@ -311,8 +319,6 @@ const n2 = Number(x / 10n % 10n)  // Extract tens digit as number
 words.push(this.ones[n1])      // Object key is number (or coerced string)
 ```
 
-### 3. Conditional Logic on Non-BigInt Values
-
 ```javascript
 // ✅ CORRECT: Compare numbers when both operands are numbers
 const unitsPart = number % 10  // Both are regular numbers
@@ -336,8 +342,6 @@ if (chunks.length === 1) {
 }
 ```
 
----
-
 ## Architecture Patterns
 
 ### Pattern 1: BaseLanguage with Simple Merge
@@ -345,10 +349,12 @@ if (chunks.length === 1) {
 **Used by:** English, French, Spanish, Dutch, Norwegian
 
 **BigInt locations:**
+
 1. Cards array (constructor)
 2. All comparisons in `merge()`
 
 **Example:** `lib/i18n/en.js`
+
 ```javascript
 class EN extends BaseLanguage {
   constructor(options) {
@@ -381,11 +387,13 @@ class EN extends BaseLanguage {
 **Used by:** Russian, Czech, Polish, Ukrainian, Serbian, Croatian, Hebrew, Lithuanian, Latvian
 
 **BigInt locations:**
+
 1. All conditionals in `toCardinal()`
 2. All conditionals in `pluralize()`
 3. Arithmetic operations (modulo, division)
 
 **Example:** `lib/i18n/ru.js` (simplified)
+
 ```javascript
 class RU extends SlavicLanguage {
   toCardinal(number) {
@@ -426,11 +434,13 @@ class RU extends SlavicLanguage {
 **Used by:** Arabic, Vietnamese, Romanian, Indonesian, Italian
 
 **BigInt locations:**
+
 - Varies by implementation
 - Often uses explicit conversions (`Number()`, `BigInt()`)
 - May process chunks as regular numbers after extraction
 
 **Example:** `lib/i18n/ar.js` (simplified)
+
 ```javascript
 class AR extends AbstractLanguage {
   toCardinal(number) {
@@ -479,7 +489,8 @@ super(options, [
 ```
 
 **Error message:**
-```
+
+```javascript
 TypeError: Cannot mix BigInt and other types, use explicit conversions
   at toCardMatches (file:///lib/classes/base-language.js:87:46)
 ```
@@ -501,8 +512,6 @@ if (leftNumber === 1n) {
 
 **Silent bug:** The condition never matches, producing incorrect output like "one hundred" instead of "hundred".
 
-### ❌ Pitfall 3: BigInt in Non-BigInt Operations
-
 ```javascript
 // ❌ WRONG
 const index = chunks.length
@@ -517,7 +526,8 @@ if (index === 0) {
 ```
 
 **Error message:**
-```
+
+```javascript
 TypeError: Cannot mix BigInt and other types
 ```
 
@@ -572,10 +582,6 @@ assert.strictEqual(
 )
 ```
 
-### Smoke Tests
-
-**Verify all languages handle BigInt correctly:**
-
 ```javascript
 // test/smoke/smoke-i18n.js
 const languages = ['en', 'de', 'fr', 'es', 'pt', 'ru', /* ... */]
@@ -588,10 +594,6 @@ for (const lang of languages) {
   })
 }
 ```
-
-### Integration Tests
-
-**Test edge cases:**
 
 ```javascript
 // Test zero
@@ -617,14 +619,14 @@ assert.strictEqual(
 
 When creating a new language implementation, verify BigInt usage:
 
-### For BaseLanguage Subclasses:
+### For BaseLanguage Subclasses
 
 - [ ] All values in `cards` array use `n` suffix (BigInt literals)
 - [ ] All comparisons in `merge()` use `n` suffix when comparing against card values
 - [ ] Arithmetic operations in `merge()` (if any) use BigInt types consistently
 - [ ] Regular numbers used for indices, lengths, and Math operations
 
-### For SlavicLanguage Subclasses:
+### For SlavicLanguage Subclasses
 
 - [ ] All conditionals in `toCardinal()` comparing whole numbers use `n` suffix
 - [ ] All conditionals in `pluralize()` use `n` suffix
@@ -632,7 +634,7 @@ When creating a new language implementation, verify BigInt usage:
 - [ ] Division operations use `n` suffix: `number / 10n`
 - [ ] Object lookups convert BigInt to Number when needed: `this.ones[Number(n1)]`
 
-### For Custom AbstractLanguage Implementations:
+### For Custom AbstractLanguage Implementations
 
 - [ ] Entry point checks (`number === 0n`) use `n` suffix
 - [ ] Loop conditions on BigInt values use `n` suffix
@@ -640,7 +642,7 @@ When creating a new language implementation, verify BigInt usage:
 - [ ] Mixed operations use proper type conversions
 - [ ] Regular number operations (indices, lengths) do NOT use `n` suffix
 
-### Testing:
+### Testing
 
 - [ ] Test with values > 2^53 (e.g., `9_007_199_254_740_992n`)
 - [ ] Test with BigInt literals: `n2words(1000n)`
@@ -654,15 +656,15 @@ When creating a new language implementation, verify BigInt usage:
 
 ### Golden Rules
 
-1. **Cards arrays:** Always use `n` suffix for numeric values
-2. **Comparisons:** Use `n` suffix when comparing BigInt values
-3. **Arithmetic:** Match operand types (BigInt with BigInt, number with number)
-4. **Conversions:** Be explicit with `Number()` and `BigInt()` when crossing type boundaries
-5. **Non-BigInt contexts:** Array indices, string lengths, object keys → NO `n` suffix
+1. **Cards arrays** Always use `n` suffix for numeric values
+2. **Comparisons** Use `n` suffix when comparing BigInt values
+3. **Arithmetic** Match operand types (BigInt with BigInt, number with number)
+4. **Conversions** Be explicit with `Number()` and `BigInt()` when crossing type boundaries
+5. **Non-BigInt contexts** Array indices, string lengths, object keys → NO `n` suffix
 
 ### Quick Decision Tree
 
-```
+```javascript
 Is the value used in BigInt arithmetic (/, %, *)?
 ├─ YES → Use BigInt literal (n suffix)
 └─ NO → Is it compared to a BigInt value?
