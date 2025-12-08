@@ -64,8 +64,14 @@
       "types": "./types/i18n/*.d.ts"
     }
   },
-  "jsdelivr": "dist/n2words.js",
-  "unpkg": "dist/n2words.js",
+  "jsdelivr": {
+    "browser": "dist/n2words.js",
+    "types": "types/n2words.d.ts"
+  },
+  "unpkg": {
+    "browser": "dist/n2words.js",
+    "types": "types/n2words.d.ts"
+  },
   "main": "lib/n2words.js",
   "types": "types/n2words.d.ts",
   "typesVersions": {
