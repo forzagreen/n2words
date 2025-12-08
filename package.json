@@ -86,6 +86,8 @@
     "build:types": "tsc --project tsconfig.json",
     "coverage": "c8 npm run test:core",
     "docs": "jsdoc -c ./conf.json",
+    "lang:add": "node scripts/add-language.js",
+    "lang:validate": "node scripts/validate-language.js",
     "lint": "npm run lint:js && npm run lint:md",
     "lint:js": "npx standard lib/ test/ examples/ *.js",
     "lint:md": "markdownlint-cli2 *.md",

@@ -1,0 +1,102 @@
+# Scripts
+
+Utility scripts for maintaining and extending n2words.
+
+## add-language.js
+
+Interactive script to generate boilerplate for a new language implementation.
+
+**Usage:**
+```bash
+npm run lang:add
+# or
+node scripts/add-language.js
+```
+
+**What it does:**
+1. Prompts for language details (code, name, base class, etc.)
+2. Generates `lib/i18n/xx.js` with implementation template
+3. Generates `test/i18n/xx.js` with test case template
+4. Updates `lib/n2words.js` with imports and registration
+5. Provides clear next steps for completing the implementation
+
+**After running:**
+- Fill in the `cards` array with number words
+- Implement the `merge()` method
+- Complete test cases with expected outputs
+- Run `npm run lang:validate xx` to check your work
+
+## validate-language.js
+
+Validates that a language implementation is complete and follows best practices.
+
+**Usage:**
+```bash
+npm run lang:validate <language-code>
+# or
+node scripts/validate-language.js <language-code>
+```
+
+**Example:**
+```bash
+npm run lang:validate en
+npm run lang:validate fr-BE
+```
+
+**What it checks:**
+- ✓ Language file exists with proper structure
+- ✓ Uses BigInt literals in cards array
+- ✓ Has merge() method implementation
+- ✓ Extends BaseLanguage or AbstractLanguage
+- ✓ Test file exists with comprehensive cases
+- ✓ Tests cover: zero, negatives, decimals, large numbers
+- ✓ Language is imported and registered in lib/n2words.js
+- ✓ No TODO comments in implementation
+
+**Exit codes:**
+- `0` - Validation passed (may have warnings)
+- `1` - Validation failed with errors
+
+## Development Workflow
+
+### Adding a New Language
+
+```bash
+# 1. Generate boilerplate
+npm run lang:add
+
+# 2. Implement the language
+# - Edit lib/i18n/xx.js
+# - Edit test/i18n/xx.js
+
+# 3. Validate implementation
+npm run lang:validate xx
+
+# 4. Run tests
+npm test
+
+# 5. Lint code
+npm run lint
+
+# 6. Build
+npm run build:web
+```
+
+### Validating Existing Languages
+
+```bash
+# Check a specific language
+npm run lang:validate fr
+
+# Check all languages (manual loop in PowerShell)
+Get-ChildItem lib/i18n/*.js | ForEach-Object {
+  $lang = $_.BaseName
+  Write-Host "Checking $lang..."
+  npm run lang:validate $lang
+}
+```
+
+## See Also
+
+- [LANGUAGE_GUIDE.md](../LANGUAGE_GUIDE.md) - Comprehensive implementation guide
+- [CONTRIBUTING.md](../CONTRIBUTING.md) - Contribution guidelines

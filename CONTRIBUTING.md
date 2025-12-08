@@ -6,6 +6,38 @@ This repository converts numbers into words for many languages. If you'd like to
 add a new language or improve an existing one, follow these guidelines to keep
 the codebase consistent and ensure both Node.js and browser builds work.
 
+### Quick Start: Adding a New Language
+
+We provide an automated script to generate all the boilerplate for a new language:
+
+```powershell
+npm run lang:add
+```
+
+This interactive script will:
+
+1. Prompt for language details (code, name, settings)
+2. Generate `lib/i18n/xx.js` with implementation template
+3. Generate `test/i18n/xx.js` with test case template
+4. Update `lib/n2words.js` with imports and registration
+5. Provide next steps for completing the implementation
+
+After running the script, you'll need to:
+
+- Fill in the `cards` array with number words
+- Implement the `merge()` method for your language's grammar
+- Complete the test cases with expected outputs
+
+To validate your implementation:
+
+```powershell
+npm run lang:validate xx  # Replace 'xx' with your language code
+```
+
+### Manual Process (Alternative)
+
+If you prefer to add a language manually or need more control:
+
 ### Language file location & format
 
 - Create a new file under `lib/i18n/` named with the language code and `.js`,

@@ -169,6 +169,7 @@ n2words(123456789012345n)   // Works with arbitrarily large integers
 
 - [TYPESCRIPT.md](./TYPESCRIPT.md) - TypeScript integration guide
 - [CONTRIBUTING.md](./CONTRIBUTING.md) - Contribution guidelines
+- [LANGUAGE_GUIDE.md](./LANGUAGE_GUIDE.md) - Comprehensive guide for adding new languages
 - [Wiki](https://github.com/forzagreen/n2words/wiki) - Detailed examples and guides
 
 ## Contributing
@@ -177,10 +178,22 @@ This library is actively maintained and welcomes contributions!
 
 - 🐛 **Bug reports** - Help us fix issues
 - ✨ **Feature requests** - Suggest improvements
-- 🌐 **New languages** - Add support for more languages
+- 🌐 **New languages** - Add support for more languages (use `npm run lang:add` to get started!)
 - 📝 **Documentation** - Improve guides and examples
 
-See [CONTRIBUTING.md](./CONTRIBUTING.md) for guidelines.
+### Adding a New Language
+
+We provide automated tools to streamline language implementation:
+
+```bash
+# Generate boilerplate for a new language
+npm run lang:add
+
+# Validate your implementation
+npm run lang:validate <language-code>
+```
+
+See [CONTRIBUTING.md](./CONTRIBUTING.md) and [LANGUAGE_GUIDE.md](./LANGUAGE_GUIDE.md) for detailed guidance.
 
 ## License
 
