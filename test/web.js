@@ -6,10 +6,11 @@ import { existsSync } from 'node:fs'
 
 if (existsSync('./dist/n2words.js')) {
   await testBrowser(Browser.CHROME)
+  // Note: EDGE requires separate installation; uncomment if available
   // await testBrowser(Browser.EDGE)
   await testBrowser(Browser.FIREFOX)
-  // await testBrowser(Browser.INTERNET_EXPLORER)
-  // await testBrowser(Browser.SAFARI)
+  // Note: INTERNET_EXPLORER is deprecated and no longer supported by Selenium
+  // SAFARI requires macOS with special setup; uncomment on macOS if available
 } else {
   console.error('ERROR: You must run "npm run build" first.')
 }
@@ -21,23 +22,27 @@ if (existsSync('./dist/n2words.js')) {
  */
 async function testBrowser (browser) {
   test(browser, async t => {
-    const driver = new Builder().forBrowser(browser).build()
+    let driver
 
-    console.log(`file://${cwd()}/test/web/index.html`)
+    try {
+      driver = new Builder().forBrowser(browser).build()
 
-    await driver.get(`file://${cwd()}/test/web/index.html`)
+      await driver.get(`file://${cwd()}/test/web/index.html`)
 
-    await driver.wait(
-      until.elementTextContains(
-        driver.findElement(By.css('#result')),
-        'Result:'
+      await driver.wait(
+        until.elementTextContains(
+          driver.findElement(By.css('#result')),
+          'Result:'
+        )
       )
-    )
 
-    const result = await driver.findElement(By.css('#result'))
+      const result = await driver.findElement(By.css('#result'))
 
-    t.true(await result.getText() === 'Result: Success')
-
-    await driver.close()
+      t.true(await result.getText() === 'Result: Success')
+    } finally {
+      if (driver) {
+        await driver.close()
+      }
+    }
   })
 }

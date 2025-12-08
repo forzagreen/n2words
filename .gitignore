@@ -73,3 +73,6 @@ docs/
 
 # JetBrain generated folder
 .idea
+
+# Benchmark test results
+bench-results.json

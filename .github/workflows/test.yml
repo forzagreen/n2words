@@ -41,6 +41,7 @@ jobs:
           parallel: true
 
       - run: npm run test:types
+      - run: npm run test:web
       - run: npm pack --dry-run
 
   finish:
