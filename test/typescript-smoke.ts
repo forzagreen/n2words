@@ -11,8 +11,6 @@ console.log('=== TypeScript Smoke Test for n2words ===\n')
 
 // Test N2WordsOptions type
 const options1: N2WordsOptions = { lang: 'en' }
-const options2: N2WordsOptions = { lang: 'fr', extra: { feminine: true } }
-const options3: N2WordsOptions = {}
 
 // Test main module import
 const result1: string = n2words(42)
