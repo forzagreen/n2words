@@ -78,7 +78,7 @@ console.log(converted3) // 'three point one four'
 // Error handling
 try {
   // This will throw an error for unsupported language
-  const unsupported = n2words(42, { lang: 'unknown-lang' })
+  n2words(42, { lang: 'unknown-lang' })
 } catch (error) {
   if (error instanceof Error) {
     console.error('Error:', error.message)
