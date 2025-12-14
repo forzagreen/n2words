@@ -167,7 +167,7 @@ n2words(123456789012345n)   // Works with arbitrarily large integers
 
 ## Documentation
 
-- [TypeScript support](https://github.com/forzagreen/n2words/wiki/TypeScript-support)
+- [TypeScript support](https://github.com/forzagreen/n2words/wiki/TypeScript-support) - TypeScript integration guide
 - [CONTRIBUTING.md](./CONTRIBUTING.md) - Contribution guidelines
 - [LANGUAGE_GUIDE.md](./LANGUAGE_GUIDE.md) - Comprehensive guide for adding new languages
 - [BIGINT-GUIDE.md](./BIGINT-GUIDE.md) - BigInt usage guide for language developers
