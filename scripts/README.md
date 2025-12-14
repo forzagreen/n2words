@@ -7,6 +7,7 @@ Utility scripts for maintaining and extending n2words.
 Interactive script to generate boilerplate for a new language implementation.
 
 **Usage:**
+
 ```bash
 npm run lang:add
 # or
@@ -14,6 +15,7 @@ node scripts/add-language.js
 ```
 
 **What it does:**
+
 1. Prompts for language details (code, name, base class, etc.)
 2. Generates `lib/i18n/xx.js` with implementation template
 3. Generates `test/i18n/xx.js` with test case template
@@ -21,6 +23,7 @@ node scripts/add-language.js
 5. Provides clear next steps for completing the implementation
 
 **After running:**
+
 - Fill in the `cards` array with number words
 - Implement the `merge()` method
 - Complete test cases with expected outputs
@@ -31,6 +34,7 @@ node scripts/add-language.js
 Validates that a language implementation is complete and follows best practices.
 
 **Usage:**
+
 ```bash
 npm run lang:validate <language-code>
 # or
@@ -38,12 +42,14 @@ node scripts/validate-language.js <language-code>
 ```
 
 **Example:**
+
 ```bash
 npm run lang:validate en
 npm run lang:validate fr-BE
 ```
 
 **What it checks:**
+
 - ✓ Language file exists with proper structure
 - ✓ Uses BigInt literals in cards array
 - ✓ Has merge() method implementation
@@ -54,6 +60,7 @@ npm run lang:validate fr-BE
 - ✓ No TODO comments in implementation
 
 **Exit codes:**
+
 - `0` - Validation passed (may have warnings)
 - `1` - Validation failed with errors
 

@@ -54,7 +54,7 @@ const options: N2WordsOptions = { lang: 'en' }
 const result: string = n2words(123, options)
 ```
 
-See [TYPESCRIPT.md](./TYPESCRIPT.md) for complete TypeScript usage.
+See [TypeScript support](https://github.com/forzagreen/n2words/wiki/TypeScript-support) for complete TypeScript usage.
 
 ### CommonJS
 
@@ -67,7 +67,7 @@ import('n2words').then(({default: n2words}) => {
 ### Browser (UMD)
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/n2words@1.23.2/dist/n2words.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/n2words/dist/n2words.min.js"></script>
 <script>
     console.log(n2words(100))   // 'one hundred'
 </script>
@@ -76,7 +76,7 @@ import('n2words').then(({default: n2words}) => {
 Or import specific languages:
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/n2words@1.23.2/dist/fr.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/n2words/dist/fr.js"></script>
 <script>
     console.log(n2words(100, {lang: 'fr'}))  // 'cent'
 </script>
@@ -167,7 +167,7 @@ n2words(123456789012345n)   // Works with arbitrarily large integers
 
 ## Documentation
 
-- [TYPESCRIPT.md](./TYPESCRIPT.md) - TypeScript integration guide
+- [TypeScript support](https://github.com/forzagreen/n2words/wiki/TypeScript-support) - TypeScript integration guide
 - [CONTRIBUTING.md](./CONTRIBUTING.md) - Contribution guidelines
 - [LANGUAGE_GUIDE.md](./LANGUAGE_GUIDE.md) - Comprehensive guide for adding new languages
 - [BIGINT-GUIDE.md](./BIGINT-GUIDE.md) - BigInt usage guide for language developers
