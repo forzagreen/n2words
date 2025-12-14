@@ -71,4 +71,4 @@ export default [
   [1_000_000_000_000_000_000n, 'one quintillion'],
   [1_000_000_000_000_000_000_000n, 'one sextillion'],
   [10_000_000_000_000_000_000_000_000n, 'ten septillion']
-];
+]

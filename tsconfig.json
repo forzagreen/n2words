@@ -1,0 +1,33 @@
+{
+  "compilerOptions": {
+    // Target and module resolution
+    "target": "esnext",
+    "module": "nodenext",
+    "lib": ["ESNext"],
+    "moduleResolution": "nodenext",
+
+    // Declaration file generation
+    "declaration": true,
+    "declarationMap": false,
+    "emitDeclarationOnly": true,
+
+    // Input/output paths
+    "rootDir": "./lib",
+    "outDir": "./types",
+
+    // JavaScript handling
+    "allowJs": true,
+    "checkJs": false,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "importsNotUsedAsValues": "remove",
+    "resolveJsonModule": true,
+
+    // Strictness and compatibility
+    "strict": false,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true
+  },
+  "include": ["lib/**/*.js"],
+  "exclude": ["node_modules", "test", "dist", "examples"]
+}

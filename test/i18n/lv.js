@@ -67,5 +67,5 @@ export default [
   [4_000_000, 'četri miljoni'],
   [10_000_000_000_000, 'desmit triljoni'],
   [100_000_000_000_000, 'simts triljoni'],
-  [1_000_000_000_000_000_000n, 'kvintiljons'],
-];
+  [1_000_000_000_000_000_000n, 'kvintiljons']
+]

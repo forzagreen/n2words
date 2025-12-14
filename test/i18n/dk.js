@@ -67,5 +67,5 @@ export default [
   [4_000_000, 'fire millioner'],
   [10_000_000_000_000, 'ti billioner'],
   [100_000_000_000_000, 'ethundrede billioner'],
-  [1_000_000_000_000_000_000n, 'en trillioner'],
-];
+  [1_000_000_000_000_000_000n, 'en trillioner']
+]

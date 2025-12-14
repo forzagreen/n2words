@@ -7,9 +7,14 @@ on:
   pull_request:
   workflow_dispatch:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
 
     strategy:
       fail-fast: false
@@ -27,27 +32,34 @@ jobs:
           node-version: ${{ matrix.node }}
           cache: 'npm'
 
-      - run: npm ci
+      - run: npm ci --prefer-offline
       - run: npm run lint
-      - run: npm run build
+      - run: npm run build:web
+      - run: npm run build:types
       - run: npm run coverage
 
-      - name: Coveralls Parallel
+      - name: Upload coverage to Coveralls
         uses: coverallsapp/github-action@v2
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           flag-name: ${{ matrix.node }}
           parallel: true
+          continue-on-error: true
 
-      - run: npm pack --dry-run
+      - name: Verify package contents
+        run: npm pack --dry-run
 
-  finish:
+  coverage-finalize:
+    name: Finalize Coverage
     needs: build
     runs-on: ubuntu-latest
+    if: always()
+
     steps:
-      - name: Coveralls Finished
+      - name: Finalize Coveralls
         uses: coverallsapp/github-action@v2
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           parallel-finished: true
           carryforward: '20,22,24,25'
+          continue-on-error: true
