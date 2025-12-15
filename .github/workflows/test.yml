@@ -18,12 +18,12 @@ jobs:
     timeout-minutes: 10
 
     steps:
-      - uses: actions/checkout@v5.2.2
+      - uses: actions/checkout@v6.0.1
         with:
           persist-credentials: false
 
       - name: Setup Node.js
-        uses: actions/setup-node@v6.0.0
+        uses: actions/setup-node@v6.1.0
         with:
           node-version: '24'
           cache: 'npm'
@@ -44,7 +44,7 @@ jobs:
         run: npm run build:types
 
       - name: Cache build artifacts
-        uses: actions/cache/save@v4.2.0
+        uses: actions/cache/save@v5.0.1
         with:
           path: |
             dist/
@@ -69,12 +69,12 @@ jobs:
             os: macos-latest
 
     steps:
-      - uses: actions/checkout@v5.2.2
+      - uses: actions/checkout@v6.0.1
         with:
           persist-credentials: false
 
       - name: Setup Node.js ${{ matrix.node }}
-        uses: actions/setup-node@v6.0.0
+        uses: actions/setup-node@v6.1.0
         with:
           node-version: ${{ matrix.node }}
           cache: 'npm'
@@ -82,7 +82,7 @@ jobs:
       - run: npm ci --prefer-offline
 
       - name: Restore build artifacts
-        uses: actions/cache/restore@v4.2.0
+        uses: actions/cache/restore@v5.0.1
         with:
           path: |
             dist/
@@ -107,12 +107,12 @@ jobs:
     timeout-minutes: 10
 
     steps:
-      - uses: actions/checkout@v5.2.2
+      - uses: actions/checkout@v6.0.1
         with:
           persist-credentials: false
 
       - name: Setup Node.js
-        uses: actions/setup-node@v6.0.0
+        uses: actions/setup-node@v6.1.0
         with:
           node-version: '24'
           cache: 'npm'
@@ -120,7 +120,7 @@ jobs:
       - run: npm ci --prefer-offline
 
       - name: Restore build artifacts
-        uses: actions/cache/restore@v4.2.0
+        uses: actions/cache/restore@v5.0.1
         with:
           path: |
             dist/
@@ -132,7 +132,7 @@ jobs:
         run: npm run coverage
 
       - name: Upload coverage to Coveralls
-        uses: coverallsapp/github-action@v2.3.4
+        uses: coverallsapp/github-action@v2.3.6
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           continue-on-error: true
