@@ -1,0 +1,94 @@
+{
+  // Editor
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "prettier.prettier-vscode",
+  "editor.codeActionsOnSave": {
+    "source.fixAll": "explicit"
+  },
+  "editor.rulers": [100],
+  "editor.tabSize": 2,
+  "editor.insertSpaces": true,
+  "editor.trimAutoWhitespace": true,
+  "files.trimTrailingWhitespace": true,
+  "files.insertFinalNewline": true,
+
+  // Language-specific
+  "[javascript]": {
+    "editor.defaultFormatter": "prettier.prettier-vscode"
+  },
+  "[json]": {
+    "editor.defaultFormatter": "prettier.prettier-vscode"
+  },
+  "[markdown]": {
+    "editor.defaultFormatter": "yzhang.markdown-all-in-one",
+    "editor.formatOnSave": false,
+    "editor.wordWrap": "on"
+  },
+
+  // JavaScript Standard Style
+  "standard.enable": true,
+  "standard.autoFixOnSave": false,
+  "standard.validate": ["javascript"],
+
+  // Spell Checker
+  "cSpell.words": [
+    "bigint",
+  ],
+  "cSpell.enableFiletypes": ["markdown", "javascript"],
+
+  // Markdown
+  "markdownlint.config": {
+    "MD013": false,
+  },
+
+  // Search
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/coverage": true,
+    "**/dist": true,
+    "**/.nyc_output": true,
+    "**/bench-results.json": true
+  },
+
+  // Files
+  "files.exclude": {
+    "**/.DS_Store": true,
+    "**/Thumbs.db": true
+  },
+  "files.watcherExclude": {
+    "**/node_modules/**": true,
+    "**/coverage/**": true,
+    "**/dist/**": true,
+    "**/.nyc_output/**": true
+  },
+
+  // Testing (Testify)
+  "testify.autoOpen": false,
+  "testify.showOnRun": false,
+
+  // GitHub Copilot
+  "github.copilot.enable": {
+    "*": true,
+    "markdown": true,
+    "javascript": true
+  },
+
+  // Terminal
+  "terminal.integrated.env.windows": {},
+  "terminal.integrated.env.linux": {},
+  "terminal.integrated.env.osx": {},
+
+  // Git
+  "git.ignoreLimitWarning": true,
+
+  // JavaScript/TypeScript
+  "javascript.preferences.quoteStyle": "single",
+  "javascript.updateImportsOnFileMove.enabled": "always",
+  "js/ts.implicitProjectConfig.checkJs": false,
+
+  // IntelliSense
+  "javascript.suggest.autoImports": true,
+  "typescript.suggest.autoImports": true,
+  "javascript.suggest.paths": true,
+  "typescript.suggest.paths": true
+}

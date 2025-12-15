@@ -48,7 +48,7 @@ jobs:
         with:
           path: |
             dist/
-            lib/**/*.d.ts
+            typings/
           key: build-${{ github.sha }}
           enableCrossOsArchive: true
 
@@ -87,7 +87,7 @@ jobs:
         with:
           path: |
             dist/
-            lib/**/*.d.ts
+            typings/
           key: build-${{ github.sha }}
           enableCrossOsArchive: true
           fail-on-cache-miss: true
@@ -126,7 +126,7 @@ jobs:
         with:
           path: |
             dist/
-            lib/**/*.d.ts
+            typings/
           key: build-${{ github.sha }}
           enableCrossOsArchive: true
           fail-on-cache-miss: true

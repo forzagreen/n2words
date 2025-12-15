@@ -1,5 +1,46 @@
-# Automatically convert to native line endings, in case people don't have core.autocrlf set
-* text=auto
+# Normalize all text files to LF line endings on checkout
+* text=auto eol=lf
 
-# Force Unix (LF) line endings
+# Source code
+*.js     text eol=lf
+*.mjs    text eol=lf
+*.cjs    text eol=lf
+*.ts     text eol=lf
+*.json   text eol=lf
+*.yml    text eol=lf
+*.yaml   text eol=lf
+
+# Documentation
+*.md     text eol=lf
+*.txt    text eol=lf
+
+# Configuration
+.gitattributes  text eol=lf
+.gitignore      text eol=lf
+.editorconfig   text eol=lf
+.npmrc          text eol=lf
+*.config.js     text eol=lf
+
+# Lock files (must use LF for cross-platform compatibility)
 package-lock.json  text eol=lf
+pnpm-lock.yaml     text eol=lf
+yarn.lock          text eol=lf
+
+# Shell scripts
+*.sh     text eol=lf
+
+# Windows scripts
+*.bat    text eol=crlf
+*.cmd    text eol=crlf
+*.ps1    text eol=crlf
+
+# Binary files
+*.png    binary
+*.jpg    binary
+*.jpeg   binary
+*.gif    binary
+*.ico    binary
+*.woff   binary
+*.woff2  binary
+*.ttf    binary
+*.eot    binary
