@@ -304,6 +304,9 @@ npm run test:i18n
 # Validate implementation
 npm run lang:validate xx
 
+# Validate all languages
+npm run lang:validate
+
 # Full test suite
 npm test
 ```

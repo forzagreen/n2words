@@ -20,7 +20,8 @@ This interactive script will:
 2. Generate `lib/i18n/xx.js` with implementation template
 3. Generate `test/i18n/xx.js` with test case template
 4. Update `lib/n2words.js` with imports and registration
-5. Provide next steps for completing the implementation
+5. Derive the class name from the language name (PascalCase), not the code token
+6. Provide next steps for completing the implementation
 
 After running the script, you'll need to:
 
@@ -32,6 +33,9 @@ To validate your implementation:
 
 ```powershell
 npm run lang:validate xx  # Replace 'xx' with your language code
+
+# Validate all languages
+npm run lang:validate
 ```
 
 ### Important Resources
