@@ -1,7 +1,7 @@
 export default [
-  [0.01, 'nul komma nul een'],
-  [1.007, 'een komma nul nul zeven'],
-  [1.7, 'een komma zeven'],
+  [0.01, 'nul komma nul één'],
+  [1.007, 'één komma nul nul zeven'],
+  [1.7, 'één komma zeven'],
   [17.42, 'zeventien komma tweeënveertig'],
   [27.312, 'zevenentwintig komma driehonderdtwaalf'],
   [53.486, 'drieënvijftig komma vierhonderdzesentachtig'],
@@ -9,12 +9,12 @@ export default [
   [4196.42, 'eenenveertighonderd zesennegentig komma tweeënveertig'],
 
   [-17.42, 'min zeventien komma tweeënveertig'],
-  [-1, 'min een'],
+  [-1, 'min één'],
   [-20, 'min twintig'],
 
   [0, 'nul'],
-  [1, 'een'],
-  [1, 'één', { accentOne: true }],
+  [1, 'één'],
+  [1, 'een', { accentOne: false }],
   [2, 'twee'],
   [3, 'drie'],
   [11, 'elf'],
@@ -63,9 +63,9 @@ export default [
   [894, 'achthonderdvierennegentig'],
   [999, 'negenhonderdnegenennegentig'],
   [1000, 'duizend'],
-  [1001, 'duizend een'],
-  [1001, 'duizend één', { accentOne: true }],
-  [1001, 'duizend en een', { includeOptionalAnd: true }],
+  [1001, 'duizend één'],
+  [1001, 'duizend een', { accentOne: false }],
+  [1001, 'duizend en één', { includeOptionalAnd: true }],
   [1010, 'duizend tien'],
   [1010, 'duizend en tien', { includeOptionalAnd: true }],
   [1012, 'duizend twaalf'],
@@ -108,17 +108,17 @@ export default [
   [271_850, 'tweehonderdeenenzeventigduizend achthonderdvijftig'],
   [381_000, 'driehonderdeenentachtigduizend'],
   [500_000, 'vijfhonderdduizend'],
-  [1_000_000, 'een miljoen'],
-  [1_000_000, 'één miljoen', { accentOne: true }],
-  [1_000_001, 'een miljoen een'],
-  [1_000_001, 'één miljoen één', { accentOne: true }],
-  [1_000_001, 'een miljoen en een', { includeOptionalAnd: true }],
+  [1_000_000, 'één miljoen'],
+  [1_000_000, 'een miljoen', { accentOne: false }],
+  [1_000_001, 'één miljoen één'],
+  [1_000_001, 'een miljoen een', { accentOne: false }],
+  [1_000_001, 'één miljoen en één', { includeOptionalAnd: true }],
   [4_000_000, 'vier miljoen'],
   [4_323_000, 'vier miljoen driehonderddrieëntwintigduizend'],
   [4_323_055, 'vier miljoen driehonderddrieëntwintigduizend vijfenvijftig'],
-  [1_570_025, 'een miljoen vijfhonderdzeventigduizend vijfentwintig'],
+  [1_570_025, 'één miljoen vijfhonderdzeventigduizend vijfentwintig'],
   [4_000_000_000, 'vier miljard'],
-  [1_000_000_000, 'een miljard'],
+  [1_000_000_000, 'één miljard'],
   [2_580_000_000, 'twee miljard vijfhonderdtachtig miljoen'],
   [5_200_000_000, 'vijf miljard tweehonderd miljoen'],
   [
@@ -126,7 +126,7 @@ export default [
     'driehonderdzevenenveertig miljard zeshonderdvijfentwintig miljoen' +
     ' zevenhonderdachtentwintigduizend tweehonderdeenentwintig'
   ],
-  [1_000_000_000_000, 'een biljoen'],
+  [1_000_000_000_000, 'één biljoen'],
   [3_627_000_000_000, 'drie biljoen zeshonderdzevenentwintig miljard'],
   [10_000_000_000_000, 'tien biljoen'],
   [100_000_000_000_000, 'honderd biljoen'],
@@ -141,5 +141,5 @@ export default [
     ' miljoen honderdenelf',
     { includeOptionalAnd: true }
   ],
-  [1_000_000_000_000_000_000n, 'een triljoen']
+  [1_000_000_000_000_000_000n, 'één triljoen']
 ]
