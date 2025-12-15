@@ -6,8 +6,8 @@ on:
       - v*
 
 permissions:
-  id-token: write  # Required for OIDC
-  contents: read
+  id-token: write  # Required for OIDC and provenance
+  contents: write  # Required for GitHub Releases
 
 jobs:
   publish:
@@ -15,24 +15,71 @@ jobs:
     timeout-minutes: 10
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v5.2.2
         with:
           persist-credentials: false
 
       - name: Setup Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v6.0.0
         with:
           node-version: '24'
           registry-url: 'https://registry.npmjs.org'
           cache: 'npm'
 
-      - run: npm ci --prefer-offline
-      - run: npm run lint
-      - run: npm run build:web
-      - run: npm run build:types
-      - run: npm run test
+      - name: Validate version matches tag
+        run: |
+          PKG_VERSION="v$(node -p "require('./package.json').version")"
+          TAG_VERSION="${GITHUB_REF#refs/tags/}"
+          if [ "$PKG_VERSION" != "$TAG_VERSION" ]; then
+            echo "Error: package.json version ($PKG_VERSION) does not match tag ($TAG_VERSION)"
+            exit 1
+          fi
+          echo "Version validated: $PKG_VERSION"
 
-      - name: Publish to npm
-        run: npm publish
+      - run: npm ci --prefer-offline
+
+      - name: Security audit
+        run: npm audit --production --audit-level=high
+        continue-on-error: true
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Build web bundles
+        run: npm run build:web
+
+      - name: Build TypeScript declarations
+        run: npm run build:types
+
+      - name: Run tests
+        run: npm run test:core
+
+      - name: Run TypeScript smoke test
+        run: npm run test:types
+
+      - name: Dry-run publish
+        run: npm publish --dry-run
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4.5.0
+        with:
+          name: dist-${{ github.ref_name }}
+          path: |
+            dist/
+            lib/**/*.d.ts
+          retention-days: 90
+
+      - name: Publish to npm with provenance
+        run: npm publish --provenance --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2.2.0
+        with:
+          generate_release_notes: true
+          files: |
+            dist/*.js
+            dist/*.js.map
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

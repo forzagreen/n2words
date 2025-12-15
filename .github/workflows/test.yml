@@ -12,54 +12,127 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build:
+  lint-and-build:
+    name: Lint & Build
     runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v5.2.2
+        with:
+          persist-credentials: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6.0.0
+        with:
+          node-version: '24'
+          cache: 'npm'
+
+      - run: npm ci --prefer-offline
+
+      - name: Security audit
+        run: npm audit --production --audit-level=moderate
+        continue-on-error: true
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Build web bundles
+        run: npm run build:web
+
+      - name: Build TypeScript declarations
+        run: npm run build:types
+
+      - name: Cache build artifacts
+        uses: actions/cache/save@v4.2.0
+        with:
+          path: |
+            dist/
+            lib/**/*.d.ts
+          key: build-${{ github.sha }}
+
+  test:
+    name: Test (Node ${{ matrix.node }})
+    needs: lint-and-build
+    runs-on: ${{ matrix.os }}
     timeout-minutes: 15
 
     strategy:
       fail-fast: false
       matrix:
         node: ['20', '22', '24', '25']
+        os: [ubuntu-latest]
+        include:
+          - node: '24'
+            os: windows-latest
+          - node: '24'
+            os: macos-latest
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v5.2.2
         with:
           persist-credentials: false
 
       - name: Setup Node.js ${{ matrix.node }}
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v6.0.0
         with:
           node-version: ${{ matrix.node }}
           cache: 'npm'
 
       - run: npm ci --prefer-offline
-      - run: npm run lint
-      - run: npm run build:web
-      - run: npm run build:types
-      - run: npm run coverage
 
-      - name: Upload coverage to Coveralls
-        uses: coverallsapp/github-action@v2
+      - name: Restore build artifacts
+        uses: actions/cache/restore@v4.2.0
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          flag-name: ${{ matrix.node }}
-          parallel: true
-          continue-on-error: true
+          path: |
+            dist/
+            lib/**/*.d.ts
+          key: build-${{ github.sha }}
+          fail-on-cache-miss: true
+
+      - name: Run tests
+        run: npm run test:core
+
+      - name: Run TypeScript smoke test
+        run: npm run test:types
 
       - name: Verify package contents
+        if: matrix.node == '24' && matrix.os == 'ubuntu-latest'
         run: npm pack --dry-run
 
-  coverage-finalize:
-    name: Finalize Coverage
-    needs: build
+  coverage:
+    name: Coverage
+    needs: lint-and-build
     runs-on: ubuntu-latest
-    if: always()
+    timeout-minutes: 10
 
     steps:
-      - name: Finalize Coveralls
-        uses: coverallsapp/github-action@v2
+      - uses: actions/checkout@v5.2.2
+        with:
+          persist-credentials: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6.0.0
+        with:
+          node-version: '24'
+          cache: 'npm'
+
+      - run: npm ci --prefer-offline
+
+      - name: Restore build artifacts
+        uses: actions/cache/restore@v4.2.0
+        with:
+          path: |
+            dist/
+            lib/**/*.d.ts
+          key: build-${{ github.sha }}
+          fail-on-cache-miss: true
+
+      - name: Run coverage
+        run: npm run coverage
+
+      - name: Upload coverage to Coveralls
+        uses: coverallsapp/github-action@v2.3.4
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          parallel-finished: true
-          carryforward: '20,22,24,25'
           continue-on-error: true
