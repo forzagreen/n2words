@@ -24,7 +24,6 @@ node scripts/add-language.js
 
 The script guides you to choose from five base classes:
 
-
 - **CardMatchLanguage** - For most languages (English, Spanish, French, German, etc.)
 - **SlavicLanguage** - For Slavic/Baltic languages (Russian, Polish, Czech, etc.)
 - **ScandinavianLanguage** - For Scandinavian languages (Norwegian, Danish)
