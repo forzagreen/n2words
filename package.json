@@ -88,6 +88,7 @@
   ],
   "scripts": {
     "bench": "node bench.js",
+    "bench:memory": "node --expose-gc bench-memory.js",
     "build:web": "webpack --progress",
     "build:types": "tsc --project tsconfig.json",
     "build": "npm run build:web && npm run build:types",

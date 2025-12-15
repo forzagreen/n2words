@@ -222,7 +222,7 @@ function formatBytes (bytes) {
  */
 function displayHelp () {
   console.log(chalk.cyan.bold('Memory Benchmark Script Usage:\n'))
-  console.log('  ' + chalk.yellow('node bench-memory.js') + ' [options]\n')
+  console.log('  ' + chalk.yellow('npm run bench:memory') + ' [options]\n')
   console.log(chalk.cyan('Options:'))
   console.log('  ' + chalk.yellow('--lang, --language') + ' <code>    Benchmark specific language (e.g., en, fr)')
   console.log('  ' + chalk.yellow('--value') + ' <number>             Test value to convert (default: Number.MAX_SAFE_INTEGER)')
@@ -231,10 +231,10 @@ function displayHelp () {
   console.log('  ' + chalk.yellow('--compare') + '                    Compare with previous results')
   console.log('  ' + chalk.yellow('--help') + '                       Display this help message\n')
   console.log(chalk.cyan('Examples:'))
-  console.log('  ' + chalk.gray('node bench-memory.js                                # Benchmark all languages'))
-  console.log('  ' + chalk.gray('node bench-memory.js --lang en                      # Benchmark English only'))
-  console.log('  ' + chalk.gray('node bench-memory.js --value 42 --iterations 10000  # Custom test'))
-  console.log('  ' + chalk.gray('node bench-memory.js --save --compare               # Track changes over time'))
+  console.log('  ' + chalk.gray('npm run bench:memory                                   # Benchmark all languages'))
+  console.log('  ' + chalk.gray('npm run bench:memory -- --lang en                      # Benchmark English only'))
+  console.log('  ' + chalk.gray('npm run bench:memory -- --value 42 --iterations 10000  # Custom test'))
+  console.log('  ' + chalk.gray('npm run bench:memory -- --save --compare               # Track changes over time'))
   console.log()
   console.log(chalk.yellow.bold('Note:') + chalk.gray(' For more accurate results, run with: ') + chalk.cyan('node --expose-gc bench-memory.js'))
   console.log()
