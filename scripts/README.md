@@ -19,8 +19,9 @@ node scripts/add-language.js
 1. Prompts for language details (code, name, base class selection, etc.)
 2. Generates `lib/i18n/xx.js` with implementation template
 3. Generates `test/i18n/xx.js` with test case template
-4. Updates `lib/n2words.js` with imports and registration
-5. Provides clear next steps for completing the implementation
+4. Updates `lib/n2words.js` with import statement and dict registration
+5. Ensures proper comma placement in dict (StandardJS style)
+6. Provides clear next steps for completing the implementation
 
 The script guides you to choose from five base classes:
 
@@ -59,13 +60,15 @@ npm run lang:validate fr-BE
 **What it checks:**
 
 - ✓ Language file exists with proper structure
-- ✓ Uses BigInt literals in cards array
-- ✓ Has merge() method implementation (for card-based classes)
-- ✓ Extends one of five recognized base classes (CardMatchLanguage, SlavicLanguage, ScandinavianLanguage, TurkicLanguage, or AbstractLanguage)
-- ✓ Test file exists with comprehensive cases
+- ✓ Default export function is present
+- ✓ Uses BigInt literals in number definitions
+- ✓ Has merge() method OR toCardinal() override (for CardMatchLanguage)
+- ✓ Extends one of five base classes (CardMatchLanguage, SlavicLanguage, ScandinavianLanguage, TurkicLanguage, or AbstractLanguage) or another language class
+- ✓ Test file exists with comprehensive cases (20+ recommended)
 - ✓ Tests cover: zero, negatives, decimals, large numbers
-- ✓ Language is imported and registered in lib/n2words.js
-- ✓ No TODO comments in implementation
+- ✓ Language is correctly imported in lib/n2words.js
+- ✓ Language is registered in the dict object
+- ⚠ Warns about TODO comments (implementation may be incomplete)
 
 **Exit codes:**
 

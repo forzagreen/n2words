@@ -12,7 +12,7 @@
 - 📦 **Zero dependencies** - Lightweight and fast
 - 🚀 **Performance optimized** - Highly tuned for speed
 - 📱 **Universal** - Works in browsers, Node.js, and TypeScript
-- ♿ **Accessible** - Generates human-readable text from numbers
+- 🧩 **Modular** - Import only the languages you need, keeping your bundle size minimal
 
 ## Quick Start
 
