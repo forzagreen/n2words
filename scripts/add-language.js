@@ -71,9 +71,24 @@ if (!langCode || !langCode.match(/^[a-z]{2}(-[A-Z]{2})?$/)) {
   process.exit(1)
 }
 
+function toClassName (name, code) {
+  // Strip diacritics, keep alphanumerics, capitalize words
+  const normalized = name
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^A-Za-z0-9]+/g, ' ')
+    .trim()
+
+  if (!normalized) return code.toUpperCase().replace('-', '')
+
+  return normalized
+    .split(/\s+/)
+    .map(part => part.charAt(0).toUpperCase() + part.slice(1))
+    .join('')
+}
+
 const fileName = langCode
-// Create consistent class name: just uppercase language code (e.g., EN, FRBE)
-const className = langCode.toUpperCase().replace('-', '')
+const className = toClassName(langName, langCode)
 const constName = langCode.replace('-', '')
 
 // Check if language already exists
