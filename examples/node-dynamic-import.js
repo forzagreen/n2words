@@ -28,12 +28,12 @@ import * as readline from 'node:readline/promises'
 const rl = readline.createInterface({ input, output })
 
 // Prompt user to select a language code (e.g., 'en', 'fr', 'de')
-const lang = await rl.question('\nLanguage to use?\n')
+const lang = await rl.question(chalk.cyan('\nLanguage to use?\n') + chalk.gray('> '))
 
 // Verify the language file exists before attempting to load it
 if (fs.existsSync('./lib/i18n/' + lang + '.js')) {
   // Prompt user for the numeric value to convert
-  const value = await rl.question('\nValue to convert?\n')
+  const value = await rl.question(chalk.cyan('\nValue to convert?\n') + chalk.gray('> '))
 
   // Dynamically import the language-specific converter module
   // This allows loading only the needed language without bundling all 29 languages
@@ -43,11 +43,11 @@ if (fs.existsSync('./lib/i18n/' + lang + '.js')) {
   const result = n2words(value)
 
   // Display the result with bold formatting for emphasis
-  console.log('\n' + chalk.bold(result) + '\n')
+  console.log('\n' + chalk.green('✓') + ' ' + chalk.bold(result) + '\n')
 } else {
   // Provide helpful error message if language file doesn't exist
   console.error(
-    chalk.red('\ni18n language file does not exist: ' + lang + '.js\n')
+    chalk.red('\n✗ Error: Language file does not exist: ') + chalk.yellow(lang + '.js') + '\n'
   )
 }
 
