@@ -18,7 +18,7 @@ This guide explains **when and where** to use JavaScript's `BigInt` type when im
 
 ### ✅ MUST use BigInt literals (n suffix)
 
-1. **Cards arrays** in `BaseLanguage` subclasses
+1. **Cards arrays** in `CardMatchLanguage` subclasses and other card-based classes
 2. **BigInt comparisons** (when comparing against `wholeNumber` or values known to be BigInt)
 3. **BigInt arithmetic** (division, modulo, multiplication with BigInt operands)
 4. **BigInt literals in conditionals** (when comparing BigInt values)
@@ -43,20 +43,20 @@ JavaScript's `Number` type can only safely represent integers up to `2^53 - 1` (
 
 ```javascript
 // ❌ These all throw TypeError: "Cannot mix BigInt and other types"
-1n + 1           // Error
-1n === 1         // false (different types!)
-1n / 100         // Error
-1n < 100         // Error
+1n + 1; // Error
+1n === 1; // false (different types!)
+1n / 100; // Error
+1n < 100; // Error
 
 // ✅ Correct BigInt operations
-1n + 1n          // 2n
-1n === 1n        // true
-1n / 100n        // 0n
-1n < 100n        // true
+1n + 1n; // 2n
+1n === 1n; // true
+1n / 100n; // 0n
+1n < 100n; // true
 
 // ✅ Explicit conversions work
-Number(1n) === 1     // true
-BigInt(100) === 100n // true
+Number(1n) === 1; // true
+BigInt(100) === 100n; // true
 ```
 
 ```javascript
@@ -79,11 +79,9 @@ Final string output
 
 ## When BigInt is Required
 
-### 1. Cards Arrays (BaseLanguage subclasses)
+### 1. Cards Arrays (CardMatchLanguage and related classes)
 
-**WHY:** The `toCardMatches()` method in `BaseLanguage` performs BigInt arithmetic (`rem / card[0]`, `rem % card[0]`). If `card[0]` is a regular number, this throws a TypeError.
-
-**Pattern:**
+**WHY:** The `toCardMatches()` method in `CardMatchLanguage` (and its subclasses `ScandinavianLanguage` and `TurkicLanguage`) performs BigInt arithmetic (`rem / card[0]`, `rem % card[0]`). If `card[0]` is a regular number, this throws a TypeError.
 
 ```javascript
 // ✅ CORRECT: All values use BigInt literals
@@ -111,7 +109,9 @@ constructor(options) {
 
 **Files affected:**
 
-- All `lib/i18n/*.js` files that extend `BaseLanguage` (24 languages: en, de, fr, es, pt, dk, no, nl, az, tr, ko, zh, hu, it)
+- All `lib/i18n/*.js` files that extend `CardMatchLanguage` or its subclasses (23 languages: en, de, fr, es, pt, ko, zh, hu, it, nl, fr-BE)
+- All `lib/i18n/*.js` files that extend `ScandinavianLanguage` (2 languages: dk, no)
+- All `lib/i18n/*.js` files that extend `TurkicLanguage` (2 languages: az, tr)
 
 ### 2. BigInt Comparisons in `merge()` Methods
 
@@ -288,16 +288,18 @@ convertMore1000(number) {
 
 ```javascript
 // ✅ CORRECT: Regular numbers for array/string operations
-const chunks = this.splitByX(number.toString(), 3)  // 3 is a number
-let index = chunks.length                           // index is number
+const chunks = this.splitByX(number.toString(), 3); // 3 is a number
+let index = chunks.length; // index is number
 
-for (let i = 0; i < words.length; i++) {           // i is number
-  const word = words[i]
+for (let i = 0; i < words.length; i++) {
+  // i is number
+  const word = words[i];
   // ...
 }
 
-const dotIndex = value.indexOf('.')                // indexOf returns number
-if (dotIndex === -1) {                             // compare number to number
+const dotIndex = value.indexOf('.'); // indexOf returns number
+if (dotIndex === -1) {
+  // compare number to number
   // no decimal point
 }
 ```
@@ -308,26 +310,27 @@ if (dotIndex === -1) {                             // compare number to number
 
 ```javascript
 // ✅ CORRECT: Explicit conversions for cross-type operations
-const chunk = Number(temp % 1000n)           // BigInt → Number
-const bigValue = BigInt(Math.pow(1000, p))   // Number → BigInt
+const chunk = Number(temp % 1000n); // BigInt → Number
+const bigValue = BigInt(Math.pow(1000, p)); // Number → BigInt
 
 // Process small values as numbers after extraction
-const n1 = Number(x % 10n)     // Extract ones digit as number
-const n2 = Number(x / 10n % 10n)  // Extract tens digit as number
+const n1 = Number(x % 10n); // Extract ones digit as number
+const n2 = Number((x / 10n) % 10n); // Extract tens digit as number
 
 // Use number for lookups
-words.push(this.ones[n1])      // Object key is number (or coerced string)
+words.push(this.ones[n1]); // Object key is number (or coerced string)
 ```
 
 ```javascript
 // ✅ CORRECT: Compare numbers when both operands are numbers
-const unitsPart = number % 10  // Both are regular numbers
+const unitsPart = number % 10; // Both are regular numbers
 if (unitsPart === 0) {
   // ...
 }
 
-const firstDigit = parseInt(str[0])
-if (firstDigit === 1) {        // Compare numbers
+const firstDigit = parseInt(str[0]);
+if (firstDigit === 1) {
+  // Compare numbers
   // ...
 }
 
@@ -344,9 +347,9 @@ if (chunks.length === 1) {
 
 ## Architecture Patterns
 
-### Pattern 1: BaseLanguage with Simple Merge
+### Pattern 1: CardMatchLanguage with Simple Merge
 
-**Used by:** English, French, Spanish, Dutch, Norwegian
+**Used by:** English (en), Spanish (es), German (de), French (fr), Italian (it), Portuguese (pt), Dutch (nl), Korean (ko), Hungarian (hu), Chinese (zh), French Belgian (fr-BE)
 
 **BigInt locations:**
 
@@ -356,26 +359,28 @@ if (chunks.length === 1) {
 **Example:** `lib/i18n/en.js`
 
 ```javascript
-class EN extends BaseLanguage {
+import CardMatchLanguage from '../classes/card-match-language.js';
+
+class EN extends CardMatchLanguage {
   constructor(options) {
     super(options, [
-      [1_000_000n, 'million'],  // ✅ BigInt literals
+      [1_000_000n, 'million'], // ✅ BigInt literals
       [1000n, 'thousand'],
       [100n, 'hundred'],
       // ... more cards
-    ])
+    ]);
   }
 
   merge(leftPair, rightPair) {
-    const leftNumber = Object.values(leftPair)[0]
-    const rightNumber = Object.values(rightPair)[0]
+    const leftNumber = Object.values(leftPair)[0];
+    const rightNumber = Object.values(rightPair)[0];
 
     // ✅ All comparisons use BigInt literals
     if (leftNumber === 1n && rightNumber < 100n) {
-      return rightPair
+      return rightPair;
     }
     if (leftNumber >= 100n && rightNumber < 100n) {
-      return { [`${leftWord} and ${rightWord}`]: leftNumber + rightNumber }
+      return { [`${leftWord} and ${rightWord}`]: leftNumber + rightNumber };
     }
     // ... more rules
   }
@@ -397,41 +402,122 @@ class EN extends BaseLanguage {
 ```javascript
 class RU extends SlavicLanguage {
   toCardinal(number) {
-    if (number === 0n) {           // ✅ BigInt comparison
-      return this.zero
+    if (number === 0n) {
+      // ✅ BigInt comparison
+      return this.zero;
     }
 
-    const chunks = this.splitByX(number.toString(), 3)
+    const chunks = this.splitByX(number.toString(), 3);
     for (const x of chunks) {
-      if (x === 0n) continue       // ✅ BigInt comparison
+      if (x === 0n) continue; // ✅ BigInt comparison
 
-      const [n1, n2, n3] = this.getDigits(x)  // Returns BigInt
+      const [n1, n2, n3] = this.getDigits(x); // Returns BigInt
 
-      if (n3 > 0n) {               // ✅ BigInt comparison
-        words.push(this.hundreds[n3])
+      if (n3 > 0n) {
+        // ✅ BigInt comparison
+        words.push(this.hundreds[n3]);
       }
 
-      if (n2 === 1n) {             // ✅ BigInt comparison
-        words.push(this.tens[n1])
+      if (n2 === 1n) {
+        // ✅ BigInt comparison
+        words.push(this.tens[n1]);
       }
     }
   }
 
   pluralize(number, forms) {
-    const lastDigit = number % 10n           // ✅ BigInt arithmetic
-    const lastTwoDigits = number % 100n
+    const lastDigit = number % 10n; // ✅ BigInt arithmetic
+    const lastTwoDigits = number % 100n;
 
     if ((lastTwoDigits < 10n || lastTwoDigits > 20n) && lastDigit === 1n) {
-      return forms[0]
+      return forms[0];
     }
     // ... more rules
   }
 }
 ```
 
-### Pattern 3: Custom Algorithm (AbstractLanguage only)
+### Pattern 3: ScandinavianLanguage with "og" Conjunction
 
-**Used by:** Arabic, Vietnamese, Romanian, Indonesian, Italian
+**Used by:** Norwegian (no), Danish (dk)
+
+**BigInt locations:**
+
+- Inherits cards-based approach from `CardMatchLanguage`
+- All comparisons in `merge()` use BigInt literals
+- Special handling for "og" (and) conjunction with BigInt comparisons
+
+**Example:** `lib/i18n/no.js`
+
+```javascript
+import ScandinavianLanguage from '../classes/scandinavian-language.js';
+
+class NO extends ScandinavianLanguage {
+  constructor(options) {
+    super(options, [
+      [1_000_000_000n, 'milliard'],
+      [1_000_000n, 'million'],
+      [1000n, 'tusen'],
+      [100n, 'hundre'],
+      // ... more cards with BigInt literals
+    ]);
+  }
+
+  merge(leftPair, rightPair) {
+    const leftNumber = Object.values(leftPair)[0];
+    const rightNumber = Object.values(rightPair)[0];
+
+    // ✅ All comparisons use BigInt literals
+    if (leftNumber === 1n && rightNumber < 100n) {
+      return rightPair;
+    }
+    // ... more merge rules
+  }
+}
+```
+
+### Pattern 4: TurkicLanguage with Space-Separated Patterns
+
+**Used by:** Turkish (tr), Azerbaijani (az)
+
+**BigInt locations:**
+
+- Inherits cards-based approach from `CardMatchLanguage`
+- All comparisons in `merge()` use BigInt literals
+- Space-separated number combinations with BigInt arithmetic
+
+**Example:** `lib/i18n/tr.js`
+
+```javascript
+import TurkicLanguage from '../classes/turkic-language.js';
+
+class TR extends TurkicLanguage {
+  constructor(options) {
+    super(options, [
+      [1_000_000_000n, 'milyar'],
+      [1_000_000n, 'milyon'],
+      [1000n, 'bin'],
+      [100n, 'yüz'],
+      // ... more cards with BigInt literals
+    ]);
+  }
+
+  merge(leftPair, rightPair) {
+    const leftNumber = Object.values(leftPair)[0];
+    const rightNumber = Object.values(rightPair)[0];
+
+    // ✅ All comparisons use BigInt literals
+    if (leftNumber === 1n && rightNumber < 100n) {
+      return rightPair;
+    }
+    // ... more merge rules
+  }
+}
+```
+
+### Pattern 5: Custom Algorithm (AbstractLanguage only)
+
+**Used by:** Arabic (ar), Vietnamese (vi), Romanian (ro), Indonesian (id)
 
 **BigInt locations:**
 
@@ -444,25 +530,27 @@ class RU extends SlavicLanguage {
 ```javascript
 class AR extends AbstractLanguage {
   toCardinal(number) {
-    if (number === 0n) {           // ✅ BigInt comparison
-      return this.zero
+    if (number === 0n) {
+      // ✅ BigInt comparison
+      return this.zero;
     }
 
-    let temp = number
-    while (temp > 0n) {            // ✅ BigInt comparison
-      const chunk = Number(temp % 1000n)  // ✅ Explicit conversion
+    let temp = number;
+    while (temp > 0n) {
+      // ✅ BigInt comparison
+      const chunk = Number(temp % 1000n); // ✅ Explicit conversion
 
       // Process chunk as regular number
-      const ones = chunk % 10
-      const tens = Math.floor(chunk / 10) % 10
-      const hundreds = Math.floor(chunk / 100)
+      const ones = chunk % 10;
+      const tens = Math.floor(chunk / 10) % 10;
+      const hundreds = Math.floor(chunk / 100);
 
       // Use regular number comparisons
       if (tens === 0 && hundreds === 2) {
         // ...
       }
 
-      temp = temp / 1000n          // ✅ BigInt division
+      temp = temp / 1000n; // ✅ BigInt division
     }
   }
 }
@@ -477,15 +565,15 @@ class AR extends AbstractLanguage {
 ```javascript
 // ❌ WRONG
 super(options, [
-  [1000, 'thousand'],  // Will throw TypeError in toCardMatches
-  [100, 'hundred']
-])
+  [1000, 'thousand'], // Will throw TypeError in toCardMatches
+  [100, 'hundred'],
+]);
 
 // ✅ CORRECT
 super(options, [
   [1000n, 'thousand'],
-  [100n, 'hundred']
-])
+  [100n, 'hundred'],
+]);
 ```
 
 **Error message:**
@@ -499,14 +587,15 @@ TypeError: Cannot mix BigInt and other types, use explicit conversions
 
 ```javascript
 // ❌ WRONG
-const leftNumber = Object.values(leftPair)[0]  // BigInt
-if (leftNumber === 1) {      // Always false!
-  return rightPair
+const leftNumber = Object.values(leftPair)[0]; // BigInt
+if (leftNumber === 1) {
+  // Always false!
+  return rightPair;
 }
 
 // ✅ CORRECT
 if (leftNumber === 1n) {
-  return rightPair
+  return rightPair;
 }
 ```
 
@@ -514,8 +603,9 @@ if (leftNumber === 1n) {
 
 ```javascript
 // ❌ WRONG
-const index = chunks.length
-if (index === 0n) {          // index is number, comparing to BigInt
+const index = chunks.length;
+if (index === 0n) {
+  // index is number, comparing to BigInt
   // ...
 }
 
@@ -535,24 +625,24 @@ TypeError: Cannot mix BigInt and other types
 
 ```javascript
 // ❌ WRONG
-const power = 3
-const divisor = BigInt(Math.pow(1000, power))
-const result = number / 1000  // number is BigInt, 1000 is not
+const power = 3;
+const divisor = BigInt(Math.pow(1000, power));
+const result = number / 1000; // number is BigInt, 1000 is not
 
 // ✅ CORRECT
-const result = number / 1000n
+const result = number / 1000n;
 ```
 
 ### ❌ Pitfall 5: Incorrect Modulo Precedence
 
 ```javascript
 // ❌ WRONG (operator precedence issue)
-const lastDigit = number % 10n && lastDigit === 1n
+const lastDigit = number % 10n && lastDigit === 1n;
 // Evaluates as: (number % 10n) && (lastDigit === 1n)
 // lastDigit is undefined!
 
 // ✅ CORRECT
-const lastDigit = number % 10n
+const lastDigit = number % 10n;
 if (lastDigit === 1n) {
   // ...
 }
@@ -567,50 +657,50 @@ if (lastDigit === 1n) {
 **Test large numbers beyond `Number.MAX_SAFE_INTEGER`:**
 
 ```javascript
-import n2words from '../lib/n2words.js'
+import n2words from '../lib/n2words.js';
 
 // Test large numbers
 assert.strictEqual(
-  n2words(9_007_199_254_740_992n),  // 2^53 (beyond safe integer)
-  'nine quadrillion seven trillion one hundred ninety-nine billion two hundred fifty-four million seven hundred forty thousand nine hundred ninety-two'
-)
+  n2words(9_007_199_254_740_992n), // 2^53 (beyond safe integer)
+  'nine quadrillion seven trillion one hundred ninety-nine billion two hundred fifty-four million seven hundred forty thousand nine hundred ninety-two',
+);
 
 // Test very large numbers
 assert.strictEqual(
-  n2words('1000000000000000000000000000'),  // 1 octillion
-  'one octillion'
-)
+  n2words('1000000000000000000000000000'), // 1 octillion
+  'one octillion',
+);
 ```
 
 ```javascript
 // test/smoke/smoke-i18n.js
-const languages = ['en', 'de', 'fr', 'es', 'pt', 'ru', /* ... */]
+const languages = ['en', 'de', 'fr', 'es', 'pt', 'ru' /* ... */];
 
 for (const lang of languages) {
   it(`${lang} converts large numbers`, () => {
-    const result = n2words(1_000_000_000_000n, { lang })
-    assert(typeof result === 'string')
-    assert(result.length > 0)
-  })
+    const result = n2words(1_000_000_000_000n, { lang });
+    assert(typeof result === 'string');
+    assert(result.length > 0);
+  });
 }
 ```
 
 ```javascript
 // Test zero
-assert.strictEqual(n2words(0n, { lang: 'en' }), 'zero')
+assert.strictEqual(n2words(0n, { lang: 'en' }), 'zero');
 
 // Test BigInt input types
-assert.strictEqual(n2words(42n), n2words('42'))
-assert.strictEqual(n2words(42n), n2words(42))
+assert.strictEqual(n2words(42n), n2words('42'));
+assert.strictEqual(n2words(42n), n2words(42));
 
 // Test negative BigInt
-assert.strictEqual(n2words(-1000n, { lang: 'en' }), 'minus one thousand')
+assert.strictEqual(n2words(-1000n, { lang: 'en' }), 'minus one thousand');
 
 // Test decimal with large whole part
 assert.strictEqual(
   n2words('1000000000000.5', { lang: 'en' }),
-  'one trillion point five'
-)
+  'one trillion point five',
+);
 ```
 
 ---
@@ -619,7 +709,7 @@ assert.strictEqual(
 
 When creating a new language implementation, verify BigInt usage:
 
-### For BaseLanguage Subclasses
+### For CardMatchLanguage and Subclasses (including ScandinavianLanguage and TurkicLanguage)
 
 - [ ] All values in `cards` array use `n` suffix (BigInt literals)
 - [ ] All comparisons in `merge()` use `n` suffix when comparing against card values
@@ -678,7 +768,9 @@ Is the value used in BigInt arithmetic (/, %, *)?
 
 - [LANGUAGE_GUIDE.md](../LANGUAGE_GUIDE.md) - Comprehensive guide for adding new languages
 - [lib/classes/abstract-language.js](../lib/classes/abstract-language.js) - Input validation and decimal handling
-- [lib/classes/base-language.js](../lib/classes/base-language.js) - Card-based algorithm
+- [lib/classes/card-match-language.js](../lib/classes/card-match-language.js) - Card-based algorithm
+- [lib/classes/scandinavian-language.js](../lib/classes/scandinavian-language.js) - Scandinavian "og" conjunction
+- [lib/classes/turkic-language.js](../lib/classes/turkic-language.js) - Turkic space-separated patterns
 - [lib/classes/slavic-language.js](../lib/classes/slavic-language.js) - Slavic/Baltic pluralization
 
 ---

@@ -52,31 +52,37 @@ If you prefer to add a language manually or need more control:
 
 ```js
 // lib/i18n/xx.js
-import BaseLanguage from '../classes/base-language.js' // or AbstractLanguage
+import CardMatchLanguage from '../classes/card-match-language.js';
 
-export default function floatToCardinal (value, options = {}) {
-  return new XxLanguage(options).floatToCardinal(value)
+export default function floatToCardinal(value, options = {}) {
+  return new XxLanguage(options).floatToCardinal(value);
 }
 
-class XxLanguage extends BaseLanguage {
-  constructor (options) {
-    super(Object.assign({
-      negativeWord: 'minus',
-      separatorWord: 'point',
-      zero: 'zero'
-    }, options), [
-      // Provide cards as [BigInt, 'word'] in DESCENDING order
-      [1000000n, 'million'],
-      [1000n, 'thousand'],
-      [100n, 'hundred'],
-      [90n, 'ninety'],
-      [80n, 'eighty'],
-      [1n, 'one']
-    ])
+class XxLanguage extends CardMatchLanguage {
+  constructor(options) {
+    super(
+      Object.assign(
+        {
+          negativeWord: 'minus',
+          separatorWord: 'point',
+          zero: 'zero',
+        },
+        options,
+      ),
+      [
+        // Provide cards as [BigInt, 'word'] in DESCENDING order
+        [1000000n, 'million'],
+        [1000n, 'thousand'],
+        [100n, 'hundred'],
+        [90n, 'ninety'],
+        [80n, 'eighty'],
+        [1n, 'one'],
+      ],
+    );
   }
 
   // Implement merge(leftWordSet, rightWordSet) according to language rules.
-  merge (left, right) {
+  merge(left, right) {
     // left and right are objects like { 'one': 1n } and { 'hundred': 100n }
     // Return a merged object, e.g. { 'one hundred': 100n }
   }
@@ -87,10 +93,12 @@ Notes:
 
 - **Critical**: Use `BigInt` literals (e.g. `1000n`) in `cards` so the algorithm handles large
   numbers correctly. See [BIGINT-GUIDE.md](./BIGINT-GUIDE.md) for detailed guidance.
-- Prefer `BaseLanguage` when your language fits the highest-matching-card
-  algorithm pattern. Use `SlavicLanguage` for languages with three-form pluralization.
-  Use `AbstractLanguage` if you need a different composition strategy; in that case
-  implement `toCardinal(wholeNumber)`.
+- Choose the appropriate base class:
+  - `CardMatchLanguage` for most languages with regular card-based systems (English, Spanish, German, French, Italian, Portuguese, Dutch, Korean, Hungarian, Chinese)
+  - `SlavicLanguage` for languages with three-form pluralization (Russian, Czech, Polish, Ukrainian, Serbian, Croatian, Hebrew, Lithuanian, Latvian)
+  - `ScandinavianLanguage` for Scandinavian languages with "og" conjunction (Norwegian, Danish)
+  - `TurkicLanguage` for Turkic languages with space-separated patterns (Turkish, Azerbaijani)
+  - `AbstractLanguage` for custom implementations requiring full control (Arabic, Vietnamese, Romanian, Persian, Indonesian)
 - For decimals, rely on `AbstractLanguage.decimalToCardinal()` unless your
   language has very unique decimal rules.
 
@@ -105,8 +113,8 @@ language modules in browser builds. After adding your `lib/i18n/xx.js` file:
 ```js
 const dict = {
   // ... existing entries
-  xx
-}
+  xx,
+};
 ```
 
 This keeps the Node.js and browser behavior identical. Note: `webpack.config.js`

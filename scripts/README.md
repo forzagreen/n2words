@@ -16,11 +16,20 @@ node scripts/add-language.js
 
 **What it does:**
 
-1. Prompts for language details (code, name, base class, etc.)
+1. Prompts for language details (code, name, base class selection, etc.)
 2. Generates `lib/i18n/xx.js` with implementation template
 3. Generates `test/i18n/xx.js` with test case template
 4. Updates `lib/n2words.js` with imports and registration
 5. Provides clear next steps for completing the implementation
+
+The script guides you to choose from five base classes:
+
+
+- **CardMatchLanguage** - For most languages (English, Spanish, French, German, etc.)
+- **SlavicLanguage** - For Slavic/Baltic languages (Russian, Polish, Czech, etc.)
+- **ScandinavianLanguage** - For Scandinavian languages (Norwegian, Danish)
+- **TurkicLanguage** - For Turkic languages (Turkish, Azerbaijani)
+- **AbstractLanguage** - For custom implementations (Arabic, Vietnamese, Romanian, etc.)
 
 **After running:**
 
@@ -52,8 +61,8 @@ npm run lang:validate fr-BE
 
 - ✓ Language file exists with proper structure
 - ✓ Uses BigInt literals in cards array
-- ✓ Has merge() method implementation
-- ✓ Extends BaseLanguage or AbstractLanguage
+- ✓ Has merge() method implementation (for card-based classes)
+- ✓ Extends one of five recognized base classes (CardMatchLanguage, SlavicLanguage, ScandinavianLanguage, TurkicLanguage, or AbstractLanguage)
 - ✓ Test file exists with comprehensive cases
 - ✓ Tests cover: zero, negatives, decimals, large numbers
 - ✓ Language is imported and registered in lib/n2words.js
