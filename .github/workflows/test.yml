@@ -13,7 +13,7 @@ concurrency:
 
 jobs:
   lint-and-build:
-    name: Lint & Build
+    name: Lint & Build (Node 24, Ubuntu)
     runs-on: ubuntu-latest
     timeout-minutes: 10
 
@@ -53,7 +53,7 @@ jobs:
           enableCrossOsArchive: true
 
   test:
-    name: Test (Node ${{ matrix.node }})
+    name: Test (Node ${{ matrix.node }}, ${{ matrix.os_label }})
     needs: lint-and-build
     runs-on: ${{ matrix.os }}
     timeout-minutes: 15
@@ -63,11 +63,14 @@ jobs:
       matrix:
         node: ['20', '22', '24', '25']
         os: [ubuntu-latest]
+        os_label: ['Ubuntu']
         include:
           - node: '24'
             os: windows-latest
+            os_label: 'Windows'
           - node: '24'
             os: macos-latest
+            os_label: 'macOS'
 
     steps:
       - uses: actions/checkout@v6.0.1
@@ -103,7 +106,7 @@ jobs:
         run: npm pack --dry-run
 
   coverage:
-    name: Coverage
+    name: Coverage (Node 24, Ubuntu)
     needs: lint-and-build
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -138,4 +141,4 @@ jobs:
         uses: coverallsapp/github-action@v2.3.6
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          continue-on-error: true
+          fail-on-error: false
