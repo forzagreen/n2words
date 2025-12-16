@@ -6,9 +6,9 @@
 [![npm](https://img.shields.io/npm/dw/n2words)](https://npmjs.com/package/n2words)
 [![jsDelivr](https://data.jsdelivr.com/v1/package/npm/n2words/badge)](https://www.jsdelivr.com/package/npm/n2words)
 
-**n2words** converts numerical numbers into written ones. Supports **29 languages** with **zero dependencies**.
+**n2words** converts numerical numbers into written ones. Supports **30 languages** with **zero dependencies**.
 
-- 🌍 **29 languages** - Comprehensive international language support
+- 🌍 **30 languages** - Comprehensive international language support
 - 📦 **Zero dependencies** - Lightweight and fast
 - 🚀 **Performance optimized** - Highly tuned for speed
 - 📱 **Universal** - Works in browsers, Node.js, and TypeScript
@@ -101,6 +101,7 @@ Or import specific languages:
 | `vi`    | Vietnamese       | `id` | Indonesian    |
 | `hr`    | Croatian         | `sr` | Serbian       |
 | `fr-BE` | French (Belgium) |      |               |
+| `sv`    | Swedish          |      |               |
 
 ## API Options
 

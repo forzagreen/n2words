@@ -1,0 +1,21 @@
+export default [
+  [0, 'noll'],
+  [1, 'ett'],
+  [2, 'två'],
+  [10, 'tio'],
+  [11, 'elva'],
+  [14, 'fjorton'],
+  [20, 'tjugo'],
+  [21, 'tjugo-ett'],
+  [99, 'nittio-nio'],
+  [100, 'hundra'],
+  [101, 'hundra och ett'],
+  [115, 'hundra och femton'],
+  [200, 'två hundra'],
+  [1000, 'tusen'],
+  [1234, 'tusen två hundra och trettio-fyra'],
+  [2000, 'två tusen'],
+  [1000000, 'en miljon'],
+  [-5, 'minus fem'],
+  ['3.05', 'tre komma noll fem']
+]

@@ -2,7 +2,7 @@
 
 This file gives targeted, actionable guidance for AI coding agents working in this repository.
 
-- **Big picture:** `n2words` converts numeric values into written words across 29 languages with zero dependencies. The public API is the default export in `lib/n2words.js` (ESM). Language implementations live in `lib/i18n/*.js` and typically export a default function with the signature `(value, options)` that returns a string.
+- **Big picture:** `n2words` converts numeric values into written words across 30 languages with zero dependencies. The public API is the default export in `lib/n2words.js` (ESM). Language implementations live in `lib/i18n/*.js` and typically export a default function with the signature `(value, options)` that returns a string.
 
 - **Core components:**
   - `lib/n2words.js`: language registry and export. Uses `dict[lang]` to dispatch.
@@ -42,7 +42,7 @@ This file gives targeted, actionable guidance for AI coding agents working in th
   - Run core tests: `npm run test:core` (includes unit, integration, smoke, and i18n tests).
     - Unit tests: `npm run test:unit` (test/unit/\*.js) — API, errors, validation, options.
     - Integration tests: `npm run test:integration` (test/integration/\*.js) — targeted coverage.
-    - Smoke tests: `npm run test:smoke` (test/smoke/\*.js) — sanity checks for all 29 languages.
+    - Smoke tests: `npm run test:smoke` (test/smoke/\*.js) — sanity checks for all 30 languages.
     - I18n tests: `npm run test:i18n` (test/i18n.js) — comprehensive language-specific tests.
   - Run coverage: `npm run coverage` (runs test:core with c8 instrumentation).
   - Build browser bundle: `npm run build:web` (uses `webpack`).
@@ -55,7 +55,7 @@ This file gives targeted, actionable guidance for AI coding agents working in th
   - `test/integration/` — Integration tests (1 file: targeted-coverage.js).
   - `test/smoke/` — Smoke/sanity tests (1 file: smoke-i18n.js).
   - `test/i18n.js` — Main comprehensive i18n test suite.
-  - `test/i18n/` — Per-language test fixtures (29 files, one per language).
+  - `test/i18n/` — Per-language test fixtures (30 files, one per language).
   - `test/web/` — Browser testing resources.
   - `test/web.js` — Browser compatibility tests (Chrome/Firefox).
   - `test/typescript-smoke.ts` — TypeScript validation tests.
@@ -79,7 +79,7 @@ This file gives targeted, actionable guidance for AI coding agents working in th
   - `lib/classes/abstract-language.js` — essential algorithms and optimizations.
   - `test/unit/api.js` — API and language fallback tests.
   - `test/i18n.js` — comprehensive language-specific tests.
-  - `test/smoke/smoke-i18n.js` — quick sanity checks across all 29 languages.
+  - `test/smoke/smoke-i18n.js` — quick sanity checks across all 30 languages.
   - `scripts/add-language.js` — automated language boilerplate generator.
   - `scripts/validate-language.js` — implementation validation tool.
   - `LANGUAGE_GUIDE.md` — comprehensive guide for adding new languages.
