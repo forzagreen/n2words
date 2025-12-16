@@ -84,24 +84,23 @@ Or import specific languages:
 
 ## Supported Languages
 
-| Code    | Language         | Code | Language      |
-| ------- | ---------------- | ---- | ------------- |
-| `en`    | English          | `ar` | Arabic        |
-| `fr`    | French           | `es` | Spanish       |
-| `de`    | German           | `it` | Italian       |
-| `pt`    | Portuguese       | `ru` | Russian       |
-| `uk`    | Ukrainian        | `pl` | Polish        |
-| `cz`    | Czech            | `hu` | Hungarian     |
-| `ro`    | Romanian         | `lt` | Lithuanian    |
-| `lv`    | Latvian          | `nl` | Dutch         |
-| `dk`    | Danish           | `no` | Norwegian     |
-| `tr`    | Turkish          | `az` | Azerbaijani   |
-| `he`    | Hebrew           | `fa` | Farsi/Persian |
-| `ko`    | Korean           | `zh` | Chinese       |
-| `vi`    | Vietnamese       | `id` | Indonesian    |
-| `hr`    | Croatian         | `sr` | Serbian       |
-| `fr-BE` | French (Belgium) |      |               |
-| `sv`    | Swedish          |      |               |
+| Code | Language   | Code    | Language         |
+| ---- | ---------- | ------- | ---------------- |
+| `ar` | Arabic     | `az`    | Azerbaijani      |
+| `cz` | Czech      | `de`    | German           |
+| `dk` | Danish     | `en`    | English          |
+| `es` | Spanish    | `fa`    | Farsi/Persian    |
+| `fr` | French     | `fr-BE` | French (Belgium) |
+| `he` | Hebrew     | `hr`    | Croatian         |
+| `hu` | Hungarian  | `id`    | Indonesian       |
+| `it` | Italian    | `ko`    | Korean           |
+| `lt` | Lithuanian | `lv`    | Latvian          |
+| `nl` | Dutch      | `no`    | Norwegian        |
+| `pl` | Polish     | `pt`    | Portuguese       |
+| `ro` | Romanian   | `ru`    | Russian          |
+| `sr` | Serbian    | `sv`    | Swedish          |
+| `tr` | Turkish    | `uk`    | Ukrainian        |
+| `vi` | Vietnamese | `zh`    | Chinese          |
 
 ## API Options
 
