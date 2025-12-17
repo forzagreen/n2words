@@ -151,6 +151,56 @@ n2words(21, { lang: 'he', biblical: true }); // 'עשרים ואחד'
 
 ---
 
+### Chinese (zh) - Formal vs. Common Numerals
+
+Chinese supports both formal/financial numerals (大写数字) and common/everyday numerals (小写数字).
+
+**Options:**
+
+| Option   | Type    | Description                                       | Default |
+| -------- | ------- | ------------------------------------------------- | ------- |
+| `formal` | boolean | Use formal/financial numerals vs. common numerals | `true`  |
+
+**Examples:**
+
+```javascript
+// Formal/financial style (default) - used in banking, legal documents
+n2words(123, { lang: 'zh' }); // '壹佰贰拾叁'
+n2words(123, { lang: 'zh', formal: true }); // '壹佰贰拾叁'
+
+// Common/everyday style - used in daily life
+n2words(123, { lang: 'zh', formal: false }); // '一百二十三'
+
+// Large numbers
+n2words(999999999999n, { lang: 'zh', formal: false });
+// '九千九百九十九亿九千九百九十九万九千九百九十九'
+```
+
+**Formal Numerals (大写数字 - dàxiě shùzì):**
+
+| Value | Formal | Common |
+| ----- | ------ | ------ |
+| 0     | 零     | 零     |
+| 1     | 壹     | 一     |
+| 2     | 贰     | 二     |
+| 3     | 叁     | 三     |
+| 4     | 肆     | 四     |
+| 5     | 伍     | 五     |
+| 6     | 陆     | 六     |
+| 7     | 柒     | 七     |
+| 8     | 捌     | 八     |
+| 9     | 玖     | 九     |
+| 10    | 拾     | 十     |
+| 100   | 佰     | 百     |
+| 1000  | 仟     | 千     |
+
+**Use Cases:**
+
+- Formal (default): Financial documents, checks, contracts, legal documents (prevents alteration/fraud)
+- Common: Everyday writing, casual communication, general-purpose number conversion
+
+---
+
 ### Romanian (ro) - Gender Agreement
 
 Romanian provides masculine and feminine number forms with complex agreement rules.

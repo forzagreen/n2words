@@ -21,10 +21,11 @@ import n2words from 'n2words';
 
 n2words(123); // 'one hundred and twenty-three'
 n2words(-1.5); // 'minus one point five'
-n2words(123, { lang: 'fr' }); // 'cent vingt-trois'
+n2words(123, { lang: 'zh' }); // '壹佰贰拾叁'
+n2words(123, { lang: 'hi' }); // 'एक सौ तेईस'
 n2words(123, { lang: 'es' }); // 'ciento veintitrés'
 n2words(123, { lang: 'ar' }); // 'مائة وثلاثة وعشرون'
-n2words(1000000n); // 'one million'
+n2words(999999999999n, { lang: 'zh' }); // '玖仟玖佰玖拾玖亿玖仟玖佰玖拾玖万玖仟玖佰玖拾玖' (BigInt support!)
 ```
 
 ## Installation
