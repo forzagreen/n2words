@@ -64,12 +64,22 @@ export default [
   [9539, 'nueve mil quinientos treinta y nueve'],
   [1_000_000, 'un millón'],
   [1_000_001, 'un millón uno'],
-  // FIXME
-  [4_000_000, 'cuatro millones'],
+  [2_000_000, 'dos millones'],
+  [5_000_000, 'cinco millones'],
+  [1_000_000_000, 'mil millones'],
+  [2_000_000_000, 'dos mil millones'],
+  [5_000_000_000, 'cinco mil millones'],
+  [1_000_000_000_000, 'un billón'],
+  [2_000_000_000_000, 'dos billones'],
+  [5_000_000_000_000, 'cinco billones'],
   [10_000_000_000_000, 'diez billones'],
   [100_000_000_000_000, 'cien billones'],
+  [1_000_000_000_000_000, 'mil billones'],
   [1_000_000_000_000_000_000n, 'un trillón'],
-  [1_000_000_000_000_000_000_000n, 'mil trillones']
-  // FIXME
-  // [10000000000000000000000000n, 'diez cuatrillones']
+  [2_000_000_000_000_000_000n, 'dos trillones'],
+  [5_000_000_000_000_000_000n, 'cinco trillones'],
+  [1_000_000_000_000_000_000_000n, 'mil trillones'],
+  [1_000_000_000_000_000_000_000_000n, 'un cuatrillón'],
+  [2_000_000_000_000_000_000_000_000n, 'dos cuatrillones'],
+  [5_000_000_000_000_000_000_000_000n, 'cinco cuatrillones']
 ]

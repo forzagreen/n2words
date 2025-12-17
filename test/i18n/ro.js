@@ -122,12 +122,29 @@ export default [
   // Very large numbers
   [1_000_000_000_000_000_000n, 'un cvintilion'],
   [1_000_000_000_000_000_000_000n, 'un sextilion'],
-  [1_000_000_000_000_000_000_000_000n, 'un septilion']
+  [1_000_000_000_000_000_000_000_000n, 'un septilion'],
 
-  // Feminine form tests (when feminine option is true)
-  // These would be tested separately with feminine: true option
-  // [1, 'una', { feminine: true }],
-  // [2, 'două', { feminine: true }],
-  // [21, 'douăzeci și una', { feminine: true }],
-  // [1001, 'o mie una', { feminine: true }],
+  // Feminine form tests (with feminine: true option)
+  [1, 'una', { feminine: true }],
+  [2, 'două', { feminine: true }],
+  [12, 'douăsprezece', { feminine: true }],
+  [21, 'douăzeci și una', { feminine: true }],
+  [22, 'douăzeci și două', { feminine: true }],
+  [31, 'treizeci și una', { feminine: true }],
+  [42, 'patruzeci și două', { feminine: true }],
+  [101, 'o sută una', { feminine: true }],
+  [102, 'o sută două', { feminine: true }],
+  [112, 'o sută douăsprezece', { feminine: true }],
+  [201, 'două sute una', { feminine: true }],
+  [212, 'două sute douăsprezece', { feminine: true }],
+  [1001, 'o mie una', { feminine: true }],
+  [1002, 'o mie două', { feminine: true }],
+  [1012, 'o mie douăsprezece', { feminine: true }],
+  [2001, 'două mii una', { feminine: true }],
+  [2002, 'două mii două', { feminine: true }],
+  [2012, 'două mii douăsprezece', { feminine: true }],
+  [21001, 'douăzeci și una de mii una', { feminine: true }],
+  [1_000_001, 'un milion una', { feminine: true }],
+  [1_000_002, 'un milion două', { feminine: true }],
+  [2_000_001, 'două milioane una', { feminine: true }]
 ]
