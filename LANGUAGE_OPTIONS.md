@@ -4,7 +4,7 @@ This guide documents all unique language-specific options available in the n2wor
 
 ## Common Options (All Languages)
 
-These options are available for all 36 supported languages:
+These options are available for all 37 supported languages:
 
 | Option          | Type   | Description                             | Default Value                                           |
 | --------------- | ------ | --------------------------------------- | ------------------------------------------------------- |
@@ -312,14 +312,14 @@ Languages in n2words are grouped by shared characteristics:
 
 ### Other Languages (No Special Options)
 
-All other 28 languages use only the common options:
+All other 29 languages use only the common options:
 
 - English (en), German (de), Italian (it), Portuguese (pt), Dutch (nl)
 - Norwegian (no), Danish (dk), Swedish (sv)
 - Russian (ru), Polish (pl), Czech (cz), Ukrainian (uk), Serbian (sr), Croatian (hr), Lithuanian (lt), Latvian (lv)
 - Hungarian (hu), Japanese (ja), Korean (ko), Chinese (zh), Vietnamese (vi)
 - Persian/Farsi (fa), Indonesian (id)
-- Hindi (hi), Bengali (bn), Tamil (ta), Telugu (te), Thai (th)
+- Hindi (hi), Bengali (bn), Tamil (ta), Telugu (te), Thai (th), Swahili (sw)
 
 ---
 

@@ -2,16 +2,24 @@
 
 This file gives targeted, actionable guidance for AI coding agents working in this repository.
 
-- **Big picture:** `n2words` converts numeric values into written words across 36 languages with zero dependencies. The public API is the default export in `lib/n2words.js` (ESM). Language implementations live in `lib/i18n/*.js` and typically export a default function with the signature `(value, options)` that returns a string.
+**Big picture:** `n2words` converts numeric values into written words across 38 languages with zero dependencies. The public API is the default export in `lib/n2words.js` (ESM). Language implementations live in `lib/i18n/*.js` and typically export a default function with the signature `(value, options)` that returns a string.
 
 - **Core components:**
   - `lib/n2words.js`: language registry and export. Uses `dict[lang]` to dispatch.
-  - `lib/i18n/*.js`: per-language implementations (36 total). Use one of five base classes from `lib/classes/`.
+  - `lib/i18n/*.js`: per-language implementations (38 total). Use one of five base classes from `lib/classes/`.
   - `lib/classes/abstract-language.js`: core base class providing decimal handling and input validation. Decimal part is treated as a string; leading zeros become the word for zero.
   - `lib/classes/card-match-language.js`: extends `AbstractLanguage`; implements highest-matching-card algorithm. Most languages use this. Languages define `cards` arrays of `[value, word]` (use BigInt literals). Used by: English, Spanish, French, German, Italian, Portuguese, Dutch, Korean, Hungarian, Chinese.
   - `lib/classes/slavic-language.js`: extends `AbstractLanguage`; specialized base for Slavic/Baltic languages with three-form pluralization (Russian, Czech, Polish, Ukrainian, Serbian, Croatian, Hebrew, Lithuanian, Latvian).
   - `lib/classes/scandinavian-language.js`: extends `CardMatchLanguage`; specialized base for Scandinavian languages with "og" (and) conjunction and shared grammar patterns. Used by: Norwegian, Danish.
   - `lib/classes/turkic-language.js`: extends `CardMatchLanguage`; specialized base for Turkic languages with space-separated combinations and implicit number patterns. Used by: Turkish, Azerbaijani.
+
+  **Test organization:**
+
+- `test/smoke/` — Smoke/sanity tests (1 file: smoke-i18n.js).
+- `test/i18n.js` — Main comprehensive i18n test suite.
+- `test/i18n/` — Per-language test fixtures (38 files, one per language).
+  **Build / test / lint workflows** (explicit commands):
+- Smoke tests: `npm run test:smoke` (test/smoke/smoke-i18n.js) — sanity checks for all 38 languages.
 
 - **Patterns & conventions** (follow these exactly):
   - Files are ESM (`package.json` includes `type: "module"`). Use `export default function floatToCardinal(value, options={})` when creating languages.
@@ -42,7 +50,7 @@ This file gives targeted, actionable guidance for AI coding agents working in th
   - Run core tests: `npm run test:core` (includes unit, integration, smoke, and i18n tests).
     - Unit tests: `npm run test:unit` (test/unit/\*.js) — API, errors, validation, options.
     - Integration tests: `npm run test:integration` (test/integration/\*.js) — targeted coverage.
-    - Smoke tests: `npm run test:smoke` (test/smoke/\*.js) — sanity checks for all 36 languages.
+    - Smoke tests: `npm run test:smoke` (test/smoke/\*.js) — sanity checks for all 38 languages.
     - I18n tests: `npm run test:i18n` (test/i18n.js) — comprehensive language-specific tests.
   - Run coverage: `npm run coverage` (runs test:core with c8 instrumentation).
   - Build browser bundle: `npm run build:web` (uses `webpack`).
@@ -55,7 +63,7 @@ This file gives targeted, actionable guidance for AI coding agents working in th
   - `test/integration/` — Integration tests (1 file: targeted-coverage.js).
   - `test/smoke/` — Smoke/sanity tests (1 file: smoke-i18n.js).
   - `test/i18n.js` — Main comprehensive i18n test suite.
-  - `test/i18n/` — Per-language test fixtures (36 files, one per language).
+  - `test/i18n/` — Per-language test fixtures (38 files, one per language).
   - `test/web/` — Browser testing resources.
   - `test/web.js` — Browser compatibility tests (Chrome/Firefox).
   - `test/typescript-smoke.ts` — TypeScript validation tests.
@@ -79,7 +87,7 @@ This file gives targeted, actionable guidance for AI coding agents working in th
   - `lib/classes/abstract-language.js` — essential algorithms and optimizations.
   - `test/unit/api.js` — API and language fallback tests.
   - `test/i18n.js` — comprehensive language-specific tests.
-  - `test/smoke/smoke-i18n.js` — quick sanity checks across all 36 languages.
+  - `test/smoke/smoke-i18n.js` — quick sanity checks across all 38 languages.
   - `scripts/add-language.js` — automated language boilerplate generator.
   - `scripts/validate-language.js` — implementation validation tool.
   - `LANGUAGE_GUIDE.md` — comprehensive guide for adding new languages.
