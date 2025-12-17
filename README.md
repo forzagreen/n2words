@@ -102,14 +102,6 @@ Or import specific languages:
 | `tr` | Turkish    | `uk`    | Ukrainian        |
 | `vi` | Vietnamese | `zh`    | Chinese          |
 
-## API Options
-
-```ts
-interface N2WordsOptions {
-  lang?: string; // Language code (default: 'en')
-}
-```
-
 ## Performance
 
 Performance benchmarks (ops/sec) on latest hardware:
