@@ -72,6 +72,7 @@
       "types": "./typings/i18n/*.d.ts"
     }
   },
+  "main": "lib/n2words.js",
   "jsdelivr": {
     "browser": "dist/n2words.js",
     "types": "typings/n2words.d.ts"
@@ -80,7 +81,6 @@
     "browser": "dist/n2words.js",
     "types": "typings/n2words.d.ts"
   },
-  "main": "lib/n2words.js",
   "types": "typings/n2words.d.ts",
   "typesVersions": {
     "*": {
@@ -97,9 +97,9 @@
   "scripts": {
     "bench": "node bench.js",
     "bench:memory": "node --expose-gc bench-memory.js",
-    "build:web": "webpack --progress",
-    "build:types": "tsc --project tsconfig.json",
     "build": "npm run build:web && npm run build:types",
+    "build:types": "tsc --project tsconfig.json",
+    "build:web": "webpack --progress",
     "coverage": "c8 npm run test:core",
     "docs": "npm run docs:clean && jsdoc -c ./conf.json && npm run docs:validate",
     "docs:clean": "node -e \"import { rmSync } from 'fs'; try { rmSync('docs', { recursive: true, force: true }) } catch (e) {}\"",
@@ -111,22 +111,22 @@
     "lint:md": "markdownlint-cli2 *.md scripts/*.md",
     "test": "npm run test:core && npm run test:types",
     "test:core": "npm run test:unit && npm run test:integration && npm run test:smoke && npm run test:i18n",
-    "test:unit": "ava --verbose test/unit/*.js",
+    "test:i18n": "ava --verbose test/i18n.js",
     "test:integration": "ava --verbose test/integration/*.js",
     "test:smoke": "ava --verbose test/smoke/*.js",
-    "test:i18n": "ava --verbose test/i18n.js",
-    "test:web": "ava --verbose test/web.js",
-    "test:types": "tsx test/typescript-smoke.ts"
+    "test:types": "tsx test/typescript-smoke.ts",
+    "test:unit": "ava --verbose test/unit/*.js",
+    "test:web": "ava --verbose test/web.js"
   },
   "ava": {
+    "extensions": [
+      "js"
+    ],
     "files": [
       "test/unit/*.js",
       "test/integration/*.js",
       "test/smoke/*.js",
       "test/i18n.js"
-    ],
-    "extensions": [
-      "js"
     ],
     "timeout": "30s"
   },
