@@ -6,9 +6,9 @@
 [![npm](https://img.shields.io/npm/dw/n2words)](https://npmjs.com/package/n2words)
 [![jsDelivr](https://data.jsdelivr.com/v1/package/npm/n2words/badge)](https://www.jsdelivr.com/package/npm/n2words)
 
-**n2words** converts numerical numbers into written ones. Supports **30 languages** with **zero dependencies**.
+**n2words** converts numerical numbers into written ones. Supports **31 languages** with **zero dependencies**.
 
-- 🌍 **30 languages** - Comprehensive international language support
+- 🌍 **31 languages** - Comprehensive international language support
 - 📦 **Zero dependencies** - Lightweight and fast
 - 🚀 **Performance optimized** - Highly tuned for speed
 - 📱 **Universal** - Works in browsers, Node.js, and TypeScript
@@ -93,14 +93,16 @@ Or import specific languages:
 | `fr` | French     | `fr-BE` | French (Belgium) |
 | `he` | Hebrew     | `hr`    | Croatian         |
 | `hu` | Hungarian  | `id`    | Indonesian       |
-| `it` | Italian    | `ko`    | Korean           |
-| `lt` | Lithuanian | `lv`    | Latvian          |
-| `nl` | Dutch      | `no`    | Norwegian        |
-| `pl` | Polish     | `pt`    | Portuguese       |
-| `ro` | Romanian   | `ru`    | Russian          |
-| `sr` | Serbian    | `sv`    | Swedish          |
-| `tr` | Turkish    | `uk`    | Ukrainian        |
-| `vi` | Vietnamese | `zh`    | Chinese          |
+| `it` | Italian    | `ja`    | Japanese         |
+| `ko` | Korean     | `lt`    | Lithuanian       |
+| `lv` | Latvian    | `nl`    | Dutch            |
+| `no` | Norwegian  | `pl`    | Polish           |
+| `no` | Norwegian  | `pl`    | Polish           |
+| `pt` | Portuguese | `ro`    | Romanian         |
+| `ru` | Russian    | `sr`    | Serbian          |
+| `sv` | Swedish    | `tr`    | Turkish          |
+| `uk` | Ukrainian  | `vi`    | Vietnamese       |
+| `zh` | Chinese    |         |                  |
 
 ## Performance
 
@@ -193,4 +195,4 @@ See [CONTRIBUTING.md](./CONTRIBUTING.md) and [LANGUAGE_GUIDE.md](./LANGUAGE_GUID
 
 ## License
 
-[MIT](./LICENSE) © 2024
+[MIT](./LICENSE) © 2025

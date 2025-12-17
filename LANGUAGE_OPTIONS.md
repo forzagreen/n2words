@@ -312,12 +312,12 @@ Languages in n2words are grouped by shared characteristics:
 
 ### Other Languages (No Special Options)
 
-All other 20 languages use only the common options:
+All other 21 languages use only the common options:
 
 - English (en), German (de), Italian (it), Portuguese (pt), Dutch (nl)
 - Norwegian (no), Danish (dk), Swedish (sv)
 - Russian (ru), Polish (pl), Czech (cz), Ukrainian (uk), Serbian (sr), Croatian (hr), Lithuanian (lt), Latvian (lv)
-- Hungarian (hu), Korean (ko), Chinese (zh), Vietnamese (vi)
+- Hungarian (hu), Japanese (ja), Korean (ko), Chinese (zh), Vietnamese (vi)
 - Persian/Farsi (fa), Indonesian (id)
 
 ---
