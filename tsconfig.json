@@ -13,7 +13,7 @@
 
     // Input/output paths
     "rootDir": "./lib",
-    "outDir": "./types",
+    "outDir": "./typings",
 
     // JavaScript handling
     "allowJs": true,

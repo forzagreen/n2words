@@ -16,11 +16,21 @@ node scripts/add-language.js
 
 **What it does:**
 
-1. Prompts for language details (code, name, base class, etc.)
+1. Prompts for language details (code, name, base class selection, etc.)
 2. Generates `lib/i18n/xx.js` with implementation template
 3. Generates `test/i18n/xx.js` with test case template
-4. Updates `lib/n2words.js` with imports and registration
-5. Provides clear next steps for completing the implementation
+4. Updates `lib/n2words.js` with import statement and dict registration
+5. Ensures proper comma placement in dict (StandardJS style)
+6. Derives the class name from the language name (PascalCase), not the code token
+7. Provides clear next steps for completing the implementation
+
+The script guides you to choose from five base classes:
+
+- **CardMatchLanguage** - For most languages (English, Spanish, French, German, etc.)
+- **SlavicLanguage** - For Slavic/Baltic languages (Russian, Polish, Czech, etc.)
+- **ScandinavianLanguage** - For Scandinavian languages (Norwegian, Danish)
+- **TurkicLanguage** - For Turkic languages (Turkish, Azerbaijani)
+- **AbstractLanguage** - For custom implementations (Arabic, Vietnamese, Romanian, etc.)
 
 **After running:**
 
@@ -39,6 +49,10 @@ Validates that a language implementation is complete and follows best practices.
 npm run lang:validate <language-code>
 # or
 node scripts/validate-language.js <language-code>
+
+# Validate all languages
+npm run lang:validate
+node scripts/validate-language.js
 ```
 
 **Example:**
@@ -50,14 +64,18 @@ npm run lang:validate fr-BE
 
 **What it checks:**
 
+- ✓ Language code matches ISO 639-1 (optional region suffix)
 - ✓ Language file exists with proper structure
-- ✓ Uses BigInt literals in cards array
-- ✓ Has merge() method implementation
-- ✓ Extends BaseLanguage or AbstractLanguage
-- ✓ Test file exists with comprehensive cases
-- ✓ Tests cover: zero, negatives, decimals, large numbers
-- ✓ Language is imported and registered in lib/n2words.js
-- ✓ No TODO comments in implementation
+- ✓ Default export function is present and instantiates the declared class
+- ✓ Class name looks like the language name (not the code token)
+- ✓ Uses BigInt literals in number definitions
+- ✓ Has merge() method OR toCardinal() override (for CardMatchLanguage)
+- ✓ Extends a recognized base class (CardMatchLanguage, SlavicLanguage, ScandinavianLanguage, TurkicLanguage, AbstractLanguage) or another language class
+- ✓ Test file exists with comprehensive cases (20+ recommended)
+- ✓ Tests cover: zero, negatives, decimals, large numbers (includes 1_000_000-style literals)
+- ✓ Language is correctly imported in lib/n2words.js and registered in the dict
+- ✓ Default export produces non-empty strings for sample inputs (runtime smoke test)
+- ⚠ Warns about TODO comments or thin test coverage
 
 **Exit codes:**
 
@@ -95,12 +113,8 @@ npm run build:web
 # Check a specific language
 npm run lang:validate fr
 
-# Check all languages (manual loop in PowerShell)
-Get-ChildItem lib/i18n/*.js | ForEach-Object {
-  $lang = $_.BaseName
-  Write-Host "Checking $lang..."
-  npm run lang:validate $lang
-}
+# Check all languages
+npm run lang:validate
 ```
 
 ## See Also

@@ -9,8 +9,8 @@
     "noEmit": true,
     "baseUrl": "..",
     "paths": {
-      "n2words": ["./types/n2words.d.ts"],
-      "n2words/i18n/*": ["./types/i18n/*.d.ts"]
+      "n2words": ["./typings/n2words.d.ts"],
+      "n2words/i18n/*": ["./typings/i18n/*.d.ts"]
     }
   },
   "include": ["typescript-smoke.ts"]

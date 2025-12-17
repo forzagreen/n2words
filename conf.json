@@ -1,16 +1,22 @@
 {
-  "plugins": [
-    "plugins/markdown"
-  ],
-  "source": {
-    "include": [
-      "./README.md",
-      "./lib"
-    ],
-    "includePattern": ".+\\.js(doc|x)?$"
-  },
   "opts": {
     "destination": "./docs/",
     "recurse": true
+  },
+  "plugins": ["plugins/markdown"],
+  "recurseDepth": 10,
+  "source": {
+    "include": ["./README.md", "./lib/"],
+    "includePattern": ".+\\.(js(doc|x)?|md|MD)$",
+    "excludePattern": "(^|\\/|\\\\)_"
+  },
+  "sourceType": "module",
+  "tags": {
+    "allowUnknownTags": true,
+    "dictionaries": ["jsdoc", "closure"]
+  },
+  "templates": {
+    "cleverLinks": false,
+    "monospaceLinks": false
   }
 }

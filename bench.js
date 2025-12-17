@@ -59,10 +59,10 @@ if (i18n) {
 // Log output to console and run queued benchmarks
 suite
   .on('cycle', event => {
-    console.log(String(event.target))
+    console.log(chalk.gray(String(event.target)))
   })
   .on('complete', function () {
-    console.log('\n' + chalk.bold('Results:'))
+    console.log('\n' + chalk.cyan.bold('Results:'))
     console.log('Fastest is ' + chalk.green(this.filter('fastest').map('name').join(', ')))
 
     if (saveResults) {
@@ -88,19 +88,20 @@ suite
     if (compareResults && existsSync(resultsFile)) {
       try {
         const previousResults = JSON.parse(readFileSync(resultsFile, 'utf8'))
-        console.log(chalk.bold('\n📊 Comparison with previous run:'))
-        console.log(`Previous run: ${previousResults.timestamp}`)
+        console.log(chalk.cyan.bold('\n📊 Comparison with previous run:'))
+        console.log(chalk.gray(`Previous run: ${previousResults.timestamp}`))
 
         this.forEach(current => {
           const previous = previousResults.benchmarks.find(b => b.name === current.name)
           if (previous) {
             const diff = ((current.hz - previous.hz) / previous.hz) * 100
             const symbol = diff > 0 ? chalk.green('↑') : chalk.red('↓')
-            console.log(`${current.name}: ${symbol} ${diff > 0 ? '+' : ''}${diff.toFixed(2)}%`)
+            const diffColor = diff > 0 ? chalk.green : chalk.red
+            console.log(`${chalk.gray(current.name)}: ${symbol} ${diffColor(`${diff > 0 ? '+' : ''}${diff.toFixed(2)}%`)}`)
           }
         })
       } catch {
-        console.error(chalk.red('Could not read previous results'))
+        console.error(chalk.red('✗ Could not read previous results'))
       }
     }
   })
@@ -123,17 +124,17 @@ async function benchFile (file, options) {
  * Display benchmark script usage information.
  */
 function displayHelp () {
-  console.log(chalk.bold('Benchmark Script Usage:\n'))
-  console.log('  npm run bench [options]\n')
-  console.log('Options:')
-  console.log('  --lang, --language <code>    Benchmark specific language (e.g., en, fr)')
-  console.log('  --value <number>             Test value to convert (default: Number.MAX_SAFE_INTEGER)')
-  console.log('  --save                       Save results to bench-results.json')
-  console.log('  --compare                    Compare with previous results')
-  console.log('  --help                       Display this help message\n')
-  console.log('Examples:')
-  console.log('  npm run bench                            # Benchmark all languages')
-  console.log('  npm run bench -- --lang en               # Benchmark English only')
-  console.log('  npm run bench -- --value 42 --save       # Save results with custom value')
-  console.log('  npm run bench -- --compare               # Compare with previous run\n')
+  console.log(chalk.cyan.bold('Benchmark Script Usage:\n'))
+  console.log('  ' + chalk.yellow('npm run bench') + ' [options]\n')
+  console.log(chalk.cyan('Options:'))
+  console.log('  ' + chalk.yellow('--lang, --language') + ' <code>    Benchmark specific language (e.g., en, fr)')
+  console.log('  ' + chalk.yellow('--value') + ' <number>             Test value to convert (default: Number.MAX_SAFE_INTEGER)')
+  console.log('  ' + chalk.yellow('--save') + '                       Save results to bench-results.json')
+  console.log('  ' + chalk.yellow('--compare') + '                    Compare with previous results')
+  console.log('  ' + chalk.yellow('--help') + '                       Display this help message\n')
+  console.log(chalk.cyan('Examples:'))
+  console.log('  ' + chalk.gray('npm run bench                            # Benchmark all languages'))
+  console.log('  ' + chalk.gray('npm run bench -- --lang en               # Benchmark English only'))
+  console.log('  ' + chalk.gray('npm run bench -- --value 42 --save       # Save results with custom value'))
+  console.log('  ' + chalk.gray('npm run bench -- --compare               # Compare with previous run') + '\n')
 }

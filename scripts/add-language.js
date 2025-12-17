@@ -16,46 +16,94 @@
 import { readFileSync, writeFileSync, existsSync } from 'node:fs'
 import { createInterface } from 'node:readline/promises'
 import { stdin as input, stdout as output } from 'node:process'
+import chalk from 'chalk'
 
 const rl = createInterface({ input, output })
 
-console.log('='.repeat(60))
-console.log('n2words - Add New Language')
-console.log('='.repeat(60))
+console.log(chalk.gray('='.repeat(60)))
+console.log(chalk.cyan('n2words - Add New Language'))
+console.log(chalk.gray('='.repeat(60)))
 console.log()
 
 // Prompt for language details
-const langCode = await rl.question('Language code (e.g., "ja", "sv", "fr-CA"): ')
-const langName = await rl.question('Language name (e.g., "Japanese", "Swedish"): ')
-const baseClass = await rl.question('Base class (BaseLanguage or AbstractLanguage) [BaseLanguage]: ') || 'BaseLanguage'
-const negativeWord = await rl.question('Word for negative numbers (e.g., "minus", "negative") [minus]: ') || 'minus'
-const separatorWord = await rl.question('Word for decimal point (e.g., "point", "dot") [point]: ') || 'point'
-const zeroWord = await rl.question('Word for zero [zero]: ') || 'zero'
+const langCode = await rl.question(
+  'Language code (e.g., "ja", "sv", "fr-CA"): '
+)
+const langName = await rl.question(
+  'Language name (e.g., "Japanese", "Swedish"): '
+)
+console.log(chalk.cyan('\nBase class options:'))
+console.log(
+  '  1. CardMatchLanguage (most languages: en, de, fr, es, pt, etc.)'
+)
+console.log('  2. SlavicLanguage (Slavic languages: ru, pl, cz, uk, etc.)')
+console.log('  3. ScandinavianLanguage (Nordic languages: no, dk)')
+console.log('  4. TurkicLanguage (Turkish languages: tr, az)')
+console.log('  5. AbstractLanguage (custom implementations: ar, vi, ro, etc.)')
+const baseClassChoice =
+  (await rl.question('Choose base class (1-5) [1]: ')) || '1'
+const baseClassMap = {
+  1: 'CardMatchLanguage',
+  2: 'SlavicLanguage',
+  3: 'ScandinavianLanguage',
+  4: 'TurkicLanguage',
+  5: 'AbstractLanguage'
+}
+const baseClass = baseClassMap[baseClassChoice] || 'CardMatchLanguage'
+const negativeWord =
+  (await rl.question(
+    'Word for negative numbers (e.g., "minus", "negative") [minus]: '
+  )) || 'minus'
+const separatorWord =
+  (await rl.question(
+    'Word for decimal point (e.g., "point", "dot") [point]: '
+  )) || 'point'
+const zeroWord = (await rl.question('Word for zero [zero]: ')) || 'zero'
 
 rl.close()
 
 console.log()
-console.log('Generating files...')
+console.log(chalk.cyan('Generating files...'))
 
 // Validate inputs
 if (!langCode || !langCode.match(/^[a-z]{2}(-[A-Z]{2})?$/)) {
-  console.error('Error: Invalid language code. Use format "xx" or "xx-YY"')
+  console.error(chalk.red('✗ Error: Invalid language code. Use format "xx" or "xx-YY"'))
   process.exit(1)
 }
 
+function toClassName (name, code) {
+  // Strip diacritics, keep alphanumerics, capitalize words
+  const normalized = name
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^A-Za-z0-9]+/g, ' ')
+    .trim()
+
+  if (!normalized) return code.toUpperCase().replace('-', '')
+
+  return normalized
+    .split(/\s+/)
+    .map(part => part.charAt(0).toUpperCase() + part.slice(1))
+    .join('')
+}
+
 const fileName = langCode
-// Create consistent class name: just uppercase language code (e.g., EN, FRBE)
-const className = langCode.toUpperCase().replace('-', '')
+const className = toClassName(langName, langCode)
 const constName = langCode.replace('-', '')
 
 // Check if language already exists
 if (existsSync(`lib/i18n/${fileName}.js`)) {
-  console.error(`Error: Language file lib/i18n/${fileName}.js already exists`)
+  console.error(chalk.red(`✗ Error: Language file lib/i18n/${fileName}.js already exists`))
   process.exit(1)
 }
 
 // Generate language implementation
-const languageTemplate = `import ${baseClass} from '../classes/${baseClass.toLowerCase().replace('language', '-language')}.js'
+// Convert PascalCase class name to kebab-case file name
+const baseClassFile = baseClass
+  .replace(/([A-Z])/g, '-$1')
+  .toLowerCase()
+  .substring(1) // Remove leading hyphen
+const languageTemplate = `import ${baseClass} from '../classes/${baseClassFile}.js'
 
 /**
  * ${langName} language implementation
@@ -180,55 +228,73 @@ export default [
 
 // Write language file
 writeFileSync(`lib/i18n/${fileName}.js`, languageTemplate)
-console.log(`✓ Created lib/i18n/${fileName}.js`)
+console.log(chalk.green(`✓ Created lib/i18n/${fileName}.js`))
 
 // Write test file
 writeFileSync(`test/i18n/${fileName}.js`, testTemplate)
-console.log(`✓ Created test/i18n/${fileName}.js`)
+console.log(chalk.green(`✓ Created test/i18n/${fileName}.js`))
 
 // Update lib/n2words.js
 const n2wordsPath = 'lib/n2words.js'
 let n2wordsContent = readFileSync(n2wordsPath, 'utf8')
 
 // Find the last import and add new import after it
-const lastImportMatch = n2wordsContent.match(/import \w+ from '.\/i18n\/[^']+\.js'\n/g)
+const lastImportMatch = n2wordsContent.match(
+  /import \w+ from '.\/i18n\/[^']+\.js'\n/g
+)
 if (lastImportMatch) {
   const lastImport = lastImportMatch[lastImportMatch.length - 1]
   const importStatement = `import ${constName} from './i18n/${fileName}.js'\n`
-  n2wordsContent = n2wordsContent.replace(lastImport, lastImport + importStatement)
-  console.log('✓ Added import to lib/n2words.js')
+  n2wordsContent = n2wordsContent.replace(
+    lastImport,
+    lastImport + importStatement
+  )
+  console.log(chalk.green('✓ Added import to lib/n2words.js'))
 }
 
 // Add to dict (find last entry and add new one)
 const dictMatch = n2wordsContent.match(/const dict = \{[\s\S]*?\n\}/m)
 if (dictMatch) {
   const dictBlock = dictMatch[0]
-  // Find the last line before closing brace
   const lines = dictBlock.split('\n')
   const closingBraceIndex = lines.length - 1
 
+  // Find the last non-empty line before closing brace and ensure it has a trailing comma
+  for (let i = closingBraceIndex - 1; i >= 0; i--) {
+    const line = lines[i].trim()
+    if (line && !line.startsWith('//')) {
+      // Add comma if missing
+      if (!line.endsWith(',')) {
+        lines[i] = lines[i] + ','
+      }
+      break
+    }
+  }
+
   // Determine if we need quoted key or not
   const dictEntry = langCode.includes('-')
-    ? `  '${langCode}': ${constName},`
-    : `  ${constName},`
+    ? `  '${langCode}': ${constName}`
+    : `  ${constName}`
 
   lines.splice(closingBraceIndex, 0, dictEntry)
   const newDictBlock = lines.join('\n')
   n2wordsContent = n2wordsContent.replace(dictBlock, newDictBlock)
-  console.log(`✓ Added '${langCode}' to dict in lib/n2words.js`)
+  console.log(chalk.green(`✓ Added '${langCode}' to dict in lib/n2words.js`))
 }
 
 writeFileSync(n2wordsPath, n2wordsContent)
 
 console.log()
-console.log('='.repeat(60))
-console.log('✓ Language boilerplate created successfully!')
-console.log('='.repeat(60))
+console.log(chalk.gray('='.repeat(60)))
+console.log(chalk.green('✓ Language boilerplate created successfully!'))
+console.log(chalk.gray('='.repeat(60)))
 console.log()
-console.log('Next steps:')
+console.log(chalk.cyan('Next steps:'))
 console.log()
 console.log(`1. Edit lib/i18n/${fileName}.js:`)
-console.log('   - Fill in the cards array with number words in DESCENDING order')
+console.log(
+  '   - Fill in the cards array with number words in DESCENDING order'
+)
 console.log('   - Implement the merge() method according to language grammar')
 console.log('   - Add any language-specific methods if needed')
 console.log()
@@ -245,7 +311,7 @@ console.log()
 console.log('5. Build and verify:')
 console.log('   npm run build:web')
 console.log()
-console.log('Reference implementations:')
+console.log(chalk.cyan('Reference implementations:'))
 console.log('   - Simple: lib/i18n/en.js')
 console.log('   - Complex: lib/i18n/pt.js, lib/i18n/fr.js')
 console.log()

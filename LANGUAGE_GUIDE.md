@@ -29,23 +29,54 @@ This creates:
 
 ### Manual Setup
 
-If you need more control, follow the [manual process in CONTRIBUTING.md](./CONTRIBUTING.md#manual-process-alternative).
+If you need more control, follow these steps:
+
+1. Create `lib/i18n/xx.js`
+2. Choose the appropriate base class based on your language's characteristics
+3. Implement required methods
+4. Add language registration in `lib/n2words.js`
+5. Create test file `test/i18n/xx.js`
 
 ## Understanding the Architecture
 
 ### Base Classes
 
-**BaseLanguage** - Use for most languages
+Choose the appropriate base class for your language:
 
+**CardMatchLanguage** - Use for most languages with regular card-based systems
+
+- Extends `AbstractLanguage`
 - Implements highest-matching-card algorithm
 - Works well for languages with regular patterns
-- Examples: English, Spanish, German
+- Define a `cards` array and implement `merge()` method
+- Examples: English, Spanish, German, French, Italian, Portuguese, Dutch, Korean, Hungarian, Chinese
 
-**AbstractLanguage** - Use for complex languages
+**SlavicLanguage** - Use for Slavic/Baltic languages with three-form pluralization
 
-- More control over conversion logic
-- Needed for irregular patterns
-- Examples: French (special rules), Portuguese (gender agreement)
+- Extends `AbstractLanguage`
+- Specialized for languages with complex pluralization rules
+- Handles singular/dual/plural forms
+- Examples: Russian, Czech, Polish, Ukrainian, Serbian, Croatian, Hebrew, Lithuanian, Latvian
+
+**ScandinavianLanguage** - Use for Scandinavian languages
+
+- Extends `CardMatchLanguage`
+- Adds support for "og" (and) conjunction
+- Specialized grammar patterns for Nordic languages
+- Examples: Norwegian, Danish
+
+**TurkicLanguage** - Use for Turkic languages
+
+- Extends `CardMatchLanguage`
+- Space-separated number combinations
+- Implicit number handling patterns
+- Examples: Turkish, Azerbaijani
+
+**AbstractLanguage** - Use for custom implementations requiring full control
+
+- Core base class for all others
+- Most flexibility for irregular patterns
+- Examples: Arabic, Vietnamese, Romanian, Persian, Indonesian
 
 ### Key Concepts
 
@@ -62,8 +93,8 @@ If you need more control, follow the [manual process in CONTRIBUTING.md](./CONTR
   [1000n, 'thousand'],
   [100n, 'hundred'],
   // ... down to
-  [1n, 'one']
-]
+  [1n, 'one'],
+];
 ```
 
 #### Merge Method
@@ -74,17 +105,24 @@ If you need more control, follow the [manual process in CONTRIBUTING.md](./CONTR
 
 ## Step-by-Step Implementation
 
-### 1. Define Number Words
+### 1. Choose Your Base Class and Define Number Words
 
-Create your cards array with ALL number words:
+Start by selecting the right base class. For most languages, use `CardMatchLanguage`:
 
 ```javascript
-constructor (options) {
-  super(Object.assign({
-    negativeWord: 'minus',  // Word for negative numbers
-    separatorWord: 'point', // Word for decimal point
-    zero: 'zero'            // Word for zero
-  }, options), [
+import CardMatchLanguage from '../classes/card-match-language.js'
+
+export default function floatToCardinal(value, options = {}) {
+  return new MyLanguage(options).floatToCardinal(value)
+}
+
+class MyLanguage extends CardMatchLanguage {
+  constructor (options) {
+    super(Object.assign({
+      negativeWord: 'minus',  // Word for negative numbers
+      separatorWord: 'point', // Word for decimal point
+      zero: 'zero'            // Word for zero
+    }, options), [
     // Large numbers first
     [1000000000n, 'billion'],
     [1000000n, 'million'],
@@ -254,7 +292,7 @@ export default [
   ['3.14', 'three point one four'],
   ['0.5', 'zero point five'],
   ['3.005', 'three point zero zero five'], // Leading zeros important!
-]
+];
 ```
 
 ### 2. Run Tests
@@ -265,6 +303,9 @@ npm run test:i18n
 
 # Validate implementation
 npm run lang:validate xx
+
+# Validate all languages
+npm run lang:validate
 
 # Full test suite
 npm test
@@ -333,7 +374,7 @@ merge (left, right) {
 For post-processing, compile regex once:
 
 ```javascript
-class MyLanguage extends BaseLanguage {
+class MyLanguage extends CardMatchLanguage {
   constructor (options) {
     super(options, cards)
 
@@ -370,13 +411,13 @@ merge (left, right) {
 
 ```javascript
 // ✗ Slow
-const merged = leftWords.join(' ') + ' ' + rightWords.join(' ')
+const merged = leftWords.join(' ') + ' ' + rightWords.join(' ');
 
 // ✓ Faster for single words
-const merged = leftWords[0] + ' ' + rightWords[0]
+const merged = leftWords[0] + ' ' + rightWords[0];
 
 // ✓ Or use array concatenation
-const merged = [...leftWords, ...rightWords].join(' ')
+const merged = [...leftWords, ...rightWords].join(' ');
 ```
 
 ## BigInt Requirements
@@ -393,11 +434,13 @@ See [BIGINT-GUIDE.md](./BIGINT-GUIDE.md) for comprehensive guidance on BigInt us
 
 Study these examples:
 
-- **Simple**: `lib/i18n/en.js` - Basic patterns
-- **Optimized**: `lib/i18n/pt.js` - Advanced optimizations
-- **Complex**: `lib/i18n/fr.js` - Special rules
-- **Non-Latin**: `lib/i18n/ar.js`, `lib/i18n/zh.js` - Different scripts
-- **Slavic**: `lib/i18n/ru.js` - Three-form pluralization pattern
+- **CardMatchLanguage**: `lib/i18n/en.js` - Basic patterns
+- **CardMatchLanguage (optimized)**: `lib/i18n/pt.js` - Advanced optimizations
+- **CardMatchLanguage (complex)**: `lib/i18n/fr.js` - Special rules
+- **ScandinavianLanguage**: `lib/i18n/no.js` - Norwegian patterns with "og" conjunction
+- **TurkicLanguage**: `lib/i18n/tr.js` - Turkish patterns with space-separated combinations
+- **SlavicLanguage**: `lib/i18n/ru.js` - Three-form pluralization pattern
+- **AbstractLanguage**: `lib/i18n/ar.js`, `lib/i18n/zh.js` - Custom implementations with different scripts
 
 ## Getting Help
 

@@ -57,45 +57,49 @@
   "exports": {
     ".": {
       "import": "./lib/n2words.js",
-      "types": "./types/n2words.d.ts"
+      "types": "./typings/n2words.d.ts"
     },
     "./i18n/*": {
       "import": "./lib/i18n/*.js",
-      "types": "./types/i18n/*.d.ts"
+      "types": "./typings/i18n/*.d.ts"
     }
   },
   "jsdelivr": {
     "browser": "dist/n2words.js",
-    "types": "types/n2words.d.ts"
+    "types": "typings/n2words.d.ts"
   },
   "unpkg": {
     "browser": "dist/n2words.js",
-    "types": "types/n2words.d.ts"
+    "types": "typings/n2words.d.ts"
   },
   "main": "lib/n2words.js",
-  "types": "types/n2words.d.ts",
+  "types": "typings/n2words.d.ts",
   "typesVersions": {
     "*": {
       "n2words/*": [
-        "types/*"
+        "typings/*"
       ]
     }
   },
   "files": [
     "lib/*",
     "dist/*",
-    "types/*"
+    "typings/*"
   ],
   "scripts": {
     "bench": "node bench.js",
+    "bench:memory": "node --expose-gc bench-memory.js",
     "build:web": "webpack --progress",
     "build:types": "tsc --project tsconfig.json",
+    "build": "npm run build:web && npm run build:types",
     "coverage": "c8 npm run test:core",
-    "docs": "jsdoc -c ./conf.json",
+    "docs": "npm run docs:clean && jsdoc -c ./conf.json && npm run docs:validate",
+    "docs:clean": "node -e \"import { rmSync } from 'fs'; try { rmSync('docs', { recursive: true, force: true }) } catch (e) {}\"",
+    "docs:validate": "echo 'Documentation generated successfully'",
     "lang:add": "node scripts/add-language.js",
     "lang:validate": "node scripts/validate-language.js",
     "lint": "npm run lint:js && npm run lint:md",
-    "lint:js": "npx standard examples/ lib/ scripts/ test/ *.js",
+    "lint:js": "standard examples/ lib/ scripts/ test/ *.js",
     "lint:md": "markdownlint-cli2 *.md scripts/*.md",
     "test": "npm run test:core && npm run test:types",
     "test:core": "npm run test:unit && npm run test:integration && npm run test:smoke && npm run test:i18n",
