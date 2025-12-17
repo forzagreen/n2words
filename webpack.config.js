@@ -1,4 +1,4 @@
-import { readdirSync } from 'node:fs'
+import { readdirSync, readFileSync } from 'node:fs'
 
 export default {
   mode: 'production',
@@ -29,7 +29,7 @@ export default {
               '@babel/preset-env',
               {
                 useBuiltIns: 'usage',
-                corejs: '3.47.0',
+                corejs: JSON.parse(readFileSync('./package.json')).devDependencies['core-js'].replace('^', ''),
                 targets: 'defaults'
               }
             ]

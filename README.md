@@ -6,9 +6,9 @@
 [![npm](https://img.shields.io/npm/dw/n2words)](https://npmjs.com/package/n2words)
 [![jsDelivr](https://data.jsdelivr.com/v1/package/npm/n2words/badge)](https://www.jsdelivr.com/package/npm/n2words)
 
-**n2words** converts numerical numbers into written ones. Supports **30 languages** with **zero dependencies**.
+**n2words** converts numerical numbers into written ones. Supports **38 languages** with **zero dependencies**.
 
-- 🌍 **30 languages** - Comprehensive international language support
+- 🌍 **38 languages** - Comprehensive international language support
 - 📦 **Zero dependencies** - Lightweight and fast
 - 🚀 **Performance optimized** - Highly tuned for speed
 - 📱 **Universal** - Works in browsers, Node.js, and TypeScript
@@ -21,10 +21,11 @@ import n2words from 'n2words';
 
 n2words(123); // 'one hundred and twenty-three'
 n2words(-1.5); // 'minus one point five'
-n2words(123, { lang: 'fr' }); // 'cent vingt-trois'
+n2words(123, { lang: 'zh' }); // '壹佰贰拾叁'
+n2words(123, { lang: 'hi' }); // 'एक सौ तेईस'
 n2words(123, { lang: 'es' }); // 'ciento veintitrés'
 n2words(123, { lang: 'ar' }); // 'مائة وثلاثة وعشرون'
-n2words(1000000n); // 'one million'
+n2words(999999999999n, { lang: 'zh' }); // '玖仟玖佰玖拾玖亿玖仟玖佰玖拾玖万玖仟玖佰玖拾玖' (BigInt support!)
 ```
 
 ## Installation
@@ -93,22 +94,18 @@ Or import specific languages:
 | `fr` | French     | `fr-BE` | French (Belgium) |
 | `he` | Hebrew     | `hr`    | Croatian         |
 | `hu` | Hungarian  | `id`    | Indonesian       |
-| `it` | Italian    | `ko`    | Korean           |
-| `lt` | Lithuanian | `lv`    | Latvian          |
-| `nl` | Dutch      | `no`    | Norwegian        |
-| `pl` | Polish     | `pt`    | Portuguese       |
-| `ro` | Romanian   | `ru`    | Russian          |
-| `sr` | Serbian    | `sv`    | Swedish          |
-| `tr` | Turkish    | `uk`    | Ukrainian        |
-| `vi` | Vietnamese | `zh`    | Chinese          |
-
-## API Options
-
-```ts
-interface N2WordsOptions {
-  lang?: string; // Language code (default: 'en')
-}
-```
+| `it` | Italian    | `ja`    | Japanese         |
+| `ko` | Korean     | `lt`    | Lithuanian       |
+| `lv` | Latvian    | `nl`    | Dutch            |
+| `no` | Norwegian  | `pl`    | Polish           |
+| `pt` | Portuguese | `ro`    | Romanian         |
+| `ru` | Russian    | `sr`    | Serbian          |
+| `sv` | Swedish    | `tr`    | Turkish          |
+| `uk` | Ukrainian  | `vi`    | Vietnamese       |
+| `zh` | Chinese    | `hi`    | Hindi            |
+| `bn` | Bengali    | `ta`    | Tamil            |
+| `te` | Telugu     | `th`    | Thai             |
+| `sw` | Swahili    | `ms`    | Malay            |
 
 ## Performance
 
@@ -143,6 +140,10 @@ n2words(1000000); // 'one million'
 n2words(3.14); // 'three point one four'
 n2words(10.5); // 'ten point five'
 n2words(0.007); // 'zero point zero zero seven'
+
+// Some languages read decimals digit-by-digit
+n2words(3.14, { lang: 'ja' }); // '三点一四' (Japanese: san-ten-ichi-yon)
+n2words(2.05, { lang: 'th' }); // 'สามจุดหนึ่งสี่' (Thai: each digit spoken)
 ```
 
 ### Negative Numbers
@@ -201,4 +202,4 @@ See [CONTRIBUTING.md](./CONTRIBUTING.md) and [LANGUAGE_GUIDE.md](./LANGUAGE_GUID
 
 ## License
 
-[MIT](./LICENSE) © 2024
+[MIT](./LICENSE) © 2025

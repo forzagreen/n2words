@@ -1,7 +1,7 @@
 {
   "name": "n2words",
   "version": "1.23.2",
-  "description": "n2words converts a numerical number into a written one, supports 29 languages and has zero dependencies.",
+  "description": "n2words converts a numerical number into a written one, supports 38 languages and has zero dependencies.",
   "keywords": [
     "n2words",
     "convert",
@@ -10,6 +10,13 @@
     "text",
     "natural",
     "language",
+    "i18n",
+    "internationalization",
+    "number-to-words",
+    "numeral",
+    "numeric",
+    "cardinal",
+    "spell-out",
     "english",
     "french",
     "spanish",
@@ -30,14 +37,17 @@
     "korean",
     "dutch",
     "serbian",
-    "farsi",
     "persian",
     "chinese",
     "hungarian",
     "indonesian",
     "croatian",
     "vietnamese",
-    "azerbaijani"
+    "azerbaijani",
+    "japanese",
+    "romanian",
+    "malay",
+    "bahasa melayu"
   ],
   "homepage": "https://github.com/forzagreen/n2words#readme",
   "bugs": {
@@ -64,6 +74,7 @@
       "types": "./typings/i18n/*.d.ts"
     }
   },
+  "main": "lib/n2words.js",
   "jsdelivr": {
     "browser": "dist/n2words.js",
     "types": "typings/n2words.d.ts"
@@ -72,7 +83,6 @@
     "browser": "dist/n2words.js",
     "types": "typings/n2words.d.ts"
   },
-  "main": "lib/n2words.js",
   "types": "typings/n2words.d.ts",
   "typesVersions": {
     "*": {
@@ -89,9 +99,9 @@
   "scripts": {
     "bench": "node bench.js",
     "bench:memory": "node --expose-gc bench-memory.js",
-    "build:web": "webpack --progress",
-    "build:types": "tsc --project tsconfig.json",
     "build": "npm run build:web && npm run build:types",
+    "build:types": "tsc --project tsconfig.json",
+    "build:web": "webpack --progress",
     "coverage": "c8 npm run test:core",
     "docs": "npm run docs:clean && jsdoc -c ./conf.json && npm run docs:validate",
     "docs:clean": "node -e \"import { rmSync } from 'fs'; try { rmSync('docs', { recursive: true, force: true }) } catch (e) {}\"",
@@ -103,22 +113,22 @@
     "lint:md": "markdownlint-cli2 *.md scripts/*.md",
     "test": "npm run test:core && npm run test:types",
     "test:core": "npm run test:unit && npm run test:integration && npm run test:smoke && npm run test:i18n",
-    "test:unit": "ava --verbose test/unit/*.js",
+    "test:i18n": "ava --verbose test/i18n.js",
     "test:integration": "ava --verbose test/integration/*.js",
     "test:smoke": "ava --verbose test/smoke/*.js",
-    "test:i18n": "ava --verbose test/i18n.js",
-    "test:web": "ava --verbose test/web.js",
-    "test:types": "tsx test/typescript-smoke.ts"
+    "test:types": "tsx test/typescript-smoke.ts",
+    "test:unit": "ava --verbose test/unit/*.js",
+    "test:web": "ava --verbose test/web.js"
   },
   "ava": {
+    "extensions": [
+      "js"
+    ],
     "files": [
       "test/unit/*.js",
       "test/integration/*.js",
       "test/smoke/*.js",
       "test/i18n.js"
-    ],
-    "extensions": [
-      "js"
     ],
     "timeout": "30s"
   },
@@ -149,7 +159,7 @@
     "standard": "^17.1.2",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3",
-    "webpack": "^5.103.0",
+    "webpack": "^5.104.0",
     "webpack-cli": "^6.0.1"
   },
   "engines": {

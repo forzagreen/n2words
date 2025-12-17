@@ -103,8 +103,10 @@ Notes:
   - `ScandinavianLanguage` for Scandinavian languages with "og" conjunction (Norwegian, Danish)
   - `TurkicLanguage` for Turkic languages with space-separated patterns (Turkish, Azerbaijani)
   - `AbstractLanguage` for custom implementations requiring full control (Arabic, Persian, Indonesian, Romanian, Vietnamese)
-- For decimals, rely on `AbstractLanguage.decimalToCardinal()` unless your
-  language has very unique decimal rules.
+- For decimals, rely on `AbstractLanguage.decimalToCardinal()`. If your language
+  reads decimals digit-by-digit (like Japanese, Thai, Tamil, Telugu), set
+  `usePerDigitDecimals: true` in the constructor options and optionally define
+  a `digits` class property for the digit words.
 
 ### Registering the language
 
