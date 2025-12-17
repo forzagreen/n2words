@@ -59,6 +59,7 @@ docs/
 
 # Benchmark results
 bench-results.json
+bench-memory-results.json
 
 # OS-specific
 .DS_Store
