@@ -30,7 +30,7 @@ This file gives targeted, actionable guidance for AI coding agents working in th
     - `ScandinavianLanguage` for Scandinavian languages with "og" conjunction (Norwegian, Danish)
     - `TurkicLanguage` for Turkic languages with space-separated patterns (Turkish, Azerbaijani)
     - `AbstractLanguage` for custom implementations requiring full control (Arabic, Vietnamese, Romanian, Persian, Indonesian)
-  - Decimal processing: languages should rely on `AbstractLanguage.decimalToCardinal()` for consistent behavior when extending `AbstractLanguage` or any of its subclasses.
+  - Decimal processing: languages should rely on `AbstractLanguage.decimalToCardinal()` for consistent behavior when extending `AbstractLanguage` or any of its subclasses. For digit-by-digit decimal reading (Japanese, Thai, Tamil, Telugu), set `usePerDigitDecimals: true` in constructor options.
   - The default language code is `en`; fallbacks are handled in `lib/n2words.js` by progressively stripping suffixes (e.g. `fr-BE` -> `fr`).
 
 - **How to add a language (recommended):**
@@ -71,7 +71,7 @@ This file gives targeted, actionable guidance for AI coding agents working in th
 - **Important implementation notes:**
   - Input types: functions accept `number | string | bigint`. `AbstractLanguage.floatToCardinal` validates inputs and converts to `BigInt` for whole numbers.
   - Negative numbers: `AbstractLanguage` prepends `negativeWord` (languages set this via options).
-  - Decimal handling: decimal digits are converted individually except leading zeros, which are translated to the language's `zero` word.
+  - Decimal handling: By default, leading zeros are preserved as `zero` words and remaining digits are grouped. Languages requiring per-digit decimal reading (ja, th, ta, te) set `usePerDigitDecimals: true` in their constructor.
   - Performance: Portuguese (pt.js) and English (en.js) are heavily optimized with cached regex and merge() optimizations.
 - **Files to inspect for examples:**
   - `lib/i18n/en.js` — canonical use of `CardMatchLanguage` and `cards` + optimized `merge()` implementation.

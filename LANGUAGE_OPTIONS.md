@@ -4,13 +4,14 @@ This guide documents all unique language-specific options available in the n2wor
 
 ## Common Options (All Languages)
 
-These options are available for all 37 supported languages:
+These options are available for all 38 supported languages:
 
-| Option          | Type   | Description                             | Default Value                                           |
-| --------------- | ------ | --------------------------------------- | ------------------------------------------------------- |
-| `negativeWord`  | string | Word used for negative numbers          | Language-specific (e.g., "minus", "menos", "ناقص")      |
-| `separatorWord` | string | Word separating whole and decimal parts | Language-specific (e.g., "point", "virgule", "virgulă") |
-| `zero`          | string | Word for the digit 0                    | Language-specific (e.g., "zero", "cero", "صفر")         |
+| Option                | Type    | Description                                     | Default Value                                           |
+| --------------------- | ------- | ----------------------------------------------- | ------------------------------------------------------- |
+| `negativeWord`        | string  | Word used for negative numbers                  | Language-specific (e.g., "minus", "menos", "ناقص")      |
+| `separatorWord`       | string  | Word separating whole and decimal parts         | Language-specific (e.g., "point", "virgule", "virgulă") |
+| `zero`                | string  | Word for the digit 0                            | Language-specific (e.g., "zero", "cero", "صفر")         |
+| `usePerDigitDecimals` | boolean | Read decimals digit-by-digit instead of grouped | `false` (language-specific: `true` for ja, th, ta, te)  |
 
 ## Language-Specific Options
 

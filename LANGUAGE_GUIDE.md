@@ -121,7 +121,8 @@ class MyLanguage extends CardMatchLanguage {
     super(Object.assign({
       negativeWord: 'minus',  // Word for negative numbers
       separatorWord: 'point', // Word for decimal point
-      zero: 'zero'            // Word for zero
+      zero: 'zero',           // Word for zero
+      usePerDigitDecimals: false // Set to true for digit-by-digit decimal reading
     }, options), [
     // Large numbers first
     [1000000000n, 'billion'],
@@ -326,6 +327,90 @@ Ensure you test:
 - ✓ Negative numbers
 - ✓ Decimal numbers
 - ✓ Edge cases specific to your language
+
+## Decimal Handling
+
+By default, `AbstractLanguage` handles decimals using a grouped approach where leading zeros are preserved as individual "zero" words, and remaining digits are grouped as a number:
+
+- `3.14` → "three point one four" (grouped: remaining digits read as "fourteen"... wait, this would be "one four")
+- `2.05` → "two point zero five" (zero preserved, then "five")
+
+### Per-Digit Decimal Conversion
+
+Some languages read each decimal digit individually. To enable this behavior, set `usePerDigitDecimals: true` in the constructor:
+
+```javascript
+class Japanese extends AbstractLanguage {
+  digits = ['一', '二', '三', '四', '五', '六', '七', '八', '九'];
+
+  constructor(options) {
+    super(
+      Object.assign(
+        {
+          negativeWord: 'マイナス',
+          separatorWord: '点',
+          zero: '零',
+          usePerDigitDecimals: true, // Enable per-digit decimal reading
+        },
+        options,
+      ),
+    );
+  }
+
+  // ... rest of implementation
+}
+```
+
+**When to use per-digit decimals:**
+
+- Languages that always read decimals digit-by-digit (Japanese, Thai, Tamil, Telugu)
+- Scripts where grouped decimal reading doesn't make linguistic sense
+- Languages with a `digits` array for individual digit words
+
+**Default (grouped) behavior:**
+
+- `3.14` → groups as "three point one four" (or "fourteen" depending on language)
+- `2.05` → "two point zero five" (leading zero preserved)
+
+**Per-digit behavior (`usePerDigitDecimals: true`):**
+
+- `3.14` → "three point one four" (each digit separate)
+- `2.05` → "two point zero five" (each digit separate)
+
+### Defining a Digits Array
+
+If your language uses per-digit decimals, define a `digits` class property:
+
+```javascript
+class MyLanguage extends AbstractLanguage {
+  // Map indices 0-8 to digits 1-9
+  digits = [
+    'one',
+    'two',
+    'three',
+    'four',
+    'five',
+    'six',
+    'seven',
+    'eight',
+    'nine',
+  ];
+
+  constructor(options) {
+    super(
+      Object.assign(
+        {
+          // ... other options
+          usePerDigitDecimals: true,
+        },
+        options,
+      ),
+    );
+  }
+}
+```
+
+The `digitToWord()` method will automatically use this array when converting decimal digits.
 
 ## Common Patterns
 

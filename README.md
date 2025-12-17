@@ -139,6 +139,10 @@ n2words(1000000); // 'one million'
 n2words(3.14); // 'three point one four'
 n2words(10.5); // 'ten point five'
 n2words(0.007); // 'zero point zero zero seven'
+
+// Some languages read decimals digit-by-digit
+n2words(3.14, { lang: 'ja' }); // '三点一四' (Japanese: san-ten-ichi-yon)
+n2words(2.05, { lang: 'th' }); // 'สามจุดหนึ่งสี่' (Thai: each digit spoken)
 ```
 
 ### Negative Numbers
