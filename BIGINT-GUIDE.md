@@ -449,25 +449,25 @@ class RU extends SlavicLanguage {
 **Example:** `lib/i18n/no.js`
 
 ```javascript
-import CardMatchLanguage from '../classes/card-match-language.js'
+import CardMatchLanguage from '../classes/card-match-language.js';
 
 class Norwegian extends CardMatchLanguage {
-  constructor (options) {
+  constructor(options) {
     super(options, [
       [1_000_000_000n, 'milliard'],
       [1_000_000n, 'million'],
       [1000n, 'tusen'],
       [100n, 'hundre'],
       // ... more cards with BigInt literals
-    ])
+    ]);
   }
 
-  merge (leftPair, rightPair) {
-    const leftNumber = Object.values(leftPair)[0]
-    const rightNumber = Object.values(rightPair)[0]
+  merge(leftPair, rightPair) {
+    const leftNumber = Object.values(leftPair)[0];
+    const rightNumber = Object.values(rightPair)[0];
 
     if (leftNumber === 1n && rightNumber < 100n) {
-      return rightPair
+      return rightPair;
     }
     // ... more merge rules
   }
