@@ -201,7 +201,6 @@ async function validateLanguage (langCode) {
   if (
     !content.includes('CardMatchLanguage') &&
     !content.includes('SlavicLanguage') &&
-    !content.includes('ScandinavianLanguage') &&
     !content.includes('TurkicLanguage') &&
     !content.includes('AbstractLanguage') &&
     !content.match(/extends\s+[A-Z][A-Za-z0-9_]*/)

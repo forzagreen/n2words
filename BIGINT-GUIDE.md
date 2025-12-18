@@ -81,7 +81,7 @@ Final string output
 
 ### 1. Cards Arrays (CardMatchLanguage and related classes)
 
-**WHY:** The `toCardMatches()` method in `CardMatchLanguage` (and its subclasses `ScandinavianLanguage` and `TurkicLanguage`) performs BigInt arithmetic (`rem / card[0]`, `rem % card[0]`). If `card[0]` is a regular number, this throws a TypeError.
+**WHY:** The `toCardMatches()` method in `CardMatchLanguage` (and subclasses like `TurkicLanguage`) performs BigInt arithmetic (`rem / card[0]`, `rem % card[0]`). If `card[0]` is a regular number, this throws a TypeError.
 
 ```javascript
 // ✅ CORRECT: All values use BigInt literals
@@ -110,7 +110,6 @@ constructor(options) {
 **Files affected:**
 
 - All `lib/i18n/*.js` files that extend `CardMatchLanguage` or its subclasses (23 languages: en, de, fr, es, pt, ko, zh, hu, it, nl, fr-BE)
-- All `lib/i18n/*.js` files that extend `ScandinavianLanguage` (2 languages: dk, no)
 - All `lib/i18n/*.js` files that extend `TurkicLanguage` (2 languages: az, tr)
 
 ### 2. BigInt Comparisons in `merge()` Methods
@@ -437,7 +436,7 @@ class RU extends SlavicLanguage {
 }
 ```
 
-### Pattern 3: ScandinavianLanguage with "og" Conjunction
+### Pattern 3: CardMatchLanguage with "og" Conjunction (inline)
 
 **Used by:** Norwegian (no), Danish (dk)
 
@@ -450,26 +449,25 @@ class RU extends SlavicLanguage {
 **Example:** `lib/i18n/no.js`
 
 ```javascript
-import ScandinavianLanguage from '../classes/scandinavian-language.js';
+import CardMatchLanguage from '../classes/card-match-language.js'
 
-class NO extends ScandinavianLanguage {
-  constructor(options) {
+class Norwegian extends CardMatchLanguage {
+  constructor (options) {
     super(options, [
       [1_000_000_000n, 'milliard'],
       [1_000_000n, 'million'],
       [1000n, 'tusen'],
       [100n, 'hundre'],
       // ... more cards with BigInt literals
-    ]);
+    ])
   }
 
-  merge(leftPair, rightPair) {
-    const leftNumber = Object.values(leftPair)[0];
-    const rightNumber = Object.values(rightPair)[0];
+  merge (leftPair, rightPair) {
+    const leftNumber = Object.values(leftPair)[0]
+    const rightNumber = Object.values(rightPair)[0]
 
-    // ✅ All comparisons use BigInt literals
     if (leftNumber === 1n && rightNumber < 100n) {
-      return rightPair;
+      return rightPair
     }
     // ... more merge rules
   }
@@ -709,7 +707,7 @@ assert.strictEqual(
 
 When creating a new language implementation, verify BigInt usage:
 
-### For CardMatchLanguage and Subclasses (including ScandinavianLanguage and TurkicLanguage)
+### For CardMatchLanguage and Subclasses (including TurkicLanguage)
 
 - [ ] All values in `cards` array use `n` suffix (BigInt literals)
 - [ ] All comparisons in `merge()` use `n` suffix when comparing against card values
@@ -769,7 +767,6 @@ Is the value used in BigInt arithmetic (/, %, *)?
 - [LANGUAGE_GUIDE.md](../LANGUAGE_GUIDE.md) - Comprehensive guide for adding new languages
 - [lib/classes/abstract-language.js](../lib/classes/abstract-language.js) - Input validation and decimal handling
 - [lib/classes/card-match-language.js](../lib/classes/card-match-language.js) - Card-based algorithm
-- [lib/classes/scandinavian-language.js](../lib/classes/scandinavian-language.js) - Scandinavian "og" conjunction
 - [lib/classes/turkic-language.js](../lib/classes/turkic-language.js) - Turkic space-separated patterns
 - [lib/classes/slavic-language.js](../lib/classes/slavic-language.js) - Slavic/Baltic pluralization
 

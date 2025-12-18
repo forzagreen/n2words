@@ -37,17 +37,15 @@ console.log(
   '  1. CardMatchLanguage (most languages: en, de, fr, es, pt, etc.)'
 )
 console.log('  2. SlavicLanguage (Slavic languages: ru, pl, cz, uk, etc.)')
-console.log('  3. ScandinavianLanguage (Nordic languages: no, dk)')
-console.log('  4. TurkicLanguage (Turkish languages: tr, az)')
-console.log('  5. AbstractLanguage (custom implementations: ar, vi, ro, etc.)')
+console.log('  3. TurkicLanguage (Turkish languages: tr, az)')
+console.log('  4. AbstractLanguage (custom implementations: ar, vi, ro, etc.)')
 const baseClassChoice =
-  (await rl.question('Choose base class (1-5) [1]: ')) || '1'
+  (await rl.question('Choose base class (1-4) [1]: ')) || '1'
 const baseClassMap = {
   1: 'CardMatchLanguage',
   2: 'SlavicLanguage',
-  3: 'ScandinavianLanguage',
-  4: 'TurkicLanguage',
-  5: 'AbstractLanguage'
+  3: 'TurkicLanguage',
+  4: 'AbstractLanguage'
 }
 const baseClass = baseClassMap[baseClassChoice] || 'CardMatchLanguage'
 const negativeWord =

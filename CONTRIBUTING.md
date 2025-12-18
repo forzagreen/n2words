@@ -100,7 +100,6 @@ Notes:
 - Choose the appropriate base class:
   - `CardMatchLanguage` for most languages with regular card-based systems (English, Spanish, German, French, Belgian French, Italian, Portuguese, Dutch, Korean, Hungarian, Chinese)
   - `SlavicLanguage` for languages with three-form pluralization (Russian, Czech, Polish, Ukrainian, Serbian, Croatian, Hebrew, Lithuanian, Latvian)
-  - `ScandinavianLanguage` for Scandinavian languages with "og" conjunction (Norwegian, Danish)
   - `TurkicLanguage` for Turkic languages with space-separated patterns (Turkish, Azerbaijani)
   - `AbstractLanguage` for custom implementations requiring full control (Arabic, Persian, Indonesian, Romanian, Vietnamese)
 - For decimals, rely on `AbstractLanguage.decimalToCardinal()`. If your language

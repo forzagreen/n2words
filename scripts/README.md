@@ -28,7 +28,6 @@ The script guides you to choose from five base classes:
 
 - **CardMatchLanguage** - For most languages (English, Spanish, French, German, etc.)
 - **SlavicLanguage** - For Slavic/Baltic languages (Russian, Polish, Czech, etc.)
-- **ScandinavianLanguage** - For Scandinavian languages (Norwegian, Danish)
 - **TurkicLanguage** - For Turkic languages (Turkish, Azerbaijani)
 - **AbstractLanguage** - For custom implementations (Arabic, Vietnamese, Romanian, etc.)
 
@@ -70,7 +69,7 @@ npm run lang:validate fr-BE
 - ✓ Class name looks like the language name (not the code token)
 - ✓ Uses BigInt literals in number definitions
 - ✓ Has merge() method OR toCardinal() override (for CardMatchLanguage)
-- ✓ Extends a recognized base class (CardMatchLanguage, SlavicLanguage, ScandinavianLanguage, TurkicLanguage, AbstractLanguage) or another language class
+- ✓ Extends a recognized base class (CardMatchLanguage, SlavicLanguage, TurkicLanguage, AbstractLanguage) or another language class
 - ✓ Test file exists with comprehensive cases (20+ recommended)
 - ✓ Tests cover: zero, negatives, decimals, large numbers (includes 1_000_000-style literals)
 - ✓ Language is correctly imported in lib/n2words.js and registered in the dict

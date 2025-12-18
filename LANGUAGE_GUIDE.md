@@ -58,13 +58,6 @@ Choose the appropriate base class for your language:
 - Handles singular/dual/plural forms
 - Examples: Russian, Czech, Polish, Ukrainian, Serbian, Croatian, Hebrew, Lithuanian, Latvian
 
-**ScandinavianLanguage** - Use for Scandinavian languages
-
-- Extends `CardMatchLanguage`
-- Adds support for "og" (and) conjunction
-- Specialized grammar patterns for Nordic languages
-- Examples: Norwegian, Danish
-
 **TurkicLanguage** - Use for Turkic languages
 
 - Extends `CardMatchLanguage`
@@ -522,7 +515,7 @@ Study these examples:
 - **CardMatchLanguage**: `lib/i18n/en.js` - Basic patterns
 - **CardMatchLanguage (optimized)**: `lib/i18n/pt.js` - Advanced optimizations
 - **CardMatchLanguage (complex)**: `lib/i18n/fr.js` - Special rules
-- **ScandinavianLanguage**: `lib/i18n/no.js` - Norwegian patterns with "og" conjunction
+- **CardMatchLanguage (Nordic rules inline)**: `lib/i18n/no.js` - Norwegian "og" conjunction handled in merge()
 - **TurkicLanguage**: `lib/i18n/tr.js` - Turkish patterns with space-separated combinations
 - **SlavicLanguage**: `lib/i18n/ru.js` - Three-form pluralization pattern
 - **AbstractLanguage**: `lib/i18n/ar.js`, `lib/i18n/zh.js` - Custom implementations with different scripts

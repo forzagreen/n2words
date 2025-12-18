@@ -10,7 +10,6 @@ This file gives targeted, actionable guidance for AI coding agents working in th
   - `lib/classes/abstract-language.js`: core base class providing decimal handling and input validation. Decimal part is treated as a string; leading zeros become the word for zero.
   - `lib/classes/card-match-language.js`: extends `AbstractLanguage`; implements highest-matching-card algorithm. Most languages use this. Languages define `cards` arrays of `[value, word]` (use BigInt literals). Used by: English, Spanish, French, German, Italian, Portuguese, Dutch, Korean, Hungarian, Chinese.
   - `lib/classes/slavic-language.js`: extends `AbstractLanguage`; specialized base for Slavic/Baltic languages with three-form pluralization (Russian, Czech, Polish, Ukrainian, Serbian, Croatian, Hebrew, Lithuanian, Latvian).
-  - `lib/classes/scandinavian-language.js`: extends `CardMatchLanguage`; specialized base for Scandinavian languages with "og" (and) conjunction and shared grammar patterns. Used by: Norwegian, Danish.
   - `lib/classes/turkic-language.js`: extends `CardMatchLanguage`; specialized base for Turkic languages with space-separated combinations and implicit number patterns. Used by: Turkish, Azerbaijani.
 
   **Test organization:**
@@ -27,7 +26,6 @@ This file gives targeted, actionable guidance for AI coding agents working in th
   - Choose appropriate base class:
     - `CardMatchLanguage` for most languages with regular card-based systems (English, Spanish, German, French, Italian, Portuguese, Dutch, Korean, Hungarian, Chinese)
     - `SlavicLanguage` for three-form pluralization languages (Russian, Czech, Polish, Ukrainian, Serbian, Croatian, Hebrew, Lithuanian, Latvian)
-    - `ScandinavianLanguage` for Scandinavian languages with "og" conjunction (Norwegian, Danish)
     - `TurkicLanguage` for Turkic languages with space-separated patterns (Turkish, Azerbaijani)
     - `AbstractLanguage` for custom implementations requiring full control (Arabic, Vietnamese, Romanian, Persian, Indonesian)
   - Decimal processing: languages should rely on `AbstractLanguage.decimalToCardinal()` for consistent behavior when extending `AbstractLanguage` or any of its subclasses. For digit-by-digit decimal reading (Japanese, Thai, Tamil, Telugu), set `usePerDigitDecimals: true` in constructor options.
@@ -38,8 +36,8 @@ This file gives targeted, actionable guidance for AI coding agents working in th
   - Validate implementation: `npm run lang:validate xx` (checks completeness and best practices).
   - Manual process (alternative):
     - Create `lib/i18n/xx.js`.
-    - Choose base class: `CardMatchLanguage` for card-based systems, `SlavicLanguage` for three-form pluralization, `ScandinavianLanguage` for Scandinavian patterns, `TurkicLanguage` for Turkic patterns, or `AbstractLanguage` for custom logic.
-    - Import appropriate base: `import CardMatchLanguage from '../classes/card-match-language.js'` (or `SlavicLanguage`, `ScandinavianLanguage`, `TurkicLanguage`, or `AbstractLanguage`).
+    - Choose base class: `CardMatchLanguage` for card-based systems, `SlavicLanguage` for three-form pluralization, `TurkicLanguage` for Turkic patterns, or `AbstractLanguage` for custom logic.
+    - Import appropriate base: `import CardMatchLanguage from '../classes/card-match-language.js'` (or `SlavicLanguage`, `TurkicLanguage`, or `AbstractLanguage`).
     - Export a default function: `export default function floatToCardinal(value, options = {}) { return new MyLang(options).floatToCardinal(value); }`
     - Add the language import and mapping entry in `lib/n2words.js`.
     - Add corresponding test file to `test/i18n/xx.js`.
@@ -77,12 +75,11 @@ This file gives targeted, actionable guidance for AI coding agents working in th
   - `lib/i18n/en.js` — canonical use of `CardMatchLanguage` and `cards` + optimized `merge()` implementation.
   - `lib/i18n/pt.js` — advanced optimizations: pre-compiled regex, simplified merge() logic.
   - `lib/i18n/ru.js` — use of `SlavicLanguage` with three-form pluralization (shared by 9 languages).
-  - `lib/i18n/no.js` — use of `ScandinavianLanguage` with "og" conjunction (shared by Norwegian and Danish).
+  - `lib/i18n/no.js` — inline `CardMatchLanguage` merge rules for the Norwegian "og" conjunction.
   - `lib/i18n/tr.js` — use of `TurkicLanguage` with space-separated patterns (shared by Turkish and Azerbaijani).
   - `lib/i18n/ar.js` — use of `AbstractLanguage` for custom implementation.
   - `lib/classes/card-match-language.js` — essential algorithms for card-based systems.
   - `lib/classes/slavic-language.js` — reusable base for Slavic/Baltic languages with complex pluralization.
-  - `lib/classes/scandinavian-language.js` — reusable base for Scandinavian languages with "og" conjunction.
   - `lib/classes/turkic-language.js` — reusable base for Turkic languages with space-separated patterns.
   - `lib/classes/abstract-language.js` — essential algorithms and optimizations.
   - `test/unit/api.js` — API and language fallback tests.
