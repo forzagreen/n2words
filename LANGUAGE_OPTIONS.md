@@ -67,35 +67,31 @@ n2words(200, { lang: 'es', genderStem: 'a' }); // 'doscientas' (feminine)
 
 ---
 
-### French (fr) - Regional Variants and Hyphenation
+### French (fr) - Hyphenation
 
-French supports both standard French and Belgian French number systems, plus optional hyphenation.
+French supports optional hyphenation in compound numbers.
 
 **Options:**
 
 | Option                | Type    | Description                                             | Default |
 | --------------------- | ------- | ------------------------------------------------------- | ------- |
-| `_region`             | string  | Region variant: `'FR'` (standard) or `'BE'` (Belgian)   | `'FR'`  |
 | `withHyphenSeparator` | boolean | Use hyphens instead of spaces between number components | `false` |
 
 **Examples:**
 
 ```javascript
-// Regional differences (70, 90)
-n2words(70, { lang: 'fr' }); // 'soixante-dix' (standard French)
-n2words(70, { lang: 'fr', _region: 'BE' }); // 'septante' (Belgian French)
-n2words(90, { lang: 'fr' }); // 'quatre-vingt-dix' (standard)
-n2words(90, { lang: 'fr', _region: 'BE' }); // 'nonante' (Belgian)
+// Standard French
+n2words(70, { lang: 'fr' }); // 'soixante-dix' (standard French: 60 + 10)
+n2words(90, { lang: 'fr' }); // 'quatre-vingt-dix' (standard: 4 × 20 + 10)
 
-// Hyphenation
-n2words(21, { lang: 'fr' }); // 'vingt et un'
-n2words(21, { lang: 'fr', withHyphenSeparator: true }); // 'vingt-et-un'
+// Hyphenation (affects component joining)
+n2words(21, { lang: 'fr' }); // 'vingt et un' (default: space before et)
+n2words(21, { lang: 'fr', withHyphenSeparator: true }); // 'vingt-et-un' (hyphenated)
 ```
 
 **Use Cases:**
 
-- `_region: 'FR'`: Standard French (France, most francophone regions)
-- `_region: 'BE'`: Belgian French, Swiss French (more logical 70/90 system)
+- Default: Contemporary French with space separators
 - `withHyphenSeparator: true`: Formal writing, checks, legal documents
 
 **Note:** Belgian French (fr-BE) automatically sets `_region: 'BE'`.

@@ -105,21 +105,18 @@ Start by selecting the right base class. For most languages, use `CardMatchLangu
 ```javascript
 import CardMatchLanguage from '../classes/card-match-language.js'
 
-export default function floatToCardinal(value, options = {}) {
-  return new MyLanguage(options).floatToCardinal(value)
-}
+export class MyLanguage extends CardMatchLanguage {
+  // Set language defaults as class properties
+  negativeWord = 'minus'      // Word for negative numbers
+  separatorWord = 'point'     // Word for decimal point
+  zero = 'zero'               // Word for zero
+  usePerDigitDecimals = false // Set to true for digit-by-digit decimal reading
 
-class MyLanguage extends CardMatchLanguage {
-  constructor (options) {
-    super(Object.assign({
-      negativeWord: 'minus',  // Word for negative numbers
-      separatorWord: 'point', // Word for decimal point
-      zero: 'zero',           // Word for zero
-      usePerDigitDecimals: false // Set to true for digit-by-digit decimal reading
-    }, options), [
+  // Define cards array with [value, word] pairs in DESCENDING order
+  cards = [
     // Large numbers first
-    [1000000000n, 'billion'],
-    [1000000n, 'million'],
+    [1_000_000_000n, 'billion'],
+    [1_000_000n, 'million'],
     [1000n, 'thousand'],
     [100n, 'hundred'],
 
@@ -139,10 +136,32 @@ class MyLanguage extends CardMatchLanguage {
     // Ones
     [9n, 'nine'],
     // ... all ones
-    [1n, 'one']
-  ])
+    [1n, 'one'],
+    [0n, 'zero']
+  ]
+
+  /**
+   * Initialize with language-specific options.
+   * Only include constructor parameters actually needed for your language.
+   *
+   * @param {Object} [options={}] Configuration options.
+   */
+  constructor(options = {}) {
+    super()
+    // Apply any option-dependent configuration here
+  }
+}
+
+export default function floatToCardinal(value, options = {}) {
+  return new MyLanguage(options).floatToCardinal(value)
 }
 ```
+
+**Important notes:**
+
+- Use class properties for default values (not passed via constructor)
+- Constructor parameters should only include options that actually affect behavior
+- Use `BigInt` literals (`1000n`, not `1000`) in cards array for numerical accuracy
 
 ### 2. Implement Merge Logic
 

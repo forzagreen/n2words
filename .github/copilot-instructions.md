@@ -21,26 +21,34 @@ This file gives targeted, actionable guidance for AI coding agents working in th
 - Smoke tests: `npm run test:smoke` (test/smoke/smoke-i18n.js) — sanity checks for all 38 languages.
 
 - **Patterns & conventions** (follow these exactly):
-  - Files are ESM (`package.json` includes `type: "module"`). Use `export default function floatToCardinal(value, options={})` when creating languages.
+  - Files are ESM (`package.json` includes `type: "module"`). Language implementations export a default function: `export default function floatToCardinal(value, options={}) { return new XxLanguage(options).floatToCardinal(value); }`
+  - Language classes extend a base class and use **class properties** for default values (`negativeWord`, `separatorWord`, `zero`, `cards`, etc.).
+  - **Constructor parameters** should ONLY include options that actually affect behavior (not class properties). For example:
+    - Chinese constructor accepts `formal` (affects cards array)
+    - Spanish constructor accepts `genderStem` (affects merge behavior)
+    - Czech and Hebrew accept special options
+    - Most other languages don't need constructors at all
   - Use `BigInt` literals in `cards` (e.g. `100n`, `1_000n`) not plain numbers for large values.
   - Choose appropriate base class:
     - `CardMatchLanguage` for most languages with regular card-based systems (English, Spanish, German, French, Italian, Portuguese, Dutch, Korean, Hungarian, Chinese)
     - `SlavicLanguage` for three-form pluralization languages (Russian, Czech, Polish, Ukrainian, Serbian, Croatian, Hebrew, Lithuanian, Latvian)
     - `TurkicLanguage` for Turkic languages with space-separated patterns (Turkish, Azerbaijani)
     - `AbstractLanguage` for custom implementations requiring full control (Arabic, Vietnamese, Romanian, Persian, Indonesian)
-  - Decimal processing: languages should rely on `AbstractLanguage.decimalToCardinal()` for consistent behavior when extending `AbstractLanguage` or any of its subclasses. For digit-by-digit decimal reading (Japanese, Thai, Tamil, Telugu), set `usePerDigitDecimals: true` in constructor options.
+  - Decimal processing: languages should rely on `AbstractLanguage.decimalToCardinal()` for consistent behavior. For digit-by-digit decimal reading (Japanese, Thai, Tamil, Telugu), set `usePerDigitDecimals = true` as a class property.
   - The default language code is `en`; fallbacks are handled in `lib/n2words.js` by progressively stripping suffixes (e.g. `fr-BE` -> `fr`).
 
 - **How to add a language (recommended):**
   - Use automated script: `npm run lang:add` (generates boilerplate, updates registration).
   - Validate implementation: `npm run lang:validate xx` (checks completeness and best practices).
   - Manual process (alternative):
-    - Create `lib/i18n/xx.js`.
-    - Choose base class: `CardMatchLanguage` for card-based systems, `SlavicLanguage` for three-form pluralization, `TurkicLanguage` for Turkic patterns, or `AbstractLanguage` for custom logic.
-    - Import appropriate base: `import CardMatchLanguage from '../classes/card-match-language.js'` (or `SlavicLanguage`, `TurkicLanguage`, or `AbstractLanguage`).
-    - Export a default function: `export default function floatToCardinal(value, options = {}) { return new MyLang(options).floatToCardinal(value); }`
+    - Create `lib/i18n/xx.js` with a class extending the appropriate base class.
+    - Define language defaults as class properties: `negativeWord`, `separatorWord`, `zero`, `cards` array, etc.
+    - If your language needs behavior customization via constructor options (rare), implement a constructor that accepts only those parameters.
+    - Implement `merge(leftWordSet, rightWordSet)` method with language-specific grammar rules.
+    - Export default function: `export default function floatToCardinal(value, options = {}) { return new XxLanguage(options).floatToCardinal(value); }`
     - Add the language import and mapping entry in `lib/n2words.js`.
     - Add corresponding test file to `test/i18n/xx.js`.
+    - Document constructor options (if any) in JSDoc, but ONLY document parameters actually accepted by the constructor, not class properties.
   - See `LANGUAGE_GUIDE.md` for comprehensive implementation guidance.
 
 - **Build / test / lint workflows** (explicit commands):
@@ -68,8 +76,10 @@ This file gives targeted, actionable guidance for AI coding agents working in th
 
 - **Important implementation notes:**
   - Input types: functions accept `number | string | bigint`. `AbstractLanguage.floatToCardinal` validates inputs and converts to `BigInt` for whole numbers.
-  - Negative numbers: `AbstractLanguage` prepends `negativeWord` (languages set this via options).
-  - Decimal handling: By default, leading zeros are preserved as `zero` words and remaining digits are grouped. Languages requiring per-digit decimal reading (ja, th, ta, te) set `usePerDigitDecimals: true` in their constructor.
+  - Negative numbers: `AbstractLanguage` prepends `negativeWord` (defined as a class property in language implementations).
+  - Decimal handling: By default, leading zeros are preserved as `zero` words and remaining digits are grouped. Languages requiring per-digit decimal reading (ja, th, ta, te) set `usePerDigitDecimals = true` as a class property.
+  - Class properties vs constructor parameters: Use class properties for defaults shared across all instances (negativeWord, separatorWord, zero, cards, etc.). Use constructor parameters ONLY for options that actually change behavior (e.g., formal style in Chinese, gender in Spanish).
+  - JSDoc for constructors: Only document parameters actually accepted by the constructor, not inherited class properties. Class properties are documented in the class-level JSDoc comment.
   - Performance: Portuguese (pt.js) and English (en.js) are heavily optimized with cached regex and merge() optimizations.
 - **Files to inspect for examples:**
   - `lib/i18n/en.js` — canonical use of `CardMatchLanguage` and `cards` + optimized `merge()` implementation.

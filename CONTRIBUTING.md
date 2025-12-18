@@ -58,38 +58,52 @@ If you prefer to add a language manually or need more control:
 // lib/i18n/xx.js
 import CardMatchLanguage from '../classes/card-match-language.js';
 
-export default function floatToCardinal(value, options = {}) {
-  return new XxLanguage(options).floatToCardinal(value);
-}
+export class XxLanguage extends CardMatchLanguage {
+  // Set default language-specific words as class properties
+  negativeWord = 'minus';
+  separatorWord = 'point';
+  zero = 'zero';
 
-class XxLanguage extends CardMatchLanguage {
-  constructor(options) {
-    super(
-      Object.assign(
-        {
-          negativeWord: 'minus',
-          separatorWord: 'point',
-          zero: 'zero',
-        },
-        options,
-      ),
-      [
-        // Provide cards as [BigInt, 'word'] in DESCENDING order
-        [1000000n, 'million'],
-        [1000n, 'thousand'],
-        [100n, 'hundred'],
-        [90n, 'ninety'],
-        [80n, 'eighty'],
-        [1n, 'one'],
-      ],
-    );
+  // Define cards array with [value, word] pairs in DESCENDING order
+  cards = [
+    [1_000_000n, 'million'],
+    [1000n, 'thousand'],
+    [100n, 'hundred'],
+    [90n, 'ninety'],
+    [80n, 'eighty'],
+    [1n, 'one'],
+    [0n, 'zero'],
+  ];
+
+  /**
+   * Initialize with language-specific options.
+   * Only include parameters that are actually accepted by the constructor.
+   *
+   * @param {Object} [options={}] Configuration options.
+   * @param {boolean} [options.someOption=false] Example option for your language.
+   */
+  constructor({ someOption = false } = {}) {
+    super();
+    this.someOption = someOption;
+    // Apply any option-dependent configuration
   }
 
   // Implement merge(leftWordSet, rightWordSet) according to language rules.
   merge(left, right) {
     // left and right are objects like { 'one': 1n } and { 'hundred': 100n }
     // Return a merged object, e.g. { 'one hundred': 100n }
+    const leftWord = Object.keys(left)[0];
+    const leftNumber = Object.values(left)[0];
+    const rightWord = Object.keys(right)[0];
+    const rightNumber = Object.values(right)[0];
+
+    // Implement your language's merge logic here
+    return { [`${leftWord} ${rightWord}`]: leftNumber + rightNumber };
   }
+}
+
+export default function floatToCardinal(value, options = {}) {
+  return new XxLanguage(options).floatToCardinal(value);
 }
 ```
 
@@ -97,6 +111,7 @@ Notes:
 
 - **Critical**: Use `BigInt` literals (e.g. `1000n`) in `cards` so the algorithm handles large
   numbers correctly. See [BIGINT-GUIDE.md](./BIGINT-GUIDE.md) for detailed guidance.
+- Class properties define default values that are shared across all instances. Constructor parameters allow per-call customization.
 - Choose the appropriate base class:
   - `CardMatchLanguage` for most languages with regular card-based systems (English, Spanish, German, French, Belgian French, Italian, Portuguese, Dutch, Korean, Hungarian, Chinese)
   - `SlavicLanguage` for languages with three-form pluralization (Russian, Czech, Polish, Ukrainian, Serbian, Croatian, Hebrew, Lithuanian, Latvian)
