@@ -8,14 +8,18 @@ This guide documents all language-specific options available to **end-users** of
 
 **⚠️ NOTE**: These options are **not exposed to end-users**. They are internal language implementation options used by language developers only. (Exception: Arabic exposes `negativeWord` to end-users; see the Arabic section.)
 
+<!-- markdownlint-disable MD060 -->
 | Option                    | Type    | Description                                     | Default Value                                           |
 | ------------------------- | ------- | ----------------------------------------------- | ------------------------------------------------------- |
 | `negativeWord`            | string  | Word used for negative numbers                  | Language-specific (e.g., "minus", "menos", "ناقص")      |
 | `decimalSeparatorWord`    | string  | Word separating whole and decimal parts         | Language-specific (e.g., "point", "virgule", "virgulă") |
 | `zeroWord`                | string  | Word for the digit 0                            | Language-specific (e.g., "zero", "zéro", "zero")        |
-| `convertDecimalsPerDigit` | boolean | Read decimals digit-by-digit instead of grouped | `false` (language-specific: `true` for ja, th, ta, te, tl, mr, gu, kn, el)  |
+| `convertDecimalsPerDigit` | boolean | Read decimals digit-by-digit instead of grouped | `false`                                                 |
+<!-- markdownlint-enable MD060 -->
 
 These are **class properties** of language implementations in `lib/i18n/` and are set by language developers when implementing a new language converter. End-users typically do not interact with these options directly.
+
+Note: Some languages read decimals per digit and effectively set `convertDecimalsPerDigit = true`: ja, th, ta, te, tl, mr, gu, kn, el.
 
 ## Language-Specific Options
 
