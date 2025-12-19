@@ -146,7 +146,7 @@ AbstractLanguage (core validation & decimal handling)
     ├─→ GreedyScaleLanguage (38 languages)
     │   ├── English, Spanish, French, German, Italian, Portuguese,
     │   ├── Dutch, Korean, Hungarian, Chinese, and more
-    │   └── Uses "highest-matching-card" algorithm
+  │   └── Uses "highest-matching-scale" algorithm
     │
     ├─→ SlavicLanguage (10 languages)
     │   ├── Russian, Czech, Polish, Ukrainian, Serbian, Croatian,
@@ -490,10 +490,11 @@ This creates:
 ### Manual Implementation
 
 1. **Choose base class** based on language characteristics:
-   - `GreedyScaleLanguage` - Most languages (highest-matching-card algorithm)
-   - `SlavicLanguage` - Slavic/Baltic with 3-form pluralization
-   - `TurkicLanguage` - Turkish, Azerbaijani with space-separated patterns
-   - `AbstractLanguage` - Custom implementations (rare)
+
+    - `GreedyScaleLanguage` - Most languages (highest-matching-scale algorithm)
+    - `SlavicLanguage` - Slavic/Baltic with 3-form pluralization
+    - `TurkicLanguage` - Turkish, Azerbaijani with space-separated patterns
+    - `AbstractLanguage` - Custom implementations (rare)
 
 2. **Implement language file** (`lib/i18n/xx.js`):
 

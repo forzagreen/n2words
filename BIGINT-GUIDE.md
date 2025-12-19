@@ -365,7 +365,7 @@ class EN extends GreedyScaleLanguage {
     [1_000_000n, 'million'], // ✅ BigInt literals
     [1000n, 'thousand'],
     [100n, 'hundred'],
-    // ... more cards
+    // ... more scale word pairs
   ];
 
   mergeScales(leftPair, rightPair) {
@@ -440,7 +440,7 @@ class RU extends SlavicLanguage {
 
 **BigInt locations:**
 
-- Inherits cards-based approach from `GreedyScaleLanguage`
+- Inherits scaleWordPairs-based approach from `GreedyScaleLanguage`
 - All comparisons in `mergeScales()` use BigInt literals
 - Special handling for "og" (and) conjunction with BigInt comparisons
 
@@ -476,7 +476,7 @@ class Norwegian extends GreedyScaleLanguage {
 
 **BigInt locations:**
 
-- Inherits cards-based approach from `GreedyScaleLanguage`
+- Inherits scaleWordPairs-based approach from `GreedyScaleLanguage`
 - All comparisons in `mergeScales()` use BigInt literals
 - Space-separated number combinations with BigInt arithmetic
 
@@ -703,8 +703,8 @@ When creating a new language implementation, verify BigInt usage:
 
 ### For GreedyScaleLanguage and Subclasses (including TurkicLanguage)
 
-- [ ] All values in `cards` array use `n` suffix (BigInt literals)
-- [ ] All comparisons in `mergeScales()` use `n` suffix when comparing against card values
+- [ ] All values in `scaleWordPairs` array use `n` suffix (BigInt literals)
+- [ ] All comparisons in `mergeScales()` use `n` suffix when comparing against scaleWordPairs values
 - [ ] Arithmetic operations in `mergeScales()` (if any) use BigInt types consistently
 - [ ] Regular numbers used for indices, lengths, and Math operations
 
@@ -751,7 +751,7 @@ Is the value used in BigInt arithmetic (/, %, *)?
 ├─ YES → Use BigInt literal (n suffix)
 └─ NO → Is it compared to a BigInt value?
     ├─ YES → Use BigInt literal (n suffix)
-    └─ NO → Is it a card array value?
+    └─ NO → Is it a scaleWordPairs value?
         ├─ YES → Use BigInt literal (n suffix)
         └─ NO → Use regular number (NO n suffix)
 ```
@@ -760,7 +760,7 @@ Is the value used in BigInt arithmetic (/, %, *)?
 
 - [LANGUAGE_GUIDE.md](../LANGUAGE_GUIDE.md) - Comprehensive guide for adding new languages
 - [lib/classes/abstract-language.js](../lib/classes/abstract-language.js) - Input validation and decimal handling
-- [lib/classes/greedy-scale-language.js](../lib/classes/greedy-scale-language.js) - Card-based algorithm
+- [lib/classes/greedy-scale-language.js](../lib/classes/greedy-scale-language.js) - Scale-based algorithm
 - [lib/classes/turkic-language.js](../lib/classes/turkic-language.js) - Turkic space-separated patterns
 - [lib/classes/slavic-language.js](../lib/classes/slavic-language.js) - Slavic/Baltic pluralization
 

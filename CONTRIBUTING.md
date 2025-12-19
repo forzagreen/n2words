@@ -25,7 +25,7 @@ This interactive script will:
 
 After running the script, you'll need to:
 
-- Fill in the `cards` array with number words (using BigInt literals like `1000n`)
+- Fill in the `scaleWordPairs` array with number words (using BigInt literals like `1000n`)
 - Implement the `mergeScales()` method for your language's grammar
 - Complete the test cases with expected outputs
 
@@ -109,11 +109,11 @@ export default function convertToWords(value, options = {}) {
 
 Notes:
 
-- **Critical**: Use `BigInt` literals (e.g. `1000n`) in `cards` so the algorithm handles large
+- **Critical**: Use `BigInt` literals (e.g. `1000n`) in `scaleWordPairs` so the algorithm handles large
   numbers correctly. See [BIGINT-GUIDE.md](./BIGINT-GUIDE.md) for detailed guidance.
 - Class properties define default values that are shared across all instances. Constructor parameters allow per-call customization.
 - Choose the appropriate base class:
-  - `GreedyScaleLanguage` for most languages with regular card-based systems (English, Spanish, German, French, Belgian French, Italian, Portuguese, Dutch, Korean, Hungarian, Chinese)
+  - `GreedyScaleLanguage` for most languages with regular scale-based systems (English, Spanish, German, French, Belgian French, Italian, Portuguese, Dutch, Korean, Hungarian, Chinese)
   - `SlavicLanguage` for languages with three-form pluralization (Russian, Czech, Polish, Ukrainian, Serbian, Croatian, Hebrew, Lithuanian, Latvian)
   - `TurkicLanguage` for Turkic languages with space-separated patterns (Turkish, Azerbaijani)
   - `AbstractLanguage` for custom implementations requiring full control (Arabic, Persian, Indonesian, Romanian, Vietnamese)

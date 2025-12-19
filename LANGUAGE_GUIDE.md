@@ -43,10 +43,10 @@ If you need more control, follow these steps:
 
 Choose the appropriate base class for your language:
 
-**GreedyScaleLanguage** - Use for most languages with regular card-based systems
+**GreedyScaleLanguage** - Use for most languages with regular scale-based systems
 
 - Extends `AbstractLanguage`
-- Implements highest-matching-card algorithm
+- Implements highest-matching-scale algorithm
 - Works well for languages with regular patterns
 - Define a `scaleWordPairs` array and implement `mergeScales()` method
 - Examples: English, Spanish, German, French, Italian, Portuguese, Dutch, Korean, Hungarian, Chinese
@@ -74,7 +74,7 @@ Choose the appropriate base class for your language:
 
 ### Key Concepts
 
-#### Cards Array
+#### Scale Word Pairs
 
 - Ordered pairs of `[value, word]` using BigInt literals
 - MUST be in descending order

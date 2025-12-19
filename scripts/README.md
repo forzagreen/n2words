@@ -33,7 +33,7 @@ The script guides you to choose from five base classes:
 
 **After running:**
 
-- Fill in the `cards` array with number words
+- Fill in the `scaleWordPairs` array with number words
 - Implement the `mergeScales()` method
 - Complete test cases with expected outputs
 - Run `npm run lang:validate xx` to check your work

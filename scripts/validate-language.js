@@ -163,10 +163,10 @@ async function validateLanguage (langCode) {
     console.log(chalk.green(`  ✓ Default export instantiates ${ctorName}`))
   }
 
-  // Check for BigInt literals in cards (not required for all AbstractLanguage implementations)
+  // Check for BigInt literals in scaleWordPairs (not required for all AbstractLanguage implementations)
   if (!content.includes('n,') && !content.includes('n]') && !content.includes('n ')) {
     console.warn(
-      chalk.yellow('  ⚠ No BigInt literals found (cards/numbers should use 1000n, 100n, etc.)')
+      chalk.yellow('  ⚠ No BigInt literals found (scaleWordPairs/numbers should use 1000n, 100n, etc.)')
     )
     warnings++
   } else {

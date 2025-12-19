@@ -296,7 +296,7 @@ console.log(chalk.cyan('Next steps:'))
 console.log()
 console.log(`1. Edit lib/i18n/${fileName}.js:`)
 console.log(
-  '   - Fill in the cards array with number words in DESCENDING order'
+  '   - Fill in the scaleWordPairs array with number words in DESCENDING order'
 )
 console.log('   - Implement the mergeScales() method according to language grammar')
 console.log('   - Add any language-specific methods if needed')
