@@ -18,7 +18,7 @@ This guide explains **when and where** to use JavaScript's `BigInt` type when im
 
 ### ✅ MUST use BigInt literals (n suffix)
 
-1. **Cards arrays** in `CardMatchLanguage` subclasses and other card-based classes
+1. **Cards arrays** in `GreedyScaleLanguage` subclasses and other card-based classes
 2. **BigInt comparisons** (when comparing against `wholeNumber` or values known to be BigInt)
 3. **BigInt arithmetic** (division, modulo, multiplication with BigInt operands)
 4. **BigInt literals in conditionals** (when comparing BigInt values)
@@ -64,11 +64,11 @@ User Input (number | string | bigint)
     ↓
 AbstractLanguage.floatToCardinal()
     ↓ converts to BigInt
-Language.toCardinal(wholeNumber: bigint)
+Language.toCardinalWords(wholeNumber: bigint)
     ↓ (BaseLanguage path)
 toCardMatches(value: bigint)
     ↓ uses cards array
-merge(leftPair, rightPair)
+mergeScales(leftPair, rightPair)
     ↓ compares BigInt values
 Final string output
 ```
@@ -79,14 +79,14 @@ Final string output
 
 ## When BigInt is Required
 
-### 1. Cards Arrays (CardMatchLanguage and related classes)
+### 1. Cards Arrays (GreedyScaleLanguage and related classes)
 
-**WHY:** The `toCardMatches()` method in `CardMatchLanguage` (and subclasses like `TurkicLanguage`) performs BigInt arithmetic (`rem / card[0]`, `rem % card[0]`). If `card[0]` is a regular number, this throws a TypeError.
+**WHY:** The `toCardMatches()` method in `GreedyScaleLanguage` (and subclasses like `TurkicLanguage`) performs BigInt arithmetic (`rem / card[0]`, `rem % card[0]`). If `card[0]` is a regular number, this throws a TypeError.
 
 ```javascript
 // ✅ CORRECT: All values use BigInt literals
-constructor(options) {
-  super(options, [
+class Example extends GreedyScaleLanguage {
+  cards = [
     [1_000_000_000n, 'billion'],
     [1_000_000n, 'million'],
     [1000n, 'thousand'],
@@ -94,33 +94,33 @@ constructor(options) {
     [10n, 'ten'],
     [1n, 'one'],
     [0n, 'zero']
-  ])
+  ]
 }
 
 // ❌ WRONG: Regular numbers will cause runtime errors
-constructor(options) {
-  super(options, [
+class ExampleWrong extends GreedyScaleLanguage {
+  cards = [
     [1_000_000_000, 'billion'],  // TypeError in toCardMatches
     [1000, 'thousand'],
     [1, 'one']
-  ])
+  ]
 }
 ```
 
 **Files affected:**
 
-- All `lib/i18n/*.js` files that extend `CardMatchLanguage` or its subclasses (23 languages: en, de, fr, es, pt, ko, zh, hu, it, nl, fr-BE)
+- All `lib/i18n/*.js` files that extend `GreedyScaleLanguage` or its subclasses (23 languages: en, de, fr, es, pt, ko, zh, hu, it, nl, fr-BE)
 - All `lib/i18n/*.js` files that extend `TurkicLanguage` (2 languages: az, tr)
 
-### 2. BigInt Comparisons in `merge()` Methods
+### 2. BigInt Comparisons in `mergeScales()` Methods
 
-**WHY:** The `merge()` method receives word-pair objects where values are BigInt (e.g., `{ 'one': 1n }`). Comparing these with number literals uses strict equality, which returns `false` for type mismatches.
+**WHY:** The `mergeScales()` method receives word-pair objects where values are BigInt (e.g., `{ 'one': 1n }`). Comparing these with number literals uses strict equality, which returns `false` for type mismatches.
 
 **Pattern:**
 
 ```javascript
 // ✅ CORRECT: Compare BigInt with BigInt
-merge(leftPair, rightPair) {
+mergeScales(leftPair, rightPair) {
   const leftNumber = Object.values(leftPair)[0]   // BigInt
   const rightNumber = Object.values(rightPair)[0] // BigInt
 
@@ -136,7 +136,7 @@ merge(leftPair, rightPair) {
 }
 
 // ❌ WRONG: Mixed type comparisons fail
-merge(leftPair, rightPair) {
+mergeScales(leftPair, rightPair) {
   const leftNumber = Object.values(leftPair)[0]  // BigInt (e.g., 1n)
 
   if (leftNumber === 1) {          // false! (1n !== 1)
@@ -166,7 +166,7 @@ merge(leftPair, rightPair) {
 
 ### 3. SlavicLanguage Implementations
 
-**WHY:** The `toCardinal()` method in `SlavicLanguage` uses BigInt arithmetic for chunk processing (`x % 10n`, `x % 100n`, `x / 10n`). All comparisons must use BigInt literals.
+**WHY:** The `toCardinalWords()` method in `SlavicLanguage` uses BigInt arithmetic for chunk processing (`x % 10n`, `x % 100n`, `x / 10n`). All comparisons must use BigInt literals.
 
 **Pattern:**
 
@@ -256,7 +256,7 @@ convertMore1000(number) {
     if (r <= 99n) {
       words.push('lẻ')
     }
-    words.push(this.toCardinal(r))
+    words.push(this.toCardinalWords(r))
   }
 }
 ```
@@ -346,31 +346,29 @@ if (chunks.length === 1) {
 
 ## Architecture Patterns
 
-### Pattern 1: CardMatchLanguage with Simple Merge
+### Pattern 1: GreedyScaleLanguage with Simple Merge
 
 **Used by:** English (en), Spanish (es), German (de), French (fr), Italian (it), Portuguese (pt), Dutch (nl), Korean (ko), Hungarian (hu), Chinese (zh), French Belgian (fr-BE)
 
 **BigInt locations:**
 
-1. Cards array (constructor)
-2. All comparisons in `merge()`
+1. Cards array (class property)
+2. All comparisons in `mergeScales()`
 
 **Example:** `lib/i18n/en.js`
 
 ```javascript
-import CardMatchLanguage from '../classes/card-match-language.js';
+import GreedyScaleLanguage from '../classes/greedy-scale-language.js';
 
-class EN extends CardMatchLanguage {
-  constructor(options) {
-    super(options, [
-      [1_000_000n, 'million'], // ✅ BigInt literals
-      [1000n, 'thousand'],
-      [100n, 'hundred'],
-      // ... more cards
-    ]);
-  }
+class EN extends GreedyScaleLanguage {
+  cards = [
+    [1_000_000n, 'million'], // ✅ BigInt literals
+    [1000n, 'thousand'],
+    [100n, 'hundred'],
+    // ... more cards
+  ];
 
-  merge(leftPair, rightPair) {
+  mergeScales(leftPair, rightPair) {
     const leftNumber = Object.values(leftPair)[0];
     const rightNumber = Object.values(rightPair)[0];
 
@@ -392,7 +390,7 @@ class EN extends CardMatchLanguage {
 
 **BigInt locations:**
 
-1. All conditionals in `toCardinal()`
+1. All conditionals in `toCardinalWords()`
 2. All conditionals in `pluralize()`
 3. Arithmetic operations (modulo, division)
 
@@ -400,7 +398,7 @@ class EN extends CardMatchLanguage {
 
 ```javascript
 class RU extends SlavicLanguage {
-  toCardinal(number) {
+  toCardinalWords(number) {
     if (number === 0n) {
       // ✅ BigInt comparison
       return this.zero;
@@ -436,33 +434,31 @@ class RU extends SlavicLanguage {
 }
 ```
 
-### Pattern 3: CardMatchLanguage with "og" Conjunction (inline)
+### Pattern 3: GreedyScaleLanguage with "og" Conjunction (inline)
 
 **Used by:** Norwegian (no), Danish (dk)
 
 **BigInt locations:**
 
-- Inherits cards-based approach from `CardMatchLanguage`
-- All comparisons in `merge()` use BigInt literals
+- Inherits cards-based approach from `GreedyScaleLanguage`
+- All comparisons in `mergeScales()` use BigInt literals
 - Special handling for "og" (and) conjunction with BigInt comparisons
 
 **Example:** `lib/i18n/no.js`
 
 ```javascript
-import CardMatchLanguage from '../classes/card-match-language.js';
+import GreedyScaleLanguage from '../classes/greedy-scale-language.js';
 
-class Norwegian extends CardMatchLanguage {
-  constructor(options) {
-    super(options, [
-      [1_000_000_000n, 'milliard'],
-      [1_000_000n, 'million'],
-      [1000n, 'tusen'],
-      [100n, 'hundre'],
-      // ... more cards with BigInt literals
-    ]);
-  }
+class Norwegian extends GreedyScaleLanguage {
+  cards = [
+    [1_000_000_000n, 'milliard'],
+    [1_000_000n, 'million'],
+    [1000n, 'tusen'],
+    [100n, 'hundre'],
+    // ... more cards with BigInt literals
+  ];
 
-  merge(leftPair, rightPair) {
+  mergeScales(leftPair, rightPair) {
     const leftNumber = Object.values(leftPair)[0];
     const rightNumber = Object.values(rightPair)[0];
 
@@ -480,8 +476,8 @@ class Norwegian extends CardMatchLanguage {
 
 **BigInt locations:**
 
-- Inherits cards-based approach from `CardMatchLanguage`
-- All comparisons in `merge()` use BigInt literals
+- Inherits cards-based approach from `GreedyScaleLanguage`
+- All comparisons in `mergeScales()` use BigInt literals
 - Space-separated number combinations with BigInt arithmetic
 
 **Example:** `lib/i18n/tr.js`
@@ -490,17 +486,15 @@ class Norwegian extends CardMatchLanguage {
 import TurkicLanguage from '../classes/turkic-language.js';
 
 class TR extends TurkicLanguage {
-  constructor(options) {
-    super(options, [
-      [1_000_000_000n, 'milyar'],
-      [1_000_000n, 'milyon'],
-      [1000n, 'bin'],
-      [100n, 'yüz'],
-      // ... more cards with BigInt literals
-    ]);
-  }
+  cards = [
+    [1_000_000_000n, 'milyar'],
+    [1_000_000n, 'milyon'],
+    [1000n, 'bin'],
+    [100n, 'yüz'],
+    // ... more cards with BigInt literals
+  ];
 
-  merge(leftPair, rightPair) {
+  mergeScales(leftPair, rightPair) {
     const leftNumber = Object.values(leftPair)[0];
     const rightNumber = Object.values(rightPair)[0];
 
@@ -527,7 +521,7 @@ class TR extends TurkicLanguage {
 
 ```javascript
 class AR extends AbstractLanguage {
-  toCardinal(number) {
+  toCardinalWords(number) {
     if (number === 0n) {
       // ✅ BigInt comparison
       return this.zero;
@@ -707,16 +701,16 @@ assert.strictEqual(
 
 When creating a new language implementation, verify BigInt usage:
 
-### For CardMatchLanguage and Subclasses (including TurkicLanguage)
+### For GreedyScaleLanguage and Subclasses (including TurkicLanguage)
 
 - [ ] All values in `cards` array use `n` suffix (BigInt literals)
-- [ ] All comparisons in `merge()` use `n` suffix when comparing against card values
-- [ ] Arithmetic operations in `merge()` (if any) use BigInt types consistently
+- [ ] All comparisons in `mergeScales()` use `n` suffix when comparing against card values
+- [ ] Arithmetic operations in `mergeScales()` (if any) use BigInt types consistently
 - [ ] Regular numbers used for indices, lengths, and Math operations
 
 ### For SlavicLanguage Subclasses
 
-- [ ] All conditionals in `toCardinal()` comparing whole numbers use `n` suffix
+- [ ] All conditionals in `toCardinalWords()` comparing whole numbers use `n` suffix
 - [ ] All conditionals in `pluralize()` use `n` suffix
 - [ ] Modulo operations use `n` suffix: `number % 10n`, `number % 100n`
 - [ ] Division operations use `n` suffix: `number / 10n`
@@ -766,7 +760,7 @@ Is the value used in BigInt arithmetic (/, %, *)?
 
 - [LANGUAGE_GUIDE.md](../LANGUAGE_GUIDE.md) - Comprehensive guide for adding new languages
 - [lib/classes/abstract-language.js](../lib/classes/abstract-language.js) - Input validation and decimal handling
-- [lib/classes/card-match-language.js](../lib/classes/card-match-language.js) - Card-based algorithm
+- [lib/classes/greedy-scale-language.js](../lib/classes/greedy-scale-language.js) - Card-based algorithm
 - [lib/classes/turkic-language.js](../lib/classes/turkic-language.js) - Turkic space-separated patterns
 - [lib/classes/slavic-language.js](../lib/classes/slavic-language.js) - Slavic/Baltic pluralization
 

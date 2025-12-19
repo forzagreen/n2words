@@ -327,7 +327,7 @@ For custom implementations or extensions, you can import the base language class
 ```typescript
 import {
   AbstractLanguage,
-  CardMatchLanguage,
+  GreedyScaleLanguage,
   SlavicLanguage,
   TurkicLanguage
 } from 'n2words'

@@ -8,9 +8,9 @@ This file gives targeted, actionable guidance for AI coding agents working in th
   - `lib/n2words.js`: language registry and export. Uses `dict[lang]` to dispatch.
   - `lib/i18n/*.js`: per-language implementations (38 total). Use one of five base classes from `lib/classes/`.
   - `lib/classes/abstract-language.js`: core base class providing decimal handling and input validation. Decimal part is treated as a string; leading zeros become the word for zero.
-  - `lib/classes/card-match-language.js`: extends `AbstractLanguage`; implements highest-matching-card algorithm. Most languages use this. Languages define `cards` arrays of `[value, word]` (use BigInt literals). Used by: English, Spanish, French, German, Italian, Portuguese, Dutch, Korean, Hungarian, Chinese.
+  - `lib/classes/greedy-scale-language.js`: extends `AbstractLanguage`; implements highest-matching-card algorithm. Most languages use this. Languages define `cards` arrays of `[value, word]` (use BigInt literals). Used by: English, Spanish, French, German, Italian, Portuguese, Dutch, Korean, Hungarian, Chinese.
   - `lib/classes/slavic-language.js`: extends `AbstractLanguage`; specialized base for Slavic/Baltic languages with three-form pluralization (Russian, Czech, Polish, Ukrainian, Serbian, Croatian, Hebrew, Lithuanian, Latvian).
-  - `lib/classes/turkic-language.js`: extends `CardMatchLanguage`; specialized base for Turkic languages with space-separated combinations and implicit number patterns. Used by: Turkish, Azerbaijani.
+  - `lib/classes/turkic-language.js`: extends `GreedyScaleLanguage`; specialized base for Turkic languages with space-separated combinations and implicit number patterns. Used by: Turkish, Azerbaijani.
 
   **Test organization:**
 
@@ -30,7 +30,7 @@ This file gives targeted, actionable guidance for AI coding agents working in th
     - Most other languages don't need constructors at all
   - Use `BigInt` literals in `cards` (e.g. `100n`, `1_000n`) not plain numbers for large values.
   - Choose appropriate base class:
-    - `CardMatchLanguage` for most languages with regular card-based systems (English, Spanish, German, French, Italian, Portuguese, Dutch, Korean, Hungarian, Chinese)
+    - `GreedyScaleLanguage` for most languages with regular card-based systems (English, Spanish, German, French, Italian, Portuguese, Dutch, Korean, Hungarian, Chinese)
     - `SlavicLanguage` for three-form pluralization languages (Russian, Czech, Polish, Ukrainian, Serbian, Croatian, Hebrew, Lithuanian, Latvian)
     - `TurkicLanguage` for Turkic languages with space-separated patterns (Turkish, Azerbaijani)
     - `AbstractLanguage` for custom implementations requiring full control (Arabic, Vietnamese, Romanian, Persian, Indonesian)
@@ -44,7 +44,7 @@ This file gives targeted, actionable guidance for AI coding agents working in th
     - Create `lib/i18n/xx.js` with a class extending the appropriate base class.
     - Define language defaults as class properties: `negativeWord`, `separatorWord`, `zero`, `cards` array, etc.
     - If your language needs behavior customization via constructor options (rare), implement a constructor that accepts only those parameters.
-    - Implement `merge(leftWordSet, rightWordSet)` method with language-specific grammar rules.
+    - Implement `mergeScales(leftWordSet, rightWordSet)` method with language-specific grammar rules.
     - Export default function: `export default function floatToCardinal(value, options = {}) { return new XxLanguage(options).floatToCardinal(value); }`
     - Add the language import and mapping entry in `lib/n2words.js`.
     - Add corresponding test file to `test/i18n/xx.js`.
@@ -80,15 +80,15 @@ This file gives targeted, actionable guidance for AI coding agents working in th
   - Decimal handling: By default, leading zeros are preserved as `zero` words and remaining digits are grouped. Languages requiring per-digit decimal reading (ja, th, ta, te) set `usePerDigitDecimals = true` as a class property.
   - Class properties vs constructor parameters: Use class properties for defaults shared across all instances (negativeWord, separatorWord, zero, cards, etc.). Use constructor parameters ONLY for options that actually change behavior (e.g., formal style in Chinese, gender in Spanish).
   - JSDoc for constructors: Only document parameters actually accepted by the constructor, not inherited class properties. Class properties are documented in the class-level JSDoc comment.
-  - Performance: Portuguese (pt.js) and English (en.js) are heavily optimized with cached regex and merge() optimizations.
+  - Performance: Portuguese (pt.js) and English (en.js) are heavily optimized with cached regex and mergeScales() optimizations.
 - **Files to inspect for examples:**
-  - `lib/i18n/en.js` — canonical use of `CardMatchLanguage` and `cards` + optimized `merge()` implementation.
-  - `lib/i18n/pt.js` — advanced optimizations: pre-compiled regex, simplified merge() logic.
+  - `lib/i18n/en.js` — canonical use of `GreedyScaleLanguage` and `cards` + optimized `mergeScales()` implementation.
+  - `lib/i18n/pt.js` — advanced optimizations: pre-compiled regex, simplified mergeScales() logic.
   - `lib/i18n/ru.js` — use of `SlavicLanguage` with three-form pluralization (shared by 9 languages).
-  - `lib/i18n/no.js` — inline `CardMatchLanguage` merge rules for the Norwegian "og" conjunction.
+  - `lib/i18n/no.js` — inline `GreedyScaleLanguage` merge rules for the Norwegian "og" conjunction.
   - `lib/i18n/tr.js` — use of `TurkicLanguage` with space-separated patterns (shared by Turkish and Azerbaijani).
   - `lib/i18n/ar.js` — use of `AbstractLanguage` for custom implementation.
-  - `lib/classes/card-match-language.js` — essential algorithms for card-based systems.
+  - `lib/classes/greedy-scale-language.js` — essential algorithms for card-based systems.
   - `lib/classes/slavic-language.js` — reusable base for Slavic/Baltic languages with complex pluralization.
   - `lib/classes/turkic-language.js` — reusable base for Turkic languages with space-separated patterns.
   - `lib/classes/abstract-language.js` — essential algorithms and optimizations.
@@ -116,10 +116,10 @@ This file gives targeted, actionable guidance for AI coding agents working in th
   - Use cached typeof checks and avoid repeated string operations.
   - Pre-compile regex patterns for repeated use (not in loop initializers).
   - Optimize Object.keys/values access by caching results when used multiple times.
-  - The `merge()` method is performance-critical; use early returns and reduce branching.
+  - The `mergeScales()` method is performance-critical; use early returns and reduce branching.
 
 - **When unsure, look at these concrete examples:**
-  - `lib/i18n/en.js` shows `BaseLanguage` usage and `merge()` details.
+  - `lib/i18n/en.js` shows `BaseLanguage` usage and `mergeScales()` details.
   - `lib/n2words.js` shows how languages are registered and fallback logic.
 
 If anything above is unclear or you'd like more examples (e.g., a minimal new-language PR), tell me where to expand and I will iterate.

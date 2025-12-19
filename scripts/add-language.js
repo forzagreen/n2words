@@ -34,7 +34,7 @@ const langName = await rl.question(
 )
 console.log(chalk.cyan('\nBase class options:'))
 console.log(
-  '  1. CardMatchLanguage (most languages: en, de, fr, es, pt, etc.)'
+  '  1. GreedyScaleLanguage (most languages: en, de, fr, es, pt, etc.)'
 )
 console.log('  2. SlavicLanguage (Slavic languages: ru, pl, cz, uk, etc.)')
 console.log('  3. TurkicLanguage (Turkish languages: tr, az)')
@@ -42,12 +42,12 @@ console.log('  4. AbstractLanguage (custom implementations: ar, vi, ro, etc.)')
 const baseClassChoice =
   (await rl.question('Choose base class (1-4) [1]: ')) || '1'
 const baseClassMap = {
-  1: 'CardMatchLanguage',
+  1: 'GreedyScaleLanguage',
   2: 'SlavicLanguage',
   3: 'TurkicLanguage',
   4: 'AbstractLanguage'
 }
-const baseClass = baseClassMap[baseClassChoice] || 'CardMatchLanguage'
+const baseClass = baseClassMap[baseClassChoice] || 'GreedyScaleLanguage'
 const negativeWord =
   (await rl.question(
     'Word for negative numbers (e.g., "minus", "negative") [minus]: '
@@ -119,34 +119,39 @@ export default function floatToCardinal (value, options = {}) {
  * ${langName} number-to-words converter
  */
 class ${className} extends ${baseClass} {
-  /**
-   * Initialize ${langName} converter with language-specific settings
-   */
-  constructor (options) {
-    super(Object.assign({
-      negativeWord: '${negativeWord}',
-      separatorWord: '${separatorWord}',
-      zero: '${zeroWord}'
-    }, options), [
-      // TODO: Define cards array in DESCENDING order
-      // Format: [value_as_BigInt, 'word']
-      // Example:
-      // [1000000n, 'million'],
-      // [1000n, 'thousand'],
-      // [100n, 'hundred'],
-      // [90n, 'ninety'],
-      // [80n, 'eighty'],
-      // [70n, 'seventy'],
-      // [60n, 'sixty'],
-      // [50n, 'fifty'],
-      // [40n, 'forty'],
-      // [30n, 'thirty'],
-      // [20n, 'twenty'],
-      // [19n, 'nineteen'],
-      // ... (continue with all numbers)
-      // [1n, 'one']
-    ])
-  }
+  // Class properties for language defaults
+  negativeWord = '${negativeWord}'
+  separatorWord = '${separatorWord}'
+  zero = '${zeroWord}'
+  // Set to true for digit-by-digit decimals if your language needs it
+  usePerDigitDecimals = false
+
+  // Define cards array in DESCENDING order (for card-based languages)
+  // Format: [value_as_BigInt, 'word']
+  cards = [
+    // [1000000n, 'million'],
+    // [1000n, 'thousand'],
+    // [100n, 'hundred'],
+    // [90n, 'ninety'],
+    // [80n, 'eighty'],
+    // [70n, 'seventy'],
+    // [60n, 'sixty'],
+    // [50n, 'fifty'],
+    // [40n, 'forty'],
+    // [30n, 'thirty'],
+    // [20n, 'twenty'],
+    // [19n, 'nineteen'],
+    // ... (continue with all numbers)
+    // [1n, 'one'],
+    // [0n, 'zero']
+  ]
+
+  // Add a constructor ONLY if your language has behavior-changing options.
+  // Most languages do not need a constructor.
+  // constructor ({ someOption = false } = {}) {
+  //   super()
+  //   this.someOption = someOption
+  // }
 
   /**
    * Merge two word sets according to ${langName} grammar rules
@@ -156,8 +161,8 @@ class ${className} extends ${baseClass} {
    * @returns {Object} Merged word set
    *
    * @example
-   * // For English: merge({ 'twenty': 20n }, { 'one': 1n }) => { 'twenty-one': 21n }
-   * // For French: merge({ 'vingt': 20n }, { 'et': 0n }, { 'un': 1n }) => { 'vingt et un': 21n }
+   * // For English: mergeScales({ 'twenty': 20n }, { 'one': 1n }) => { 'twenty-one': 21n }
+   * // For French: mergeScales({ 'vingt': 20n }, { 'et': 0n }, { 'un': 1n }) => { 'vingt et un': 21n }
    * // Implement according to ${langName} grammar rules
    */
   merge (leftWordSet, rightWordSet) {
@@ -293,7 +298,7 @@ console.log(`1. Edit lib/i18n/${fileName}.js:`)
 console.log(
   '   - Fill in the cards array with number words in DESCENDING order'
 )
-console.log('   - Implement the merge() method according to language grammar')
+console.log('   - Implement the mergeScales() method according to language grammar')
 console.log('   - Add any language-specific methods if needed')
 console.log()
 console.log(`2. Edit test/i18n/${fileName}.js:`)

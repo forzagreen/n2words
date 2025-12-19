@@ -70,7 +70,7 @@ n2words/
 │   ├── n2words.js               # Main entry point & language registry
 │   ├── classes/                 # Base classes for language implementations
 │   │   ├── abstract-language.js # Core base class
-│   │   ├── card-match-language.js
+│   │   ├── greedy-scale-language.js
 │   │   ├── slavic-language.js   # For Slavic/Baltic languages
 │   │   └── turkic-language.js   # For Turkic languages
 │   └── i18n/                    # Language implementations (38 total)
@@ -143,7 +143,7 @@ n2words uses inheritance to share common patterns:
 ```text
 AbstractLanguage (core validation & decimal handling)
     ↓
-    ├─→ CardMatchLanguage (38 languages)
+    ├─→ GreedyScaleLanguage (38 languages)
     │   ├── English, Spanish, French, German, Italian, Portuguese,
     │   ├── Dutch, Korean, Hungarian, Chinese, and more
     │   └── Uses "highest-matching-card" algorithm
@@ -165,7 +165,7 @@ AbstractLanguage (core validation & decimal handling)
 Every language defines default values as **class properties**:
 
 ```javascript
-export default class EnglishLanguage extends CardMatchLanguage {
+export default class EnglishLanguage extends GreedyScaleLanguage {
   negativeWord = 'minus'      // How to represent negative numbers
   separatorWord = 'point'     // Decimal separator word
   zero = 'zero'               // How to represent zero
@@ -184,7 +184,7 @@ export default class EnglishLanguage extends CardMatchLanguage {
 Only behavior-changing options are constructor parameters:
 
 ```javascript
-export default class SpanishLanguage extends CardMatchLanguage {
+export default class SpanishLanguage extends GreedyScaleLanguage {
   // Constructor accepts ONLY options that affect behavior
   constructor({ genderStem = 'one' } = {}) {
     super()
@@ -198,10 +198,10 @@ export default class SpanishLanguage extends CardMatchLanguage {
 
 #### 3. Merge Function
 
-Each language implements `merge()` to handle grammar rules:
+Each language implements `mergeScales()` to handle grammar rules:
 
 ```javascript
-merge(leftWordSet, rightWordSet) {
+mergeScales(leftWordSet, rightWordSet) {
   // Combine two number groups with language-specific grammar
   // Examples:
   // English: "one hundred" + "twenty-three" → "one hundred and twenty-three"
@@ -412,7 +412,7 @@ module.exports = floatToCardinal
 
 ```javascript
 // ✅ Correct: Use class properties
-export default class EnglishLanguage extends CardMatchLanguage {
+export default class EnglishLanguage extends GreedyScaleLanguage {
   negativeWord = 'minus'
   separatorWord = 'point'
   zero = 'zero'
@@ -478,7 +478,7 @@ npm run lang:add
 # Follow prompts:
 # - Language name: (e.g., "German")
 # - Language code: (e.g., "de")
-# - Base class: (e.g., "CardMatchLanguage")
+# - Base class: (e.g., "GreedyScaleLanguage")
 ```
 
 This creates:
@@ -490,7 +490,7 @@ This creates:
 ### Manual Implementation
 
 1. **Choose base class** based on language characteristics:
-   - `CardMatchLanguage` - Most languages (highest-matching-card algorithm)
+   - `GreedyScaleLanguage` - Most languages (highest-matching-card algorithm)
    - `SlavicLanguage` - Slavic/Baltic with 3-form pluralization
    - `TurkicLanguage` - Turkish, Azerbaijani with space-separated patterns
    - `AbstractLanguage` - Custom implementations (rare)
@@ -498,9 +498,9 @@ This creates:
 2. **Implement language file** (`lib/i18n/xx.js`):
 
 ```javascript
-import CardMatchLanguage from '../classes/card-match-language.js'
+import GreedyScaleLanguage from '../classes/greedy-scale-language.js'
 
-export default class GermanLanguage extends CardMatchLanguage {
+export default class GermanLanguage extends GreedyScaleLanguage {
   // Class properties for defaults
   negativeWord = 'minus'
   separatorWord = 'Komma'
@@ -518,7 +518,7 @@ export default class GermanLanguage extends CardMatchLanguage {
   }
 
   // Merge language-specific grammar
-  merge(left, right) {
+  mergeScales(left, right) {
     if (left.endsWith('hundert') && right) {
       return `${left} ${right}`
     }
@@ -614,7 +614,7 @@ Instead of creating regex in every method call:
 // ✅ Correct: Cache at class level
 const POST_CLEAN_REGEX = /\s+/g
 
-export default class PortugueseLanguage extends CardMatchLanguage {
+export default class PortugueseLanguage extends GreedyScaleLanguage {
   floatToCardinal(value) {
     const result = this._convert(value)
     return result.replace(POST_CLEAN_REGEX, ' ')
@@ -631,14 +631,14 @@ floatToCardinal(value) {
 
 ```javascript
 // ✅ Correct: Return early
-merge(left, right) {
+mergeScales(left, right) {
   if (!right) return left
   if (left.endsWith('and')) return `${left} ${right}`
   return `${left}, ${right}`
 }
 
 // ❌ Wrong: Unnecessary nested conditions
-merge(left, right) {
+mergeScales(left, right) {
   if (right) {
     if (left.endsWith('and')) {
       return `${left} ${right}`
@@ -655,13 +655,13 @@ merge(left, right) {
 
 ```javascript
 // ✅ Correct: Cache object keys
-const keys = Object.keys(this.cards)
+const keys = Object.keys(this.scaleWords)
 for (const key of keys) {
   // ... use key
 }
 
 // ❌ Wrong: Repeated access
-for (const key of Object.keys(this.cards)) {
+for (const key of Object.keys(this.scaleWords)) {
   // Object.keys() called every iteration
 }
 ```
@@ -695,7 +695,7 @@ Do **not** add dependencies without explicit discussion.
 ### 1. Print Intermediate Values
 
 ```javascript
-export default class DebugLanguage extends CardMatchLanguage {
+export default class DebugLanguage extends GreedyScaleLanguage {
   floatToCardinal(value) {
     console.log('Input:', value)
     const whole = this._getWholePart(value)
@@ -732,7 +732,7 @@ console.log(en(-42))         // Debug negative
 ### 4. Check Class Properties
 
 ```javascript
-import English from './lib/classes/card-match-language.js'
+import English from './lib/classes/greedy-scale-language.js'
 
 const en = new English()
 console.log(en.negativeWord)  // 'minus'
@@ -744,9 +744,9 @@ console.log(en.cards.length)  // Number of card definitions
 ### 5. Trace Merge Calls
 
 ```javascript
-merge(left, right) {
-  const result = super.merge(left, right)
-  console.log(`merge("${left}", "${right}") → "${result}"`)
+mergeScales(left, right) {
+  const result = super.mergeScales(left, right)
+  console.log(`mergeScales("${left}", "${right}") → "${result}"`)
   return result
 }
 ```

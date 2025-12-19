@@ -26,7 +26,7 @@ This interactive script will:
 After running the script, you'll need to:
 
 - Fill in the `cards` array with number words (using BigInt literals like `1000n`)
-- Implement the `merge()` method for your language's grammar
+- Implement the `mergeScales()` method for your language's grammar
 - Complete the test cases with expected outputs
 
 To validate your implementation:
@@ -56,9 +56,9 @@ If you prefer to add a language manually or need more control:
 
 ```js
 // lib/i18n/xx.js
-import CardMatchLanguage from '../classes/card-match-language.js';
+import GreedyScaleLanguage from '../classes/greedy-scale-language.js';
 
-export class XxLanguage extends CardMatchLanguage {
+export class XxLanguage extends GreedyScaleLanguage {
   // Set default language-specific words as class properties
   negativeWord = 'minus';
   separatorWord = 'point';
@@ -88,8 +88,8 @@ export class XxLanguage extends CardMatchLanguage {
     // Apply any option-dependent configuration
   }
 
-  // Implement merge(leftWordSet, rightWordSet) according to language rules.
-  merge(left, right) {
+  // Implement mergeScales(leftWordSet, rightWordSet) according to language rules.
+  mergeScales(left, right) {
     // left and right are objects like { 'one': 1n } and { 'hundred': 100n }
     // Return a merged object, e.g. { 'one hundred': 100n }
     const leftWord = Object.keys(left)[0];
@@ -113,14 +113,14 @@ Notes:
   numbers correctly. See [BIGINT-GUIDE.md](./BIGINT-GUIDE.md) for detailed guidance.
 - Class properties define default values that are shared across all instances. Constructor parameters allow per-call customization.
 - Choose the appropriate base class:
-  - `CardMatchLanguage` for most languages with regular card-based systems (English, Spanish, German, French, Belgian French, Italian, Portuguese, Dutch, Korean, Hungarian, Chinese)
+  - `GreedyScaleLanguage` for most languages with regular card-based systems (English, Spanish, German, French, Belgian French, Italian, Portuguese, Dutch, Korean, Hungarian, Chinese)
   - `SlavicLanguage` for languages with three-form pluralization (Russian, Czech, Polish, Ukrainian, Serbian, Croatian, Hebrew, Lithuanian, Latvian)
   - `TurkicLanguage` for Turkic languages with space-separated patterns (Turkish, Azerbaijani)
   - `AbstractLanguage` for custom implementations requiring full control (Arabic, Persian, Indonesian, Romanian, Vietnamese)
 - For decimals, rely on `AbstractLanguage.decimalToCardinal()`. If your language
   reads decimals digit-by-digit (like Japanese, Thai, Tamil, Telugu), set
-  `usePerDigitDecimals: true` in the constructor options and optionally define
-  a `digits` class property for the digit words.
+  `usePerDigitDecimals = true` as a **class property** and define a `digits` class
+  property for the digit words. Do not pass these via constructor options.
 
 ### Registering the language
 

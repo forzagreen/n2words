@@ -43,24 +43,25 @@ If you need more control, follow these steps:
 
 Choose the appropriate base class for your language:
 
-**CardMatchLanguage** - Use for most languages with regular card-based systems
+**GreedyScaleLanguage** - Use for most languages with regular card-based systems
 
 - Extends `AbstractLanguage`
 - Implements highest-matching-card algorithm
 - Works well for languages with regular patterns
-- Define a `cards` array and implement `merge()` method
+- Define a `cards` array and implement `mergeScales()` method
 - Examples: English, Spanish, German, French, Italian, Portuguese, Dutch, Korean, Hungarian, Chinese
 
-**SlavicLanguage** - Use for Slavic/Baltic languages with three-form pluralization
+ **SlavicLanguage** - Use for Slavic/Baltic languages with three-form pluralization
 
 - Extends `AbstractLanguage`
 - Specialized for languages with complex pluralization rules
 - Handles singular/dual/plural forms
+- Supports shared `feminine` option for feminine forms of digits 1-9 (ones place)
 - Examples: Russian, Czech, Polish, Ukrainian, Serbian, Croatian, Hebrew, Lithuanian, Latvian
 
 **TurkicLanguage** - Use for Turkic languages
 
-- Extends `CardMatchLanguage`
+- Extends `GreedyScaleLanguage`
 - Space-separated number combinations
 - Implicit number handling patterns
 - Examples: Turkish, Azerbaijani
@@ -100,12 +101,12 @@ Choose the appropriate base class for your language:
 
 ### 1. Choose Your Base Class and Define Number Words
 
-Start by selecting the right base class. For most languages, use `CardMatchLanguage`:
+Start by selecting the right base class. For most languages, use `GreedyScaleLanguage`:
 
 ```javascript
-import CardMatchLanguage from '../classes/card-match-language.js'
+import GreedyScaleLanguage from '../classes/greedy-scale-language.js'
 
-export class MyLanguage extends CardMatchLanguage {
+export class MyLanguage extends GreedyScaleLanguage {
   // Set language defaults as class properties
   negativeWord = 'minus'      // Word for negative numbers
   separatorWord = 'point'     // Word for decimal point
@@ -165,7 +166,7 @@ export default function floatToCardinal(value, options = {}) {
 
 ### 2. Implement Merge Logic
 
-The `merge()` method combines word sets according to your language's grammar:
+The `mergeScales()` method combines word sets according to your language's grammar:
 
 #### Pattern 1: Space-separated (English style)
 
@@ -349,27 +350,17 @@ By default, `AbstractLanguage` handles decimals using a grouped approach where l
 
 ### Per-Digit Decimal Conversion
 
-Some languages read each decimal digit individually. To enable this behavior, set `usePerDigitDecimals: true` in the constructor:
+Some languages read each decimal digit individually. To enable this behavior, set `usePerDigitDecimals = true` as a class property:
 
 ```javascript
 class Japanese extends AbstractLanguage {
+  negativeWord = 'マイナス';
+  separatorWord = '点';
+  zero = '零';
+  usePerDigitDecimals = true; // Enable per-digit decimal reading
   digits = ['一', '二', '三', '四', '五', '六', '七', '八', '九'];
 
-  constructor(options) {
-    super(
-      Object.assign(
-        {
-          negativeWord: 'マイナス',
-          separatorWord: '点',
-          zero: '零',
-          usePerDigitDecimals: true, // Enable per-digit decimal reading
-        },
-        options,
-      ),
-    );
-  }
-
-  // ... rest of implementation
+  // Constructor only if you have behavior-changing options (usually not needed)
 }
 ```
 
@@ -391,7 +382,8 @@ class Japanese extends AbstractLanguage {
 
 ### Defining a Digits Array
 
-If your language uses per-digit decimals, define a `digits` class property:
+If your language uses per-digit decimals, define a `digits` class property and set
+`usePerDigitDecimals = true` as a class property (not via constructor options):
 
 ```javascript
 class MyLanguage extends AbstractLanguage {
@@ -408,17 +400,9 @@ class MyLanguage extends AbstractLanguage {
     'nine',
   ];
 
-  constructor(options) {
-    super(
-      Object.assign(
-        {
-          // ... other options
-          usePerDigitDecimals: true,
-        },
-        options,
-      ),
-    );
-  }
+  usePerDigitDecimals = true;
+
+  // Constructor only if you have behavior-changing options (usually not needed)
 }
 ```
 
@@ -471,7 +455,7 @@ merge (left, right) {
 For post-processing, compile regex once:
 
 ```javascript
-class MyLanguage extends CardMatchLanguage {
+class MyLanguage extends GreedyScaleLanguage {
   constructor (options) {
     super(options, cards)
 
@@ -531,10 +515,10 @@ See [BIGINT-GUIDE.md](./BIGINT-GUIDE.md) for comprehensive guidance on BigInt us
 
 Study these examples:
 
-- **CardMatchLanguage**: `lib/i18n/en.js` - Basic patterns
-- **CardMatchLanguage (optimized)**: `lib/i18n/pt.js` - Advanced optimizations
-- **CardMatchLanguage (complex)**: `lib/i18n/fr.js` - Special rules
-- **CardMatchLanguage (Nordic rules inline)**: `lib/i18n/no.js` - Norwegian "og" conjunction handled in merge()
+- **GreedyScaleLanguage**: `lib/i18n/en.js` - Basic patterns
+- **GreedyScaleLanguage (optimized)**: `lib/i18n/pt.js` - Advanced optimizations
+- **GreedyScaleLanguage (complex)**: `lib/i18n/fr.js` - Special rules
+- **GreedyScaleLanguage (Nordic rules inline)**: `lib/i18n/no.js` - Norwegian "og" conjunction handled in mergeScales()
 - **TurkicLanguage**: `lib/i18n/tr.js` - Turkish patterns with space-separated combinations
 - **SlavicLanguage**: `lib/i18n/ru.js` - Three-form pluralization pattern
 - **AbstractLanguage**: `lib/i18n/ar.js`, `lib/i18n/zh.js` - Custom implementations with different scripts
