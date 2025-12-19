@@ -62,10 +62,10 @@ export class XxLanguage extends GreedyScaleLanguage {
   // Set default language-specific words as class properties
   negativeWord = 'minus';
   decimalSeparatorWord = 'point';
-  zero = 'zero';
+  zeroWord = 'zero';
 
-  // Define cards array with [value, word] pairs in DESCENDING order
-  cards = [
+  // Define scaleWordPairs array with [value, word] pairs in DESCENDING order
+  scaleWordPairs = [
     [1_000_000n, 'million'],
     [1000n, 'thousand'],
     [100n, 'hundred'],
@@ -166,5 +166,3 @@ Browser tests (optional) are under `test/web.js` and require `npm run build`.
 If you have any questions or need an example PR, open an issue and we'll help.
 
 Thank you for contributing!
-
-

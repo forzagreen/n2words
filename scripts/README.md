@@ -68,7 +68,7 @@ npm run lang:validate fr-BE
 - ✓ Default export function is present and instantiates the declared class
 - ✓ Class name looks like the language name (not the code token)
 - ✓ Uses BigInt literals in number definitions
-- ✓ Has mergeScales() method OR toCardinalWords() override (for GreedyScaleLanguage)
+- ✓ Has mergeScales() method OR convertWholePart() override (for GreedyScaleLanguage)
 - ✓ Extends a recognized base class (GreedyScaleLanguage, SlavicLanguage, TurkicLanguage, AbstractLanguage) or another language class
 - ✓ Test file exists with comprehensive cases (20+ recommended)
 - ✓ Tests cover: zero, negatives, decimals, large numbers (includes 1_000_000-style literals)

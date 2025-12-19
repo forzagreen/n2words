@@ -18,7 +18,7 @@ This guide explains **when and where** to use JavaScript's `BigInt` type when im
 
 ### ✅ MUST use BigInt literals (n suffix)
 
-1. **Scale word pairs arrays** in `GreedyScaleLanguage` subclasses and other scale-based classes
+1. **Scale word pair arrays** in `GreedyScaleLanguage` subclasses and other scale-based classes
 2. **BigInt comparisons** (when comparing against `wholeNumber` or values known to be BigInt)
 3. **BigInt arithmetic** (division, modulo, multiplication with BigInt operands)
 4. **BigInt literals in conditionals** (when comparing BigInt values)
@@ -172,9 +172,9 @@ mergeScales(leftPair, rightPair) {
 
 ```javascript
 // ✅ CORRECT: BigInt literals in conditionals and arithmetic
-toCardinal(number) {
+convertWholePart(number) {
   if (number === 0n) {
-    return this.zero
+    return this.zeroWord
   }
 
   const chunks = this.splitByX(number.toString(), 3)
@@ -206,9 +206,9 @@ pluralize(number, forms) {
 }
 
 // ❌ WRONG: Mixed types
-toCardinal(number) {
+convertWholePart(number) {
   if (number === 0) {        // false for 0n
-    return this.zero
+    return this.zeroWord
   }
 
   if (n3 > 0) {              // TypeError
@@ -230,9 +230,9 @@ toCardinal(number) {
 
 ```javascript
 // ✅ CORRECT: Handle BigInt in custom algorithms
-toCardinal(number) {
+convertWholePart(number) {
   if (number === 0n) {
-    return this.zero
+    return this.zeroWord
   }
 
   let temp = number

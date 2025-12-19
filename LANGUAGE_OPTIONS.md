@@ -8,11 +8,11 @@ This guide documents all language-specific options available to **end-users** of
 
 **⚠️ NOTE**: These options are **not exposed to end-users**. They are internal language implementation options used by language developers only. (Exception: Arabic exposes `negativeWord` to end-users; see the Arabic section.)
 
-| Option                | Type    | Description                                     | Default Value                                           |
-| --------------------- | ------- | ----------------------------------------------- | ------------------------------------------------------- |
-| `negativeWord`        | string  | Word used for negative numbers                  | Language-specific (e.g., "minus", "menos", "ناقص")      |
-| `decimalSeparatorWord`   | string  | Word separating whole and decimal parts         | Language-specific (e.g., "point", "virgule", "virgulă") |
-| `zeroWord`              | string  | Word for the digit 0                            | Language-specific (e.g., "zero", "zéro", "zero")        |
+| Option                    | Type    | Description                                     | Default Value                                           |
+| ------------------------- | ------- | ----------------------------------------------- | ------------------------------------------------------- |
+| `negativeWord`            | string  | Word used for negative numbers                  | Language-specific (e.g., "minus", "menos", "ناقص")      |
+| `decimalSeparatorWord`    | string  | Word separating whole and decimal parts         | Language-specific (e.g., "point", "virgule", "virgulă") |
+| `zeroWord`                | string  | Word for the digit 0                            | Language-specific (e.g., "zero", "zéro", "zero")        |
 | `convertDecimalsPerDigit` | boolean | Read decimals digit-by-digit instead of grouped | `false` (language-specific: `true` for ja, th, ta, te)  |
 
 These are **class properties** of language implementations in `lib/i18n/` and are set by language developers when implementing a new language converter. End-users typically do not interact with these options directly.
@@ -25,10 +25,10 @@ Arabic provides masculine and feminine forms for numbers with complex grammatica
 
 **Options:**
 
-| Option        | Type    | Description                           | Default |
-| ------------- | ------- | ------------------------------------- | ------- |
-| `feminine`    | boolean | Use feminine number forms             | `false` |
-| `negativeWord`| string  | Word used for negative numbers (minus)| `'ناقص'` |
+| Option         | Type    | Description                            | Default  |
+| -------------- | ------- | -------------------------------------- | -------- |
+| `feminine`     | boolean | Use feminine number forms              | `false`  |
+| `negativeWord` | string  | Word used for negative numbers (minus) | `'ناقص'` |
 
 **Examples:**
 
@@ -465,26 +465,26 @@ n2words(21, { lang: 'az', dropSpaces: true }); // 'iyirmibir' (agglutinated)
 
 ## Summary Table
 
-| Language               | Option                | Type    | Default | Description                                   |
-| ---------------------- | --------------------- | ------- | ------- | --------------------------------------------- |
-| Arabic (ar)            | `feminine`            | boolean | `false` | Use feminine number forms                     |
-| Arabic (ar)            | `negativeWord`        | string  | `'ناقص'` | Word used for negative numbers                |
-| Spanish (es)           | `genderStem`          | string  | `'o'`   | Gender ending: `'o'` (masc) or `'a'` (fem)    |
-| French (fr)            | `withHyphenSeparator` | boolean | `false` | Use hyphens instead of spaces                 |
-| Belgian French (fr-BE) | `withHyphenSeparator` | boolean | `false` | Use hyphens instead of spaces                 |
-| Russian (ru)           | `feminine`            | boolean | `false` | Use feminine forms for ones (1-9) and related cases |
-| Czech (cz)             | `feminine`            | boolean | `false` | Use feminine forms for ones (1-9) and related cases |
-| Polish (pl)            | `feminine`            | boolean | `false` | Use feminine forms for ones (1-9) and related cases |
-| Ukrainian (uk)         | `feminine`            | boolean | `false` | Use feminine forms for ones (1-9) and related cases |
-| Serbian (sr)           | `feminine`            | boolean | `false` | Use feminine forms for ones (1-9) and related cases |
-| Croatian (hr)          | `feminine`            | boolean | `false` | Use feminine forms for ones (1-9) and related cases |
-| Lithuanian (lt)        | `feminine`            | boolean | `false` | Use feminine forms for ones (1-9) and related cases |
-| Latvian (lv)           | `feminine`            | boolean | `false` | Use feminine forms for ones (1-9) and related cases |
-| Hebrew (he)            | `biblical`            | boolean | `false` | Use Biblical (masculine) forms                |
-| Hebrew (he)            | `and`                 | string  | `'ו'`   | Conjunction word                              |
-| Romanian (ro)          | `feminine`            | boolean | `false` | Use feminine number forms                     |
-| Turkish (tr)           | `dropSpaces`          | boolean | `false` | Remove spaces (agglutination)                 |
-| Azerbaijani (az)       | `dropSpaces`          | boolean | `false` | Remove spaces (agglutination)                 |
+| Language               | Option                | Type    | Default  | Description                                             |
+| ---------------------- | --------------------- | ------- | -------- | ------------------------------------------------------- |
+| Arabic (ar)            | `feminine`            | boolean | `false`  | Use feminine number forms                               |
+| Arabic (ar)            | `negativeWord`        | string  | `'ناقص'` | Word used for negative numbers                          |
+| Spanish (es)           | `genderStem`          | string  | `'o'`    | Gender ending: `'o'` (masc) or `'a'` (fem)              |
+| French (fr)            | `withHyphenSeparator` | boolean | `false`  | Use hyphens instead of spaces                           |
+| Belgian French (fr-BE) | `withHyphenSeparator` | boolean | `false`  | Use hyphens instead of spaces                           |
+| Russian (ru)           | `feminine`            | boolean | `false`  | Use feminine forms for ones (1-9) and related cases     |
+| Czech (cz)             | `feminine`            | boolean | `false`  | Use feminine forms for ones (1-9) and related cases     |
+| Polish (pl)            | `feminine`            | boolean | `false`  | Use feminine forms for ones (1-9) and related cases     |
+| Ukrainian (uk)         | `feminine`            | boolean | `false`  | Use feminine forms for ones (1-9) and related cases     |
+| Serbian (sr)           | `feminine`            | boolean | `false`  | Use feminine forms for ones (1-9) and related cases     |
+| Croatian (hr)          | `feminine`            | boolean | `false`  | Use feminine forms for ones (1-9) and related cases     |
+| Lithuanian (lt)        | `feminine`            | boolean | `false`  | Use feminine forms for ones (1-9) and related cases     |
+| Latvian (lv)           | `feminine`            | boolean | `false`  | Use feminine forms for ones (1-9) and related cases     |
+| Hebrew (he)            | `biblical`            | boolean | `false`  | Use Biblical (masculine) forms                          |
+| Hebrew (he)            | `and`                 | string  | `'ו'`    | Conjunction word                                        |
+| Romanian (ro)          | `feminine`            | boolean | `false`  | Use feminine number forms                               |
+| Turkish (tr)           | `dropSpaces`          | boolean | `false`  | Remove spaces (agglutination)                           |
+| Azerbaijani (az)       | `dropSpaces`          | boolean | `false`  | Remove spaces (agglutination)                           |
 
 ---
 
@@ -611,5 +611,3 @@ If you identify additional language-specific options that would be useful, or fi
 3. Open an issue or pull request on GitHub
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed contribution guidelines.
-
-

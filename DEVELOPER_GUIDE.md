@@ -168,8 +168,8 @@ Every language defines default values as **class properties**:
 export default class EnglishLanguage extends GreedyScaleLanguage {
   negativeWord = 'minus'      // How to represent negative numbers
   decimalSeparatorWord = 'point'     // Decimal separator word
-  zero = 'zero'               // How to represent zero
-  cards = [                   // Number-to-word mapping
+  zeroWord = 'zero'               // How to represent zero
+  scaleWordPairs = [                   // Number-to-word mapping
     [0n, 'zero'],
     [1n, 'one'],
     [2n, 'two'],
@@ -415,8 +415,8 @@ module.exports = convertToWords
 export default class EnglishLanguage extends GreedyScaleLanguage {
   negativeWord = 'minus'
   decimalSeparatorWord = 'point'
-  zero = 'zero'
-  cards = [...]
+  zeroWord = 'zero'
+  scaleWordPairs = [...]
 }
 
 // ❌ Wrong: Don't use constructor for class property defaults
@@ -427,18 +427,18 @@ constructor() {
 
 ### BigInt Literals
 
-Always use **BigInt literals** for card values:
+Always use **BigInt literals** for scale word pair values:
 
 ```javascript
 // ✅ Correct: BigInt
-cards = [
+scaleWordPairs = [
   [1n, 'one'],
   [1_000n, 'thousand'],
   [1_000_000n, 'million'],
 ]
 
 // ❌ Wrong: Plain numbers (lose precision at large values)
-cards = [
+scaleWordPairs = [
   [1, 'one'],
   [1000, 'thousand'],
   [1000000, 'million'],
@@ -504,11 +504,11 @@ export default class GermanLanguage extends GreedyScaleLanguage {
   // Class properties for defaults
   negativeWord = 'minus'
   decimalSeparatorWord = 'Komma'
-  zero = 'null'
-  cards = [
+  zeroWord = 'null'
+  scaleWordPairs = [
     [1n, 'eins'],
     [2n, 'zwei'],
-    // ... more cards
+    // ... more pairs
   ]
 
   // Constructor for behavior-changing options (if needed)
@@ -743,8 +743,8 @@ import English from './lib/classes/greedy-scale-language.js'
 const en = new English()
 console.log(en.negativeWord)  // 'minus'
 console.log(en.decimalSeparatorWord) // 'point'
-console.log(en.zero)          // 'zero'
-console.log(en.cards.length)  // Number of card definitions
+console.log(en.zeroWord)          // 'zero'
+console.log(en.scaleWordPairs.length)  // Number of scale word pair definitions
 ```
 
 ### 5. Trace Merge Calls
@@ -787,5 +787,3 @@ open coverage/index.html
 ---
 
 **Happy coding!** 🚀
-
-

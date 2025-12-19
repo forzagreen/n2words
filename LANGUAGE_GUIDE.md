@@ -48,7 +48,7 @@ Choose the appropriate base class for your language:
 - Extends `AbstractLanguage`
 - Implements highest-matching-card algorithm
 - Works well for languages with regular patterns
-- Define a `cards` array and implement `mergeScales()` method
+- Define a `scaleWordPairs` array and implement `mergeScales()` method
 - Examples: English, Spanish, German, French, Italian, Portuguese, Dutch, Korean, Hungarian, Chinese
 
  **SlavicLanguage** - Use for Slavic/Baltic languages with three-form pluralization
@@ -110,11 +110,11 @@ export class MyLanguage extends GreedyScaleLanguage {
   // Set language defaults as class properties
   negativeWord = 'minus'      // Word for negative numbers
   decimalSeparatorWord = 'point'     // Word for decimal point
-  zero = 'zero'               // Word for zero
+  zeroWord = 'zero'               // Word for zero
   convertDecimalsPerDigit = false // Set to true for digit-by-digit decimal reading
 
-  // Define cards array with [value, word] pairs in DESCENDING order
-  cards = [
+  // Define scaleWordPairs array with [value, word] pairs in DESCENDING order
+  scaleWordPairs = [
     // Large numbers first
     [1_000_000_000n, 'billion'],
     [1_000_000n, 'million'],
@@ -162,7 +162,7 @@ export default function convertToWords(value, options = {}) {
 
 - Use class properties for default values (not passed via constructor)
 - Constructor parameters should only include options that actually affect behavior
-- Use `BigInt` literals (`1000n`, not `1000`) in cards array for numerical accuracy
+- Use `BigInt` literals (`1000n`, not `1000`) in scaleWordPairs array for numerical accuracy
 
 ### 2. Implement Merge Logic
 
@@ -171,7 +171,7 @@ The `mergeScales()` method combines word sets according to your language's gramm
 #### Pattern 1: Space-separated (English style)
 
 ```javascript
-merge (leftWordSet, rightWordSet) {
+mergeScales (leftWordSet, rightWordSet) {
   const leftWords = Object.keys(leftWordSet)
   const rightWords = Object.keys(rightWordSet)
   const leftValue = Object.values(leftWordSet)[0]
@@ -187,7 +187,7 @@ merge (leftWordSet, rightWordSet) {
 #### Pattern 2: Hyphenated (for compound numbers)
 
 ```javascript
-merge (leftWordSet, rightWordSet) {
+mergeScales (leftWordSet, rightWordSet) {
   const leftWords = Object.keys(leftWordSet)
   const rightWords = Object.keys(rightWordSet)
   const leftValue = Object.values(leftWordSet)[0]
@@ -210,7 +210,7 @@ merge (leftWordSet, rightWordSet) {
 #### Pattern 3: Conditional connectors (French style)
 
 ```javascript
-merge (leftWordSet, rightWordSet) {
+mergeScales (leftWordSet, rightWordSet) {
   const leftWords = Object.keys(leftWordSet)
   const rightWords = Object.keys(rightWordSet)
   const leftValue = Object.values(leftWordSet)[0]
@@ -233,7 +233,7 @@ merge (leftWordSet, rightWordSet) {
 #### Gender Agreement (Portuguese, French, etc.)
 
 ```javascript
-merge (leftWordSet, rightWordSet) {
+mergeScales (leftWordSet, rightWordSet) {
   // ... standard merge logic ...
 
   // Special case: gender-sensitive numbers
@@ -248,7 +248,7 @@ merge (leftWordSet, rightWordSet) {
 #### Irregular Patterns
 
 ```javascript
-merge (leftWordSet, rightWordSet) {
+mergeScales (leftWordSet, rightWordSet) {
   const leftValue = Object.values(leftWordSet)[0]
   const rightValue = Object.values(rightWordSet)[0]
 
@@ -356,7 +356,7 @@ Some languages read each decimal digit individually. To enable this behavior, se
 class Japanese extends AbstractLanguage {
   negativeWord = 'マイナス';
   decimalSeparatorWord = '点';
-  zero = '零';
+  zeroWord = '零';
   convertDecimalsPerDigit = true; // Enable per-digit decimal reading
   digits = ['一', '二', '三', '四', '五', '六', '七', '八', '九'];
 
@@ -415,7 +415,7 @@ The `convertDigitToWord()` method will automatically use this array when convert
 Space-separated with "and" before final unit:
 
 ```javascript
-merge (left, right) {
+mergeScales (left, right) {
   const leftValue = Object.values(left)[0]
   const rightValue = Object.values(right)[0]
 
@@ -434,7 +434,7 @@ merge (left, right) {
 Hyphenated compounds with special connectors:
 
 ```javascript
-merge (left, right) {
+mergeScales (left, right) {
   const leftValue = Object.values(left)[0]
   const rightValue = Object.values(right)[0]
 
@@ -457,14 +457,14 @@ For post-processing, compile regex once:
 ```javascript
 class MyLanguage extends GreedyScaleLanguage {
   constructor (options) {
-    super(options, cards)
+    super(options)
 
     // Pre-compile regex patterns
     this.doubleSpaceRegex = /\s{2,}/g
     this.trimRegex = /^\s+|\s+$/g
   }
 
-  merge (left, right) {
+  mergeScales (left, right) {
     const result = // ... merge logic
 
     // Use pre-compiled regex
@@ -476,7 +476,7 @@ class MyLanguage extends GreedyScaleLanguage {
 ### 2. Cache Object Operations
 
 ```javascript
-merge (left, right) {
+mergeScales (left, right) {
   // Cache keys/values instead of calling multiple times
   const leftKeys = Object.keys(left)
   const rightKeys = Object.keys(right)
@@ -505,7 +505,7 @@ const merged = [...leftWords, ...rightWords].join(' ');
 
 All language implementations must use BigInt literals in specific contexts:
 
-- **Cards arrays**: Use `1000n`, not `1000`
+- **Scale word pair arrays**: Use `1000n`, not `1000`
 - **Comparisons**: When comparing BigInt values, use `value === 1n`
 - **Arithmetic**: BigInt operations require BigInt operands
 
@@ -530,5 +530,3 @@ Study these examples:
 - Study existing language implementations
 - Open an issue if you have questions
 - The community is here to help!
-
-

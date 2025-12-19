@@ -122,13 +122,13 @@ class ${className} extends ${baseClass} {
   // Class properties for language defaults
   negativeWord = '${negativeWord}'
   decimalSeparatorWord = '${separatorWord}'
-  zero = '${zeroWord}'
+  zeroWord = '${zeroWord}'
   // Set to true for digit-by-digit decimals if your language needs it
   convertDecimalsPerDigit = false
 
-  // Define cards array in DESCENDING order (for card-based languages)
+  // Define scaleWordPairs array in DESCENDING order (for scale-based languages)
   // Format: [value_as_BigInt, 'word']
-  cards = [
+  scaleWordPairs = [
     // [1000000n, 'million'],
     // [1000n, 'thousand'],
     // [100n, 'hundred'],
@@ -165,7 +165,7 @@ class ${className} extends ${baseClass} {
    * // For French: mergeScales({ 'vingt': 20n }, { 'et': 0n }, { 'un': 1n }) => { 'vingt et un': 21n }
    * // Implement according to ${langName} grammar rules
    */
-  merge (leftWordSet, rightWordSet) {
+  mergeScales (leftWordSet, rightWordSet) {
     // TODO: Implement merge logic for ${langName}
     // Basic template (customize for your language):
     const leftWords = Object.keys(leftWordSet)
@@ -318,5 +318,3 @@ console.log(chalk.cyan('Reference implementations:'))
 console.log('   - Simple: lib/i18n/en.js')
 console.log('   - Complex: lib/i18n/pt.js, lib/i18n/fr.js')
 console.log()
-
-

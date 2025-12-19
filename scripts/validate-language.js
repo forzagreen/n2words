@@ -175,15 +175,15 @@ async function validateLanguage (langCode) {
 
   // Check for merge method
   const usesCardMatch = content.includes('extends GreedyScaleLanguage')
-  const hasMerge = content.includes('merge')
-  const hasToCardinal = content.includes('toCardinal')
+  const hasMerge = content.includes('mergeScales')
+  const hasConvertWholePart = content.includes('convertWholePart')
 
-  if (usesCardMatch && !hasMerge && !hasToCardinal) {
+  if (usesCardMatch && !hasMerge && !hasConvertWholePart) {
     console.error(chalk.red('  ✗ Missing mergeScales() or convertWholePart() method (required for GreedyScaleLanguage)'))
     errors++
   } else if (hasMerge) {
     console.log(chalk.green('  ✓ Has mergeScales() method'))
-  } else if (usesCardMatch && hasToCardinal) {
+  } else if (usesCardMatch && hasConvertWholePart) {
     console.log(chalk.green('  ✓ Overrides convertWholePart() method'))
   } else {
     console.log(chalk.green('  ✓ Base class provides mergeScales() implementation'))
@@ -343,5 +343,3 @@ if (totalErrors === 0 && totalWarnings === 0) {
   )
   process.exit(0)
 }
-
-

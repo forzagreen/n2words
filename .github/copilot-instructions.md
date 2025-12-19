@@ -22,15 +22,15 @@ This file gives targeted, actionable guidance for AI coding agents working in th
 
 - **Patterns & conventions** (follow these exactly):
   - Files are ESM (`package.json` includes `type: "module"`). Language implementations export a default function: `export default function convertToWords(value, options={}) { return new XxLanguage(options).convertToWords(value); }`
-  - Language classes extend a base class and use **class properties** for default values (`negativeWord`, `decimalSeparatorWord`, `zero`, `cards`, etc.).
+  - Language classes extend a base class and use **class properties** for default values (`negativeWord`, `decimalSeparatorWord`, `zeroWord`, `scaleWordPairs`, etc.).
   - **Constructor parameters** should ONLY include options that actually affect behavior (not class properties). For example:
-    - Chinese constructor accepts `formal` (affects cards array)
+    - Chinese constructor accepts `formal` (affects scaleWordPairs array)
     - Spanish constructor accepts `genderStem` (affects merge behavior)
     - Czech and Hebrew accept special options
     - Most other languages don't need constructors at all
-  - Use `BigInt` literals in `cards` (e.g. `100n`, `1_000n`) not plain numbers for large values.
+  - Use `BigInt` literals in `scaleWordPairs` (e.g. `100n`, `1_000n`) not plain numbers for large values.
   - Choose appropriate base class:
-    - `GreedyScaleLanguage` for most languages with regular card-based systems (English, Spanish, German, French, Italian, Portuguese, Dutch, Korean, Hungarian, Chinese)
+    - `GreedyScaleLanguage` for most languages with regular scale-based systems (English, Spanish, German, French, Italian, Portuguese, Dutch, Korean, Hungarian, Chinese)
     - `SlavicLanguage` for three-form pluralization languages (Russian, Czech, Polish, Ukrainian, Serbian, Croatian, Hebrew, Lithuanian, Latvian)
     - `TurkicLanguage` for Turkic languages with space-separated patterns (Turkish, Azerbaijani)
     - `AbstractLanguage` for custom implementations requiring full control (Arabic, Vietnamese, Romanian, Persian, Indonesian)
@@ -42,7 +42,7 @@ This file gives targeted, actionable guidance for AI coding agents working in th
   - Validate implementation: `npm run lang:validate xx` (checks completeness and best practices).
   - Manual process (alternative):
     - Create `lib/i18n/xx.js` with a class extending the appropriate base class.
-    - Define language defaults as class properties: `negativeWord`, `decimalSeparatorWord`, `zero`, `cards` array, etc.
+    - Define language defaults as class properties: `negativeWord`, `decimalSeparatorWord`, `zeroWord`, `scaleWordPairs` array, etc.
     - If your language needs behavior customization via constructor options (rare), implement a constructor that accepts only those parameters.
     - Implement `mergeScales(leftWordSet, rightWordSet)` method with language-specific grammar rules.
     - Export default function: `export default function convertToWords(value, options = {}) { return new XxLanguage(options).convertToWords(value); }`
@@ -77,18 +77,18 @@ This file gives targeted, actionable guidance for AI coding agents working in th
 - **Important implementation notes:**
   - Input types: functions accept `number | string | bigint`. `AbstractLanguage.convertToWords` validates inputs and converts to `BigInt` for whole numbers.
   - Negative numbers: `AbstractLanguage` prepends `negativeWord` (defined as a class property in language implementations).
-  - Decimal handling: By default, leading zeros are preserved as `zero` words and remaining digits are grouped. Languages requiring per-digit decimal reading (ja, th, ta, te) set `convertDecimalsPerDigit = true` as a class property.
-  - Class properties vs constructor parameters: Use class properties for defaults shared across all instances (negativeWord, decimalSeparatorWord, zero, cards, etc.). Use constructor parameters ONLY for options that actually change behavior (e.g., formal style in Chinese, gender in Spanish).
+  - Decimal handling: By default, leading zeros are preserved as `zeroWord` words and remaining digits are grouped. Languages requiring per-digit decimal reading (ja, th, ta, te) set `convertDecimalsPerDigit = true` as a class property.
+  - Class properties vs constructor parameters: Use class properties for defaults shared across all instances (negativeWord, decimalSeparatorWord, zeroWord, scaleWordPairs, etc.). Use constructor parameters ONLY for options that actually change behavior (e.g., formal style in Chinese, gender in Spanish).
   - JSDoc for constructors: Only document parameters actually accepted by the constructor, not inherited class properties. Class properties are documented in the class-level JSDoc comment.
   - Performance: Portuguese (pt.js) and English (en.js) are heavily optimized with cached regex and mergeScales() optimizations.
 - **Files to inspect for examples:**
-  - `lib/i18n/en.js` — canonical use of `GreedyScaleLanguage` and `cards` + optimized `mergeScales()` implementation.
+  - `lib/i18n/en.js` — canonical use of `GreedyScaleLanguage` and `scaleWordPairs` + optimized `mergeScales()` implementation.
   - `lib/i18n/pt.js` — advanced optimizations: pre-compiled regex, simplified mergeScales() logic.
   - `lib/i18n/ru.js` — use of `SlavicLanguage` with three-form pluralization (shared by 9 languages).
   - `lib/i18n/no.js` — inline `GreedyScaleLanguage` merge rules for the Norwegian "og" conjunction.
   - `lib/i18n/tr.js` — use of `TurkicLanguage` with space-separated patterns (shared by Turkish and Azerbaijani).
   - `lib/i18n/ar.js` — use of `AbstractLanguage` for custom implementation.
-  - `lib/classes/greedy-scale-language.js` — essential algorithms for card-based systems.
+  - `lib/classes/greedy-scale-language.js` — essential algorithms for scale-based systems.
   - `lib/classes/slavic-language.js` — reusable base for Slavic/Baltic languages with complex pluralization.
   - `lib/classes/turkic-language.js` — reusable base for Turkic languages with space-separated patterns.
   - `lib/classes/abstract-language.js` — essential algorithms and optimizations.
