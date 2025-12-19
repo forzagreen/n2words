@@ -116,6 +116,7 @@ Notes:
   - `GreedyScaleLanguage` for most languages with regular scale-based systems (English, Spanish, German, French, Belgian French, Italian, Portuguese, Dutch, Korean, Hungarian, Chinese)
   - `SlavicLanguage` for languages with three-form pluralization (Russian, Czech, Polish, Ukrainian, Serbian, Croatian, Hebrew, Lithuanian, Latvian)
   - `TurkicLanguage` for Turkic languages with space-separated patterns (Turkish, Azerbaijani)
+  - `SouthAsianLanguage` for South Asian languages with Indian-style grouping (Hindi, Bengali, Urdu, Punjabi)
   - `AbstractLanguage` for custom implementations requiring full control (Arabic, Persian, Indonesian, Romanian, Vietnamese)
 - For decimals, rely on `AbstractLanguage.decimalDigitsToWords()`. If your language
   reads decimals digit-by-digit (like Japanese, Thai, Tamil, Telugu), set

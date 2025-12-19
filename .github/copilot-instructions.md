@@ -6,11 +6,12 @@ This file gives targeted, actionable guidance for AI coding agents working in th
 
 - **Core components:**
   - `lib/n2words.js`: language registry and export. Uses `dict[lang]` to dispatch.
-  - `lib/i18n/*.js`: per-language implementations (38 total). Use one of five base classes from `lib/classes/`.
+  - `lib/i18n/*.js`: per-language implementations (40 total). Use one of six base classes from `lib/classes/`.
   - `lib/classes/abstract-language.js`: core base class providing decimal handling and input validation. Decimal part is treated as a string; leading zeros become the word for zero.
   - `lib/classes/greedy-scale-language.js`: extends `AbstractLanguage`; implements highest-matching-scale algorithm. Most languages use this. Languages define `scaleWordPairs` arrays of `[value, word]` (use BigInt literals). Used by: English, Spanish, French, German, Italian, Portuguese, Dutch, Korean, Hungarian, Chinese.
   - `lib/classes/slavic-language.js`: extends `AbstractLanguage`; specialized base for Slavic/Baltic languages with three-form pluralization (Russian, Czech, Polish, Ukrainian, Serbian, Croatian, Hebrew, Lithuanian, Latvian).
   - `lib/classes/turkic-language.js`: extends `GreedyScaleLanguage`; specialized base for Turkic languages with space-separated combinations and implicit number patterns. Used by: Turkish, Azerbaijani.
+  - `lib/classes/south-asian-language.js`: extends `AbstractLanguage`; specialized base for South Asian languages with Indian-style grouping (3 digits, then 2-2 from right). Provides `splitIndian`, `convertBelowThousand`, and `convertWholePart`. Used by: Hindi, Bengali, Urdu, Punjabi.
 
   **Test organization:**
 
@@ -32,6 +33,7 @@ This file gives targeted, actionable guidance for AI coding agents working in th
   - Choose appropriate base class:
     - `GreedyScaleLanguage` for most languages with regular scale-based systems (English, Spanish, German, French, Italian, Portuguese, Dutch, Korean, Hungarian, Chinese)
     - `SlavicLanguage` for three-form pluralization languages (Russian, Czech, Polish, Ukrainian, Serbian, Croatian, Hebrew, Lithuanian, Latvian)
+    - `SouthAsianLanguage` for South Asian languages with Indian-style grouping (Hindi, Bengali, Urdu, Punjabi)
     - `TurkicLanguage` for Turkic languages with space-separated patterns (Turkish, Azerbaijani)
     - `AbstractLanguage` for custom implementations requiring full control (Arabic, Vietnamese, Romanian, Persian, Indonesian)
   - Decimal processing: languages should rely on `AbstractLanguage.decimalDigitsToWords()` for consistent behavior. For digit-by-digit decimal reading (Japanese, Thai, Tamil, Telugu), set `convertDecimalsPerDigit = true` as a class property.
@@ -87,10 +89,12 @@ This file gives targeted, actionable guidance for AI coding agents working in th
   - `lib/i18n/ru.js` — use of `SlavicLanguage` with three-form pluralization (shared by 9 languages).
   - `lib/i18n/no.js` — inline `GreedyScaleLanguage` merge rules for the Norwegian "og" conjunction.
   - `lib/i18n/tr.js` — use of `TurkicLanguage` with space-separated patterns (shared by Turkish and Azerbaijani).
+  - `lib/i18n/hi.js` — use of `SouthAsianLanguage` with Indian-style grouping (shared by Hindi, Bengali, Urdu, Punjabi).
   - `lib/i18n/ar.js` — use of `AbstractLanguage` for custom implementation.
   - `lib/classes/greedy-scale-language.js` — essential algorithms for scale-based systems.
   - `lib/classes/slavic-language.js` — reusable base for Slavic/Baltic languages with complex pluralization.
   - `lib/classes/turkic-language.js` — reusable base for Turkic languages with space-separated patterns.
+  - `lib/classes/south-asian-language.js` — reusable base for South Asian languages with Indian-style grouping.
   - `lib/classes/abstract-language.js` — essential algorithms and optimizations.
   - `test/unit/api.js` — API and language fallback tests.
   - `test/i18n.js` — comprehensive language-specific tests.

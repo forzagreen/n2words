@@ -143,19 +143,23 @@ n2words uses inheritance to share common patterns:
 ```text
 AbstractLanguage (core validation & decimal handling)
     ↓
-    ├─→ GreedyScaleLanguage (38 languages)
+    ├─→ GreedyScaleLanguage (23 languages)
     │   ├── English, Spanish, French, German, Italian, Portuguese,
     │   ├── Dutch, Korean, Hungarian, Chinese, and more
-  │   └── Uses "highest-matching-scale" algorithm
+    │   └── Uses "highest-matching-scale" algorithm
     │
-    ├─→ SlavicLanguage (10 languages)
+    ├─→ SlavicLanguage (9 languages)
     │   ├── Russian, Czech, Polish, Ukrainian, Serbian, Croatian,
     │   ├── Hebrew, Lithuanian, Latvian
     │   └── Implements three-form pluralization
     │
-    └─→ TurkicLanguage (2 languages)
-        ├── Turkish, Azerbaijani
-        └── Implements space-separated patterns
+    ├─→ TurkicLanguage (2 languages)
+    │   ├── Turkish, Azerbaijani
+    │   └── Implements space-separated patterns
+    │
+    └─→ SouthAsianLanguage (4 languages)
+        ├── Hindi, Bengali, Urdu, Punjabi
+        └── Implements Indian-style digit grouping
 ```
 
 ### Key Concepts

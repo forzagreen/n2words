@@ -66,6 +66,14 @@ Choose the appropriate base class for your language:
 - Implicit number handling patterns
 - Examples: Turkish, Azerbaijani
 
+**SouthAsianLanguage** - Use for South Asian languages with Indian-style grouping
+
+- Extends `AbstractLanguage`
+- Indian-style digit grouping: 3 digits on the right, then 2-2 from right (e.g., 12,34,56,789 = "twelve crore thirty four lakh fifty six thousand seven hundred eighty nine")
+- Provides: `splitIndian()` (group digits), `convertBelowThousand()` (convert 0-999), `convertWholePart()` (iterate groups)
+- Subclasses define: `belowHundred[]` (word arrays for 0-99), `scales[]` (grouping words), `hundredWord` (word for 100)
+- Examples: Hindi, Bengali, Urdu, Punjabi
+
 **AbstractLanguage** - Use for custom implementations requiring full control
 
 - Core base class for all others
@@ -267,6 +275,57 @@ mergeScales (leftWordSet, rightWordSet) {
   // ...
 }
 ```
+
+### 4. SouthAsianLanguage Example (Indian-style grouping)
+
+For South Asian languages with Indian number grouping (3 digits on right, then 2-2):
+
+```javascript
+import SouthAsianLanguage from '../classes/south-asian-language.js'
+
+export class HindiLanguage extends SouthAsianLanguage {
+  negativeWord = 'माइनस'
+  decimalSeparatorWord = 'दशमलव'
+  zeroWord = 'शून्य'
+  hundredWord = 'सौ'
+
+  belowHundred = [
+    ['', 'एक', 'दो', 'तीन', 'चार', 'पाँच', 'छः', 'सात', 'आठ', 'नौ'], // 0-9
+    ['दस', 'ग्यारह', 'बारह', 'तेरह', 'चौदह', 'पन्द्रह', 'सोलह', 'सत्रह', 'अट्ठारह', 'उन्नीस'], // 10-19
+    ['बीस', 'इक्कीस', 'बाईस', 'तेईस', 'चौबीस', 'पच्चीस', 'छब्बीस', 'सत्ताईस', 'अट्ठाईस', 'उन्तीस'], // 20-29
+    // ... continue for 30-99
+  ]
+
+  scales = [
+    { name: 'करोड़', value: 10000000n },  // 10 million
+    { name: 'लाख', value: 100000n },     // 100 thousand
+    { name: 'हज़ार', value: 1000n }      // thousand
+  ]
+
+  /**
+   * Initialize with language-specific options.
+   * @param {Object} [options={}] Configuration options.
+   */
+  constructor(options = {}) {
+    super()
+    this.options = options
+  }
+}
+
+export default function convertToWords(value, options = {}) {
+  return new HindiLanguage(options).convertToWords(value)
+}
+```
+
+**Key points for SouthAsianLanguage:**
+
+- Grouping pattern: 12,34,56,789 (3 digits on right, then 2-2 from right)
+- `belowHundred` array: Contains all word forms for 0-99
+  - Index 0-9: ones place (शून्य, एक, दो, ...)
+  - Index 10-19: teens
+  - Index 20-99: twenties through nineties
+- `scales` array: Objects with `name` (word) and `value` (BigInt) for grouping words
+- `hundredWord` class property: Word for 100 (used in convertBelowThousand method)
 
 ## Testing Your Implementation
 
