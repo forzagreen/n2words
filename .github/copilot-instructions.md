@@ -119,7 +119,7 @@ This file gives targeted, actionable guidance for AI coding agents working in th
   - The `mergeScales()` method is performance-critical; use early returns and reduce branching.
 
 - **When unsure, look at these concrete examples:**
-  - `lib/i18n/en.js` shows `BaseLanguage` usage and `mergeScales()` details.
+  - `lib/i18n/en.js` shows `GreedyScaleLanguage` usage and `mergeScales()` details.
   - `lib/n2words.js` shows how languages are registered and fallback logic.
 
 If anything above is unclear or you'd like more examples (e.g., a minimal new-language PR), tell me where to expand and I will iterate.

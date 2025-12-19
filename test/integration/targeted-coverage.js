@@ -14,12 +14,12 @@ import n2words from '../../lib/n2words.js'
  * Coverage achieved: 99.45% statements, 98.31% branches
  */
 
-/* Base Language (AbstractLanguage and BaseLanguage)
- * File: lib/classes/base-language.js
- * Coverage focus: clean() algorithm, normalization paths
+/* GreedyScaleLanguage
+ * File: lib/classes/greedy-scale-language.js
+ * Coverage focus: finalizeWords() algorithm, normalization paths
  */
 
-// Base language clean() algorithm
+// GreedyScaleLanguage finalizeWords() algorithm
 test('base-language › 2000 (nested-array)', t => {
   const out = n2words(2000, { lang: 'en' })
   t.is(typeof out, 'string')

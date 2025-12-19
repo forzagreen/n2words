@@ -441,3 +441,4 @@ describe('n2words', () => {
 
 If you find TypeScript-related issues or have suggestions for improvements, please open an issue on [GitHub](https://github.com/forzagreen/n2words/issues).
 
+

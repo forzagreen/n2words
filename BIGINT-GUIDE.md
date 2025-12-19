@@ -18,7 +18,7 @@ This guide explains **when and where** to use JavaScript's `BigInt` type when im
 
 ### ✅ MUST use BigInt literals (n suffix)
 
-1. **Cards arrays** in `GreedyScaleLanguage` subclasses and other card-based classes
+1. **Scale word pairs arrays** in `GreedyScaleLanguage` subclasses and other scale-based classes
 2. **BigInt comparisons** (when comparing against `wholeNumber` or values known to be BigInt)
 3. **BigInt arithmetic** (division, modulo, multiplication with BigInt operands)
 4. **BigInt literals in conditionals** (when comparing BigInt values)
@@ -65,9 +65,9 @@ User Input (number | string | bigint)
 AbstractLanguage.convertToWords()
     ↓ converts to BigInt
 Language.convertWholePart(wholeNumber: bigint)
-    ↓ (BaseLanguage path)
-toCardMatches(value: bigint)
-    ↓ uses cards array
+    ↓ (GreedyScaleLanguage path)
+decomposeToScales(value: bigint)
+    ↓ uses scaleWordPairs array
 mergeScales(leftPair, rightPair)
     ↓ compares BigInt values
 Final string output
@@ -79,14 +79,14 @@ Final string output
 
 ## When BigInt is Required
 
-### 1. Cards Arrays (GreedyScaleLanguage and related classes)
+### 1. Scale Word Pairs Arrays (GreedyScaleLanguage and related classes)
 
-**WHY:** The `toCardMatches()` method in `GreedyScaleLanguage` (and subclasses like `TurkicLanguage`) performs BigInt arithmetic (`rem / card[0]`, `rem % card[0]`). If `card[0]` is a regular number, this throws a TypeError.
+**WHY:** The `decomposeToScales()` method in `GreedyScaleLanguage` (and subclasses like `TurkicLanguage`) performs BigInt arithmetic (`rem / scaleWordPair[0]`, `rem % scaleWordPair[0]`). If `scaleWordPair[0]` is a regular number, this throws a TypeError.
 
 ```javascript
 // ✅ CORRECT: All values use BigInt literals
 class Example extends GreedyScaleLanguage {
-  cards = [
+  scaleWordPairs = [
     [1_000_000_000n, 'billion'],
     [1_000_000n, 'million'],
     [1000n, 'thousand'],
@@ -99,8 +99,8 @@ class Example extends GreedyScaleLanguage {
 
 // ❌ WRONG: Regular numbers will cause runtime errors
 class ExampleWrong extends GreedyScaleLanguage {
-  cards = [
-    [1_000_000_000, 'billion'],  // TypeError in toCardMatches
+  scaleWordPairs = [
+    [1_000_000_000, 'billion'],  // TypeError in decomposeToScales
     [1000, 'thousand'],
     [1, 'one']
   ]
@@ -224,7 +224,7 @@ toCardinal(number) {
 
 ### 4. Custom Algorithm Implementations
 
-**WHY:** Languages with custom conversion logic (not using `BaseLanguage` or `SlavicLanguage`) often still process BigInt values passed from `convertToWords()`.
+**WHY:** Languages with custom conversion logic (not using `GreedyScaleLanguage` or `SlavicLanguage`) often still process BigInt values passed from `convertToWords()`.
 
 **Pattern:**
 
@@ -288,7 +288,7 @@ convertMore1000(number) {
 ```javascript
 // ✅ CORRECT: Regular numbers for array/string operations
 const chunks = this.splitByX(number.toString(), 3); // 3 is a number
-let index = chunks.length; // index is number
+let chunkIndex = chunks.length; // chunkIndex is number
 
 for (let i = 0; i < words.length; i++) {
   // i is number
@@ -296,8 +296,8 @@ for (let i = 0; i < words.length; i++) {
   // ...
 }
 
-const dotIndex = value.indexOf('.'); // indexOf returns number
-if (dotIndex === -1) {
+const decimalPointIndex = value.indexOf('.'); // indexOf returns number
+if (decimalPointIndex === -1) {
   // compare number to number
   // no decimal point
 }
@@ -352,7 +352,7 @@ if (chunks.length === 1) {
 
 **BigInt locations:**
 
-1. Cards array (class property)
+1. Scale word pairs array (class property)
 2. All comparisons in `mergeScales()`
 
 **Example:** `lib/i18n/en.js`
@@ -361,7 +361,7 @@ if (chunks.length === 1) {
 import GreedyScaleLanguage from '../classes/greedy-scale-language.js';
 
 class EN extends GreedyScaleLanguage {
-  cards = [
+  scaleWordPairs = [
     [1_000_000n, 'million'], // ✅ BigInt literals
     [1000n, 'thousand'],
     [100n, 'hundred'],
@@ -450,12 +450,12 @@ class RU extends SlavicLanguage {
 import GreedyScaleLanguage from '../classes/greedy-scale-language.js';
 
 class Norwegian extends GreedyScaleLanguage {
-  cards = [
+  scaleWordPairs = [
     [1_000_000_000n, 'milliard'],
     [1_000_000n, 'million'],
     [1000n, 'tusen'],
     [100n, 'hundre'],
-    // ... more cards with BigInt literals
+    // ... more scale word pairs with BigInt literals
   ];
 
   mergeScales(leftPair, rightPair) {
@@ -486,12 +486,12 @@ class Norwegian extends GreedyScaleLanguage {
 import TurkicLanguage from '../classes/turkic-language.js';
 
 class TR extends TurkicLanguage {
-  cards = [
+  scaleWordPairs = [
     [1_000_000_000n, 'milyar'],
     [1_000_000n, 'milyon'],
     [1000n, 'bin'],
     [100n, 'yüz'],
-    // ... more cards with BigInt literals
+    // ... more scale word pairs with BigInt literals
   ];
 
   mergeScales(leftPair, rightPair) {
@@ -552,12 +552,12 @@ class AR extends AbstractLanguage {
 
 ## Common Pitfalls
 
-### ❌ Pitfall 1: Forgetting `n` Suffix in Cards
+### ❌ Pitfall 1: Forgetting `n` Suffix in Scale Word Pairs
 
 ```javascript
 // ❌ WRONG
 super(options, [
-  [1000, 'thousand'], // Will throw TypeError in toCardMatches
+  [1000, 'thousand'], // Will throw TypeError in decomposeToScales
   [100, 'hundred'],
 ]);
 
@@ -572,7 +572,7 @@ super(options, [
 
 ```javascript
 TypeError: Cannot mix BigInt and other types, use explicit conversions
-  at toCardMatches (file:///lib/classes/base-language.js:87:46)
+  at decomposeToScales (file:///lib/classes/greedy-scale-language.js:87:46)
 ```
 
 ### ❌ Pitfall 2: Mixed Type Comparisons
@@ -595,14 +595,14 @@ if (leftNumber === 1n) {
 
 ```javascript
 // ❌ WRONG
-const index = chunks.length;
-if (index === 0n) {
-  // index is number, comparing to BigInt
+const chunkIndex = chunks.length;
+if (chunkIndex === 0n) {
+  // chunkIndex is number, comparing to BigInt
   // ...
 }
 
 // ✅ CORRECT
-if (index === 0) {
+if (chunkIndex === 0) {
   // ...
 }
 ```
@@ -738,7 +738,7 @@ When creating a new language implementation, verify BigInt usage:
 
 ### Golden Rules
 
-1. **Cards arrays** Always use `n` suffix for numeric values
+1. **Scale word pairs arrays** Always use `n` suffix for numeric values
 2. **Comparisons** Use `n` suffix when comparing BigInt values
 3. **Arithmetic** Match operand types (BigInt with BigInt, number with number)
 4. **Conversions** Be explicit with `Number()` and `BigInt()` when crossing type boundaries

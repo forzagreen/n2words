@@ -655,13 +655,13 @@ mergeScales(left, right) {
 
 ```javascript
 // ✅ Correct: Cache object keys
-const keys = Object.keys(this.scaleWords)
+const keys = Object.keys(this.scaleWordPairs)
 for (const key of keys) {
   // ... use key
 }
 
 // ❌ Wrong: Repeated access
-for (const key of Object.keys(this.scaleWords)) {
+for (const key of Object.keys(this.scaleWordPairs)) {
   // Object.keys() called every iteration
 }
 ```
@@ -698,10 +698,16 @@ Do **not** add dependencies without explicit discussion.
 export default class DebugLanguage extends GreedyScaleLanguage {
   convertToWords(value) {
     console.log('Input:', value)
-    const whole = this._getWholePart(value)
-    console.log('Whole part:', whole)
-    const result = this._convert(whole)
+    const result = super.convertToWords(value)
+    console.log('Cached whole number:', this.cachedWholeNumber)
     console.log('Result:', result)
+    return result
+  }
+
+  convertWholePart(wholeNumber) {
+    console.log('Converting whole part:', wholeNumber)
+    const result = super.convertWholePart(wholeNumber)
+    console.log('Whole part result:', result)
     return result
   }
 }
@@ -781,4 +787,5 @@ open coverage/index.html
 ---
 
 **Happy coding!** 🚀
+
 
