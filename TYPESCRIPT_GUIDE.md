@@ -104,7 +104,7 @@ n2words(123456789n, { lang: 'en' })
 
 ## Supported Languages
 
-n2words supports **38 languages**. Here are the most common:
+n2words supports **45 languages**. Here are the most common:
 
 | Code | Language | Example |
 | --- | --- | --- |

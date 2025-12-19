@@ -13,7 +13,7 @@ This guide documents all language-specific options available to **end-users** of
 | `negativeWord`            | string  | Word used for negative numbers                  | Language-specific (e.g., "minus", "menos", "ناقص")      |
 | `decimalSeparatorWord`    | string  | Word separating whole and decimal parts         | Language-specific (e.g., "point", "virgule", "virgulă") |
 | `zeroWord`                | string  | Word for the digit 0                            | Language-specific (e.g., "zero", "zéro", "zero")        |
-| `convertDecimalsPerDigit` | boolean | Read decimals digit-by-digit instead of grouped | `false` (language-specific: `true` for ja, th, ta, te)  |
+| `convertDecimalsPerDigit` | boolean | Read decimals digit-by-digit instead of grouped | `false` (language-specific: `true` for ja, th, ta, te, tl, mr, gu, kn, el)  |
 
 These are **class properties** of language implementations in `lib/i18n/` and are set by language developers when implementing a new language converter. End-users typically do not interact with these options directly.
 

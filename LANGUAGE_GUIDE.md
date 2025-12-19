@@ -72,7 +72,7 @@ Choose the appropriate base class for your language:
 - Indian-style digit grouping: 3 digits on the right, then 2-2 from right (e.g., 12,34,56,789 = "twelve crore thirty four lakh fifty six thousand seven hundred eighty nine")
 - Provides: `splitIndian()` (group digits), `convertBelowThousand()` (convert 0-999), `convertWholePart()` (iterate groups)
 - Subclasses define: `belowHundred[]` (word arrays for 0-99), `scales[]` (grouping words), `hundredWord` (word for 100)
-- Examples: Hindi, Bengali, Urdu, Punjabi
+- Examples: Hindi, Bengali, Urdu, Punjabi, Marathi, Gujarati, Kannada
 
 **AbstractLanguage** - Use for custom implementations requiring full control
 
@@ -425,7 +425,7 @@ class Japanese extends AbstractLanguage {
 
 **When to use per-digit decimals:**
 
-- Languages that always read decimals digit-by-digit (Japanese, Thai, Tamil, Telugu)
+- Languages that always read decimals digit-by-digit (Japanese, Thai, Tamil, Telugu, Filipino/Tagalog, Marathi, Gujarati, Kannada, Greek)
 - Scripts where grouped decimal reading doesn't make linguistic sense
 - Languages with a `digits` array for individual digit words
 
