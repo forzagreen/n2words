@@ -167,7 +167,7 @@ Every language defines default values as **class properties**:
 ```javascript
 export default class EnglishLanguage extends GreedyScaleLanguage {
   negativeWord = 'minus'      // How to represent negative numbers
-  separatorWord = 'point'     // Decimal separator word
+  decimalSeparatorWord = 'point'     // Decimal separator word
   zero = 'zero'               // How to represent zero
   cards = [                   // Number-to-word mapping
     [0n, 'zero'],
@@ -213,7 +213,7 @@ mergeScales(leftWordSet, rightWordSet) {
 ### Input Processing
 
 ```javascript
-floatToCardinal(value, options = {})
+convertToWords(value, options = {})
 ```
 
 1. **Validation** - Check input is number, string, or bigint
@@ -400,12 +400,12 @@ All code is **ECMAScript Modules (ESM)**:
 
 ```javascript
 // ✅ Correct: ESM exports
-export default function floatToCardinal(value, options = {}) {
-  return new MyLanguage(options).floatToCardinal(value)
+export default function convertToWords(value, options = {}) {
+  return new MyLanguage(options).convertToWords(value)
 }
 
 // ❌ Wrong: CommonJS
-module.exports = floatToCardinal
+module.exports = convertToWords
 ```
 
 ### Class Properties for Defaults
@@ -414,7 +414,7 @@ module.exports = floatToCardinal
 // ✅ Correct: Use class properties
 export default class EnglishLanguage extends GreedyScaleLanguage {
   negativeWord = 'minus'
-  separatorWord = 'point'
+  decimalSeparatorWord = 'point'
   zero = 'zero'
   cards = [...]
 }
@@ -447,7 +447,7 @@ cards = [
 
 ### Naming Conventions
 
-- **Functions**: `camelCase` - `floatToCardinal`, `normalizeInput`
+- **Functions**: `camelCase` - `convertToWords`, `normalizeInput`
 - **Classes**: `PascalCase` - `EnglishLanguage`, `SlavicLanguage`
 - **Constants**: `UPPER_SNAKE_CASE` - `MAX_SAFE_INTEGER`
 - **Private methods**: Prefix with `_` - `_normalizeCard`
@@ -503,7 +503,7 @@ import GreedyScaleLanguage from '../classes/greedy-scale-language.js'
 export default class GermanLanguage extends GreedyScaleLanguage {
   // Class properties for defaults
   negativeWord = 'minus'
-  separatorWord = 'Komma'
+  decimalSeparatorWord = 'Komma'
   zero = 'null'
   cards = [
     [1n, 'eins'],
@@ -527,8 +527,8 @@ export default class GermanLanguage extends GreedyScaleLanguage {
 }
 
 // Export default function
-export default function floatToCardinal(value, options = {}) {
-  return new GermanLanguage(options).floatToCardinal(value)
+export default function convertToWords(value, options = {}) {
+  return new GermanLanguage(options).convertToWords(value)
 }
 ```
 
@@ -615,14 +615,14 @@ Instead of creating regex in every method call:
 const POST_CLEAN_REGEX = /\s+/g
 
 export default class PortugueseLanguage extends GreedyScaleLanguage {
-  floatToCardinal(value) {
+  convertToWords(value) {
     const result = this._convert(value)
     return result.replace(POST_CLEAN_REGEX, ' ')
   }
 }
 
 // ❌ Wrong: Recreates regex every call
-floatToCardinal(value) {
+convertToWords(value) {
   return this._convert(value).replace(/\s+/g, ' ')
 }
 ```
@@ -696,7 +696,7 @@ Do **not** add dependencies without explicit discussion.
 
 ```javascript
 export default class DebugLanguage extends GreedyScaleLanguage {
-  floatToCardinal(value) {
+  convertToWords(value) {
     console.log('Input:', value)
     const whole = this._getWholePart(value)
     console.log('Whole part:', whole)
@@ -736,7 +736,7 @@ import English from './lib/classes/greedy-scale-language.js'
 
 const en = new English()
 console.log(en.negativeWord)  // 'minus'
-console.log(en.separatorWord) // 'point'
+console.log(en.decimalSeparatorWord) // 'point'
 console.log(en.zero)          // 'zero'
 console.log(en.cards.length)  // Number of card definitions
 ```
@@ -781,3 +781,4 @@ open coverage/index.html
 ---
 
 **Happy coding!** 🚀
+

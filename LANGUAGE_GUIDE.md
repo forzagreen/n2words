@@ -109,9 +109,9 @@ import GreedyScaleLanguage from '../classes/greedy-scale-language.js'
 export class MyLanguage extends GreedyScaleLanguage {
   // Set language defaults as class properties
   negativeWord = 'minus'      // Word for negative numbers
-  separatorWord = 'point'     // Word for decimal point
+  decimalSeparatorWord = 'point'     // Word for decimal point
   zero = 'zero'               // Word for zero
-  usePerDigitDecimals = false // Set to true for digit-by-digit decimal reading
+  convertDecimalsPerDigit = false // Set to true for digit-by-digit decimal reading
 
   // Define cards array with [value, word] pairs in DESCENDING order
   cards = [
@@ -153,8 +153,8 @@ export class MyLanguage extends GreedyScaleLanguage {
   }
 }
 
-export default function floatToCardinal(value, options = {}) {
-  return new MyLanguage(options).floatToCardinal(value)
+export default function convertToWords(value, options = {}) {
+  return new MyLanguage(options).convertToWords(value)
 }
 ```
 
@@ -350,14 +350,14 @@ By default, `AbstractLanguage` handles decimals using a grouped approach where l
 
 ### Per-Digit Decimal Conversion
 
-Some languages read each decimal digit individually. To enable this behavior, set `usePerDigitDecimals = true` as a class property:
+Some languages read each decimal digit individually. To enable this behavior, set `convertDecimalsPerDigit = true` as a class property:
 
 ```javascript
 class Japanese extends AbstractLanguage {
   negativeWord = 'マイナス';
-  separatorWord = '点';
+  decimalSeparatorWord = '点';
   zero = '零';
-  usePerDigitDecimals = true; // Enable per-digit decimal reading
+  convertDecimalsPerDigit = true; // Enable per-digit decimal reading
   digits = ['一', '二', '三', '四', '五', '六', '七', '八', '九'];
 
   // Constructor only if you have behavior-changing options (usually not needed)
@@ -375,7 +375,7 @@ class Japanese extends AbstractLanguage {
 - `3.14` → groups as "three point one four" (or "fourteen" depending on language)
 - `2.05` → "two point zero five" (leading zero preserved)
 
-**Per-digit behavior (`usePerDigitDecimals: true`):**
+**Per-digit behavior (`convertDecimalsPerDigit: true`):**
 
 - `3.14` → "three point one four" (each digit separate)
 - `2.05` → "two point zero five" (each digit separate)
@@ -383,7 +383,7 @@ class Japanese extends AbstractLanguage {
 ### Defining a Digits Array
 
 If your language uses per-digit decimals, define a `digits` class property and set
-`usePerDigitDecimals = true` as a class property (not via constructor options):
+`convertDecimalsPerDigit = true` as a class property (not via constructor options):
 
 ```javascript
 class MyLanguage extends AbstractLanguage {
@@ -400,13 +400,13 @@ class MyLanguage extends AbstractLanguage {
     'nine',
   ];
 
-  usePerDigitDecimals = true;
+  convertDecimalsPerDigit = true;
 
   // Constructor only if you have behavior-changing options (usually not needed)
 }
 ```
 
-The `digitToWord()` method will automatically use this array when converting decimal digits.
+The `convertDigitToWord()` method will automatically use this array when converting decimal digits.
 
 ## Common Patterns
 
@@ -530,3 +530,4 @@ Study these examples:
 - Study existing language implementations
 - Open an issue if you have questions
 - The community is here to help!
+

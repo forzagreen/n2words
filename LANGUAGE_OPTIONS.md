@@ -11,9 +11,9 @@ This guide documents all language-specific options available to **end-users** of
 | Option                | Type    | Description                                     | Default Value                                           |
 | --------------------- | ------- | ----------------------------------------------- | ------------------------------------------------------- |
 | `negativeWord`        | string  | Word used for negative numbers                  | Language-specific (e.g., "minus", "menos", "ناقص")      |
-| `separatorWord`       | string  | Word separating whole and decimal parts         | Language-specific (e.g., "point", "virgule", "virgulă") |
-| `zero`                | string  | Word for the digit 0                            | Language-specific (e.g., "zero", "cero", "صفر")         |
-| `usePerDigitDecimals` | boolean | Read decimals digit-by-digit instead of grouped | `false` (language-specific: `true` for ja, th, ta, te)  |
+| `decimalSeparatorWord`   | string  | Word separating whole and decimal parts         | Language-specific (e.g., "point", "virgule", "virgulă") |
+| `zeroWord`              | string  | Word for the digit 0                            | Language-specific (e.g., "zero", "zéro", "zero")        |
+| `convertDecimalsPerDigit` | boolean | Read decimals digit-by-digit instead of grouped | `false` (language-specific: `true` for ja, th, ta, te)  |
 
 These are **class properties** of language implementations in `lib/i18n/` and are set by language developers when implementing a new language converter. End-users typically do not interact with these options directly.
 
@@ -592,13 +592,13 @@ All other 29 languages use only the common options:
 - Standard French → `lang: 'fr'`
 - Belgian French → `lang: 'fr-BE'`
 
-3. **Hebrew Forms**: Select Biblical vs. Modern based on context:
+1. **Hebrew Forms**: Select Biblical vs. Modern based on context:
    - Modern applications, contemporary writing → `biblical: false` (default)
    - Religious texts, traditional contexts → `biblical: true`
 
-4. **Turkish/Azerbaijani Spacing**: Use `dropSpaces: true` for traditional writing styles, `false` for modern readability.
+2. **Turkish/Azerbaijani Spacing**: Use `dropSpaces: true` for traditional writing styles, `false` for modern readability.
 
-5. **Testing**: When implementing number conversion in your application, test with various number ranges (1-10, 11-19, 20-99, 100-999, 1000+) to ensure proper grammatical agreement.
+3. **Testing**: When implementing number conversion in your application, test with various number ranges (1-10, 11-19, 20-99, 100-999, 1000+) to ensure proper grammatical agreement.
 
 ---
 
@@ -611,3 +611,4 @@ If you identify additional language-specific options that would be useful, or fi
 3. Open an issue or pull request on GitHub
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed contribution guidelines.
+

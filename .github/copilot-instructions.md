@@ -21,8 +21,8 @@ This file gives targeted, actionable guidance for AI coding agents working in th
 - Smoke tests: `npm run test:smoke` (test/smoke/smoke-i18n.js) — sanity checks for all 38 languages.
 
 - **Patterns & conventions** (follow these exactly):
-  - Files are ESM (`package.json` includes `type: "module"`). Language implementations export a default function: `export default function floatToCardinal(value, options={}) { return new XxLanguage(options).floatToCardinal(value); }`
-  - Language classes extend a base class and use **class properties** for default values (`negativeWord`, `separatorWord`, `zero`, `cards`, etc.).
+  - Files are ESM (`package.json` includes `type: "module"`). Language implementations export a default function: `export default function convertToWords(value, options={}) { return new XxLanguage(options).convertToWords(value); }`
+  - Language classes extend a base class and use **class properties** for default values (`negativeWord`, `decimalSeparatorWord`, `zero`, `cards`, etc.).
   - **Constructor parameters** should ONLY include options that actually affect behavior (not class properties). For example:
     - Chinese constructor accepts `formal` (affects cards array)
     - Spanish constructor accepts `genderStem` (affects merge behavior)
@@ -34,7 +34,7 @@ This file gives targeted, actionable guidance for AI coding agents working in th
     - `SlavicLanguage` for three-form pluralization languages (Russian, Czech, Polish, Ukrainian, Serbian, Croatian, Hebrew, Lithuanian, Latvian)
     - `TurkicLanguage` for Turkic languages with space-separated patterns (Turkish, Azerbaijani)
     - `AbstractLanguage` for custom implementations requiring full control (Arabic, Vietnamese, Romanian, Persian, Indonesian)
-  - Decimal processing: languages should rely on `AbstractLanguage.decimalToCardinal()` for consistent behavior. For digit-by-digit decimal reading (Japanese, Thai, Tamil, Telugu), set `usePerDigitDecimals = true` as a class property.
+  - Decimal processing: languages should rely on `AbstractLanguage.decimalDigitsToWords()` for consistent behavior. For digit-by-digit decimal reading (Japanese, Thai, Tamil, Telugu), set `convertDecimalsPerDigit = true` as a class property.
   - The default language code is `en`; fallbacks are handled in `lib/n2words.js` by progressively stripping suffixes (e.g. `fr-BE` -> `fr`).
 
 - **How to add a language (recommended):**
@@ -42,10 +42,10 @@ This file gives targeted, actionable guidance for AI coding agents working in th
   - Validate implementation: `npm run lang:validate xx` (checks completeness and best practices).
   - Manual process (alternative):
     - Create `lib/i18n/xx.js` with a class extending the appropriate base class.
-    - Define language defaults as class properties: `negativeWord`, `separatorWord`, `zero`, `cards` array, etc.
+    - Define language defaults as class properties: `negativeWord`, `decimalSeparatorWord`, `zero`, `cards` array, etc.
     - If your language needs behavior customization via constructor options (rare), implement a constructor that accepts only those parameters.
     - Implement `mergeScales(leftWordSet, rightWordSet)` method with language-specific grammar rules.
-    - Export default function: `export default function floatToCardinal(value, options = {}) { return new XxLanguage(options).floatToCardinal(value); }`
+    - Export default function: `export default function convertToWords(value, options = {}) { return new XxLanguage(options).convertToWords(value); }`
     - Add the language import and mapping entry in `lib/n2words.js`.
     - Add corresponding test file to `test/i18n/xx.js`.
     - Document constructor options (if any) in JSDoc, but ONLY document parameters actually accepted by the constructor, not class properties.
@@ -75,10 +75,10 @@ This file gives targeted, actionable guidance for AI coding agents working in th
   - `test/typescript-smoke.ts` — TypeScript validation tests.
 
 - **Important implementation notes:**
-  - Input types: functions accept `number | string | bigint`. `AbstractLanguage.floatToCardinal` validates inputs and converts to `BigInt` for whole numbers.
+  - Input types: functions accept `number | string | bigint`. `AbstractLanguage.convertToWords` validates inputs and converts to `BigInt` for whole numbers.
   - Negative numbers: `AbstractLanguage` prepends `negativeWord` (defined as a class property in language implementations).
-  - Decimal handling: By default, leading zeros are preserved as `zero` words and remaining digits are grouped. Languages requiring per-digit decimal reading (ja, th, ta, te) set `usePerDigitDecimals = true` as a class property.
-  - Class properties vs constructor parameters: Use class properties for defaults shared across all instances (negativeWord, separatorWord, zero, cards, etc.). Use constructor parameters ONLY for options that actually change behavior (e.g., formal style in Chinese, gender in Spanish).
+  - Decimal handling: By default, leading zeros are preserved as `zero` words and remaining digits are grouped. Languages requiring per-digit decimal reading (ja, th, ta, te) set `convertDecimalsPerDigit = true` as a class property.
+  - Class properties vs constructor parameters: Use class properties for defaults shared across all instances (negativeWord, decimalSeparatorWord, zero, cards, etc.). Use constructor parameters ONLY for options that actually change behavior (e.g., formal style in Chinese, gender in Spanish).
   - JSDoc for constructors: Only document parameters actually accepted by the constructor, not inherited class properties. Class properties are documented in the class-level JSDoc comment.
   - Performance: Portuguese (pt.js) and English (en.js) are heavily optimized with cached regex and mergeScales() optimizations.
 - **Files to inspect for examples:**

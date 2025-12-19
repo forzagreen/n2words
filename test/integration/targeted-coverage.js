@@ -133,7 +133,7 @@ test('pt › 1100 (hundred conjunction)', t => {
  * Lines 163-165, 284-285, 300-301, 338-345: Multiple coverage paths
  * Focus: decimals, gender handling, very large numbers, spellUnder1000
  */
-test('ro › 1.234 (decimalToCardinal)', t => {
+test('ro › 1.234 (decimalDigitsToWords)', t => {
   const out = n2words(1.234, { lang: 'ro' })
   t.is(typeof out, 'string')
   t.true(out.includes('virgulă'))

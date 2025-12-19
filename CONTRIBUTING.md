@@ -61,7 +61,7 @@ import GreedyScaleLanguage from '../classes/greedy-scale-language.js';
 export class XxLanguage extends GreedyScaleLanguage {
   // Set default language-specific words as class properties
   negativeWord = 'minus';
-  separatorWord = 'point';
+  decimalSeparatorWord = 'point';
   zero = 'zero';
 
   // Define cards array with [value, word] pairs in DESCENDING order
@@ -102,8 +102,8 @@ export class XxLanguage extends GreedyScaleLanguage {
   }
 }
 
-export default function floatToCardinal(value, options = {}) {
-  return new XxLanguage(options).floatToCardinal(value);
+export default function convertToWords(value, options = {}) {
+  return new XxLanguage(options).convertToWords(value);
 }
 ```
 
@@ -117,9 +117,9 @@ Notes:
   - `SlavicLanguage` for languages with three-form pluralization (Russian, Czech, Polish, Ukrainian, Serbian, Croatian, Hebrew, Lithuanian, Latvian)
   - `TurkicLanguage` for Turkic languages with space-separated patterns (Turkish, Azerbaijani)
   - `AbstractLanguage` for custom implementations requiring full control (Arabic, Persian, Indonesian, Romanian, Vietnamese)
-- For decimals, rely on `AbstractLanguage.decimalToCardinal()`. If your language
+- For decimals, rely on `AbstractLanguage.decimalDigitsToWords()`. If your language
   reads decimals digit-by-digit (like Japanese, Thai, Tamil, Telugu), set
-  `usePerDigitDecimals = true` as a **class property** and define a `digits` class
+  `convertDecimalsPerDigit = true` as a **class property** and define a `digits` class
   property for the digit words. Do not pass these via constructor options.
 
 ### Registering the language
@@ -166,3 +166,4 @@ Browser tests (optional) are under `test/web.js` and require `npm run build`.
 If you have any questions or need an example PR, open an issue and we'll help.
 
 Thank you for contributing!
+

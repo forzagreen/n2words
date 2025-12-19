@@ -179,12 +179,12 @@ async function validateLanguage (langCode) {
   const hasToCardinal = content.includes('toCardinal')
 
   if (usesCardMatch && !hasMerge && !hasToCardinal) {
-    console.error(chalk.red('  ✗ Missing mergeScales() or toCardinalWords() method (required for GreedyScaleLanguage)'))
+    console.error(chalk.red('  ✗ Missing mergeScales() or convertWholePart() method (required for GreedyScaleLanguage)'))
     errors++
   } else if (hasMerge) {
     console.log(chalk.green('  ✓ Has mergeScales() method'))
   } else if (usesCardMatch && hasToCardinal) {
-    console.log(chalk.green('  ✓ Overrides toCardinalWords() method'))
+    console.log(chalk.green('  ✓ Overrides convertWholePart() method'))
   } else {
     console.log(chalk.green('  ✓ Base class provides mergeScales() implementation'))
   }
@@ -343,3 +343,4 @@ if (totalErrors === 0 && totalWarnings === 0) {
   )
   process.exit(0)
 }
+

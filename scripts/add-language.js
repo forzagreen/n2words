@@ -108,11 +108,11 @@ const languageTemplate = `import ${baseClass} from '../classes/${baseClassFile}.
  * Converts numeric values to written ${langName}.
  *
  * @example
- * floatToCardinal(42) // => TODO: Add example output
- * floatToCardinal(1000) // => TODO: Add example output
+ * convertToWords(42) // => TODO: Add example output
+ * convertToWords(1000) // => TODO: Add example output
  */
-export default function floatToCardinal (value, options = {}) {
-  return new ${className}(options).floatToCardinal(value)
+export default function convertToWords (value, options = {}) {
+  return new ${className}(options).convertToWords(value)
 }
 
 /**
@@ -121,10 +121,10 @@ export default function floatToCardinal (value, options = {}) {
 class ${className} extends ${baseClass} {
   // Class properties for language defaults
   negativeWord = '${negativeWord}'
-  separatorWord = '${separatorWord}'
+  decimalSeparatorWord = '${separatorWord}'
   zero = '${zeroWord}'
   // Set to true for digit-by-digit decimals if your language needs it
-  usePerDigitDecimals = false
+  convertDecimalsPerDigit = false
 
   // Define cards array in DESCENDING order (for card-based languages)
   // Format: [value_as_BigInt, 'word']
@@ -318,3 +318,4 @@ console.log(chalk.cyan('Reference implementations:'))
 console.log('   - Simple: lib/i18n/en.js')
 console.log('   - Complex: lib/i18n/pt.js, lib/i18n/fr.js')
 console.log()
+

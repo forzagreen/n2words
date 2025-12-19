@@ -62,9 +62,9 @@ BigInt(100) === 100n; // true
 ```javascript
 User Input (number | string | bigint)
     ↓
-AbstractLanguage.floatToCardinal()
+AbstractLanguage.convertToWords()
     ↓ converts to BigInt
-Language.toCardinalWords(wholeNumber: bigint)
+Language.convertWholePart(wholeNumber: bigint)
     ↓ (BaseLanguage path)
 toCardMatches(value: bigint)
     ↓ uses cards array
@@ -73,7 +73,7 @@ mergeScales(leftPair, rightPair)
 Final string output
 ```
 
-**Key insight:** Once `floatToCardinal()` normalizes input to `BigInt`, all downstream operations work with `BigInt` values.
+**Key insight:** Once `convertToWords()` normalizes input to `BigInt`, all downstream operations work with `BigInt` values.
 
 ---
 
@@ -166,7 +166,7 @@ mergeScales(leftPair, rightPair) {
 
 ### 3. SlavicLanguage Implementations
 
-**WHY:** The `toCardinalWords()` method in `SlavicLanguage` uses BigInt arithmetic for chunk processing (`x % 10n`, `x % 100n`, `x / 10n`). All comparisons must use BigInt literals.
+**WHY:** The `convertWholePart()` method in `SlavicLanguage` uses BigInt arithmetic for chunk processing (`x % 10n`, `x % 100n`, `x / 10n`). All comparisons must use BigInt literals.
 
 **Pattern:**
 
@@ -224,7 +224,7 @@ toCardinal(number) {
 
 ### 4. Custom Algorithm Implementations
 
-**WHY:** Languages with custom conversion logic (not using `BaseLanguage` or `SlavicLanguage`) often still process BigInt values passed from `floatToCardinal()`.
+**WHY:** Languages with custom conversion logic (not using `BaseLanguage` or `SlavicLanguage`) often still process BigInt values passed from `convertToWords()`.
 
 **Pattern:**
 
@@ -256,7 +256,7 @@ convertMore1000(number) {
     if (r <= 99n) {
       words.push('lẻ')
     }
-    words.push(this.toCardinalWords(r))
+    words.push(this.convertWholePart(r))
   }
 }
 ```
@@ -390,7 +390,7 @@ class EN extends GreedyScaleLanguage {
 
 **BigInt locations:**
 
-1. All conditionals in `toCardinalWords()`
+1. All conditionals in `convertWholePart()`
 2. All conditionals in `pluralize()`
 3. Arithmetic operations (modulo, division)
 
@@ -398,7 +398,7 @@ class EN extends GreedyScaleLanguage {
 
 ```javascript
 class RU extends SlavicLanguage {
-  toCardinalWords(number) {
+  convertWholePart(number) {
     if (number === 0n) {
       // ✅ BigInt comparison
       return this.zero;
@@ -521,7 +521,7 @@ class TR extends TurkicLanguage {
 
 ```javascript
 class AR extends AbstractLanguage {
-  toCardinalWords(number) {
+  convertWholePart(number) {
     if (number === 0n) {
       // ✅ BigInt comparison
       return this.zero;
@@ -710,7 +710,7 @@ When creating a new language implementation, verify BigInt usage:
 
 ### For SlavicLanguage Subclasses
 
-- [ ] All conditionals in `toCardinalWords()` comparing whole numbers use `n` suffix
+- [ ] All conditionals in `convertWholePart()` comparing whole numbers use `n` suffix
 - [ ] All conditionals in `pluralize()` use `n` suffix
 - [ ] Modulo operations use `n` suffix: `number % 10n`, `number % 100n`
 - [ ] Division operations use `n` suffix: `number / 10n`
