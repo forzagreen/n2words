@@ -1,17 +1,21 @@
 # Language-Specific Options Guide
 
-This guide documents all unique language-specific options available in the n2words library. All languages support the common options (`negativeWord`, `separatorWord`, `zero`), but some languages provide additional options for grammatical features.
+This guide documents all language-specific options available to **end-users** of the n2words library. These options allow you to customize number conversion behavior for specific languages (e.g., gender agreement, regional variants, formatting preferences).
 
-## Common Options (All Languages)
+**For Language Developers**: See [LANGUAGE_GUIDE.md](LANGUAGE_GUIDE.md) for information about implementing custom language converters and internal language class properties.
 
-These options are available for all 38 supported languages:
+## Common Options (Language Developer Only)
 
-| Option                | Type    | Description                                     | Default Value                                           |
-| --------------------- | ------- | ----------------------------------------------- | ------------------------------------------------------- |
-| `negativeWord`        | string  | Word used for negative numbers                  | Language-specific (e.g., "minus", "menos", "ناقص")      |
-| `separatorWord`       | string  | Word separating whole and decimal parts         | Language-specific (e.g., "point", "virgule", "virgulă") |
-| `zero`                | string  | Word for the digit 0                            | Language-specific (e.g., "zero", "cero", "صفر")         |
-| `usePerDigitDecimals` | boolean | Read decimals digit-by-digit instead of grouped | `false` (language-specific: `true` for ja, th, ta, te)  |
+**⚠️ NOTE**: These options are **not exposed to end-users**. They are internal language implementation options used by language developers only. (Exception: Arabic exposes `negativeWord` to end-users; see the Arabic section.)
+
+| Option                    | Type    | Description                                     | Default Value                                           |
+| ------------------------- | ------- | ----------------------------------------------- | ------------------------------------------------------- |
+| `negativeWord`            | string  | Word used for negative numbers                  | Language-specific (e.g., "minus", "menos", "ناقص")      |
+| `decimalSeparatorWord`    | string  | Word separating whole and decimal parts         | Language-specific (e.g., "point", "virgule", "virgulă") |
+| `zeroWord`                | string  | Word for the digit 0                            | Language-specific (e.g., "zero", "zéro", "zero")        |
+| `convertDecimalsPerDigit` | boolean | Read decimals digit-by-digit instead of grouped | `false` (language-specific: `true` for ja, th, ta, te)  |
+
+These are **class properties** of language implementations in `lib/i18n/` and are set by language developers when implementing a new language converter. End-users typically do not interact with these options directly.
 
 ## Language-Specific Options
 
@@ -21,9 +25,10 @@ Arabic provides masculine and feminine forms for numbers with complex grammatica
 
 **Options:**
 
-| Option     | Type    | Description               | Default |
-| ---------- | ------- | ------------------------- | ------- |
-| `feminine` | boolean | Use feminine number forms | `false` |
+| Option         | Type    | Description                            | Default  |
+| -------------- | ------- | -------------------------------------- | -------- |
+| `feminine`     | boolean | Use feminine number forms              | `false`  |
+| `negativeWord` | string  | Word used for negative numbers (minus) | `'ناقص'` |
 
 **Examples:**
 
@@ -32,6 +37,7 @@ n2words(1, { lang: 'ar' }); // 'واحد' (masculine)
 n2words(1, { lang: 'ar', feminine: true }); // 'واحدة' (feminine)
 n2words(2, { lang: 'ar' }); // 'اثنان' (masculine)
 n2words(2, { lang: 'ar', feminine: true }); // 'اثنتان' (feminine)
+n2words(-20, { lang: 'ar', negativeWord: 'سالب' }); // 'سالب عشرون' (custom minus word)
 ```
 
 **Use Cases:**
@@ -67,44 +73,40 @@ n2words(200, { lang: 'es', genderStem: 'a' }); // 'doscientas' (feminine)
 
 ---
 
-### French (fr) - Regional Variants and Hyphenation
+### French (fr) - Hyphenation
 
-French supports both standard French and Belgian French number systems, plus optional hyphenation.
+French supports optional hyphenation in compound numbers.
 
 **Options:**
 
 | Option                | Type    | Description                                             | Default |
 | --------------------- | ------- | ------------------------------------------------------- | ------- |
-| `_region`             | string  | Region variant: `'FR'` (standard) or `'BE'` (Belgian)   | `'FR'`  |
 | `withHyphenSeparator` | boolean | Use hyphens instead of spaces between number components | `false` |
 
 **Examples:**
 
 ```javascript
-// Regional differences (70, 90)
-n2words(70, { lang: 'fr' }); // 'soixante-dix' (standard French)
-n2words(70, { lang: 'fr', _region: 'BE' }); // 'septante' (Belgian French)
-n2words(90, { lang: 'fr' }); // 'quatre-vingt-dix' (standard)
-n2words(90, { lang: 'fr', _region: 'BE' }); // 'nonante' (Belgian)
+// Standard French
+n2words(70, { lang: 'fr' }); // 'soixante-dix' (standard French: 60 + 10)
+n2words(90, { lang: 'fr' }); // 'quatre-vingt-dix' (standard: 4 × 20 + 10)
 
-// Hyphenation
-n2words(21, { lang: 'fr' }); // 'vingt et un'
-n2words(21, { lang: 'fr', withHyphenSeparator: true }); // 'vingt-et-un'
+// Hyphenation (affects component joining)
+n2words(21, { lang: 'fr' }); // 'vingt et un' (default: space before et)
+n2words(21, { lang: 'fr', withHyphenSeparator: true }); // 'vingt-et-un' (hyphenated)
 ```
 
 **Use Cases:**
 
-- `_region: 'FR'`: Standard French (France, most francophone regions)
-- `_region: 'BE'`: Belgian French, Swiss French (more logical 70/90 system)
+- Default: Contemporary French with space separators
 - `withHyphenSeparator: true`: Formal writing, checks, legal documents
 
-**Note:** Belgian French (fr-BE) automatically sets `_region: 'BE'`.
+**Note:** Use language code `'fr-BE'` for the Belgian system; standard French (`'fr'`) no longer accepts `_region`.
 
 ---
 
 ### Belgian French (fr-BE) - Inherits French Options
 
-Belgian French is a regional variant that automatically uses `_region: 'BE'`.
+Belgian French is a regional variant selected with `lang: 'fr-BE'`.
 
 **Options:**
 
@@ -148,6 +150,206 @@ n2words(21, { lang: 'he', biblical: true }); // 'עשרים ואחד'
 
 - Modern Hebrew (default): Contemporary Israeli Hebrew, everyday use
 - Biblical Hebrew: Religious texts, Torah readings, traditional contexts
+
+---
+
+### Russian (ru) - Gender Agreement
+
+Russian supports masculine and feminine forms for digits 1-9 (ones place) via the shared Slavic `feminine` option.
+
+**Options:**
+
+| Option     | Type    | Description                        | Default |
+| ---------- | ------- | ---------------------------------- | ------- |
+| `feminine` | boolean | Use feminine forms for 1-9         | `false` |
+
+**Examples:**
+
+```javascript
+// Masculine (default)
+n2words(1, { lang: 'ru' }); // 'один'
+n2words(2, { lang: 'ru' }); // 'два'
+
+// Feminine
+n2words(1, { lang: 'ru', feminine: true }); // 'одна'
+n2words(2, { lang: 'ru', feminine: true }); // 'две'
+n2words(4, { lang: 'ru', feminine: true }); // 'четыре' (ones digit uses feminine set)
+```
+
+---
+
+### Czech (cz) - Gender Agreement
+
+Czech uses the shared Slavic `feminine` option for feminine forms of digits 1-9 (ones place).
+
+**Options:**
+
+| Option     | Type    | Description                        | Default |
+| ---------- | ------- | ---------------------------------- | ------- |
+| `feminine` | boolean | Use feminine forms for 1-9         | `false` |
+
+**Examples:**
+
+```javascript
+// Masculine (default)
+n2words(1, { lang: 'cz' }); // 'jeden'
+n2words(2, { lang: 'cz' }); // 'dva'
+
+// Feminine
+n2words(1, { lang: 'cz', feminine: true }); // 'jedna'
+n2words(2, { lang: 'cz', feminine: true }); // 'dvě'
+n2words(4, { lang: 'cz', feminine: true }); // 'čtyři' (feminine ones set)
+```
+
+---
+
+### Polish (pl) - Gender Agreement
+
+Polish uses the shared Slavic `feminine` option for feminine forms of digits 1-9 (ones place).
+
+**Options:**
+
+| Option     | Type    | Description                        | Default |
+| ---------- | ------- | ---------------------------------- | ------- |
+| `feminine` | boolean | Use feminine forms for 1-9         | `false` |
+
+**Examples:**
+
+```javascript
+// Masculine (default)
+n2words(1, { lang: 'pl' }); // 'jeden'
+n2words(2, { lang: 'pl' }); // 'dwa'
+
+// Feminine
+n2words(1, { lang: 'pl', feminine: true }); // 'jedna'
+n2words(2, { lang: 'pl', feminine: true }); // 'dwie'
+n2words(4, { lang: 'pl', feminine: true }); // 'cztery' (feminine ones set)
+```
+
+---
+
+### Ukrainian (uk) - Gender Agreement
+
+Ukrainian uses the shared Slavic `feminine` option for feminine forms of digits 1-9 (ones place).
+
+**Options:**
+
+| Option     | Type    | Description                        | Default |
+| ---------- | ------- | ---------------------------------- | ------- |
+| `feminine` | boolean | Use feminine forms for 1-9         | `false` |
+
+**Examples:**
+
+```javascript
+// Masculine (default)
+n2words(1, { lang: 'uk' }); // 'один'
+n2words(2, { lang: 'uk' }); // 'два'
+
+// Feminine
+n2words(1, { lang: 'uk', feminine: true }); // 'одна'
+n2words(2, { lang: 'uk', feminine: true }); // 'дві'
+n2words(4, { lang: 'uk', feminine: true }); // 'чотири' (feminine ones set)
+```
+
+---
+
+### Serbian (sr) - Gender Agreement
+
+Serbian uses the shared Slavic `feminine` option for feminine forms of digits 1-9 (ones place).
+
+**Options:**
+
+| Option     | Type    | Description                        | Default |
+| ---------- | ------- | ---------------------------------- | ------- |
+| `feminine` | boolean | Use feminine forms for 1-9         | `false` |
+
+**Examples:**
+
+```javascript
+// Masculine (default)
+n2words(1, { lang: 'sr' }); // 'jedan'
+n2words(2, { lang: 'sr' }); // 'dva'
+
+// Feminine
+n2words(1, { lang: 'sr', feminine: true }); // 'jedna'
+n2words(2, { lang: 'sr', feminine: true }); // 'dve'
+n2words(4, { lang: 'sr', feminine: true }); // 'četiri' (feminine ones set)
+```
+
+---
+
+### Croatian (hr) - Gender Agreement
+
+Croatian uses the shared Slavic `feminine` option for feminine forms of digits 1-9 (ones place).
+
+**Options:**
+
+| Option     | Type    | Description                        | Default |
+| ---------- | ------- | ---------------------------------- | ------- |
+| `feminine` | boolean | Use feminine forms for 1-9         | `false` |
+
+**Examples:**
+
+```javascript
+// Masculine (default)
+n2words(1, { lang: 'hr' }); // 'jedan'
+n2words(2, { lang: 'hr' }); // 'dva'
+
+// Feminine
+n2words(1, { lang: 'hr', feminine: true }); // 'jedna'
+n2words(2, { lang: 'hr', feminine: true }); // 'dvije'
+n2words(4, { lang: 'hr', feminine: true }); // 'četiri' (feminine ones set)
+```
+
+---
+
+### Lithuanian (lt) - Gender Agreement
+
+Lithuanian uses the shared Slavic `feminine` option for feminine forms of digits 1-9 (ones place).
+
+**Options:**
+
+| Option     | Type    | Description                        | Default |
+| ---------- | ------- | ---------------------------------- | ------- |
+| `feminine` | boolean | Use feminine forms for 1-9         | `false` |
+
+**Examples:**
+
+```javascript
+// Masculine (default)
+n2words(1, { lang: 'lt' }); // 'vienas'
+n2words(2, { lang: 'lt' }); // 'du'
+
+// Feminine
+n2words(1, { lang: 'lt', feminine: true }); // 'viena'
+n2words(2, { lang: 'lt', feminine: true }); // 'dvi'
+n2words(4, { lang: 'lt', feminine: true }); // 'keturios' (distinct feminine form)
+```
+
+---
+
+### Latvian (lv) - Gender Agreement
+
+Latvian uses the shared Slavic `feminine` option for feminine forms of digits 1-9 (ones place).
+
+**Options:**
+
+| Option     | Type    | Description                        | Default |
+| ---------- | ------- | ---------------------------------- | ------- |
+| `feminine` | boolean | Use feminine forms for 1-9         | `false` |
+
+**Examples:**
+
+```javascript
+// Masculine (default)
+n2words(1, { lang: 'lv' }); // 'viens'
+n2words(2, { lang: 'lv' }); // 'divi'
+
+// Feminine
+n2words(1, { lang: 'lv', feminine: true }); // 'viena'
+n2words(2, { lang: 'lv', feminine: true }); // 'divas'
+n2words(4, { lang: 'lv', feminine: true }); // 'četri' (Latvian shares ones set)
+```
 
 ---
 
@@ -263,18 +465,26 @@ n2words(21, { lang: 'az', dropSpaces: true }); // 'iyirmibir' (agglutinated)
 
 ## Summary Table
 
-| Language               | Option                | Type    | Default | Description                                   |
-| ---------------------- | --------------------- | ------- | ------- | --------------------------------------------- |
-| Arabic (ar)            | `feminine`            | boolean | `false` | Use feminine number forms                     |
-| Spanish (es)           | `genderStem`          | string  | `'o'`   | Gender ending: `'o'` (masc) or `'a'` (fem)    |
-| French (fr)            | `_region`             | string  | `'FR'`  | Region: `'FR'` (standard) or `'BE'` (Belgian) |
-| French (fr)            | `withHyphenSeparator` | boolean | `false` | Use hyphens instead of spaces                 |
-| Belgian French (fr-BE) | `withHyphenSeparator` | boolean | `false` | Use hyphens instead of spaces                 |
-| Hebrew (he)            | `biblical`            | boolean | `false` | Use Biblical (masculine) forms                |
-| Hebrew (he)            | `and`                 | string  | `'ו'`   | Conjunction word                              |
-| Romanian (ro)          | `feminine`            | boolean | `false` | Use feminine number forms                     |
-| Turkish (tr)           | `dropSpaces`          | boolean | `false` | Remove spaces (agglutination)                 |
-| Azerbaijani (az)       | `dropSpaces`          | boolean | `false` | Remove spaces (agglutination)                 |
+| Language               | Option                | Type    | Default  | Description                                             |
+| ---------------------- | --------------------- | ------- | -------- | ------------------------------------------------------- |
+| Arabic (ar)            | `feminine`            | boolean | `false`  | Use feminine number forms                               |
+| Arabic (ar)            | `negativeWord`        | string  | `'ناقص'` | Word used for negative numbers                          |
+| Spanish (es)           | `genderStem`          | string  | `'o'`    | Gender ending: `'o'` (masc) or `'a'` (fem)              |
+| French (fr)            | `withHyphenSeparator` | boolean | `false`  | Use hyphens instead of spaces                           |
+| Belgian French (fr-BE) | `withHyphenSeparator` | boolean | `false`  | Use hyphens instead of spaces                           |
+| Russian (ru)           | `feminine`            | boolean | `false`  | Use feminine forms for ones (1-9) and related cases     |
+| Czech (cz)             | `feminine`            | boolean | `false`  | Use feminine forms for ones (1-9) and related cases     |
+| Polish (pl)            | `feminine`            | boolean | `false`  | Use feminine forms for ones (1-9) and related cases     |
+| Ukrainian (uk)         | `feminine`            | boolean | `false`  | Use feminine forms for ones (1-9) and related cases     |
+| Serbian (sr)           | `feminine`            | boolean | `false`  | Use feminine forms for ones (1-9) and related cases     |
+| Croatian (hr)          | `feminine`            | boolean | `false`  | Use feminine forms for ones (1-9) and related cases     |
+| Lithuanian (lt)        | `feminine`            | boolean | `false`  | Use feminine forms for ones (1-9) and related cases     |
+| Latvian (lv)           | `feminine`            | boolean | `false`  | Use feminine forms for ones (1-9) and related cases     |
+| Hebrew (he)            | `biblical`            | boolean | `false`  | Use Biblical (masculine) forms                          |
+| Hebrew (he)            | `and`                 | string  | `'ו'`    | Conjunction word                                        |
+| Romanian (ro)          | `feminine`            | boolean | `false`  | Use feminine number forms                               |
+| Turkish (tr)           | `dropSpaces`          | boolean | `false`  | Remove spaces (agglutination)                           |
+| Azerbaijani (az)       | `dropSpaces`          | boolean | `false`  | Remove spaces (agglutination)                           |
 
 ---
 
@@ -295,7 +505,7 @@ console.log(n2words(500, { lang: 'es', genderStem: 'a' }) + ' páginas');
 
 // French - Belgian variant with hyphens
 console.log(
-  n2words(99, { lang: 'fr', _region: 'BE', withHyphenSeparator: true }),
+  n2words(99, { lang: 'fr-BE', withHyphenSeparator: true }),
 );
 // Output: 'nonante-neuf'
 
@@ -329,13 +539,12 @@ n2words(3.14, { lang: 'he', biblical: true });
 n2words(-2, { lang: 'ro', feminine: true });
 // Output: 'minus două'
 
-// Custom negative word with French hyphens
+// Custom negative word in Arabic (user-exposed option)
 n2words(-21, {
-  lang: 'fr',
-  withHyphenSeparator: true,
-  negativeWord: 'négatif',
+  lang: 'ar',
+  negativeWord: 'سالب',
 });
-// Output: 'négatif vingt-et-un'
+// Output: 'سالب واحد وعشرون'
 ```
 
 ---
@@ -378,17 +587,18 @@ All other 29 languages use only the common options:
 
 1. **Gender Agreement**: When using gender options (Arabic, Spanish, Romanian), ensure the gender matches the noun being counted.
 
-2. **Regional Variants**: Choose the French variant (`_region`) based on your target audience:
-   - France, Canada (Quebec), most French-speaking countries → `'FR'`
-   - Belgium, Switzerland (some regions) → `'BE'`
+2. **Regional Variants**: Choose the French language code based on your target audience:
 
-3. **Hebrew Forms**: Select Biblical vs. Modern based on context:
+- Standard French → `lang: 'fr'`
+- Belgian French → `lang: 'fr-BE'`
+
+1. **Hebrew Forms**: Select Biblical vs. Modern based on context:
    - Modern applications, contemporary writing → `biblical: false` (default)
    - Religious texts, traditional contexts → `biblical: true`
 
-4. **Turkish/Azerbaijani Spacing**: Use `dropSpaces: true` for traditional writing styles, `false` for modern readability.
+2. **Turkish/Azerbaijani Spacing**: Use `dropSpaces: true` for traditional writing styles, `false` for modern readability.
 
-5. **Testing**: When implementing number conversion in your application, test with various number ranges (1-10, 11-19, 20-99, 100-999, 1000+) to ensure proper grammatical agreement.
+3. **Testing**: When implementing number conversion in your application, test with various number ranges (1-10, 11-19, 20-99, 100-999, 1000+) to ensure proper grammatical agreement.
 
 ---
 

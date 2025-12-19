@@ -25,8 +25,8 @@ This interactive script will:
 
 After running the script, you'll need to:
 
-- Fill in the `cards` array with number words (using BigInt literals like `1000n`)
-- Implement the `merge()` method for your language's grammar
+- Fill in the `scaleWordPairs` array with number words (using BigInt literals like `1000n`)
+- Implement the `mergeScales()` method for your language's grammar
 - Complete the test cases with expected outputs
 
 To validate your implementation:
@@ -56,57 +56,71 @@ If you prefer to add a language manually or need more control:
 
 ```js
 // lib/i18n/xx.js
-import CardMatchLanguage from '../classes/card-match-language.js';
+import GreedyScaleLanguage from '../classes/greedy-scale-language.js';
 
-export default function floatToCardinal(value, options = {}) {
-  return new XxLanguage(options).floatToCardinal(value);
-}
+export class XxLanguage extends GreedyScaleLanguage {
+  // Set default language-specific words as class properties
+  negativeWord = 'minus';
+  decimalSeparatorWord = 'point';
+  zeroWord = 'zero';
 
-class XxLanguage extends CardMatchLanguage {
-  constructor(options) {
-    super(
-      Object.assign(
-        {
-          negativeWord: 'minus',
-          separatorWord: 'point',
-          zero: 'zero',
-        },
-        options,
-      ),
-      [
-        // Provide cards as [BigInt, 'word'] in DESCENDING order
-        [1000000n, 'million'],
-        [1000n, 'thousand'],
-        [100n, 'hundred'],
-        [90n, 'ninety'],
-        [80n, 'eighty'],
-        [1n, 'one'],
-      ],
-    );
+  // Define scaleWordPairs array with [value, word] pairs in DESCENDING order
+  scaleWordPairs = [
+    [1_000_000n, 'million'],
+    [1000n, 'thousand'],
+    [100n, 'hundred'],
+    [90n, 'ninety'],
+    [80n, 'eighty'],
+    [1n, 'one'],
+    [0n, 'zero'],
+  ];
+
+  /**
+   * Initialize with language-specific options.
+   * Only include parameters that are actually accepted by the constructor.
+   *
+   * @param {Object} [options={}] Configuration options.
+   * @param {boolean} [options.someOption=false] Example option for your language.
+   */
+  constructor({ someOption = false } = {}) {
+    super();
+    this.someOption = someOption;
+    // Apply any option-dependent configuration
   }
 
-  // Implement merge(leftWordSet, rightWordSet) according to language rules.
-  merge(left, right) {
+  // Implement mergeScales(leftWordSet, rightWordSet) according to language rules.
+  mergeScales(left, right) {
     // left and right are objects like { 'one': 1n } and { 'hundred': 100n }
     // Return a merged object, e.g. { 'one hundred': 100n }
+    const leftWord = Object.keys(left)[0];
+    const leftNumber = Object.values(left)[0];
+    const rightWord = Object.keys(right)[0];
+    const rightNumber = Object.values(right)[0];
+
+    // Implement your language's merge logic here
+    return { [`${leftWord} ${rightWord}`]: leftNumber + rightNumber };
   }
+}
+
+export default function convertToWords(value, options = {}) {
+  return new XxLanguage(options).convertToWords(value);
 }
 ```
 
 Notes:
 
-- **Critical**: Use `BigInt` literals (e.g. `1000n`) in `cards` so the algorithm handles large
+- **Critical**: Use `BigInt` literals (e.g. `1000n`) in `scaleWordPairs` so the algorithm handles large
   numbers correctly. See [BIGINT-GUIDE.md](./BIGINT-GUIDE.md) for detailed guidance.
+- Class properties define default values that are shared across all instances. Constructor parameters allow per-call customization.
 - Choose the appropriate base class:
-  - `CardMatchLanguage` for most languages with regular card-based systems (English, Spanish, German, French, Belgian French, Italian, Portuguese, Dutch, Korean, Hungarian, Chinese)
+  - `GreedyScaleLanguage` for most languages with regular scale-based systems (English, Spanish, German, French, Belgian French, Italian, Portuguese, Dutch, Korean, Hungarian, Chinese)
   - `SlavicLanguage` for languages with three-form pluralization (Russian, Czech, Polish, Ukrainian, Serbian, Croatian, Hebrew, Lithuanian, Latvian)
-  - `ScandinavianLanguage` for Scandinavian languages with "og" conjunction (Norwegian, Danish)
   - `TurkicLanguage` for Turkic languages with space-separated patterns (Turkish, Azerbaijani)
   - `AbstractLanguage` for custom implementations requiring full control (Arabic, Persian, Indonesian, Romanian, Vietnamese)
-- For decimals, rely on `AbstractLanguage.decimalToCardinal()`. If your language
+- For decimals, rely on `AbstractLanguage.decimalDigitsToWords()`. If your language
   reads decimals digit-by-digit (like Japanese, Thai, Tamil, Telugu), set
-  `usePerDigitDecimals: true` in the constructor options and optionally define
-  a `digits` class property for the digit words.
+  `convertDecimalsPerDigit = true` as a **class property** and define a `digits` class
+  property for the digit words. Do not pass these via constructor options.
 
 ### Registering the language
 

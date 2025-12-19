@@ -163,10 +163,10 @@ async function validateLanguage (langCode) {
     console.log(chalk.green(`  ✓ Default export instantiates ${ctorName}`))
   }
 
-  // Check for BigInt literals in cards (not required for all AbstractLanguage implementations)
+  // Check for BigInt literals in scaleWordPairs (not required for all AbstractLanguage implementations)
   if (!content.includes('n,') && !content.includes('n]') && !content.includes('n ')) {
     console.warn(
-      chalk.yellow('  ⚠ No BigInt literals found (cards/numbers should use 1000n, 100n, etc.)')
+      chalk.yellow('  ⚠ No BigInt literals found (scaleWordPairs/numbers should use 1000n, 100n, etc.)')
     )
     warnings++
   } else {
@@ -174,19 +174,19 @@ async function validateLanguage (langCode) {
   }
 
   // Check for merge method
-  const usesCardMatch = content.includes('extends CardMatchLanguage')
-  const hasMerge = content.includes('merge')
-  const hasToCardinal = content.includes('toCardinal')
+  const usesCardMatch = content.includes('extends GreedyScaleLanguage')
+  const hasMerge = content.includes('mergeScales')
+  const hasConvertWholePart = content.includes('convertWholePart')
 
-  if (usesCardMatch && !hasMerge && !hasToCardinal) {
-    console.error(chalk.red('  ✗ Missing merge() or toCardinal() method (required for CardMatchLanguage)'))
+  if (usesCardMatch && !hasMerge && !hasConvertWholePart) {
+    console.error(chalk.red('  ✗ Missing mergeScales() or convertWholePart() method (required for GreedyScaleLanguage)'))
     errors++
   } else if (hasMerge) {
-    console.log(chalk.green('  ✓ Has merge() method'))
-  } else if (usesCardMatch && hasToCardinal) {
-    console.log(chalk.green('  ✓ Overrides toCardinal() method'))
+    console.log(chalk.green('  ✓ Has mergeScales() method'))
+  } else if (usesCardMatch && hasConvertWholePart) {
+    console.log(chalk.green('  ✓ Overrides convertWholePart() method'))
   } else {
-    console.log(chalk.green('  ✓ Base class provides merge() implementation'))
+    console.log(chalk.green('  ✓ Base class provides mergeScales() implementation'))
   }
 
   // Check for TODO comments
@@ -199,9 +199,8 @@ async function validateLanguage (langCode) {
 
   // Check imports
   if (
-    !content.includes('CardMatchLanguage') &&
+    !content.includes('GreedyScaleLanguage') &&
     !content.includes('SlavicLanguage') &&
-    !content.includes('ScandinavianLanguage') &&
     !content.includes('TurkicLanguage') &&
     !content.includes('AbstractLanguage') &&
     !content.match(/extends\s+[A-Z][A-Za-z0-9_]*/)

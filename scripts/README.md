@@ -26,16 +26,15 @@ node scripts/add-language.js
 
 The script guides you to choose from five base classes:
 
-- **CardMatchLanguage** - For most languages (English, Spanish, French, German, etc.)
+- **GreedyScaleLanguage** - For most languages (English, Spanish, French, German, etc.)
 - **SlavicLanguage** - For Slavic/Baltic languages (Russian, Polish, Czech, etc.)
-- **ScandinavianLanguage** - For Scandinavian languages (Norwegian, Danish)
 - **TurkicLanguage** - For Turkic languages (Turkish, Azerbaijani)
 - **AbstractLanguage** - For custom implementations (Arabic, Vietnamese, Romanian, etc.)
 
 **After running:**
 
-- Fill in the `cards` array with number words
-- Implement the `merge()` method
+- Fill in the `scaleWordPairs` array with number words
+- Implement the `mergeScales()` method
 - Complete test cases with expected outputs
 - Run `npm run lang:validate xx` to check your work
 
@@ -69,8 +68,8 @@ npm run lang:validate fr-BE
 - ✓ Default export function is present and instantiates the declared class
 - ✓ Class name looks like the language name (not the code token)
 - ✓ Uses BigInt literals in number definitions
-- ✓ Has merge() method OR toCardinal() override (for CardMatchLanguage)
-- ✓ Extends a recognized base class (CardMatchLanguage, SlavicLanguage, ScandinavianLanguage, TurkicLanguage, AbstractLanguage) or another language class
+- ✓ Has mergeScales() method OR convertWholePart() override (for GreedyScaleLanguage)
+- ✓ Extends a recognized base class (GreedyScaleLanguage, SlavicLanguage, TurkicLanguage, AbstractLanguage) or another language class
 - ✓ Test file exists with comprehensive cases (20+ recommended)
 - ✓ Tests cover: zero, negatives, decimals, large numbers (includes 1_000_000-style literals)
 - ✓ Language is correctly imported in lib/n2words.js and registered in the dict

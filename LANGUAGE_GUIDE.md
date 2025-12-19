@@ -43,31 +43,25 @@ If you need more control, follow these steps:
 
 Choose the appropriate base class for your language:
 
-**CardMatchLanguage** - Use for most languages with regular card-based systems
+**GreedyScaleLanguage** - Use for most languages with regular scale-based systems
 
 - Extends `AbstractLanguage`
-- Implements highest-matching-card algorithm
+- Implements highest-matching-scale algorithm
 - Works well for languages with regular patterns
-- Define a `cards` array and implement `merge()` method
+- Define a `scaleWordPairs` array and implement `mergeScales()` method
 - Examples: English, Spanish, German, French, Italian, Portuguese, Dutch, Korean, Hungarian, Chinese
 
-**SlavicLanguage** - Use for Slavic/Baltic languages with three-form pluralization
+ **SlavicLanguage** - Use for Slavic/Baltic languages with three-form pluralization
 
 - Extends `AbstractLanguage`
 - Specialized for languages with complex pluralization rules
 - Handles singular/dual/plural forms
+- Supports shared `feminine` option for feminine forms of digits 1-9 (ones place)
 - Examples: Russian, Czech, Polish, Ukrainian, Serbian, Croatian, Hebrew, Lithuanian, Latvian
-
-**ScandinavianLanguage** - Use for Scandinavian languages
-
-- Extends `CardMatchLanguage`
-- Adds support for "og" (and) conjunction
-- Specialized grammar patterns for Nordic languages
-- Examples: Norwegian, Danish
 
 **TurkicLanguage** - Use for Turkic languages
 
-- Extends `CardMatchLanguage`
+- Extends `GreedyScaleLanguage`
 - Space-separated number combinations
 - Implicit number handling patterns
 - Examples: Turkish, Azerbaijani
@@ -80,7 +74,7 @@ Choose the appropriate base class for your language:
 
 ### Key Concepts
 
-#### Cards Array
+#### Scale Word Pairs
 
 - Ordered pairs of `[value, word]` using BigInt literals
 - MUST be in descending order
@@ -107,26 +101,23 @@ Choose the appropriate base class for your language:
 
 ### 1. Choose Your Base Class and Define Number Words
 
-Start by selecting the right base class. For most languages, use `CardMatchLanguage`:
+Start by selecting the right base class. For most languages, use `GreedyScaleLanguage`:
 
 ```javascript
-import CardMatchLanguage from '../classes/card-match-language.js'
+import GreedyScaleLanguage from '../classes/greedy-scale-language.js'
 
-export default function floatToCardinal(value, options = {}) {
-  return new MyLanguage(options).floatToCardinal(value)
-}
+export class MyLanguage extends GreedyScaleLanguage {
+  // Set language defaults as class properties
+  negativeWord = 'minus'      // Word for negative numbers
+  decimalSeparatorWord = 'point'     // Word for decimal point
+  zeroWord = 'zero'               // Word for zero
+  convertDecimalsPerDigit = false // Set to true for digit-by-digit decimal reading
 
-class MyLanguage extends CardMatchLanguage {
-  constructor (options) {
-    super(Object.assign({
-      negativeWord: 'minus',  // Word for negative numbers
-      separatorWord: 'point', // Word for decimal point
-      zero: 'zero',           // Word for zero
-      usePerDigitDecimals: false // Set to true for digit-by-digit decimal reading
-    }, options), [
+  // Define scaleWordPairs array with [value, word] pairs in DESCENDING order
+  scaleWordPairs = [
     // Large numbers first
-    [1000000000n, 'billion'],
-    [1000000n, 'million'],
+    [1_000_000_000n, 'billion'],
+    [1_000_000n, 'million'],
     [1000n, 'thousand'],
     [100n, 'hundred'],
 
@@ -146,19 +137,41 @@ class MyLanguage extends CardMatchLanguage {
     // Ones
     [9n, 'nine'],
     // ... all ones
-    [1n, 'one']
-  ])
+    [1n, 'one'],
+    [0n, 'zero']
+  ]
+
+  /**
+   * Initialize with language-specific options.
+   * Only include constructor parameters actually needed for your language.
+   *
+   * @param {Object} [options={}] Configuration options.
+   */
+  constructor(options = {}) {
+    super()
+    // Apply any option-dependent configuration here
+  }
+}
+
+export default function convertToWords(value, options = {}) {
+  return new MyLanguage(options).convertToWords(value)
 }
 ```
 
+**Important notes:**
+
+- Use class properties for default values (not passed via constructor)
+- Constructor parameters should only include options that actually affect behavior
+- Use `BigInt` literals (`1000n`, not `1000`) in scaleWordPairs array for numerical accuracy
+
 ### 2. Implement Merge Logic
 
-The `merge()` method combines word sets according to your language's grammar:
+The `mergeScales()` method combines word sets according to your language's grammar:
 
 #### Pattern 1: Space-separated (English style)
 
 ```javascript
-merge (leftWordSet, rightWordSet) {
+mergeScales (leftWordSet, rightWordSet) {
   const leftWords = Object.keys(leftWordSet)
   const rightWords = Object.keys(rightWordSet)
   const leftValue = Object.values(leftWordSet)[0]
@@ -174,7 +187,7 @@ merge (leftWordSet, rightWordSet) {
 #### Pattern 2: Hyphenated (for compound numbers)
 
 ```javascript
-merge (leftWordSet, rightWordSet) {
+mergeScales (leftWordSet, rightWordSet) {
   const leftWords = Object.keys(leftWordSet)
   const rightWords = Object.keys(rightWordSet)
   const leftValue = Object.values(leftWordSet)[0]
@@ -197,7 +210,7 @@ merge (leftWordSet, rightWordSet) {
 #### Pattern 3: Conditional connectors (French style)
 
 ```javascript
-merge (leftWordSet, rightWordSet) {
+mergeScales (leftWordSet, rightWordSet) {
   const leftWords = Object.keys(leftWordSet)
   const rightWords = Object.keys(rightWordSet)
   const leftValue = Object.values(leftWordSet)[0]
@@ -220,7 +233,7 @@ merge (leftWordSet, rightWordSet) {
 #### Gender Agreement (Portuguese, French, etc.)
 
 ```javascript
-merge (leftWordSet, rightWordSet) {
+mergeScales (leftWordSet, rightWordSet) {
   // ... standard merge logic ...
 
   // Special case: gender-sensitive numbers
@@ -235,7 +248,7 @@ merge (leftWordSet, rightWordSet) {
 #### Irregular Patterns
 
 ```javascript
-merge (leftWordSet, rightWordSet) {
+mergeScales (leftWordSet, rightWordSet) {
   const leftValue = Object.values(leftWordSet)[0]
   const rightValue = Object.values(rightWordSet)[0]
 
@@ -337,27 +350,17 @@ By default, `AbstractLanguage` handles decimals using a grouped approach where l
 
 ### Per-Digit Decimal Conversion
 
-Some languages read each decimal digit individually. To enable this behavior, set `usePerDigitDecimals: true` in the constructor:
+Some languages read each decimal digit individually. To enable this behavior, set `convertDecimalsPerDigit = true` as a class property:
 
 ```javascript
 class Japanese extends AbstractLanguage {
+  negativeWord = 'マイナス';
+  decimalSeparatorWord = '点';
+  zeroWord = '零';
+  convertDecimalsPerDigit = true; // Enable per-digit decimal reading
   digits = ['一', '二', '三', '四', '五', '六', '七', '八', '九'];
 
-  constructor(options) {
-    super(
-      Object.assign(
-        {
-          negativeWord: 'マイナス',
-          separatorWord: '点',
-          zero: '零',
-          usePerDigitDecimals: true, // Enable per-digit decimal reading
-        },
-        options,
-      ),
-    );
-  }
-
-  // ... rest of implementation
+  // Constructor only if you have behavior-changing options (usually not needed)
 }
 ```
 
@@ -372,14 +375,15 @@ class Japanese extends AbstractLanguage {
 - `3.14` → groups as "three point one four" (or "fourteen" depending on language)
 - `2.05` → "two point zero five" (leading zero preserved)
 
-**Per-digit behavior (`usePerDigitDecimals: true`):**
+**Per-digit behavior (`convertDecimalsPerDigit: true`):**
 
 - `3.14` → "three point one four" (each digit separate)
 - `2.05` → "two point zero five" (each digit separate)
 
 ### Defining a Digits Array
 
-If your language uses per-digit decimals, define a `digits` class property:
+If your language uses per-digit decimals, define a `digits` class property and set
+`convertDecimalsPerDigit = true` as a class property (not via constructor options):
 
 ```javascript
 class MyLanguage extends AbstractLanguage {
@@ -396,21 +400,13 @@ class MyLanguage extends AbstractLanguage {
     'nine',
   ];
 
-  constructor(options) {
-    super(
-      Object.assign(
-        {
-          // ... other options
-          usePerDigitDecimals: true,
-        },
-        options,
-      ),
-    );
-  }
+  convertDecimalsPerDigit = true;
+
+  // Constructor only if you have behavior-changing options (usually not needed)
 }
 ```
 
-The `digitToWord()` method will automatically use this array when converting decimal digits.
+The `convertDigitToWord()` method will automatically use this array when converting decimal digits.
 
 ## Common Patterns
 
@@ -419,7 +415,7 @@ The `digitToWord()` method will automatically use this array when converting dec
 Space-separated with "and" before final unit:
 
 ```javascript
-merge (left, right) {
+mergeScales (left, right) {
   const leftValue = Object.values(left)[0]
   const rightValue = Object.values(right)[0]
 
@@ -438,7 +434,7 @@ merge (left, right) {
 Hyphenated compounds with special connectors:
 
 ```javascript
-merge (left, right) {
+mergeScales (left, right) {
   const leftValue = Object.values(left)[0]
   const rightValue = Object.values(right)[0]
 
@@ -459,16 +455,16 @@ merge (left, right) {
 For post-processing, compile regex once:
 
 ```javascript
-class MyLanguage extends CardMatchLanguage {
+class MyLanguage extends GreedyScaleLanguage {
   constructor (options) {
-    super(options, cards)
+    super(options)
 
     // Pre-compile regex patterns
     this.doubleSpaceRegex = /\s{2,}/g
     this.trimRegex = /^\s+|\s+$/g
   }
 
-  merge (left, right) {
+  mergeScales (left, right) {
     const result = // ... merge logic
 
     // Use pre-compiled regex
@@ -480,7 +476,7 @@ class MyLanguage extends CardMatchLanguage {
 ### 2. Cache Object Operations
 
 ```javascript
-merge (left, right) {
+mergeScales (left, right) {
   // Cache keys/values instead of calling multiple times
   const leftKeys = Object.keys(left)
   const rightKeys = Object.keys(right)
@@ -509,7 +505,7 @@ const merged = [...leftWords, ...rightWords].join(' ');
 
 All language implementations must use BigInt literals in specific contexts:
 
-- **Cards arrays**: Use `1000n`, not `1000`
+- **Scale word pair arrays**: Use `1000n`, not `1000`
 - **Comparisons**: When comparing BigInt values, use `value === 1n`
 - **Arithmetic**: BigInt operations require BigInt operands
 
@@ -519,10 +515,10 @@ See [BIGINT-GUIDE.md](./BIGINT-GUIDE.md) for comprehensive guidance on BigInt us
 
 Study these examples:
 
-- **CardMatchLanguage**: `lib/i18n/en.js` - Basic patterns
-- **CardMatchLanguage (optimized)**: `lib/i18n/pt.js` - Advanced optimizations
-- **CardMatchLanguage (complex)**: `lib/i18n/fr.js` - Special rules
-- **ScandinavianLanguage**: `lib/i18n/no.js` - Norwegian patterns with "og" conjunction
+- **GreedyScaleLanguage**: `lib/i18n/en.js` - Basic patterns
+- **GreedyScaleLanguage (optimized)**: `lib/i18n/pt.js` - Advanced optimizations
+- **GreedyScaleLanguage (complex)**: `lib/i18n/fr.js` - Special rules
+- **GreedyScaleLanguage (Nordic rules inline)**: `lib/i18n/no.js` - Norwegian "og" conjunction handled in mergeScales()
 - **TurkicLanguage**: `lib/i18n/tr.js` - Turkish patterns with space-separated combinations
 - **SlavicLanguage**: `lib/i18n/ru.js` - Three-form pluralization pattern
 - **AbstractLanguage**: `lib/i18n/ar.js`, `lib/i18n/zh.js` - Custom implementations with different scripts
