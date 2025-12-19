@@ -6,9 +6,9 @@
 [![npm](https://img.shields.io/npm/dw/n2words)](https://npmjs.com/package/n2words)
 [![jsDelivr](https://data.jsdelivr.com/v1/package/npm/n2words/badge)](https://www.jsdelivr.com/package/npm/n2words)
 
-**n2words** converts numerical numbers into written ones. Supports **38 languages** with **zero dependencies**.
+**n2words** converts numerical numbers into written ones. Supports **45 languages** with **zero dependencies**.
 
-- 🌍 **38 languages** - Comprehensive international language support
+- 🌍 **45 languages** - Comprehensive international language support
 - 📦 **Zero dependencies** - Lightweight and fast
 - 🚀 **Performance optimized** - Highly tuned for speed
 - 📱 **Universal** - Works in browsers, Node.js, and TypeScript
@@ -25,7 +25,7 @@ n2words(123, { lang: 'zh' }); // '壹佰贰拾叁'
 n2words(123, { lang: 'hi' }); // 'एक सौ तेईस'
 n2words(123, { lang: 'es' }); // 'ciento veintitrés'
 n2words(123, { lang: 'ar' }); // 'مائة وثلاثة وعشرون'
-n2words(999999999999n, { lang: 'zh' }); // '玖仟玖佰玖拾玖亿玖仟玖佰玖拾玖万玖仟玖佰玖拾玖' (BigInt support!)
+n2words(10000n, { lang: 'zh' }); // '壹万' (BigInt support!)
 ```
 
 ## Installation
@@ -88,24 +88,28 @@ Or import specific languages:
 | Code | Language   | Code    | Language         |
 | ---- | ---------- | ------- | ---------------- |
 | `ar` | Arabic     | `az`    | Azerbaijani      |
-| `cz` | Czech      | `de`    | German           |
-| `dk` | Danish     | `en`    | English          |
+| `bn` | Bengali    | `cz`    | Czech            |
+| `de` | German     | `dk`    | Danish           |
+| `el` | Greek      | `en`    | English          |
 | `es` | Spanish    | `fa`    | Farsi/Persian    |
 | `fr` | French     | `fr-BE` | French (Belgium) |
-| `he` | Hebrew     | `hr`    | Croatian         |
+| `gu` | Gujarati   | `he`    | Hebrew           |
+| `hi` | Hindi      | `hr`    | Croatian         |
 | `hu` | Hungarian  | `id`    | Indonesian       |
 | `it` | Italian    | `ja`    | Japanese         |
-| `ko` | Korean     | `lt`    | Lithuanian       |
-| `lv` | Latvian    | `nl`    | Dutch            |
-| `no` | Norwegian  | `pl`    | Polish           |
+| `kn` | Kannada    | `ko`    | Korean           |
+| `lt` | Lithuanian | `lv`    | Latvian          |
+| `mr` | Marathi    | `ms`    | Malay            |
+| `nl` | Dutch      | `no`    | Norwegian        |
+| `pa` | Punjabi    | `pl`    | Polish           |
 | `pt` | Portuguese | `ro`    | Romanian         |
 | `ru` | Russian    | `sr`    | Serbian          |
-| `sv` | Swedish    | `tr`    | Turkish          |
-| `uk` | Ukrainian  | `vi`    | Vietnamese       |
-| `zh` | Chinese    | `hi`    | Hindi            |
-| `bn` | Bengali    | `ta`    | Tamil            |
-| `te` | Telugu     | `th`    | Thai             |
-| `sw` | Swahili    | `ms`    | Malay            |
+| `sv` | Swedish    | `sw`    | Swahili          |
+| `ta` | Tamil      | `te`    | Telugu           |
+| `th` | Thai       | `tl`    | Filipino/Tagalog |
+| `tr` | Turkish    | `uk`    | Ukrainian        |
+| `ur` | Urdu       | `vi`    | Vietnamese       |
+| `zh` | Chinese    | `gu`    | Gujarati         |
 
 ## Performance
 

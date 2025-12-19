@@ -2,23 +2,24 @@
 
 This file gives targeted, actionable guidance for AI coding agents working in this repository.
 
-**Big picture:** `n2words` converts numeric values into written words across 38 languages with zero dependencies. The public API is the default export in `lib/n2words.js` (ESM). Language implementations live in `lib/i18n/*.js` and typically export a default function with the signature `(value, options)` that returns a string.
+**Big picture:** `n2words` converts numeric values into written words across 45 languages with zero dependencies. The public API is the default export in `lib/n2words.js` (ESM). Language implementations live in `lib/i18n/*.js` and typically export a default function with the signature `(value, options)` that returns a string.
 
 - **Core components:**
   - `lib/n2words.js`: language registry and export. Uses `dict[lang]` to dispatch.
-  - `lib/i18n/*.js`: per-language implementations (38 total). Use one of five base classes from `lib/classes/`.
+  - `lib/i18n/*.js`: per-language implementations (45 total). Use one of six base classes from `lib/classes/`.
   - `lib/classes/abstract-language.js`: core base class providing decimal handling and input validation. Decimal part is treated as a string; leading zeros become the word for zero.
   - `lib/classes/greedy-scale-language.js`: extends `AbstractLanguage`; implements highest-matching-scale algorithm. Most languages use this. Languages define `scaleWordPairs` arrays of `[value, word]` (use BigInt literals). Used by: English, Spanish, French, German, Italian, Portuguese, Dutch, Korean, Hungarian, Chinese.
   - `lib/classes/slavic-language.js`: extends `AbstractLanguage`; specialized base for Slavic/Baltic languages with three-form pluralization (Russian, Czech, Polish, Ukrainian, Serbian, Croatian, Hebrew, Lithuanian, Latvian).
   - `lib/classes/turkic-language.js`: extends `GreedyScaleLanguage`; specialized base for Turkic languages with space-separated combinations and implicit number patterns. Used by: Turkish, Azerbaijani.
+  - `lib/classes/south-asian-language.js`: extends `AbstractLanguage`; specialized base for South Asian languages with Indian-style grouping (3 digits, then 2-2 from right). Provides `splitIndian`, `convertBelowThousand`, and `convertWholePart`. Used by: Hindi, Bengali, Urdu, Punjabi, Marathi, Gujarati, Kannada.
 
   **Test organization:**
 
 - `test/smoke/` — Smoke/sanity tests (1 file: smoke-i18n.js).
 - `test/i18n.js` — Main comprehensive i18n test suite.
-- `test/i18n/` — Per-language test fixtures (38 files, one per language).
+- `test/i18n/` — Per-language test fixtures (45 files, one per language).
   **Build / test / lint workflows** (explicit commands):
-- Smoke tests: `npm run test:smoke` (test/smoke/smoke-i18n.js) — sanity checks for all 38 languages.
+- Smoke tests: `npm run test:smoke` (test/smoke/smoke-i18n.js) — sanity checks for all 45 languages.
 
 - **Patterns & conventions** (follow these exactly):
   - Files are ESM (`package.json` includes `type: "module"`). Language implementations export a default function: `export default function convertToWords(value, options={}) { return new XxLanguage(options).convertToWords(value); }`
@@ -32,9 +33,10 @@ This file gives targeted, actionable guidance for AI coding agents working in th
   - Choose appropriate base class:
     - `GreedyScaleLanguage` for most languages with regular scale-based systems (English, Spanish, German, French, Italian, Portuguese, Dutch, Korean, Hungarian, Chinese)
     - `SlavicLanguage` for three-form pluralization languages (Russian, Czech, Polish, Ukrainian, Serbian, Croatian, Hebrew, Lithuanian, Latvian)
+    - `SouthAsianLanguage` for South Asian languages with Indian-style grouping (Hindi, Bengali, Urdu, Punjabi, Marathi, Gujarati, Kannada)
     - `TurkicLanguage` for Turkic languages with space-separated patterns (Turkish, Azerbaijani)
     - `AbstractLanguage` for custom implementations requiring full control (Arabic, Vietnamese, Romanian, Persian, Indonesian)
-  - Decimal processing: languages should rely on `AbstractLanguage.decimalDigitsToWords()` for consistent behavior. For digit-by-digit decimal reading (Japanese, Thai, Tamil, Telugu), set `convertDecimalsPerDigit = true` as a class property.
+  - Decimal processing: languages should rely on `AbstractLanguage.decimalDigitsToWords()` for consistent behavior. For digit-by-digit decimal reading (Japanese, Thai, Tamil, Telugu, Filipino, Marathi, Gujarati, Kannada, Greek), set `convertDecimalsPerDigit = true` as a class property.
   - The default language code is `en`; fallbacks are handled in `lib/n2words.js` by progressively stripping suffixes (e.g. `fr-BE` -> `fr`).
 
 - **How to add a language (recommended):**
@@ -56,7 +58,7 @@ This file gives targeted, actionable guidance for AI coding agents working in th
   - Run core tests: `npm run test:core` (includes unit, integration, smoke, and i18n tests).
     - Unit tests: `npm run test:unit` (test/unit/\*.js) — API, errors, validation, options.
     - Integration tests: `npm run test:integration` (test/integration/\*.js) — targeted coverage.
-    - Smoke tests: `npm run test:smoke` (test/smoke/\*.js) — sanity checks for all 38 languages.
+    - Smoke tests: `npm run test:smoke` (test/smoke/\*.js) — sanity checks for all 45 languages.
     - I18n tests: `npm run test:i18n` (test/i18n.js) — comprehensive language-specific tests.
   - Run coverage: `npm run coverage` (runs test:core with c8 instrumentation).
   - Build browser bundle: `npm run build:web` (uses `webpack`).
@@ -69,7 +71,7 @@ This file gives targeted, actionable guidance for AI coding agents working in th
   - `test/integration/` — Integration tests (1 file: targeted-coverage.js).
   - `test/smoke/` — Smoke/sanity tests (1 file: smoke-i18n.js).
   - `test/i18n.js` — Main comprehensive i18n test suite.
-  - `test/i18n/` — Per-language test fixtures (38 files, one per language).
+  - `test/i18n/` — Per-language test fixtures (45 files, one per language).
   - `test/web/` — Browser testing resources.
   - `test/web.js` — Browser compatibility tests (Chrome/Firefox).
   - `test/typescript-smoke.ts` — TypeScript validation tests.
@@ -87,10 +89,12 @@ This file gives targeted, actionable guidance for AI coding agents working in th
   - `lib/i18n/ru.js` — use of `SlavicLanguage` with three-form pluralization (shared by 9 languages).
   - `lib/i18n/no.js` — inline `GreedyScaleLanguage` merge rules for the Norwegian "og" conjunction.
   - `lib/i18n/tr.js` — use of `TurkicLanguage` with space-separated patterns (shared by Turkish and Azerbaijani).
+  - `lib/i18n/hi.js` — use of `SouthAsianLanguage` with Indian-style grouping (shared by Hindi, Bengali, Urdu, Punjabi, Marathi, Gujarati, Kannada).
   - `lib/i18n/ar.js` — use of `AbstractLanguage` for custom implementation.
   - `lib/classes/greedy-scale-language.js` — essential algorithms for scale-based systems.
   - `lib/classes/slavic-language.js` — reusable base for Slavic/Baltic languages with complex pluralization.
   - `lib/classes/turkic-language.js` — reusable base for Turkic languages with space-separated patterns.
+  - `lib/classes/south-asian-language.js` — reusable base for South Asian languages with Indian-style grouping.
   - `lib/classes/abstract-language.js` — essential algorithms and optimizations.
   - `test/unit/api.js` — API and language fallback tests.
   - `test/i18n.js` — comprehensive language-specific tests.

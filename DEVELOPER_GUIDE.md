@@ -46,7 +46,7 @@ npm test
 # Run specific test suites
 npm run test:unit          # Unit tests only
 npm run test:integration   # Integration tests
-npm run test:smoke         # Smoke tests (all 38 languages)
+npm run test:smoke         # Smoke tests (all 45 languages)
 npm run test:i18n          # Language-specific tests
 
 # Check code quality
@@ -73,13 +73,13 @@ n2words/
 │   │   ├── greedy-scale-language.js
 │   │   ├── slavic-language.js   # For Slavic/Baltic languages
 │   │   └── turkic-language.js   # For Turkic languages
-│   └── i18n/                    # Language implementations (38 total)
+│   └── i18n/                    # Language implementations (45 total)
 │       ├── en.js, es.js, fr.js, ... (one per language)
 │
 ├── test/                         # Test files
 │   ├── unit/                    # Unit tests (API, validation, errors)
 │   ├── integration/             # Integration tests (coverage gaps)
-│   ├── smoke/                   # Sanity tests (all 38 languages)
+│   ├── smoke/                   # Sanity tests (all 45 languages)
 │   ├── i18n/                    # Language-specific test fixtures
 │   │   └── *.js (one per language)
 │   ├── web/                     # Browser testing resources
@@ -143,19 +143,23 @@ n2words uses inheritance to share common patterns:
 ```text
 AbstractLanguage (core validation & decimal handling)
     ↓
-    ├─→ GreedyScaleLanguage (38 languages)
+    ├─→ GreedyScaleLanguage (23 languages)
     │   ├── English, Spanish, French, German, Italian, Portuguese,
     │   ├── Dutch, Korean, Hungarian, Chinese, and more
-  │   └── Uses "highest-matching-scale" algorithm
+    │   └── Uses "highest-matching-scale" algorithm
     │
-    ├─→ SlavicLanguage (10 languages)
+    ├─→ SlavicLanguage (9 languages)
     │   ├── Russian, Czech, Polish, Ukrainian, Serbian, Croatian,
     │   ├── Hebrew, Lithuanian, Latvian
     │   └── Implements three-form pluralization
     │
-    └─→ TurkicLanguage (2 languages)
-        ├── Turkish, Azerbaijani
-        └── Implements space-separated patterns
+    ├─→ TurkicLanguage (2 languages)
+    │   ├── Turkish, Azerbaijani
+    │   └── Implements space-separated patterns
+    │
+    └─→ SouthAsianLanguage (7 languages)
+      ├── Hindi, Bengali, Urdu, Punjabi, Marathi, Gujarati, Kannada
+        └── Implements Indian-style digit grouping
 ```
 
 ### Key Concepts
@@ -296,7 +300,7 @@ git push origin feature/your-feature-name
 | --- | --- | --- |
 | `test/unit/` | Core API, errors, validation | `npm run test:unit` |
 | `test/integration/` | Targeted coverage for complex code paths | `npm run test:integration` |
-| `test/smoke/` | Sanity check all 38 languages | `npm run test:smoke` |
+| `test/smoke/` | Sanity check all 45 languages | `npm run test:smoke` |
 | `test/i18n/` | Language-specific fixtures & expected outputs | `npm run test:i18n` |
 | `test/web/` | Browser compatibility | `npm run test:web` |
 | `test/typescript-smoke.ts` | TypeScript validation | `npm run test:types` |
