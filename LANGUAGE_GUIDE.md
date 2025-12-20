@@ -172,6 +172,91 @@ export default function convertToWords(value, options = {}) {
 - Constructor parameters should only include options that actually affect behavior
 - Use `BigInt` literals (`1000n`, not `1000`) in scaleWordPairs array for numerical accuracy
 
+### TypeScript Support & JSDoc Documentation
+
+**Enhanced TypeScript support** requires proper JSDoc documentation for your language options:
+
+#### 1. Add Language Options TypeDef
+
+Add a `@typedef` comment at the top of your language file for any constructor options:
+
+```javascript
+/**
+ * @typedef {Object} MyLanguageOptions
+ * @property {boolean} [feminine=false] - Use feminine forms for numbers.
+ * @property {string} [customWord='default'] - Custom word for special cases.
+ */
+
+/**
+ * MyLanguage converter with specific grammar rules.
+ *
+ * Features:
+ * - Custom grammar patterns
+ * - Optional feminine forms  
+ * - Regional variants support
+ */
+export class MyLanguage extends GreedyScaleLanguage {
+  // ... class implementation
+  
+  /**
+   * Initialize with language-specific options.
+   *
+   * @param {MyLanguageOptions} [options={}] Configuration options.
+   */
+  constructor({ feminine = false, customWord = 'default' } = {}) {
+    super()
+    this.feminine = feminine
+    this.customWord = customWord
+  }
+}
+```
+
+#### 2. Document Export Function
+
+Ensure your export function has comprehensive JSDoc:
+
+```javascript
+/**
+ * Converts a number to MyLanguage cardinal (written) form.
+ *
+ * @param {number|string|bigint} value The number to convert.
+ * @param {MyLanguageOptions} [options={}] Language-specific options.
+ * @returns {string} The number expressed in MyLanguage words.
+ * @throws {TypeError} If value is NaN or invalid type.
+ * @throws {Error} If value is an invalid number string.
+ *
+ * @example
+ * convertToWords(42); // 'language-specific result'
+ * convertToWords(100, { feminine: true }); // 'feminine form result'
+ */
+export default function convertToWords(value, options = {}) {
+  return new MyLanguage(options).convertToWords(value)
+}
+```
+
+#### 3. TypeScript Declaration Generation
+
+The build process automatically generates TypeScript declarations from your JSDoc:
+
+- `@typedef` comments become TypeScript interface types
+- Constructor parameter documentation becomes method signatures
+- Export function JSDoc becomes function overloads
+
+**After implementation**, run `npm run build:types` to generate TypeScript declarations.
+
+#### 4. Language Registration
+
+Your language will automatically get registered in the main `N2WordsOptions` type when you:
+
+1. Add proper `@typedef` for your options
+2. Register the language in `lib/n2words.js`
+3. Run `npm run build:types`
+
+This provides developers with:
+- Autocomplete for language codes
+- Type-safe language-specific options
+- IntelliSense with your JSDoc documentation
+
 ### 2. Implement Merge Logic
 
 The `mergeScales()` method combines word sets according to your language's grammar:

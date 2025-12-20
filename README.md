@@ -13,6 +13,7 @@
 - 🚀 **Performance optimized** - Highly tuned for speed
 - 📱 **Universal** - Works in browsers, Node.js, and TypeScript
 - 🧩 **Modular** - Import only the languages you need, keeping your bundle size minimal
+- 🔒 **Type-safe** - Full TypeScript support with language code literals and language-specific options
 
 ## Quick Start
 
@@ -47,15 +48,27 @@ console.log(n2words(3.14)); // 'three point one four'
 
 ### TypeScript
 
-```ts
-import n2words from 'n2words';
-import type { N2WordsOptions } from 'n2words';
+**Full type safety with language-specific options:**
 
-const options: N2WordsOptions = { lang: 'en' };
-const result: string = n2words(123, options);
+```ts
+import n2words, { type N2WordsOptions, type LanguageCode } from 'n2words';
+
+// Language code autocomplete (45+ languages)
+const lang: LanguageCode = 'zh'; // Full IntelliSense support
+
+// Type-safe language-specific options
+const result1 = n2words(123, { lang: 'zh', formal: true }); // Chinese financial numerals
+const result2 = n2words(42, { lang: 'ar', feminine: true }); // Arabic feminine forms
+const result3 = n2words(91, { lang: 'fr', withHyphenSeparator: true }); // French with hyphens
+
+// Comprehensive type safety
+const options: N2WordsOptions = { 
+  lang: 'es', 
+  genderStem: 'a' // TypeScript validates this option for Spanish
+};
 ```
 
-See [TypeScript support](https://github.com/forzagreen/n2words/wiki/TypeScript-support) for complete TypeScript usage.
+See [TYPESCRIPT_GUIDE.md](TYPESCRIPT_GUIDE.md) for comprehensive TypeScript documentation.
 
 ### CommonJS
 
@@ -172,10 +185,11 @@ n2words(123456789012345n); // Works with arbitrarily large integers
 
 ## Documentation
 
-- [TypeScript support](https://github.com/forzagreen/n2words/wiki/TypeScript-support) - TypeScript integration guide
-- [CONTRIBUTING.md](./CONTRIBUTING.md) - Contribution guidelines
+- [TYPESCRIPT_GUIDE.md](./TYPESCRIPT_GUIDE.md) - **Comprehensive TypeScript guide** with enhanced type safety
+- [LANGUAGE_OPTIONS.md](./LANGUAGE_OPTIONS.md) - Language-specific options and examples
 - [LANGUAGE_GUIDE.md](./LANGUAGE_GUIDE.md) - Comprehensive guide for adding new languages
 - [BIGINT-GUIDE.md](./BIGINT-GUIDE.md) - BigInt usage guide for language developers
+- [CONTRIBUTING.md](./CONTRIBUTING.md) - Contribution guidelines
 - [Wiki](https://github.com/forzagreen/n2words/wiki) - Detailed examples and guides
 
 ## Contributing
