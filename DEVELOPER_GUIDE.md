@@ -72,7 +72,8 @@ n2words/
 │   │   ├── abstract-language.js # Core base class
 │   │   ├── greedy-scale-language.js
 │   │   ├── slavic-language.js   # For Slavic/Baltic languages
-│   │   └── turkic-language.js   # For Turkic languages
+│   │   ├── turkic-language.js   # For Turkic languages
+│   │   └── south-asian-language.js # For Indian-style grouping languages
 │   └── i18n/                    # Language implementations (45 total)
 │       ├── en.js, es.js, fr.js, ... (one per language)
 │
@@ -158,8 +159,8 @@ AbstractLanguage (core validation & decimal handling)
     │   └── Implements space-separated patterns
     │
     └─→ SouthAsianLanguage (7 languages)
-      ├── Hindi, Bengali, Urdu, Punjabi, Marathi, Gujarati, Kannada
-        └── Implements Indian-style digit grouping
+        ├── Hindi, Bengali, Urdu, Punjabi, Marathi, Gujarati, Kannada
+        └── Implements Indian-style digit grouping (3-2-2 grouping) and per-digit decimal mode where specified
 ```
 
 ### Key Concepts
@@ -170,10 +171,10 @@ Every language defines default values as **class properties**:
 
 ```javascript
 export default class EnglishLanguage extends GreedyScaleLanguage {
-  negativeWord = 'minus'      // How to represent negative numbers
-  decimalSeparatorWord = 'point'     // Decimal separator word
-  zeroWord = 'zero'               // How to represent zero
-  scaleWordPairs = [                   // Number-to-word mapping
+  negativeWord = 'minus'                // How to represent negative numbers
+  decimalSeparatorWord = 'point'        // Decimal separator word
+  zeroWord = 'zero'                     // How to represent zero
+  scaleWordPairs = [                    // Number-to-word mapping (Greedy/Turkic)
     [0n, 'zero'],
     [1n, 'one'],
     [2n, 'two'],
@@ -200,7 +201,14 @@ export default class SpanishLanguage extends GreedyScaleLanguage {
 
 **NOT** all class properties should be in the constructor. Only those that change behavior.
 
-#### 3. Merge Function
+#### 3. Decimal Handling
+
+`AbstractLanguage` supports two decimal modes:
+
+- **Grouped (default):** leading zeros spoken, remainder grouped (most languages).
+- **Per-digit:** each decimal digit spoken individually (set `convertDecimalsPerDigit = true`; used by Japanese, Thai, Tamil, Telugu, Hebrew, and any language that opts in).
+
+#### 4. Merge Function
 
 Each language implements `mergeScales()` to handle grammar rules:
 
@@ -498,6 +506,7 @@ This creates:
     - `GreedyScaleLanguage` - Most languages (highest-matching-scale algorithm)
     - `SlavicLanguage` - Slavic/Baltic with 3-form pluralization
     - `TurkicLanguage` - Turkish, Azerbaijani with space-separated patterns
+    - `SouthAsianLanguage` - Indian-style grouping (Hindi, Bengali, Urdu, Punjabi, Marathi, Gujarati, Kannada)
     - `AbstractLanguage` - Custom implementations (rare)
 
 2. **Implement language file** (`lib/i18n/xx.js`):

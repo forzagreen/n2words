@@ -6,7 +6,7 @@ This file gives targeted, actionable guidance for AI coding agents working in th
 
 - **Core components:**
   - `lib/n2words.js`: language registry and export. Uses `dict[lang]` to dispatch.
-  - `lib/i18n/*.js`: per-language implementations (45 total). Use one of six base classes from `lib/classes/`.
+  - `lib/i18n/*.js`: per-language implementations (45 total). Use one of five base classes from `lib/classes/`.
   - `lib/classes/abstract-language.js`: core base class providing decimal handling and input validation. Decimal part is treated as a string; leading zeros become the word for zero.
   - `lib/classes/greedy-scale-language.js`: extends `AbstractLanguage`; implements highest-matching-scale algorithm. Most languages use this. Languages define `scaleWordPairs` arrays of `[value, word]` (use BigInt literals). Used by: English, Spanish, French, German, Italian, Portuguese, Dutch, Korean, Hungarian, Chinese.
   - `lib/classes/slavic-language.js`: extends `AbstractLanguage`; specialized base for Slavic/Baltic languages with three-form pluralization (Russian, Czech, Polish, Ukrainian, Serbian, Croatian, Hebrew, Lithuanian, Latvian).
@@ -36,7 +36,7 @@ This file gives targeted, actionable guidance for AI coding agents working in th
     - `SouthAsianLanguage` for South Asian languages with Indian-style grouping (Hindi, Bengali, Urdu, Punjabi, Marathi, Gujarati, Kannada)
     - `TurkicLanguage` for Turkic languages with space-separated patterns (Turkish, Azerbaijani)
     - `AbstractLanguage` for custom implementations requiring full control (Arabic, Vietnamese, Romanian, Persian, Indonesian)
-  - Decimal processing: languages should rely on `AbstractLanguage.decimalDigitsToWords()` for consistent behavior. For digit-by-digit decimal reading (Japanese, Thai, Tamil, Telugu, Filipino, Marathi, Gujarati, Kannada, Greek), set `convertDecimalsPerDigit = true` as a class property.
+  - Decimal processing: languages should rely on `AbstractLanguage.decimalDigitsToWords()` for consistent behavior. For digit-by-digit decimal reading (Japanese, Thai, Tamil, Telugu, Filipino, Marathi, Gujarati, Kannada, Greek, Hebrew), set `convertDecimalsPerDigit = true` as a class property.
   - The default language code is `en`; fallbacks are handled in `lib/n2words.js` by progressively stripping suffixes (e.g. `fr-BE` -> `fr`).
 
 - **How to add a language (recommended):**
@@ -79,7 +79,7 @@ This file gives targeted, actionable guidance for AI coding agents working in th
 - **Important implementation notes:**
   - Input types: functions accept `number | string | bigint`. `AbstractLanguage.convertToWords` validates inputs and converts to `BigInt` for whole numbers.
   - Negative numbers: `AbstractLanguage` prepends `negativeWord` (defined as a class property in language implementations).
-  - Decimal handling: By default, leading zeros are preserved as `zeroWord` words and remaining digits are grouped. Languages requiring per-digit decimal reading (ja, th, ta, te) set `convertDecimalsPerDigit = true` as a class property.
+  - Decimal handling: By default, leading zeros are preserved as `zeroWord` words and remaining digits are grouped. Languages requiring per-digit decimal reading (ja, th, ta, te, he) set `convertDecimalsPerDigit = true` as a class property.
   - Class properties vs constructor parameters: Use class properties for defaults shared across all instances (negativeWord, decimalSeparatorWord, zeroWord, scaleWordPairs, etc.). Use constructor parameters ONLY for options that actually change behavior (e.g., formal style in Chinese, gender in Spanish).
   - JSDoc for constructors: Only document parameters actually accepted by the constructor, not inherited class properties. Class properties are documented in the class-level JSDoc comment.
   - Performance: Portuguese (pt.js) and English (en.js) are heavily optimized with cached regex and mergeScales() optimizations.
@@ -98,7 +98,7 @@ This file gives targeted, actionable guidance for AI coding agents working in th
   - `lib/classes/abstract-language.js` — essential algorithms and optimizations.
   - `test/unit/api.js` — API and language fallback tests.
   - `test/i18n.js` — comprehensive language-specific tests.
-  - `test/smoke/smoke-i18n.js` — quick sanity checks across all 38 languages.
+  - `test/smoke/smoke-i18n.js` — quick sanity checks across all 45 languages.
   - `scripts/add-language.js` — automated language boilerplate generator.
   - `scripts/validate-language.js` — implementation validation tool.
   - `LANGUAGE_GUIDE.md` — comprehensive guide for adding new languages.

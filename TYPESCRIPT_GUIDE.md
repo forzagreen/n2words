@@ -64,18 +64,11 @@ The main configuration type for all conversions:
 type N2WordsOptions = {
   /**
    * Target language code (e.g., 'en', 'fr', 'fr-BE').
-   * Regional variants are supported; the implementation progressively falls back
-   * from most-specific to least-specific (e.g., 'fr-BE' -> 'fr').
+   * Regional variants progressively fall back (e.g., 'fr-BE' -> 'fr').
    * @default 'en'
    */
   lang?: string
-
-  /**
-   * Additional language-specific options (free-form object).
-   * Consult language-specific documentation for available options.
-   */
-  extra?: Record<string, any>
-}
+} & Record<string, any> // Language-specific options are forwarded
 ```
 
 ## Input Types
@@ -131,7 +124,7 @@ n2words(70, { lang: 'fr-BE' }) // Belgian French uses different word for 70
 n2words(42, { lang: 'en-GB' }) // Falls back to 'en' if 'en-GB' not available
 ```
 
-See [README.md](README.md) for the complete list of 38 supported languages.
+See [README.md](README.md) for the complete list of 45 supported languages.
 
 ## Common Usage Patterns
 
@@ -148,8 +141,7 @@ const result = n2words(123)
 import { type N2WordsOptions } from 'n2words'
 
 const options: N2WordsOptions = {
-  lang: 'en',
-  extra: { someOption: true }
+  lang: 'en'
 }
 
 const result = n2words(42, options)
@@ -210,16 +202,16 @@ const result = numbersToWords([1, 2, 3], 'en')
 
 ## Language-Specific Options
 
-Some languages support additional options through the `extra` field. Consult `LANGUAGE_OPTIONS.md` for detailed documentation.
+Some languages support additional options (forwarded via the options object). Consult `LANGUAGE_OPTIONS.md` for detailed documentation.
 
 ### Example: Spanish Gender
 
 ```typescript
 // Masculine (default)
-n2words(1, { lang: 'es', extra: { genderStem: 'one' } }) // 'uno'
+n2words(1, { lang: 'es', genderStem: 'one' }) // 'uno'
 
 // Feminine
-n2words(1, { lang: 'es', extra: { genderStem: 'one_feminine' } }) // 'una'
+n2words(1, { lang: 'es', genderStem: 'one_feminine' }) // 'una'
 ```
 
 ### Example: Chinese Formal
@@ -229,17 +221,17 @@ n2words(1, { lang: 'es', extra: { genderStem: 'one_feminine' } }) // 'una'
 n2words(1, { lang: 'zh' }) // '一'
 
 // Formal/traditional
-n2words(1, { lang: 'zh', extra: { formal: true } }) // '壹'
+n2words(1, { lang: 'zh', formal: true }) // '壹'
 ```
 
 ### Example: Romanian Feminine
 
 ```typescript
 // Masculine (default)
-n2words(1, { lang: 'ro', extra: { feminine: false } }) // 'unu'
+n2words(1, { lang: 'ro', feminine: false }) // 'unu'
 
 // Feminine
-n2words(1, { lang: 'ro', extra: { feminine: true } }) // 'una'
+n2words(1, { lang: 'ro', feminine: true }) // 'una'
 ```
 
 Refer to `LANGUAGE_OPTIONS.md` for a complete list of language-specific options.
@@ -258,9 +250,8 @@ import n2words, { type N2WordsOptions } from 'n2words'
  */
 function toEnglish(
   value: number | string | bigint,
-  extra?: Record<string, any>
 ): string {
-  return n2words(value, { lang: 'en', extra })
+  return n2words(value, { lang: 'en' })
 }
 
 // Usage
@@ -329,6 +320,7 @@ import {
   AbstractLanguage,
   GreedyScaleLanguage,
   SlavicLanguage,
+  SouthAsianLanguage,
   TurkicLanguage
 } from 'n2words'
 ```
@@ -383,15 +375,14 @@ n2words(value) // Unexpected output
 n2words('0.3', { lang: 'en' }) // 'zero point three'
 ```
 
-### Issue: Type Errors with Extra Options
+### Issue: Option Shape vs Language Support
 
 ```typescript
-// ❌ TypeScript allows any type for extra
-const options = { lang: 'en', extra: { unknownOption: true } }
-// No error, but runtime may behave unexpectedly
+// ❌ Passing undocumented options may be ignored at runtime
+const options = { lang: 'en', unknownOption: true }
 
-// ✅ Check language documentation for valid options
-const options = { lang: 'es', extra: { genderStem: 'one_feminine' } }
+// ✅ Use documented language options
+const options = { lang: 'es', genderStem: 'one_feminine' }
 ```
 
 ## Testing with TypeScript

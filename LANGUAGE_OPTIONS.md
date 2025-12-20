@@ -146,12 +146,20 @@ n2words(21, { lang: 'he' }); // 'עשרים ואחת'
 // Biblical Hebrew (masculine)
 n2words(1, { lang: 'he', biblical: true }); // 'אחד'
 n2words(21, { lang: 'he', biblical: true }); // 'עשרים ואחד'
+
+// Decimal numbers (per-digit reading)
+n2words(3.14, { lang: 'he' }); // 'שלוש נקודה אחת ארבע'
+n2words(0.5, { lang: 'he' }); // 'אפס נקודה חמש'
 ```
 
 **Use Cases:**
 
 - Modern Hebrew (default): Contemporary Israeli Hebrew, everyday use
 - Biblical Hebrew: Religious texts, Torah readings, traditional contexts
+
+**Decimal Handling:**
+
+Hebrew uses per-digit decimal reading with "נקודה" (nekuda) as the decimal separator. Each decimal digit is read individually, which is the standard practice in Hebrew mathematical contexts.
 
 ---
 
@@ -574,7 +582,7 @@ Languages in n2words are grouped by shared characteristics:
 
 ### Other Languages (No Special Options)
 
-All other 29 languages use only the common options:
+All other 33 languages use only the common options:
 
 - English (en), German (de), Italian (it), Portuguese (pt), Dutch (nl)
 - Norwegian (no), Danish (dk), Swedish (sv)

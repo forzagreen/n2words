@@ -51,7 +51,7 @@ Choose the appropriate base class for your language:
 - Define a `scaleWordPairs` array and implement `mergeScales()` method
 - Examples: English, Spanish, German, French, Italian, Portuguese, Dutch, Korean, Hungarian, Chinese
 
- **SlavicLanguage** - Use for Slavic/Baltic languages with three-form pluralization
+**SlavicLanguage** - Use for Slavic/Baltic languages with three-form pluralization
 
 - Extends `AbstractLanguage`
 - Specialized for languages with complex pluralization rules
