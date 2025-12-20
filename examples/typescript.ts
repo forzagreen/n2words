@@ -94,52 +94,11 @@ const withDefaults: string = n2words(42, {});
 console.log(withDefaults); // 'forty-two'
 
 // Supported languages (for reference)
-const supportedLanguages = [
-  'ar',
-  'az',
-  'bn',
-  'cz',
-  'de',
-  'dk',
-  'el',
-  'en',
-  'es',
-  'fa',
-  'fr',
-  'fr-BE',
-  'gu',
-  'he',
-  'hi',
-  'hr',
-  'hu',
-  'id',
-  'it',
-  'ja',
-  'kn',
-  'ko',
-  'lt',
-  'lv',
-  'mr',
-  'ms',
-  'nl',
-  'no',
-  'pa',
-  'pl',
-  'pt',
-  'ro',
-  'ru',
-  'sr',
-  'sv',
-  'sw',
-  'ta',
-  'te',
-  'th',
-  'tl',
-  'tr',
-  'uk',
-  'ur',
-  'vi',
-  'zh',
-];
+/**
+ * Example language selection.
+ * In a real app, you might get available languages from the library's metadata
+ * or check the lib/i18n directory for all available language codes.
+ */
+const exampleLanguages = ['en', 'es', 'fr', 'de', 'zh'];
 
-console.log('Supported languages:', supportedLanguages.length);
+console.log('Example languages:', exampleLanguages.join(', '));

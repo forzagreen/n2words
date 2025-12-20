@@ -582,7 +582,7 @@ Languages in n2words are grouped by shared characteristics:
 
 ### Other Languages (No Special Options)
 
-All other 33 languages use only the common options:
+All other languages use only the common options:
 
 - English (en), German (de), Italian (it), Portuguese (pt), Dutch (nl)
 - Norwegian (no), Danish (dk), Swedish (sv)

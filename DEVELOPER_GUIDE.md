@@ -46,7 +46,7 @@ npm test
 # Run specific test suites
 npm run test:unit          # Unit tests only
 npm run test:integration   # Integration tests
-npm run test:smoke         # Smoke tests (all 45 languages)
+npm run test:smoke         # Smoke tests (all languages)
 npm run test:i18n          # Language-specific tests
 
 # Check code quality
@@ -74,13 +74,13 @@ n2words/
 │   │   ├── slavic-language.js   # For Slavic/Baltic languages
 │   │   ├── turkic-language.js   # For Turkic languages
 │   │   └── south-asian-language.js # For Indian-style grouping languages
-│   └── i18n/                    # Language implementations (45 total)
+│   └── i18n/                    # Language implementations
 │       ├── en.js, es.js, fr.js, ... (one per language)
 │
 ├── test/                         # Test files
 │   ├── unit/                    # Unit tests (API, validation, errors)
 │   ├── integration/             # Integration tests (coverage gaps)
-│   ├── smoke/                   # Sanity tests (all 45 languages)
+│   ├── smoke/                   # Sanity tests (all languages)
 │   ├── i18n/                    # Language-specific test fixtures
 │   │   └── *.js (one per language)
 │   ├── web/                     # Browser testing resources
@@ -308,7 +308,7 @@ git push origin feature/your-feature-name
 | --- | --- | --- |
 | `test/unit/` | Core API, errors, validation | `npm run test:unit` |
 | `test/integration/` | Targeted coverage for complex code paths | `npm run test:integration` |
-| `test/smoke/` | Sanity check all 45 languages | `npm run test:smoke` |
+| `test/smoke/` | Sanity check all languages | `npm run test:smoke` |
 | `test/i18n/` | Language-specific fixtures & expected outputs | `npm run test:i18n` |
 | `test/web/` | Browser compatibility | `npm run test:web` |
 | `test/typescript-smoke.ts` | TypeScript validation | `npm run test:types` |

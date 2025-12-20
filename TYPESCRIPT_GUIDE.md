@@ -64,7 +64,7 @@ The main configuration type for all conversions with full type safety:
 type N2WordsOptions = {
   /**
    * Target language code with full autocomplete support.
-   * Supports 45+ languages with regional variants (e.g., 'fr-BE').
+   * Supports many languages with regional variants (e.g., 'fr-BE').
    * Falls back progressively from most-specific to least-specific.
    * @default 'en'
    */
@@ -147,7 +147,7 @@ n2words(123456789n, { lang: 'en' })
 
 ## Supported Languages
 
-n2words supports **45 languages**. Here are the most common:
+n2words supports **many languages**. Here are the most common:
 
 | Code | Language | Example |
 | --- | --- | --- |
@@ -174,7 +174,7 @@ n2words(70, { lang: 'fr-BE' }) // Belgian French uses different word for 70
 n2words(42, { lang: 'en-GB' }) // Falls back to 'en' if 'en-GB' not available
 ```
 
-See [README.md](README.md) for the complete list of 45 supported languages.
+See [README.md](README.md) for the complete list of supported languages.
 
 ## Common Usage Patterns
 
