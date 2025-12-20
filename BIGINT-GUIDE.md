@@ -665,7 +665,7 @@ assert.strictEqual(
 ```
 
 ```javascript
-// test/smoke/smoke-i18n.js
+// test/typescript/typescript-integration.ts
 const languages = ['en', 'de', 'fr', 'es', 'pt', 'ru' /* ... */];
 
 for (const lang of languages) {

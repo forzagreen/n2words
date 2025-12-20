@@ -276,8 +276,8 @@ writeFileSync(`lib/i18n/${fileName}.js`, languageTemplate)
 console.log(chalk.green(`✓ Created lib/i18n/${fileName}.js`))
 
 // Write test file
-writeFileSync(`test/i18n/${fileName}.js`, testTemplate)
-console.log(chalk.green(`✓ Created test/i18n/${fileName}.js`))
+writeFileSync(`test/fixtures/languages/${fileName}.js`, testTemplate)
+console.log(chalk.green(`✓ Created test/fixtures/languages/${fileName}.js`))
 
 // Update lib/n2words.js
 const n2wordsPath = 'lib/n2words.js'
@@ -348,7 +348,7 @@ if (baseClass === 'SouthAsianLanguage') {
   console.log('   - Implement/adjust mergeScales() according to grammar (if needed)')
 }
 console.log()
-console.log(`2. Edit test/i18n/${fileName}.js:`)
+console.log(`2. Edit test/fixtures/languages/${fileName}.js:`)
 console.log('   - Replace "TODO" with actual expected outputs')
 console.log('   - Add comprehensive test cases')
 console.log()

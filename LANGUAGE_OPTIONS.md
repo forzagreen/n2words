@@ -617,7 +617,7 @@ All other languages use only the common options:
 If you identify additional language-specific options that would be useful, or find errors in the existing option implementations, please:
 
 1. Review the relevant language file in `lib/i18n/`
-2. Check the test file in `test/i18n/` for usage examples
+2. Check the test file in `test/fixtures/languages/` for usage examples
 3. Open an issue or pull request on GitHub
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed contribution guidelines.

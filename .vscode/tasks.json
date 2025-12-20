@@ -16,9 +16,9 @@
       "problemMatcher": []
     },
     {
-      "label": "npm: test:core",
+      "label": "npm: test:all",
       "type": "shell",
-      "command": "npm run test:core",
+      "command": "npm run test:all",
       "group": "test",
       "presentation": {
         "reveal": "always",

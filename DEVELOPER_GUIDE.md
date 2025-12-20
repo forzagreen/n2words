@@ -46,8 +46,8 @@ npm test
 # Run specific test suites
 npm run test:unit          # Unit tests only
 npm run test:integration   # Integration tests
-npm run test:smoke         # Smoke tests (all languages)
-npm run test:i18n          # Language-specific tests
+npm run test:typescript    # TypeScript validation
+npm run test:web           # Browser compatibility
 
 # Check code quality
 npm run lint               # Lint JS and Markdown
@@ -79,14 +79,18 @@ n2words/
 │
 ├── test/                         # Test files
 │   ├── unit/                    # Unit tests (API, validation, errors)
-│   ├── integration/             # Integration tests (coverage gaps)
-│   ├── smoke/                   # Sanity tests (all languages)
-│   ├── i18n/                    # Language-specific test fixtures
-│   │   └── *.js (one per language)
-│   ├── web/                     # Browser testing resources
-│   ├── i18n.js                  # Main i18n test runner
-│   ├── typescript-smoke.ts      # TypeScript validation
-│   └── web.js                   # Browser compatibility tests
+│   ├── integration/             # Integration tests (CommonJS, coverage, languages)
+│   │   ├── commonjs.cjs         # CommonJS compatibility
+│   │   ├── targeted-coverage.js # Precision coverage tests
+│   │   └── language-comprehensive.js # All language tests
+│   ├── types/                   # TypeScript validation tests
+│   │   └── typescript-integration.ts # TypeScript types & imports
+│   ├── web/                     # Browser compatibility tests
+│   │   ├── browser-compatibility.js # Selenium browser tests
+│   │   └── index.html           # Test HTML page
+│   └── fixtures/                # Test data
+│       └── languages/           # Language test fixtures
+│           └── *.js (one per language)
 │
 ├── typings/                     # TypeScript definitions (auto-generated)
 │   ├── n2words.d.ts
@@ -264,8 +268,7 @@ npm test
 
 # Run specific tests
 npm run test:unit
-npm run test:i18n
-npm run test:smoke
+npm run test:integration
 
 # Run tests in watch mode (if needed)
 npm test -- --watch
@@ -288,7 +291,7 @@ npm run lint:fix
 npm run build
 
 # Check TypeScript definitions
-npm run test:types
+npm run test:typescript
 ```
 
 ### 6. Create a Pull Request
@@ -309,9 +312,9 @@ git push origin feature/your-feature-name
 | `test/unit/` | Core API, errors, validation | `npm run test:unit` |
 | `test/integration/` | Targeted coverage for complex code paths | `npm run test:integration` |
 | `test/smoke/` | Sanity check all languages | `npm run test:smoke` |
-| `test/i18n/` | Language-specific fixtures & expected outputs | `npm run test:i18n` |
+| `test/fixtures/languages/` | Language-specific test fixtures | Loaded by integration tests |
+| `test/typescript/` | TypeScript validation tests | `npm run test:typescript` |
 | `test/web/` | Browser compatibility | `npm run test:web` |
-| `test/typescript-smoke.ts` | TypeScript validation | `npm run test:types` |
 
 ### Writing Tests
 
@@ -336,7 +339,7 @@ test('handles edge cases', (t) => {
 #### Language Test Fixture Example
 
 ```javascript
-// test/i18n/en.js
+// test/fixtures/languages/en.js
 import test from 'ava'
 import en from '../../lib/i18n/en.js'
 
@@ -496,7 +499,7 @@ npm run lang:add
 This creates:
 
 - `lib/i18n/de.js` - Implementation
-- `test/i18n/de.js` - Test fixtures
+- `test/fixtures/languages/de.js` - Test fixtures
 - Updated `lib/n2words.js` - Language registration
 
 ### Manual Implementation
@@ -546,7 +549,7 @@ export default function convertToWords(value, options = {}) {
 }
 ```
 
-1. **Add test fixtures** (`test/i18n/xx.js`):
+1. **Add test fixtures** (`test/fixtures/languages/xx.js`):
 
 ```javascript
 import test from 'ava'
@@ -594,8 +597,8 @@ npm run lang:validate xx
 1. **Run tests**:
 
 ```bash
-npm run test:smoke  # Should show ✓ xx
-npm run test:i18n   # Should show ✓ xx
+
+npm run test:integration   # Should show ✓ xx
 ```
 
 For detailed guidance, see [LANGUAGE_GUIDE.md](LANGUAGE_GUIDE.md).

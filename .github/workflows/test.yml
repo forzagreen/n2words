@@ -96,10 +96,10 @@ jobs:
           fail-on-cache-miss: true
 
       - name: Run tests
-        run: npm run test:core
+        run: npm test
 
       - name: Run TypeScript smoke test
-        run: npm run test:types
+        run: npm run test:typescript
 
       - name: Verify package contents
         if: matrix.node == '24' && matrix.os == 'ubuntu-latest'

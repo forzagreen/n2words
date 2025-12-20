@@ -13,5 +13,5 @@
       "n2words/i18n/*": ["./typings/i18n/*.d.ts"]
     }
   },
-  "include": ["typescript-smoke.ts"]
+  "include": ["**/*.ts"]
 }

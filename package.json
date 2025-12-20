@@ -1,6 +1,6 @@
 {
   "name": "n2words",
-  "version": "1.23.2",
+  "version": "2.0.0",
   "description": "n2words converts a numerical number into a written one, supports 45 languages and has zero dependencies.",
   "keywords": [
     "n2words",
@@ -66,7 +66,8 @@
   "files": [
     "lib/*",
     "dist/*",
-    "typings/*"
+    "typings/*",
+    "scripts/*"
   ],
   "scripts": {
     "bench": "node bench.js",
@@ -74,7 +75,7 @@
     "build": "npm run build:web && npm run build:types",
     "build:types": "tsc --project tsconfig.json",
     "build:web": "webpack --progress",
-    "coverage": "c8 npm run test:core",
+    "coverage": "c8 npm run test",
     "docs": "npm run docs:clean && jsdoc -c ./conf.json && npm run docs:validate",
     "docs:clean": "node -e \"import { rmSync } from 'fs'; try { rmSync('docs', { recursive: true, force: true }) } catch (e) {}\"",
     "docs:validate": "echo 'Documentation generated successfully'",
@@ -83,24 +84,24 @@
     "lint": "npm run lint:js && npm run lint:md",
     "lint:js": "standard examples/ lib/ scripts/ test/ *.js",
     "lint:md": "markdownlint-cli2 *.md scripts/*.md",
-    "test": "npm run test:core && npm run test:types",
-    "test:core": "npm run test:unit && npm run test:integration && npm run test:smoke && npm run test:i18n",
-    "test:i18n": "ava --verbose test/i18n.js",
-    "test:integration": "ava --verbose test/integration/*.js",
-    "test:smoke": "ava --verbose test/smoke/*.js",
-    "test:types": "tsx test/typescript-smoke.ts",
+    "test": "npm run test:unit && npm run test:integration",
+    "test:all": "npm run test:unit && npm run test:integration && npm run test:typescript && npm run test:web",
     "test:unit": "ava --verbose test/unit/*.js",
-    "test:web": "ava --verbose test/web.js"
+    "test:integration": "ava --verbose test/integration/*.{js,cjs}",
+    "test:typescript": "ava --verbose test/typescript/*.ts",
+    "test:web": "ava --verbose test/web/*.js"
   },
   "ava": {
     "extensions": [
-      "js"
+      "js",
+      "ts",
+      "cjs"
     ],
     "files": [
       "test/unit/*.js",
-      "test/integration/*.js",
-      "test/smoke/*.js",
-      "test/i18n.js"
+      "test/integration/*.{js,cjs}",
+      "test/typescript/*.ts",
+      "test/web/*.js"
     ],
     "timeout": "30s"
   },

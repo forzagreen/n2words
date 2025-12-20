@@ -24,7 +24,7 @@ npm run lang:add
 This creates:
 
 - `lib/i18n/xx.js` - Language implementation
-- `test/i18n/xx.js` - Test cases
+- `test/fixtures/languages/xx.js` - Test cases
 - Updates `lib/n2words.js` - Registration
 
 ### Manual Setup
@@ -35,7 +35,7 @@ If you need more control, follow these steps:
 2. Choose the appropriate base class based on your language's characteristics
 3. Implement required methods
 4. Add language registration in `lib/n2words.js`
-5. Create test file `test/i18n/xx.js`
+5. Create test file `test/fixtures/languages/xx.js`
 
 ## Understanding the Architecture
 
@@ -413,7 +413,7 @@ export default function convertToWords(value, options = {}) {
 
 ### 1. Define Test Cases
 
-Edit `test/i18n/xx.js` with comprehensive test cases:
+Edit `test/fixtures/languages/xx.js` with comprehensive test cases:
 
 ```javascript
 export default [
@@ -454,7 +454,7 @@ export default [
 
 ```bash
 # Test your specific language
-npm run test:i18n
+npm run test:integration
 
 # Validate implementation
 npm run lang:validate xx

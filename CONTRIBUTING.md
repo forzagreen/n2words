@@ -18,7 +18,7 @@ This interactive script will:
 
 1. Prompt for language details (code, name, settings)
 2. Generate `lib/i18n/xx.js` with implementation template
-3. Generate `test/i18n/xx.js` with test case template
+3. Generate `test/fixtures/languages/xx.js` with test case template
 4. Update `lib/n2words.js` with imports and registration
 5. Derive the class name from the language name (PascalCase), not the code token
 6. Provide next steps for completing the implementation
@@ -144,7 +144,7 @@ also generates per-language entries for the `dist/` bundle by scanning
 
 ### Tests & lint
 
-Please add tests under `test/i18n/` following the existing pattern. Run the
+Please add tests under `test/fixtures/languages/` following the existing pattern. Run the
 full test suite and linter before opening a PR:
 
 ```powershell
@@ -153,13 +153,13 @@ npm test
 npm run build
 ```
 
-Browser tests (optional) are under `test/web.js` and require `npm run build`.
+Browser tests (optional) are under `test/web/browser-compatibility.js` and require `npm run build`.
 
 ### Pull Request checklist
 
 - Add the new file under `lib/i18n/` and export the default function.
 - Update `lib/n2words.js` imports and `dict` mapping.
-- Add tests to `test/i18n/` using existing language tests as examples.
+- Add tests to `test/fixtures/languages/` using existing language tests as examples.
 - Run `npm run lint:js` and `npm test` — all tests should pass.
 - If adding regional variants (e.g. `fr-CA`), ensure fallbacks behave as expected
   (`fr-CA` -> `fr`).

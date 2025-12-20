@@ -316,7 +316,7 @@ async function validateLanguage (langCode) {
   }
 
   // Check 2: Test file exists
-  const testFile = `test/i18n/${langCode}.js`
+  const testFile = `test/fixtures/languages/${langCode}.js`
   if (!existsSync(testFile)) {
     console.error(chalk.red(`✗ Test file not found: ${testFile}`))
     errors++

@@ -36,16 +36,13 @@ This file gives targeted, actionable guidance for AI coding agents working in th
 
 - **Test organization:**
   - `test/unit/` — Core API unit tests (4 files: api.js, errors.js, validation.js, options.js).
-  - `test/integration/` — Integration tests (1 file: targeted-coverage.js).
-  - `test/smoke/` — Smoke/sanity tests (1 file: smoke-i18n.js).
-  - `test/i18n.js` — Main comprehensive i18n test suite.
-  - `test/i18n/` — Per-language test fixtures (45 files, one per language).
-  - `test/web/` — Browser testing resources.
-  - `test/web.js` — Browser compatibility tests (Chrome/Firefox).
-  - `test/typescript-smoke.ts` — TypeScript validation tests.
+  - `test/integration/` — Integration tests (3 files: commonjs.cjs, targeted-coverage.js, language-comprehensive.js).
+  - `test/typescript/` — TypeScript validation tests (1 file: typescript-integration.ts).
+  - `test/fixtures/languages/` — Per-language test fixtures (45 files, one per language).
+  - `test/web/` — Browser compatibility tests (browser-compatibility.js, index.html).
   - `test/commonjs.cjs` — CommonJS compatibility tests.
   **Build / test / lint workflows** (explicit commands):
-- Smoke tests: `npm run test:smoke` (test/smoke/smoke-i18n.js) — sanity checks for all languages.
+
 
 - **Patterns & conventions** (follow these exactly):
   - Files are ESM (`package.json` includes `type: "module"`). Language implementations export a default function: `export default function convertToWords(value, options={}) { return new XxLanguage(options).convertToWords(value); }`
@@ -73,22 +70,20 @@ This file gives targeted, actionable guidance for AI coding agents working in th
     - Implement `mergeScales(leftWordSet, rightWordSet)` method with language-specific grammar rules.
     - Export default function: `export default function convertToWords(value, options = {}) { return new XxLanguage(options).convertToWords(value); }`
     - Add the language import and mapping entry in `lib/n2words.js`.
-    - Add corresponding test file to `test/i18n/xx.js`.
+    - Add corresponding test file to `test/fixtures/languages/xx.js`.
     - Document constructor options (if any) in JSDoc, but ONLY document parameters actually accepted by the constructor, not class properties.
   - Alternative: Use automated script: `npm run lang:add` (generates boilerplate, updates registration).
   - Validate implementation: `npm run lang:validate xx` (checks completeness and best practices).
   - See `LANGUAGE_GUIDE.md` for comprehensive implementation guidance.
 
 - **Build / test / lint workflows** (explicit commands):
-  - Run all tests: `npm test` (runs test:core + test:types).
-  - Run core tests: `npm run test:core` (includes unit, integration, smoke, and i18n tests).
+  - Run all tests: `npm run test:all` (runs unit, integration, typescript, and web tests).
+  - Run basic tests: `npm test` (runs unit and integration tests only).
     - Unit tests: `npm run test:unit` (test/unit/\*.js) — API, errors, validation, options.
-    - Integration tests: `npm run test:integration` (test/integration/\*.js) — targeted coverage.
-    - Smoke tests: `npm run test:smoke` (test/smoke/\*.js) — sanity checks for all languages.
-    - I18n tests: `npm run test:i18n` (test/i18n.js) — comprehensive language-specific tests.
-    - TypeScript tests: `npm run test:types` (test/typescript-smoke.ts) — type validation.
+    - Integration tests: `npm run test:integration` (test/integration/\*.js) — targeted coverage and CommonJS.
+    - TypeScript tests: `npm run test:typescript` (test/typescript/typescript-integration.ts) — type validation.
     - Web tests: `npm run test:web` (test/web.js) — browser compatibility (Chrome/Firefox).
-  - Run coverage: `npm run coverage` (runs test:core with c8 instrumentation).
+  - Run coverage: `npm run coverage` (runs npm test with c8 instrumentation).
   - Build browser bundle: `npm run build:web` (uses webpack, outputs to dist/).
   - Generate type declarations: `npm run build:types` (TypeScript compiler, outputs to typings/).
   - Full build: `npm run build` (runs build:web + build:types).
@@ -99,13 +94,10 @@ This file gives targeted, actionable guidance for AI coding agents working in th
 
 - **Test organization:**
   - `test/unit/` — Core API unit tests (4 files: api.js, errors.js, validation.js, options.js).
-  - `test/integration/` — Integration tests (1 file: targeted-coverage.js).
-  - `test/smoke/` — Smoke/sanity tests (1 file: smoke-i18n.js).
-  - `test/i18n.js` — Main comprehensive i18n test suite.
-  - `test/i18n/` — Per-language test fixtures (45 files, one per language).
-  - `test/web/` — Browser testing resources.
-  - `test/web.js` — Browser compatibility tests (Chrome/Firefox).
-  - `test/typescript-smoke.ts` — TypeScript validation tests.
+  - `test/integration/` — Integration tests (3 files: commonjs.cjs, targeted-coverage.js, language-comprehensive.js).
+  - `test/typescript/` — TypeScript validation tests (1 file: typescript-integration.ts).
+  - `test/fixtures/languages/` — Per-language test fixtures (45 files, one per language).
+  - `test/web/` — Browser compatibility tests (browser-compatibility.js, index.html).
 
 - **Important implementation notes:**
   - Input types: functions accept `number | string | bigint`. `AbstractLanguage.convertToWords` validates inputs and converts to `BigInt` for whole numbers.
@@ -130,8 +122,8 @@ This file gives targeted, actionable guidance for AI coding agents working in th
   - `lib/classes/south-asian-language.js` — reusable base for South Asian languages with Indian-style grouping.
   - `lib/classes/abstract-language.js` — essential algorithms and optimizations.
   - `test/unit/api.js` — API and language fallback tests.
-  - `test/i18n.js` — comprehensive language-specific tests.
-  - `test/smoke/smoke-i18n.js` — quick sanity checks across all languages.
+  - `test/integration/language-comprehensive.js` — comprehensive language-specific tests.
+  - `test/typescript/typescript-integration.ts` — TypeScript integration and validation tests.
   - `scripts/add-language.js` — automated language boilerplate generator.
   - `scripts/validate-language.js` — implementation validation tool.
   - `bench.js` — performance benchmarking tool using benchmark.js library.
