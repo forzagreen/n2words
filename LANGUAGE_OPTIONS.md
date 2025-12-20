@@ -202,13 +202,13 @@ Czech uses the shared Slavic `feminine` option for feminine forms of digits 1-9 
 
 ```javascript
 // Masculine (default)
-n2words(1, { lang: 'cz' }); // 'jeden'
-n2words(2, { lang: 'cz' }); // 'dva'
+n2words(1, { lang: 'cs' }); // 'jeden'
+n2words(2, { lang: 'cs' }); // 'dva'
 
 // Feminine
-n2words(1, { lang: 'cz', feminine: true }); // 'jedna'
-n2words(2, { lang: 'cz', feminine: true }); // 'dvě'
-n2words(4, { lang: 'cz', feminine: true }); // 'čtyři' (feminine ones set)
+n2words(1, { lang: 'cs', feminine: true }); // 'jedna'
+n2words(2, { lang: 'cs', feminine: true }); // 'dvě'
+n2words(4, { lang: 'cs', feminine: true }); // 'čtyři' (feminine ones set)
 ```
 
 ---

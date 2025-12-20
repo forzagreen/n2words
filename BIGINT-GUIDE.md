@@ -153,7 +153,7 @@ mergeScales(leftPair, rightPair) {
 
 - `lib/languages/en.js` (lines 89-110)
 - `lib/languages/de.js` (lines 88-120)
-- `lib/languages/dk.js` (lines 86-121)
+- `lib/languages/da.js` (lines 86-121)
 - `lib/languages/fr.js` (lines 95-117)
 - `lib/languages/pt.js` (lines 83-115)
 - `lib/languages/nl.js` (lines 74-115)
@@ -162,7 +162,7 @@ mergeScales(leftPair, rightPair) {
 - `lib/languages/tr.js` (lines 66-77)
 - `lib/languages/zh.js` (lines 65-78)
 - `lib/languages/ko.js` (lines 69-79)
-- `lib/languages/no.js` (lines 81-90)
+- `lib/languages/nb.js` (lines 81-90)
 
 ### 3. SlavicLanguage Implementations
 
@@ -220,7 +220,7 @@ convertWholePart(number) {
 **Files affected:**
 
 - `lib/classes/slavic-language.js` (base class)
-- `lib/languages/ru.js`, `cz.js`, `pl.js`, `uk.js`, `sr.js`, `hr.js`, `he.js`, `lt.js`, `lv.js` (Slavic languages)
+- `lib/languages/ru.js`, `cs.js`, `pl.js`, `uk.js`, `sr.js`, `hr.js`, `he.js`, `lt.js`, `lv.js` (Slavic languages)
 
 ### 4. Custom Algorithm Implementations
 
@@ -444,7 +444,7 @@ class RU extends SlavicLanguage {
 - All comparisons in `mergeScales()` use BigInt literals
 - Special handling for "og" (and) conjunction with BigInt comparisons
 
-**Example:** `lib/languages/no.js`
+**Example:** `lib/languages/nb.js`
 
 ```javascript
 import GreedyScaleLanguage from '../classes/greedy-scale-language.js';

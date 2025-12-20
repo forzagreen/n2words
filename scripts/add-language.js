@@ -36,7 +36,7 @@ console.log(chalk.cyan('\nBase class options:'))
 console.log(
   '  1. GreedyScaleLanguage (most languages: en, de, fr, es, pt, etc.)'
 )
-console.log('  2. SlavicLanguage (Slavic/Baltic: ru, pl, cz, uk, he, lt, lv)')
+console.log('  2. SlavicLanguage (Slavic/Baltic: ru, pl, cs, uk, he, lt, lv)')
 console.log('  3. TurkicLanguage (Turkic: tr, az)')
 console.log('  4. SouthAsianLanguage (Indian-style grouping: hi, bn, ur, pa, mr, gu, kn)')
 console.log('  5. AbstractLanguage (custom implementations: ar, vi, ro, etc.)')
@@ -66,8 +66,8 @@ console.log()
 console.log(chalk.cyan('Generating files...'))
 
 // Validate inputs
-if (!langCode || !langCode.match(/^[a-z]{2}(-[A-Z]{2})?$/)) {
-  console.error(chalk.red('✗ Error: Invalid language code. Use format "xx" or "xx-YY"'))
+if (!langCode || !langCode.match(/^[a-z]{2,3}(-[A-Z]{2})?(-[a-zA-Z0-9]{4,8})*$/)) {
+  console.error(chalk.red('✗ Error: Invalid language code. Use IETF BCP 47 format (e.g., "en", "fr-BE", "nb", "fil")'))
   process.exit(1)
 }
 

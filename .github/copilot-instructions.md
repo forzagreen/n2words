@@ -112,7 +112,7 @@ This file gives targeted, actionable guidance for AI coding agents working in th
   - `lib/languages/en.js` — canonical use of `GreedyScaleLanguage` and `scaleWordPairs` + optimized `mergeScales()` implementation.
   - `lib/languages/pt.js` — advanced optimizations: pre-compiled regex, simplified mergeScales() logic.
   - `lib/languages/ru.js` — use of `SlavicLanguage` with three-form pluralization (shared by 9 languages).
-  - `lib/languages/no.js` — inline `GreedyScaleLanguage` merge rules for the Norwegian "og" conjunction.
+  - `lib/languages/nb.js` — inline `GreedyScaleLanguage` merge rules for the Norwegian "og" conjunction.
   - `lib/languages/tr.js` — use of `TurkicLanguage` with space-separated patterns (shared by Turkish and Azerbaijani).
   - `lib/languages/hi.js` — use of `SouthAsianLanguage` with Indian-style grouping (shared by Hindi, Bengali, Urdu, Punjabi, Marathi, Gujarati, Kannada).
   - `lib/languages/ar.js` — use of `AbstractLanguage` for custom implementation.

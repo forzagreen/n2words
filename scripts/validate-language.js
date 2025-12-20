@@ -19,7 +19,7 @@ import { resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import chalk from 'chalk'
 
-const ISO_CODE_PATTERN = /^[a-z]{2}(-[A-Z]{2})?$/
+const IETF_BCP47_PATTERN = /^[a-z]{2,3}(-[A-Z]{2})?(-[a-zA-Z0-9]{4,8})*$/
 const INTERNAL_SUFFIXES = ['-fast.js', '-iterative.js']
 
 /**
@@ -36,14 +36,15 @@ function listLanguages () {
 }
 
 /**
- * Validate that a language code follows ISO 639-1 format.
+ * Validate that a language code follows IETF BCP 47 format.
  *
  * @param {string} lang Language code to validate
  * @returns {number} 0 if valid, 1 if invalid
  */
-function ensureIsoCode (lang) {
-  if (!ISO_CODE_PATTERN.test(lang)) {
-    console.error(chalk.red(`✗ Language code is not ISO 639-1 (optional region): ${lang}`))
+function ensureIETFBCP47Code (lang) {
+  if (!IETF_BCP47_PATTERN.test(lang)) {
+    console.error(chalk.red(`✗ Language code is not IETF BCP 47 compliant: ${lang}`))
+    console.error(chalk.gray('  Expected format: [language]-[region] (e.g., "en", "fr-BE", "nb", "fil")'))
     return 1
   }
   console.log(chalk.green(`✓ Language code format OK: ${lang}`))
@@ -173,7 +174,7 @@ async function validateLanguage (langCode) {
   console.log(chalk.cyan(`Validating language: ${langCode}`))
   console.log(chalk.gray('='.repeat(60)))
 
-  let errors = ensureIsoCode(langCode)
+  let errors = ensureIETFBCP47Code(langCode)
   let warnings = 0
 
   // Check 1: Language file exists

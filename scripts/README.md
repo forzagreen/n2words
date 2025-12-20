@@ -27,7 +27,7 @@ node scripts/add-language.js
 The script guides you to choose from five base classes:
 
 - **GreedyScaleLanguage** - For most languages (English, Spanish, French, German, etc.)
-- **SlavicLanguage** - For Slavic/Baltic languages (Russian, Polish, Czech, Ukrainian, Hebrew, Lithuanian, Latvian)
+- **SlavicLanguage** - For Slavic/Baltic languages (Russian, Polish, Czech (cs), Ukrainian, Hebrew, Lithuanian, Latvian)
 - **TurkicLanguage** - For Turkic languages (Turkish, Azerbaijani)
 - **SouthAsianLanguage** - For Indian-style grouping (Hindi, Bengali, Urdu, Punjabi, Marathi, Gujarati, Kannada)
 - **AbstractLanguage** - For custom implementations (Arabic, Vietnamese, Romanian, etc.)
@@ -65,7 +65,7 @@ npm run lang:validate fr-BE
 
 **What it checks:**
 
-- ✓ Language code matches ISO 639-1 (optional region suffix)
+- ✓ Language code matches IETF BCP 47 format (e.g., "en", "fr-BE", "cs", "nb", "fil")
 - ✓ Language file exists with proper structure
 - ✓ Default export function is present and instantiates the declared class
 - ✓ Class name looks like the language name (not the code token)
