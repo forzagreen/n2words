@@ -62,8 +62,8 @@ const result2 = n2words(42, { lang: 'ar', feminine: true }); // Arabic feminine 
 const result3 = n2words(91, { lang: 'fr', withHyphenSeparator: true }); // French with hyphens
 
 // Comprehensive type safety
-const options: N2WordsOptions = { 
-  lang: 'es', 
+const options: N2WordsOptions = {
+  lang: 'es',
   genderStem: 'a' // TypeScript validates this option for Spanish
 };
 ```

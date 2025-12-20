@@ -86,7 +86,7 @@ type N2WordsOptions = {
 }
 
 // Language code literals with autocomplete
-type LanguageCode = 
+type LanguageCode =
   | 'ar' | 'az' | 'bn' | 'cz' | 'de' | 'dk' | 'el' | 'en' | 'es' | 'fa'
   | 'fr' | 'fr-BE' | 'gu' | 'he' | 'hi' | 'hr' | 'hu' | 'id' | 'it' | 'ja'
   | 'kn' | 'ko' | 'lt' | 'lv' | 'mr' | 'ms' | 'nl' | 'no' | 'pa' | 'pl'
@@ -346,6 +346,7 @@ n2words(91, { lang: 'fr', withHyphenSeparator: false }) // 'quatre vingt onze'
 | Slavic Languages | `feminine` | Gender agreement |
 
 **Type Safety Benefits:**
+
 - Full autocomplete for language codes (`LanguageCode` union)
 - IntelliSense for language-specific options
 - Compile-time validation of option combinations
@@ -456,10 +457,10 @@ For custom implementations or extensions, you can import the base language class
 
 ```typescript
 // Main exports
-import n2words, { 
-  type N2WordsOptions, 
+import n2words, {
+  type N2WordsOptions,
   type LanguageCode,
-  
+
   // Language-specific option types
   type ArabicOptions,
   type ChineseOptions,

@@ -192,12 +192,12 @@ Add a `@typedef` comment at the top of your language file for any constructor op
  *
  * Features:
  * - Custom grammar patterns
- * - Optional feminine forms  
+ * - Optional feminine forms
  * - Regional variants support
  */
 export class MyLanguage extends GreedyScaleLanguage {
   // ... class implementation
-  
+
   /**
    * Initialize with language-specific options.
    *
@@ -253,6 +253,7 @@ Your language will automatically get registered in the main `N2WordsOptions` typ
 3. Run `npm run build:types`
 
 This provides developers with:
+
 - Autocomplete for language codes
 - Type-safe language-specific options
 - IntelliSense with your JSDoc documentation
