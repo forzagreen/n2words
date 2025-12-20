@@ -51,7 +51,7 @@ Choose the appropriate base class for your language:
 - Define a `scaleWordPairs` array and implement `mergeScales()` method
 - Examples: English, Spanish, German, French, Italian, Portuguese, Dutch, Korean, Hungarian, Chinese
 
- **SlavicLanguage** - Use for Slavic/Baltic languages with three-form pluralization
+**SlavicLanguage** - Use for Slavic/Baltic languages with three-form pluralization
 
 - Extends `AbstractLanguage`
 - Specialized for languages with complex pluralization rules
@@ -70,8 +70,8 @@ Choose the appropriate base class for your language:
 
 - Extends `AbstractLanguage`
 - Indian-style digit grouping: 3 digits on the right, then 2-2 from right (e.g., 12,34,56,789 = "twelve crore thirty four lakh fifty six thousand seven hundred eighty nine")
-- Provides: `splitIndian()` (group digits), `convertBelowThousand()` (convert 0-999), `convertWholePart()` (iterate groups)
-- Subclasses define: `belowHundred[]` (word arrays for 0-99), `scales[]` (grouping words), `hundredWord` (word for 100)
+- Provides: `splitToGroups()` (group digits), `convertBelowThousand()` (convert 0-999), `convertWholePart()` (iterate groups)
+- Subclasses define: `belowHundred[]` (words for 0-99), `scaleWords[]` (grouping words indexed by level), `hundredWord` (word for 100)
 - Examples: Hindi, Bengali, Urdu, Punjabi, Marathi, Gujarati, Kannada
 
 **AbstractLanguage** - Use for custom implementations requiring full control
@@ -171,6 +171,92 @@ export default function convertToWords(value, options = {}) {
 - Use class properties for default values (not passed via constructor)
 - Constructor parameters should only include options that actually affect behavior
 - Use `BigInt` literals (`1000n`, not `1000`) in scaleWordPairs array for numerical accuracy
+
+### TypeScript Support & JSDoc Documentation
+
+**Enhanced TypeScript support** requires proper JSDoc documentation for your language options:
+
+#### 1. Add Language Options TypeDef
+
+Add a `@typedef` comment at the top of your language file for any constructor options:
+
+```javascript
+/**
+ * @typedef {Object} MyLanguageOptions
+ * @property {boolean} [feminine=false] - Use feminine forms for numbers.
+ * @property {string} [customWord='default'] - Custom word for special cases.
+ */
+
+/**
+ * MyLanguage converter with specific grammar rules.
+ *
+ * Features:
+ * - Custom grammar patterns
+ * - Optional feminine forms
+ * - Regional variants support
+ */
+export class MyLanguage extends GreedyScaleLanguage {
+  // ... class implementation
+
+  /**
+   * Initialize with language-specific options.
+   *
+   * @param {MyLanguageOptions} [options={}] Configuration options.
+   */
+  constructor({ feminine = false, customWord = 'default' } = {}) {
+    super()
+    this.feminine = feminine
+    this.customWord = customWord
+  }
+}
+```
+
+#### 2. Document Export Function
+
+Ensure your export function has comprehensive JSDoc:
+
+```javascript
+/**
+ * Converts a number to MyLanguage cardinal (written) form.
+ *
+ * @param {number|string|bigint} value The number to convert.
+ * @param {MyLanguageOptions} [options={}] Language-specific options.
+ * @returns {string} The number expressed in MyLanguage words.
+ * @throws {TypeError} If value is NaN or invalid type.
+ * @throws {Error} If value is an invalid number string.
+ *
+ * @example
+ * convertToWords(42); // 'language-specific result'
+ * convertToWords(100, { feminine: true }); // 'feminine form result'
+ */
+export default function convertToWords(value, options = {}) {
+  return new MyLanguage(options).convertToWords(value)
+}
+```
+
+#### 3. TypeScript Declaration Generation
+
+The build process automatically generates TypeScript declarations from your JSDoc:
+
+- `@typedef` comments become TypeScript interface types
+- Constructor parameter documentation becomes method signatures
+- Export function JSDoc becomes function overloads
+
+**After implementation**, run `npm run build:types` to generate TypeScript declarations.
+
+#### 4. Language Registration
+
+Your language will automatically get registered in the main `N2WordsOptions` type when you:
+
+1. Add proper `@typedef` for your options
+2. Register the language in `lib/n2words.js`
+3. Run `npm run build:types`
+
+This provides developers with:
+
+- Autocomplete for language codes
+- Type-safe language-specific options
+- IntelliSense with your JSDoc documentation
 
 ### 2. Implement Merge Logic
 
@@ -289,17 +375,16 @@ export class HindiLanguage extends SouthAsianLanguage {
   zeroWord = 'शून्य'
   hundredWord = 'सौ'
 
-  belowHundred = [
-    ['', 'एक', 'दो', 'तीन', 'चार', 'पाँच', 'छः', 'सात', 'आठ', 'नौ'], // 0-9
-    ['दस', 'ग्यारह', 'बारह', 'तेरह', 'चौदह', 'पन्द्रह', 'सोलह', 'सत्रह', 'अट्ठारह', 'उन्नीस'], // 10-19
-    ['बीस', 'इक्कीस', 'बाईस', 'तेईस', 'चौबीस', 'पच्चीस', 'छब्बीस', 'सत्ताईस', 'अट्ठाईस', 'उन्तीस'], // 20-29
-    // ... continue for 30-99
-  ]
+  // Single array mapping 0..99 to words
+  belowHundred = [ /* 'शून्य', 'एक', 'दो', ... 'निन्यानवे' */ ]
 
-  scales = [
-    { name: 'करोड़', value: 10000000n },  // 10 million
-    { name: 'लाख', value: 100000n },     // 100 thousand
-    { name: 'हज़ार', value: 1000n }      // thousand
+  // Indexed scale words (0 = none, 1 = thousand, 2 = lakh, 3 = crore, ...)
+  scaleWords = [
+    '',
+    'हज़ार',
+    'लाख',
+    'करोड़',
+    'अरब'
   ]
 
   /**
@@ -320,12 +405,9 @@ export default function convertToWords(value, options = {}) {
 **Key points for SouthAsianLanguage:**
 
 - Grouping pattern: 12,34,56,789 (3 digits on right, then 2-2 from right)
-- `belowHundred` array: Contains all word forms for 0-99
-  - Index 0-9: ones place (शून्य, एक, दो, ...)
-  - Index 10-19: teens
-  - Index 20-99: twenties through nineties
-- `scales` array: Objects with `name` (word) and `value` (BigInt) for grouping words
-- `hundredWord` class property: Word for 100 (used in convertBelowThousand method)
+- `belowHundred` array: Single array mapping 0..99 to words
+- `scaleWords` array: Indexed strings for grouping words (0 = none, 1 = thousand, 2 = lakh, 3 = crore, ...)
+- `hundredWord` class property: Word for 100 (used in `convertBelowThousand()`)
 
 ## Testing Your Implementation
 

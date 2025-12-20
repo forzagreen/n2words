@@ -1,14 +1,15 @@
 {
   "opts": {
     "destination": "./docs/",
-    "recurse": true
+    "recurse": true,
+    "private": false
   },
   "plugins": ["plugins/markdown"],
   "recurseDepth": 10,
   "source": {
-    "include": ["./README.md", "./lib/"],
+    "include": ["./README.md", "./lib/n2words.js", "./lib/classes/"],
     "includePattern": ".+\\.(js(doc|x)?|md|MD)$",
-    "excludePattern": "(^|\\/|\\\\)_"
+    "excludePattern": "(^|\\/|\\\\)_|i18n"
   },
   "sourceType": "module",
   "tags": {

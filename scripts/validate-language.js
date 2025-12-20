@@ -22,6 +22,12 @@ import chalk from 'chalk'
 const ISO_CODE_PATTERN = /^[a-z]{2}(-[A-Z]{2})?$/
 const INTERNAL_SUFFIXES = ['-fast.js', '-iterative.js']
 
+/**
+ * Get list of available language codes from the i18n directory.
+ * Filters out internal implementation files.
+ *
+ * @returns {string[]} Array of language codes
+ */
 function listLanguages () {
   return readdirSync('lib/i18n')
     .filter(name => name.endsWith('.js'))
@@ -29,6 +35,12 @@ function listLanguages () {
     .map(name => name.replace(/\.js$/, ''))
 }
 
+/**
+ * Validate that a language code follows ISO 639-1 format.
+ *
+ * @param {string} lang Language code to validate
+ * @returns {number} 0 if valid, 1 if invalid
+ */
 function ensureIsoCode (lang) {
   if (!ISO_CODE_PATTERN.test(lang)) {
     console.error(chalk.red(`✗ Language code is not ISO 639-1 (optional region): ${lang}`))
@@ -38,19 +50,35 @@ function ensureIsoCode (lang) {
   return 0
 }
 
+/**
+ * Extract the class name from a language implementation file.
+ *
+ * @param {string} content File content to analyze
+ * @returns {string|null} Class name or null if not found
+ */
 function extractClassName (content) {
   const match = content.match(/class\s+([A-Za-z][A-Za-z0-9_]*)\s+extends/)
   return match ? match[1] : null
 }
 
+/**
+ * Extract the constructor class name from the default export function.
+ *
+ * @param {string} content File content to analyze
+ * @returns {string|null} Constructor class name or null if not found
+ */
 function extractDefaultCtorName (content) {
-  // Looks for `return new ClassName(` inside the default export function
   const match = content.match(/return\s+new\s+([A-Za-z][A-Za-z0-9_]*)\s*\(/)
   return match ? match[1] : null
 }
 
+/**
+ * Check if test content includes large number test cases (>= 1 million).
+ *
+ * @param {string} testContent Test file content to analyze
+ * @returns {boolean} True if large numbers are tested
+ */
 function hasLargeNumberCase (testContent) {
-  // Scan bracketed tuples like [123, 'one two three'] and detect literals >= 1_000_000
   const tupleNumberRegex = /\[\s*(-?\d[\d_]*n?)\s*,/g
   let match
 
@@ -64,6 +92,13 @@ function hasLargeNumberCase (testContent) {
   return false
 }
 
+/**
+ * Validate that class name is descriptive (not just the language code).
+ *
+ * @param {string|null} className Extracted class name
+ * @param {string} lang Language code
+ * @returns {number} 0 if valid, 1 if invalid
+ */
 function checkClassNameFullLanguage (className, lang) {
   if (!className) {
     console.error(chalk.red('  ✗ No class declaration found (expected a named class extending a base language)'))
@@ -80,6 +115,13 @@ function checkClassNameFullLanguage (className, lang) {
   return 0
 }
 
+/**
+ * Test that a language implementation produces valid string outputs.
+ *
+ * @param {string} langCode Language code being tested
+ * @param {string} langFile Path to language implementation file
+ * @returns {Promise<number>} Number of errors encountered
+ */
 async function smokeTestLanguageOutput (langCode, langFile) {
   let errors = 0
 
@@ -120,6 +162,13 @@ async function smokeTestLanguageOutput (langCode, langFile) {
   return errors
 }
 
+/**
+ * Perform comprehensive validation of a language implementation.
+ * Checks file existence, code structure, test coverage, and registration.
+ *
+ * @param {string} langCode Language code to validate
+ * @returns {Promise<{errors: number, warnings: number}>} Validation results
+ */
 async function validateLanguage (langCode) {
   console.log(chalk.cyan(`Validating language: ${langCode}`))
   console.log(chalk.gray('='.repeat(60)))
@@ -163,30 +212,84 @@ async function validateLanguage (langCode) {
     console.log(chalk.green(`  ✓ Default export instantiates ${ctorName}`))
   }
 
-  // Check for BigInt literals in scaleWordPairs (not required for all AbstractLanguage implementations)
-  if (!content.includes('n,') && !content.includes('n]') && !content.includes('n ')) {
-    console.warn(
-      chalk.yellow('  ⚠ No BigInt literals found (scaleWordPairs/numbers should use 1000n, 100n, etc.)')
-    )
-    warnings++
+  // Detect base class usage
+  const usesGreedy = content.includes('extends GreedyScaleLanguage')
+  const usesTurkic = content.includes('extends TurkicLanguage')
+  const usesSouthAsian = content.includes('extends SouthAsianLanguage')
+  const usesSlavic = content.includes('extends SlavicLanguage')
+
+  // BigInt literals are required for scale-based systems (Greedy/Turkic), optional otherwise
+  if (usesGreedy || usesTurkic) {
+    if (!content.includes('n,') && !content.includes('n]') && !content.includes('n ')) {
+      console.warn(
+        chalk.yellow('  ⚠ No BigInt literals found (scaleWordPairs should use 1000n, 100n, etc.)')
+      )
+      warnings++
+    } else {
+      console.log(chalk.green('  ✓ Uses BigInt literals'))
+    }
   } else {
-    console.log(chalk.green('  ✓ Uses BigInt literals'))
+    console.log(chalk.gray('  • BigInt literals not required for this base class'))
   }
 
   // Check for merge method
-  const usesCardMatch = content.includes('extends GreedyScaleLanguage')
   const hasMerge = content.includes('mergeScales')
   const hasConvertWholePart = content.includes('convertWholePart')
 
-  if (usesCardMatch && !hasMerge && !hasConvertWholePart) {
-    console.error(chalk.red('  ✗ Missing mergeScales() or convertWholePart() method (required for GreedyScaleLanguage)'))
-    errors++
+  if ((usesGreedy || usesTurkic) && !hasMerge && !hasConvertWholePart) {
+    console.log(chalk.gray('  • Using base class mergeScales() implementation'))
   } else if (hasMerge) {
     console.log(chalk.green('  ✓ Has mergeScales() method'))
-  } else if (usesCardMatch && hasConvertWholePart) {
+  } else if ((usesGreedy || usesTurkic) && hasConvertWholePart) {
     console.log(chalk.green('  ✓ Overrides convertWholePart() method'))
   } else {
     console.log(chalk.green('  ✓ Base class provides mergeScales() implementation'))
+  }
+
+  // SouthAsianLanguage requires core properties
+  if (usesSouthAsian) {
+    const hasBelowHundred = content.includes('belowHundred')
+    const hasHundredWord = content.includes('hundredWord')
+    const hasScaleWords = content.includes('scaleWords')
+
+    if (!hasBelowHundred) {
+      console.warn(chalk.yellow('  ⚠ Missing belowHundred array (0..99 words)'))
+      warnings++
+    } else {
+      console.log(chalk.green('  ✓ Has belowHundred array'))
+    }
+
+    if (!hasHundredWord) {
+      console.warn(chalk.yellow('  ⚠ Missing hundredWord property'))
+      warnings++
+    } else {
+      console.log(chalk.green('  ✓ Has hundredWord property'))
+    }
+
+    if (!hasScaleWords) {
+      console.warn(chalk.yellow('  ⚠ Missing scaleWords array (indexed grouping words)'))
+      warnings++
+    } else {
+      console.log(chalk.green('  ✓ Has scaleWords array'))
+    }
+  }
+
+  // SlavicLanguage typically uses multiple maps for forms; warn if none are present
+  if (usesSlavic) {
+    const hasAnyMaps = (
+      content.includes('ones') ||
+      content.includes('onesFeminine') ||
+      content.includes('tens') ||
+      content.includes('twenties') ||
+      content.includes('hundreds') ||
+      content.includes('thousands')
+    )
+    if (!hasAnyMaps) {
+      console.warn(chalk.yellow('  ⚠ No core maps detected (ones/tens/hundreds/thousands)'))
+      warnings++
+    } else {
+      console.log(chalk.green('  ✓ Core maps detected'))
+    }
   }
 
   // Check for TODO comments
@@ -202,6 +305,7 @@ async function validateLanguage (langCode) {
     !content.includes('GreedyScaleLanguage') &&
     !content.includes('SlavicLanguage') &&
     !content.includes('TurkicLanguage') &&
+    !content.includes('SouthAsianLanguage') &&
     !content.includes('AbstractLanguage') &&
     !content.match(/extends\s+[A-Z][A-Za-z0-9_]*/)
   ) {

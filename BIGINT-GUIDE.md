@@ -109,8 +109,8 @@ class ExampleWrong extends GreedyScaleLanguage {
 
 **Files affected:**
 
-- All `lib/i18n/*.js` files that extend `GreedyScaleLanguage` or its subclasses (23 languages: en, de, fr, es, pt, ko, zh, hu, it, nl, fr-BE)
-- All `lib/i18n/*.js` files that extend `TurkicLanguage` (2 languages: az, tr)
+- All `lib/i18n/*.js` files that extend `GreedyScaleLanguage` or its subclasses (languages like: en, de, fr, es, pt, ko, zh, hu, it, nl, fr-BE)
+- All `lib/i18n/*.js` files that extend `TurkicLanguage` (languages: az, tr)
 
 ### 2. BigInt Comparisons in `mergeScales()` Methods
 
@@ -220,7 +220,7 @@ convertWholePart(number) {
 **Files affected:**
 
 - `lib/classes/slavic-language.js` (base class)
-- `lib/i18n/ru.js`, `cz.js`, `pl.js`, `uk.js`, `sr.js`, `hr.js`, `he.js`, `lt.js`, `lv.js` (9 languages)
+- `lib/i18n/ru.js`, `cz.js`, `pl.js`, `uk.js`, `sr.js`, `hr.js`, `he.js`, `lt.js`, `lv.js` (Slavic languages)
 
 ### 4. Custom Algorithm Implementations
 

@@ -58,24 +58,67 @@ console.log(french) // 'cent'
 
 ### `N2WordsOptions`
 
-The main configuration type for all conversions:
+The main configuration type for all conversions with full type safety:
 
 ```typescript
 type N2WordsOptions = {
   /**
-   * Target language code (e.g., 'en', 'fr', 'fr-BE').
-   * Regional variants are supported; the implementation progressively falls back
-   * from most-specific to least-specific (e.g., 'fr-BE' -> 'fr').
+   * Target language code with full autocomplete support.
+   * Supports many languages with regional variants (e.g., 'fr-BE').
+   * Falls back progressively from most-specific to least-specific.
    * @default 'en'
    */
-  lang?: string
+  lang?: LanguageCode
 
-  /**
-   * Additional language-specific options (free-form object).
-   * Consult language-specific documentation for available options.
-   */
-  extra?: Record<string, any>
+  // Language-specific options (type-safe based on selected language)
+  negativeWord?: string        // Arabic only
+  feminine?: boolean           // Arabic, Hebrew, Romanian, Slavic languages
+  formal?: boolean             // Chinese only
+  and?: string                 // Hebrew only
+  biblical?: boolean           // Hebrew only
+  genderStem?: 'o' | 'a' | string  // Spanish only
+  includeOptionalAnd?: boolean // Dutch only
+  noHundredPairs?: boolean     // Dutch only
+  accentOne?: boolean          // Dutch only
+  withHyphenSeparator?: boolean // French, Belgian French
+  dropSpaces?: boolean         // Turkish, Azerbaijani
+  ordFlag?: boolean            // Danish only
 }
+
+// Language code literals with autocomplete
+type LanguageCode =
+  | 'ar' | 'az' | 'bn' | 'cz' | 'de' | 'dk' | 'el' | 'en' | 'es' | 'fa'
+  | 'fr' | 'fr-BE' | 'gu' | 'he' | 'hi' | 'hr' | 'hu' | 'id' | 'it' | 'ja'
+  | 'kn' | 'ko' | 'lt' | 'lv' | 'mr' | 'ms' | 'nl' | 'no' | 'pa' | 'pl'
+  | 'pt' | 'ro' | 'ru' | 'sr' | 'sv' | 'sw' | 'ta' | 'te' | 'th' | 'tl'
+  | 'tr' | 'uk' | 'ur' | 'vi' | 'zh'
+```
+
+### Language-Specific Option Types
+
+For enhanced type safety, specific option interfaces are available:
+
+```typescript
+type ArabicOptions = {
+  negativeWord?: string  // Word for negative numbers
+  feminine?: boolean     // Use feminine forms
+}
+
+type ChineseOptions = {
+  formal?: boolean       // Use formal/financial numerals
+}
+
+type HebrewOptions = {
+  and?: string          // Conjunction character
+  biblical?: boolean    // Use biblical scale words
+  feminine?: boolean    // Use feminine forms
+}
+
+type SpanishOptions = {
+  genderStem?: 'o' | 'a' | string  // Gender ending
+}
+
+// ... and 7 more language-specific option types
 ```
 
 ## Input Types
@@ -104,7 +147,7 @@ n2words(123456789n, { lang: 'en' })
 
 ## Supported Languages
 
-n2words supports **45 languages**. Here are the most common:
+n2words supports **many languages**. Here are the most common:
 
 | Code | Language | Example |
 | --- | --- | --- |
@@ -131,7 +174,7 @@ n2words(70, { lang: 'fr-BE' }) // Belgian French uses different word for 70
 n2words(42, { lang: 'en-GB' }) // Falls back to 'en' if 'en-GB' not available
 ```
 
-See [README.md](README.md) for the complete list of 38 supported languages.
+See [README.md](README.md) for the complete list of supported languages.
 
 ## Common Usage Patterns
 
@@ -148,8 +191,7 @@ const result = n2words(123)
 import { type N2WordsOptions } from 'n2words'
 
 const options: N2WordsOptions = {
-  lang: 'en',
-  extra: { someOption: true }
+  lang: 'en'
 }
 
 const result = n2words(42, options)
@@ -210,89 +252,178 @@ const result = numbersToWords([1, 2, 3], 'en')
 
 ## Language-Specific Options
 
-Some languages support additional options through the `extra` field. Consult `LANGUAGE_OPTIONS.md` for detailed documentation.
+**Enhanced Type Safety**: The library now provides dedicated option types for each language, giving you full IntelliSense and compile-time validation.
 
-### Example: Spanish Gender
+### Arabic (`ArabicOptions`)
 
 ```typescript
+import n2words, { type ArabicOptions } from 'n2words'
+
+const options: ArabicOptions = {
+  feminine: true,
+  negativeWord: 'سالب'  // Custom word for "minus"
+}
+
+n2words(42, { lang: 'ar', ...options }) // 'اثنتان وأربعون' (feminine)
+n2words(-10, { lang: 'ar', negativeWord: 'سالب' }) // 'سالب عشرة'
+```
+
+### Chinese (`ChineseOptions`)
+
+```typescript
+import n2words, { type ChineseOptions } from 'n2words'
+
+// Financial/formal numerals (default)
+n2words(123, { lang: 'zh', formal: true }) // '壹佰贰拾叁'
+
+// Common numerals
+n2words(123, { lang: 'zh', formal: false }) // '一百二十三'
+```
+
+### Hebrew (`HebrewOptions`)
+
+```typescript
+import n2words, { type HebrewOptions } from 'n2words'
+
+const options: HebrewOptions = {
+  feminine: true,
+  biblical: true,
+  and: 'ו'  // Hebrew vav for "and"
+}
+
+n2words(21, { lang: 'he', ...options }) // Feminine biblical form
+```
+
+### Spanish (`SpanishOptions`)
+
+```typescript
+import n2words, { type SpanishOptions } from 'n2words'
+
 // Masculine (default)
-n2words(1, { lang: 'es', extra: { genderStem: 'one' } }) // 'uno'
+n2words(21, { lang: 'es', genderStem: 'o' }) // 'veintiuno'
 
 // Feminine
-n2words(1, { lang: 'es', extra: { genderStem: 'one_feminine' } }) // 'una'
+n2words(21, { lang: 'es', genderStem: 'a' }) // 'veintiuna'
 ```
 
-### Example: Chinese Formal
+### Dutch (`DutchOptions`)
 
 ```typescript
-// Simplified/default
-n2words(1, { lang: 'zh' }) // '一'
+import n2words, { type DutchOptions } from 'n2words'
 
-// Formal/traditional
-n2words(1, { lang: 'zh', extra: { formal: true } }) // '壹'
+const dutchOptions: DutchOptions = {
+  includeOptionalAnd: true,
+  accentOne: true,
+  noHundredPairs: false
+}
+
+n2words(101, { lang: 'nl', ...dutchOptions })
 ```
 
-### Example: Romanian Feminine
+### French (`FrenchOptions`)
 
 ```typescript
-// Masculine (default)
-n2words(1, { lang: 'ro', extra: { feminine: false } }) // 'unu'
+import n2words, { type FrenchOptions } from 'n2words'
 
-// Feminine
-n2words(1, { lang: 'ro', extra: { feminine: true } }) // 'una'
+// Use hyphens instead of spaces
+n2words(91, { lang: 'fr', withHyphenSeparator: true }) // 'quatre-vingt-onze'
+n2words(91, { lang: 'fr', withHyphenSeparator: false }) // 'quatre vingt onze'
 ```
 
-Refer to `LANGUAGE_OPTIONS.md` for a complete list of language-specific options.
+### All Language Options at a Glance
+
+| Language | Options Available | Key Features |
+| --- | --- | --- |
+| Arabic | `feminine`, `negativeWord` | Gender agreement, custom minus word |
+| Chinese | `formal` | Financial vs. common numerals |
+| Hebrew | `feminine`, `biblical`, `and` | Gender, biblical forms, conjunctions |
+| Spanish | `genderStem` | Masculine/feminine endings |
+| Dutch | `includeOptionalAnd`, `accentOne`, `noHundredPairs` | Optional conjunctions, accents |
+| French/Belgian | `withHyphenSeparator` | Hyphen vs. space separators |
+| Turkish/Azerbaijani | `dropSpaces` | Space handling |
+| Romanian | `feminine` | Gender agreement |
+| Danish | `ordFlag` | Ordinal number support |
+| Slavic Languages | `feminine` | Gender agreement |
+
+**Type Safety Benefits:**
+
+- Full autocomplete for language codes (`LanguageCode` union)
+- IntelliSense for language-specific options
+- Compile-time validation of option combinations
+- Rich JSDoc tooltips with usage examples
 
 ## Advanced Usage
 
 ### Creating a Strongly-Typed Wrapper
 
-If you use n2words frequently with a specific language, create a typed wrapper:
+With the enhanced TypeScript support, you can create type-safe wrappers:
 
 ```typescript
-import n2words, { type N2WordsOptions } from 'n2words'
+import n2words, { type N2WordsOptions, type LanguageCode, type ChineseOptions } from 'n2words'
 
 /**
  * Convert a number to English words (strongly typed).
  */
 function toEnglish(
   value: number | string | bigint,
-  extra?: Record<string, any>
 ): string {
-  return n2words(value, { lang: 'en', extra })
+  return n2words(value, { lang: 'en' })
 }
 
-// Usage
-const result = toEnglish(42) // 'forty-two'
+/**
+ * Convert with language-specific options (type-safe).
+ */
+function toChineseWords(
+  value: number | string | bigint,
+  options: ChineseOptions = {}
+): string {
+  return n2words(value, { lang: 'zh', ...options })
+}
+
+// Usage with full type safety
+const result1 = toEnglish(42) // 'forty-two'
+const result2 = toChineseWords(123, { formal: true }) // '壹佰贰拾叁'
+// toChineseWords(123, { invalidOption: true }) // ← TypeScript error!
 ```
 
 ### Multi-Language Application
 
 ```typescript
-import n2words from 'n2words'
+import n2words, { type LanguageCode } from 'n2words'
 
-type SupportedLanguage = 'en' | 'fr' | 'es' | 'de'
+// Use the built-in LanguageCode type for full type safety
+type SupportedLanguage = Extract<LanguageCode, 'en' | 'fr' | 'es' | 'de' | 'zh'>
 
 /**
- * Convert numbers with language selection.
+ * Convert numbers with language selection and type safety.
  */
 function convertInLanguage(
   value: number | string | bigint,
   lang: SupportedLanguage
 ): string {
-  const supportedLanguages: Record<SupportedLanguage, string> = {
-    en: 'en',
-    fr: 'fr',
-    es: 'es',
-    de: 'de'
-  }
-  return n2words(value, { lang: supportedLanguages[lang] })
+  return n2words(value, { lang })
 }
 
-// Usage with type safety
-const result = convertInLanguage(42, 'fr') // 'quarante-deux'
+// Usage with compile-time validation
+const result1 = convertInLanguage(42, 'fr') // 'quarante-deux'
+const result2 = convertInLanguage(123, 'zh') // '一百二十三'
 // convertInLanguage(42, 'invalid') // ← TypeScript error
+
+/**
+ * Multi-language converter with options.
+ */
+function convertWithOptions(
+  value: number | string | bigint,
+  lang: LanguageCode,
+  options: Partial<N2WordsOptions> = {}
+): string {
+  return n2words(value, { lang, ...options })
+}
+
+// Language-specific options are validated
+convertWithOptions(42, 'zh', { formal: true })  // ✓ Valid
+convertWithOptions(42, 'ar', { feminine: true }) // ✓ Valid
+// convertWithOptions(42, 'en', { formal: true })  // ← Works but formal ignored for English
 ```
 
 ### Error Handling
@@ -322,18 +453,49 @@ function safeConvert(
 
 ## Importing Base Classes (Advanced)
 
-For custom implementations or extensions, you can import the base language classes:
+For custom implementations or extensions, you can import the base language classes and types:
 
 ```typescript
+// Main exports
+import n2words, {
+  type N2WordsOptions,
+  type LanguageCode,
+
+  // Language-specific option types
+  type ArabicOptions,
+  type ChineseOptions,
+  type HebrewOptions,
+  type SpanishOptions,
+  type DutchOptions,
+  type FrenchOptions,
+  type TurkishOptions,
+  type RomanianOptions,
+  type DanishOptions,
+  type SlavicOptions
+} from 'n2words'
+
+// Base classes (for language developers)
 import {
   AbstractLanguage,
   GreedyScaleLanguage,
   SlavicLanguage,
+  SouthAsianLanguage,
   TurkicLanguage
+} from 'n2words'
+
+// Advanced type definitions (for extending base classes)
+import type {
+  WordSet,
+  ScaleWordPairs,
+  SlavicPluralForms,
+  SlavicThousandsMap,
+  SouthAsianScaleWords,
+  SouthAsianBelowHundred,
+  TurkicWordPair
 } from 'n2words'
 ```
 
-**Note**: Most users should not need to directly import these classes. Use the main `n2words` export instead.
+**Note**: Most users should only need the main `n2words` export and language-specific option types. Base classes and advanced types are primarily for language developers.
 
 See `LANGUAGE_GUIDE.md` for detailed information about extending or implementing custom language converters.
 
@@ -383,15 +545,14 @@ n2words(value) // Unexpected output
 n2words('0.3', { lang: 'en' }) // 'zero point three'
 ```
 
-### Issue: Type Errors with Extra Options
+### Issue: Option Shape vs Language Support
 
 ```typescript
-// ❌ TypeScript allows any type for extra
-const options = { lang: 'en', extra: { unknownOption: true } }
-// No error, but runtime may behave unexpectedly
+// ❌ Passing undocumented options may be ignored at runtime
+const options = { lang: 'en', unknownOption: true }
 
-// ✅ Check language documentation for valid options
-const options = { lang: 'es', extra: { genderStem: 'one_feminine' } }
+// ✅ Use documented language options
+const options = { lang: 'es', genderStem: 'one_feminine' }
 ```
 
 ## Testing with TypeScript

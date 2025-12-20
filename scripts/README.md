@@ -27,16 +27,18 @@ node scripts/add-language.js
 The script guides you to choose from five base classes:
 
 - **GreedyScaleLanguage** - For most languages (English, Spanish, French, German, etc.)
-- **SlavicLanguage** - For Slavic/Baltic languages (Russian, Polish, Czech, etc.)
+- **SlavicLanguage** - For Slavic/Baltic languages (Russian, Polish, Czech, Ukrainian, Hebrew, Lithuanian, Latvian)
 - **TurkicLanguage** - For Turkic languages (Turkish, Azerbaijani)
+- **SouthAsianLanguage** - For Indian-style grouping (Hindi, Bengali, Urdu, Punjabi, Marathi, Gujarati, Kannada)
 - **AbstractLanguage** - For custom implementations (Arabic, Vietnamese, Romanian, etc.)
 
 **After running:**
 
-- Fill in the `scaleWordPairs` array with number words
-- Implement the `mergeScales()` method
-- Complete test cases with expected outputs
-- Run `npm run lang:validate xx` to check your work
+- For Greedy/Turkic: fill `scaleWordPairs` (use `BigInt` literals like `1000n`, `100n`), and implement/adjust `mergeScales()` as needed.
+- For SouthAsian: fill `belowHundred` (0..99 words), set `hundredWord`, and define indexed `scaleWords` (e.g., thousand, lakh, crore).
+- For Slavic: fill core maps (`ones`, `onesFeminine`, `tens`, `twenties`, `hundreds`, `thousands`) and any options (e.g., feminine forms).
+- Complete test cases with expected outputs.
+- Run `npm run lang:validate xx` to check your work.
 
 ## validate-language.js
 
@@ -67,9 +69,10 @@ npm run lang:validate fr-BE
 - ✓ Language file exists with proper structure
 - ✓ Default export function is present and instantiates the declared class
 - ✓ Class name looks like the language name (not the code token)
-- ✓ Uses BigInt literals in number definitions
-- ✓ Has mergeScales() method OR convertWholePart() override (for GreedyScaleLanguage)
-- ✓ Extends a recognized base class (GreedyScaleLanguage, SlavicLanguage, TurkicLanguage, AbstractLanguage) or another language class
+- ✓ Uses BigInt literals in number definitions (Greedy/Turkic only)
+- ✓ Has `mergeScales()` method OR `convertWholePart()` override (Greedy/Turkic)
+- ✓ SouthAsian has `belowHundred`, `hundredWord`, and `scaleWords`
+- ✓ Extends a recognized base class (GreedyScaleLanguage, SlavicLanguage, TurkicLanguage, SouthAsianLanguage, AbstractLanguage) or another language class
 - ✓ Test file exists with comprehensive cases (20+ recommended)
 - ✓ Tests cover: zero, negatives, decimals, large numbers (includes 1_000_000-style literals)
 - ✓ Language is correctly imported in lib/n2words.js and registered in the dict

@@ -1,19 +1,25 @@
 {
   "name": "n2words",
   "version": "1.23.2",
-  "description": "n2words converts a numerical number into a written one, supports 38 languages and has zero dependencies.",
+  "description": "n2words converts a numerical number into a written one, supports 45 languages and has zero dependencies.",
   "keywords": [
     "n2words",
     "number-to-words",
     "cardinal",
-    "spell-out",
+    "spellout",
+    "conversion",
     "internationalization",
-    "locale",
+    "i18n",
+    "localization",
+    "multilingual",
     "pluralization",
+    "typescript",
+    "browser",
+    "nodejs",
     "zero-dependencies",
-    "english",
-    "spanish",
-    "french"
+    "bigint",
+    "formatting",
+    "utility"
   ],
   "homepage": "https://github.com/forzagreen/n2words#readme",
   "bugs": {

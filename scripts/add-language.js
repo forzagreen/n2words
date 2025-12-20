@@ -36,16 +36,18 @@ console.log(chalk.cyan('\nBase class options:'))
 console.log(
   '  1. GreedyScaleLanguage (most languages: en, de, fr, es, pt, etc.)'
 )
-console.log('  2. SlavicLanguage (Slavic languages: ru, pl, cz, uk, etc.)')
-console.log('  3. TurkicLanguage (Turkish languages: tr, az)')
-console.log('  4. AbstractLanguage (custom implementations: ar, vi, ro, etc.)')
+console.log('  2. SlavicLanguage (Slavic/Baltic: ru, pl, cz, uk, he, lt, lv)')
+console.log('  3. TurkicLanguage (Turkic: tr, az)')
+console.log('  4. SouthAsianLanguage (Indian-style grouping: hi, bn, ur, pa, mr, gu, kn)')
+console.log('  5. AbstractLanguage (custom implementations: ar, vi, ro, etc.)')
 const baseClassChoice =
-  (await rl.question('Choose base class (1-4) [1]: ')) || '1'
+  (await rl.question('Choose base class (1-5) [1]: ')) || '1'
 const baseClassMap = {
   1: 'GreedyScaleLanguage',
   2: 'SlavicLanguage',
   3: 'TurkicLanguage',
-  4: 'AbstractLanguage'
+  4: 'SouthAsianLanguage',
+  5: 'AbstractLanguage'
 }
 const baseClass = baseClassMap[baseClassChoice] || 'GreedyScaleLanguage'
 const negativeWord =
@@ -69,8 +71,15 @@ if (!langCode || !langCode.match(/^[a-z]{2}(-[A-Z]{2})?$/)) {
   process.exit(1)
 }
 
+/**
+ * Convert a language name to a PascalCase class name.
+ * Strips diacritics, normalizes characters, and capitalizes words.
+ *
+ * @param {string} name The language name (e.g., "Japanese", "Français")
+ * @param {string} code Fallback language code if name is empty
+ * @returns {string} PascalCase class name (e.g., "Japanese", "Francais")
+ */
 function toClassName (name, code) {
-  // Strip diacritics, keep alphanumerics, capitalize words
   const normalized = name
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')
@@ -89,19 +98,19 @@ const fileName = langCode
 const className = toClassName(langName, langCode)
 const constName = langCode.replace('-', '')
 
-// Check if language already exists
 if (existsSync(`lib/i18n/${fileName}.js`)) {
   console.error(chalk.red(`✗ Error: Language file lib/i18n/${fileName}.js already exists`))
   process.exit(1)
 }
 
-// Generate language implementation
-// Convert PascalCase class name to kebab-case file name
 const baseClassFile = baseClass
   .replace(/([A-Z])/g, '-$1')
   .toLowerCase()
   .substring(1) // Remove leading hyphen
-const languageTemplate = `import ${baseClass} from '../classes/${baseClassFile}.js'
+let languageTemplate
+
+if (baseClass === 'SouthAsianLanguage') {
+  languageTemplate = `import ${baseClass} from '../classes/${baseClassFile}.js'
 
 /**
  * ${langName} language implementation
@@ -119,68 +128,101 @@ export default function convertToWords (value, options = {}) {
  * ${langName} number-to-words converter
  */
 class ${className} extends ${baseClass} {
-  // Class properties for language defaults
   negativeWord = '${negativeWord}'
   decimalSeparatorWord = '${separatorWord}'
   zeroWord = '${zeroWord}'
-  // Set to true for digit-by-digit decimals if your language needs it
   convertDecimalsPerDigit = false
 
-  // Define scaleWordPairs array in DESCENDING order (for scale-based languages)
+  // South Asian grouping properties
+  hundredWord = 'TODO' // e.g., 'सौ' (Hindi) / 'শত' (Bengali)
+  belowHundred = [
+    // Fill words for 0..99 in order
+    // 'TODO 0', 'TODO 1', ..., 'TODO 99'
+  ]
+
+  // Indexed scale words: 0 = none, 1 = thousand, 2 = lakh, 3 = crore, etc.
+  scaleWords = [
+    '',
+    'TODO thousand',
+    'TODO lakh',
+    'TODO crore'
+  ]
+}
+`
+} else if (baseClass === 'SlavicLanguage') {
+  languageTemplate = `import ${baseClass} from '../classes/${baseClassFile}.js'
+
+/**
+ * ${langName} language implementation
+ * Converts numeric values to written ${langName}.
+ */
+export default function convertToWords (value, options = {}) {
+  return new ${className}(options).convertToWords(value)
+}
+
+class ${className} extends ${baseClass} {
+  negativeWord = '${negativeWord}'
+  decimalSeparatorWord = '${separatorWord}'
+  zeroWord = '${zeroWord}'
+
+  // Core maps (fill with language words)
+  ones = {}
+  onesFeminine = {}
+  tens = {}
+  twenties = {}
+  hundreds = {}
+  thousands = {}
+
+  // Optional: feminine forms flag
+  constructor ({ feminine = false } = {}) {
+    super()
+    this.feminine = feminine
+  }
+}
+`
+} else {
+  // GreedyScaleLanguage and TurkicLanguage (scale-based)
+  languageTemplate = `import ${baseClass} from '../classes/${baseClassFile}.js'
+
+/**
+ * ${langName} language implementation
+ * Converts numeric values to written ${langName}.
+ *
+ * @example
+ * convertToWords(42) // => TODO: Add example output
+ * convertToWords(1000) // => TODO: Add example output
+ */
+export default function convertToWords (value, options = {}) {
+  return new ${className}(options).convertToWords(value)
+}
+
+/**
+ * ${langName} number-to-words converter
+ */
+class ${className} extends ${baseClass} {
+  negativeWord = '${negativeWord}'
+  decimalSeparatorWord = '${separatorWord}'
+  zeroWord = '${zeroWord}'
+  convertDecimalsPerDigit = false
+
+  // Define scaleWordPairs in DESCENDING order
   // Format: [value_as_BigInt, 'word']
   scaleWordPairs = [
     // [1000000n, 'million'],
     // [1000n, 'thousand'],
     // [100n, 'hundred'],
     // [90n, 'ninety'],
-    // [80n, 'eighty'],
-    // [70n, 'seventy'],
-    // [60n, 'sixty'],
-    // [50n, 'fifty'],
-    // [40n, 'forty'],
-    // [30n, 'thirty'],
-    // [20n, 'twenty'],
-    // [19n, 'nineteen'],
-    // ... (continue with all numbers)
-    // [1n, 'one'],
-    // [0n, 'zero']
+    // ...
+    // [1n, 'one']
   ]
 
-  // Add a constructor ONLY if your language has behavior-changing options.
-  // Most languages do not need a constructor.
-  // constructor ({ someOption = false } = {}) {
-  //   super()
-  //   this.someOption = someOption
+  // Optional: override mergeScales for language-specific grammar
+  // mergeScales (leftWordSet, rightWordSet) {
+  //   // TODO: Implement if needed
   // }
-
-  /**
-   * Merge two word sets according to ${langName} grammar rules
-   *
-   * @param {Object} leftWordSet - Left word set { word: value }
-   * @param {Object} rightWordSet - Right word set { word: value }
-   * @returns {Object} Merged word set
-   *
-   * @example
-   * // For English: mergeScales({ 'twenty': 20n }, { 'one': 1n }) => { 'twenty-one': 21n }
-   * // For French: mergeScales({ 'vingt': 20n }, { 'et': 0n }, { 'un': 1n }) => { 'vingt et un': 21n }
-   * // Implement according to ${langName} grammar rules
-   */
-  mergeScales (leftWordSet, rightWordSet) {
-    // TODO: Implement merge logic for ${langName}
-    // Basic template (customize for your language):
-    const leftWords = Object.keys(leftWordSet)
-    const rightWords = Object.keys(rightWordSet)
-    const leftValue = Object.values(leftWordSet)[0]
-    const rightValue = Object.values(rightWordSet)[0]
-
-    // Example: Simple space-separated concatenation
-    // Modify this according to ${langName} grammar rules
-    const merged = {}
-    merged[leftWords.join(' ') + ' ' + rightWords.join(' ')] = leftValue + rightValue
-    return merged
-  }
 }
 `
+}
 
 // Generate test file
 const testTemplate = `/**
@@ -295,11 +337,16 @@ console.log()
 console.log(chalk.cyan('Next steps:'))
 console.log()
 console.log(`1. Edit lib/i18n/${fileName}.js:`)
-console.log(
-  '   - Fill in the scaleWordPairs array with number words in DESCENDING order'
-)
-console.log('   - Implement the mergeScales() method according to language grammar')
-console.log('   - Add any language-specific methods if needed')
+if (baseClass === 'SouthAsianLanguage') {
+  console.log('   - Fill in the belowHundred array (0..99)')
+  console.log('   - Set hundredWord and scaleWords (indexed grouping words)')
+} else if (baseClass === 'SlavicLanguage') {
+  console.log('   - Fill ones/onesFeminine/tens/twenties/hundreds/thousands maps')
+  console.log('   - Use feminine option if needed')
+} else {
+  console.log('   - Fill in the scaleWordPairs array in DESCENDING order')
+  console.log('   - Implement/adjust mergeScales() according to grammar (if needed)')
+}
 console.log()
 console.log(`2. Edit test/i18n/${fileName}.js:`)
 console.log('   - Replace "TODO" with actual expected outputs')
