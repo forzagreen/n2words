@@ -2,11 +2,11 @@
 
 This file gives targeted, actionable guidance for AI coding agents working in this repository.
 
-**Big picture:** `n2words` converts numeric values into written words across many languages with zero dependencies. The public API is the default export in `lib/n2words.js` (ESM). Language implementations live in `lib/i18n/*.js` and typically export a default function with the signature `(value, options)` that returns a string.
+**Big picture:** `n2words` converts numeric values into written words across many languages with zero dependencies. The public API is the default export in `lib/n2words.js` (ESM). Language implementations live in `lib/languages/*.js` and typically export a default function with the signature `(value, options)` that returns a string.
 
 - **Core components:**
   - `lib/n2words.js`: language registry and export. Uses `dict[lang]` to dispatch.
-  - `lib/i18n/*.js`: per-language implementations. Use one of five base classes from `lib/classes/`.
+  - `lib/languages/*.js`: per-language implementations. Use one of five base classes from `lib/classes/`.
   - `lib/classes/abstract-language.js`: core base class providing decimal handling and input validation. Decimal part is treated as a string; leading zeros become the word for zero.
   - `lib/classes/greedy-scale-language.js`: extends `AbstractLanguage`; implements highest-matching-scale algorithm. Most languages use this. Languages define `scaleWordPairs` arrays of `[value, word]` (use BigInt literals). Used by: English, Spanish, French, German, Italian, Portuguese, Dutch, Korean, Hungarian, Chinese.
   - `lib/classes/slavic-language.js`: extends `AbstractLanguage`; specialized base for Slavic/Baltic languages with three-form pluralization (Russian, Czech, Polish, Ukrainian, Serbian, Croatian, Hebrew, Lithuanian, Latvian).
@@ -15,7 +15,7 @@ This file gives targeted, actionable guidance for AI coding agents working in th
 
 - **Project structure:**
   - `dist/`: Browser bundles (webpack output: n2words.js, n2words.min.js)
-  - `typings/`: TypeScript declarations (n2words.d.ts, classes/, i18n/)
+  - `typings/`: TypeScript declarations (n2words.d.ts, classes/, languages/)
   - `docs/`: Generated JSDoc documentation (HTML format)
   - `examples/`: Usage examples (node-dynamic-import.js, typescript.ts)
   - `scripts/`: Development tools (add-language.js, validate-language.js)
@@ -64,7 +64,7 @@ This file gives targeted, actionable guidance for AI coding agents working in th
 
 - **How to add a language:**
   - Manual process (recommended for AI agents):
-    - Create `lib/i18n/xx.js` with a class extending the appropriate base class.
+    - Create `lib/languages/xx.js` with a class extending the appropriate base class.
     - Define language defaults as class properties: `negativeWord`, `decimalSeparatorWord`, `zeroWord`, `scaleWordPairs` (for GreedyScaleLanguage) or `scaleWords` (for SouthAsianLanguage), etc.
     - If your language needs behavior customization via constructor options (rare), implement a constructor that accepts only those parameters.
     - Implement `mergeScales(leftWordSet, rightWordSet)` method with language-specific grammar rules.
@@ -77,12 +77,12 @@ This file gives targeted, actionable guidance for AI coding agents working in th
   - See `LANGUAGE_GUIDE.md` for comprehensive implementation guidance.
 
 - **Build / test / lint workflows** (explicit commands):
-  - Run all tests: `npm run test:all` (runs unit, integration, typescript, and web tests).
+  - Run all tests: `npm run test:all` (runs unit, integration, typescript, and web tests). **Requires `npm run build` and `npm run build:types` first.**
   - Run basic tests: `npm test` (runs unit and integration tests only).
     - Unit tests: `npm run test:unit` (test/unit/\*.js) — API, errors, validation, options.
     - Integration tests: `npm run test:integration` (test/integration/\*.js) — targeted coverage and CommonJS.
-    - TypeScript tests: `npm run test:typescript` (test/typescript/typescript-integration.ts) — type validation.
-    - Web tests: `npm run test:web` (test/web.js) — browser compatibility (Chrome/Firefox).
+    - TypeScript tests: `npm run test:typescript` (test/typescript/typescript-integration.ts) — type validation. **Requires `npm run build:types` first.**
+    - Web tests: `npm run test:web` (test/web.js) — browser compatibility (Chrome/Firefox). **Requires `npm run build` first.**
   - Run coverage: `npm run coverage` (runs npm test with c8 instrumentation).
   - Build browser bundle: `npm run build:web` (uses webpack, outputs to dist/).
   - Generate type declarations: `npm run build:types` (TypeScript compiler, outputs to typings/).
@@ -109,13 +109,13 @@ This file gives targeted, actionable guidance for AI coding agents working in th
   - Performance: Portuguese (pt.js) and English (en.js) are heavily optimized with cached regex and mergeScales() optimizations.
   - Documentation: JSDoc comments generate both HTML docs (`npm run docs`) and TypeScript declarations. Use comprehensive JSDoc for all public methods and class properties.
 - **Files to inspect for examples:**
-  - `lib/i18n/en.js` — canonical use of `GreedyScaleLanguage` and `scaleWordPairs` + optimized `mergeScales()` implementation.
-  - `lib/i18n/pt.js` — advanced optimizations: pre-compiled regex, simplified mergeScales() logic.
-  - `lib/i18n/ru.js` — use of `SlavicLanguage` with three-form pluralization (shared by 9 languages).
-  - `lib/i18n/no.js` — inline `GreedyScaleLanguage` merge rules for the Norwegian "og" conjunction.
-  - `lib/i18n/tr.js` — use of `TurkicLanguage` with space-separated patterns (shared by Turkish and Azerbaijani).
-  - `lib/i18n/hi.js` — use of `SouthAsianLanguage` with Indian-style grouping (shared by Hindi, Bengali, Urdu, Punjabi, Marathi, Gujarati, Kannada).
-  - `lib/i18n/ar.js` — use of `AbstractLanguage` for custom implementation.
+  - `lib/languages/en.js` — canonical use of `GreedyScaleLanguage` and `scaleWordPairs` + optimized `mergeScales()` implementation.
+  - `lib/languages/pt.js` — advanced optimizations: pre-compiled regex, simplified mergeScales() logic.
+  - `lib/languages/ru.js` — use of `SlavicLanguage` with three-form pluralization (shared by 9 languages).
+  - `lib/languages/no.js` — inline `GreedyScaleLanguage` merge rules for the Norwegian "og" conjunction.
+  - `lib/languages/tr.js` — use of `TurkicLanguage` with space-separated patterns (shared by Turkish and Azerbaijani).
+  - `lib/languages/hi.js` — use of `SouthAsianLanguage` with Indian-style grouping (shared by Hindi, Bengali, Urdu, Punjabi, Marathi, Gujarati, Kannada).
+  - `lib/languages/ar.js` — use of `AbstractLanguage` for custom implementation.
   - `lib/classes/greedy-scale-language.js` — essential algorithms for scale-based systems.
   - `lib/classes/slavic-language.js` — reusable base for Slavic/Baltic languages with complex pluralization.
   - `lib/classes/turkic-language.js` — reusable base for Turkic languages with space-separated patterns.
@@ -160,7 +160,7 @@ This file gives targeted, actionable guidance for AI coding agents working in th
   - The `mergeScales()` method is performance-critical; use early returns and reduce branching.
 
 - **When unsure, look at these concrete examples:**
-  - `lib/i18n/en.js` shows `GreedyScaleLanguage` usage and `mergeScales()` details.
+  - `lib/languages/en.js` shows `GreedyScaleLanguage` usage and `mergeScales()` details.
   - `lib/n2words.js` shows how languages are registered and fallback logic.
 
 If anything above is unclear or you'd like more examples (e.g., a minimal new-language PR), tell me where to expand and I will iterate.

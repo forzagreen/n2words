@@ -17,7 +17,7 @@ npm run lang:add
 This interactive script will:
 
 1. Prompt for language details (code, name, settings)
-2. Generate `lib/i18n/xx.js` with implementation template
+2. Generate `lib/languages/xx.js` with implementation template
 3. Generate `test/fixtures/languages/xx.js` with test case template
 4. Update `lib/n2words.js` with imports and registration
 5. Derive the class name from the language name (PascalCase), not the code token
@@ -50,12 +50,12 @@ If you prefer to add a language manually or need more control:
 
 ### Language file location & format
 
-- Create a new file under `lib/i18n/` named with the language code and `.js`,
-  for example: `lib/i18n/xx.js` or `lib/i18n/fr-CA.js` for a regional variant.
+- Create a new file under `lib/languages/` named with the language code and `.js`,
+  for example: `lib/languages/xx.js` or `lib/languages/fr-CA.js` for a regional variant.
 - Files MUST be ESM modules and export a default function with this signature:
 
 ```js
-// lib/i18n/xx.js
+// lib/languages/xx.js
 import GreedyScaleLanguage from '../classes/greedy-scale-language.js';
 
 export class XxLanguage extends GreedyScaleLanguage {
@@ -126,9 +126,9 @@ Notes:
 ### Registering the language
 
 The core `lib/n2words.js` currently uses static imports so bundlers can include
-language modules in browser builds. After adding your `lib/i18n/xx.js` file:
+language modules in browser builds. After adding your `lib/languages/xx.js` file:
 
-1. Add an `import` line in `lib/n2words.js`, e.g.: `import xx from './i18n/xx.js'`.
+1. Add an `import` line in `lib/n2words.js`, e.g.: `import xx from './languages/xx.js'`.
 2. Add an entry to the `dict` mapping in `lib/n2words.js`:
 
 ```js
@@ -140,7 +140,7 @@ const dict = {
 
 This keeps the Node.js and browser behavior identical. Note: `webpack.config.js`
 also generates per-language entries for the `dist/` bundle by scanning
-`lib/i18n/`, so building will include the new language automatically.
+`lib/languages/`, so building will include the new language automatically.
 
 ### Tests & lint
 
@@ -157,7 +157,7 @@ Browser tests (optional) are under `test/web/browser-compatibility.js` and requi
 
 ### Pull Request checklist
 
-- Add the new file under `lib/i18n/` and export the default function.
+- Add the new file under `lib/languages/` and export the default function.
 - Update `lib/n2words.js` imports and `dict` mapping.
 - Add tests to `test/fixtures/languages/` using existing language tests as examples.
 - Run `npm run lint:js` and `npm test` — all tests should pass.

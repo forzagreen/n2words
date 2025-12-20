@@ -14,14 +14,14 @@ const resultsFile = join('.', 'bench-results.json')
 
 const arguments_ = process.argv.slice(2)
 
-let i18n
+let language
 let value = Number.MAX_SAFE_INTEGER
 let saveResults = false
 let compareResults = false
 
 for (let index = 0; index < arguments_.length; index++) {
   if (arguments_[index] === '--lang' || arguments_[index] === '--language') {
-    i18n = arguments_[index + 1].toLowerCase()
+    language = arguments_[index + 1].toLowerCase()
   } else if (arguments_[index] === '--value') {
     value = arguments_[index + 1]
   } else if (arguments_[index] === '--save') {
@@ -31,21 +31,21 @@ for (let index = 0; index < arguments_.length; index++) {
   }
 }
 
-if (i18n) {
-  if (existsSync('./lib/i18n/' + i18n + '.js')) {
-    await benchFile('i18n/' + i18n)
+if (language) {
+  if (existsSync('./lib/languages/' + language + '.js')) {
+    await benchFile('languages/' + language)
   } else {
-    console.error(chalk.red('\ni18n language file does not exist: ' + i18n + '.js\n'))
+    console.error(chalk.red('\nLanguage file does not exist: ' + language + '.js\n'))
   }
 } else if (arguments_.includes('--help')) {
   displayHelp()
   process.exit(0)
 } else {
-  const files = readdirSync('./lib/i18n')
+  const files = readdirSync('./lib/languages')
 
   for (const file of files) {
     if (file.includes('.js')) {
-      await benchFile('i18n/' + file.replace('.js', ''))
+      await benchFile('languages/' + file.replace('.js', ''))
     }
   }
 }

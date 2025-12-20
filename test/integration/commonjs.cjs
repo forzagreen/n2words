@@ -61,8 +61,8 @@ test('error handling works in CommonJS', async t => {
 
 test('direct language import works in CommonJS', async t => {
   // Test that individual language imports work
-  const enModule = await import('../../lib/i18n/en.js')
-  const esModule = await import('../../lib/i18n/es.js')
+  const enModule = await import('../../lib/languages/en.js')
+  const esModule = await import('../../lib/languages/es.js')
 
   t.is(typeof enModule.default, 'function')
   t.is(typeof esModule.default, 'function')

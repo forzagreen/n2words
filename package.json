@@ -9,7 +9,7 @@
     "spellout",
     "conversion",
     "internationalization",
-    "i18n",
+
     "localization",
     "multilingual",
     "pluralization",
@@ -41,9 +41,9 @@
       "import": "./lib/n2words.js",
       "types": "./typings/n2words.d.ts"
     },
-    "./i18n/*": {
-      "import": "./lib/i18n/*.js",
-      "types": "./typings/i18n/*.d.ts"
+    "./languages/*": {
+      "import": "./lib/languages/*.js",
+      "types": "./typings/languages/*.d.ts"
     }
   },
   "main": "lib/n2words.js",

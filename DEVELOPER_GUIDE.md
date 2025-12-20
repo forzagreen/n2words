@@ -74,7 +74,7 @@ n2words/
 │   │   ├── slavic-language.js   # For Slavic/Baltic languages
 │   │   ├── turkic-language.js   # For Turkic languages
 │   │   └── south-asian-language.js # For Indian-style grouping languages
-│   └── i18n/                    # Language implementations
+│   └── languages/               # Language implementations
 │       ├── en.js, es.js, fr.js, ... (one per language)
 │
 ├── test/                         # Test files
@@ -95,7 +95,7 @@ n2words/
 ├── typings/                     # TypeScript definitions (auto-generated)
 │   ├── n2words.d.ts
 │   ├── classes/
-│   └── i18n/
+│   └── languages/
 │
 ├── scripts/                     # Development utilities
 │   ├── add-language.js          # Generate language boilerplate
@@ -136,7 +136,7 @@ n2words() [lib/n2words.js]
     ↓
 Language Registry Lookup
     ↓
-Language Implementation [lib/i18n/*.js]
+Language Implementation [lib/languages/*.js]
     ↓
 Output (string)
 ```
@@ -341,7 +341,7 @@ test('handles edge cases', (t) => {
 ```javascript
 // test/fixtures/languages/en.js
 import test from 'ava'
-import en from '../../lib/i18n/en.js'
+import en from '../../lib/languages/en.js'
 
 const fixtures = [
   [0, 'zero'],
@@ -498,7 +498,7 @@ npm run lang:add
 
 This creates:
 
-- `lib/i18n/de.js` - Implementation
+- `lib/languages/de.js` - Implementation
 - `test/fixtures/languages/de.js` - Test fixtures
 - Updated `lib/n2words.js` - Language registration
 
@@ -512,7 +512,7 @@ This creates:
     - `SouthAsianLanguage` - Indian-style grouping (Hindi, Bengali, Urdu, Punjabi, Marathi, Gujarati, Kannada)
     - `AbstractLanguage` - Custom implementations (rare)
 
-2. **Implement language file** (`lib/i18n/xx.js`):
+2. **Implement language file** (`lib/languages/xx.js`):
 
 ```javascript
 import GreedyScaleLanguage from '../classes/greedy-scale-language.js'
@@ -553,7 +553,7 @@ export default function convertToWords(value, options = {}) {
 
 ```javascript
 import test from 'ava'
-import xx from '../../lib/i18n/xx.js'
+import xx from '../../lib/languages/xx.js'
 
 const fixtures = [
   [0, 'null'],
@@ -572,7 +572,7 @@ fixtures.forEach(([input, expected]) => {
 1. **Register language** in `lib/n2words.js`:
 
 ```javascript
-import xx from './i18n/xx.js'
+import xx from './languages/xx.js'
 // ... other imports
 
 const dict = {
@@ -692,8 +692,8 @@ The library supports tree-shaking:
 import n2words from 'n2words'
 
 // More languages = larger bundle
-import { default as en } from 'n2words/i18n/en'
-import { default as fr } from 'n2words/i18n/fr'
+import { default as en } from 'n2words/languages/en'
+import { default as fr } from 'n2words/languages/fr'
 ```
 
 ### Zero Dependencies
@@ -734,7 +734,7 @@ export default class DebugLanguage extends GreedyScaleLanguage {
 
 ```bash
 # Run with debugger
-node --inspect-brk lib/i18n/en.js
+node --inspect-brk lib/languages/en.js
 
 # Open chrome://inspect in Chrome
 ```
@@ -742,7 +742,7 @@ node --inspect-brk lib/i18n/en.js
 ### 3. Test Specific Values
 
 ```javascript
-import en from './lib/i18n/en.js'
+import en from './lib/languages/en.js'
 
 console.log(en(0))           // Debug zero handling
 console.log(en(42))          // Debug basic number

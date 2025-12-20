@@ -33,9 +33,9 @@ test('main module with language option', (t) => {
 });
 
 test('direct language imports work', async (t) => {
-  const { default: en } = await import('n2words/i18n/en');
-  const { default: es } = await import('n2words/i18n/es');
-  const { default: fr } = await import('n2words/i18n/fr');
+  const { default: en } = await import('n2words/languages/en');
+  const { default: es } = await import('n2words/languages/es');
+  const { default: fr } = await import('n2words/languages/fr');
 
   const result1: string = en(123);
   const result2: string = es(456);
@@ -73,8 +73,8 @@ test('input type variations work', (t) => {
 
 test('all language imports work', async (t) => {
   // Dynamically discover all language files
-  const i18nDir = join(process.cwd(), 'lib', 'i18n');
-  const languageFiles = readdirSync(i18nDir)
+  const languagesDir = join(process.cwd(), 'lib', 'languages');
+  const languageFiles = readdirSync(languagesDir)
     .filter((file) => file.endsWith('.js'))
     .map((file) => file.replace('.js', ''))
     .sort();
@@ -84,7 +84,7 @@ test('all language imports work', async (t) => {
   const allLanguageTests: Array<{ lang: string; result: string }> = [];
 
   for (const langCode of languageFiles) {
-    const { default: langFn } = await import(`n2words/i18n/${langCode}`);
+    const { default: langFn } = await import(`n2words/languages/${langCode}`);
     const result: string = langFn(testNumber);
     allLanguageTests.push({ lang: langCode, result });
   }

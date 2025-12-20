@@ -23,7 +23,7 @@ npm run lang:add
 
 This creates:
 
-- `lib/i18n/xx.js` - Language implementation
+- `lib/languages/xx.js` - Language implementation
 - `test/fixtures/languages/xx.js` - Test cases
 - Updates `lib/n2words.js` - Registration
 
@@ -31,7 +31,7 @@ This creates:
 
 If you need more control, follow these steps:
 
-1. Create `lib/i18n/xx.js`
+1. Create `lib/languages/xx.js`
 2. Choose the appropriate base class based on your language's characteristics
 3. Implement required methods
 4. Add language registration in `lib/n2words.js`
@@ -656,13 +656,13 @@ See [BIGINT-GUIDE.md](./BIGINT-GUIDE.md) for comprehensive guidance on BigInt us
 
 Study these examples:
 
-- **GreedyScaleLanguage**: `lib/i18n/en.js` - Basic patterns
-- **GreedyScaleLanguage (optimized)**: `lib/i18n/pt.js` - Advanced optimizations
-- **GreedyScaleLanguage (complex)**: `lib/i18n/fr.js` - Special rules
-- **GreedyScaleLanguage (Nordic rules inline)**: `lib/i18n/no.js` - Norwegian "og" conjunction handled in mergeScales()
-- **TurkicLanguage**: `lib/i18n/tr.js` - Turkish patterns with space-separated combinations
-- **SlavicLanguage**: `lib/i18n/ru.js` - Three-form pluralization pattern
-- **AbstractLanguage**: `lib/i18n/ar.js`, `lib/i18n/zh.js` - Custom implementations with different scripts
+- **GreedyScaleLanguage**: `lib/languages/en.js` - Basic patterns
+- **GreedyScaleLanguage (optimized)**: `lib/languages/pt.js` - Advanced optimizations
+- **GreedyScaleLanguage (complex)**: `lib/languages/fr.js` - Special rules
+- **GreedyScaleLanguage (Nordic rules inline)**: `lib/languages/no.js` - Norwegian "og" conjunction handled in mergeScales()
+- **TurkicLanguage**: `lib/languages/tr.js` - Turkish patterns with space-separated combinations
+- **SlavicLanguage**: `lib/languages/ru.js` - Three-form pluralization pattern
+- **AbstractLanguage**: `lib/languages/ar.js`, `lib/languages/zh.js` - Custom implementations with different scripts
 
 ## Getting Help
 

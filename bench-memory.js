@@ -11,7 +11,7 @@ import { join } from 'node:path'
 const resultsFile = join('.', 'bench-memory-results.json')
 const arguments_ = process.argv.slice(2)
 
-let i18n
+let language
 let value = Number.MAX_SAFE_INTEGER
 let iterations = 1000
 let saveResults = false
@@ -19,7 +19,7 @@ let compareResults = false
 
 for (let index = 0; index < arguments_.length; index++) {
   if (arguments_[index] === '--lang' || arguments_[index] === '--language') {
-    i18n = arguments_[index + 1]?.toLowerCase()
+    language = arguments_[index + 1]?.toLowerCase()
   } else if (arguments_[index] === '--value') {
     value = arguments_[index + 1]
   } else if (arguments_[index] === '--iterations') {
@@ -36,15 +36,15 @@ for (let index = 0; index < arguments_.length; index++) {
 
 const results = []
 
-if (i18n) {
-  if (existsSync('./lib/i18n/' + i18n + '.js')) {
-    await benchMemory('i18n/' + i18n, i18n)
+if (language) {
+  if (existsSync('./lib/languages/' + language + '.js')) {
+    await benchMemory('languages/' + language, language)
   } else {
-    console.error(chalk.red('\n✗ i18n language file does not exist: ' + i18n + '.js\n'))
+    console.error(chalk.red('\n✗ Language file does not exist: ' + language + '.js\n'))
     process.exit(1)
   }
 } else {
-  const files = readdirSync('./lib/i18n')
+  const files = readdirSync('./lib/languages')
 
   console.log(chalk.cyan.bold('Memory Benchmark\n'))
   console.log(chalk.gray(`Testing ${files.length} languages with ${iterations} iterations each...`))
@@ -52,7 +52,7 @@ if (i18n) {
 
   for (const file of files) {
     if (file.endsWith('.js')) {
-      await benchMemory('i18n/' + file.replace('.js', ''), file.replace('.js', ''))
+      await benchMemory('languages/' + file.replace('.js', ''), file.replace('.js', ''))
     }
   }
 }

@@ -21,7 +21,7 @@ for (const file of files) {
 }
 
 /**
- * Run i18n tests for specific language
+ * Run language tests for specific language
  * @param {string} file language test file to run
  */
 async function testLanguage (file) {

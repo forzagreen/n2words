@@ -109,8 +109,8 @@ class ExampleWrong extends GreedyScaleLanguage {
 
 **Files affected:**
 
-- All `lib/i18n/*.js` files that extend `GreedyScaleLanguage` or its subclasses (languages like: en, de, fr, es, pt, ko, zh, hu, it, nl, fr-BE)
-- All `lib/i18n/*.js` files that extend `TurkicLanguage` (languages: az, tr)
+- All `lib/languages/*.js` files that extend `GreedyScaleLanguage` or its subclasses (languages like: en, de, fr, es, pt, ko, zh, hu, it, nl, fr-BE)
+- All `lib/languages/*.js` files that extend `TurkicLanguage` (languages: az, tr)
 
 ### 2. BigInt Comparisons in `mergeScales()` Methods
 
@@ -151,18 +151,18 @@ mergeScales(leftPair, rightPair) {
 
 **Files affected:**
 
-- `lib/i18n/en.js` (lines 89-110)
-- `lib/i18n/de.js` (lines 88-120)
-- `lib/i18n/dk.js` (lines 86-121)
-- `lib/i18n/fr.js` (lines 95-117)
-- `lib/i18n/pt.js` (lines 83-115)
-- `lib/i18n/nl.js` (lines 74-115)
-- `lib/i18n/es.js` (lines 76-107)
-- `lib/i18n/az.js` (lines 66-77)
-- `lib/i18n/tr.js` (lines 66-77)
-- `lib/i18n/zh.js` (lines 65-78)
-- `lib/i18n/ko.js` (lines 69-79)
-- `lib/i18n/no.js` (lines 81-90)
+- `lib/languages/en.js` (lines 89-110)
+- `lib/languages/de.js` (lines 88-120)
+- `lib/languages/dk.js` (lines 86-121)
+- `lib/languages/fr.js` (lines 95-117)
+- `lib/languages/pt.js` (lines 83-115)
+- `lib/languages/nl.js` (lines 74-115)
+- `lib/languages/es.js` (lines 76-107)
+- `lib/languages/az.js` (lines 66-77)
+- `lib/languages/tr.js` (lines 66-77)
+- `lib/languages/zh.js` (lines 65-78)
+- `lib/languages/ko.js` (lines 69-79)
+- `lib/languages/no.js` (lines 81-90)
 
 ### 3. SlavicLanguage Implementations
 
@@ -220,7 +220,7 @@ convertWholePart(number) {
 **Files affected:**
 
 - `lib/classes/slavic-language.js` (base class)
-- `lib/i18n/ru.js`, `cz.js`, `pl.js`, `uk.js`, `sr.js`, `hr.js`, `he.js`, `lt.js`, `lv.js` (Slavic languages)
+- `lib/languages/ru.js`, `cz.js`, `pl.js`, `uk.js`, `sr.js`, `hr.js`, `he.js`, `lt.js`, `lv.js` (Slavic languages)
 
 ### 4. Custom Algorithm Implementations
 
@@ -263,11 +263,11 @@ convertMore1000(number) {
 
 **Files affected:**
 
-- `lib/i18n/ar.js` (Arabic: custom group processing)
-- `lib/i18n/vi.js` (Vietnamese: thousand-power algorithm)
-- `lib/i18n/ro.js` (Romanian: custom chunk processing)
-- `lib/i18n/it.js` (Italian: exponent-based naming)
-- `lib/i18n/id.js` (Indonesian: string-based processing)
+- `lib/languages/ar.js` (Arabic: custom group processing)
+- `lib/languages/vi.js` (Vietnamese: thousand-power algorithm)
+- `lib/languages/ro.js` (Romanian: custom chunk processing)
+- `lib/languages/it.js` (Italian: exponent-based naming)
+- `lib/languages/id.js` (Indonesian: string-based processing)
 
 ---
 
@@ -355,7 +355,7 @@ if (chunks.length === 1) {
 1. Scale word pairs array (class property)
 2. All comparisons in `mergeScales()`
 
-**Example:** `lib/i18n/en.js`
+**Example:** `lib/languages/en.js`
 
 ```javascript
 import GreedyScaleLanguage from '../classes/greedy-scale-language.js';
@@ -394,7 +394,7 @@ class EN extends GreedyScaleLanguage {
 2. All conditionals in `pluralize()`
 3. Arithmetic operations (modulo, division)
 
-**Example:** `lib/i18n/ru.js` (simplified)
+**Example:** `lib/languages/ru.js` (simplified)
 
 ```javascript
 class RU extends SlavicLanguage {
@@ -444,7 +444,7 @@ class RU extends SlavicLanguage {
 - All comparisons in `mergeScales()` use BigInt literals
 - Special handling for "og" (and) conjunction with BigInt comparisons
 
-**Example:** `lib/i18n/no.js`
+**Example:** `lib/languages/no.js`
 
 ```javascript
 import GreedyScaleLanguage from '../classes/greedy-scale-language.js';
@@ -480,7 +480,7 @@ class Norwegian extends GreedyScaleLanguage {
 - All comparisons in `mergeScales()` use BigInt literals
 - Space-separated number combinations with BigInt arithmetic
 
-**Example:** `lib/i18n/tr.js`
+**Example:** `lib/languages/tr.js`
 
 ```javascript
 import TurkicLanguage from '../classes/turkic-language.js';
@@ -517,7 +517,7 @@ class TR extends TurkicLanguage {
 - Often uses explicit conversions (`Number()`, `BigInt()`)
 - May process chunks as regular numbers after extraction
 
-**Example:** `lib/i18n/ar.js` (simplified)
+**Example:** `lib/languages/ar.js` (simplified)
 
 ```javascript
 class AR extends AbstractLanguage {

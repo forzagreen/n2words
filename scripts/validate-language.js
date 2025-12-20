@@ -23,13 +23,13 @@ const ISO_CODE_PATTERN = /^[a-z]{2}(-[A-Z]{2})?$/
 const INTERNAL_SUFFIXES = ['-fast.js', '-iterative.js']
 
 /**
- * Get list of available language codes from the i18n directory.
+ * Get list of available language codes from the languages directory.
  * Filters out internal implementation files.
  *
  * @returns {string[]} Array of language codes
  */
 function listLanguages () {
-  return readdirSync('lib/i18n')
+  return readdirSync('lib/languages')
     .filter(name => name.endsWith('.js'))
     .filter(name => !INTERNAL_SUFFIXES.some(suffix => name.endsWith(suffix)))
     .map(name => name.replace(/\.js$/, ''))
@@ -177,7 +177,7 @@ async function validateLanguage (langCode) {
   let warnings = 0
 
   // Check 1: Language file exists
-  const langFile = `lib/i18n/${langCode}.js`
+  const langFile = `lib/languages/${langCode}.js`
   if (!existsSync(langFile)) {
     console.error(chalk.red(`✗ Language file not found: ${langFile}`))
     errors++
@@ -383,7 +383,7 @@ async function validateLanguage (langCode) {
 
   const constName = langCode.replace('-', '')
   const importRegex = new RegExp(
-    `import ${constName} from '\\./i18n/${langCode}\\.js'`
+    `import ${constName} from '\\./languages/${langCode}\\.js'`
   )
   if (!importRegex.test(n2wordsContent)) {
     console.error(chalk.red(`✗ Not imported in ${n2wordsFile}`))

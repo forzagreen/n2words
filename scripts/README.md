@@ -17,7 +17,7 @@ node scripts/add-language.js
 **What it does:**
 
 1. Prompts for language details (code, name, base class selection, etc.)
-2. Generates `lib/i18n/xx.js` with implementation template
+2. Generates `lib/languages/xx.js` with implementation template
 3. Generates `test/fixtures/languages/xx.js` with test case template
 4. Updates `lib/n2words.js` with import statement and dict registration
 5. Ensures proper comma placement in dict (StandardJS style)
@@ -93,7 +93,7 @@ npm run lang:validate fr-BE
 npm run lang:add
 
 # 2. Implement the language
-# - Edit lib/i18n/xx.js
+# - Edit lib/languages/xx.js
 # - Edit test/fixtures/languages/xx.js
 
 # 3. Validate implementation
