@@ -70,8 +70,8 @@ Choose the appropriate base class for your language:
 
 - Extends `AbstractLanguage`
 - Indian-style digit grouping: 3 digits on the right, then 2-2 from right (e.g., 12,34,56,789 = "twelve crore thirty four lakh fifty six thousand seven hundred eighty nine")
-- Provides: `splitIndian()` (group digits), `convertBelowThousand()` (convert 0-999), `convertWholePart()` (iterate groups)
-- Subclasses define: `belowHundred[]` (word arrays for 0-99), `scales[]` (grouping words), `hundredWord` (word for 100)
+- Provides: `splitToGroups()` (group digits), `convertBelowThousand()` (convert 0-999), `convertWholePart()` (iterate groups)
+- Subclasses define: `belowHundred[]` (words for 0-99), `scaleWords[]` (grouping words indexed by level), `hundredWord` (word for 100)
 - Examples: Hindi, Bengali, Urdu, Punjabi, Marathi, Gujarati, Kannada
 
 **AbstractLanguage** - Use for custom implementations requiring full control
@@ -289,17 +289,16 @@ export class HindiLanguage extends SouthAsianLanguage {
   zeroWord = 'शून्य'
   hundredWord = 'सौ'
 
-  belowHundred = [
-    ['', 'एक', 'दो', 'तीन', 'चार', 'पाँच', 'छः', 'सात', 'आठ', 'नौ'], // 0-9
-    ['दस', 'ग्यारह', 'बारह', 'तेरह', 'चौदह', 'पन्द्रह', 'सोलह', 'सत्रह', 'अट्ठारह', 'उन्नीस'], // 10-19
-    ['बीस', 'इक्कीस', 'बाईस', 'तेईस', 'चौबीस', 'पच्चीस', 'छब्बीस', 'सत्ताईस', 'अट्ठाईस', 'उन्तीस'], // 20-29
-    // ... continue for 30-99
-  ]
+  // Single array mapping 0..99 to words
+  belowHundred = [ /* 'शून्य', 'एक', 'दो', ... 'निन्यानवे' */ ]
 
-  scales = [
-    { name: 'करोड़', value: 10000000n },  // 10 million
-    { name: 'लाख', value: 100000n },     // 100 thousand
-    { name: 'हज़ार', value: 1000n }      // thousand
+  // Indexed scale words (0 = none, 1 = thousand, 2 = lakh, 3 = crore, ...)
+  scaleWords = [
+    '',
+    'हज़ार',
+    'लाख',
+    'करोड़',
+    'अरब'
   ]
 
   /**
@@ -320,12 +319,9 @@ export default function convertToWords(value, options = {}) {
 **Key points for SouthAsianLanguage:**
 
 - Grouping pattern: 12,34,56,789 (3 digits on right, then 2-2 from right)
-- `belowHundred` array: Contains all word forms for 0-99
-  - Index 0-9: ones place (शून्य, एक, दो, ...)
-  - Index 10-19: teens
-  - Index 20-99: twenties through nineties
-- `scales` array: Objects with `name` (word) and `value` (BigInt) for grouping words
-- `hundredWord` class property: Word for 100 (used in convertBelowThousand method)
+- `belowHundred` array: Single array mapping 0..99 to words
+- `scaleWords` array: Indexed strings for grouping words (0 = none, 1 = thousand, 2 = lakh, 3 = crore, ...)
+- `hundredWord` class property: Word for 100 (used in `convertBelowThousand()`)
 
 ## Testing Your Implementation
 
