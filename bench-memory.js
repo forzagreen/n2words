@@ -1,20 +1,22 @@
+/**
+ * Memory usage benchmark script for n2words library.
+ *
+ * Measures memory allocation across all languages or specific languages.
+ * Supports saving results and comparing with previous runs.
+ */
 import { existsSync, readdirSync, writeFileSync, readFileSync } from 'node:fs'
 import chalk from 'chalk'
 import { join } from 'node:path'
 
 const resultsFile = join('.', 'bench-memory-results.json')
-
-// Parse CLI arguments
 const arguments_ = process.argv.slice(2)
 
-// Default argument values
 let i18n
 let value = Number.MAX_SAFE_INTEGER
 let iterations = 1000
 let saveResults = false
 let compareResults = false
 
-// Look for matching CLI arguments
 for (let index = 0; index < arguments_.length; index++) {
   if (arguments_[index] === '--lang' || arguments_[index] === '--language') {
     i18n = arguments_[index + 1]?.toLowerCase()
@@ -34,36 +36,27 @@ for (let index = 0; index < arguments_.length; index++) {
 
 const results = []
 
-// If language is defined
 if (i18n) {
-  // Check if language file exists
   if (existsSync('./lib/i18n/' + i18n + '.js')) {
-    // Test specific language
     await benchMemory('i18n/' + i18n, i18n)
   } else {
-    // Log error to console
     console.error(chalk.red('\n✗ i18n language file does not exist: ' + i18n + '.js\n'))
     process.exit(1)
   }
 } else {
-  // Load all files in language directory
   const files = readdirSync('./lib/i18n')
 
   console.log(chalk.cyan.bold('Memory Benchmark\n'))
   console.log(chalk.gray(`Testing ${files.length} languages with ${iterations} iterations each...`))
   console.log(chalk.gray(`Value: ${value}\n`))
 
-  // Loop through files
   for (const file of files) {
-    // Make sure file is JavaScript
     if (file.endsWith('.js')) {
-      // Test language file
       await benchMemory('i18n/' + file.replace('.js', ''), file.replace('.js', ''))
     }
   }
 }
 
-// Display results
 displayResults()
 
 if (saveResults) {
@@ -108,35 +101,28 @@ if (compareResults && existsSync(resultsFile)) {
 }
 
 /**
- * Benchmark memory usage for a language file.
- * @param {string} file Library file path.
- * @param {string} name Display name.
+ * Benchmark memory usage for a specific language converter.
+ *
+ * @param {string} file Library file path (relative to lib/).
+ * @param {string} name Display name for the language.
  */
 async function benchMemory (file, name) {
-  // Force garbage collection if available
   if (global.gc) {
     global.gc()
   }
 
-  // Small delay to stabilize
   await new Promise(resolve => setTimeout(resolve, 100))
 
-  // Capture baseline memory
   const baseline = process.memoryUsage()
-
-  // Import the language converter
   const { default: n2words } = await import('./lib/' + file + '.js')
 
-  // Run iterations
   const outputs = []
   for (let index = 0; index < iterations; index++) {
     outputs.push(n2words(value))
   }
 
-  // Capture after-test memory
   const afterTest = process.memoryUsage()
 
-  // Calculate differences
   const heapUsed = afterTest.heapUsed - baseline.heapUsed
   const external = afterTest.external - baseline.external
   const arrayBuffers = afterTest.arrayBuffers - baseline.arrayBuffers
@@ -153,7 +139,6 @@ async function benchMemory (file, name) {
     iterations
   })
 
-  // Prevent optimization from eliminating the loop
   if (outputs.length !== iterations) {
     console.error('Unexpected output count')
   }
@@ -165,13 +150,9 @@ async function benchMemory (file, name) {
 function displayResults () {
   console.log(chalk.cyan.bold('\nMemory Usage Results:\n'))
 
-  // Sort alphabetically by name
   results.sort((a, b) => a.name.localeCompare(b.name))
-
-  // Find the best (lowest memory)
   const best = results.reduce((min, curr) => curr.totalAllocated < min.totalAllocated ? curr : min)
 
-  // Display results
   for (const result of results) {
     const isBest = result === best
     const nameColor = isBest ? chalk.green.bold : chalk.gray
@@ -191,16 +172,16 @@ function displayResults () {
   console.log(chalk.gray('\n' + '─'.repeat(65)))
   console.log(chalk.green('Lowest memory: ' + best.name))
 
-  // Calculate worst
   const worst = results[results.length - 1]
   const increase = ((worst.totalAllocated - best.totalAllocated) / best.totalAllocated) * 100
   console.log(chalk.gray(`Range: ${formatBytes(best.totalAllocated)} to ${formatBytes(worst.totalAllocated)} (+${increase.toFixed(1)}%)`))
 }
 
 /**
- * Format bytes to human-readable string.
- * @param {number} bytes Number of bytes.
- * @returns {string} Formatted string.
+ * Format bytes to human-readable string with appropriate units.
+ *
+ * @param {number} bytes Number of bytes (can be negative).
+ * @returns {string} Formatted string with units (B, KB, MB, GB).
  */
 function formatBytes (bytes) {
   const absBytes = Math.abs(bytes)

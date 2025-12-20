@@ -71,8 +71,15 @@ if (!langCode || !langCode.match(/^[a-z]{2}(-[A-Z]{2})?$/)) {
   process.exit(1)
 }
 
+/**
+ * Convert a language name to a PascalCase class name.
+ * Strips diacritics, normalizes characters, and capitalizes words.
+ *
+ * @param {string} name The language name (e.g., "Japanese", "Français")
+ * @param {string} code Fallback language code if name is empty
+ * @returns {string} PascalCase class name (e.g., "Japanese", "Francais")
+ */
 function toClassName (name, code) {
-  // Strip diacritics, keep alphanumerics, capitalize words
   const normalized = name
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')
@@ -91,14 +98,11 @@ const fileName = langCode
 const className = toClassName(langName, langCode)
 const constName = langCode.replace('-', '')
 
-// Check if language already exists
 if (existsSync(`lib/i18n/${fileName}.js`)) {
   console.error(chalk.red(`✗ Error: Language file lib/i18n/${fileName}.js already exists`))
   process.exit(1)
 }
 
-// Generate language implementation
-// Convert PascalCase class name to kebab-case file name
 const baseClassFile = baseClass
   .replace(/([A-Z])/g, '-$1')
   .toLowerCase()

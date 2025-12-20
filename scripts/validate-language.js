@@ -22,6 +22,12 @@ import chalk from 'chalk'
 const ISO_CODE_PATTERN = /^[a-z]{2}(-[A-Z]{2})?$/
 const INTERNAL_SUFFIXES = ['-fast.js', '-iterative.js']
 
+/**
+ * Get list of available language codes from the i18n directory.
+ * Filters out internal implementation files.
+ *
+ * @returns {string[]} Array of language codes
+ */
 function listLanguages () {
   return readdirSync('lib/i18n')
     .filter(name => name.endsWith('.js'))
@@ -29,6 +35,12 @@ function listLanguages () {
     .map(name => name.replace(/\.js$/, ''))
 }
 
+/**
+ * Validate that a language code follows ISO 639-1 format.
+ *
+ * @param {string} lang Language code to validate
+ * @returns {number} 0 if valid, 1 if invalid
+ */
 function ensureIsoCode (lang) {
   if (!ISO_CODE_PATTERN.test(lang)) {
     console.error(chalk.red(`✗ Language code is not ISO 639-1 (optional region): ${lang}`))
@@ -38,19 +50,35 @@ function ensureIsoCode (lang) {
   return 0
 }
 
+/**
+ * Extract the class name from a language implementation file.
+ *
+ * @param {string} content File content to analyze
+ * @returns {string|null} Class name or null if not found
+ */
 function extractClassName (content) {
   const match = content.match(/class\s+([A-Za-z][A-Za-z0-9_]*)\s+extends/)
   return match ? match[1] : null
 }
 
+/**
+ * Extract the constructor class name from the default export function.
+ *
+ * @param {string} content File content to analyze
+ * @returns {string|null} Constructor class name or null if not found
+ */
 function extractDefaultCtorName (content) {
-  // Looks for `return new ClassName(` inside the default export function
   const match = content.match(/return\s+new\s+([A-Za-z][A-Za-z0-9_]*)\s*\(/)
   return match ? match[1] : null
 }
 
+/**
+ * Check if test content includes large number test cases (>= 1 million).
+ *
+ * @param {string} testContent Test file content to analyze
+ * @returns {boolean} True if large numbers are tested
+ */
 function hasLargeNumberCase (testContent) {
-  // Scan bracketed tuples like [123, 'one two three'] and detect literals >= 1_000_000
   const tupleNumberRegex = /\[\s*(-?\d[\d_]*n?)\s*,/g
   let match
 
@@ -64,6 +92,13 @@ function hasLargeNumberCase (testContent) {
   return false
 }
 
+/**
+ * Validate that class name is descriptive (not just the language code).
+ *
+ * @param {string|null} className Extracted class name
+ * @param {string} lang Language code
+ * @returns {number} 0 if valid, 1 if invalid
+ */
 function checkClassNameFullLanguage (className, lang) {
   if (!className) {
     console.error(chalk.red('  ✗ No class declaration found (expected a named class extending a base language)'))
@@ -80,6 +115,13 @@ function checkClassNameFullLanguage (className, lang) {
   return 0
 }
 
+/**
+ * Test that a language implementation produces valid string outputs.
+ *
+ * @param {string} langCode Language code being tested
+ * @param {string} langFile Path to language implementation file
+ * @returns {Promise<number>} Number of errors encountered
+ */
 async function smokeTestLanguageOutput (langCode, langFile) {
   let errors = 0
 
@@ -120,6 +162,13 @@ async function smokeTestLanguageOutput (langCode, langFile) {
   return errors
 }
 
+/**
+ * Perform comprehensive validation of a language implementation.
+ * Checks file existence, code structure, test coverage, and registration.
+ *
+ * @param {string} langCode Language code to validate
+ * @returns {Promise<{errors: number, warnings: number}>} Validation results
+ */
 async function validateLanguage (langCode) {
   console.log(chalk.cyan(`Validating language: ${langCode}`))
   console.log(chalk.gray('='.repeat(60)))

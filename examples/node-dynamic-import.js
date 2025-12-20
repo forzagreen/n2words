@@ -36,7 +36,7 @@ if (fs.existsSync('./lib/i18n/' + lang + '.js')) {
   const value = await rl.question(chalk.cyan('\nValue to convert?\n') + chalk.gray('> '))
 
   // Dynamically import the language-specific converter module
-  // This allows loading only the needed language without bundling all 29 languages
+  // This allows loading only the needed language without bundling all 45 languages
   const { default: n2words } = await import('../lib/i18n/' + lang + '.js')
 
   // Convert the value to words using the selected language
