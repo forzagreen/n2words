@@ -92,7 +92,8 @@
     ],
     "files": [
       "test/unit/*.js",
-      "test/integration/*.{js,cjs}"
+      "test/integration/*.{js,cjs}",
+      "test/web/*.js"
     ],
     "timeout": "30s"
   },
