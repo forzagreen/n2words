@@ -38,7 +38,7 @@ This file gives targeted, actionable guidance for AI coding agents working in th
   - `test/unit/` — Core API unit tests (4 files: api.js, errors.js, validation.js, options.js).
   - `test/integration/` — Integration tests (3 files: commonjs.cjs, targeted-coverage.js, language-comprehensive.js).
   - `test/typescript/` — TypeScript validation tests (1 file: typescript-integration.ts).
-  - `test/fixtures/languages/` — Per-language test fixtures (45 files, one per language).
+  - `test/fixtures/languages/` — Per-language test fixtures (47 files, one per language).
   - `test/web/` — Browser compatibility tests (browser-compatibility.js, index.html).
   - `test/commonjs.cjs` — CommonJS compatibility tests.
   **Build / test / lint workflows** (explicit commands):

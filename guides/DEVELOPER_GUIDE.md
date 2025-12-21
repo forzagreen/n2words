@@ -1,817 +1,286 @@
 # Developer Guide
 
-Welcome to the n2words development guide! This document covers everything you need to know to work on the n2words codebase, including setup, architecture, testing, and contributing guidelines.
+This guide covers development workflows, testing, and architecture for the n2words codebase.
 
-## Table of Contents
+## Contents
 
-1. [Getting Started](#getting-started)
+1. [Setup](#setup)
 2. [Project Structure](#project-structure)
-3. [Architecture Overview](#architecture-overview)
-4. [Development Workflow](#development-workflow)
-5. [Testing](#testing)
-6. [Building](#building)
-7. [Code Style & Conventions](#code-style--conventions)
-8. [Language Implementation](#language-implementation)
-9. [Performance Optimization](#performance-optimization)
-10. [Debugging Tips](#debugging-tips)
+3. [Development Workflow](#development-workflow)
+4. [Testing](#testing)
+5. [Language Implementation](#language-implementation)
+6. [Performance & Debugging](#performance--debugging)
 
-## Getting Started
+## Setup
 
-### Prerequisites
-
-- **Node.js** `^20 || ^22 || >=24` (as specified in package.json)
-- **npm** v8+ (comes with Node.js)
-- **Git** for version control
-
-### Initial Setup
+**Prerequisites:** Node.js `^20 || ^22 || >=24`, npm v8+
 
 ```bash
-# Clone the repository
 git clone https://github.com/forzagreen/n2words.git
 cd n2words
-
-# Install dependencies
 npm install
-
-# Verify installation
-npm test
+npm test  # Verify setup
 ```
-
-### Verify Your Setup
-
-```bash
-# Run all tests
-npm test
-
-# Run specific test suites
-npm run test:unit          # Unit tests only
-npm run test:integration   # Integration tests
-npm run types:validate     # TypeScript validation
-npm run web:test           # Browser compatibility
-
-# Check code quality
-npm run lint               # Lint JS and Markdown
-npm run lint:js            # Lint JS only
-npm run lint:md            # Lint Markdown only
-
-# Auto-fix lint issues (individual commands)
-npm run lint:js -- --fix  # Auto-fix JS lint issues
-npm run lint:md -- --fix  # Auto-fix Markdown lint issues
-
-# Build outputs
-npm run web:build          # Build browser bundle
-```
-
-If all tests pass, you're ready to develop!
 
 ## Project Structure
 
 ```text
 n2words/
-├── lib/                          # Source code (ESM modules)
-│   ├── n2words.js               # Main entry point & language registry
-│   ├── classes/                 # Base classes for language implementations
-│   │   ├── abstract-language.js # Core base class
-│   │   ├── greedy-scale-language.js
-│   │   ├── slavic-language.js   # For Slavic/Baltic languages
-│   │   ├── turkic-language.js   # For Turkic languages
-│   │   └── south-asian-language.js # For Indian-style grouping languages
-│   └── languages/               # Language implementations
-│       ├── en.js, es.js, fr.js, ... (one per language)
-│
-├── test/                         # Test files
-│   ├── unit/                    # Unit tests (API, validation, errors)
-│   ├── integration/             # Integration tests (CommonJS, coverage, languages)
-│   │   ├── commonjs.cjs         # CommonJS compatibility
-│   │   ├── targeted-coverage.js # Precision coverage tests
-│   │   └── language-comprehensive.js # All language tests
-│   ├── typescript/              # TypeScript validation tests
-│   │   └── typescript-integration.ts # TypeScript types & imports
-│   ├── web/                     # Browser compatibility tests
-│   │   ├── browser-compatibility.js # Selenium browser tests
-│   │   └── index.html           # Test HTML page
-│   └── fixtures/                # Test data
-│       └── languages/           # Language test fixtures
-│           └── *.js (one per language)
-│
-├── typings/                     # TypeScript definitions (auto-generated)
-│   ├── n2words.d.ts
-│   ├── classes/
-│   └── languages/
-│
-├── scripts/                     # Development utilities
-│   ├── add-language.js          # Generate language boilerplate
-│   └── validate-language.js     # Validate language implementation
-│
-├── examples/                    # Usage examples
-│   ├── typescript.ts            # TypeScript examples
-│   └── node-dynamic-import.js   # Node.js dynamic import example
-│
-├── dist/                        # Browser builds (generated)
-├── docs/                        # JSDoc output (generated)
-├── coverage/                    # Test coverage (generated)
-│
-├── package.json                 # Project metadata and scripts
-├── tsconfig.json                # TypeScript configuration
-├── webpack.config.js            # Webpack configuration for browser build
-├── conf.json                    # JSDoc configuration
-│
-├── guides/                      # Comprehensive documentation
-│   ├── LANGUAGE_GUIDE.md        # Guide for implementing languages
-│   ├── LANGUAGE_OPTIONS.md      # Language-specific options
-│   ├── TYPESCRIPT_GUIDE.md      # TypeScript usage guide
-│   ├── BIGINT-GUIDE.md          # BigInt usage guide
-│   └── DEVELOPER_GUIDE.md       # Development workflows (this file)
-│
-├── README.md                    # Quick start and overview
-├── CONTRIBUTING.md              # Contributing guidelines
-├── BIGINT-GUIDE.md              # BigInt usage details
-└── .github/copilot-instructions.md  # AI agent guidance
+├── lib/
+│   ├── n2words.js              # Main entry & language registry
+│   ├── classes/                # Base classes
+│   │   ├── abstract-language.js
+│   │   ├── greedy-scale-language.js  # Most languages
+│   │   ├── slavic-language.js        # Slavic/Baltic
+│   │   ├── turkic-language.js        # Turkish, Azerbaijani
+│   │   └── south-asian-language.js   # Indian grouping
+│   └── languages/              # 47 language implementations
+├── test/
+│   ├── unit/                   # Core API tests
+│   ├── integration/            # Language & coverage tests
+│   ├── typescript/             # TS validation
+│   ├── web/                    # Browser tests
+│   └── fixtures/languages/     # Test data files
+├── guides/                     # Documentation
+├── examples/                   # Usage examples
+├── scripts/                    # Development tools
+├── dist/                       # Browser builds (generated)
+└── typings/                    # TS definitions (generated)
 ```
 
-## Architecture Overview
+### Architecture
 
-### Core Design
+**Flow:** `Input → n2words() → Language Registry → Language Class → Output`
 
-**n2words** converts numbers to words using a modular, language-specific architecture:
+**Base Classes:**
 
-```text
-User Input (number/string/bigint)
-    ↓
-n2words() [lib/n2words.js]
-    ↓
-Language Registry Lookup
-    ↓
-Language Implementation [lib/languages/*.js]
-    ↓
-Output (string)
-```
-
-### Class Hierarchy
-
-n2words uses inheritance to share common patterns:
-
-```text
-AbstractLanguage (core validation & decimal handling)
-    ↓
-    ├─→ GreedyScaleLanguage (23 languages)
-    │   ├── English, Spanish, French, German, Italian, Portuguese,
-    │   ├── Dutch, Korean, Hungarian, Chinese, and more
-    │   └── Uses "highest-matching-scale" algorithm
-    │
-    ├─→ SlavicLanguage (9 languages)
-    │   ├── Russian, Czech, Polish, Ukrainian, Serbian, Croatian,
-    │   ├── Hebrew, Lithuanian, Latvian
-    │   └── Implements three-form pluralization
-    │
-    ├─→ TurkicLanguage (2 languages)
-    │   ├── Turkish, Azerbaijani
-    │   └── Implements space-separated patterns
-    │
-    └─→ SouthAsianLanguage (7 languages)
-        ├── Hindi, Bengali, Urdu, Punjabi, Marathi, Gujarati, Kannada
-        └── Implements Indian-style digit grouping (3-2-2 grouping) and per-digit decimal mode where specified
-```
-
-### Key Concepts
-
-#### 1. Class Properties (Defaults)
-
-Every language defines default values as **class properties**:
-
-```javascript
-export default class EnglishLanguage extends GreedyScaleLanguage {
-  negativeWord = 'minus'                // How to represent negative numbers
-  decimalSeparatorWord = 'point'        // Decimal separator word
-  zeroWord = 'zero'                     // How to represent zero
-  scaleWordPairs = [                    // Number-to-word mapping (Greedy/Turkic)
-    [0n, 'zero'],
-    [1n, 'one'],
-    [2n, 'two'],
-    // ... up to largest supported number
-  ]
-  // Additional language-specific properties...
-}
-```
-
-#### 2. Constructor Parameters (Behavior Options)
-
-Only behavior-changing options are constructor parameters:
-
-```javascript
-export default class SpanishLanguage extends GreedyScaleLanguage {
-  // Constructor accepts ONLY options that affect behavior
-  constructor({ genderStem = 'one' } = {}) {
-    super()
-    this.genderStem = genderStem  // Affects merge behavior
-  }
-  // Class properties for defaults...
-}
-```
-
-**NOT** all class properties should be in the constructor. Only those that change behavior.
-
-#### 3. Decimal Handling
-
-`AbstractLanguage` supports two decimal modes:
-
-- **Grouped (default):** leading zeros spoken, remainder grouped (most languages).
-- **Per-digit:** each decimal digit spoken individually (set `convertDecimalsPerDigit = true`; used by Japanese, Thai, Tamil, Telugu, Hebrew, and any language that opts in).
-
-#### 4. Merge Function
-
-Each language implements `mergeScales()` to handle grammar rules:
-
-```javascript
-mergeScales(leftWordSet, rightWordSet) {
-  // Combine two number groups with language-specific grammar
-  // Examples:
-  // English: "one hundred" + "twenty-three" → "one hundred and twenty-three"
-  // Spanish: "ciento" + "veintitrés" → "ciento veintitrés"
-  // French:  "cent" + "quarante-deux" → "cent quarante-deux"
-}
-```
-
-### Input Processing
-
-```javascript
-convertToWords(value, options = {})
-```
-
-1. **Validation** - Check input is number, string, or bigint
-2. **Parsing** - Convert to BigInt and decimal parts
-3. **Conversion** - Recursively convert whole number part
-4. **Decimal Handling** - Convert decimal digits or read as groups
-5. **Assembly** - Join whole and decimal parts
+- `AbstractLanguage` - Core validation & decimal handling
+- `GreedyScaleLanguage` - Scale-based conversion (25 languages)
+- `SlavicLanguage` - Three-form pluralization (11 languages)
+- `TurkicLanguage` - Space-separated patterns (2 languages)
+- `SouthAsianLanguage` - Indian-style grouping (7 languages)
 
 ## Development Workflow
 
-### 1. Start a New Feature Branch
+### Language Implementation Concepts
 
-```bash
-# Create a feature branch
-git checkout -b feature/your-feature-name
+**Class Properties (Defaults):** Use class properties for language defaults:
 
-# Keep synchronized with main
-git fetch origin
-git rebase origin/main
+```javascript
+export default class EnglishLanguage extends GreedyScaleLanguage {
+  negativeWord = 'minus'
+  decimalSeparatorWord = 'point'
+  zeroWord = 'zero'
+  scaleWordPairs = [[1n, 'one'], [1000n, 'thousand'], ...]
+}
 ```
 
-### 2. Make Changes
+**Constructor Parameters:** Only for behavior-changing options:
 
-Edit files in the `lib/` or `test/` directories:
-
-```bash
-# lib/ - Source code
-# test/ - Tests (must have corresponding tests!)
+```javascript
+constructor({ genderStem = 'o' } = {}) {
+  super()
+  this.genderStem = genderStem  // Affects behavior
+}
 ```
 
-### 3. Run Tests While Developing
+**BigInt Literals:** Always use `1000n` not `1000` for scale values
+
+### Workflow Steps
 
 ```bash
-# Run all tests
-npm test
+# 1. Create feature branch
+git checkout -b feature/my-feature
 
-# Run specific tests
-npm run test:unit
-npm run test:integration
+# 2. Make changes & test frequently
+npm test                 # All tests
+npm run test:unit        # Unit tests only
+npm run lint             # Code style
+
+# 3. Build & validate (optional)
+npm run web:build        # Browser bundle
+npm run types:validate   # TypeScript
+
+# 4. Submit
+git push origin feature/my-feature
 ```
 
-### 4. Check Code Quality
+### Code Standards
 
-```bash
-# Lint code
-npm run lint
-
-# Auto-fix lint issues with individual commands
-npm run lint:js -- --fix  # Fix JavaScript issues
-npm run lint:md -- --fix  # Fix Markdown issues
-```
-
-### 5. Build & Verify
-
-```bash
-# Build browser bundle
-npm run web:build
-
-# Test browser compatibility (requires web:build first)
-npm run web:test
-
-# Generate TypeScript definitions (optional - automated in CI)
-npm run types:generate
-
-# Validate TypeScript definitions
-npm run types:validate
-```
-
-### 6. Create a Pull Request
-
-```bash
-# Push your feature branch
-git push origin feature/your-feature-name
-
-# Open PR on GitHub
-```
+- **ESM modules:** `export default`, not `module.exports`
+- **Linting:** Standard.js (auto-fix with `npm run lint:js -- --fix`)
+- **BigInt:** Use `1000n` literals for large numbers
+- **Zero dependencies:** No external dependencies allowed
 
 ## Testing
 
-### Test Organization
+### Test Commands
 
-| Folder | Purpose | Run With |
-| --- | --- | --- |
-| `test/unit/` | Core API, errors, validation | `npm run test:unit` |
-| `test/integration/` | Targeted coverage for complex code paths | `npm run test:integration` |
-| `test/fixtures/languages/` | Language-specific test fixtures | Loaded by integration tests |
-| `test/typescript/` | TypeScript validation tests | `npm run types:validate` |
-| `test/web/` | Browser compatibility | `npm run web:test` |
+| Command | Purpose |
+|---------|----------|
+| `npm test` | All unit & integration tests |
+| `npm run test:unit` | Core API tests |
+| `npm run test:integration` | Language & coverage tests |
+| `npm run types:validate` | TypeScript validation |
+| `npm run web:test` | Browser compatibility |
+| `npm run coverage:generate` | Coverage report |
 
 ### Writing Tests
 
-#### Unit Test Example
+**Unit Test:**
 
 ```javascript
 // test/unit/my-feature.js
 import test from 'ava'
 import n2words from '../../lib/n2words.js'
 
-test('my feature works correctly', (t) => {
-  const result = n2words(42, { lang: 'en' })
-  t.is(result, 'forty-two')
-})
-
-test('handles edge cases', (t) => {
-  const result = n2words(0, { lang: 'en' })
-  t.is(result, 'zero')
+test('converts number correctly', t => {
+  t.is(n2words(42, { lang: 'en' }), 'forty-two')
 })
 ```
 
-#### Language Test Fixture Example
+**Language Fixture:**
 
 ```javascript
 // test/fixtures/languages/en.js
-import test from 'ava'
-import en from '../../lib/languages/en.js'
-
-const fixtures = [
+export default [
   [0, 'zero'],
-  [1, 'one'],
   [42, 'forty-two'],
-  [123456789, 'one hundred and twenty-three million, ...'],
-  // ... more test cases
-]
-
-fixtures.forEach(([input, expected]) => {
-  test(`en: ${input} → ${expected}`, (t) => {
-    const result = en(input)
-    t.is(result, expected)
-  })
-})
-```
-
-### Running Tests with Coverage
-
-```bash
-# Generate coverage report
-npm run coverage:generate
-
-# View coverage in browser (if available)
-open coverage/index.html
-```
-
-## Building
-
-### Browser Bundle
-
-```bash
-# Build webpack bundle for browsers
-npm run web:build
-
-# Output: dist/n2words.js
-```
-
-**Uses:**
-
-- Webpack for bundling
-- Tree-shaking to exclude unused languages
-- Minification for production
-
-### TypeScript Definitions
-
-```bash
-# TypeScript declarations are generated automatically in CI
-# No manual build required for development
-
-# Output: typings/*.d.ts
-```
-
-**Notes:**
-
-- Generated from JSDoc comments in CI builds
-- Keep JSDoc comments accurate!
-- Only document actual parameters in constructor JSDoc
-
-### Full Build
-
-```bash
-npm run web:build  # Build browser bundle (TypeScript types built automatically in CI)
-```
-
-## Code Style & Conventions
-
-### ESM Modules
-
-All code is **ECMAScript Modules (ESM)**:
-
-```javascript
-// ✅ Correct: ESM exports
-export default function convertToWords(value, options = {}) {
-  return new MyLanguage(options).convertToWords(value)
-}
-
-// ❌ Wrong: CommonJS
-module.exports = convertToWords
-```
-
-### Class Properties for Defaults
-
-```javascript
-// ✅ Correct: Use class properties
-export default class EnglishLanguage extends GreedyScaleLanguage {
-  negativeWord = 'minus'
-  decimalSeparatorWord = 'point'
-  zeroWord = 'zero'
-  scaleWordPairs = [...]
-}
-
-// ❌ Wrong: Don't use constructor for class property defaults
-constructor() {
-  this.negativeWord = 'minus'  // Should be class property
-}
-```
-
-### BigInt Literals
-
-Always use **BigInt literals** for scale word pair values:
-
-```javascript
-// ✅ Correct: BigInt
-scaleWordPairs = [
-  [1n, 'one'],
-  [1_000n, 'thousand'],
-  [1_000_000n, 'million'],
-]
-
-// ❌ Wrong: Plain numbers (lose precision at large values)
-scaleWordPairs = [
-  [1, 'one'],
-  [1000, 'thousand'],
-  [1000000, 'million'],
+  [123456, 'one hundred and twenty-three thousand, four hundred and fifty-six']
 ]
 ```
-
-### Naming Conventions
-
-- **Functions**: `camelCase` - `convertToWords`, `normalizeInput`
-- **Classes**: `PascalCase` - `EnglishLanguage`, `SlavicLanguage`
-- **Constants**: `UPPER_SNAKE_CASE` - `MAX_SAFE_INTEGER`
-- **Private methods**: Prefix with `_` - `_normalizeCard`
-
-### Linting
-
-```bash
-# Check code style (ESLint via Standard)
-npm run lint:js
-
-# Auto-fix JavaScript style issues
-npm run lint:js -- --fix
-
-# Check Markdown
-npm run lint:md
-
-# Auto-fix Markdown issues
-npm run lint:md -- --fix
-```
-
-Standard is configured; no manual style discussions needed.
 
 ## Language Implementation
 
-### Quick Start: Add a Language
+### Quick Start
 
 ```bash
-# Automated script generates boilerplate
-npm run lang:add
-
-# Follow prompts:
-# - Language name: (e.g., "German")
-# - Language code: (e.g., "de")
-# - Base class: (e.g., "GreedyScaleLanguage")
+npm run lang:add    # Automated setup
+npm run lang:validate xx  # Validate implementation
 ```
-
-This creates:
-
-- `lib/languages/de.js` - Implementation
-- `test/fixtures/languages/de.js` - Test fixtures
-- Updated `lib/n2words.js` - Language registration
 
 ### Manual Implementation
 
-1. **Choose base class** based on language characteristics:
+1. **Choose Base Class:**
+   - `GreedyScaleLanguage` - Most languages (scale-based)
+   - `SlavicLanguage` - Slavic/Baltic (three-form pluralization)
+   - `TurkicLanguage` - Turkish, Azerbaijani (space patterns)
+   - `SouthAsianLanguage` - Indian grouping (Hindi, Bengali, etc.)
+   - `AbstractLanguage` - Custom implementations (rare)
 
-    - `GreedyScaleLanguage` - Most languages (highest-matching-scale algorithm)
-    - `SlavicLanguage` - Slavic/Baltic with 3-form pluralization
-    - `TurkicLanguage` - Turkish, Azerbaijani with space-separated patterns
-    - `SouthAsianLanguage` - Indian-style grouping (Hindi, Bengali, Urdu, Punjabi, Marathi, Gujarati, Kannada)
-    - `AbstractLanguage` - Custom implementations (rare)
-
-2. **Implement language file** (`lib/languages/xx.js`):
+2. **Create Language File** (`lib/languages/xx.js`):
 
 ```javascript
 import GreedyScaleLanguage from '../classes/greedy-scale-language.js'
 
 export default class GermanLanguage extends GreedyScaleLanguage {
-  // Class properties for defaults
   negativeWord = 'minus'
   decimalSeparatorWord = 'Komma'
   zeroWord = 'null'
-  scaleWordPairs = [
-    [1n, 'eins'],
-    [2n, 'zwei'],
-    // ... more pairs
-  ]
+  scaleWordPairs = [[1n, 'eins'], [2n, 'zwei'], ...]
 
-  // Constructor for behavior-changing options (if needed)
-  constructor({ someOption = false } = {}) {
+  // Constructor only for behavior options (optional)
+  constructor({ option = false } = {}) {
     super()
-    this.someOption = someOption
+    this.option = option
   }
 
-  // Merge language-specific grammar
   mergeScales(left, right) {
-    if (left.endsWith('hundert') && right) {
-      return `${left} ${right}`
-    }
-    return right ? `${left}${right}` : left
+    // Language-specific grammar rules
+    return right ? `${left} ${right}` : left
   }
 }
 
-// Export default function
 export default function convertToWords(value, options = {}) {
   return new GermanLanguage(options).convertToWords(value)
 }
 ```
 
-1. **Add test fixtures** (`test/fixtures/languages/xx.js`):
+1. **Add Test Fixtures** (`test/fixtures/languages/xx.js`):
 
 ```javascript
-import test from 'ava'
-import xx from '../../lib/languages/xx.js'
-
-const fixtures = [
+export default [
   [0, 'null'],
-  [1, 'eins'],
   [42, 'zweiundvierzig'],
-  // ... comprehensive test cases
+  // Comprehensive test cases
 ]
-
-fixtures.forEach(([input, expected]) => {
-  test(`xx: ${input}`, (t) => {
-    t.is(xx(input), expected)
-  })
-})
 ```
 
-1. **Register language** in `lib/n2words.js`:
+1. **Register Language** in `lib/n2words.js`:
 
 ```javascript
 import xx from './languages/xx.js'
-// ... other imports
-
-const dict = {
-  en: en,
-  xx: xx,
-  // ... other languages
-}
+const dict = { en: en, xx: xx, ... }
 ```
 
-1. **Validate implementation**:
+See [LANGUAGE_GUIDE.md](LANGUAGE_GUIDE.md) for comprehensive guidance.
+
+## Performance & Debugging
+
+### Performance Tools
 
 ```bash
-npm run lang:validate xx
-
-# Checks:
-# - File exists
-# - Proper exports
-# - Test fixtures complete
-# - JSDoc accurate
+npm run bench         # Operations per second
+npm run bench:memory  # Memory profiling
 ```
 
-1. **Run tests**:
+### Optimization Patterns
 
-```bash
-npm run test:integration   # Should include your new language
-```
-
-For detailed guidance, see [LANGUAGE_GUIDE.md](LANGUAGE_GUIDE.md).
-
-## Performance Optimization
-
-### Profiling
-
-```bash
-# Run benchmarks
-npm run bench
-
-# Measure memory usage
-npm run bench:memory
-```
-
-**Output:**
-
-- Operations per second (ops/sec)
-- Memory usage statistics
-- Comparisons with baseline
-
-### Common Optimizations
-
-#### 1. Cached Regex Patterns
-
-Instead of creating regex in every method call:
+**Cache Regex:** Create once, use many times
 
 ```javascript
-// ✅ Correct: Cache at class level
-const POST_CLEAN_REGEX = /\s+/g
-
-export default class PortugueseLanguage extends GreedyScaleLanguage {
-  convertToWords(value) {
-    const result = this._convert(value)
-    return result.replace(POST_CLEAN_REGEX, ' ')
-  }
-}
-
-// ❌ Wrong: Recreates regex every call
+const CLEAN_REGEX = /\s+/g
 convertToWords(value) {
-  return this._convert(value).replace(/\s+/g, ' ')
+  return result.replace(CLEAN_REGEX, ' ')  // ✅
+  // return result.replace(/\s+/g, ' ')    // ❌ Creates new regex each call
 }
 ```
 
-#### 2. Early Returns in Merge
-
-```javascript
-// ✅ Correct: Return early
-mergeScales(left, right) {
-  if (!right) return left
-  if (left.endsWith('and')) return `${left} ${right}`
-  return `${left}, ${right}`
-}
-
-// ❌ Wrong: Unnecessary nested conditions
-mergeScales(left, right) {
-  if (right) {
-    if (left.endsWith('and')) {
-      return `${left} ${right}`
-    } else {
-      return `${left}, ${right}`
-    }
-  } else {
-    return left
-  }
-}
-```
-
-#### 3. Avoid Repeated Object Access
-
-```javascript
-// ✅ Correct: Cache object keys
-const keys = Object.keys(this.scaleWordPairs)
-for (const key of keys) {
-  // ... use key
-}
-
-// ❌ Wrong: Repeated access
-for (const key of Object.keys(this.scaleWordPairs)) {
-  // Object.keys() called every iteration
-}
-```
-
-### Bundle Size
-
-The library supports tree-shaking:
-
-```javascript
-// Only English is bundled
-import n2words from 'n2words'
-
-// More languages = larger bundle
-import { default as en } from 'n2words/languages/en'
-import { default as fr } from 'n2words/languages/fr'
-```
-
-### Zero Dependencies
-
-✅ Intentional design - no external dependencies means:
-
-- Smaller bundle
-- Faster installation
-- No supply-chain risk
-- Maximum compatibility
-
-Do **not** add dependencies without explicit discussion.
-
-## Debugging Tips
-
-### 1. Print Intermediate Values
-
-```javascript
-export default class DebugLanguage extends GreedyScaleLanguage {
-  convertToWords(value) {
-    console.log('Input:', value)
-    const result = super.convertToWords(value)
-    console.log('Cached whole number:', this.cachedWholeNumber)
-    console.log('Result:', result)
-    return result
-  }
-
-  convertWholePart(wholeNumber) {
-    console.log('Converting whole part:', wholeNumber)
-    const result = super.convertWholePart(wholeNumber)
-    console.log('Whole part result:', result)
-    return result
-  }
-}
-```
-
-### 2. Use Node Debugger
-
-```bash
-# Run with debugger
-node --inspect-brk lib/languages/en.js
-
-# Open chrome://inspect in Chrome
-```
-
-### 3. Test Specific Values
-
-```javascript
-import en from './lib/languages/en.js'
-
-console.log(en(0))           // Debug zero handling
-console.log(en(42))          // Debug basic number
-console.log(en(1000))        // Debug scale words
-console.log(en('3.14'))      // Debug decimals
-console.log(en(123456789n))  // Debug BigInt
-console.log(en(-42))         // Debug negative
-```
-
-### 4. Check Class Properties
-
-```javascript
-import English from './lib/classes/greedy-scale-language.js'
-
-const en = new English()
-console.log(en.negativeWord)  // 'minus'
-console.log(en.decimalSeparatorWord) // 'point'
-console.log(en.zeroWord)          // 'zero'
-console.log(en.scaleWordPairs.length)  // Number of scale word pair definitions
-```
-
-### 5. Trace Merge Calls
+**Early Returns:** Avoid unnecessary work
 
 ```javascript
 mergeScales(left, right) {
-  const result = super.mergeScales(left, right)
-  console.log(`mergeScales("${left}", "${right}") → "${result}"`)
+  if (!right) return left        // ✅ Early return
+  return `${left} ${right}`
+}
+```
+
+**Zero Dependencies:** No external packages (intentional design)
+
+### Debugging Tips
+
+**Print Intermediate Values:**
+
+```javascript
+convertToWords(value) {
+  console.log('Input:', value)
+  const result = super.convertToWords(value)
+  console.log('Result:', result)
   return result
 }
 ```
 
-### 6. Test Coverage Gaps
+**Test Specific Cases:**
 
-```bash
-# Generate coverage report
-npm run coverage:generate
-
-# View which lines aren't covered
-open coverage/index.html
+```javascript
+import en from './lib/languages/en.js'
+console.log(en(0))     // Zero handling
+console.log(en(1000))  // Scale words
+console.log(en('3.14')) // Decimals
 ```
 
-## Resources
+**Coverage Gaps:**
 
-- **[README.md](README.md)** - Quick start and feature overview
-- **[CONTRIBUTING.md](../CONTRIBUTING.md)** - PR guidelines and workflow
-- **[LANGUAGE_GUIDE.md](LANGUAGE_GUIDE.md)** - Comprehensive language implementation guide
-- **[LANGUAGE_OPTIONS.md](LANGUAGE_OPTIONS.md)** - Language-specific options
-- **[TYPESCRIPT_GUIDE.md](TYPESCRIPT_GUIDE.md)** - TypeScript usage
-- **[BIGINT-GUIDE.md](BIGINT-GUIDE.md)** - BigInt usage details
-- **[.github/copilot-instructions.md](.github/copilot-instructions.md)** - AI agent guidance
-
-## Questions?
-
-- Check [GitHub Issues](https://github.com/forzagreen/n2words/issues)
-- Review existing language implementations for patterns
-- Consult test files for usage examples
-- Open a discussion on GitHub
+```bash
+npm run coverage:generate
+open coverage/index.html  # View uncovered lines
+```
 
 ---
 
-**Happy coding!** 🚀
+**Resources:**
+
+- [LANGUAGE_GUIDE.md](LANGUAGE_GUIDE.md) - Implementation guide
+- [LANGUAGE_OPTIONS.md](LANGUAGE_OPTIONS.md) - User options
+- [TYPESCRIPT_GUIDE.md](TYPESCRIPT_GUIDE.md) - TypeScript usage
+- [GitHub Issues](https://github.com/forzagreen/n2words/issues) - Support

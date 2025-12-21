@@ -1,169 +1,121 @@
-# n2words
+# Contributing
 
-## Contributing
+This guide covers adding new languages and improving existing ones.
 
-This repository converts numbers into words for many languages. If you'd like to
-add a new language or improve an existing one, follow these guidelines to keep
-the codebase consistent and ensure both Node.js and browser builds work.
+## Quick Start
 
-### Quick Start: Adding a New Language
-
-We provide an automated script to generate all the boilerplate for a new language:
-
-```powershell
-npm run lang:add
+```bash
+npm run lang:add    # Automated language setup
+npm run lang:validate xx  # Validate implementation
 ```
 
-This interactive script will:
+The automated script generates:
 
-1. Prompt for language details (code, name, settings)
-2. Generate `lib/languages/xx.js` with implementation template
-3. Generate `test/fixtures/languages/xx.js` with test case template
-4. Update `lib/n2words.js` with imports and registration
-5. Derive the class name from the language name (PascalCase), not the code token
-6. Provide next steps for completing the implementation
+- `lib/languages/xx.js` - Implementation template
+- `test/fixtures/languages/xx.js` - Test fixtures
+- Updated `lib/n2words.js` - Language registration
 
-After running the script, you'll need to:
+**Then complete:**
 
-- Fill in the `scaleWordPairs` array with number words (using BigInt literals like `1000n`)
-- Implement the `mergeScales()` method for your language's grammar
-- Complete the test cases with expected outputs
+1. Fill `scaleWordPairs` array with BigInt literals (`1000n`)
+2. Implement `mergeScales()` method for grammar rules
+3. Add comprehensive test cases
 
-To validate your implementation:
+**Resources:**
 
-```powershell
-npm run lang:validate xx  # Replace 'xx' with your language code
+- [LANGUAGE_GUIDE.md](./guides/LANGUAGE_GUIDE.md) - Implementation guide
+- [BIGINT-GUIDE.md](./guides/BIGINT-GUIDE.md) - BigInt usage guide
 
-# Validate all languages
-npm run lang:validate
-```
+## Manual Implementation
 
-### Important Resources
+### 1. Create Language File (`lib/languages/xx.js`)
 
-- [LANGUAGE_GUIDE.md](./LANGUAGE_GUIDE.md) - Comprehensive implementation guide
-- [BIGINT-GUIDE.md](./BIGINT-GUIDE.md) - Critical BigInt usage guide
-- [scripts/README.md](./scripts/README.md) - Tooling documentation
-
-### Manual Process (Alternative)
-
-If you prefer to add a language manually or need more control:
-
-### Language file location & format
-
-- Create a new file under `lib/languages/` named with the language code and `.js`,
-  for example: `lib/languages/xx.js` or `lib/languages/fr-CA.js` for a regional variant.
-- Files MUST be ESM modules and export a default function with this signature:
-
-```js
-// lib/languages/xx.js
-import GreedyScaleLanguage from '../classes/greedy-scale-language.js';
+```javascript
+import GreedyScaleLanguage from '../classes/greedy-scale-language.js'
 
 export class XxLanguage extends GreedyScaleLanguage {
-  // Set default language-specific words as class properties
-  negativeWord = 'minus';
-  decimalSeparatorWord = 'point';
-  zeroWord = 'zero';
+  // Class properties for defaults
+  negativeWord = 'minus'
+  decimalSeparatorWord = 'point'
+  zeroWord = 'zero'
 
-  // Define scaleWordPairs array with [value, word] pairs in DESCENDING order
+  // CRITICAL: Use BigInt literals (n suffix)
   scaleWordPairs = [
     [1_000_000n, 'million'],
     [1000n, 'thousand'],
     [100n, 'hundred'],
-    [90n, 'ninety'],
-    [80n, 'eighty'],
     [1n, 'one'],
-    [0n, 'zero'],
-  ];
+    [0n, 'zero']
+  ]
 
-  /**
-   * Initialize with language-specific options.
-   * Only include parameters that are actually accepted by the constructor.
-   *
-   * @param {Object} [options={}] Configuration options.
-   * @param {boolean} [options.someOption=false] Example option for your language.
-   */
-  constructor({ someOption = false } = {}) {
-    super();
-    this.someOption = someOption;
-    // Apply any option-dependent configuration
+  // Constructor only for behavior options (optional)
+  constructor({ option = false } = {}) {
+    super()
+    this.option = option
   }
 
-  // Implement mergeScales(leftWordSet, rightWordSet) according to language rules.
+  // Language-specific grammar rules
   mergeScales(left, right) {
-    // left and right are objects like { 'one': 1n } and { 'hundred': 100n }
-    // Return a merged object, e.g. { 'one hundred': 100n }
-    const leftWord = Object.keys(left)[0];
-    const leftNumber = Object.values(left)[0];
-    const rightWord = Object.keys(right)[0];
-    const rightNumber = Object.values(right)[0];
-
-    // Implement your language's merge logic here
-    return { [`${leftWord} ${rightWord}`]: leftNumber + rightNumber };
+    const leftWord = Object.keys(left)[0]
+    const rightWord = Object.keys(right)[0]
+    return { [`${leftWord} ${rightWord}`]: leftNumber + rightNumber }
   }
 }
 
 export default function convertToWords(value, options = {}) {
-  return new XxLanguage(options).convertToWords(value);
+  return new XxLanguage(options).convertToWords(value)
 }
 ```
 
-Notes:
+### 2. Choose Base Class
 
-- **Critical**: Use `BigInt` literals (e.g. `1000n`) in `scaleWordPairs` so the algorithm handles large
-  numbers correctly. See [BIGINT-GUIDE.md](./BIGINT-GUIDE.md) for detailed guidance.
-- Class properties define default values that are shared across all instances. Constructor parameters allow per-call customization.
-- Choose the appropriate base class:
-  - `GreedyScaleLanguage` for most languages with regular scale-based systems (English, Spanish, German, French, Belgian French, Italian, Portuguese, Dutch, Korean, Hungarian, Chinese)
-  - `SlavicLanguage` for languages with three-form pluralization (Russian, Czech, Polish, Ukrainian, Serbian, Croatian, Hebrew, Lithuanian, Latvian)
-  - `TurkicLanguage` for Turkic languages with space-separated patterns (Turkish, Azerbaijani)
-  - `SouthAsianLanguage` for South Asian languages with Indian-style grouping (Hindi, Bengali, Urdu, Punjabi, Marathi, Gujarati, Kannada)
-  - `AbstractLanguage` for custom implementations requiring full control (Arabic, Persian, Indonesian, Romanian, Vietnamese)
-- For decimals, rely on `AbstractLanguage.decimalDigitsToWords()`. If your language
-  reads decimals digit-by-digit (like Japanese, Thai, Tamil, Telugu, Filipino/Tagalog, Marathi, Gujarati, Kannada, Greek), set
-  `convertDecimalsPerDigit = true` as a **class property** and define a `digits` class
-  property for the digit words. Do not pass these via constructor options.
+- **GreedyScaleLanguage** - Most languages (en, es, fr, de, it, pt, nl, ko, hu, zh, etc.)
+- **SlavicLanguage** - Three-form pluralization (ru, cz, pl, uk, sr, hr, he, lt, lv)
+- **TurkicLanguage** - Space-separated patterns (tr, az)
+- **SouthAsianLanguage** - Indian-style grouping (hi, bn, ur, pa, mr, gu, kn)
+- **AbstractLanguage** - Custom implementations (ar, fa, id, ro, vi)
 
-### Registering the language
+### 3. Register Language (`lib/n2words.js`)
 
-The core `lib/n2words.js` currently uses static imports so bundlers can include
-language modules in browser builds. After adding your `lib/languages/xx.js` file:
+```javascript
+// Add import
+import xx from './languages/xx.js'
 
-1. Add an `import` line in `lib/n2words.js`, e.g.: `import xx from './languages/xx.js'`.
-2. Add an entry to the `dict` mapping in `lib/n2words.js`:
-
-```js
+// Add to dict mapping
 const dict = {
   // ... existing entries
-  xx,
-};
+  xx
+}
 ```
 
-This keeps the Node.js and browser behavior identical. Note: `webpack.config.js`
-also generates per-language entries for the `dist/` bundle by scanning
-`lib/languages/`, so building will include the new language automatically.
+### 4. Add Test Fixtures (`test/fixtures/languages/xx.js`)
 
-### Tests & lint
-
-Please add tests under `test/fixtures/languages/` following the existing pattern. Run the
-full test suite and linter before opening a PR:
-
-```powershell
-npm run lint:js
-npm test
-npm run web:build
+```javascript
+export default [
+  [0, 'zero'],
+  [42, 'forty-two'],
+  [123456, 'one hundred twenty-three thousand four hundred fifty-six'],
+  // Add comprehensive test cases
+]
 ```
 
-Browser tests (optional) are under `test/web/browser-compatibility.js` and require `npm run web:build`.
+## Testing & Validation
 
-### Pull Request checklist
+```bash
+npm run lang:validate xx  # Validate specific language
+npm test                  # Run all tests
+npm run lint             # Check code style
+npm run web:build        # Build browser bundle
+```
 
-- Add the new file under `lib/languages/` and export the default function.
-- Update `lib/n2words.js` imports and `dict` mapping.
-- Add tests to `test/fixtures/languages/` using existing language tests as examples.
-- Run `npm run lint:js` and `npm test` — all tests should pass.
-- If adding regional variants (e.g. `fr-CA`), ensure fallbacks behave as expected
-  (`fr-CA` -> `fr`).
+## Pull Request Checklist
 
-If you have any questions or need an example PR, open an issue and we'll help.
+- [ ] Language file created in `lib/languages/xx.js`
+- [ ] Language registered in `lib/n2words.js` (import + dict entry)
+- [ ] Test fixtures added to `test/fixtures/languages/xx.js`
+- [ ] All tests pass (`npm test`)
+- [ ] Code style passes (`npm run lint`)
+- [ ] Language validation passes (`npm run lang:validate xx`)
+- [ ] Regional variants handle fallback correctly (if applicable)
 
-Thank you for contributing!
+**Questions?** Open an issue for help or examples.

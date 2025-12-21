@@ -237,91 +237,34 @@ export default function convertToWords(value, options = {}) {
 - Constructor parameters should only include options that actually affect behavior
 - Use `BigInt` literals (`1000n`, not `1000`) in scaleWordPairs array for numerical accuracy
 
-### TypeScript Support & JSDoc Documentation
+### 2. Add TypeScript Support & Documentation
 
-**Enhanced TypeScript support** requires proper JSDoc documentation for your language options:
-
-#### 1. Add Language Options TypeDef
-
-Add a `@typedef` comment at the top of your language file for any constructor options:
+For proper TypeScript integration, add JSDoc documentation:
 
 ```javascript
 /**
  * @typedef {Object} MyLanguageOptions
- * @property {boolean} [feminine=false] - Use feminine forms for numbers.
+ * @property {boolean} [feminine=false] - Use feminine forms.
  * @property {string} [customWord='default'] - Custom word for special cases.
  */
 
 /**
- * MyLanguage converter with specific grammar rules.
- *
- * Features:
- * - Custom grammar patterns
- * - Optional feminine forms
- * - Regional variants support
- */
-export class MyLanguage extends GreedyScaleLanguage {
-  // ... class implementation
-
-  /**
-   * Initialize with language-specific options.
-   *
-   * @param {MyLanguageOptions} [options={}] Configuration options.
-   */
-  constructor({ feminine = false, customWord = 'default' } = {}) {
-    super()
-    this.feminine = feminine
-    this.customWord = customWord
-  }
-}
-```
-
-#### 2. Document Export Function
-
-Ensure your export function has comprehensive JSDoc:
-
-```javascript
-/**
- * Converts a number to MyLanguage cardinal (written) form.
+ * Converts numbers to MyLanguage cardinal form.
  *
  * @param {number|string|bigint} value The number to convert.
  * @param {MyLanguageOptions} [options={}] Language-specific options.
- * @returns {string} The number expressed in MyLanguage words.
- * @throws {TypeError} If value is NaN or invalid type.
- * @throws {Error} If value is an invalid number string.
- *
+ * @returns {string} The number in words.
  * @example
  * convertToWords(42); // 'language-specific result'
- * convertToWords(100, { feminine: true }); // 'feminine form result'
  */
 export default function convertToWords(value, options = {}) {
   return new MyLanguage(options).convertToWords(value)
 }
 ```
 
-#### 3. TypeScript Declaration Generation
-
-The build process automatically generates TypeScript declarations from your JSDoc:
-
-- `@typedef` comments become TypeScript interface types
-- Constructor parameter documentation becomes method signatures
-- Export function JSDoc becomes function overloads
-
 The build process automatically generates TypeScript declarations from your JSDoc.
 
-#### 4. Language Registration
-
-Your language will automatically get registered in the main `N2WordsOptions` type when you:
-
-1. Add proper `@typedef` for your options
-2. Register the language in `lib/n2words.js`
-This provides developers with:
-
-- Autocomplete for language codes
-- Type-safe language-specific options
-- IntelliSense with your JSDoc documentation
-
-### 2. Implement Merge Logic
+### 3. Implement Merge Logic
 
 The `mergeScales()` method combines word sets according to your language's grammar:
 
@@ -385,7 +328,7 @@ mergeScales (leftWordSet, rightWordSet) {
 }
 ```
 
-### 3. Handle Special Cases
+### 4. Handle Special Cases
 
 #### Gender Agreement (Portuguese, French, etc.)
 
@@ -425,7 +368,7 @@ mergeScales (leftWordSet, rightWordSet) {
 }
 ```
 
-### 4. SouthAsianLanguage Example (Indian-style grouping)
+### 5. SouthAsianLanguage Example
 
 For South Asian languages with Indian number grouping (3 digits on right, then 2-2):
 
@@ -476,7 +419,7 @@ export default function convertToWords(value, options = {}) {
 
 ### 1. Define Test Cases
 
-Edit `test/fixtures/languages/<code>.js` with comprehensive test cases using your IETF BCP 47 compliant language code:
+Edit `test/fixtures/languages/<code>.js` with comprehensive test cases:
 
 ```javascript
 // File: test/fixtures/languages/cs.js (Czech example)
@@ -485,33 +428,18 @@ export default [
   [0, 'nula'],
   [1, 'jeden'],
   [10, 'deset'],
-  [11, 'jedenáct'],
-  [20, 'dvacet'],
   [21, 'dvacet jeden'],
-  [99, 'ninety-nine'],
 
-  // Hundreds
-  [100, 'one hundred'],
-  [101, 'one hundred and one'],
-  [999, 'nine hundred and ninety-nine'],
+  // Hundreds and thousands
+  [100, 'sto'],
+  [1000, 'tisíc'],
+  [12345, 'dvanáct tisíc tři sta čtyřicet pět'],
 
-  // Thousands
-  [1000, 'one thousand'],
-  [1001, 'one thousand and one'],
-  [12345, 'twelve thousand three hundred and forty-five'],
-
-  // Millions
-  [1000000, 'one million'],
-
-  // Negative
-  [-5, 'minus five'],
-  [-1000, 'minus one thousand'],
-
-  // Decimals
-  ['3.14', 'three point one four'],
-  ['0.5', 'zero point five'],
-  ['3.005', 'three point zero zero five'], // Leading zeros important!
-];
+  // Negative and decimals
+  [-5, 'mínus pět'],
+  ['3.14', 'tři celá jedna čtyři'],
+  ['0.005', 'nula celá nula nula pět'], // Leading zeros preserved
+]
 ```
 
 ### 2. Run Tests
@@ -537,180 +465,124 @@ npm test
 - ✓ Class implementation patterns
 - ✓ Test coverage requirements
 
-### 3. Test Coverage
+### 3. Test Coverage Checklist
 
-Ensure you test:
-
-- ✓ Zero
-- ✓ Single digits (1-9)
-- ✓ Teens (10-19) if irregular
-- ✓ Tens (20, 30, ..., 90)
-- ✓ Compound numbers (21, 37, 99)
+- ✓ Zero and single digits (0-9)
+- ✓ Teens (10-19) if irregular in your language
+- ✓ Tens (20, 30, ..., 90) and compounds (21, 37, 99)
 - ✓ Hundreds (100, 200, 999)
-- ✓ Thousands (1000, 1001, 12345)
-- ✓ Millions and billions
+- ✓ Thousands, millions, billions
 - ✓ Negative numbers
-- ✓ Decimal numbers
-- ✓ Edge cases specific to your language
+- ✓ Decimal numbers with leading zeros
+- ✓ Language-specific edge cases
 
 ## Decimal Handling
 
-By default, `AbstractLanguage` handles decimals using a grouped approach where leading zeros are preserved as individual "zero" words, and remaining digits are grouped as a number:
+`AbstractLanguage` supports two decimal conversion modes:
 
-- `3.14` → "three point one four" (grouped: remaining digits read as "fourteen"... wait, this would be "one four")
-- `2.05` → "two point zero five" (zero preserved, then "five")
+### Default (Grouped) Mode
 
-### Per-Digit Decimal Conversion
+Leading zeros are preserved as "zero" words, remaining digits are grouped:
 
-Some languages read each decimal digit individually. To enable this behavior, set `convertDecimalsPerDigit = true` as a class property:
+- `3.14` → "three point fourteen"
+- `2.05` → "two point zero five"
+- `0.007` → "zero point zero zero seven"
+
+### Per-Digit Mode
+
+Each decimal digit is converted individually. Enable by setting `convertDecimalsPerDigit = true`:
+
+- `3.14` → "three point one four"
+- `2.05` → "two point zero five"
 
 ```javascript
 class Japanese extends AbstractLanguage {
-  negativeWord = 'マイナス';
-  decimalSeparatorWord = '点';
-  zeroWord = '零';
-  convertDecimalsPerDigit = true; // Enable per-digit decimal reading
-  digits = ['一', '二', '三', '四', '五', '六', '七', '八', '九'];
-
-  // Constructor only if you have behavior-changing options (usually not needed)
+  negativeWord = 'マイナス'
+  decimalSeparatorWord = '点'
+  zeroWord = '零'
+  convertDecimalsPerDigit = true // Enable per-digit reading
+  digits = ['一', '二', '三', '四', '五', '六', '七', '八', '九']
 }
 ```
 
-**When to use per-digit decimals:**
+**Use per-digit for**: Japanese, Thai, Tamil, Telugu, Filipino, Marathi, Gujarati, Kannada, Greek, and languages where grouped reading doesn't make sense.
 
-- Languages that always read decimals digit-by-digit (Japanese, Thai, Tamil, Telugu, Filipino/Tagalog, Marathi, Gujarati, Kannada, Greek)
-- Scripts where grouped decimal reading doesn't make linguistic sense
-- Languages with a `digits` array for individual digit words
-
-**Default (grouped) behavior:**
-
-- `3.14` → groups as "three point one four" (or "fourteen" depending on language)
-- `2.05` → "two point zero five" (leading zero preserved)
-
-**Per-digit behavior (`convertDecimalsPerDigit: true`):**
-
-- `3.14` → "three point one four" (each digit separate)
-- `2.05` → "two point zero five" (each digit separate)
-
-### Defining a Digits Array
-
-If your language uses per-digit decimals, define a `digits` class property and set
-`convertDecimalsPerDigit = true` as a class property (not via constructor options):
+### Digits Array for Per-Digit Languages
 
 ```javascript
 class MyLanguage extends AbstractLanguage {
-  // Map indices 0-8 to digits 1-9
-  digits = [
-    'one',
-    'two',
-    'three',
-    'four',
-    'five',
-    'six',
-    'seven',
-    'eight',
-    'nine',
-  ];
-
-  convertDecimalsPerDigit = true;
-
-  // Constructor only if you have behavior-changing options (usually not needed)
+  convertDecimalsPerDigit = true
+  digits = ['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine']
 }
 ```
 
-The `convertDigitToWord()` method will automatically use this array when converting decimal digits.
+The `convertDigitToWord()` method automatically uses this array for decimal conversion.
 
 ## Common Patterns
 
-### Pattern: English-style
-
-Space-separated with "and" before final unit:
+### English-style (space + "and")
 
 ```javascript
-mergeScales (left, right) {
+mergeScales(left, right) {
   const leftValue = Object.values(left)[0]
   const rightValue = Object.values(right)[0]
+  const leftText = Object.keys(left)[0]
+  const rightText = Object.keys(right)[0]
 
   // Add "and" for hundreds + units
   if (leftValue >= 100n && rightValue < 100n) {
-    return { [Object.keys(left)[0] + ' and ' + Object.keys(right)[0]]: leftValue + rightValue }
+    return { [leftText + ' and ' + rightText]: leftValue + rightValue }
   }
-
-  // Simple space otherwise
-  return { [Object.keys(left)[0] + ' ' + Object.keys(right)[0]]: leftValue + rightValue }
+  return { [leftText + ' ' + rightText]: leftValue + rightValue }
 }
 ```
 
-### Pattern: Romance Languages
-
-Hyphenated compounds with special connectors:
+### Romance Languages (hyphens + connectors)
 
 ```javascript
-mergeScales (left, right) {
+mergeScales(left, right) {
   const leftValue = Object.values(left)[0]
   const rightValue = Object.values(right)[0]
+  const leftText = Object.keys(left)[0]
+  const rightText = Object.keys(right)[0]
 
-  // Special connectors
+  // Special connectors (e.g., French "et")
   if (leftValue % 10n === 0n && rightValue === 1n) {
-    return { [Object.keys(left)[0] + ' et ' + Object.keys(right)[0]]: leftValue + rightValue }
+    return { [leftText + ' et ' + rightText]: leftValue + rightValue }
   }
-
-  // Hyphenate compounds
-  return { [Object.keys(left)[0] + '-' + Object.keys(right)[0]]: leftValue + rightValue }
+  return { [leftText + '-' + rightText]: leftValue + rightValue }
 }
 ```
 
 ## Optimization Tips
 
-### 1. Pre-compile Regex
-
-For post-processing, compile regex once:
+### Pre-compile Regex Patterns
 
 ```javascript
 class MyLanguage extends GreedyScaleLanguage {
-  constructor (options) {
-    super(options)
-
-    // Pre-compile regex patterns
-    this.doubleSpaceRegex = /\s{2,}/g
-    this.trimRegex = /^\s+|\s+$/g
+  constructor(options) {
+    super()
+    this.doubleSpaceRegex = /\s{2,}/g // Pre-compile
   }
 
-  mergeScales (left, right) {
+  mergeScales(left, right) {
     const result = // ... merge logic
-
-    // Use pre-compiled regex
     return result.replace(this.doubleSpaceRegex, ' ')
   }
 }
 ```
 
-### 2. Cache Object Operations
+### Cache Object Operations
 
 ```javascript
-mergeScales (left, right) {
-  // Cache keys/values instead of calling multiple times
+mergeScales(left, right) {
+  // Cache once, use multiple times
   const leftKeys = Object.keys(left)
   const rightKeys = Object.keys(right)
   const leftValue = Object.values(left)[0]
   const rightValue = Object.values(right)[0]
-
-  // Use cached values
   // ...
 }
-```
-
-### 3. Simplify String Operations
-
-```javascript
-// ✗ Slow
-const merged = leftWords.join(' ') + ' ' + rightWords.join(' ');
-
-// ✓ Faster for single words
-const merged = leftWords[0] + ' ' + rightWords[0];
-
-// ✓ Or use array concatenation
-const merged = [...leftWords, ...rightWords].join(' ');
 ```
 
 ## BigInt Requirements
@@ -725,23 +597,18 @@ See [BIGINT-GUIDE.md](./BIGINT-GUIDE.md) for comprehensive guidance on BigInt us
 
 ## Reference Implementations
 
-Study these examples:
+**Study these examples for patterns:**
 
-- **GreedyScaleLanguage**: `lib/languages/en.js` - Basic patterns
-- **GreedyScaleLanguage (optimized)**: `lib/languages/pt.js` - Advanced optimizations
-- **GreedyScaleLanguage (complex)**: `lib/languages/fr.js` - Special rules
-- **GreedyScaleLanguage (Nordic rules inline)**: `lib/languages/nb.js` - Norwegian "og" conjunction handled in mergeScales()
-- **TurkicLanguage**: `lib/languages/tr.js` - Turkish patterns with space-separated combinations
-- **SlavicLanguage**: `lib/languages/ru.js` - Three-form pluralization pattern
-- **SlavicLanguage (IETF compliant)**: `lib/languages/cs.js` - Czech implementation using correct `cs` code
-- **AbstractLanguage**: `lib/languages/ar.js`, `lib/languages/zh.js` - Custom implementations with different scripts
+- **GreedyScaleLanguage**: `lib/languages/en.js` (basic), `lib/languages/pt.js` (optimized), `lib/languages/fr.js` (complex rules)
+- **SlavicLanguage**: `lib/languages/ru.js` (three-form pluralization), `lib/languages/cs.js` (IETF compliant)
+- **TurkicLanguage**: `lib/languages/tr.js` (space-separated patterns)
+- **SouthAsianLanguage**: `lib/languages/hi.js` (Indian-style grouping)
+- **AbstractLanguage**: `lib/languages/ar.js` (custom implementation)
 
-**Recent IETF BCP 47 Updates**: Several languages have been updated to use compliant codes (`cz`→`cs`, `dk`→`da`, `no`→`nb`, `tl`→`fil`). All new implementations must follow IETF BCP 47 standards.
+**Recent Updates**: Several languages updated to IETF BCP 47 compliance (`cz`→`cs`, `dk`→`da`, `no`→`nb`, `tl`→`fil`).
 
 ## Getting Help
 
-- Check [CONTRIBUTING.md](../CONTRIBUTING.md) for general guidelines
-- Review [BIGINT-GUIDE.md](./BIGINT-GUIDE.md) for BigInt usage
-- Study existing language implementations
-- Open an issue if you have questions
-- The community is here to help!
+- Review [CONTRIBUTING.md](../CONTRIBUTING.md) and [BIGINT-GUIDE.md](./BIGINT-GUIDE.md)
+- Study existing language implementations for patterns
+- Open an issue for questions - the community is here to help!
