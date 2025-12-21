@@ -109,7 +109,7 @@ class ExampleWrong extends GreedyScaleLanguage {
 
 **Files affected:**
 
-- All `lib/languages/*.js` files that extend `GreedyScaleLanguage` or its subclasses (languages like: en, de, fr, es, pt, ko, zh, hu, it, nl, fr-BE)
+- All `lib/languages/*.js` files that extend `GreedyScaleLanguage` or its subclasses (languages like: en, de, fr, es, pt, ko, zh-Hans, hu, it, nl, fr-BE)
 - All `lib/languages/*.js` files that extend `TurkicLanguage` (languages: az, tr)
 
 ### 2. BigInt Comparisons in `mergeScales()` Methods
@@ -220,7 +220,7 @@ convertWholePart(number) {
 **Files affected:**
 
 - `lib/classes/slavic-language.js` (base class)
-- `lib/languages/ru.js`, `cs.js`, `pl.js`, `uk.js`, `sr.js`, `hr.js`, `he.js`, `lt.js`, `lv.js` (Slavic languages)
+- `lib/languages/ru.js`, `cs.js`, `pl.js`, `uk.js`, `sr-Latn.js`, `hr.js`, `he.js`, `lt.js`, `lv.js` (Slavic languages)
 
 ### 4. Custom Algorithm Implementations
 
@@ -348,7 +348,7 @@ if (chunks.length === 1) {
 
 ### Pattern 1: GreedyScaleLanguage with Simple Merge
 
-**Used by:** English (en), Spanish (es), German (de), French (fr), Italian (it), Portuguese (pt), Dutch (nl), Korean (ko), Hungarian (hu), Chinese (zh), French Belgian (fr-BE)
+**Used by:** English (en), Spanish (es), German (de), French (fr), Italian (it), Portuguese (pt), Dutch (nl), Korean (ko), Hungarian (hu), Chinese (zh-Hans), French Belgian (fr-BE)
 
 **BigInt locations:**
 

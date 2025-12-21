@@ -263,7 +263,7 @@ n2words(4, { lang: 'uk', feminine: true }); // 'чотири' (feminine ones set
 
 ---
 
-### Serbian (sr) - Gender Agreement
+### Serbian (sr-Latn) - Gender Agreement
 
 Serbian uses the shared Slavic `feminine` option for feminine forms of digits 1-9 (ones place).
 
@@ -363,7 +363,7 @@ n2words(4, { lang: 'lv', feminine: true }); // 'četri' (Latvian shares ones set
 
 ---
 
-### Chinese (zh) - Formal vs. Common Numerals
+### Chinese (zh-Hans) - Formal vs. Common Numerals
 
 Chinese supports both formal/financial numerals (大写数字) and common/everyday numerals (小写数字).
 
@@ -486,7 +486,7 @@ n2words(21, { lang: 'az', dropSpaces: true }); // 'iyirmibir' (agglutinated)
 | Czech (cz)             | `feminine`            | boolean | `false`  | Use feminine forms for ones (1-9) and related cases     |
 | Polish (pl)            | `feminine`            | boolean | `false`  | Use feminine forms for ones (1-9) and related cases     |
 | Ukrainian (uk)         | `feminine`            | boolean | `false`  | Use feminine forms for ones (1-9) and related cases     |
-| Serbian (sr)           | `feminine`            | boolean | `false`  | Use feminine forms for ones (1-9) and related cases     |
+| Serbian (sr-Latn)      | `feminine`            | boolean | `false`  | Use feminine forms for ones (1-9) and related cases     |
 | Croatian (hr)          | `feminine`            | boolean | `false`  | Use feminine forms for ones (1-9) and related cases     |
 | Lithuanian (lt)        | `feminine`            | boolean | `false`  | Use feminine forms for ones (1-9) and related cases     |
 | Latvian (lv)           | `feminine`            | boolean | `false`  | Use feminine forms for ones (1-9) and related cases     |
@@ -586,8 +586,8 @@ All other languages use only the common options:
 
 - English (en), German (de), Italian (it), Portuguese (pt), Dutch (nl)
 - Norwegian (no), Danish (dk), Swedish (sv)
-- Russian (ru), Polish (pl), Czech (cz), Ukrainian (uk), Serbian (sr), Croatian (hr), Lithuanian (lt), Latvian (lv)
-- Hungarian (hu), Japanese (ja), Korean (ko), Chinese (zh), Vietnamese (vi)
+- Russian (ru), Polish (pl), Czech (cz), Ukrainian (uk), Serbian (sr-Latn), Croatian (hr), Lithuanian (lt), Latvian (lv)
+- Hungarian (hu), Japanese (ja), Korean (ko), Chinese (zh-Hans), Vietnamese (vi)
 - Persian/Farsi (fa), Indonesian (id)
 - Hindi (hi), Bengali (bn), Tamil (ta), Telugu (te), Thai (th), Swahili (sw)
 
