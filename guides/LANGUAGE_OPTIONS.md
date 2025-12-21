@@ -277,13 +277,13 @@ Serbian uses the shared Slavic `feminine` option for feminine forms of digits 1-
 
 ```javascript
 // Masculine (default)
-n2words(1, { lang: 'sr' }); // 'jedan'
-n2words(2, { lang: 'sr' }); // 'dva'
+n2words(1, { lang: 'sr-Latn' }); // 'jedan'
+n2words(2, { lang: 'sr-Latn' }); // 'dva'
 
 // Feminine
-n2words(1, { lang: 'sr', feminine: true }); // 'jedna'
-n2words(2, { lang: 'sr', feminine: true }); // 'dve'
-n2words(4, { lang: 'sr', feminine: true }); // 'četiri' (feminine ones set)
+n2words(1, { lang: 'sr-Latn', feminine: true }); // 'jedna'
+n2words(2, { lang: 'sr-Latn', feminine: true }); // 'dve'
+n2words(4, { lang: 'sr-Latn', feminine: true }); // 'četiri' (feminine ones set)
 ```
 
 ---
@@ -377,14 +377,14 @@ Chinese supports both formal/financial numerals (大写数字) and common/everyd
 
 ```javascript
 // Formal/financial style (default) - used in banking, legal documents
-n2words(123, { lang: 'zh' }); // '壹佰贰拾叁'
-n2words(123, { lang: 'zh', formal: true }); // '壹佰贰拾叁'
+n2words(123, { lang: 'zh-Hans' }); // '壹佰贰拾叁'
+n2words(123, { lang: 'zh-Hans', formal: true }); // '壹佰贰拾叁'
 
 // Common/everyday style - used in daily life
-n2words(123, { lang: 'zh', formal: false }); // '一百二十三'
+n2words(123, { lang: 'zh-Hans', formal: false }); // '一百二十三'
 
 // Large numbers
-n2words(999999999999n, { lang: 'zh', formal: false });
+n2words(999999999999n, { lang: 'zh-Hans', formal: false });
 // '九千九百九十九亿九千九百九十九万九千九百九十九'
 ```
 

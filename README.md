@@ -22,11 +22,11 @@ import n2words from 'n2words';
 
 n2words(123); // 'one hundred and twenty-three'
 n2words(-1.5); // 'minus one point five'
-n2words(123, { lang: 'zh' }); // '壹佰贰拾叁'
+n2words(123, { lang: 'zh-Hans' }); // '壹佰贰拾叁'
 n2words(123, { lang: 'hi' }); // 'एक सौ तेईस'
 n2words(123, { lang: 'es' }); // 'ciento veintitrés'
 n2words(123, { lang: 'ar' }); // 'مائة وثلاثة وعشرون'
-n2words(10000n, { lang: 'zh' }); // '壹万' (BigInt support!)
+n2words(10000n, { lang: 'zh-Hans' }); // '壹万' (BigInt support!)
 ```
 
 ## Installation
@@ -54,10 +54,10 @@ console.log(n2words(3.14)); // 'three point one four'
 import n2words, { type N2WordsOptions, type LanguageCode } from 'n2words';
 
 // Language code autocomplete (45+ languages)
-const lang: LanguageCode = 'zh'; // Full IntelliSense support
+const lang: LanguageCode = 'zh-Hans'; // Full IntelliSense support
 
 // Type-safe language-specific options
-const result1 = n2words(123, { lang: 'zh', formal: true }); // Chinese financial numerals
+const result1 = n2words(123, { lang: 'zh-Hans', formal: true }); // Chinese financial numerals
 const result2 = n2words(42, { lang: 'ar', feminine: true }); // Arabic feminine forms
 const result3 = n2words(91, { lang: 'fr', withHyphenSeparator: true }); // French with hyphens
 
@@ -114,9 +114,9 @@ Or import specific languages:
 | `lt` | Lithuanian | `lv`    | Latvian          |
 | `mr` | Marathi    | `ms`    | Malay            |
 | `nl` | Dutch      | `nb`    | Norwegian        |
-| `pa` | Punjabi    | `pl`    | Polish           |
+| `pa-Guru` | Punjabi (Gurmukhi) | `pl` | Polish        |
 | `pt` | Portuguese | `ro`    | Romanian         |
-| `ru` | Russian    | `sr`    | Serbian          |
+| `ru` | Russian    | `sr-Latn` | Serbian (Latin)  |
 | `sv` | Swedish    | `sw`    | Swahili          |
 | `ta` | Tamil      | `te`    | Telugu           |
 | `th` | Thai       | `fil`   | Filipino/Tagalog |
