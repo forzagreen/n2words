@@ -1,13 +1,11 @@
 {
   "recommendations": [
-    "streetsidesoftware.code-spell-checker",
     "editorconfig.editorconfig",
-    "GitHub.copilot-chat",
-    "yzhang.markdown-all-in-one",
     "davidanson.vscode-markdownlint",
-    "prettier.prettier-vscode",
     "standard.vscode-standard",
-    "felixjb.testify",
+    "ms-vscode.vscode-typescript-next"
   ],
-  "unwantedRecommendations": []
+  "unwantedRecommendations": [
+    "prettier.prettier-vscode"
+  ]
 }

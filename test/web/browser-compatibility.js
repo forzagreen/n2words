@@ -2,13 +2,6 @@ import test from 'ava'
 import { Browser, Builder, By, until } from 'selenium-webdriver'
 import 'chromedriver'
 import { cwd } from 'node:process'
-import { existsSync } from 'node:fs'
-
-// Check if build exists before registering tests
-if (!existsSync('./dist/n2words.js')) {
-  console.error('ERROR: You must run "npm run web:build" first.')
-  process.exit(1)
-}
 
 // Register tests at top level for AVA to discover
 test('Chrome browser compatibility', async t => {

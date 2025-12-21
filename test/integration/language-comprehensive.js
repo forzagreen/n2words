@@ -1,5 +1,4 @@
 import test from 'ava'
-import n2words from '../../lib/n2words.js'
 import { readdirSync } from 'node:fs'
 
 /**
@@ -10,31 +9,29 @@ import { readdirSync } from 'node:fs'
  * test cases specific to that language's number formatting rules.
  *
  * Test files are located in test/fixtures/languages/*.js and are loaded dynamically.
+ * Language classes are imported directly from lib/languages/*.js using the BCP 47 code.
+ * Files are named with IETF BCP 47 language codes (e.g., 'en.js', 'ar.js', 'fr-BE.js')
+ * following international standards for language identification.
  */
 
 const files = readdirSync('./test/fixtures/languages')
 
 for (const file of files) {
-  if (file.includes('.js')) {
-    await testLanguage(file)
-  }
-}
-
-/**
- * Run language tests for specific language
- * @param {string} file language test file to run
- */
-async function testLanguage (file) {
-  const language = file.replace('.js', '')
-
-  test(language, async t => {
+  if (!file.endsWith('.js')) continue
+  const languageCode = file.replace('.js', '')
+  // Register the test at the top level synchronously
+  test(languageCode, async t => {
+    const languageModule = await import(`../../lib/languages/${languageCode}.js`)
+    const LanguageClass = Object.values(languageModule)[0]
+    if (!LanguageClass) {
+      t.fail(`Language class not found for language code: ${languageCode}`)
+      return
+    }
     const { default: testFile } = await import('../fixtures/languages/' + file)
-
-    for (const test of testFile) {
-      t.is(
-        n2words(test[0], Object.assign({ lang: language }, test[2])),
-        test[1]
-      )
+    for (const testCase of testFile) {
+      const [input, expected, options = {}] = testCase
+      const converter = new LanguageClass(options)
+      t.is(converter.convertToWords(input), expected)
     }
   })
 }

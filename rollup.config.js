@@ -1,0 +1,50 @@
+import { babel } from '@rollup/plugin-babel'
+import { nodeResolve } from '@rollup/plugin-node-resolve'
+import terser from '@rollup/plugin-terser'
+
+/**
+ * Rollup configuration for the main n2words bundle.
+ * With the new architecture, all languages are included in the main bundle
+ * via class imports, so we only need to bundle the main entry point.
+ */
+export default {
+  input: './lib/n2words.js',
+  output: {
+    file: 'dist/n2words.js',
+    format: 'umd',
+    name: 'n2words',
+    sourcemap: true,
+    exports: 'named'
+  },
+  plugins: [
+    nodeResolve({
+      preferBuiltins: false
+    }),
+    babel({
+      babelHelpers: 'bundled',
+      exclude: 'node_modules/**',
+      presets: [
+        [
+          '@babel/preset-env',
+          {
+            useBuiltIns: 'usage',
+            corejs: 3,
+            targets: 'defaults',
+            modules: false
+          }
+        ]
+      ]
+    }),
+    terser({
+      compress: {
+        passes: 2
+      },
+      mangle: {
+        properties: false
+      },
+      format: {
+        comments: false
+      }
+    })
+  ]
+}

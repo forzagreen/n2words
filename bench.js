@@ -107,10 +107,16 @@ suite
  * @param {Object} [options] Options to pass to the language converter.
  */
 async function benchFile (file, options) {
-  const { default: n2words } = await import('./lib/' + file + '.js')
+  const languageModule = await import('./lib/' + file + '.js')
+  const LanguageClass = Object.values(languageModule)[0]
+
+  if (!LanguageClass) {
+    throw new Error(`Language class not found for file: ${file}`)
+  }
 
   suite.add(file, async () => {
-    n2words(value, options)
+    const converter = new LanguageClass(options)
+    converter.convertToWords(value)
   })
 }
 
@@ -119,7 +125,7 @@ async function benchFile (file, options) {
  */
 function displayHelp () {
   console.log(chalk.cyan.bold('Benchmark Script Usage:\n'))
-  console.log('  ' + chalk.yellow('npm run bench') + ' [options]\n')
+  console.log('  ' + chalk.yellow('npm run bench:perf') + ' [options]\n')
   console.log(chalk.cyan('Options:'))
   console.log('  ' + chalk.yellow('--lang, --language') + ' <code>    Benchmark specific language (e.g., en, fr)')
   console.log('  ' + chalk.yellow('--value') + ' <number>             Test value to convert (default: Number.MAX_SAFE_INTEGER)')
@@ -127,8 +133,8 @@ function displayHelp () {
   console.log('  ' + chalk.yellow('--compare') + '                    Compare with previous results')
   console.log('  ' + chalk.yellow('--help') + '                       Display this help message\n')
   console.log(chalk.cyan('Examples:'))
-  console.log('  ' + chalk.gray('npm run bench                            # Benchmark all languages'))
-  console.log('  ' + chalk.gray('npm run bench -- --lang en               # Benchmark English only'))
-  console.log('  ' + chalk.gray('npm run bench -- --value 42 --save       # Save results with custom value'))
-  console.log('  ' + chalk.gray('npm run bench -- --compare               # Compare with previous run') + '\n')
+  console.log('  ' + chalk.gray('npm run bench:perf                       # Benchmark all languages'))
+  console.log('  ' + chalk.gray('npm run bench:perf -- --lang en          # Benchmark English only'))
+  console.log('  ' + chalk.gray('npm run bench:perf -- --value 42 --save  # Save results with custom value'))
+  console.log('  ' + chalk.gray('npm run bench:perf -- --compare          # Compare with previous run') + '\n')
 }

@@ -1,450 +1,720 @@
 #!/usr/bin/env node
 
 /**
- * Validate a language implementation
+ * Language Implementation Validator
  *
- * Usage: node scripts/validate-language.js <language-code>
- *        node scripts/validate-language.js    (validates all languages)
+ * This script validates that language implementations follow all required patterns
+ * and strategies used in the n2words library. It checks:
  *
- * Checks:
- * - Language file exists and exports correctly
- * - Test file exists and has comprehensive cases
- * - Language is registered in lib/n2words.js
- * - Implementation follows best practices
+ * - File naming conventions (IETF BCP 47 codes)
+ * - Class structure and inheritance
+ * - Required properties (negativeWord, zeroWord, etc.)
+ * - Scale word ordering and format
+ * - Method implementations
+ * - Export consistency with n2words.js
+ * - Test fixture existence
+ * - JSDoc documentation
+ *
+ * Usage:
+ *   npm run lang:validate                    # Validate all languages
+ *   npm run lang:validate -- en es fr        # Validate specific languages
+ *   npm run lang:validate -- --verbose       # Show detailed validation info
  */
 
-import { existsSync, readFileSync, readdirSync } from 'node:fs'
-import { argv } from 'node:process'
-import { resolve } from 'node:path'
+import { readFileSync, readdirSync, existsSync } from 'node:fs'
+import { basename, join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import chalk from 'chalk'
 
-const IETF_BCP47_PATTERN = /^[a-z]{2,3}(-[A-Z]{2})?(-[a-zA-Z0-9]{4,8})*$/
-const INTERNAL_SUFFIXES = ['-fast.js', '-iterative.js']
-
-/**
- * Get list of available language codes from the languages directory.
- * Filters out internal implementation files.
- *
- * @returns {string[]} Array of language codes
- */
-function listLanguages () {
-  return readdirSync('lib/languages')
-    .filter(name => name.endsWith('.js'))
-    .filter(name => !INTERNAL_SUFFIXES.some(suffix => name.endsWith(suffix)))
-    .map(name => name.replace(/\.js$/, ''))
+// Default configuration
+export const DEFAULT_CONFIG = {
+  verbose: false,
+  languageDir: './lib/languages',
+  classDir: './lib/classes',
+  testFixtureDir: './test/fixtures/languages',
+  n2wordsPath: './lib/n2words.js'
 }
 
 /**
- * Validate that a language code follows IETF BCP 47 format.
- *
- * @param {string} lang Language code to validate
- * @returns {number} 0 if valid, 1 if invalid
+ * Get expected class name from BCP 47 code using CLDR as source of truth
+ * Pure function - exported for reuse
+ * @param {string} languageCode - BCP 47 language code
+ * @returns {string|null} Expected PascalCase class name
  */
-function ensureIETFBCP47Code (lang) {
-  if (!IETF_BCP47_PATTERN.test(lang)) {
-    console.error(chalk.red(`✗ Language code is not IETF BCP 47 compliant: ${lang}`))
-    console.error(chalk.gray('  Expected format: [language]-[region] (e.g., "en", "fr-BE", "nb", "fil")'))
-    return 1
-  }
-  console.log(chalk.green(`✓ Language code format OK: ${lang}`))
-  return 0
-}
-
-/**
- * Extract the class name from a language implementation file.
- *
- * @param {string} content File content to analyze
- * @returns {string|null} Class name or null if not found
- */
-function extractClassName (content) {
-  const match = content.match(/class\s+([A-Za-z][A-Za-z0-9_]*)\s+extends/)
-  return match ? match[1] : null
-}
-
-/**
- * Extract the constructor class name from the default export function.
- *
- * @param {string} content File content to analyze
- * @returns {string|null} Constructor class name or null if not found
- */
-function extractDefaultCtorName (content) {
-  const match = content.match(/return\s+new\s+([A-Za-z][A-Za-z0-9_]*)\s*\(/)
-  return match ? match[1] : null
-}
-
-/**
- * Check if test content includes large number test cases (>= 1 million).
- *
- * @param {string} testContent Test file content to analyze
- * @returns {boolean} True if large numbers are tested
- */
-function hasLargeNumberCase (testContent) {
-  const tupleNumberRegex = /\[\s*(-?\d[\d_]*n?)\s*,/g
-  let match
-
-  while ((match = tupleNumberRegex.exec(testContent))) {
-    const normalized = match[1].replace(/n$/, '').replace(/_/g, '')
-    if (!normalized) continue
-    const value = BigInt(normalized)
-    if (value >= 1_000_000n || value <= -1_000_000n) return true
-  }
-
-  return false
-}
-
-/**
- * Validate that class name is descriptive (not just the language code).
- *
- * @param {string|null} className Extracted class name
- * @param {string} lang Language code
- * @returns {number} 0 if valid, 1 if invalid
- */
-function checkClassNameFullLanguage (className, lang) {
-  if (!className) {
-    console.error(chalk.red('  ✗ No class declaration found (expected a named class extending a base language)'))
-    return 1
-  }
-
-  const codeNormalized = lang.replace(/-/g, '').toLowerCase()
-  if (className.toLowerCase() === codeNormalized) {
-    console.error(chalk.red(`  ✗ Class name should be the full language name, not code '${className}'`))
-    return 1
-  }
-
-  console.log(chalk.green(`  ✓ Class name looks descriptive: ${className}`))
-  return 0
-}
-
-/**
- * Test that a language implementation produces valid string outputs.
- *
- * @param {string} langCode Language code being tested
- * @param {string} langFile Path to language implementation file
- * @returns {Promise<number>} Number of errors encountered
- */
-async function smokeTestLanguageOutput (langCode, langFile) {
-  let errors = 0
-
+export function getExpectedClassName (languageCode) {
   try {
-    const fileUrl = pathToFileURL(resolve(langFile)).href
-    const mod = await import(fileUrl)
-    const fn = mod.default
-    if (typeof fn !== 'function') {
-      console.error(chalk.red('  ✗ Default export is not a function'))
-      return 1
+    const displayNames = new Intl.DisplayNames(['en'], { type: 'language' })
+    const cldrName = displayNames.of(languageCode)
+
+    if (!cldrName) {
+      return null
     }
 
-    const samples = [0, 1, 21, 105, 1234, -5, '3.14']
-    for (const sample of samples) {
-      try {
-        const out = fn(sample)
-        if (typeof out !== 'string' || !out.trim()) {
-          console.error(chalk.red(`  ✗ Output for ${sample} is not a non-empty string`))
-          errors++
-        }
-        if (typeof out === 'string' && out.includes('TODO')) {
-          console.error(chalk.red(`  ✗ Output for ${sample} contains placeholder TODO`))
-          errors++
-        }
-      } catch (err) {
-        console.error(chalk.red(`  ✗ Threw when converting ${sample}: ${err.message}`))
-        errors++
+    // If CLDR returns the code unchanged (not recognized), return null
+    // This happens for rare/historical languages like 'hbo' (Biblical Hebrew)
+    if (cldrName === languageCode) {
+      return null
+    }
+
+    // Convert CLDR display name to PascalCase
+    // e.g., "Norwegian Bokmål" -> "NorwegianBokmal"
+    const className = cldrName
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '') // Remove diacritics
+      .replace(/[^A-Za-z0-9\s]/g, '') // Remove non-alphanumeric except spaces
+      .split(/\s+/)
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join('')
+
+    return className
+  } catch (error) {
+    return null
+  }
+}
+
+/**
+ * Validate that a language code is a valid IETF BCP 47 tag
+ * Pure function - exported for reuse in other scripts
+ * @param {string} languageCode - Language code to validate
+ * @returns {{ valid: boolean, canonical: string|null, error: string|null }} Validation result
+ */
+export function validateLanguageCode (languageCode) {
+  try {
+    // Attempt to canonicalize the locale - will throw if invalid BCP 47
+    const canonical = Intl.getCanonicalLocales(languageCode)
+
+    if (canonical.length === 0) {
+      return {
+        valid: false,
+        canonical: null,
+        error: `Invalid BCP 47 language tag: ${languageCode}`
       }
     }
-  } catch (err) {
-    console.error(chalk.red(`  ✗ Failed to load language module: ${err.message}`))
-    errors++
-  }
 
-  if (errors === 0) {
-    console.log(chalk.green('  ✓ Default export produces strings for sample inputs'))
+    return {
+      valid: true,
+      canonical: canonical[0],
+      error: null
+    }
+  } catch (error) {
+    return {
+      valid: false,
+      canonical: null,
+      error: `Invalid BCP 47 language tag: ${languageCode} (${error.message})`
+    }
   }
-  return errors
 }
 
 /**
- * Perform comprehensive validation of a language implementation.
- * Checks file existence, code structure, test coverage, and registration.
- *
- * @param {string} langCode Language code to validate
- * @returns {Promise<{errors: number, warnings: number}>} Validation results
+ * Validate IETF BCP 47 naming convention using Intl.getCanonicalLocales()
+ * @param {string} languageCode - Language code to validate
+ * @param {ValidationResult} result - Result object to populate
  */
-async function validateLanguage (langCode) {
-  console.log(chalk.cyan(`Validating language: ${langCode}`))
-  console.log(chalk.gray('='.repeat(60)))
+function validateFileNaming (languageCode, result) {
+  try {
+    // Attempt to canonicalize the locale - will throw if invalid BCP 47
+    const canonical = Intl.getCanonicalLocales(languageCode)
 
-  let errors = ensureIETFBCP47Code(langCode)
-  let warnings = 0
+    if (canonical.length === 0) {
+      result.errors.push(`Invalid BCP 47 language tag: ${languageCode}`)
+      return
+    }
 
-  // Check 1: Language file exists
-  const langFile = `lib/languages/${langCode}.js`
-  if (!existsSync(langFile)) {
-    console.error(chalk.red(`✗ Language file not found: ${langFile}`))
-    errors++
-    return { errors, warnings }
-  }
+    const canonicalTag = canonical[0]
 
-  console.log(chalk.green(`✓ Language file exists: ${langFile}`))
-
-  const content = readFileSync(langFile, 'utf8')
-
-  // Check for default export
-  if (!content.includes('export default')) {
-    console.error(chalk.red('  ✗ Missing default export'))
-    errors++
-  } else {
-    console.log(chalk.green('  ✓ Has default export'))
-  }
-
-  // Check class naming
-  const className = extractClassName(content)
-  errors += checkClassNameFullLanguage(className, langCode)
-
-  // Check default export instantiates the declared class
-  const ctorName = extractDefaultCtorName(content)
-  if (!ctorName) {
-    console.error(chalk.red('  ✗ Default export does not instantiate a class (return new ClassName(...))'))
-    errors++
-  } else if (className && ctorName !== className) {
-    console.error(chalk.red(`  ✗ Default export instantiates '${ctorName}', expected '${className}'`))
-    errors++
-  } else {
-    console.log(chalk.green(`  ✓ Default export instantiates ${ctorName}`))
-  }
-
-  // Detect base class usage
-  const usesGreedy = content.includes('extends GreedyScaleLanguage')
-  const usesTurkic = content.includes('extends TurkicLanguage')
-  const usesSouthAsian = content.includes('extends SouthAsianLanguage')
-  const usesSlavic = content.includes('extends SlavicLanguage')
-
-  // BigInt literals are required for scale-based systems (Greedy/Turkic), optional otherwise
-  if (usesGreedy || usesTurkic) {
-    if (!content.includes('n,') && !content.includes('n]') && !content.includes('n ')) {
-      console.warn(
-        chalk.yellow('  ⚠ No BigInt literals found (scaleWordPairs should use 1000n, 100n, etc.)')
+    // Check if our code matches the canonical form (case-insensitive comparison)
+    if (canonicalTag.toLowerCase() !== languageCode.toLowerCase()) {
+      result.warnings.push(
+        `Language code "${languageCode}" should use canonical form: ${canonicalTag}`
       )
-      warnings++
-    } else {
-      console.log(chalk.green('  ✓ Uses BigInt literals'))
-    }
-  } else {
-    console.log(chalk.gray('  • BigInt literals not required for this base class'))
-  }
-
-  // Check for merge method
-  const hasMerge = content.includes('mergeScales')
-  const hasConvertWholePart = content.includes('convertWholePart')
-
-  if ((usesGreedy || usesTurkic) && !hasMerge && !hasConvertWholePart) {
-    console.log(chalk.gray('  • Using base class mergeScales() implementation'))
-  } else if (hasMerge) {
-    console.log(chalk.green('  ✓ Has mergeScales() method'))
-  } else if ((usesGreedy || usesTurkic) && hasConvertWholePart) {
-    console.log(chalk.green('  ✓ Overrides convertWholePart() method'))
-  } else {
-    console.log(chalk.green('  ✓ Base class provides mergeScales() implementation'))
-  }
-
-  // SouthAsianLanguage requires core properties
-  if (usesSouthAsian) {
-    const hasBelowHundred = content.includes('belowHundred')
-    const hasHundredWord = content.includes('hundredWord')
-    const hasScaleWords = content.includes('scaleWords')
-
-    if (!hasBelowHundred) {
-      console.warn(chalk.yellow('  ⚠ Missing belowHundred array (0..99 words)'))
-      warnings++
-    } else {
-      console.log(chalk.green('  ✓ Has belowHundred array'))
     }
 
-    if (!hasHundredWord) {
-      console.warn(chalk.yellow('  ⚠ Missing hundredWord property'))
-      warnings++
-    } else {
-      console.log(chalk.green('  ✓ Has hundredWord property'))
-    }
-
-    if (!hasScaleWords) {
-      console.warn(chalk.yellow('  ⚠ Missing scaleWords array (indexed grouping words)'))
-      warnings++
-    } else {
-      console.log(chalk.green('  ✓ Has scaleWords array'))
-    }
-  }
-
-  // SlavicLanguage typically uses multiple maps for forms; warn if none are present
-  if (usesSlavic) {
-    const hasAnyMaps = (
-      content.includes('ones') ||
-      content.includes('onesFeminine') ||
-      content.includes('tens') ||
-      content.includes('twenties') ||
-      content.includes('hundreds') ||
-      content.includes('thousands')
+    result.info.push(`✓ Valid BCP 47 tag: ${languageCode} (canonical: ${canonicalTag})`)
+  } catch (error) {
+    result.errors.push(
+      `Invalid BCP 47 language tag: ${languageCode} (${error.message})`
     )
-    if (!hasAnyMaps) {
-      console.warn(chalk.yellow('  ⚠ No core maps detected (ones/tens/hundreds/thousands)'))
-      warnings++
-    } else {
-      console.log(chalk.green('  ✓ Core maps detected'))
-    }
+  }
+}
+
+/**
+ * Validate class structure and CLDR naming
+ * @param {Function} LanguageClass - The language class constructor
+ * @param {string} expectedClassName - Expected class name
+ * @param {string} languageCode - Language code
+ * @param {ValidationResult} result - Result object to populate
+ */
+function validateClassStructure (LanguageClass, expectedClassName, languageCode, result) {
+  if (typeof LanguageClass !== 'function') {
+    result.errors.push(`${expectedClassName} is not a class/constructor function`)
+    return
   }
 
-  // Check for TODO comments
-  if (content.includes('TODO')) {
-    console.warn(
-      chalk.yellow('  ⚠ Contains TODO comments - implementation may be incomplete')
+  // Check if it's actually a class (has prototype)
+  if (!LanguageClass.prototype) {
+    result.errors.push(`${expectedClassName} doesn't have a prototype (not a proper class)`)
+    return
+  }
+
+  result.info.push(`✓ Class ${expectedClassName} properly defined`)
+
+  // Validate class name follows CLDR conventions
+  validateCLDRClassName(expectedClassName, languageCode, result)
+}
+
+/**
+ * Validate that class name matches CLDR conventions
+ * @param {string} className - Class name to validate
+ * @param {string} languageCode - Language code
+ * @param {ValidationResult} result - Result object to populate
+ */
+function validateCLDRClassName (className, languageCode, result) {
+  // Check for forbidden suffixes
+  if (className.endsWith('Converter') ||
+      className.endsWith('Language') ||
+      className.endsWith('NumberConverter')) {
+    result.errors.push(
+      `Class name "${className}" should not have suffix (use CLDR name only)`
     )
-    warnings++
   }
 
-  // Check imports
-  if (
-    !content.includes('GreedyScaleLanguage') &&
-    !content.includes('SlavicLanguage') &&
-    !content.includes('TurkicLanguage') &&
-    !content.includes('SouthAsianLanguage') &&
-    !content.includes('AbstractLanguage') &&
-    !content.match(/extends\s+[A-Z][A-Za-z0-9_]*/)
-  ) {
-    console.error(chalk.red('  ✗ Does not extend any recognized base class or language'))
-    errors++
-  } else {
-    console.log(chalk.green('  ✓ Extends appropriate base class'))
+  // Get CLDR display name for informational purposes
+  try {
+    const displayNames = new Intl.DisplayNames(['en'], { type: 'language' })
+    const cldrName = displayNames.of(languageCode)
+    if (cldrName) {
+      result.info.push(`✓ Class name derived from CLDR: "${cldrName}"`)
+    }
+  } catch (error) {
+    // Non-critical - could not validate CLDR class name
+  }
+}
+
+/**
+ * Validate required properties
+ * @param {Object} instance - Language class instance
+ * @param {ValidationResult} result - Result object to populate
+ */
+function validateRequiredProperties (instance, result) {
+  const requiredProps = {
+    negativeWord: 'string',
+    zeroWord: 'string',
+    decimalSeparatorWord: 'string',
+    wordSeparator: 'string'
   }
 
-  // Check 2: Test file exists
-  const testFile = `test/fixtures/languages/${langCode}.js`
-  if (!existsSync(testFile)) {
-    console.error(chalk.red(`✗ Test file not found: ${testFile}`))
-    errors++
-  } else {
-    console.log(chalk.green(`✓ Test file exists: ${testFile}`))
+  for (const [prop, type] of Object.entries(requiredProps)) {
+    if (!(prop in instance)) {
+      result.errors.push(`Missing required property: ${prop}`)
+      continue
+    }
 
-    const testContent = readFileSync(testFile, 'utf8')
-
-    if (!testContent.includes('export default')) {
-      console.error(chalk.red('  ✗ Missing export default'))
-      errors++
+    const actualType = typeof instance[prop]
+    if (actualType !== type) {
+      result.errors.push(`Property ${prop} should be ${type}, got ${actualType}`)
+    } else if (type === 'string' && instance[prop] === '') {
+      result.warnings.push(`Property ${prop} is empty string (may be intentional)`)
     } else {
-      console.log(chalk.green('  ✓ Exports test cases'))
+      result.info.push(`✓ Property ${prop}: "${instance[prop]}"`)
     }
+  }
 
-    const testCases = (testContent.match(/\[.*,.*\]/g) || []).length
-    if (testCases < 10) {
-      console.warn(chalk.yellow(`  ⚠ Only ${testCases} test cases found (recommended: 20+)`))
-      warnings++
+  // Check optional boolean flag
+  if ('convertDecimalsPerDigit' in instance) {
+    if (typeof instance.convertDecimalsPerDigit !== 'boolean') {
+      result.errors.push('convertDecimalsPerDigit should be boolean')
     } else {
-      console.log(chalk.green(`  ✓ Has ${testCases} test cases`))
+      result.info.push(`✓ convertDecimalsPerDigit: ${instance.convertDecimalsPerDigit}`)
     }
+  }
+}
 
-    if (testContent.includes('TODO')) {
-      console.warn(chalk.yellow('  ⚠ Test file contains TODO - tests may be incomplete'))
-      warnings++
+/**
+ * Validate required methods
+ * @param {Object} instance - Language class instance
+ * @param {ValidationResult} result - Result object to populate
+ */
+function validateMethods (instance, result) {
+  // Check convertWholePart exists and is not the abstract version
+  if (typeof instance.convertWholePart !== 'function') {
+    result.errors.push('Missing convertWholePart() method')
+    return
+  }
+
+  // Try to call it with 0 to ensure it's implemented
+  try {
+    const testResult = instance.convertWholePart(0n)
+    if (typeof testResult !== 'string') {
+      result.errors.push(`convertWholePart(0n) returned ${typeof testResult}, expected string`)
+    } else if (testResult === '') {
+      result.warnings.push('convertWholePart(0n) returned empty string')
+    } else {
+      result.info.push(`✓ convertWholePart(0n) returns: "${testResult}"`)
     }
-
-    const scenarios = {
-      negative: testContent.includes('-'),
-      decimal: testContent.includes('.'),
-      large: hasLargeNumberCase(testContent),
-      zero: testContent.includes('[0,')
-    }
-
-    if (scenarios.negative) console.log(chalk.green('  ✓ Tests negative numbers'))
-    else {
-      console.warn(chalk.yellow('  ⚠ Missing negative number tests'))
-      warnings++
-    }
-
-    if (scenarios.decimal) console.log(chalk.green('  ✓ Tests decimal numbers'))
-    else {
-      console.warn(chalk.yellow('  ⚠ Missing decimal number tests'))
-      warnings++
-    }
-
-    if (scenarios.large) console.log(chalk.green('  ✓ Tests large numbers'))
-    else {
-      console.warn(chalk.yellow('  ⚠ Missing large number tests'))
-      warnings++
-    }
-
-    if (scenarios.zero) console.log(chalk.green('  ✓ Tests zero'))
-    else {
-      console.warn(chalk.yellow('  ⚠ Missing zero test'))
-      warnings++
+  } catch (error) {
+    if (error.message.includes('must be implemented by subclass')) {
+      result.errors.push('convertWholePart() not implemented (still abstract)')
+    } else {
+      result.errors.push(`convertWholePart(0n) threw error: ${error.message}`)
     }
   }
 
-  // Check 3: Registration in lib/n2words.js
-  const n2wordsFile = 'lib/n2words.js'
-  const n2wordsContent = readFileSync(n2wordsFile, 'utf8')
+  // Check if convertToWords is available (inherited)
+  if (typeof instance.convertToWords !== 'function') {
+    result.errors.push('Missing convertToWords() method (should be inherited from AbstractLanguage)')
+  }
+}
 
-  const constName = langCode.replace('-', '')
-  const importRegex = new RegExp(
-    `import ${constName} from '\\./languages/${langCode}\\.js'`
-  )
-  if (!importRegex.test(n2wordsContent)) {
-    console.error(chalk.red(`✗ Not imported in ${n2wordsFile}`))
-    errors++
+/**
+ * Validate inheritance chain
+ * @param {Function} LanguageClass - The language class constructor
+ * @param {ValidationResult} result - Result object to populate
+ * @returns {string|undefined} Base class name
+ */
+function validateInheritance (LanguageClass, result) {
+  const validBaseClasses = [
+    'AbstractLanguage',
+    'GreedyScaleLanguage',
+    'SlavicLanguage',
+    'SouthAsianLanguage',
+    'TurkicLanguage'
+  ]
+
+  const proto = Object.getPrototypeOf(LanguageClass)
+  const baseClassName = proto?.name
+
+  if (!baseClassName) {
+    result.errors.push('Could not determine base class')
+    return
+  }
+
+  // Check if it extends a valid base class directly
+  if (validBaseClasses.includes(baseClassName)) {
+    result.info.push(`✓ Extends ${baseClassName}`)
+    return baseClassName
+  }
+
+  // Check if it extends another language (e.g., fr-BE extends fr)
+  // This is valid for regional variants
+  const grandProto = Object.getPrototypeOf(proto)
+  const grandParentClassName = grandProto?.name
+
+  if (grandParentClassName && validBaseClasses.includes(grandParentClassName)) {
+    result.info.push(`✓ Extends ${baseClassName} (which extends ${grandParentClassName})`)
+    return baseClassName
+  }
+
+  // If neither direct parent nor grandparent is valid, it's an error
+  result.errors.push(`Unknown base class: ${baseClassName}. Expected one of: ${validBaseClasses.join(', ')}, or a language that extends them`)
+
+  return baseClassName
+}
+
+/**
+ * Validate scale words (for GreedyScaleLanguage and TurkicLanguage)
+ * @param {Object} instance - Language class instance
+ * @param {ValidationResult} result - Result object to populate
+ */
+function validateScaleWords (instance, result) {
+  if (!('scaleWordPairs' in instance)) {
+    return // Not applicable for this language type
+  }
+
+  const scaleWords = instance.scaleWordPairs
+
+  if (!Array.isArray(scaleWords)) {
+    result.errors.push('scaleWordPairs should be an array')
+    return
+  }
+
+  if (scaleWords.length === 0) {
+    result.errors.push('scaleWordPairs is empty')
+    return
+  }
+
+  // Validate structure: [[bigint, string], ...]
+  let previousValue = Infinity
+  let hasOrderingError = false
+
+  for (let i = 0; i < scaleWords.length; i++) {
+    const pair = scaleWords[i]
+
+    if (!Array.isArray(pair) || pair.length !== 2) {
+      result.errors.push(`scaleWordPairs[${i}] should be [bigint, string] pair`)
+      continue
+    }
+
+    const [value, word] = pair
+
+    if (typeof value !== 'bigint') {
+      result.errors.push(`scaleWordPairs[${i}][0] should be bigint, got ${typeof value}`)
+    }
+
+    if (typeof word !== 'string') {
+      result.errors.push(`scaleWordPairs[${i}][1] should be string, got ${typeof word}`)
+    }
+
+    // Check descending order
+    if (Number(value) >= previousValue && !hasOrderingError) {
+      result.errors.push(`scaleWordPairs not in descending order at index ${i}: ${value} >= ${previousValue}`)
+      hasOrderingError = true
+    }
+
+    previousValue = Number(value)
+  }
+
+  if (!hasOrderingError) {
+    result.info.push(`✓ scaleWordPairs properly ordered (${scaleWords.length} entries)`)
+  }
+
+  // Check for required scale word for '1'
+  const hasOne = scaleWords.some(pair => pair[0] === 1n)
+  if (!hasOne) {
+    result.warnings.push('scaleWordPairs missing entry for 1n (may cause issues in decomposition)')
+  }
+}
+
+/**
+ * Validate JSDoc documentation
+ * @param {string} fileContent - Language file content
+ * @param {string} className - Class name
+ * @param {ValidationResult} result - Result object to populate
+ */
+function validateDocumentation (fileContent, className, result) {
+  // Check for class JSDoc
+  const hasClassDoc = fileContent.includes(`/**\n * ${className}`) ||
+                      fileContent.includes('/**\n * @typedef') ||
+                      fileContent.match(/\/\*\*[\s\S]*?language converter/i)
+
+  if (!hasClassDoc) {
+    result.warnings.push('Missing or incomplete JSDoc class documentation')
   } else {
-    console.log(chalk.green(`✓ Imported in ${n2wordsFile}`))
+    result.info.push('✓ Has class documentation')
   }
 
-  const dictKeyRegex = langCode.includes('-')
-    ? new RegExp(`['"]${langCode}['"]:\\s*${constName}[,\\s\\}]`)
-    : new RegExp(`\\b${constName}[,\\s\\}]`)
+  // Check for mergeScales documentation (if it exists in file)
+  if (fileContent.includes('mergeScales')) {
+    const hasMergeScalesDoc = fileContent.match(/\/\*\*[\s\S]*?mergeScales[\s\S]*?\*\//i)
+    if (!hasMergeScalesDoc) {
+      result.warnings.push('mergeScales() method lacks JSDoc documentation')
+    } else {
+      result.info.push('✓ Has mergeScales() documentation')
+    }
+  }
+}
 
-  if (!dictKeyRegex.test(n2wordsContent)) {
-    console.error(chalk.red(`✗ Not registered in dict in ${n2wordsFile}`))
-    errors++
+/**
+ * Validate imports
+ * @param {string} fileContent - Language file content
+ * @param {ValidationResult} result - Result object to populate
+ */
+function validateImports (fileContent, result) {
+  // Check for import from base classes
+  const hasBaseClassImport = fileContent.match(/^import\s+{[^}]+}\s+from\s+['"]\.\.\/classes\//m)
+
+  // Check for import from other languages (for variants like fr-BE extending fr)
+  const hasLanguageImport = fileContent.match(/^import\s+{[^}]+}\s+from\s+['"]\.\/[^'"]+\.js['"]/m)
+
+  if (!hasBaseClassImport && !hasLanguageImport) {
+    result.errors.push('Missing import statement from base class or parent language')
+  } else if (hasBaseClassImport) {
+    result.info.push('✓ Has proper base class import statement')
+  } else if (hasLanguageImport) {
+    result.info.push('✓ Has proper language import statement (regional variant)')
+  }
+
+  // Check for relative imports
+  const hasRelativePath = fileContent.match(/from\s+['"]\.\.\//g) || fileContent.match(/from\s+['"].\//g)
+  if (hasRelativePath) {
+    result.info.push('✓ Uses relative imports')
+  }
+}
+
+/**
+ * Validate test fixture exists
+ * @param {string} languageCode - Language code
+ * @param {ValidatorConfig} config - Validator configuration
+ * @param {ValidationResult} result - Result object to populate
+ */
+function validateTestFixture (languageCode, config, result) {
+  const fixtureFile = join(config.testFixtureDir, `${languageCode}.js`)
+
+  if (!existsSync(fixtureFile)) {
+    result.warnings.push(`Missing test fixture: ${fixtureFile}`)
   } else {
-    console.log(chalk.green('✓ Registered in dict'))
+    // Validate fixture structure
+    try {
+      const fixtureContent = readFileSync(fixtureFile, 'utf8')
+
+      if (!fixtureContent.includes('export default')) {
+        result.warnings.push('Test fixture should use "export default" for test cases array')
+      }
+
+      // Check if it exports an array
+      if (!fixtureContent.match(/export default\s*\[/)) {
+        result.warnings.push('Test fixture should export an array of test cases')
+      } else {
+        result.info.push('✓ Has test fixture file')
+      }
+    } catch (error) {
+      result.warnings.push(`Could not read test fixture: ${error.message}`)
+    }
+  }
+}
+
+/**
+ * Validate export in n2words.js
+ * @param {string} languageCode - Language code
+ * @param {string} className - Class name
+ * @param {ValidatorConfig} config - Validator configuration
+ * @param {ValidationResult} result - Result object to populate
+ */
+function validateN2wordsExport (languageCode, className, config, result) {
+  const n2wordsContent = readFileSync(config.n2wordsPath, 'utf8')
+
+  // Check for import
+  const importPattern = new RegExp(`import\\s+{\\s*${className}\\s*}\\s+from\\s+['"]\\./languages/${languageCode}\\.js['"]`)
+  if (!importPattern.test(n2wordsContent)) {
+    result.errors.push(`Not imported in ${config.n2wordsPath}`)
   }
 
-  // Check 4: Default export produces output strings
-  errors += await smokeTestLanguageOutput(langCode, langFile)
+  // Check for converter creation
+  const converterName = `${className}Converter`
+  const converterPattern = new RegExp(`const\\s+${converterName}\\s*=\\s*makeConverter\\(${className}\\)`)
+  if (!converterPattern.test(n2wordsContent)) {
+    result.errors.push(`${converterName} not created with makeConverter() in ${config.n2wordsPath}`)
+  }
 
-  console.log(chalk.gray('='.repeat(60)))
-  return { errors, warnings }
+  // Check for export
+  const exportPattern = new RegExp(`${converterName}`)
+  const exportSection = n2wordsContent.match(/export\s*{[\s\S]*?}/)?.[0]
+  if (!exportSection || !exportPattern.test(exportSection)) {
+    result.errors.push(`${converterName} not exported from ${config.n2wordsPath}`)
+  }
+
+  if (importPattern.test(n2wordsContent) &&
+      converterPattern.test(n2wordsContent) &&
+      exportSection && exportPattern.test(exportSection)) {
+    result.info.push(`✓ Properly registered in n2words.js as ${converterName}`)
+  }
 }
 
-const targetLangs = argv[2] ? [argv[2]] : listLanguages()
+/**
+ * Validate a single language implementation
+ * Pure function - takes all dependencies as parameters
+ * @param {string} languageCode - IETF language code (e.g., 'en', 'fr-BE')
+ * @param {ValidatorConfig} config - Validator configuration
+ * @returns {Promise<ValidationResult>} Validation result
+ */
+export async function validateLanguage (languageCode, config = DEFAULT_CONFIG) {
+  const result = {
+    valid: true,
+    errors: [],
+    warnings: [],
+    info: []
+  }
 
-if (targetLangs.length === 0) {
-  console.error(chalk.red('No languages found to validate.'))
-  process.exit(1)
+  const languageFile = join(config.languageDir, `${languageCode}.js`)
+
+  // Check if file exists
+  if (!existsSync(languageFile)) {
+    result.errors.push(`Language file not found: ${languageFile}`)
+    result.valid = false
+    return result
+  }
+
+  // Validate file naming (IETF BCP 47)
+  validateFileNaming(languageCode, result)
+
+  // Get expected class name from CLDR (source of truth)
+  const expectedClassName = getExpectedClassName(languageCode)
+
+  if (!expectedClassName) {
+    result.warnings.push(`CLDR does not provide display name for ${languageCode} (rare/historical language)`)
+    result.info.push('⚠ Using descriptive class name instead of CLDR-derived name')
+
+    // For languages not in CLDR, we'll validate that ANY class is exported
+    // and skip CLDR-specific validation
+    try {
+      const languageModule = await import(pathToFileURL(languageFile).href)
+      const exportedClasses = Object.keys(languageModule).filter(key =>
+        typeof languageModule[key] === 'function' && languageModule[key].prototype
+      )
+
+      if (exportedClasses.length === 0) {
+        result.errors.push(`No class exported from ${languageFile}`)
+        result.valid = false
+        return result
+      }
+
+      const LanguageClass = languageModule[exportedClasses[0]]
+      result.info.push(`✓ Found class: ${exportedClasses[0]} (descriptive name for rare language)`)
+
+      // Continue with standard validation
+      validateClassStructure(LanguageClass, exportedClasses[0], languageCode, result)
+      const instance = new LanguageClass()
+      validateRequiredProperties(instance, result)
+      validateMethods(instance, result)
+      validateInheritance(LanguageClass, result)
+      validateScaleWords(instance, result)
+
+      const fileContent = readFileSync(languageFile, 'utf8')
+      validateDocumentation(fileContent, exportedClasses[0], result)
+      validateImports(fileContent, result)
+      validateTestFixture(languageCode, config, result)
+      validateN2wordsExport(languageCode, exportedClasses[0], config, result)
+    } catch (error) {
+      result.errors.push(`Failed to load language module: ${error.message}`)
+      result.valid = false
+    }
+
+    result.valid = result.errors.length === 0
+    return result
+  }
+
+  result.info.push(`✓ CLDR expected class name: ${expectedClassName}`)
+
+  // Load and validate the language class
+  try {
+    const languageModule = await import(pathToFileURL(languageFile).href)
+    const LanguageClass = languageModule[expectedClassName]
+
+    if (!LanguageClass) {
+      result.errors.push(`Expected class ${expectedClassName} not exported from ${languageFile}`)
+      result.valid = false
+      return result
+    }
+
+    // Validate class structure
+    validateClassStructure(LanguageClass, expectedClassName, languageCode, result)
+
+    // Validate instance properties and methods
+    const instance = new LanguageClass()
+    validateRequiredProperties(instance, result)
+    validateMethods(instance, result)
+
+    // Validate base class
+    validateInheritance(LanguageClass, result)
+
+    // Validate scale words if applicable
+    validateScaleWords(instance, result)
+
+    // Validate file content and documentation
+    const fileContent = readFileSync(languageFile, 'utf8')
+    validateDocumentation(fileContent, expectedClassName, result)
+    validateImports(fileContent, result)
+
+    // Validate test fixture exists
+    validateTestFixture(languageCode, config, result)
+
+    // Validate export in n2words.js
+    validateN2wordsExport(languageCode, expectedClassName, config, result)
+  } catch (error) {
+    result.errors.push(`Failed to load language module: ${error.message}`)
+    result.valid = false
+  }
+
+  result.valid = result.errors.length === 0
+
+  return result
 }
 
-let totalErrors = 0
-let totalWarnings = 0
+/**
+ * Format and display validation results
+ * Pure function - only side effect is console output
+ * @param {string} languageCode - Language code
+ * @param {ValidationResult} result - Validation result
+ * @param {boolean} verbose - Show verbose output
+ */
+export function displayResults (languageCode, result, verbose = false) {
+  const header = result.valid
+    ? chalk.green(`✓ ${languageCode}`)
+    : chalk.red(`✗ ${languageCode}`)
 
-for (const lang of targetLangs) {
-  const { errors, warnings } = await validateLanguage(lang)
-  totalErrors += errors
-  totalWarnings += warnings
+  console.log(`\n${chalk.bold(header)}`)
+
+  if (result.errors.length > 0) {
+    console.log(chalk.red('  Errors:'))
+    result.errors.forEach(err => console.log(`    ${chalk.red('✗')} ${err}`))
+  }
+
+  if (result.warnings.length > 0) {
+    console.log(chalk.yellow('  Warnings:'))
+    result.warnings.forEach(warn => console.log(`    ${chalk.yellow('⚠')} ${warn}`))
+  }
+
+  if (verbose && result.info.length > 0) {
+    console.log(chalk.gray('  Info:'))
+    result.info.forEach(info => console.log(`    ${chalk.gray(info)}`))
+  }
 }
 
-if (totalErrors === 0 && totalWarnings === 0) {
-  console.log(chalk.green('✓ Validation passed! All language implementations look good.'))
-  console.log()
-  console.log(chalk.cyan('Next steps:'))
-  console.log(chalk.gray('  1. Run tests: npm test'))
-  console.log(chalk.gray('  2. Run linter: npm run lint:js'))
-  console.log(chalk.gray('  3. Build: npm run web:build'))
-  process.exit(0)
-} else if (totalErrors > 0) {
-  console.error(
-    chalk.red(`\n✗ Validation failed with ${totalErrors} error(s) and ${totalWarnings} warning(s)`)
-  )
-  console.error(chalk.red('Please fix the errors above before proceeding.'))
-  process.exit(1)
-} else {
-  console.warn(chalk.yellow(`\n⚠ Validation passed with ${totalWarnings} warning(s)`))
-  console.warn(
-    chalk.yellow('Consider addressing the warnings for a complete implementation.')
-  )
-  process.exit(0)
+/**
+ * Run validation for specified languages or all languages
+ * Pure function - orchestrates validation flow
+ * @param {string[]} languageCodes - Language codes to validate (empty = all)
+ * @param {ValidatorConfig} config - Validator configuration
+ * @returns {Promise<{ results: Object<string, ValidationResult>, totalValid: number, totalInvalid: number }>}
+ */
+export async function runValidation (languageCodes = [], config = DEFAULT_CONFIG) {
+  console.log(chalk.cyan.bold('n2words Language Validator') + '\n')
+
+  // If no specific languages provided, validate all
+  if (languageCodes.length === 0) {
+    const files = readdirSync(config.languageDir)
+    languageCodes = files
+      .filter(file => file.endsWith('.js'))
+      .map(file => basename(file, '.js'))
+      .sort()
+  }
+
+  const results = {}
+  let totalValid = 0
+  let totalInvalid = 0
+
+  for (const code of languageCodes) {
+    const result = await validateLanguage(code, config)
+    results[code] = result
+
+    if (result.valid) {
+      totalValid++
+    } else {
+      totalInvalid++
+    }
+
+    displayResults(code, result, config.verbose)
+  }
+
+  // Summary
+  console.log('\n' + chalk.bold('Summary:'))
+  console.log('  ' + chalk.green(`Valid: ${totalValid}`))
+  if (totalInvalid > 0) {
+    console.log('  ' + chalk.red(`Invalid: ${totalInvalid}`))
+  }
+  console.log(`  Total: ${languageCodes.length}`)
+
+  return { results, totalValid, totalInvalid }
+}
+
+// Only run CLI if this file is executed directly (not imported)
+// Check if this is the main module by comparing resolved paths
+const isMainModule = process.argv[1] && import.meta.url.endsWith(basename(process.argv[1]))
+
+if (isMainModule) {
+  // Parse command-line arguments
+  const args = process.argv.slice(2)
+  const verbose = args.includes('--verbose') || args.includes('-v')
+  const languages = args.filter(arg => !arg.startsWith('--') && !arg.startsWith('-'))
+
+  // Run validator
+  const config = { ...DEFAULT_CONFIG, verbose }
+  runValidation(languages, config).then(({ totalInvalid }) => {
+    // Exit with error code if any validation failed
+    if (totalInvalid > 0) {
+      process.exit(1)
+    }
+  }).catch(error => {
+    console.error(chalk.red('Fatal error:'), error)
+    process.exit(1)
+  })
 }

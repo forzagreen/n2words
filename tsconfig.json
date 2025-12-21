@@ -1,33 +1,18 @@
 {
   "compilerOptions": {
-    // Target and module resolution
-    "target": "esnext",
-    "module": "nodenext",
-    "lib": ["ESNext"],
-    "moduleResolution": "nodenext",
+    "target": "es2020",
+    "module": "esnext",
+    "moduleResolution": "bundler",
 
-    // Declaration file generation
     "declaration": true,
-    "declarationMap": false,
     "emitDeclarationOnly": true,
-
-    // Input/output paths
+    "declarationMap": true,
     "rootDir": "./lib",
     "outDir": "./typings",
 
-    // JavaScript handling
     "allowJs": true,
-    "checkJs": false,
     "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-    "importsNotUsedAsValues": "remove",
-    "resolveJsonModule": true,
-
-    // Strictness and compatibility
-    "strict": false,
-    "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true
+    "skipLibCheck": true
   },
-  "include": ["lib/**/*.js"],
-  "exclude": ["node_modules", "test", "dist", "examples"]
+  "include": ["lib/**/*.js"]
 }

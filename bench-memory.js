@@ -114,11 +114,17 @@ async function benchMemory (file, name) {
   await new Promise(resolve => setTimeout(resolve, 100))
 
   const baseline = process.memoryUsage()
-  const { default: n2words } = await import('./lib/' + file + '.js')
+  const languageModule = await import('./lib/' + file + '.js')
+  const LanguageClass = Object.values(languageModule)[0]
+
+  if (!LanguageClass) {
+    throw new Error(`Language class not found for file: ${file}`)
+  }
 
   const outputs = []
   for (let index = 0; index < iterations; index++) {
-    outputs.push(n2words(value))
+    const converter = new LanguageClass()
+    outputs.push(converter.convertToWords(value))
   }
 
   const afterTest = process.memoryUsage()

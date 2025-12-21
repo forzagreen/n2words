@@ -1,367 +1,287 @@
 #!/usr/bin/env node
 
 /**
- * Interactive script to add a new language to n2words
+ * Language Scaffolding Tool
  *
- * Usage: node scripts/add-language.js
+ * This script generates boilerplate code for adding a new language to n2words.
+ * It creates:
+ * - Language implementation file in lib/languages/
+ * - Test fixture file in test/fixtures/languages/
+ * - Updates lib/n2words.js with import and export
  *
- * This script will:
- * 1. Prompt for language details (code, name, base class)
- * 2. Generate language implementation boilerplate
- * 3. Generate test file boilerplate
- * 4. Update lib/n2words.js with imports and registration
- * 5. Provide next steps for implementation
+ * Usage:
+ *   npm run lang:add <language-code>
+ *
+ * Examples:
+ *   npm run lang:add ko        # Korean
+ *   npm run lang:add zh-Hans   # Simplified Chinese
+ *   npm run lang:add fr-CA     # Canadian French
  */
 
-import { readFileSync, writeFileSync, existsSync } from 'node:fs'
-import { createInterface } from 'node:readline/promises'
-import { stdin as input, stdout as output } from 'node:process'
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import chalk from 'chalk'
-
-const rl = createInterface({ input, output })
-
-console.log(chalk.gray('='.repeat(60)))
-console.log(chalk.cyan('n2words - Add New Language'))
-console.log(chalk.gray('='.repeat(60)))
-console.log()
-
-// Prompt for language details
-const langCode = await rl.question(
-  'Language code (e.g., "ja", "sv", "fr-CA"): '
-)
-const langName = await rl.question(
-  'Language name (e.g., "Japanese", "Swedish"): '
-)
-console.log(chalk.cyan('\nBase class options:'))
-console.log(
-  '  1. GreedyScaleLanguage (most languages: en, de, fr, es, pt, etc.)'
-)
-console.log('  2. SlavicLanguage (Slavic/Baltic: ru, pl, cs, uk, he, lt, lv)')
-console.log('  3. TurkicLanguage (Turkic: tr, az)')
-console.log('  4. SouthAsianLanguage (Indian-style grouping: hi, bn, ur, pa, mr, gu, kn)')
-console.log('  5. AbstractLanguage (custom implementations: ar, vi, ro, etc.)')
-const baseClassChoice =
-  (await rl.question('Choose base class (1-5) [1]: ')) || '1'
-const baseClassMap = {
-  1: 'GreedyScaleLanguage',
-  2: 'SlavicLanguage',
-  3: 'TurkicLanguage',
-  4: 'SouthAsianLanguage',
-  5: 'AbstractLanguage'
-}
-const baseClass = baseClassMap[baseClassChoice] || 'GreedyScaleLanguage'
-const negativeWord =
-  (await rl.question(
-    'Word for negative numbers (e.g., "minus", "negative") [minus]: '
-  )) || 'minus'
-const separatorWord =
-  (await rl.question(
-    'Word for decimal point (e.g., "point", "dot") [point]: '
-  )) || 'point'
-const zeroWord = (await rl.question('Word for zero [zero]: ')) || 'zero'
-
-rl.close()
-
-console.log()
-console.log(chalk.cyan('Generating files...'))
-
-// Validate inputs
-if (!langCode || !langCode.match(/^[a-z]{2,3}(-[A-Z]{2})?(-[a-zA-Z0-9]{4,8})*$/)) {
-  console.error(chalk.red('✗ Error: Invalid language code. Use IETF BCP 47 format (e.g., "en", "fr-BE", "nb", "fil")'))
-  process.exit(1)
-}
+import { getExpectedClassName, validateLanguageCode } from './validate-language.js'
 
 /**
- * Convert a language name to a PascalCase class name.
- * Strips diacritics, normalizes characters, and capitalizes words.
- *
- * @param {string} name The language name (e.g., "Japanese", "Français")
- * @param {string} code Fallback language code if name is empty
- * @returns {string} PascalCase class name (e.g., "Japanese", "Francais")
+ * Get language name from code using CLDR data (via validator)
+ * Falls back to simple capitalization if CLDR doesn't recognize the code
+ * @param {string} code - IETF BCP 47 language code
+ * @returns {string} Pascal case language name
  */
-function toClassName (name, code) {
-  const normalized = name
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/[^A-Za-z0-9]+/g, ' ')
-    .trim()
+function getLanguageName (code) {
+  // Try to get the canonical name from CLDR first
+  const cldrName = getExpectedClassName(code)
+  if (cldrName) {
+    return cldrName
+  }
 
-  if (!normalized) return code.toUpperCase().replace('-', '')
-
-  return normalized
-    .split(/\s+/)
+  // Fallback: simple capitalization for codes CLDR doesn't recognize
+  // (e.g., historical languages like 'hbo' for Biblical Hebrew)
+  const parts = code.split('-')
+  return parts
     .map(part => part.charAt(0).toUpperCase() + part.slice(1))
     .join('')
 }
 
-const fileName = langCode
-const className = toClassName(langName, langCode)
-const constName = langCode.replace('-', '')
-
-if (existsSync(`lib/languages/${fileName}.js`)) {
-  console.error(chalk.red(`✗ Error: Language file lib/languages/${fileName}.js already exists`))
-  process.exit(1)
-}
-
-const baseClassFile = baseClass
-  .replace(/([A-Z])/g, '-$1')
-  .toLowerCase()
-  .substring(1) // Remove leading hyphen
-let languageTemplate
-
-if (baseClass === 'SouthAsianLanguage') {
-  languageTemplate = `import ${baseClass} from '../classes/${baseClassFile}.js'
+/**
+ * Generate language implementation file
+ * @param {string} code - Language code
+ * @param {string} className - Class name (e.g., 'English')
+ * @returns {string}
+ */
+function generateLanguageFile (code, className) {
+  return `import { GreedyScaleLanguage } from '../classes/greedy-scale-language.js'
 
 /**
- * ${langName} language implementation
- * Converts numeric values to written ${langName}.
+ * ${className} language converter.
  *
- * @example
- * convertToWords(42) // => TODO: Add example output
- * convertToWords(1000) // => TODO: Add example output
- */
-export default function convertToWords (value, options = {}) {
-  return new ${className}(options).convertToWords(value)
-}
-
-/**
- * ${langName} number-to-words converter
- */
-class ${className} extends ${baseClass} {
-  negativeWord = '${negativeWord}'
-  decimalSeparatorWord = '${separatorWord}'
-  zeroWord = '${zeroWord}'
-  convertDecimalsPerDigit = false
-
-  // South Asian grouping properties
-  hundredWord = 'TODO' // e.g., 'सौ' (Hindi) / 'শত' (Bengali)
-  belowHundred = [
-    // Fill words for 0..99 in order
-    // 'TODO 0', 'TODO 1', ..., 'TODO 99'
-  ]
-
-  // Indexed scale words: 0 = none, 1 = thousand, 2 = lakh, 3 = crore, etc.
-  scaleWords = [
-    '',
-    'TODO thousand',
-    'TODO lakh',
-    'TODO crore'
-  ]
-}
-`
-} else if (baseClass === 'SlavicLanguage') {
-  languageTemplate = `import ${baseClass} from '../classes/${baseClassFile}.js'
-
-/**
- * ${langName} language implementation
- * Converts numeric values to written ${langName}.
- */
-export default function convertToWords (value, options = {}) {
-  return new ${className}(options).convertToWords(value)
-}
-
-class ${className} extends ${baseClass} {
-  negativeWord = '${negativeWord}'
-  decimalSeparatorWord = '${separatorWord}'
-  zeroWord = '${zeroWord}'
-
-  // Core maps (fill with language words)
-  ones = {}
-  onesFeminine = {}
-  tens = {}
-  twenties = {}
-  hundreds = {}
-  thousands = {}
-
-  // Optional: feminine forms flag
-  constructor ({ feminine = false } = {}) {
-    super()
-    this.feminine = feminine
-  }
-}
-`
-} else {
-  // GreedyScaleLanguage and TurkicLanguage (scale-based)
-  languageTemplate = `import ${baseClass} from '../classes/${baseClassFile}.js'
-
-/**
- * ${langName} language implementation
- * Converts numeric values to written ${langName}.
+ * Converts numbers to ${className} words, supporting:
+ * - Negative numbers (prepended with negative word)
+ * - Decimal numbers (separator word between whole and fractional parts)
+ * - Large numbers
  *
- * @example
- * convertToWords(42) // => TODO: Add example output
- * convertToWords(1000) // => TODO: Add example output
+ * TODO: Document merge rules and language-specific behavior
  */
-export default function convertToWords (value, options = {}) {
-  return new ${className}(options).convertToWords(value)
-}
+export class ${className} extends GreedyScaleLanguage {
+  negativeWord = 'minus' // TODO: Replace with ${className} word for negative
+  decimalSeparatorWord = 'point' // TODO: Replace with ${className} decimal separator
+  zeroWord = 'zero' // TODO: Replace with ${className} word for zero
 
-/**
- * ${langName} number-to-words converter
- */
-class ${className} extends ${baseClass} {
-  negativeWord = '${negativeWord}'
-  decimalSeparatorWord = '${separatorWord}'
-  zeroWord = '${zeroWord}'
-  convertDecimalsPerDigit = false
-
-  // Define scaleWordPairs in DESCENDING order
-  // Format: [value_as_BigInt, 'word']
   scaleWordPairs = [
+    // TODO: Add scale word pairs in descending order
+    // Format: [value as bigint, word as string]
+    // Example:
     // [1000000n, 'million'],
     // [1000n, 'thousand'],
     // [100n, 'hundred'],
     // [90n, 'ninety'],
-    // ...
-    // [1n, 'one']
+    // ... down to 1n
+    [1n, 'one'] // Placeholder - replace with complete list
   ]
 
-  // Optional: override mergeScales for language-specific grammar
-  // mergeScales (leftWordSet, rightWordSet) {
-  //   // TODO: Implement if needed
-  // }
+  /**
+   * Defines how to merge scale components.
+   *
+   * @param {string} leftWords - Words for the left (higher scale) component
+   * @param {bigint} leftScale - The scale value of the left component
+   * @param {string} rightWords - Words for the right (lower scale) component
+   * @param {bigint} rightScale - The scale value of the right component
+   * @returns {string} The merged result
+   *
+   * TODO: Implement language-specific merge rules
+   * Common patterns:
+   * - Space-separated: "twenty three" → return leftWords + ' ' + rightWords
+   * - Hyphenated: "twenty-three" → return leftWords + '-' + rightWords
+   * - With connector: "twenty and three" → return leftWords + ' and ' + rightWords
+   */
+  mergeScales (leftWords, leftScale, rightWords, rightScale) {
+    // TODO: Implement merge logic
+    return leftWords + ' ' + rightWords
+  }
 }
 `
 }
 
-// Generate test file
-const testTemplate = `/**
- * ${langName} (${langCode}) language tests
- *
- * Test cases for ${langName} number-to-words conversion
+/**
+ * Generate test fixture file
+ * @param {string} code - Language code
+ * @returns {string}
  */
-
+function generateTestFixture (code) {
+  return `/**
+ * Test fixtures for ${code} language
+ *
+ * Format: [input, expected_output, options]
+ * - input: number, bigint, or string to convert
+ * - expected_output: expected string result
+ * - options: (optional) converter options object
+ */
 export default [
+  // TODO: Add comprehensive test cases
   // Basic numbers
-  [0, '${zeroWord}'],
-  [1, 'TODO'], // Add ${langName} word for "one"
-  [2, 'TODO'], // Add ${langName} word for "two"
-  [10, 'TODO'], // Add ${langName} word for "ten"
-  [11, 'TODO'],
-  [19, 'TODO'],
-  [20, 'TODO'],
-  [21, 'TODO'],
-  [99, 'TODO'],
-  [100, 'TODO'],
-  [101, 'TODO'],
-  [200, 'TODO'],
-  [999, 'TODO'],
+  [0, 'zero'], // TODO: Replace with actual ${code} word
+  [1, 'one'],
+  [2, 'two'],
+
+  // Teens
+  [13, 'thirteen'],
+
+  // Tens
+  [20, 'twenty'],
+  [42, 'forty-two'],
+
+  // Hundreds
+  [100, 'one hundred'],
+  [123, 'one hundred and twenty-three'],
 
   // Thousands
-  [1000, 'TODO'],
-  [1001, 'TODO'],
-  [2000, 'TODO'],
-  [12345, 'TODO'],
+  [1000, 'one thousand'],
+  [1234, 'one thousand two hundred and thirty-four'],
 
   // Millions
-  [1000000, 'TODO'],
+  [1000000, 'one million'],
 
-  // Negative numbers
-  [-5, '${negativeWord} TODO'], // Combine negative word with number
+  // Negatives
+  [-1, 'minus one'],
+  [-42, 'minus forty-two'],
 
   // Decimals
-  ['3.14', 'TODO ${separatorWord} TODO'], // "three point one four" or equivalent
-  ['0.5', 'TODO ${separatorWord} TODO']
+  [3.14, 'three point one four'],
 
-  // TODO: Add more test cases covering:
-  // - Edge cases specific to ${langName}
-  // - Large numbers
-  // - Special grammar rules
-  // - Decimal numbers with leading zeros (e.g., '3.005')
+  // BigInt
+  [BigInt(999), 'nine hundred and ninety-nine']
+
+  // Language-specific options (if applicable)
+  // [42, 'expected output', { option: true }]
 ]
 `
-
-// Write language file
-writeFileSync(`lib/languages/${fileName}.js`, languageTemplate)
-console.log(chalk.green(`✓ Created lib/languages/${fileName}.js`))
-
-// Write test file
-writeFileSync(`test/fixtures/languages/${fileName}.js`, testTemplate)
-console.log(chalk.green(`✓ Created test/fixtures/languages/${fileName}.js`))
-
-// Update lib/n2words.js
-const n2wordsPath = 'lib/n2words.js'
-let n2wordsContent = readFileSync(n2wordsPath, 'utf8')
-
-// Find the last import and add new import after it
-const lastImportMatch = n2wordsContent.match(
-  /import \w+ from '\.\/languages\/[^']+\.js'\n/g
-)
-if (lastImportMatch) {
-  const lastImport = lastImportMatch[lastImportMatch.length - 1]
-  const importStatement = `import ${constName} from './languages/${fileName}.js'\n`
-  n2wordsContent = n2wordsContent.replace(
-    lastImport,
-    lastImport + importStatement
-  )
-  console.log(chalk.green('✓ Added import to lib/n2words.js'))
 }
 
-// Add to dict (find last entry and add new one)
-const dictMatch = n2wordsContent.match(/const dict = \{[\s\S]*?\n\}/m)
-if (dictMatch) {
-  const dictBlock = dictMatch[0]
-  const lines = dictBlock.split('\n')
-  const closingBraceIndex = lines.length - 1
+/**
+ * Update n2words.js with new language
+ * @param {string} code - Language code
+ * @param {string} className - Class name
+ */
+function updateN2wordsFile (code, className) {
+  const n2wordsPath = './lib/n2words.js'
+  let content = readFileSync(n2wordsPath, 'utf-8')
 
-  // Find the last non-empty line before closing brace and ensure it has a trailing comma
-  for (let i = closingBraceIndex - 1; i >= 0; i--) {
-    const line = lines[i].trim()
-    if (line && !line.startsWith('//')) {
-      // Add comma if missing
-      if (!line.endsWith(',')) {
-        lines[i] = lines[i] + ','
-      }
-      break
-    }
+  // Find the last import statement
+  const importLines = content.split('\n').filter(line => line.startsWith('import {'))
+  const lastImport = importLines[importLines.length - 1]
+  const lastImportIndex = content.indexOf(lastImport)
+  const insertImportPos = content.indexOf('\n', lastImportIndex) + 1
+
+  // Add import
+  const importStatement = `import { ${className} } from './languages/${code}.js'\n`
+  content = content.slice(0, insertImportPos) + importStatement + content.slice(insertImportPos)
+
+  // Find the converter creation section
+  const converterSectionStart = content.indexOf('// Create wrapper functions for ALL languages')
+  const converterSectionEnd = content.indexOf('\nexport {', converterSectionStart)
+  const lastConverterLine = content.lastIndexOf('\nconst', converterSectionEnd)
+  const insertConverterPos = content.indexOf('\n', lastConverterLine) + 1
+
+  // Add converter creation
+  const converterStatement = `const ${className}Converter = makeConverter(${className})\n`
+  content = content.slice(0, insertConverterPos) + converterStatement + content.slice(insertConverterPos)
+
+  // Find export section
+  const exportStart = content.indexOf('export {')
+  const exportEnd = content.indexOf('}', exportStart)
+  const lastExport = content.lastIndexOf(',', exportEnd)
+  const insertExportPos = lastExport + 1
+
+  // Add export (with proper indentation)
+  const exportStatement = `\n  ${className}Converter`
+  content = content.slice(0, insertExportPos) + exportStatement + content.slice(insertExportPos)
+
+  writeFileSync(n2wordsPath, content)
+}
+
+/**
+ * Main function
+ */
+function main () {
+  const args = process.argv.slice(2)
+
+  if (args.length === 0) {
+    console.error(chalk.red('Error: Language code required'))
+    console.log(chalk.gray('\nUsage: npm run lang:add <language-code>'))
+    console.log(chalk.gray('\nExamples:'))
+    console.log(chalk.gray('  npm run lang:add ko        # Korean'))
+    console.log(chalk.gray('  npm run lang:add zh-Hans   # Simplified Chinese'))
+    console.log(chalk.gray('  npm run lang:add fr-CA     # Canadian French'))
+    process.exit(1)
   }
 
-  // Determine if we need quoted key or not
-  const dictEntry = langCode.includes('-')
-    ? `  '${langCode}': ${constName}`
-    : `  ${constName}`
+  const code = args[0]
 
-  lines.splice(closingBraceIndex, 0, dictEntry)
-  const newDictBlock = lines.join('\n')
-  n2wordsContent = n2wordsContent.replace(dictBlock, newDictBlock)
-  console.log(chalk.green(`✓ Added '${langCode}' to dict in lib/n2words.js`))
+  // Validate language code using Intl API (same as validator)
+  const validation = validateLanguageCode(code)
+  if (!validation.valid) {
+    console.error(chalk.red(`Error: ${validation.error}`))
+    console.log(chalk.gray('\nLanguage codes must follow IETF BCP 47 format:'))
+    console.log(chalk.gray('  - 2-3 lowercase letters (language)'))
+    console.log(chalk.gray('  - Optional: -Script (e.g., -Hans, -Latn)'))
+    console.log(chalk.gray('  - Optional: -REGION (e.g., -US, -GB)'))
+    console.log(chalk.gray('\nExamples: en, fr, zh-Hans, sr-Latn, fr-BE'))
+    console.log(chalk.gray('\nSee: https://en.wikipedia.org/wiki/IETF_language_tag'))
+    process.exit(1)
+  }
+
+  // Warn if using non-canonical form
+  if (validation.canonical && validation.canonical !== code) {
+    console.log(chalk.yellow(`\nWarning: Language code "${code}" will be canonicalized to "${validation.canonical}"`))
+    console.log(chalk.gray('Consider using the canonical form for consistency.\n'))
+  }
+
+  const className = getLanguageName(code)
+  const langFilePath = `./lib/languages/${code}.js`
+  const fixtureFilePath = `./test/fixtures/languages/${code}.js`
+
+  console.log(chalk.cyan(`\nAdding new language: ${code}`))
+  console.log(chalk.gray(`Class name: ${className}`))
+
+  // Check if language already exists
+  if (existsSync(langFilePath)) {
+    console.error(chalk.red(`\nError: Language file already exists: ${langFilePath}`))
+    process.exit(1)
+  }
+
+  // Create language file
+  console.log(chalk.gray(`\nCreating ${langFilePath}...`))
+  writeFileSync(langFilePath, generateLanguageFile(code, className))
+  console.log(chalk.green('✓ Created language file'))
+
+  // Create test fixture file
+  console.log(chalk.gray(`Creating ${fixtureFilePath}...`))
+  const fixtureDir = './test/fixtures/languages'
+  if (!existsSync(fixtureDir)) {
+    mkdirSync(fixtureDir, { recursive: true })
+  }
+  writeFileSync(fixtureFilePath, generateTestFixture(code))
+  console.log(chalk.green('✓ Created test fixture'))
+
+  // Update n2words.js
+  console.log(chalk.gray('Updating lib/n2words.js...'))
+  updateN2wordsFile(code, className)
+  console.log(chalk.green('✓ Updated n2words.js'))
+
+  // Success message with next steps
+  console.log(chalk.green(`\n✓ Successfully scaffolded ${code} language`))
+  console.log(chalk.cyan('\nNext steps:'))
+  console.log(chalk.gray('1. Edit ') + chalk.white(langFilePath))
+  console.log(chalk.gray('   - Replace placeholder values'))
+  console.log(chalk.gray('   - Add complete scaleWordPairs'))
+  console.log(chalk.gray('   - Implement mergeScales() logic'))
+  console.log(chalk.gray('\n2. Edit ') + chalk.white(fixtureFilePath))
+  console.log(chalk.gray('   - Add comprehensive test cases'))
+  console.log(chalk.gray('   - Include edge cases and language-specific features'))
+  console.log(chalk.gray('\n3. Validate implementation:'))
+  console.log(chalk.white(`   npm run lang:validate -- ${code} --verbose`))
+  console.log(chalk.gray('\n4. Run tests:'))
+  console.log(chalk.white('   npm test'))
 }
 
-writeFileSync(n2wordsPath, n2wordsContent)
-
-console.log()
-console.log(chalk.gray('='.repeat(60)))
-console.log(chalk.green('✓ Language boilerplate created successfully!'))
-console.log(chalk.gray('='.repeat(60)))
-console.log()
-console.log(chalk.cyan('Next steps:'))
-console.log()
-console.log(`1. Edit lib/languages/${fileName}.js:`)
-if (baseClass === 'SouthAsianLanguage') {
-  console.log('   - Fill in the belowHundred array (0..99)')
-  console.log('   - Set hundredWord and scaleWords (indexed grouping words)')
-} else if (baseClass === 'SlavicLanguage') {
-  console.log('   - Fill ones/onesFeminine/tens/twenties/hundreds/thousands maps')
-  console.log('   - Use feminine option if needed')
-} else {
-  console.log('   - Fill in the scaleWordPairs array in DESCENDING order')
-  console.log('   - Implement/adjust mergeScales() according to grammar (if needed)')
-}
-console.log()
-console.log(`2. Edit test/fixtures/languages/${fileName}.js:`)
-console.log('   - Replace "TODO" with actual expected outputs')
-console.log('   - Add comprehensive test cases')
-console.log()
-console.log('3. Test your implementation:')
-console.log('   npm test')
-console.log()
-console.log('4. Run the linter:')
-console.log('   npm run lint:js')
-console.log()
-console.log('5. Build and verify:')
-console.log('   npm run web:build')
-console.log()
-console.log(chalk.cyan('Reference implementations:'))
-console.log('   - Simple: lib/languages/en.js')
-console.log('   - Complex: lib/languages/pt.js, lib/languages/fr.js')
-console.log()
+main()
