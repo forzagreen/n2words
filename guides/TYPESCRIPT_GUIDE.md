@@ -89,9 +89,9 @@ type N2WordsOptions = {
 type LanguageCode =
   | 'ar' | 'az' | 'bn' | 'cs' | 'de' | 'da' | 'el' | 'en' | 'es' | 'fa'
   | 'fr' | 'fr-BE' | 'gu' | 'he' | 'hi' | 'hr' | 'hu' | 'id' | 'it' | 'ja'
-  | 'kn' | 'ko' | 'lt' | 'lv' | 'mr' | 'ms' | 'nl' | 'nb' | 'pa' | 'pl'
-  | 'pt' | 'ro' | 'ru' | 'sr' | 'sv' | 'sw' | 'ta' | 'te' | 'th' | 'fil'
-  | 'tr' | 'uk' | 'ur' | 'vi' | 'zh'
+  | 'kn' | 'ko' | 'lt' | 'lv' | 'mr' | 'ms' | 'nl' | 'nb' | 'pa-Guru' | 'pl'
+  | 'pt' | 'ro' | 'ru' | 'sr-Latn' | 'sv' | 'sw' | 'ta' | 'te' | 'th' | 'fil'
+  | 'tr' | 'uk' | 'ur' | 'vi' | 'zh-Hans'
 ```
 
 ### Language-Specific Option Types
@@ -158,7 +158,7 @@ n2words supports **many languages**. Here are the most common:
 | `'it'` | Italian | `42` → 'quarantadue' |
 | `'pt'` | Portuguese | `42` → 'quarenta e dois' |
 | `'ru'` | Russian | `42` → 'сорок два' |
-| `'zh'` | Chinese | `42` → '四十二' |
+| `'zh-Hans'` | Chinese (Simplified) | `42` → '四十二' |
 | `'ja'` | Japanese | `42` → '四十二' |
 | `'ko'` | Korean | `42` → '사십이' |
 | `'ar'` | Arabic | `42` → 'اثنان وأربعون' |
@@ -274,10 +274,10 @@ n2words(-10, { lang: 'ar', negativeWord: 'سالب' }) // 'سالب عشرة'
 import n2words, { type ChineseOptions } from 'n2words'
 
 // Financial/formal numerals (default)
-n2words(123, { lang: 'zh', formal: true }) // '壹佰贰拾叁'
+n2words(123, { lang: 'zh-Hans', formal: true }) // '壹佰贰拾叁'
 
 // Common numerals
-n2words(123, { lang: 'zh', formal: false }) // '一百二十三'
+n2words(123, { lang: 'zh-Hans', formal: false }) // '一百二十三'
 ```
 
 ### Hebrew (`HebrewOptions`)
@@ -377,7 +377,7 @@ function toChineseWords(
   value: number | string | bigint,
   options: ChineseOptions = {}
 ): string {
-  return n2words(value, { lang: 'zh', ...options })
+  return n2words(value, { lang: 'zh-Hans', ...options })
 }
 
 // Usage with full type safety
@@ -392,7 +392,7 @@ const result2 = toChineseWords(123, { formal: true }) // '壹佰贰拾叁'
 import n2words, { type LanguageCode } from 'n2words'
 
 // Use the built-in LanguageCode type for full type safety
-type SupportedLanguage = Extract<LanguageCode, 'en' | 'fr' | 'es' | 'de' | 'zh'>
+type SupportedLanguage = Extract<LanguageCode, 'en' | 'fr' | 'es' | 'de' | 'zh-Hans'>
 
 /**
  * Convert numbers with language selection and type safety.
@@ -406,7 +406,7 @@ function convertInLanguage(
 
 // Usage with compile-time validation
 const result1 = convertInLanguage(42, 'fr') // 'quarante-deux'
-const result2 = convertInLanguage(123, 'zh') // '一百二十三'
+const result2 = convertInLanguage(123, 'zh-Hans') // '一百二十三'
 // convertInLanguage(42, 'invalid') // ← TypeScript error
 
 /**
@@ -421,7 +421,7 @@ function convertWithOptions(
 }
 
 // Language-specific options are validated
-convertWithOptions(42, 'zh', { formal: true })  // ✓ Valid
+convertWithOptions(42, 'zh-Hans', { formal: true })  // ✓ Valid
 convertWithOptions(42, 'ar', { feminine: true }) // ✓ Valid
 // convertWithOptions(42, 'en', { formal: true })  // ← Works but formal ignored for English
 ```

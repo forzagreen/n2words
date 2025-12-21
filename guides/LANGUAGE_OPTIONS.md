@@ -263,7 +263,7 @@ n2words(4, { lang: 'uk', feminine: true }); // 'чотири' (feminine ones set
 
 ---
 
-### Serbian (sr) - Gender Agreement
+### Serbian (sr-Latn) - Gender Agreement
 
 Serbian uses the shared Slavic `feminine` option for feminine forms of digits 1-9 (ones place).
 
@@ -277,13 +277,13 @@ Serbian uses the shared Slavic `feminine` option for feminine forms of digits 1-
 
 ```javascript
 // Masculine (default)
-n2words(1, { lang: 'sr' }); // 'jedan'
-n2words(2, { lang: 'sr' }); // 'dva'
+n2words(1, { lang: 'sr-Latn' }); // 'jedan'
+n2words(2, { lang: 'sr-Latn' }); // 'dva'
 
 // Feminine
-n2words(1, { lang: 'sr', feminine: true }); // 'jedna'
-n2words(2, { lang: 'sr', feminine: true }); // 'dve'
-n2words(4, { lang: 'sr', feminine: true }); // 'četiri' (feminine ones set)
+n2words(1, { lang: 'sr-Latn', feminine: true }); // 'jedna'
+n2words(2, { lang: 'sr-Latn', feminine: true }); // 'dve'
+n2words(4, { lang: 'sr-Latn', feminine: true }); // 'četiri' (feminine ones set)
 ```
 
 ---
@@ -363,7 +363,7 @@ n2words(4, { lang: 'lv', feminine: true }); // 'četri' (Latvian shares ones set
 
 ---
 
-### Chinese (zh) - Formal vs. Common Numerals
+### Chinese (zh-Hans) - Formal vs. Common Numerals
 
 Chinese supports both formal/financial numerals (大写数字) and common/everyday numerals (小写数字).
 
@@ -377,14 +377,14 @@ Chinese supports both formal/financial numerals (大写数字) and common/everyd
 
 ```javascript
 // Formal/financial style (default) - used in banking, legal documents
-n2words(123, { lang: 'zh' }); // '壹佰贰拾叁'
-n2words(123, { lang: 'zh', formal: true }); // '壹佰贰拾叁'
+n2words(123, { lang: 'zh-Hans' }); // '壹佰贰拾叁'
+n2words(123, { lang: 'zh-Hans', formal: true }); // '壹佰贰拾叁'
 
 // Common/everyday style - used in daily life
-n2words(123, { lang: 'zh', formal: false }); // '一百二十三'
+n2words(123, { lang: 'zh-Hans', formal: false }); // '一百二十三'
 
 // Large numbers
-n2words(999999999999n, { lang: 'zh', formal: false });
+n2words(999999999999n, { lang: 'zh-Hans', formal: false });
 // '九千九百九十九亿九千九百九十九万九千九百九十九'
 ```
 
@@ -486,7 +486,7 @@ n2words(21, { lang: 'az', dropSpaces: true }); // 'iyirmibir' (agglutinated)
 | Czech (cz)             | `feminine`            | boolean | `false`  | Use feminine forms for ones (1-9) and related cases     |
 | Polish (pl)            | `feminine`            | boolean | `false`  | Use feminine forms for ones (1-9) and related cases     |
 | Ukrainian (uk)         | `feminine`            | boolean | `false`  | Use feminine forms for ones (1-9) and related cases     |
-| Serbian (sr)           | `feminine`            | boolean | `false`  | Use feminine forms for ones (1-9) and related cases     |
+| Serbian (sr-Latn)      | `feminine`            | boolean | `false`  | Use feminine forms for ones (1-9) and related cases     |
 | Croatian (hr)          | `feminine`            | boolean | `false`  | Use feminine forms for ones (1-9) and related cases     |
 | Lithuanian (lt)        | `feminine`            | boolean | `false`  | Use feminine forms for ones (1-9) and related cases     |
 | Latvian (lv)           | `feminine`            | boolean | `false`  | Use feminine forms for ones (1-9) and related cases     |
@@ -586,8 +586,8 @@ All other languages use only the common options:
 
 - English (en), German (de), Italian (it), Portuguese (pt), Dutch (nl)
 - Norwegian (no), Danish (dk), Swedish (sv)
-- Russian (ru), Polish (pl), Czech (cz), Ukrainian (uk), Serbian (sr), Croatian (hr), Lithuanian (lt), Latvian (lv)
-- Hungarian (hu), Japanese (ja), Korean (ko), Chinese (zh), Vietnamese (vi)
+- Russian (ru), Polish (pl), Czech (cz), Ukrainian (uk), Serbian (sr-Latn), Croatian (hr), Lithuanian (lt), Latvian (lv)
+- Hungarian (hu), Japanese (ja), Korean (ko), Chinese (zh-Hans), Vietnamese (vi)
 - Persian/Farsi (fa), Indonesian (id)
 - Hindi (hi), Bengali (bn), Tamil (ta), Telugu (te), Thai (th), Swahili (sw)
 

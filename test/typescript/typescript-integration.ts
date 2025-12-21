@@ -8,7 +8,7 @@ import { test, describe } from 'node:test';
 import assert from 'node:assert';
 import n2words from 'n2words';
 import type { N2WordsOptions, LanguageCode } from '../../typings/n2words.js';
-import type { ChineseOptions } from '../../typings/languages/zh.js';
+import type { ChineseOptions } from '../../typings/languages/zh-Hans.js';
 import type { SpanishOptions } from '../../typings/languages/es.js';
 import type { HebrewOptions } from '../../typings/languages/he.js';
 import type { DutchOptions } from '../../typings/languages/nl.js';
@@ -24,7 +24,7 @@ test('N2WordsOptions type works', () => {
   const options3: N2WordsOptions = {};
 
   // Test that LanguageCode type constrains language values
-  const validLang: LanguageCode = 'zh';
+  const validLang: LanguageCode = 'zh-Hans';
   const optionsWithValidLang: N2WordsOptions = { lang: validLang };
 
   assert.ok(options1);
@@ -36,7 +36,7 @@ test('N2WordsOptions type works', () => {
 test('language-specific options type safety', () => {
   // Chinese options
   const chineseOptions: ChineseOptions = { formal: true };
-  const chineseN2Words: N2WordsOptions = { lang: 'zh', formal: true };
+  const chineseN2Words: N2WordsOptions = { lang: 'zh-Hans', formal: true };
 
   // Spanish options
   const spanishOptions: SpanishOptions = { genderStem: 'a' };
@@ -96,7 +96,7 @@ test('function signature type constraints', () => {
 
   // Test with options
   const result4: string = n2words(42, { lang: 'fr' });
-  const result5: string = n2words(100, { lang: 'zh', formal: true });
+  const result5: string = n2words(100, { lang: 'zh-Hans', formal: true });
 
   // These should all be strings
   assert.strictEqual(typeof result1, 'string');
@@ -124,7 +124,7 @@ test('direct language imports with type safety', async () => {
   const { default: en } = await import('n2words/languages/en');
   const { default: es } = await import('n2words/languages/es');
   const { default: fr } = await import('n2words/languages/fr');
-  const { default: zh } = await import('n2words/languages/zh');
+  const { default: zhHans } = await import('n2words/languages/zh-Hans');
   const { default: he } = await import('n2words/languages/he');
 
   // Test basic usage - should return strings
@@ -134,7 +134,7 @@ test('direct language imports with type safety', async () => {
 
   // Test with language-specific options using types from individual language declarations
   const chineseOptions: ChineseOptions = { formal: true };
-  const result4: string = zh(100, chineseOptions);
+  const result4: string = zhHans(100, chineseOptions);
 
   const hebrewOptions: HebrewOptions = { feminine: true, biblical: false };
   const result5: string = he(50, hebrewOptions);
@@ -261,14 +261,21 @@ test('type regression detection', () => {
   // These tests would fail compilation if types regressed
 
   // Test that LanguageCode constrains lang values
-  const validLanguages: LanguageCode[] = ['en', 'fr', 'zh', 'ar', 'he', 'es'];
+  const validLanguages: LanguageCode[] = [
+    'en',
+    'fr',
+    'zh-Hans',
+    'ar',
+    'he',
+    'es',
+  ];
   for (const lang of validLanguages) {
     const result: string = n2words(100, { lang });
     assert.strictEqual(typeof result, 'string');
   }
 
   // Test that language-specific options are properly typed
-  const chineseResult: string = n2words(100, { lang: 'zh', formal: true });
+  const chineseResult: string = n2words(100, { lang: 'zh-Hans', formal: true });
   const spanishResult: string = n2words(100, { lang: 'es', genderStem: 'a' });
   const hebrewResult: string = n2words(100, {
     lang: 'he',
@@ -311,7 +318,7 @@ test('generated typings exist and are current', () => {
   );
 
   // Check specific language declaration files
-  const keyLanguages = ['en', 'zh', 'es', 'he', 'fr', 'ar'];
+  const keyLanguages = ['en', 'zh-Hans', 'es', 'he', 'fr', 'ar'];
   for (const lang of keyLanguages) {
     const langTypingFile = join(languagesTypingsDir, `${lang}.d.ts`);
     assert.ok(
@@ -417,7 +424,7 @@ test('typings match actual language implementations', () => {
   const languageCodeType = languageCodeMatch![1];
 
   // Verify key languages are included (proves generation worked)
-  for (const langCode of ['en', 'zh', 'fr', 'es', 'ar', 'fr-BE']) {
+  for (const langCode of ['en', 'zh-Hans', 'fr', 'es', 'ar', 'fr-BE']) {
     assert.ok(
       languageCodeType.includes(`"${langCode}"`),
       `LanguageCode should include "${langCode}" from actual files`,
