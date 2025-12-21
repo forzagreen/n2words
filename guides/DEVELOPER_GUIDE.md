@@ -54,9 +54,12 @@ npm run lint               # Lint JS and Markdown
 npm run lint:js            # Lint JS only
 npm run lint:md            # Lint Markdown only
 
+# Auto-fix lint issues (individual commands)
+npm run lint:js -- --fix  # Auto-fix JS lint issues
+npm run lint:md -- --fix  # Auto-fix Markdown lint issues
+
 # Build outputs
 npm run web:build          # Build browser bundle
-npm run web:build          # Webpack bundle
 ```
 
 If all tests pass, you're ready to develop!
@@ -272,9 +275,6 @@ npm test
 # Run specific tests
 npm run test:unit
 npm run test:integration
-
-# Run tests in watch mode (if needed)
-npm test -- --watch
 ```
 
 ### 4. Check Code Quality
@@ -283,17 +283,24 @@ npm test -- --watch
 # Lint code
 npm run lint
 
-# Auto-fix some lint issues
-npm run lint:fix
+# Auto-fix lint issues with individual commands
+npm run lint:js -- --fix  # Fix JavaScript issues
+npm run lint:md -- --fix  # Fix Markdown issues
 ```
 
 ### 5. Build & Verify
 
 ```bash
-# Build browser bundle and TypeScript definitions
+# Build browser bundle
 npm run web:build
 
-# Check TypeScript definitions
+# Test browser compatibility (requires web:build first)
+npm run web:test
+
+# Generate TypeScript definitions (optional - automated in CI)
+npm run types:generate
+
+# Validate TypeScript definitions
 npm run types:validate
 ```
 
@@ -314,7 +321,6 @@ git push origin feature/your-feature-name
 | --- | --- | --- |
 | `test/unit/` | Core API, errors, validation | `npm run test:unit` |
 | `test/integration/` | Targeted coverage for complex code paths | `npm run test:integration` |
-| `test/smoke/` | Sanity check all languages | `npm run test:smoke` |
 | `test/fixtures/languages/` | Language-specific test fixtures | Loaded by integration tests |
 | `test/typescript/` | TypeScript validation tests | `npm run types:validate` |
 | `test/web/` | Browser compatibility | `npm run web:test` |
@@ -476,11 +482,14 @@ scaleWordPairs = [
 # Check code style (ESLint via Standard)
 npm run lint:js
 
-# Auto-fix style issues
-npm run lint:fix
+# Auto-fix JavaScript style issues
+npm run lint:js -- --fix
 
 # Check Markdown
 npm run lint:md
+
+# Auto-fix Markdown issues
+npm run lint:md -- --fix
 ```
 
 Standard is configured; no manual style discussions needed.
@@ -600,8 +609,7 @@ npm run lang:validate xx
 1. **Run tests**:
 
 ```bash
-
-npm run test:integration   # Should show ✓ xx
+npm run test:integration   # Should include your new language
 ```
 
 For detailed guidance, see [LANGUAGE_GUIDE.md](LANGUAGE_GUIDE.md).

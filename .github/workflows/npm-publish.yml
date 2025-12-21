@@ -45,17 +45,16 @@ jobs:
       - name: Lint
         run: npm run lint
 
+      - name: Run core tests
+        run: npm test
+
       - name: Build web bundles
         run: npm run web:build
 
-      - name: Build TypeScript declarations
-        run: npm run types:generate
-
-      - name: Run tests
-        run: npm test
-
-      - name: Run TypeScript smoke test
-        run: npm run types:validate
+      - name: Build & test TypeScript declarations
+        run: |
+          npm run types:generate
+          npm run types:validate
 
       - name: Dry-run publish
         run: npm publish --dry-run

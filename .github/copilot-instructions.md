@@ -77,11 +77,11 @@ This file gives targeted, actionable guidance for AI coding agents working in th
   - See `guides/LANGUAGE_GUIDE.md` for comprehensive implementation guidance.
 
 - **Build / test / lint workflows** (explicit commands):
-  - Run all tests: `npm test && npm run types:validate && npm run web:test` (runs unit, integration, typescript, and web tests). **Requires `npm run web:build` first.**
+  - Run all tests: `npm test && npm run types:validate && npm run web:test` (runs unit, integration, typescript, and web tests). **Requires `npm run web:build` and `npm run types:generate` first.**
   - Run basic tests: `npm test` (runs unit and integration tests only).
     - Unit tests: `npm run test:unit` (test/unit/\*.js) — API, errors, validation, options.
     - Integration tests: `npm run test:integration` (test/integration/\*.js) — targeted coverage and CommonJS.
-    - TypeScript tests: `npm run types:validate` (test/typescript/typescript-integration.ts) — type validation. **TypeScript declarations are automatically built in CI.**
+    - TypeScript tests: `npm run types:validate` (test/typescript/typescript-integration.ts) — type validation. **Requires `npm run types:generate` first. TypeScript declarations are automatically built in CI.**
     - Web tests: `npm run web:test` (test/web.js) — browser compatibility (Chrome/Firefox). **Requires `npm run web:build` first.**
   - Run coverage: `npm run coverage:generate` (runs npm test with c8 instrumentation).
   - Build browser bundle: `npm run web:build` (uses webpack, outputs to dist/).
