@@ -1,6 +1,6 @@
 # TypeScript Guide
 
-This guide covers using n2words with TypeScript, including type safety and language-specific options.
+This guide covers using n2words with TypeScript, including individual language imports, type safety, and language-specific options.
 
 ## Quick Start
 
@@ -8,194 +8,226 @@ This guide covers using n2words with TypeScript, including type safety and langu
 npm install n2words  # Includes built-in TypeScript definitions
 ```
 
-**Requirements:** Node.js `^20 || ^22 || >=24`, TypeScript `^4.5`
-
-**Minimum tsconfig.json:** Requires `"target": "ES2020"` and `"lib": ["ES2020"]` for BigInt support.
+**Requirements:** Node.js `^20 || ^22 || >=24`, TypeScript `^4.5` with `"target": "ES2020"`
 
 ```typescript
-import n2words, { type N2WordsOptions } from 'n2words'
+// Main library import (all languages)
+import n2words from 'n2words'
+const result = n2words(42, { lang: 'fr' })  // 'quarante-deux'
 
-// Basic usage
-const result: string = n2words(42)           // 'forty-two'
-const french: string = n2words(100, { lang: 'fr' })  // 'cent'
+// Individual language import (recommended - tree-shakeable)
+import convertToFrench from 'n2words/languages/fr'
+const french = convertToFrench(42, { withHyphenSeparator: true })  // 'quarante-deux'
 ```
 
-## Type Definitions
+## Import Patterns
+
+### Main Library (All Languages)
 
 ```typescript
-// Main options type with full autocomplete
-type N2WordsOptions = {
-  lang?: LanguageCode  // Language with fallback support
+import n2words, { type N2WordsOptions, type LanguageCode } from 'n2words'
 
-  // Language-specific options (type-safe)
-  feminine?: boolean           // Arabic, Hebrew, Romanian, Slavic
-  formal?: boolean             // Chinese (formal vs common numerals)
-  genderStem?: 'o' | 'a'      // Spanish (masculine/feminine)
-  withHyphenSeparator?: boolean // French (hyphens vs spaces)
-  dropSpaces?: boolean         // Turkish/Azerbaijani
-  negativeWord?: string        // Arabic (custom minus word)
-  and?: string                 // Hebrew (conjunction)
-  // ... more language-specific options
-}
+// Generic usage - supports all 47+ languages with fallback
+const result = n2words(1000, { lang: 'es' })  // 'mil'
+```
 
-// All supported languages with autocomplete
+### Individual Languages (Recommended)
+
+```typescript
+// Tree-shakeable imports with language-specific types
+import convertToFrench, { type FrenchOptions } from 'n2words/languages/fr'
+import convertToChinese, { type ChineseOptions } from 'n2words/languages/zh-Hans'
+import convertToSpanish, { type SpanishOptions } from 'n2words/languages/es'
+
+// Full type safety and IntelliSense
+const frenchOptions: FrenchOptions = { withHyphenSeparator: true }
+const french = convertToFrench(80, frenchOptions)  // 'quatre-vingts'
+
+// Or use type inference (no explicit types needed)
+const chinese = convertToChinese(123, { formal: true })  // '壹佰贰拾叁'
+const spanish = convertToSpanish(21, { genderStem: 'a' })  // 'veintiuna'
+```
+
+## Type Reference
+
+```typescript
+// Main library types
 type LanguageCode = 'ar' | 'az' | 'bn' | 'cs' | 'de' | 'da' | 'el' | 'en'
-  | 'es' | 'fa' | 'fr' | 'fr-BE' | 'gu' | 'he' | 'hi' | 'hr' | 'hu' | 'id'
-  | 'it' | 'ja' | 'kn' | 'ko' | 'lt' | 'lv' | 'mr' | 'ms' | 'nl' | 'nb'
-  | 'pa-Guru' | 'pl' | 'pt' | 'ro' | 'ru' | 'sr-Latn' | 'sv' | 'sw' | 'ta'
-  | 'te' | 'th' | 'fil' | 'tr' | 'uk' | 'ur' | 'vi' | 'zh-Hans'
-```
+  | 'es' | 'fa' | 'fr' | 'fr-BE' | 'gu' | 'hbo' | 'he' | 'hi' | 'hr' | 'hu'
+  | 'id' | 'it' | 'ja' | 'kn' | 'ko' | 'lt' | 'lv' | 'mr' | 'ms' | 'nl' | 'nb'
+  | 'pa-Guru' | 'pl' | 'pt' | 'ro' | 'ru' | 'sr-Cyrl' | 'sr-Latn' | 'sv'
+  | 'sw' | 'ta' | 'te' | 'th' | 'fil' | 'tr' | 'uk' | 'ur' | 'vi' | 'zh-Hans' | 'zh-Hant'
 
-### Input Types
+type N2WordsInput = number | string | bigint
 
-```typescript
-// Accepts three input types
-n2words(42)              // number: most common
-n2words('123.456789')    // string: preserves decimal precision
-n2words(9007199254740992n) // bigint: very large integers
+// Language-specific option types (examples)
+type FrenchOptions = { withHyphenSeparator?: boolean }
+type SpanishOptions = { genderStem?: 'o' | 'a' }
+type ChineseOptions = { formal?: boolean }
+type ArabicOptions = { feminine?: boolean; negativeWord?: string }
+// ... see individual language files for complete types
 ```
 
 ## Usage Patterns
 
-### Basic Conversions
+### Direct Language Imports (Type-Safe)
 
 ```typescript
-// Simple with type inference
-const result = n2words(123)  // string inferred
+import convertToFrench, { type FrenchOptions } from 'n2words/languages/fr'
+import convertToSpanish, { type SpanishOptions } from 'n2words/languages/es'
+import convertToChinese, { type ChineseOptions } from 'n2words/languages/zh-Hans'
 
-// Explicit options
-const options: N2WordsOptions = { lang: 'fr' }
-const french = n2words(42, options)  // 'quarante-deux'
-
-// Helper function
-function convertNumber(value: number | string | bigint, lang = 'en'): string {
-  return n2words(value, { lang })
+// Full IntelliSense for language-specific options with explicit typing
+const frenchOptions: FrenchOptions = {
+  withHyphenSeparator: true   // ✅ TypeScript knows this option exists
 }
+const frenchHyphens = convertToFrench(91, frenchOptions)
+
+const spanishOptions: SpanishOptions = {
+  genderStem: 'a'  // ✅ TypeScript validates the value
+}
+const spanishFeminine = convertToSpanish(21, spanishOptions)
+
+const chineseOptions: ChineseOptions = {
+  formal: true  // ✅ Only valid options for Chinese
+}
+const chineseFormal = convertToChinese(100, chineseOptions)
 ```
 
-### Language-Specific Options
+### Type Inference (Implicit Typing)
 
 ```typescript
-// Arabic: gender and custom minus word
-n2words(42, { lang: 'ar', feminine: true })      // feminine form
-n2words(-10, { lang: 'ar', negativeWord: 'سالب' }) // custom minus
+import convertToFrench from 'n2words/languages/fr'
+import convertToSpanish from 'n2words/languages/es'
+import convertToChinese from 'n2words/languages/zh-Hans'
+import convertToDutch from 'n2words/languages/nl'
 
-// Chinese: formal vs common numerals
-n2words(123, { lang: 'zh-Hans', formal: true })  // '壹佰贰拾叁' (formal)
-n2words(123, { lang: 'zh-Hans', formal: false }) // '一百二十三' (common)
+// TypeScript automatically infers types from usage - no explicit annotations needed
+const result = convertToFrench(42)  // Inferred as: string
 
-// Spanish: gender agreement
-n2words(21, { lang: 'es', genderStem: 'o' })     // 'veintiuno' (masculine)
-n2words(21, { lang: 'es', genderStem: 'a' })     // 'veintiuna' (feminine)
+// Object literals are automatically validated against function signatures
+const frenchResult = convertToFrench(80, {
+  withHyphenSeparator: true  // ✅ TypeScript knows this is valid for French
+  // formal: true            // ❌ TypeScript error - not valid for French
+})
 
-// French: hyphenation
-n2words(91, { lang: 'fr', withHyphenSeparator: true }) // 'quatre-vingt-onze'
-```
+const spanishResult = convertToSpanish(21, {
+  genderStem: 'a'  // ✅ TypeScript validates 'a' | 'o'
+  // genderStem: 'x'  // ❌ TypeScript error - invalid value
+})
 
-### Advanced Patterns
+// Const assertions preserve literal types for better inference
+const languages = ['en', 'fr', 'es'] as const  // type: readonly ["en", "fr", "es"]
 
-```typescript
-// Multi-language converter with type safety
-type SupportedLang = 'en' | 'fr' | 'es' | 'de' | 'zh-Hans'
-
-function convertInLanguage(value: number, lang: SupportedLang): string {
-  return n2words(value, { lang })
+// Function parameters infer from context
+const converters = {
+  fr: convertToFrench,
+  es: convertToSpanish,
+  'zh-Hans': convertToChinese
 }
 
-// Array conversion
-function numbersToWords(numbers: number[], lang = 'en'): string[] {
-  return numbers.map(num => n2words(num, { lang }))
-}
-
-// Error handling
-function safeConvert(value: unknown, lang = 'en'): string | null {
-  try {
-    if (typeof value === 'number' || typeof value === 'string' || typeof value === 'bigint') {
-      return n2words(value, { lang })
-    }
-    return null
-  } catch (error) {
-    console.error('Conversion error:', error)
-    return null
+// Return type automatically inferred as string, options validated per language
+function smartConvert(lang: keyof typeof converters, value: number) {
+  switch (lang) {
+    case 'fr':
+      return converters.fr(value, { withHyphenSeparator: true })  // ✅ Valid for French
+    case 'es':
+      return converters.es(value, { genderStem: 'a' })           // ✅ Valid for Spanish
+    case 'zh-Hans':
+      return converters['zh-Hans'](value, { formal: true })      // ✅ Valid for Chinese
   }
 }
+
+// Array of functions with inferred signatures
+const languageFunctions = [convertToFrench, convertToSpanish, convertToChinese]
+// TypeScript knows each function signature and validates accordingly
+
+// Destructuring with inference
+const { fr: toFrench, es: toSpanish } = {
+  fr: convertToFrench,
+  es: convertToSpanish
+}
+// toFrench and toSpanish automatically have correct function signatures
 ```
 
-## Advanced Features
-
-### Importing Base Classes
+## Language Examples
 
 ```typescript
-// Main exports
-import n2words, {
-  type N2WordsOptions,
-  type LanguageCode,
-  // Language-specific types
-  type ArabicOptions,
-  type ChineseOptions,
-  type SpanishOptions
-} from 'n2words'
+// Chinese: Formal vs standard numerals
+import convertToChinese, { type ChineseOptions } from 'n2words/languages/zh-Hans'
+const standard = convertToChinese(123)                    // '一百二十三'
+const formal: ChineseOptions = { formal: true }
+const formalNum = convertToChinese(123, formal)           // '壹佰贰拾叁'
 
-// Base classes (for language developers)
-import {
-  AbstractLanguage,
-  GreedyScaleLanguage,
-  SlavicLanguage
-} from 'n2words'
+// Spanish: Gender agreement
+import convertToSpanish, { type SpanishOptions } from 'n2words/languages/es'
+const masculine = convertToSpanish(21, { genderStem: 'o' }) // 'veintiuno'
+const feminine = convertToSpanish(21, { genderStem: 'a' })  // 'veintiuna'
+
+// French: Hyphenation style
+import convertToFrench, { type FrenchOptions } from 'n2words/languages/fr'
+const withHyphens = convertToFrench(91, { withHyphenSeparator: true }) // 'quatre-vingt-onze'
 ```
 
-### Browser Usage
+## Advanced Usage
+
+### Custom Language Development
 
 ```typescript
-// ESM with bundler (webpack, Vite, etc.)
-import n2words from 'n2words'
-const text = n2words(42, { lang: 'en' })
+// Base classes for extending languages
+import { GreedyScaleLanguage } from 'n2words/classes'
 
-// Or via CDN
-// <script src="https://unpkg.com/n2words/dist/n2words.js"></script>
+class MyLanguage extends GreedyScaleLanguage {
+  negativeWord = 'negative'
+  // ... implementation
+}
 ```
 
-### Testing
+### Testing with Types
 
 ```typescript
-import { describe, it, expect } from 'vitest'
-import n2words from 'n2words'
+import test from 'ava'
+import convertToFrench, { type FrenchOptions } from 'n2words/languages/fr'
 
-describe('n2words', () => {
-  it('converts numbers', () => {
-    expect(n2words(42, { lang: 'en' })).toBe('forty-two')
-    expect(n2words('3.14', { lang: 'en' })).toBe('three point one four')
-    expect(n2words(123456789n, { lang: 'en' })).toContain('million')
-  })
+test('validates options at compile time', t => {
+  const options: FrenchOptions = { withHyphenSeparator: true }
+  t.is(convertToFrench(80, options), 'quatre-vingts')
+})
+
+test('type safety prevents invalid options', t => {
+  // ✅ Valid options compile successfully
+  const validOptions: FrenchOptions = { withHyphenSeparator: false }
+  t.is(convertToFrench(42, validOptions), 'quarante-deux')
+
+  // ❌ This would cause TypeScript compilation error:
+  // const invalid: FrenchOptions = { formal: true }  // Property doesn't exist
 })
 ```
 
-## Common Issues
+## Tips
 
-**Language Not Found:**
+**Bundle Optimization:** Individual imports are tree-shakeable and reduce bundle size.
 
 ```typescript
-// ❌ Unsupported language throws error
-n2words(42, { lang: 'xyz' })  // Error: no converter for language 'xyz'
+// ❌ Imports all 47+ languages
+import n2words from 'n2words'
 
-// ✅ Use fallback or validation
-const lang = isValidLanguage(userLang) ? userLang : 'en'
+// ✅ Only imports what you need
+import convertToFrench from 'n2words/languages/fr'
 ```
 
-**Decimal Precision:**
+**Type Safety:** Individual imports provide better IntelliSense than generic options.
 
 ```typescript
-// ❌ Number precision loss
-n2words(0.1 + 0.2)  // Unexpected output due to floating-point
+// ❌ Limited autocomplete
+import n2words from 'n2words'
+n2words(42, { lang: 'fr', withHyphen... }) // Incomplete
 
-// ✅ Use string for precision
-n2words('0.3')      // 'zero point three'
+// ✅ Full autocomplete and validation
+import convertToFrench from 'n2words/languages/fr'
+convertToFrench(42, { withHyphenSeparator: true }) // Complete
 ```
 
 ---
 
-**Resources:**
-
-- [LANGUAGE_OPTIONS.md](LANGUAGE_OPTIONS.md) - Language-specific options
-- [LANGUAGE_GUIDE.md](LANGUAGE_GUIDE.md) - Extending languages
-- [GitHub Repository](https://github.com/forzagreen/n2words) - Source code
+**Resources:** [Language Options](LANGUAGE_OPTIONS.md) · [Language Development](LANGUAGE_GUIDE.md) · [GitHub](https://github.com/forzagreen/n2words)

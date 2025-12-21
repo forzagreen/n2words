@@ -117,12 +117,12 @@ Choose the appropriate base class for your language:
 
 Recent updates have standardized several language codes:
 
-| Old Code | New Code | Language | Reason |
-|----------|----------|----------|---------|
-| `cz` | `cs` | Czech | ISO 639-1 standard is `cs` |
-| `dk` | `da` | Danish | Country code vs. language code |
-| `no` | `nb` | Norwegian | Specifies Norwegian Bokmål |
-| `tl` | `fil` | Filipino | Official language name |
+| Old Code | New Code | Language   | Reason                             |
+|----------|----------|------------|----------------------------------- |
+| `cz`     | `cs`     | Czech      | ISO 639-1 standard is `cs`         |
+| `dk`     | `da`     | Danish     | Country code vs. language code     |
+| `no`     | `nb`     | Norwegian  | Specifies Norwegian Bokmål         |
+| `tl`     | `fil`    | Filipino   | Official language name             |
 
 #### Validation
 

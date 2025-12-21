@@ -1,13 +1,11 @@
 {
   "compilerOptions": {
-    "module": "ESNext",
+    "module": "esnext",
     "moduleResolution": "bundler",
     "target": "ES2022",
-    "lib": ["ES2022"],
     "strict": true,
-    "skipLibCheck": true,
     "noEmit": true,
-    "baseUrl": "..",
+    "baseUrl": "../..",
     "paths": {
       "n2words": ["./typings/n2words.d.ts"],
       "n2words/languages/*": ["./typings/languages/*.d.ts"]

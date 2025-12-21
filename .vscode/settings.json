@@ -1,45 +1,21 @@
 {
-  // Editor
-  "editor.formatOnSave": true,
-  "editor.defaultFormatter": "prettier.prettier-vscode",
-  "editor.codeActionsOnSave": {
-    "source.fixAll": "explicit"
-  },
-  "editor.rulers": [100],
+  // Code Quality (Project Standards)
   "editor.tabSize": 2,
-  "editor.insertSpaces": true,
-  "editor.trimAutoWhitespace": true,
   "files.trimTrailingWhitespace": true,
   "files.insertFinalNewline": true,
 
-  // Language-specific
-  "[javascript]": {
-    "editor.defaultFormatter": null
-  },
-  "[json]": {
-    "editor.defaultFormatter": "prettier.prettier-vscode"
-  },
-  "[markdown]": {
-    "editor.defaultFormatter": "yzhang.markdown-all-in-one",
-    "editor.formatOnSave": false,
-    "editor.wordWrap": "on"
-  },
-
-  // JavaScript Standard Style
+  // JavaScript Standard Style (Project Linter)
   "standard.enable": true,
   "standard.autoFixOnSave": true,
   "standard.validate": ["javascript"],
+  "javascript.preferences.quoteStyle": "single",
 
-  // Spell Checker
-  "cSpell.words": ["bigint"],
-  "cSpell.enableFiletypes": ["markdown", "javascript"],
-
-  // Markdown
+  // Markdown Linting (Project Standard)
   "markdownlint.config": {
     "MD013": false
   },
 
-  // Search
+  // Project Build Artifacts
   "search.exclude": {
     "**/node_modules": true,
     "**/coverage": true,
@@ -47,8 +23,6 @@
     "**/.nyc_output": true,
     "**/bench-results.json": true
   },
-
-  // Files
   "files.exclude": {
     "**/.DS_Store": true,
     "**/Thumbs.db": true
@@ -58,35 +32,5 @@
     "**/coverage/**": true,
     "**/dist/**": true,
     "**/.nyc_output/**": true
-  },
-
-  // Testing (Testify)
-  "testify.autoOpen": false,
-  "testify.showOnRun": false,
-
-  // GitHub Copilot
-  "github.copilot.enable": {
-    "*": true,
-    "markdown": true,
-    "javascript": true
-  },
-
-  // Terminal
-  "terminal.integrated.env.windows": {},
-  "terminal.integrated.env.linux": {},
-  "terminal.integrated.env.osx": {},
-
-  // Git
-  "git.ignoreLimitWarning": true,
-
-  // JavaScript/TypeScript
-  "javascript.preferences.quoteStyle": "single",
-  "javascript.updateImportsOnFileMove.enabled": "always",
-  "js/ts.implicitProjectConfig.checkJs": false,
-
-  // IntelliSense
-  "javascript.suggest.autoImports": true,
-  "typescript.suggest.autoImports": true,
-  "javascript.suggest.paths": true,
-  "typescript.suggest.paths": true
+  }
 }

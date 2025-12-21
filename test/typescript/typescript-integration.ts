@@ -299,8 +299,7 @@ test('type regression detection', () => {
   const spanishResult: string = n2words(100, { lang: 'es', genderStem: 'a' });
   const hebrewResult: string = n2words(100, {
     lang: 'he',
-    feminine: true,
-    biblical: false,
+    feminine: true
   });
 
   assert.strictEqual(typeof chineseResult, 'string');

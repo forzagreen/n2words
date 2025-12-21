@@ -94,14 +94,17 @@ git checkout -b feature/my-feature
 
 # 2. Make changes & test frequently
 npm test                 # All tests
-npm run test:unit        # Unit tests only
 npm run lint             # Code style
 
-# 3. Build & validate (optional)
+# 3. Build & test
 npm run web:build        # Browser bundle
-npm run types:validate   # TypeScript
+npm run web:test         # Browser tests
 
-# 4. Submit
+# 4. Generate types & validate
+npm run types:build      # Generate TypeScript definitions
+npm run types:validate   # TypeScript validation
+
+# 5. Submit
 git push origin feature/my-feature
 ```
 
@@ -116,14 +119,14 @@ git push origin feature/my-feature
 
 ### Test Commands
 
-| Command | Purpose |
-|---------|----------|
-| `npm test` | All unit & integration tests |
-| `npm run test:unit` | Core API tests |
-| `npm run test:integration` | Language & coverage tests |
-| `npm run types:validate` | TypeScript validation |
-| `npm run web:test` | Browser compatibility |
-| `npm run coverage:generate` | Coverage report |
+| Command                      | Purpose                      |
+|------------------------------|------------------------------|
+| `npm test`                   | All unit & integration tests |
+| `npm run test:unit`          | Core API tests               |
+| `npm run test:integration`   | Language & coverage tests    |
+| `npm run types:validate`     | TypeScript validation        |
+| `npm run web:test`           | Browser compatibility        |
+| `npm run coverage:generate`  | Coverage report              |
 
 ### Writing Tests
 

@@ -10,9 +10,9 @@ This guide documents all language-specific options available to **end-users** of
 
 **Options:**
 
-| Option         | Type    | Description                   | Default  |
-| -------------- | ------- | ----------------------------- | -------- |
-| `feminine`     | boolean | Use feminine number forms     | `false`  |
+| Option         | Type    | Description                      | Default  |
+|----------------|---------|----------------------------------|----------|
+| `feminine`     | boolean | Use feminine number forms        | `false`  |
 | `negativeWord` | string  | Custom word for negative numbers | `'ناقص'` |
 
 **Examples:**
@@ -30,8 +30,8 @@ n2words(-20, { lang: 'ar', negativeWord: 'سالب' }); // 'سالب عشرون'
 
 **Options:**
 
-| Option       | Type   | Description                              | Default |
-| ------------ | ------ | ---------------------------------------- | ------- |
+| Option       | Type   | Description                                | Default |
+|--------------|--------|--------------------------------------------|---------|
 | `genderStem` | string | Gender ending: `'o'` (masc) or `'a'` (fem) | `'o'`   |
 
 **Examples:**
@@ -48,9 +48,9 @@ n2words(200, { lang: 'es', genderStem: 'a' }); // 'doscientas' (feminine)
 
 **Options:**
 
-| Option                | Type    | Description                    | Default |
-| --------------------- | ------- | ------------------------------ | ------- |
-| `withHyphenSeparator` | boolean | Use hyphens instead of spaces  | `false` |
+| Option                | Type    | Description                   | Default |
+|-----------------------|---------|-------------------------------|---------|
+| `withHyphenSeparator` | boolean | Use hyphens instead of spaces | `false` |
 
 **Examples:**
 
@@ -81,11 +81,11 @@ n2words(90, { lang: 'fr-BE' }); // 'nonante'
 
 **Options:**
 
-| Option               | Type    | Description                     | Default |
-| -------------------- | ------- | ------------------------------- | ------- |
-| `includeOptionalAnd` | boolean | Include "en" (and) separator    | `false` |
-| `noHundredPairs`     | boolean | Disable comma before hundreds   | `false` |
-| `accentOne`          | boolean | Use accented "één" for one      | `true`  |
+| Option               | Type    | Description                       | Default |
+|----------------------|---------|-----------------------------------|---------|
+| `includeOptionalAnd` | boolean | Include "en" (and) separator      | `false` |
+| `noHundredPairs`     | boolean | Disable comma before hundreds     | `false` |
+| `accentOne`          | boolean | Use accented "één" for one        | `true`  |
 
 **Examples:**
 
@@ -101,9 +101,9 @@ n2words(1, { lang: 'nl', accentOne: false }); // 'een'
 
 **Options:**
 
-| Option    | Type    | Description              | Default |
-| --------- | ------- | ------------------------ | ------- |
-| `ordFlag` | boolean | Enable ordinal numbers   | `false` |
+| Option    | Type    | Description            | Default |
+|-----------|---------|------------------------|---------|
+| `ordFlag` | boolean | Enable ordinal numbers | `false` |
 
 **Examples:**
 
@@ -123,9 +123,9 @@ Modern Israeli Hebrew with contemporary feminine forms.
 
 **Options:**
 
-| Option | Type   | Description                   | Default |
-| ------ | ------ | ----------------------------- | ------- |
-| `and`  | string | Conjunction word              | `'ו'`   |
+| Option | Type   | Description       | Default |
+|--------|--------|-------------------|---------|
+| `and`  | string | Conjunction word  | `'ו'`   |
 
 **Examples:**
 
@@ -141,10 +141,10 @@ Authentic ancient Hebrew with masculine defaults and optional feminine forms.
 
 **Options:**
 
-| Option     | Type    | Description                                | Default |
-| ---------- | ------- | ------------------------------------------ | ------- |
-| `feminine` | boolean | Use feminine forms (masculine is default) | `false` |
-| `and`      | string  | Conjunction word                           | `'ו'`   |
+| Option     | Type    | Description                                  | Default |
+|------------|---------|----------------------------------------------|---------|
+| `feminine` | boolean | Use feminine forms (masculine is default)    | `false` |
+| `and`      | string  | Conjunction word                             | `'ו'`   |
 
 **Examples:**
 
@@ -165,9 +165,9 @@ Slavic and Baltic languages support feminine forms for digits 1-9 (ones place):
 
 **Options:**
 
-| Option     | Type    | Description                | Default |
-| ---------- | ------- | -------------------------- | ------- |
-| `feminine` | boolean | Use feminine forms for 1-9 | `false` |
+| Option     | Type    | Description                  | Default |
+|------------|---------|------------------------------|---------|
+| `feminine` | boolean | Use feminine forms for 1-9   | `false` |
 
 **Examples:**
 
@@ -194,9 +194,9 @@ Both Chinese Simplified (zh-Hans) and Traditional (zh-Hant) support formal/finan
 
 **Options:**
 
-| Option   | Type    | Description                              | Default |
-| -------- | ------- | ---------------------------------------- | ------- |
-| `formal` | boolean | Use formal/financial vs. common numerals | `true`  |
+| Option   | Type    | Description                                | Default |
+|----------|---------|--------------------------------------------|---------|
+| `formal` | boolean | Use formal/financial vs. common numerals   | `true`  |
 
 **Examples:**
 
@@ -221,9 +221,9 @@ n2words(123, { lang: 'zh-Hant', formal: false }); // '一百二十三' (common)
 
 **Options:**
 
-| Option     | Type    | Description               | Default |
-| ---------- | ------- | ------------------------- | ------- |
-| `feminine` | boolean | Use feminine number forms | `false` |
+| Option     | Type    | Description                 | Default |
+|------------|---------|-----------------------------|---------|
+| `feminine` | boolean | Use feminine number forms   | `false` |
 
 **Examples:**
 
@@ -239,9 +239,9 @@ n2words(21, { lang: 'ro', feminine: true }); // 'douăzeci și una'
 
 **Options:**
 
-| Option       | Type    | Description                        | Default |
-| ------------ | ------- | ---------------------------------- | ------- |
-| `dropSpaces` | boolean | Remove spaces between components   | `false` |
+| Option       | Type    | Description                          | Default |
+|--------------|---------|--------------------------------------|---------|
+| `dropSpaces` | boolean | Remove spaces between components     | `false` |
 
 **Examples:**
 
@@ -255,18 +255,18 @@ n2words(21, { lang: 'az', dropSpaces: true }); // 'iyirmibir' (Azerbaijani)
 
 ## Summary
 
-| Language/Group        | Option(s)             | Description                           |
-| --------------------- | --------------------- | ------------------------------------- |
-| Arabic (ar)           | `feminine`, `negativeWord` | Gender forms, custom negative word |
-| Spanish (es)          | `genderStem`          | Masculine/feminine endings            |
-| French (fr/fr-BE)     | `withHyphenSeparator` | Hyphenation style                     |
-| Dutch (nl)            | `includeOptionalAnd`, `accentOne` | Formatting options          |
-| Danish (da)           | `ordFlag`             | Cardinal/ordinal numbers              |
-| Hebrew (he/hbo)       | `and`, `feminine` (hbo only) | Conjunction, gender (Biblical)  |
-| Slavic Languages      | `feminine`            | Feminine forms for digits 1-9        |
-| Chinese (zh-Hans/Hant) | `formal`             | Formal vs. common numerals            |
-| Romanian (ro)         | `feminine`            | Gender agreement                      |
-| Turkish/Azerbaijani   | `dropSpaces`          | Agglutinated forms                    |
+| Language/Group            | Option(s)                         | Description                        |
+|---------------------------|-----------------------------------|------------------------------------|
+| Arabic (ar)               | `feminine`, `negativeWord`        | Gender forms, custom negative word |
+| Spanish (es)              | `genderStem`                      | Masculine/feminine endings         |
+| French (fr/fr-BE)         | `withHyphenSeparator`             | Hyphenation style                  |
+| Dutch (nl)                | `includeOptionalAnd`, `accentOne` | Formatting options                 |
+| Danish (da)               | `ordFlag`                         | Cardinal/ordinal numbers           |
+| Hebrew (he/hbo)           | `and`, `feminine` (hbo only)      | Conjunction, gender (Biblical)     |
+| Slavic Languages          | `feminine`                        | Feminine forms for digits 1-9      |
+| Chinese (zh-Hans/Hant)    | `formal`                          | Formal vs. common numerals         |
+| Romanian (ro)             | `feminine`                        | Gender agreement                   |
+| Turkish/Azerbaijani       | `dropSpaces`                      | Agglutinated forms                 |
 
 ---
 
