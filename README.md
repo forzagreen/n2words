@@ -98,6 +98,8 @@ Or import specific languages:
 
 ## Supported Languages
 
+Language codes follow [IETF BCP 47](https://tools.ietf.org/html/bcp47) standards with script specificity where needed (e.g., `zh-Hans` for Simplified Chinese, `sr-Latn` for Serbian Latin script).
+
 | Code      | Language             | Code      | Language         |
 | --------- | -------------------- | --------- | ---------------- |
 | `ar`      | Arabic               | `az`      | Azerbaijani      |
