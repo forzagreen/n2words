@@ -620,4 +620,4 @@ If you identify additional language-specific options that would be useful, or fi
 2. Check the test file in `test/fixtures/languages/` for usage examples
 3. Open an issue or pull request on GitHub
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed contribution guidelines.
+See [CONTRIBUTING.md](../CONTRIBUTING.md) for detailed contribution guidelines.

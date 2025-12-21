@@ -307,7 +307,7 @@ The build process automatically generates TypeScript declarations from your JSDo
 - Constructor parameter documentation becomes method signatures
 - Export function JSDoc becomes function overloads
 
-**After implementation**, run `npm run build:types` to generate TypeScript declarations.
+The build process automatically generates TypeScript declarations from your JSDoc.
 
 #### 4. Language Registration
 
@@ -315,8 +315,6 @@ Your language will automatically get registered in the main `N2WordsOptions` typ
 
 1. Add proper `@typedef` for your options
 2. Register the language in `lib/n2words.js`
-3. Run `npm run build:types`
-
 This provides developers with:
 
 - Autocomplete for language codes
@@ -742,7 +740,7 @@ Study these examples:
 
 ## Getting Help
 
-- Check [CONTRIBUTING.md](./CONTRIBUTING.md) for general guidelines
+- Check [CONTRIBUTING.md](../CONTRIBUTING.md) for general guidelines
 - Review [BIGINT-GUIDE.md](./BIGINT-GUIDE.md) for BigInt usage
 - Study existing language implementations
 - Open an issue if you have questions

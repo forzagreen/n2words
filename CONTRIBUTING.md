@@ -150,10 +150,10 @@ full test suite and linter before opening a PR:
 ```powershell
 npm run lint:js
 npm test
-npm run build
+npm run web:build
 ```
 
-Browser tests (optional) are under `test/web/browser-compatibility.js` and require `npm run build`.
+Browser tests (optional) are under `test/web/browser-compatibility.js` and require `npm run web:build`.
 
 ### Pull Request checklist
 

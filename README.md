@@ -68,7 +68,7 @@ const options: N2WordsOptions = {
 };
 ```
 
-See [TYPESCRIPT_GUIDE.md](TYPESCRIPT_GUIDE.md) for comprehensive TypeScript documentation.
+See [TYPESCRIPT_GUIDE.md](guides/TYPESCRIPT_GUIDE.md) for comprehensive TypeScript documentation.
 
 ### CommonJS
 
@@ -136,7 +136,7 @@ Performance benchmarks (ops/sec) on latest hardware:
 | Persian (fa)    | ~125k ops/sec |
 | Hebrew (he)     | ~115k ops/sec |
 
-All languages are highly optimized. Run `npm run bench` to benchmark on your system.
+All languages are highly optimized. Run `npm run bench:perf` to benchmark on your system.
 
 ## Examples
 
@@ -185,10 +185,10 @@ n2words(123456789012345n); // Works with arbitrarily large integers
 
 ## Documentation
 
-- [TYPESCRIPT_GUIDE.md](./TYPESCRIPT_GUIDE.md) - **Comprehensive TypeScript guide** with enhanced type safety
-- [LANGUAGE_OPTIONS.md](./LANGUAGE_OPTIONS.md) - Language-specific options and examples
-- [LANGUAGE_GUIDE.md](./LANGUAGE_GUIDE.md) - Comprehensive guide for adding new languages
-- [BIGINT-GUIDE.md](./BIGINT-GUIDE.md) - BigInt usage guide for language developers
+- [TYPESCRIPT_GUIDE.md](./guides/TYPESCRIPT_GUIDE.md) - **Comprehensive TypeScript guide** with enhanced type safety
+- [LANGUAGE_OPTIONS.md](./guides/LANGUAGE_OPTIONS.md) - Language-specific options and examples
+- [LANGUAGE_GUIDE.md](./guides/LANGUAGE_GUIDE.md) - Comprehensive guide for adding new languages
+- [BIGINT-GUIDE.md](./guides/BIGINT-GUIDE.md) - BigInt usage guide for language developers
 - [CONTRIBUTING.md](./CONTRIBUTING.md) - Contribution guidelines
 - [Wiki](https://github.com/forzagreen/n2words/wiki) - Detailed examples and guides
 
@@ -216,7 +216,7 @@ npm run lang:validate <language-code>
 npm run lang:validate
 ```
 
-See [CONTRIBUTING.md](./CONTRIBUTING.md) and [LANGUAGE_GUIDE.md](./LANGUAGE_GUIDE.md) for detailed guidance.
+See [CONTRIBUTING.md](./CONTRIBUTING.md) and [LANGUAGE_GUIDE.md](./guides/LANGUAGE_GUIDE.md) for detailed guidance.
 
 ## License
 

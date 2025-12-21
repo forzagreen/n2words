@@ -46,16 +46,16 @@ jobs:
         run: npm run lint
 
       - name: Build web bundles
-        run: npm run build:web
+        run: npm run web:build
 
       - name: Build TypeScript declarations
-        run: npm run build:types
+        run: npm run types:generate
 
       - name: Run tests
         run: npm test
 
       - name: Run TypeScript smoke test
-        run: npm run test:typescript
+        run: npm run types:validate
 
       - name: Dry-run publish
         run: npm publish --dry-run

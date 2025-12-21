@@ -106,7 +106,7 @@ npm test
 npm run lint
 
 # 6. Build
-npm run build:web
+npm run web:build
 ```
 
 ### Validating Existing Languages
@@ -121,6 +121,6 @@ npm run lang:validate
 
 ## See Also
 
-- [LANGUAGE_GUIDE.md](../LANGUAGE_GUIDE.md) - Comprehensive language implementation guide
-- [BIGINT-GUIDE.md](../BIGINT-GUIDE.md) - BigInt usage guide for language developers
+- [LANGUAGE_GUIDE.md](../guides/LANGUAGE_GUIDE.md) - Comprehensive language implementation guide
+- [BIGINT-GUIDE.md](../guides/BIGINT-GUIDE.md) - BigInt usage guide for language developers
 - [CONTRIBUTING.md](../CONTRIBUTING.md) - General contribution guidelines

@@ -433,7 +433,7 @@ if (totalErrors === 0 && totalWarnings === 0) {
   console.log(chalk.cyan('Next steps:'))
   console.log(chalk.gray('  1. Run tests: npm test'))
   console.log(chalk.gray('  2. Run linter: npm run lint:js'))
-  console.log(chalk.gray('  3. Build: npm run build:web'))
+  console.log(chalk.gray('  3. Build: npm run web:build'))
   process.exit(0)
 } else if (totalErrors > 0) {
   console.error(

@@ -12,7 +12,7 @@ if (existsSync('./dist/n2words.js')) {
   // Note: INTERNET_EXPLORER is deprecated and no longer supported by Selenium
   // SAFARI requires macOS with special setup; uncomment on macOS if available
 } else {
-  console.error('ERROR: You must run "npm run build" first.')
+  console.error('ERROR: You must run "npm run web:build" first.')
 }
 
 /**

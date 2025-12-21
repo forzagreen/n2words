@@ -758,7 +758,7 @@ Is the value used in BigInt arithmetic (/, %, *)?
 
 ### Related Documentation
 
-- [LANGUAGE_GUIDE.md](../LANGUAGE_GUIDE.md) - Comprehensive guide for adding new languages
+- [LANGUAGE_GUIDE.md](./LANGUAGE_GUIDE.md) - Comprehensive guide for adding new languages
 - [lib/classes/abstract-language.js](../lib/classes/abstract-language.js) - Input validation and decimal handling
 - [lib/classes/greedy-scale-language.js](../lib/classes/greedy-scale-language.js) - Scale-based algorithm
 - [lib/classes/turkic-language.js](../lib/classes/turkic-language.js) - Turkic space-separated patterns

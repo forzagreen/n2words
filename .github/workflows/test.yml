@@ -38,10 +38,10 @@ jobs:
         run: npm run lint
 
       - name: Build web bundles
-        run: npm run build:web
+        run: npm run web:build
 
       - name: Build TypeScript declarations
-        run: npm run build:types
+        run: npm run types:generate
 
       - name: Cache build artifacts
         uses: actions/cache/save@v5.0.1
@@ -99,7 +99,7 @@ jobs:
         run: npm test
 
       - name: Run TypeScript smoke test
-        run: npm run test:typescript
+        run: npm run types:validate
 
       - name: Verify package contents
         if: matrix.node == '24' && matrix.os == 'ubuntu-latest'

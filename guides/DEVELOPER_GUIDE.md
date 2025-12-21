@@ -46,8 +46,8 @@ npm test
 # Run specific test suites
 npm run test:unit          # Unit tests only
 npm run test:integration   # Integration tests
-npm run test:typescript    # TypeScript validation
-npm run test:web           # Browser compatibility
+npm run types:validate     # TypeScript validation
+npm run web:test           # Browser compatibility
 
 # Check code quality
 npm run lint               # Lint JS and Markdown
@@ -55,9 +55,8 @@ npm run lint:js            # Lint JS only
 npm run lint:md            # Lint Markdown only
 
 # Build outputs
-npm run build              # Build browser bundle and types
-npm run build:web          # Webpack bundle
-npm run build:types        # TypeScript definitions
+npm run web:build          # Build browser bundle
+npm run web:build          # Webpack bundle
 ```
 
 If all tests pass, you're ready to develop!
@@ -83,7 +82,7 @@ n2words/
 │   │   ├── commonjs.cjs         # CommonJS compatibility
 │   │   ├── targeted-coverage.js # Precision coverage tests
 │   │   └── language-comprehensive.js # All language tests
-│   ├── types/                   # TypeScript validation tests
+│   ├── typescript/              # TypeScript validation tests
 │   │   └── typescript-integration.ts # TypeScript types & imports
 │   ├── web/                     # Browser compatibility tests
 │   │   ├── browser-compatibility.js # Selenium browser tests
@@ -114,11 +113,15 @@ n2words/
 ├── webpack.config.js            # Webpack configuration for browser build
 ├── conf.json                    # JSDoc configuration
 │
+├── guides/                      # Comprehensive documentation
+│   ├── LANGUAGE_GUIDE.md        # Guide for implementing languages
+│   ├── LANGUAGE_OPTIONS.md      # Language-specific options
+│   ├── TYPESCRIPT_GUIDE.md      # TypeScript usage guide
+│   ├── BIGINT-GUIDE.md          # BigInt usage guide
+│   └── DEVELOPER_GUIDE.md       # Development workflows (this file)
+│
 ├── README.md                    # Quick start and overview
 ├── CONTRIBUTING.md              # Contributing guidelines
-├── LANGUAGE_GUIDE.md            # Guide for implementing languages
-├── LANGUAGE_OPTIONS.md          # Language-specific options
-├── TYPESCRIPT_GUIDE.md          # TypeScript usage guide
 ├── BIGINT-GUIDE.md              # BigInt usage details
 └── .github/copilot-instructions.md  # AI agent guidance
 ```
@@ -288,10 +291,10 @@ npm run lint:fix
 
 ```bash
 # Build browser bundle and TypeScript definitions
-npm run build
+npm run web:build
 
 # Check TypeScript definitions
-npm run test:typescript
+npm run types:validate
 ```
 
 ### 6. Create a Pull Request
@@ -313,8 +316,8 @@ git push origin feature/your-feature-name
 | `test/integration/` | Targeted coverage for complex code paths | `npm run test:integration` |
 | `test/smoke/` | Sanity check all languages | `npm run test:smoke` |
 | `test/fixtures/languages/` | Language-specific test fixtures | Loaded by integration tests |
-| `test/typescript/` | TypeScript validation tests | `npm run test:typescript` |
-| `test/web/` | Browser compatibility | `npm run test:web` |
+| `test/typescript/` | TypeScript validation tests | `npm run types:validate` |
+| `test/web/` | Browser compatibility | `npm run web:test` |
 
 ### Writing Tests
 
@@ -363,7 +366,7 @@ fixtures.forEach(([input, expected]) => {
 
 ```bash
 # Generate coverage report
-npm run coverage
+npm run coverage:generate
 
 # View coverage in browser (if available)
 open coverage/index.html
@@ -375,7 +378,7 @@ open coverage/index.html
 
 ```bash
 # Build webpack bundle for browsers
-npm run build:web
+npm run web:build
 
 # Output: dist/n2words.js
 ```
@@ -389,22 +392,22 @@ npm run build:web
 ### TypeScript Definitions
 
 ```bash
-# Generate .d.ts files from JSDoc
-npm run build:types
+# TypeScript declarations are generated automatically in CI
+# No manual build required for development
 
 # Output: typings/*.d.ts
 ```
 
 **Notes:**
 
-- Generated from JSDoc comments
+- Generated from JSDoc comments in CI builds
 - Keep JSDoc comments accurate!
 - Only document actual parameters in constructor JSDoc
 
 ### Full Build
 
 ```bash
-npm run build  # Runs both build:web and build:types
+npm run web:build  # Build browser bundle (TypeScript types built automatically in CI)
 ```
 
 ## Code Style & Conventions
@@ -778,7 +781,7 @@ mergeScales(left, right) {
 
 ```bash
 # Generate coverage report
-npm run coverage
+npm run coverage:generate
 
 # View which lines aren't covered
 open coverage/index.html
@@ -787,7 +790,7 @@ open coverage/index.html
 ## Resources
 
 - **[README.md](README.md)** - Quick start and feature overview
-- **[CONTRIBUTING.md](CONTRIBUTING.md)** - PR guidelines and workflow
+- **[CONTRIBUTING.md](../CONTRIBUTING.md)** - PR guidelines and workflow
 - **[LANGUAGE_GUIDE.md](LANGUAGE_GUIDE.md)** - Comprehensive language implementation guide
 - **[LANGUAGE_OPTIONS.md](LANGUAGE_OPTIONS.md)** - Language-specific options
 - **[TYPESCRIPT_GUIDE.md](TYPESCRIPT_GUIDE.md)** - TypeScript usage

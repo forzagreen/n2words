@@ -62,13 +62,12 @@
     "typings/*"
   ],
   "scripts": {
-    "bench": "node bench.js",
+    "bench:perf": "node bench.js",
     "bench:memory": "node --expose-gc bench-memory.js",
-    "build": "npm run build:web && npm run build:types",
-    "build:types": "tsc --project tsconfig.json",
-    "build:web": "webpack --progress",
-    "coverage": "c8 npm run test",
-    "docs": "npm run docs:clean && jsdoc -c ./conf.json && npm run docs:validate",
+    "clean": "npm run types:clean && npm run web:clean && npm run docs:clean && npm run coverage:clean",
+    "coverage:clean": "node -e \"import { rmSync } from 'fs'; try { rmSync('coverage', { recursive: true, force: true }) } catch (e) {}\"",
+    "coverage:generate": "c8 npm run test",
+    "docs:generate": "npm run docs:clean && jsdoc -c ./conf.json && npm run docs:validate",
     "docs:clean": "node -e \"import { rmSync } from 'fs'; try { rmSync('docs', { recursive: true, force: true }) } catch (e) {}\"",
     "docs:validate": "echo 'Documentation generated successfully'",
     "lang:add": "node scripts/add-language.js",
@@ -77,23 +76,23 @@
     "lint:js": "standard examples/ lib/ scripts/ test/ *.js",
     "lint:md": "markdownlint-cli2 *.md scripts/*.md",
     "test": "npm run test:unit && npm run test:integration",
-    "test:all": "npm run test:unit && npm run test:integration && npm run test:typescript && npm run test:web",
     "test:integration": "ava --verbose test/integration/*.{js,cjs}",
-    "test:typescript": "ava --verbose test/typescript/*.ts",
     "test:unit": "ava --verbose test/unit/*.js",
-    "test:web": "ava --verbose test/web/*.js"
+    "types:generate": "tsc --project tsconfig.json",
+    "types:clean": "node -e \"import { rmSync } from 'fs'; try { rmSync('typings', { recursive: true, force: true }) } catch (e) {}\"",
+    "types:validate": "tsc --noEmit --project test/tsconfig.test.json && node --import tsx --test test/typescript/*.ts",
+    "web:build": "webpack --progress",
+    "web:clean": "node -e \"import { rmSync } from 'fs'; try { rmSync('dist', { recursive: true, force: true }) } catch (e) {}\"",
+    "web:test": "ava --verbose test/web/*.js"
   },
   "ava": {
     "extensions": [
       "js",
-      "ts",
       "cjs"
     ],
     "files": [
       "test/unit/*.js",
-      "test/integration/*.{js,cjs}",
-      "test/typescript/*.ts",
-      "test/web/*.js"
+      "test/integration/*.{js,cjs}"
     ],
     "timeout": "30s"
   },

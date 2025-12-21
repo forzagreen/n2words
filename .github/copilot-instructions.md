@@ -26,11 +26,11 @@ This file gives targeted, actionable guidance for AI coding agents working in th
 
 - **Documentation:**
   - `README.md`: Main project documentation and quick start
-  - `TYPESCRIPT_GUIDE.md`: TypeScript usage, type annotations, examples
-  - `LANGUAGE_GUIDE.md`: Comprehensive implementation guide for new languages
-  - `LANGUAGE_OPTIONS.md`: End-user documentation of language-specific options
-  - `DEVELOPER_GUIDE.md`: Development workflows, testing, architecture
-  - `BIGINT-GUIDE.md`: BigInt usage patterns for language implementations
+  - `guides/TYPESCRIPT_GUIDE.md`: TypeScript usage, type annotations, examples
+  - `guides/LANGUAGE_GUIDE.md`: Comprehensive implementation guide for new languages
+  - `guides/LANGUAGE_OPTIONS.md`: End-user documentation of language-specific options
+  - `guides/DEVELOPER_GUIDE.md`: Development workflows, testing, architecture
+  - `guides/BIGINT-GUIDE.md`: BigInt usage patterns for language implementations
   - `CONTRIBUTING.md`: Contribution guidelines and automated workflows
   - `scripts/README.md`: Documentation for development scripts
 
@@ -74,21 +74,21 @@ This file gives targeted, actionable guidance for AI coding agents working in th
     - Document constructor options (if any) in JSDoc, but ONLY document parameters actually accepted by the constructor, not class properties.
   - Alternative: Use automated script: `npm run lang:add` (generates boilerplate, updates registration).
   - Validate implementation: `npm run lang:validate xx` (checks completeness and best practices).
-  - See `LANGUAGE_GUIDE.md` for comprehensive implementation guidance.
+  - See `guides/LANGUAGE_GUIDE.md` for comprehensive implementation guidance.
 
 - **Build / test / lint workflows** (explicit commands):
-  - Run all tests: `npm run test:all` (runs unit, integration, typescript, and web tests). **Requires `npm run build` and `npm run build:types` first.**
+  - Run all tests: `npm test && npm run types:validate && npm run web:test` (runs unit, integration, typescript, and web tests). **Requires `npm run web:build` first.**
   - Run basic tests: `npm test` (runs unit and integration tests only).
     - Unit tests: `npm run test:unit` (test/unit/\*.js) — API, errors, validation, options.
     - Integration tests: `npm run test:integration` (test/integration/\*.js) — targeted coverage and CommonJS.
-    - TypeScript tests: `npm run test:typescript` (test/typescript/typescript-integration.ts) — type validation. **Requires `npm run build:types` first.**
-    - Web tests: `npm run test:web` (test/web.js) — browser compatibility (Chrome/Firefox). **Requires `npm run build` first.**
-  - Run coverage: `npm run coverage` (runs npm test with c8 instrumentation).
-  - Build browser bundle: `npm run build:web` (uses webpack, outputs to dist/).
-  - Generate type declarations: `npm run build:types` (TypeScript compiler, outputs to typings/).
-  - Full build: `npm run build` (runs build:web + build:types).
+    - TypeScript tests: `npm run types:validate` (test/typescript/typescript-integration.ts) — type validation. **TypeScript declarations are automatically built in CI.**
+    - Web tests: `npm run web:test` (test/web.js) — browser compatibility (Chrome/Firefox). **Requires `npm run web:build` first.**
+  - Run coverage: `npm run coverage:generate` (runs npm test with c8 instrumentation).
+  - Build browser bundle: `npm run web:build` (uses webpack, outputs to dist/).
+  - Generate type declarations: `npm run types:generate` (TypeScript compiler, outputs to typings/) — **automated in CI, not required for development**.
+  - Full build: `npm run web:build` (builds browser bundle only).
   - Lint JS: `npm run lint:js` (Standard.js); Lint markdown: `npm run lint:md` (markdownlint); Full lint: `npm run lint`.
-  - Generate documentation: `npm run docs` (JSDoc, outputs to docs/).
+  - Generate documentation: `npm run docs:generate` (JSDoc, outputs to docs/).
   - Performance benchmarks: `npm run bench` (benchmark.js), `npm run bench:memory` (memory profiling).
   - Language tools: `npm run lang:add` (generate boilerplate), `npm run lang:validate xx` (validate implementation).
 
@@ -105,9 +105,9 @@ This file gives targeted, actionable guidance for AI coding agents working in th
   - Decimal handling: By default, leading zeros are preserved as `zeroWord` words and remaining digits are grouped. Languages requiring per-digit decimal reading (ja, th, ta, te, he) set `convertDecimalsPerDigit = true` as a class property.
   - Class properties vs constructor parameters: Use class properties for defaults shared across all instances (negativeWord, decimalSeparatorWord, zeroWord, scaleWordPairs, etc.). Use constructor parameters ONLY for options that actually change behavior (e.g., formal style in Chinese, gender in Spanish).
   - JSDoc for constructors: Only document parameters actually accepted by the constructor, not inherited class properties. Class properties are documented in the class-level JSDoc comment.
-  - TypeScript declarations: Generated automatically from JSDoc comments using `npm run build:types`. Follow JSDoc best practices for accurate type generation.
+  - TypeScript declarations: Generated automatically from JSDoc comments in CI builds. Follow JSDoc best practices for accurate type generation.
   - Performance: Portuguese (pt.js) and English (en.js) are heavily optimized with cached regex and mergeScales() optimizations.
-  - Documentation: JSDoc comments generate both HTML docs (`npm run docs`) and TypeScript declarations. Use comprehensive JSDoc for all public methods and class properties.
+  - Documentation: JSDoc comments generate both HTML docs (`npm run docs:generate`) and TypeScript declarations. Use comprehensive JSDoc for all public methods and class properties.
 - **Files to inspect for examples:**
   - `lib/languages/en.js` — canonical use of `GreedyScaleLanguage` and `scaleWordPairs` + optimized `mergeScales()` implementation.
   - `lib/languages/pt.js` — advanced optimizations: pre-compiled regex, simplified mergeScales() logic.
@@ -130,9 +130,9 @@ This file gives targeted, actionable guidance for AI coding agents working in th
   - `bench-memory.js` — memory usage profiling tool with garbage collection monitoring.
   - `examples/node-dynamic-import.js` — Node.js dynamic import example with language selection.
   - `examples/typescript.ts` — TypeScript usage examples with type annotations.
-  - `LANGUAGE_GUIDE.md` — comprehensive guide for adding new languages.
-  - `BIGINT-GUIDE.md` — detailed BigInt usage guide for language developers.
-  - `TYPESCRIPT_GUIDE.md` — TypeScript integration and usage patterns.
+  - `guides/LANGUAGE_GUIDE.md` — comprehensive guide for adding new languages.
+  - `guides/BIGINT-GUIDE.md` — detailed BigInt usage guide for language developers.
+  - `guides/TYPESCRIPT_GUIDE.md` — TypeScript integration and usage patterns.
 
 - **Environment / runtime:**
   - Node supported versions: `^20 || ^22 || >=24` (declared in `package.json`).
@@ -149,7 +149,7 @@ This file gives targeted, actionable guidance for AI coding agents working in th
   - Preserve `type: module` semantics; avoid CommonJS `module.exports`.
   - Update `lib/n2words.js` and `exports` in `package.json` if adding new public entrypoints.
   - When reorganizing test files, update import paths to reflect new subdirectory structure (e.g., `../lib` becomes `../../lib`).
-  - When updating JSDoc, run `npm run build:types` to regenerate TypeScript declarations.
+  - When updating JSDoc, TypeScript declarations are automatically regenerated in CI builds.
   - When adding languages, use `npm run lang:add` script rather than manual file creation.
   - Always validate language implementations with `npm run lang:validate <code>` before committing.
 
