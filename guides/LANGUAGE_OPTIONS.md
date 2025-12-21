@@ -15,7 +15,7 @@ This guide documents all language-specific options available to **end-users** of
 | `zeroWord`                | string  | Word for the digit 0                            | Language-specific (e.g., "zero", "zéro", "zero")        |
 | `convertDecimalsPerDigit` | boolean | Read decimals digit-by-digit instead of grouped | `false`                                                 |
 
-These are **class properties** of language implementations in `lib/i18n/` and are set by language developers when implementing a new language converter. End-users typically do not interact with these options directly.
+These are **class properties** of language implementations in `lib/languages/` and are set by language developers when implementing a new language converter. End-users typically do not interact with these options directly.
 
 Note: Some languages read decimals per digit and effectively set `convertDecimalsPerDigit = true`: ja, th, ta, te, tl, mr, gu, kn, el.
 
@@ -202,13 +202,13 @@ Czech uses the shared Slavic `feminine` option for feminine forms of digits 1-9 
 
 ```javascript
 // Masculine (default)
-n2words(1, { lang: 'cz' }); // 'jeden'
-n2words(2, { lang: 'cz' }); // 'dva'
+n2words(1, { lang: 'cs' }); // 'jeden'
+n2words(2, { lang: 'cs' }); // 'dva'
 
 // Feminine
-n2words(1, { lang: 'cz', feminine: true }); // 'jedna'
-n2words(2, { lang: 'cz', feminine: true }); // 'dvě'
-n2words(4, { lang: 'cz', feminine: true }); // 'čtyři' (feminine ones set)
+n2words(1, { lang: 'cs', feminine: true }); // 'jedna'
+n2words(2, { lang: 'cs', feminine: true }); // 'dvě'
+n2words(4, { lang: 'cs', feminine: true }); // 'čtyři' (feminine ones set)
 ```
 
 ---
@@ -616,8 +616,8 @@ All other languages use only the common options:
 
 If you identify additional language-specific options that would be useful, or find errors in the existing option implementations, please:
 
-1. Review the relevant language file in `lib/i18n/`
-2. Check the test file in `test/i18n/` for usage examples
+1. Review the relevant language file in `lib/languages/`
+2. Check the test file in `test/fixtures/languages/` for usage examples
 3. Open an issue or pull request on GitHub
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed contribution guidelines.
+See [CONTRIBUTING.md](../CONTRIBUTING.md) for detailed contribution guidelines.

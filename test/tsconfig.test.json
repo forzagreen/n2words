@@ -10,8 +10,8 @@
     "baseUrl": "..",
     "paths": {
       "n2words": ["./typings/n2words.d.ts"],
-      "n2words/i18n/*": ["./typings/i18n/*.d.ts"]
+      "n2words/languages/*": ["./typings/languages/*.d.ts"]
     }
   },
-  "include": ["typescript-smoke.ts"]
+  "include": ["**/*.ts"]
 }

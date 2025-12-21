@@ -17,8 +17,8 @@ node scripts/add-language.js
 **What it does:**
 
 1. Prompts for language details (code, name, base class selection, etc.)
-2. Generates `lib/i18n/xx.js` with implementation template
-3. Generates `test/i18n/xx.js` with test case template
+2. Generates `lib/languages/xx.js` with implementation template
+3. Generates `test/fixtures/languages/xx.js` with test case template
 4. Updates `lib/n2words.js` with import statement and dict registration
 5. Ensures proper comma placement in dict (StandardJS style)
 6. Derives the class name from the language name (PascalCase), not the code token
@@ -27,7 +27,7 @@ node scripts/add-language.js
 The script guides you to choose from five base classes:
 
 - **GreedyScaleLanguage** - For most languages (English, Spanish, French, German, etc.)
-- **SlavicLanguage** - For Slavic/Baltic languages (Russian, Polish, Czech, Ukrainian, Hebrew, Lithuanian, Latvian)
+- **SlavicLanguage** - For Slavic/Baltic languages (Russian, Polish, Czech (cs), Ukrainian, Hebrew, Lithuanian, Latvian)
 - **TurkicLanguage** - For Turkic languages (Turkish, Azerbaijani)
 - **SouthAsianLanguage** - For Indian-style grouping (Hindi, Bengali, Urdu, Punjabi, Marathi, Gujarati, Kannada)
 - **AbstractLanguage** - For custom implementations (Arabic, Vietnamese, Romanian, etc.)
@@ -65,7 +65,7 @@ npm run lang:validate fr-BE
 
 **What it checks:**
 
-- ✓ Language code matches ISO 639-1 (optional region suffix)
+- ✓ Language code matches IETF BCP 47 format (e.g., "en", "fr-BE", "cs", "nb", "fil")
 - ✓ Language file exists with proper structure
 - ✓ Default export function is present and instantiates the declared class
 - ✓ Class name looks like the language name (not the code token)
@@ -93,8 +93,8 @@ npm run lang:validate fr-BE
 npm run lang:add
 
 # 2. Implement the language
-# - Edit lib/i18n/xx.js
-# - Edit test/i18n/xx.js
+# - Edit lib/languages/xx.js
+# - Edit test/fixtures/languages/xx.js
 
 # 3. Validate implementation
 npm run lang:validate xx
@@ -106,7 +106,7 @@ npm test
 npm run lint
 
 # 6. Build
-npm run build:web
+npm run web:build
 ```
 
 ### Validating Existing Languages
@@ -121,6 +121,6 @@ npm run lang:validate
 
 ## See Also
 
-- [LANGUAGE_GUIDE.md](../LANGUAGE_GUIDE.md) - Comprehensive language implementation guide
-- [BIGINT-GUIDE.md](../BIGINT-GUIDE.md) - BigInt usage guide for language developers
+- [LANGUAGE_GUIDE.md](../guides/LANGUAGE_GUIDE.md) - Comprehensive language implementation guide
+- [BIGINT-GUIDE.md](../guides/BIGINT-GUIDE.md) - BigInt usage guide for language developers
 - [CONTRIBUTING.md](../CONTRIBUTING.md) - General contribution guidelines

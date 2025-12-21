@@ -5,13 +5,34 @@ This guide helps you implement a new language for n2words.
 ## Table of Contents
 
 1. [Getting Started](#getting-started)
+   - [Language Code Requirements](#language-code-requirements)
+   - [Automated Setup](#automated-setup)
+   - [Manual Setup](#manual-setup)
 2. [Understanding the Architecture](#understanding-the-architecture)
+   - [Base Classes](#base-classes)
+   - [Language Code Standards (IETF BCP 47)](#language-code-standards-ietf-bcp-47)
+   - [Key Concepts](#key-concepts)
 3. [Step-by-Step Implementation](#step-by-step-implementation)
 4. [Testing Your Implementation](#testing-your-implementation)
 5. [Common Patterns](#common-patterns)
 6. [Optimization Tips](#optimization-tips)
 
 ## Getting Started
+
+### Language Code Requirements
+
+**Important**: All language codes must follow IETF BCP 47 standards. This ensures proper internationalization and avoids conflicts with platform-specific language handling.
+
+**Compliant Examples**:
+
+- `en` (English)
+- `cs` (Czech, not `cz`)
+- `da` (Danish, not `dk`)
+- `nb` (Norwegian Bokmål, not `no`)
+- `fil` (Filipino, not `tl`)
+- `fr-BE` (Belgian French)
+
+**Validation**: Use `npm run lang:validate <code>` to verify your language code follows IETF BCP 47.
 
 ### Automated Setup
 
@@ -23,19 +44,21 @@ npm run lang:add
 
 This creates:
 
-- `lib/i18n/xx.js` - Language implementation
-- `test/i18n/xx.js` - Test cases
+- `lib/languages/xx.js` - Language implementation
+- `test/fixtures/languages/xx.js` - Test cases
 - Updates `lib/n2words.js` - Registration
 
 ### Manual Setup
 
 If you need more control, follow these steps:
 
-1. Create `lib/i18n/xx.js`
-2. Choose the appropriate base class based on your language's characteristics
-3. Implement required methods
-4. Add language registration in `lib/n2words.js`
-5. Create test file `test/i18n/xx.js`
+1. **Choose IETF BCP 47 compliant language code** (e.g., `cs` for Czech, `nb` for Norwegian, `fil` for Filipino)
+2. Create `lib/languages/<code>.js` with your language code
+3. Choose the appropriate base class based on your language's characteristics
+4. Implement required methods
+5. Add language registration in `lib/n2words.js`
+6. Create test file `test/fixtures/languages/<code>.js`
+7. **Validate**: Run `npm run lang:validate <code>` to ensure IETF BCP 47 compliance
 
 ## Understanding the Architecture
 
@@ -57,7 +80,7 @@ Choose the appropriate base class for your language:
 - Specialized for languages with complex pluralization rules
 - Handles singular/dual/plural forms
 - Supports shared `feminine` option for feminine forms of digits 1-9 (ones place)
-- Examples: Russian, Czech, Polish, Ukrainian, Serbian, Croatian, Hebrew, Lithuanian, Latvian
+- Examples: Russian, Czech (`cs`), Polish, Ukrainian, Serbian, Croatian, Hebrew, Lithuanian, Latvian
 
 **TurkicLanguage** - Use for Turkic languages
 
@@ -79,6 +102,45 @@ Choose the appropriate base class for your language:
 - Core base class for all others
 - Most flexibility for irregular patterns
 - Examples: Arabic, Vietnamese, Romanian, Persian, Indonesian
+
+### Language Code Standards (IETF BCP 47)
+
+**All language implementations must use IETF BCP 47 compliant language tags.**
+
+#### Why IETF BCP 47?
+
+- **International Standard**: Ensures compatibility with browsers, operating systems, and internationalization libraries
+- **Consistency**: Avoids conflicts with platform-specific language handling
+- **Future-proof**: Supports extensions and regional variants
+
+#### Common Migration Examples
+
+Recent updates have standardized several language codes:
+
+| Old Code | New Code | Language | Reason |
+|----------|----------|----------|---------|
+| `cz` | `cs` | Czech | ISO 639-1 standard is `cs` |
+| `dk` | `da` | Danish | Country code vs. language code |
+| `no` | `nb` | Norwegian | Specifies Norwegian Bokmål |
+| `tl` | `fil` | Filipino | Official language name |
+
+#### Validation
+
+```bash
+# Check your language code compliance
+npm run lang:validate <code>
+
+# The validator checks:
+# ✓ IETF BCP 47 format compliance
+# ✓ File naming consistency
+# ✓ Registration in lib/n2words.js
+```
+
+#### Format Rules
+
+- **Basic**: `[language]` (e.g., `en`, `cs`, `fil`)
+- **With Region**: `[language]-[REGION]` (e.g., `fr-BE`, `en-US`)
+- **Extensions**: `[language]-[region]-[extension]` (as needed)
 
 ### Key Concepts
 
@@ -109,14 +171,17 @@ Choose the appropriate base class for your language:
 
 ### 1. Choose Your Base Class and Define Number Words
 
-Start by selecting the right base class. For most languages, use `GreedyScaleLanguage`:
+Start by selecting the right base class and creating your language file with an IETF BCP 47 compliant name (e.g., `cs.js` for Czech, `fil.js` for Filipino).
+
+For most languages, use `GreedyScaleLanguage`:
 
 ```javascript
+// File: lib/languages/cs.js (Czech - IETF BCP 47 compliant)
 import GreedyScaleLanguage from '../classes/greedy-scale-language.js'
 
-export class MyLanguage extends GreedyScaleLanguage {
+export class Czech extends GreedyScaleLanguage {
   // Set language defaults as class properties
-  negativeWord = 'minus'      // Word for negative numbers
+  negativeWord = 'mínus'      // Word for negative numbers
   decimalSeparatorWord = 'point'     // Word for decimal point
   zeroWord = 'zero'               // Word for zero
   convertDecimalsPerDigit = false // Set to true for digit-by-digit decimal reading
@@ -242,7 +307,7 @@ The build process automatically generates TypeScript declarations from your JSDo
 - Constructor parameter documentation becomes method signatures
 - Export function JSDoc becomes function overloads
 
-**After implementation**, run `npm run build:types` to generate TypeScript declarations.
+The build process automatically generates TypeScript declarations from your JSDoc.
 
 #### 4. Language Registration
 
@@ -250,8 +315,6 @@ Your language will automatically get registered in the main `N2WordsOptions` typ
 
 1. Add proper `@typedef` for your options
 2. Register the language in `lib/n2words.js`
-3. Run `npm run build:types`
-
 This provides developers with:
 
 - Autocomplete for language codes
@@ -413,17 +476,18 @@ export default function convertToWords(value, options = {}) {
 
 ### 1. Define Test Cases
 
-Edit `test/i18n/xx.js` with comprehensive test cases:
+Edit `test/fixtures/languages/<code>.js` with comprehensive test cases using your IETF BCP 47 compliant language code:
 
 ```javascript
+// File: test/fixtures/languages/cs.js (Czech example)
 export default [
   // Basic numbers
-  [0, 'zero'],
-  [1, 'one'],
-  [10, 'ten'],
-  [11, 'eleven'],
-  [20, 'twenty'],
-  [21, 'twenty-one'],
+  [0, 'nula'],
+  [1, 'jeden'],
+  [10, 'deset'],
+  [11, 'jedenáct'],
+  [20, 'dvacet'],
+  [21, 'dvacet jeden'],
   [99, 'ninety-nine'],
 
   // Hundreds
@@ -454,10 +518,10 @@ export default [
 
 ```bash
 # Test your specific language
-npm run test:i18n
+npm run test:integration
 
-# Validate implementation
-npm run lang:validate xx
+# Validate implementation (includes IETF BCP 47 compliance check)
+npm run lang:validate <code>
 
 # Validate all languages
 npm run lang:validate
@@ -465,6 +529,13 @@ npm run lang:validate
 # Full test suite
 npm test
 ```
+
+**Validation includes**:
+
+- ✓ IETF BCP 47 language code compliance
+- ✓ File structure and exports
+- ✓ Class implementation patterns
+- ✓ Test coverage requirements
 
 ### 3. Test Coverage
 
@@ -656,17 +727,20 @@ See [BIGINT-GUIDE.md](./BIGINT-GUIDE.md) for comprehensive guidance on BigInt us
 
 Study these examples:
 
-- **GreedyScaleLanguage**: `lib/i18n/en.js` - Basic patterns
-- **GreedyScaleLanguage (optimized)**: `lib/i18n/pt.js` - Advanced optimizations
-- **GreedyScaleLanguage (complex)**: `lib/i18n/fr.js` - Special rules
-- **GreedyScaleLanguage (Nordic rules inline)**: `lib/i18n/no.js` - Norwegian "og" conjunction handled in mergeScales()
-- **TurkicLanguage**: `lib/i18n/tr.js` - Turkish patterns with space-separated combinations
-- **SlavicLanguage**: `lib/i18n/ru.js` - Three-form pluralization pattern
-- **AbstractLanguage**: `lib/i18n/ar.js`, `lib/i18n/zh.js` - Custom implementations with different scripts
+- **GreedyScaleLanguage**: `lib/languages/en.js` - Basic patterns
+- **GreedyScaleLanguage (optimized)**: `lib/languages/pt.js` - Advanced optimizations
+- **GreedyScaleLanguage (complex)**: `lib/languages/fr.js` - Special rules
+- **GreedyScaleLanguage (Nordic rules inline)**: `lib/languages/nb.js` - Norwegian "og" conjunction handled in mergeScales()
+- **TurkicLanguage**: `lib/languages/tr.js` - Turkish patterns with space-separated combinations
+- **SlavicLanguage**: `lib/languages/ru.js` - Three-form pluralization pattern
+- **SlavicLanguage (IETF compliant)**: `lib/languages/cs.js` - Czech implementation using correct `cs` code
+- **AbstractLanguage**: `lib/languages/ar.js`, `lib/languages/zh.js` - Custom implementations with different scripts
+
+**Recent IETF BCP 47 Updates**: Several languages have been updated to use compliant codes (`cz`→`cs`, `dk`→`da`, `no`→`nb`, `tl`→`fil`). All new implementations must follow IETF BCP 47 standards.
 
 ## Getting Help
 
-- Check [CONTRIBUTING.md](./CONTRIBUTING.md) for general guidelines
+- Check [CONTRIBUTING.md](../CONTRIBUTING.md) for general guidelines
 - Review [BIGINT-GUIDE.md](./BIGINT-GUIDE.md) for BigInt usage
 - Study existing language implementations
 - Open an issue if you have questions

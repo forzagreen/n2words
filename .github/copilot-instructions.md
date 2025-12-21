@@ -2,11 +2,11 @@
 
 This file gives targeted, actionable guidance for AI coding agents working in this repository.
 
-**Big picture:** `n2words` converts numeric values into written words across many languages with zero dependencies. The public API is the default export in `lib/n2words.js` (ESM). Language implementations live in `lib/i18n/*.js` and typically export a default function with the signature `(value, options)` that returns a string.
+**Big picture:** `n2words` converts numeric values into written words across many languages with zero dependencies. The public API is the default export in `lib/n2words.js` (ESM). Language implementations live in `lib/languages/*.js` and typically export a default function with the signature `(value, options)` that returns a string.
 
 - **Core components:**
   - `lib/n2words.js`: language registry and export. Uses `dict[lang]` to dispatch.
-  - `lib/i18n/*.js`: per-language implementations. Use one of five base classes from `lib/classes/`.
+  - `lib/languages/*.js`: per-language implementations. Use one of five base classes from `lib/classes/`.
   - `lib/classes/abstract-language.js`: core base class providing decimal handling and input validation. Decimal part is treated as a string; leading zeros become the word for zero.
   - `lib/classes/greedy-scale-language.js`: extends `AbstractLanguage`; implements highest-matching-scale algorithm. Most languages use this. Languages define `scaleWordPairs` arrays of `[value, word]` (use BigInt literals). Used by: English, Spanish, French, German, Italian, Portuguese, Dutch, Korean, Hungarian, Chinese.
   - `lib/classes/slavic-language.js`: extends `AbstractLanguage`; specialized base for Slavic/Baltic languages with three-form pluralization (Russian, Czech, Polish, Ukrainian, Serbian, Croatian, Hebrew, Lithuanian, Latvian).
@@ -15,7 +15,7 @@ This file gives targeted, actionable guidance for AI coding agents working in th
 
 - **Project structure:**
   - `dist/`: Browser bundles (webpack output: n2words.js, n2words.min.js)
-  - `typings/`: TypeScript declarations (n2words.d.ts, classes/, i18n/)
+  - `typings/`: TypeScript declarations (n2words.d.ts, classes/, languages/)
   - `docs/`: Generated JSDoc documentation (HTML format)
   - `examples/`: Usage examples (node-dynamic-import.js, typescript.ts)
   - `scripts/`: Development tools (add-language.js, validate-language.js)
@@ -26,26 +26,23 @@ This file gives targeted, actionable guidance for AI coding agents working in th
 
 - **Documentation:**
   - `README.md`: Main project documentation and quick start
-  - `TYPESCRIPT_GUIDE.md`: TypeScript usage, type annotations, examples
-  - `LANGUAGE_GUIDE.md`: Comprehensive implementation guide for new languages
-  - `LANGUAGE_OPTIONS.md`: End-user documentation of language-specific options
-  - `DEVELOPER_GUIDE.md`: Development workflows, testing, architecture
-  - `BIGINT-GUIDE.md`: BigInt usage patterns for language implementations
+  - `guides/TYPESCRIPT_GUIDE.md`: TypeScript usage, type annotations, examples
+  - `guides/LANGUAGE_GUIDE.md`: Comprehensive implementation guide for new languages
+  - `guides/LANGUAGE_OPTIONS.md`: End-user documentation of language-specific options
+  - `guides/DEVELOPER_GUIDE.md`: Development workflows, testing, architecture
+  - `guides/BIGINT-GUIDE.md`: BigInt usage patterns for language implementations
   - `CONTRIBUTING.md`: Contribution guidelines and automated workflows
   - `scripts/README.md`: Documentation for development scripts
 
 - **Test organization:**
   - `test/unit/` — Core API unit tests (4 files: api.js, errors.js, validation.js, options.js).
-  - `test/integration/` — Integration tests (1 file: targeted-coverage.js).
-  - `test/smoke/` — Smoke/sanity tests (1 file: smoke-i18n.js).
-  - `test/i18n.js` — Main comprehensive i18n test suite.
-  - `test/i18n/` — Per-language test fixtures (45 files, one per language).
-  - `test/web/` — Browser testing resources.
-  - `test/web.js` — Browser compatibility tests (Chrome/Firefox).
-  - `test/typescript-smoke.ts` — TypeScript validation tests.
+  - `test/integration/` — Integration tests (3 files: commonjs.cjs, targeted-coverage.js, language-comprehensive.js).
+  - `test/typescript/` — TypeScript validation tests (1 file: typescript-integration.ts).
+  - `test/fixtures/languages/` — Per-language test fixtures (45 files, one per language).
+  - `test/web/` — Browser compatibility tests (browser-compatibility.js, index.html).
   - `test/commonjs.cjs` — CommonJS compatibility tests.
   **Build / test / lint workflows** (explicit commands):
-- Smoke tests: `npm run test:smoke` (test/smoke/smoke-i18n.js) — sanity checks for all languages.
+
 
 - **Patterns & conventions** (follow these exactly):
   - Files are ESM (`package.json` includes `type: "module"`). Language implementations export a default function: `export default function convertToWords(value, options={}) { return new XxLanguage(options).convertToWords(value); }`
@@ -67,45 +64,40 @@ This file gives targeted, actionable guidance for AI coding agents working in th
 
 - **How to add a language:**
   - Manual process (recommended for AI agents):
-    - Create `lib/i18n/xx.js` with a class extending the appropriate base class.
+    - Create `lib/languages/xx.js` with a class extending the appropriate base class.
     - Define language defaults as class properties: `negativeWord`, `decimalSeparatorWord`, `zeroWord`, `scaleWordPairs` (for GreedyScaleLanguage) or `scaleWords` (for SouthAsianLanguage), etc.
     - If your language needs behavior customization via constructor options (rare), implement a constructor that accepts only those parameters.
     - Implement `mergeScales(leftWordSet, rightWordSet)` method with language-specific grammar rules.
     - Export default function: `export default function convertToWords(value, options = {}) { return new XxLanguage(options).convertToWords(value); }`
     - Add the language import and mapping entry in `lib/n2words.js`.
-    - Add corresponding test file to `test/i18n/xx.js`.
+    - Add corresponding test file to `test/fixtures/languages/xx.js`.
     - Document constructor options (if any) in JSDoc, but ONLY document parameters actually accepted by the constructor, not class properties.
   - Alternative: Use automated script: `npm run lang:add` (generates boilerplate, updates registration).
   - Validate implementation: `npm run lang:validate xx` (checks completeness and best practices).
-  - See `LANGUAGE_GUIDE.md` for comprehensive implementation guidance.
+  - See `guides/LANGUAGE_GUIDE.md` for comprehensive implementation guidance.
 
 - **Build / test / lint workflows** (explicit commands):
-  - Run all tests: `npm test` (runs test:core + test:types).
-  - Run core tests: `npm run test:core` (includes unit, integration, smoke, and i18n tests).
+  - Run all tests: `npm test && npm run types:validate && npm run web:test` (runs unit, integration, typescript, and web tests). **Requires `npm run web:build` and `npm run types:generate` first.**
+  - Run basic tests: `npm test` (runs unit and integration tests only).
     - Unit tests: `npm run test:unit` (test/unit/\*.js) — API, errors, validation, options.
-    - Integration tests: `npm run test:integration` (test/integration/\*.js) — targeted coverage.
-    - Smoke tests: `npm run test:smoke` (test/smoke/\*.js) — sanity checks for all languages.
-    - I18n tests: `npm run test:i18n` (test/i18n.js) — comprehensive language-specific tests.
-    - TypeScript tests: `npm run test:types` (test/typescript-smoke.ts) — type validation.
-    - Web tests: `npm run test:web` (test/web.js) — browser compatibility (Chrome/Firefox).
-  - Run coverage: `npm run coverage` (runs test:core with c8 instrumentation).
-  - Build browser bundle: `npm run build:web` (uses webpack, outputs to dist/).
-  - Generate type declarations: `npm run build:types` (TypeScript compiler, outputs to typings/).
-  - Full build: `npm run build` (runs build:web + build:types).
+    - Integration tests: `npm run test:integration` (test/integration/\*.js) — targeted coverage and CommonJS.
+    - TypeScript tests: `npm run types:validate` (test/typescript/typescript-integration.ts) — type validation. **Requires `npm run types:generate` first. TypeScript declarations are automatically built in CI.**
+    - Web tests: `npm run web:test` (test/web.js) — browser compatibility (Chrome/Firefox). **Requires `npm run web:build` first.**
+  - Run coverage: `npm run coverage:generate` (runs npm test with c8 instrumentation).
+  - Build browser bundle: `npm run web:build` (uses webpack, outputs to dist/).
+  - Generate type declarations: `npm run types:generate` (TypeScript compiler, outputs to typings/) — **automated in CI, not required for development**.
+  - Full build: `npm run web:build` (builds browser bundle only).
   - Lint JS: `npm run lint:js` (Standard.js); Lint markdown: `npm run lint:md` (markdownlint); Full lint: `npm run lint`.
-  - Generate documentation: `npm run docs` (JSDoc, outputs to docs/).
+  - Generate documentation: `npm run docs:generate` (JSDoc, outputs to docs/).
   - Performance benchmarks: `npm run bench` (benchmark.js), `npm run bench:memory` (memory profiling).
   - Language tools: `npm run lang:add` (generate boilerplate), `npm run lang:validate xx` (validate implementation).
 
 - **Test organization:**
   - `test/unit/` — Core API unit tests (4 files: api.js, errors.js, validation.js, options.js).
-  - `test/integration/` — Integration tests (1 file: targeted-coverage.js).
-  - `test/smoke/` — Smoke/sanity tests (1 file: smoke-i18n.js).
-  - `test/i18n.js` — Main comprehensive i18n test suite.
-  - `test/i18n/` — Per-language test fixtures (45 files, one per language).
-  - `test/web/` — Browser testing resources.
-  - `test/web.js` — Browser compatibility tests (Chrome/Firefox).
-  - `test/typescript-smoke.ts` — TypeScript validation tests.
+  - `test/integration/` — Integration tests (3 files: commonjs.cjs, targeted-coverage.js, language-comprehensive.js).
+  - `test/typescript/` — TypeScript validation tests (1 file: typescript-integration.ts).
+  - `test/fixtures/languages/` — Per-language test fixtures (45 files, one per language).
+  - `test/web/` — Browser compatibility tests (browser-compatibility.js, index.html).
 
 - **Important implementation notes:**
   - Input types: functions accept `number | string | bigint`. `AbstractLanguage.convertToWords` validates inputs and converts to `BigInt` for whole numbers.
@@ -113,34 +105,34 @@ This file gives targeted, actionable guidance for AI coding agents working in th
   - Decimal handling: By default, leading zeros are preserved as `zeroWord` words and remaining digits are grouped. Languages requiring per-digit decimal reading (ja, th, ta, te, he) set `convertDecimalsPerDigit = true` as a class property.
   - Class properties vs constructor parameters: Use class properties for defaults shared across all instances (negativeWord, decimalSeparatorWord, zeroWord, scaleWordPairs, etc.). Use constructor parameters ONLY for options that actually change behavior (e.g., formal style in Chinese, gender in Spanish).
   - JSDoc for constructors: Only document parameters actually accepted by the constructor, not inherited class properties. Class properties are documented in the class-level JSDoc comment.
-  - TypeScript declarations: Generated automatically from JSDoc comments using `npm run build:types`. Follow JSDoc best practices for accurate type generation.
+  - TypeScript declarations: Generated automatically from JSDoc comments in CI builds. Follow JSDoc best practices for accurate type generation.
   - Performance: Portuguese (pt.js) and English (en.js) are heavily optimized with cached regex and mergeScales() optimizations.
-  - Documentation: JSDoc comments generate both HTML docs (`npm run docs`) and TypeScript declarations. Use comprehensive JSDoc for all public methods and class properties.
+  - Documentation: JSDoc comments generate both HTML docs (`npm run docs:generate`) and TypeScript declarations. Use comprehensive JSDoc for all public methods and class properties.
 - **Files to inspect for examples:**
-  - `lib/i18n/en.js` — canonical use of `GreedyScaleLanguage` and `scaleWordPairs` + optimized `mergeScales()` implementation.
-  - `lib/i18n/pt.js` — advanced optimizations: pre-compiled regex, simplified mergeScales() logic.
-  - `lib/i18n/ru.js` — use of `SlavicLanguage` with three-form pluralization (shared by 9 languages).
-  - `lib/i18n/no.js` — inline `GreedyScaleLanguage` merge rules for the Norwegian "og" conjunction.
-  - `lib/i18n/tr.js` — use of `TurkicLanguage` with space-separated patterns (shared by Turkish and Azerbaijani).
-  - `lib/i18n/hi.js` — use of `SouthAsianLanguage` with Indian-style grouping (shared by Hindi, Bengali, Urdu, Punjabi, Marathi, Gujarati, Kannada).
-  - `lib/i18n/ar.js` — use of `AbstractLanguage` for custom implementation.
+  - `lib/languages/en.js` — canonical use of `GreedyScaleLanguage` and `scaleWordPairs` + optimized `mergeScales()` implementation.
+  - `lib/languages/pt.js` — advanced optimizations: pre-compiled regex, simplified mergeScales() logic.
+  - `lib/languages/ru.js` — use of `SlavicLanguage` with three-form pluralization (shared by 9 languages).
+  - `lib/languages/nb.js` — inline `GreedyScaleLanguage` merge rules for the Norwegian "og" conjunction.
+  - `lib/languages/tr.js` — use of `TurkicLanguage` with space-separated patterns (shared by Turkish and Azerbaijani).
+  - `lib/languages/hi.js` — use of `SouthAsianLanguage` with Indian-style grouping (shared by Hindi, Bengali, Urdu, Punjabi, Marathi, Gujarati, Kannada).
+  - `lib/languages/ar.js` — use of `AbstractLanguage` for custom implementation.
   - `lib/classes/greedy-scale-language.js` — essential algorithms for scale-based systems.
   - `lib/classes/slavic-language.js` — reusable base for Slavic/Baltic languages with complex pluralization.
   - `lib/classes/turkic-language.js` — reusable base for Turkic languages with space-separated patterns.
   - `lib/classes/south-asian-language.js` — reusable base for South Asian languages with Indian-style grouping.
   - `lib/classes/abstract-language.js` — essential algorithms and optimizations.
   - `test/unit/api.js` — API and language fallback tests.
-  - `test/i18n.js` — comprehensive language-specific tests.
-  - `test/smoke/smoke-i18n.js` — quick sanity checks across all languages.
+  - `test/integration/language-comprehensive.js` — comprehensive language-specific tests.
+  - `test/typescript/typescript-integration.ts` — TypeScript integration and validation tests.
   - `scripts/add-language.js` — automated language boilerplate generator.
   - `scripts/validate-language.js` — implementation validation tool.
   - `bench.js` — performance benchmarking tool using benchmark.js library.
   - `bench-memory.js` — memory usage profiling tool with garbage collection monitoring.
   - `examples/node-dynamic-import.js` — Node.js dynamic import example with language selection.
   - `examples/typescript.ts` — TypeScript usage examples with type annotations.
-  - `LANGUAGE_GUIDE.md` — comprehensive guide for adding new languages.
-  - `BIGINT-GUIDE.md` — detailed BigInt usage guide for language developers.
-  - `TYPESCRIPT_GUIDE.md` — TypeScript integration and usage patterns.
+  - `guides/LANGUAGE_GUIDE.md` — comprehensive guide for adding new languages.
+  - `guides/BIGINT-GUIDE.md` — detailed BigInt usage guide for language developers.
+  - `guides/TYPESCRIPT_GUIDE.md` — TypeScript integration and usage patterns.
 
 - **Environment / runtime:**
   - Node supported versions: `^20 || ^22 || >=24` (declared in `package.json`).
@@ -157,7 +149,7 @@ This file gives targeted, actionable guidance for AI coding agents working in th
   - Preserve `type: module` semantics; avoid CommonJS `module.exports`.
   - Update `lib/n2words.js` and `exports` in `package.json` if adding new public entrypoints.
   - When reorganizing test files, update import paths to reflect new subdirectory structure (e.g., `../lib` becomes `../../lib`).
-  - When updating JSDoc, run `npm run build:types` to regenerate TypeScript declarations.
+  - When updating JSDoc, TypeScript declarations are automatically regenerated in CI builds.
   - When adding languages, use `npm run lang:add` script rather than manual file creation.
   - Always validate language implementations with `npm run lang:validate <code>` before committing.
 
@@ -168,7 +160,7 @@ This file gives targeted, actionable guidance for AI coding agents working in th
   - The `mergeScales()` method is performance-critical; use early returns and reduce branching.
 
 - **When unsure, look at these concrete examples:**
-  - `lib/i18n/en.js` shows `GreedyScaleLanguage` usage and `mergeScales()` details.
+  - `lib/languages/en.js` shows `GreedyScaleLanguage` usage and `mergeScales()` details.
   - `lib/n2words.js` shows how languages are registered and fallback logic.
 
 If anything above is unclear or you'd like more examples (e.g., a minimal new-language PR), tell me where to expand and I will iterate.

@@ -87,10 +87,10 @@ type N2WordsOptions = {
 
 // Language code literals with autocomplete
 type LanguageCode =
-  | 'ar' | 'az' | 'bn' | 'cz' | 'de' | 'dk' | 'el' | 'en' | 'es' | 'fa'
+  | 'ar' | 'az' | 'bn' | 'cs' | 'de' | 'da' | 'el' | 'en' | 'es' | 'fa'
   | 'fr' | 'fr-BE' | 'gu' | 'he' | 'hi' | 'hr' | 'hu' | 'id' | 'it' | 'ja'
-  | 'kn' | 'ko' | 'lt' | 'lv' | 'mr' | 'ms' | 'nl' | 'no' | 'pa' | 'pl'
-  | 'pt' | 'ro' | 'ru' | 'sr' | 'sv' | 'sw' | 'ta' | 'te' | 'th' | 'tl'
+  | 'kn' | 'ko' | 'lt' | 'lv' | 'mr' | 'ms' | 'nl' | 'nb' | 'pa' | 'pl'
+  | 'pt' | 'ro' | 'ru' | 'sr' | 'sv' | 'sw' | 'ta' | 'te' | 'th' | 'fil'
   | 'tr' | 'uk' | 'ur' | 'vi' | 'zh'
 ```
 

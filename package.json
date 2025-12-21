@@ -1,6 +1,6 @@
 {
   "name": "n2words",
-  "version": "1.23.2",
+  "version": "2.0.0",
   "description": "n2words converts a numerical number into a written one, supports 45 languages and has zero dependencies.",
   "keywords": [
     "n2words",
@@ -9,7 +9,6 @@
     "spellout",
     "conversion",
     "internationalization",
-    "i18n",
     "localization",
     "multilingual",
     "pluralization",
@@ -41,20 +40,14 @@
       "import": "./lib/n2words.js",
       "types": "./typings/n2words.d.ts"
     },
-    "./i18n/*": {
-      "import": "./lib/i18n/*.js",
-      "types": "./typings/i18n/*.d.ts"
+    "./languages/*": {
+      "import": "./lib/languages/*.js",
+      "types": "./typings/languages/*.d.ts"
     }
   },
   "main": "lib/n2words.js",
-  "jsdelivr": {
-    "browser": "dist/n2words.js",
-    "types": "typings/n2words.d.ts"
-  },
-  "unpkg": {
-    "browser": "dist/n2words.js",
-    "types": "typings/n2words.d.ts"
-  },
+  "jsdelivr": "dist/n2words.js",
+  "unpkg": "dist/n2words.js",
   "types": "typings/n2words.d.ts",
   "typesVersions": {
     "*": {
@@ -69,13 +62,12 @@
     "typings/*"
   ],
   "scripts": {
-    "bench": "node bench.js",
+    "bench:perf": "node bench.js",
     "bench:memory": "node --expose-gc bench-memory.js",
-    "build": "npm run build:web && npm run build:types",
-    "build:types": "tsc --project tsconfig.json",
-    "build:web": "webpack --progress",
-    "coverage": "c8 npm run test:core",
-    "docs": "npm run docs:clean && jsdoc -c ./conf.json && npm run docs:validate",
+    "clean": "npm run types:clean && npm run web:clean && npm run docs:clean && npm run coverage:clean",
+    "coverage:clean": "node -e \"import { rmSync } from 'fs'; try { rmSync('coverage', { recursive: true, force: true }) } catch (e) {}\"",
+    "coverage:generate": "c8 npm run test",
+    "docs:generate": "npm run docs:clean && jsdoc -c ./conf.json && npm run docs:validate",
     "docs:clean": "node -e \"import { rmSync } from 'fs'; try { rmSync('docs', { recursive: true, force: true }) } catch (e) {}\"",
     "docs:validate": "echo 'Documentation generated successfully'",
     "lang:add": "node scripts/add-language.js",
@@ -83,24 +75,25 @@
     "lint": "npm run lint:js && npm run lint:md",
     "lint:js": "standard examples/ lib/ scripts/ test/ *.js",
     "lint:md": "markdownlint-cli2 *.md scripts/*.md",
-    "test": "npm run test:core && npm run test:types",
-    "test:core": "npm run test:unit && npm run test:integration && npm run test:smoke && npm run test:i18n",
-    "test:i18n": "ava --verbose test/i18n.js",
-    "test:integration": "ava --verbose test/integration/*.js",
-    "test:smoke": "ava --verbose test/smoke/*.js",
-    "test:types": "tsx test/typescript-smoke.ts",
+    "test": "npm run test:unit && npm run test:integration",
+    "test:integration": "ava --verbose test/integration/*.{js,cjs}",
     "test:unit": "ava --verbose test/unit/*.js",
-    "test:web": "ava --verbose test/web.js"
+    "types:generate": "tsc --project tsconfig.json",
+    "types:clean": "node -e \"import { rmSync } from 'fs'; try { rmSync('typings', { recursive: true, force: true }) } catch (e) {}\"",
+    "types:validate": "tsc --noEmit --project test/tsconfig.test.json && node --import tsx --test test/typescript/*.ts",
+    "web:build": "webpack --progress",
+    "web:clean": "node -e \"import { rmSync } from 'fs'; try { rmSync('dist', { recursive: true, force: true }) } catch (e) {}\"",
+    "web:test": "ava --verbose test/web/*.js"
   },
   "ava": {
     "extensions": [
-      "js"
+      "js",
+      "cjs"
     ],
     "files": [
       "test/unit/*.js",
-      "test/integration/*.js",
-      "test/smoke/*.js",
-      "test/i18n.js"
+      "test/integration/*.{js,cjs}",
+      "test/web/*.js"
     ],
     "timeout": "30s"
   },

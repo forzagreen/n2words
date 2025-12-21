@@ -1,5 +1,5 @@
 import test from 'ava'
-import n2words from '../lib/n2words.js'
+import n2words from '../../lib/n2words.js'
 import { readdirSync } from 'node:fs'
 
 /**
@@ -9,10 +9,10 @@ import { readdirSync } from 'node:fs'
  * These tests verify that each language correctly handles a comprehensive set of
  * test cases specific to that language's number formatting rules.
  *
- * Test files are located in test/i18n/*.js and are loaded dynamically.
+ * Test files are located in test/fixtures/languages/*.js and are loaded dynamically.
  */
 
-const files = readdirSync('./test/i18n')
+const files = readdirSync('./test/fixtures/languages')
 
 for (const file of files) {
   if (file.includes('.js')) {
@@ -21,14 +21,14 @@ for (const file of files) {
 }
 
 /**
- * Run i18n tests for specific language
+ * Run language tests for specific language
  * @param {string} file language test file to run
  */
 async function testLanguage (file) {
   const language = file.replace('.js', '')
 
   test(language, async t => {
-    const { default: testFile } = await import('./i18n/' + file)
+    const { default: testFile } = await import('../fixtures/languages/' + file)
 
     for (const test of testFile) {
       t.is(

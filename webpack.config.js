@@ -9,7 +9,10 @@ export default {
   node: false,
   devtool: 'source-map',
   output: {
-    filename: '[name].js',
+    filename: (pathData) => {
+      // Main n2words file goes to root, language files go to languages/ subdirectory
+      return pathData.chunk.name === 'n2words' ? '[name].js' : 'languages/[name].js'
+    },
     globalObject: 'globalThis',
     library: {
       name: 'n2words',
@@ -47,17 +50,17 @@ export default {
 }
 
 /**
- * Get available languages from i18n directory.
+ * Get available languages from languages directory.
  * Dynamically discovers all language modules for webpack entry points.
  * @returns {Object} Object mapping language codes to module paths
  * @example
- * { en: './lib/i18n/en.js', fr: './lib/i18n/fr.js', ... }
+ * { en: './lib/languages/en.js', fr: './lib/languages/fr.js', ... }
  */
 function getLanguages () {
   const languages = {}
 
   // Load all files in language directory
-  const files = readdirSync('./lib/i18n')
+  const files = readdirSync('./lib/languages')
 
   // Loop through files and add to webpack entry
   for (const file of files) {
@@ -65,7 +68,7 @@ function getLanguages () {
     if (file.endsWith('.js')) {
       // Add language file to output object, using filename without extension
       const languageCode = file.replace('.js', '')
-      languages[languageCode] = `./lib/i18n/${file}`
+      languages[languageCode] = `./lib/languages/${file}`
     }
   }
 

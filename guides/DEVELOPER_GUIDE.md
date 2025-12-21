@@ -46,18 +46,20 @@ npm test
 # Run specific test suites
 npm run test:unit          # Unit tests only
 npm run test:integration   # Integration tests
-npm run test:smoke         # Smoke tests (all languages)
-npm run test:i18n          # Language-specific tests
+npm run types:validate     # TypeScript validation
+npm run web:test           # Browser compatibility
 
 # Check code quality
 npm run lint               # Lint JS and Markdown
 npm run lint:js            # Lint JS only
 npm run lint:md            # Lint Markdown only
 
+# Auto-fix lint issues (individual commands)
+npm run lint:js -- --fix  # Auto-fix JS lint issues
+npm run lint:md -- --fix  # Auto-fix Markdown lint issues
+
 # Build outputs
-npm run build              # Build browser bundle and types
-npm run build:web          # Webpack bundle
-npm run build:types        # TypeScript definitions
+npm run web:build          # Build browser bundle
 ```
 
 If all tests pass, you're ready to develop!
@@ -74,24 +76,28 @@ n2words/
 │   │   ├── slavic-language.js   # For Slavic/Baltic languages
 │   │   ├── turkic-language.js   # For Turkic languages
 │   │   └── south-asian-language.js # For Indian-style grouping languages
-│   └── i18n/                    # Language implementations
+│   └── languages/               # Language implementations
 │       ├── en.js, es.js, fr.js, ... (one per language)
 │
 ├── test/                         # Test files
 │   ├── unit/                    # Unit tests (API, validation, errors)
-│   ├── integration/             # Integration tests (coverage gaps)
-│   ├── smoke/                   # Sanity tests (all languages)
-│   ├── i18n/                    # Language-specific test fixtures
-│   │   └── *.js (one per language)
-│   ├── web/                     # Browser testing resources
-│   ├── i18n.js                  # Main i18n test runner
-│   ├── typescript-smoke.ts      # TypeScript validation
-│   └── web.js                   # Browser compatibility tests
+│   ├── integration/             # Integration tests (CommonJS, coverage, languages)
+│   │   ├── commonjs.cjs         # CommonJS compatibility
+│   │   ├── targeted-coverage.js # Precision coverage tests
+│   │   └── language-comprehensive.js # All language tests
+│   ├── typescript/              # TypeScript validation tests
+│   │   └── typescript-integration.ts # TypeScript types & imports
+│   ├── web/                     # Browser compatibility tests
+│   │   ├── browser-compatibility.js # Selenium browser tests
+│   │   └── index.html           # Test HTML page
+│   └── fixtures/                # Test data
+│       └── languages/           # Language test fixtures
+│           └── *.js (one per language)
 │
 ├── typings/                     # TypeScript definitions (auto-generated)
 │   ├── n2words.d.ts
 │   ├── classes/
-│   └── i18n/
+│   └── languages/
 │
 ├── scripts/                     # Development utilities
 │   ├── add-language.js          # Generate language boilerplate
@@ -110,11 +116,15 @@ n2words/
 ├── webpack.config.js            # Webpack configuration for browser build
 ├── conf.json                    # JSDoc configuration
 │
+├── guides/                      # Comprehensive documentation
+│   ├── LANGUAGE_GUIDE.md        # Guide for implementing languages
+│   ├── LANGUAGE_OPTIONS.md      # Language-specific options
+│   ├── TYPESCRIPT_GUIDE.md      # TypeScript usage guide
+│   ├── BIGINT-GUIDE.md          # BigInt usage guide
+│   └── DEVELOPER_GUIDE.md       # Development workflows (this file)
+│
 ├── README.md                    # Quick start and overview
 ├── CONTRIBUTING.md              # Contributing guidelines
-├── LANGUAGE_GUIDE.md            # Guide for implementing languages
-├── LANGUAGE_OPTIONS.md          # Language-specific options
-├── TYPESCRIPT_GUIDE.md          # TypeScript usage guide
 ├── BIGINT-GUIDE.md              # BigInt usage details
 └── .github/copilot-instructions.md  # AI agent guidance
 ```
@@ -132,7 +142,7 @@ n2words() [lib/n2words.js]
     ↓
 Language Registry Lookup
     ↓
-Language Implementation [lib/i18n/*.js]
+Language Implementation [lib/languages/*.js]
     ↓
 Output (string)
 ```
@@ -264,11 +274,7 @@ npm test
 
 # Run specific tests
 npm run test:unit
-npm run test:i18n
-npm run test:smoke
-
-# Run tests in watch mode (if needed)
-npm test -- --watch
+npm run test:integration
 ```
 
 ### 4. Check Code Quality
@@ -277,18 +283,25 @@ npm test -- --watch
 # Lint code
 npm run lint
 
-# Auto-fix some lint issues
-npm run lint:fix
+# Auto-fix lint issues with individual commands
+npm run lint:js -- --fix  # Fix JavaScript issues
+npm run lint:md -- --fix  # Fix Markdown issues
 ```
 
 ### 5. Build & Verify
 
 ```bash
-# Build browser bundle and TypeScript definitions
-npm run build
+# Build browser bundle
+npm run web:build
 
-# Check TypeScript definitions
-npm run test:types
+# Test browser compatibility (requires web:build first)
+npm run web:test
+
+# Generate TypeScript definitions (optional - automated in CI)
+npm run types:generate
+
+# Validate TypeScript definitions
+npm run types:validate
 ```
 
 ### 6. Create a Pull Request
@@ -308,10 +321,9 @@ git push origin feature/your-feature-name
 | --- | --- | --- |
 | `test/unit/` | Core API, errors, validation | `npm run test:unit` |
 | `test/integration/` | Targeted coverage for complex code paths | `npm run test:integration` |
-| `test/smoke/` | Sanity check all languages | `npm run test:smoke` |
-| `test/i18n/` | Language-specific fixtures & expected outputs | `npm run test:i18n` |
-| `test/web/` | Browser compatibility | `npm run test:web` |
-| `test/typescript-smoke.ts` | TypeScript validation | `npm run test:types` |
+| `test/fixtures/languages/` | Language-specific test fixtures | Loaded by integration tests |
+| `test/typescript/` | TypeScript validation tests | `npm run types:validate` |
+| `test/web/` | Browser compatibility | `npm run web:test` |
 
 ### Writing Tests
 
@@ -336,9 +348,9 @@ test('handles edge cases', (t) => {
 #### Language Test Fixture Example
 
 ```javascript
-// test/i18n/en.js
+// test/fixtures/languages/en.js
 import test from 'ava'
-import en from '../../lib/i18n/en.js'
+import en from '../../lib/languages/en.js'
 
 const fixtures = [
   [0, 'zero'],
@@ -360,7 +372,7 @@ fixtures.forEach(([input, expected]) => {
 
 ```bash
 # Generate coverage report
-npm run coverage
+npm run coverage:generate
 
 # View coverage in browser (if available)
 open coverage/index.html
@@ -372,7 +384,7 @@ open coverage/index.html
 
 ```bash
 # Build webpack bundle for browsers
-npm run build:web
+npm run web:build
 
 # Output: dist/n2words.js
 ```
@@ -386,22 +398,22 @@ npm run build:web
 ### TypeScript Definitions
 
 ```bash
-# Generate .d.ts files from JSDoc
-npm run build:types
+# TypeScript declarations are generated automatically in CI
+# No manual build required for development
 
 # Output: typings/*.d.ts
 ```
 
 **Notes:**
 
-- Generated from JSDoc comments
+- Generated from JSDoc comments in CI builds
 - Keep JSDoc comments accurate!
 - Only document actual parameters in constructor JSDoc
 
 ### Full Build
 
 ```bash
-npm run build  # Runs both build:web and build:types
+npm run web:build  # Build browser bundle (TypeScript types built automatically in CI)
 ```
 
 ## Code Style & Conventions
@@ -470,11 +482,14 @@ scaleWordPairs = [
 # Check code style (ESLint via Standard)
 npm run lint:js
 
-# Auto-fix style issues
-npm run lint:fix
+# Auto-fix JavaScript style issues
+npm run lint:js -- --fix
 
 # Check Markdown
 npm run lint:md
+
+# Auto-fix Markdown issues
+npm run lint:md -- --fix
 ```
 
 Standard is configured; no manual style discussions needed.
@@ -495,8 +510,8 @@ npm run lang:add
 
 This creates:
 
-- `lib/i18n/de.js` - Implementation
-- `test/i18n/de.js` - Test fixtures
+- `lib/languages/de.js` - Implementation
+- `test/fixtures/languages/de.js` - Test fixtures
 - Updated `lib/n2words.js` - Language registration
 
 ### Manual Implementation
@@ -509,7 +524,7 @@ This creates:
     - `SouthAsianLanguage` - Indian-style grouping (Hindi, Bengali, Urdu, Punjabi, Marathi, Gujarati, Kannada)
     - `AbstractLanguage` - Custom implementations (rare)
 
-2. **Implement language file** (`lib/i18n/xx.js`):
+2. **Implement language file** (`lib/languages/xx.js`):
 
 ```javascript
 import GreedyScaleLanguage from '../classes/greedy-scale-language.js'
@@ -546,11 +561,11 @@ export default function convertToWords(value, options = {}) {
 }
 ```
 
-1. **Add test fixtures** (`test/i18n/xx.js`):
+1. **Add test fixtures** (`test/fixtures/languages/xx.js`):
 
 ```javascript
 import test from 'ava'
-import xx from '../../lib/i18n/xx.js'
+import xx from '../../lib/languages/xx.js'
 
 const fixtures = [
   [0, 'null'],
@@ -569,7 +584,7 @@ fixtures.forEach(([input, expected]) => {
 1. **Register language** in `lib/n2words.js`:
 
 ```javascript
-import xx from './i18n/xx.js'
+import xx from './languages/xx.js'
 // ... other imports
 
 const dict = {
@@ -594,8 +609,7 @@ npm run lang:validate xx
 1. **Run tests**:
 
 ```bash
-npm run test:smoke  # Should show ✓ xx
-npm run test:i18n   # Should show ✓ xx
+npm run test:integration   # Should include your new language
 ```
 
 For detailed guidance, see [LANGUAGE_GUIDE.md](LANGUAGE_GUIDE.md).
@@ -689,8 +703,8 @@ The library supports tree-shaking:
 import n2words from 'n2words'
 
 // More languages = larger bundle
-import { default as en } from 'n2words/i18n/en'
-import { default as fr } from 'n2words/i18n/fr'
+import { default as en } from 'n2words/languages/en'
+import { default as fr } from 'n2words/languages/fr'
 ```
 
 ### Zero Dependencies
@@ -731,7 +745,7 @@ export default class DebugLanguage extends GreedyScaleLanguage {
 
 ```bash
 # Run with debugger
-node --inspect-brk lib/i18n/en.js
+node --inspect-brk lib/languages/en.js
 
 # Open chrome://inspect in Chrome
 ```
@@ -739,7 +753,7 @@ node --inspect-brk lib/i18n/en.js
 ### 3. Test Specific Values
 
 ```javascript
-import en from './lib/i18n/en.js'
+import en from './lib/languages/en.js'
 
 console.log(en(0))           // Debug zero handling
 console.log(en(42))          // Debug basic number
@@ -775,7 +789,7 @@ mergeScales(left, right) {
 
 ```bash
 # Generate coverage report
-npm run coverage
+npm run coverage:generate
 
 # View which lines aren't covered
 open coverage/index.html
@@ -784,7 +798,7 @@ open coverage/index.html
 ## Resources
 
 - **[README.md](README.md)** - Quick start and feature overview
-- **[CONTRIBUTING.md](CONTRIBUTING.md)** - PR guidelines and workflow
+- **[CONTRIBUTING.md](../CONTRIBUTING.md)** - PR guidelines and workflow
 - **[LANGUAGE_GUIDE.md](LANGUAGE_GUIDE.md)** - Comprehensive language implementation guide
 - **[LANGUAGE_OPTIONS.md](LANGUAGE_OPTIONS.md)** - Language-specific options
 - **[TYPESCRIPT_GUIDE.md](TYPESCRIPT_GUIDE.md)** - TypeScript usage

@@ -31,13 +31,13 @@ const rl = readline.createInterface({ input, output })
 const lang = await rl.question(chalk.cyan('\nLanguage to use?\n') + chalk.gray('> '))
 
 // Verify the language file exists before attempting to load it
-if (fs.existsSync('./lib/i18n/' + lang + '.js')) {
+if (fs.existsSync('./lib/languages/' + lang + '.js')) {
   // Prompt user for the numeric value to convert
   const value = await rl.question(chalk.cyan('\nValue to convert?\n') + chalk.gray('> '))
 
   // Dynamically import the language-specific converter module
   // This allows loading only the needed language without bundling all supported languages
-  const { default: n2words } = await import('../lib/i18n/' + lang + '.js')
+  const { default: n2words } = await import('../lib/languages/' + lang + '.js')
 
   // Convert the value to words using the selected language
   const result = n2words(value)

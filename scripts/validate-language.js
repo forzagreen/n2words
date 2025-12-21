@@ -19,31 +19,32 @@ import { resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import chalk from 'chalk'
 
-const ISO_CODE_PATTERN = /^[a-z]{2}(-[A-Z]{2})?$/
+const IETF_BCP47_PATTERN = /^[a-z]{2,3}(-[A-Z]{2})?(-[a-zA-Z0-9]{4,8})*$/
 const INTERNAL_SUFFIXES = ['-fast.js', '-iterative.js']
 
 /**
- * Get list of available language codes from the i18n directory.
+ * Get list of available language codes from the languages directory.
  * Filters out internal implementation files.
  *
  * @returns {string[]} Array of language codes
  */
 function listLanguages () {
-  return readdirSync('lib/i18n')
+  return readdirSync('lib/languages')
     .filter(name => name.endsWith('.js'))
     .filter(name => !INTERNAL_SUFFIXES.some(suffix => name.endsWith(suffix)))
     .map(name => name.replace(/\.js$/, ''))
 }
 
 /**
- * Validate that a language code follows ISO 639-1 format.
+ * Validate that a language code follows IETF BCP 47 format.
  *
  * @param {string} lang Language code to validate
  * @returns {number} 0 if valid, 1 if invalid
  */
-function ensureIsoCode (lang) {
-  if (!ISO_CODE_PATTERN.test(lang)) {
-    console.error(chalk.red(`✗ Language code is not ISO 639-1 (optional region): ${lang}`))
+function ensureIETFBCP47Code (lang) {
+  if (!IETF_BCP47_PATTERN.test(lang)) {
+    console.error(chalk.red(`✗ Language code is not IETF BCP 47 compliant: ${lang}`))
+    console.error(chalk.gray('  Expected format: [language]-[region] (e.g., "en", "fr-BE", "nb", "fil")'))
     return 1
   }
   console.log(chalk.green(`✓ Language code format OK: ${lang}`))
@@ -173,11 +174,11 @@ async function validateLanguage (langCode) {
   console.log(chalk.cyan(`Validating language: ${langCode}`))
   console.log(chalk.gray('='.repeat(60)))
 
-  let errors = ensureIsoCode(langCode)
+  let errors = ensureIETFBCP47Code(langCode)
   let warnings = 0
 
   // Check 1: Language file exists
-  const langFile = `lib/i18n/${langCode}.js`
+  const langFile = `lib/languages/${langCode}.js`
   if (!existsSync(langFile)) {
     console.error(chalk.red(`✗ Language file not found: ${langFile}`))
     errors++
@@ -316,7 +317,7 @@ async function validateLanguage (langCode) {
   }
 
   // Check 2: Test file exists
-  const testFile = `test/i18n/${langCode}.js`
+  const testFile = `test/fixtures/languages/${langCode}.js`
   if (!existsSync(testFile)) {
     console.error(chalk.red(`✗ Test file not found: ${testFile}`))
     errors++
@@ -383,7 +384,7 @@ async function validateLanguage (langCode) {
 
   const constName = langCode.replace('-', '')
   const importRegex = new RegExp(
-    `import ${constName} from '\\./i18n/${langCode}\\.js'`
+    `import ${constName} from '\\./languages/${langCode}\\.js'`
   )
   if (!importRegex.test(n2wordsContent)) {
     console.error(chalk.red(`✗ Not imported in ${n2wordsFile}`))
@@ -432,7 +433,7 @@ if (totalErrors === 0 && totalWarnings === 0) {
   console.log(chalk.cyan('Next steps:'))
   console.log(chalk.gray('  1. Run tests: npm test'))
   console.log(chalk.gray('  2. Run linter: npm run lint:js'))
-  console.log(chalk.gray('  3. Build: npm run build:web'))
+  console.log(chalk.gray('  3. Build: npm run web:build'))
   process.exit(0)
 } else if (totalErrors > 0) {
   console.error(

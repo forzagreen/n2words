@@ -36,7 +36,7 @@ console.log(chalk.cyan('\nBase class options:'))
 console.log(
   '  1. GreedyScaleLanguage (most languages: en, de, fr, es, pt, etc.)'
 )
-console.log('  2. SlavicLanguage (Slavic/Baltic: ru, pl, cz, uk, he, lt, lv)')
+console.log('  2. SlavicLanguage (Slavic/Baltic: ru, pl, cs, uk, he, lt, lv)')
 console.log('  3. TurkicLanguage (Turkic: tr, az)')
 console.log('  4. SouthAsianLanguage (Indian-style grouping: hi, bn, ur, pa, mr, gu, kn)')
 console.log('  5. AbstractLanguage (custom implementations: ar, vi, ro, etc.)')
@@ -66,8 +66,8 @@ console.log()
 console.log(chalk.cyan('Generating files...'))
 
 // Validate inputs
-if (!langCode || !langCode.match(/^[a-z]{2}(-[A-Z]{2})?$/)) {
-  console.error(chalk.red('✗ Error: Invalid language code. Use format "xx" or "xx-YY"'))
+if (!langCode || !langCode.match(/^[a-z]{2,3}(-[A-Z]{2})?(-[a-zA-Z0-9]{4,8})*$/)) {
+  console.error(chalk.red('✗ Error: Invalid language code. Use IETF BCP 47 format (e.g., "en", "fr-BE", "nb", "fil")'))
   process.exit(1)
 }
 
@@ -98,8 +98,8 @@ const fileName = langCode
 const className = toClassName(langName, langCode)
 const constName = langCode.replace('-', '')
 
-if (existsSync(`lib/i18n/${fileName}.js`)) {
-  console.error(chalk.red(`✗ Error: Language file lib/i18n/${fileName}.js already exists`))
+if (existsSync(`lib/languages/${fileName}.js`)) {
+  console.error(chalk.red(`✗ Error: Language file lib/languages/${fileName}.js already exists`))
   process.exit(1)
 }
 
@@ -272,12 +272,12 @@ export default [
 `
 
 // Write language file
-writeFileSync(`lib/i18n/${fileName}.js`, languageTemplate)
-console.log(chalk.green(`✓ Created lib/i18n/${fileName}.js`))
+writeFileSync(`lib/languages/${fileName}.js`, languageTemplate)
+console.log(chalk.green(`✓ Created lib/languages/${fileName}.js`))
 
 // Write test file
-writeFileSync(`test/i18n/${fileName}.js`, testTemplate)
-console.log(chalk.green(`✓ Created test/i18n/${fileName}.js`))
+writeFileSync(`test/fixtures/languages/${fileName}.js`, testTemplate)
+console.log(chalk.green(`✓ Created test/fixtures/languages/${fileName}.js`))
 
 // Update lib/n2words.js
 const n2wordsPath = 'lib/n2words.js'
@@ -285,11 +285,11 @@ let n2wordsContent = readFileSync(n2wordsPath, 'utf8')
 
 // Find the last import and add new import after it
 const lastImportMatch = n2wordsContent.match(
-  /import \w+ from '.\/i18n\/[^']+\.js'\n/g
+  /import \w+ from '\.\/languages\/[^']+\.js'\n/g
 )
 if (lastImportMatch) {
   const lastImport = lastImportMatch[lastImportMatch.length - 1]
-  const importStatement = `import ${constName} from './i18n/${fileName}.js'\n`
+  const importStatement = `import ${constName} from './languages/${fileName}.js'\n`
   n2wordsContent = n2wordsContent.replace(
     lastImport,
     lastImport + importStatement
@@ -336,7 +336,7 @@ console.log(chalk.gray('='.repeat(60)))
 console.log()
 console.log(chalk.cyan('Next steps:'))
 console.log()
-console.log(`1. Edit lib/i18n/${fileName}.js:`)
+console.log(`1. Edit lib/languages/${fileName}.js:`)
 if (baseClass === 'SouthAsianLanguage') {
   console.log('   - Fill in the belowHundred array (0..99)')
   console.log('   - Set hundredWord and scaleWords (indexed grouping words)')
@@ -348,7 +348,7 @@ if (baseClass === 'SouthAsianLanguage') {
   console.log('   - Implement/adjust mergeScales() according to grammar (if needed)')
 }
 console.log()
-console.log(`2. Edit test/i18n/${fileName}.js:`)
+console.log(`2. Edit test/fixtures/languages/${fileName}.js:`)
 console.log('   - Replace "TODO" with actual expected outputs')
 console.log('   - Add comprehensive test cases')
 console.log()
@@ -359,9 +359,9 @@ console.log('4. Run the linter:')
 console.log('   npm run lint:js')
 console.log()
 console.log('5. Build and verify:')
-console.log('   npm run build:web')
+console.log('   npm run web:build')
 console.log()
 console.log(chalk.cyan('Reference implementations:'))
-console.log('   - Simple: lib/i18n/en.js')
-console.log('   - Complex: lib/i18n/pt.js, lib/i18n/fr.js')
+console.log('   - Simple: lib/languages/en.js')
+console.log('   - Complex: lib/languages/pt.js, lib/languages/fr.js')
 console.log()

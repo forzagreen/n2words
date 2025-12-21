@@ -97,7 +97,7 @@ console.log(withDefaults); // 'forty-two'
 /**
  * Example language selection.
  * In a real app, you might get available languages from the library's metadata
- * or check the lib/i18n directory for all available language codes.
+ * or check the lib/languages directory for all available language codes.
  */
 const exampleLanguages = ['en', 'es', 'fr', 'de', 'zh'];
 

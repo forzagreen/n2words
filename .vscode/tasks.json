@@ -16,20 +16,9 @@
       "problemMatcher": []
     },
     {
-      "label": "npm: test:core",
-      "type": "shell",
-      "command": "npm run test:core",
-      "group": "test",
-      "presentation": {
-        "reveal": "always",
-        "panel": "new"
-      },
-      "problemMatcher": []
-    },
-    {
       "label": "npm: coverage",
       "type": "shell",
-      "command": "npm run coverage",
+      "command": "npm run coverage:generate",
       "group": "test",
       "presentation": {
         "reveal": "always",
@@ -65,7 +54,7 @@
     {
       "label": "npm: build",
       "type": "shell",
-      "command": "npm run build:web && npm run build:types",
+      "command": "npm run web:build",
       "group": {
         "kind": "build",
         "isDefault": true
@@ -77,9 +66,9 @@
       "problemMatcher": []
     },
     {
-      "label": "npm: build:web",
+      "label": "npm: web:build",
       "type": "shell",
-      "command": "npm run build:web",
+      "command": "npm run web:build",
       "group": "build",
       "presentation": {
         "reveal": "always",
@@ -88,9 +77,9 @@
       "problemMatcher": []
     },
     {
-      "label": "npm: build:types",
+      "label": "npm: types:generate",
       "type": "shell",
-      "command": "npm run build:types",
+      "command": "npm run types:generate",
       "group": "build",
       "presentation": {
         "reveal": "always",

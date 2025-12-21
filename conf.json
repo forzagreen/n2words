@@ -9,7 +9,7 @@
   "source": {
     "include": ["./README.md", "./lib/n2words.js", "./lib/classes/"],
     "includePattern": ".+\\.(js(doc|x)?|md|MD)$",
-    "excludePattern": "(^|\\/|\\\\)_|i18n"
+    "excludePattern": "(^|\\/|\\\\)_|languages"
   },
   "sourceType": "module",
   "tags": {

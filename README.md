@@ -68,7 +68,7 @@ const options: N2WordsOptions = {
 };
 ```
 
-See [TYPESCRIPT_GUIDE.md](TYPESCRIPT_GUIDE.md) for comprehensive TypeScript documentation.
+See [TYPESCRIPT_GUIDE.md](guides/TYPESCRIPT_GUIDE.md) for comprehensive TypeScript documentation.
 
 ### CommonJS
 
@@ -81,7 +81,7 @@ import('n2words').then(({ default: n2words }) => {
 ### Browser (UMD)
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/n2words/dist/n2words.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/n2words/dist/n2words.js"></script>
 <script>
   console.log(n2words(100)); // 'one hundred'
 </script>
@@ -90,7 +90,7 @@ import('n2words').then(({ default: n2words }) => {
 Or import specific languages:
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/n2words/dist/fr.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/n2words/dist/languages/fr.js"></script>
 <script>
   console.log(n2words(100, { lang: 'fr' })); // 'cent'
 </script>
@@ -101,8 +101,8 @@ Or import specific languages:
 | Code | Language   | Code    | Language         |
 | ---- | ---------- | ------- | ---------------- |
 | `ar` | Arabic     | `az`    | Azerbaijani      |
-| `bn` | Bengali    | `cz`    | Czech            |
-| `de` | German     | `dk`    | Danish           |
+| `bn` | Bengali    | `cs`    | Czech            |
+| `de` | German     | `da`    | Danish           |
 | `el` | Greek      | `en`    | English          |
 | `es` | Spanish    | `fa`    | Farsi/Persian    |
 | `fr` | French     | `fr-BE` | French (Belgium) |
@@ -113,13 +113,13 @@ Or import specific languages:
 | `kn` | Kannada    | `ko`    | Korean           |
 | `lt` | Lithuanian | `lv`    | Latvian          |
 | `mr` | Marathi    | `ms`    | Malay            |
-| `nl` | Dutch      | `no`    | Norwegian        |
+| `nl` | Dutch      | `nb`    | Norwegian        |
 | `pa` | Punjabi    | `pl`    | Polish           |
 | `pt` | Portuguese | `ro`    | Romanian         |
 | `ru` | Russian    | `sr`    | Serbian          |
 | `sv` | Swedish    | `sw`    | Swahili          |
 | `ta` | Tamil      | `te`    | Telugu           |
-| `th` | Thai       | `tl`    | Filipino/Tagalog |
+| `th` | Thai       | `fil`   | Filipino/Tagalog |
 | `tr` | Turkish    | `uk`    | Ukrainian        |
 | `ur` | Urdu       | `vi`    | Vietnamese       |
 | `zh` | Chinese    | `gu`    | Gujarati         |
@@ -136,7 +136,7 @@ Performance benchmarks (ops/sec) on latest hardware:
 | Persian (fa)    | ~125k ops/sec |
 | Hebrew (he)     | ~115k ops/sec |
 
-All languages are highly optimized. Run `npm run bench` to benchmark on your system.
+All languages are highly optimized. Run `npm run bench:perf` to benchmark on your system.
 
 ## Examples
 
@@ -185,10 +185,10 @@ n2words(123456789012345n); // Works with arbitrarily large integers
 
 ## Documentation
 
-- [TYPESCRIPT_GUIDE.md](./TYPESCRIPT_GUIDE.md) - **Comprehensive TypeScript guide** with enhanced type safety
-- [LANGUAGE_OPTIONS.md](./LANGUAGE_OPTIONS.md) - Language-specific options and examples
-- [LANGUAGE_GUIDE.md](./LANGUAGE_GUIDE.md) - Comprehensive guide for adding new languages
-- [BIGINT-GUIDE.md](./BIGINT-GUIDE.md) - BigInt usage guide for language developers
+- [TYPESCRIPT_GUIDE.md](./guides/TYPESCRIPT_GUIDE.md) - **Comprehensive TypeScript guide** with enhanced type safety
+- [LANGUAGE_OPTIONS.md](./guides/LANGUAGE_OPTIONS.md) - Language-specific options and examples
+- [LANGUAGE_GUIDE.md](./guides/LANGUAGE_GUIDE.md) - Comprehensive guide for adding new languages
+- [BIGINT-GUIDE.md](./guides/BIGINT-GUIDE.md) - BigInt usage guide for language developers
 - [CONTRIBUTING.md](./CONTRIBUTING.md) - Contribution guidelines
 - [Wiki](https://github.com/forzagreen/n2words/wiki) - Detailed examples and guides
 
@@ -216,7 +216,7 @@ npm run lang:validate <language-code>
 npm run lang:validate
 ```
 
-See [CONTRIBUTING.md](./CONTRIBUTING.md) and [LANGUAGE_GUIDE.md](./LANGUAGE_GUIDE.md) for detailed guidance.
+See [CONTRIBUTING.md](./CONTRIBUTING.md) and [LANGUAGE_GUIDE.md](./guides/LANGUAGE_GUIDE.md) for detailed guidance.
 
 ## License
 
