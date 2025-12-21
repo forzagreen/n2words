@@ -81,7 +81,7 @@ import('n2words').then(({ default: n2words }) => {
 ### Browser (UMD)
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/n2words/dist/n2words.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/n2words/dist/n2words.js"></script>
 <script>
   console.log(n2words(100)); // 'one hundred'
 </script>
@@ -90,7 +90,7 @@ import('n2words').then(({ default: n2words }) => {
 Or import specific languages:
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/n2words/dist/fr.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/n2words/dist/languages/fr.js"></script>
 <script>
   console.log(n2words(100, { lang: 'fr' })); // 'cent'
 </script>
@@ -101,8 +101,8 @@ Or import specific languages:
 | Code | Language   | Code    | Language         |
 | ---- | ---------- | ------- | ---------------- |
 | `ar` | Arabic     | `az`    | Azerbaijani      |
-| `bn` | Bengali    | `cz`    | Czech            |
-| `de` | German     | `dk`    | Danish           |
+| `bn` | Bengali    | `cs`    | Czech            |
+| `de` | German     | `da`    | Danish           |
 | `el` | Greek      | `en`    | English          |
 | `es` | Spanish    | `fa`    | Farsi/Persian    |
 | `fr` | French     | `fr-BE` | French (Belgium) |
@@ -113,13 +113,13 @@ Or import specific languages:
 | `kn` | Kannada    | `ko`    | Korean           |
 | `lt` | Lithuanian | `lv`    | Latvian          |
 | `mr` | Marathi    | `ms`    | Malay            |
-| `nl` | Dutch      | `no`    | Norwegian        |
+| `nl` | Dutch      | `nb`    | Norwegian        |
 | `pa` | Punjabi    | `pl`    | Polish           |
 | `pt` | Portuguese | `ro`    | Romanian         |
 | `ru` | Russian    | `sr`    | Serbian          |
 | `sv` | Swedish    | `sw`    | Swahili          |
 | `ta` | Tamil      | `te`    | Telugu           |
-| `th` | Thai       | `tl`    | Filipino/Tagalog |
+| `th` | Thai       | `fil`   | Filipino/Tagalog |
 | `tr` | Turkish    | `uk`    | Ukrainian        |
 | `ur` | Urdu       | `vi`    | Vietnamese       |
 | `zh` | Chinese    | `gu`    | Gujarati         |

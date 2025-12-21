@@ -9,7 +9,10 @@ export default {
   node: false,
   devtool: 'source-map',
   output: {
-    filename: '[name].js',
+    filename: (pathData) => {
+      // Main n2words file goes to root, language files go to languages/ subdirectory
+      return pathData.chunk.name === 'n2words' ? '[name].js' : 'languages/[name].js'
+    },
     globalObject: 'globalThis',
     library: {
       name: 'n2words',

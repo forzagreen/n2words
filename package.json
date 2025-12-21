@@ -9,7 +9,6 @@
     "spellout",
     "conversion",
     "internationalization",
-
     "localization",
     "multilingual",
     "pluralization",
@@ -47,14 +46,8 @@
     }
   },
   "main": "lib/n2words.js",
-  "jsdelivr": {
-    "browser": "dist/n2words.js",
-    "types": "typings/n2words.d.ts"
-  },
-  "unpkg": {
-    "browser": "dist/n2words.js",
-    "types": "typings/n2words.d.ts"
-  },
+  "jsdelivr": "dist/n2words.js",
+  "unpkg": "dist/n2words.js",
   "types": "typings/n2words.d.ts",
   "typesVersions": {
     "*": {
@@ -66,8 +59,7 @@
   "files": [
     "lib/*",
     "dist/*",
-    "typings/*",
-    "scripts/*"
+    "typings/*"
   ],
   "scripts": {
     "bench": "node bench.js",
@@ -86,9 +78,9 @@
     "lint:md": "markdownlint-cli2 *.md scripts/*.md",
     "test": "npm run test:unit && npm run test:integration",
     "test:all": "npm run test:unit && npm run test:integration && npm run test:typescript && npm run test:web",
-    "test:unit": "ava --verbose test/unit/*.js",
     "test:integration": "ava --verbose test/integration/*.{js,cjs}",
     "test:typescript": "ava --verbose test/typescript/*.ts",
+    "test:unit": "ava --verbose test/unit/*.js",
     "test:web": "ava --verbose test/web/*.js"
   },
   "ava": {
