@@ -54,7 +54,7 @@ This file gives targeted, actionable guidance for AI coding agents working in th
     - Most other languages don't need constructors at all
   - Use `BigInt` literals in `scaleWordPairs` (e.g. `100n`, `1_000n`) not plain numbers for large values.
   - Choose appropriate base class:
-    - `GreedyScaleLanguage` for most languages with regular scale-based systems (English, Spanish, German, French, Italian, Portuguese, Dutch, Korean, Hungarian, Chinese)
+    - `GreedyScaleLanguage` for most languages with regular scale-based systems (English, Spanish, German, French, Italian, Portuguese, Dutch, Korean, Hungarian, Chinese Simplified, Chinese Traditional)
     - `SlavicLanguage` for three-form pluralization languages (Russian, Czech, Polish, Ukrainian, Serbian, Croatian, Hebrew, Lithuanian, Latvian)
     - `SouthAsianLanguage` for South Asian languages with Indian-style grouping (Hindi, Bengali, Urdu, Punjabi, Marathi, Gujarati, Kannada)
     - `TurkicLanguage` for Turkic languages with space-separated patterns (Turkish, Azerbaijani)
@@ -96,7 +96,7 @@ This file gives targeted, actionable guidance for AI coding agents working in th
   - `test/unit/` — Core API unit tests (4 files: api.js, errors.js, validation.js, options.js).
   - `test/integration/` — Integration tests (3 files: commonjs.cjs, targeted-coverage.js, language-comprehensive.js).
   - `test/typescript/` — TypeScript validation tests (1 file: typescript-integration.ts).
-  - `test/fixtures/languages/` — Per-language test fixtures (45 files, one per language).
+  - `test/fixtures/languages/` — Per-language test fixtures (47 files, one per language).
   - `test/web/` — Browser compatibility tests (browser-compatibility.js, index.html).
 
 - **Important implementation notes:**

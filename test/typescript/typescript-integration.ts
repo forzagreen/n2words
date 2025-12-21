@@ -8,12 +8,16 @@ import { test, describe } from 'node:test';
 import assert from 'node:assert';
 import n2words from 'n2words';
 import type { N2WordsOptions, LanguageCode } from '../../typings/n2words.js';
-import type { ChineseOptions } from '../../typings/languages/zh-Hans.js';
+import type { ChineseSimplifiedOptions } from '../../typings/languages/zh-Hans.js';
+import type { ChineseTraditionalOptions } from '../../typings/languages/zh-Hant.js';
 import type { SpanishOptions } from '../../typings/languages/es.js';
 import type { HebrewOptions } from '../../typings/languages/he.js';
 import type { DutchOptions } from '../../typings/languages/nl.js';
 import type { ArabicOptions } from '../../typings/languages/ar.js';
-import type { SlavicOptions } from '../../typings/languages/ru.js';
+import type { RussianOptions } from '../../typings/languages/ru.js';
+import type { CzechOptions } from '../../typings/languages/cs.js';
+import type { SerbianCyrillicOptions } from '../../typings/languages/sr-Cyrl.js';
+import type { SerbianLatinOptions } from '../../typings/languages/sr-Latn.js';
 import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 
@@ -34,9 +38,16 @@ test('N2WordsOptions type works', () => {
 });
 
 test('language-specific options type safety', () => {
-  // Chinese options
-  const chineseOptions: ChineseOptions = { formal: true };
+  // Chinese options (both variants)
+  const chineseOptions: ChineseSimplifiedOptions = { formal: true };
+  const chineseTraditionalOptions: ChineseTraditionalOptions = {
+    formal: false,
+  };
   const chineseN2Words: N2WordsOptions = { lang: 'zh-Hans', formal: true };
+  const chineseTraditionalN2Words: N2WordsOptions = {
+    lang: 'zh-Hant',
+    formal: false,
+  };
 
   // Spanish options
   const spanishOptions: SpanishOptions = { genderStem: 'a' };
@@ -44,14 +55,11 @@ test('language-specific options type safety', () => {
 
   // Hebrew options
   const hebrewOptions: HebrewOptions = {
-    feminine: true,
-    biblical: false,
     and: 'ו',
   };
   const hebrewN2Words: N2WordsOptions = {
     lang: 'he',
-    feminine: true,
-    biblical: true,
+    and: 'ו',
   };
 
   // Dutch options
@@ -68,10 +76,17 @@ test('language-specific options type safety', () => {
   const arabicOptions: ArabicOptions = { feminine: true, negativeWord: 'سالب' };
   const arabicN2Words: N2WordsOptions = { lang: 'ar', feminine: false };
 
-  // Slavic options (applies to multiple languages)
-  const slavicOptions: SlavicOptions = { feminine: true };
+  // Russian options
+  const russianOptions: RussianOptions = { feminine: true };
   const russianN2Words: N2WordsOptions = { lang: 'ru', feminine: true };
+
+  // Czech options
+  const czechOptions: CzechOptions = { feminine: false };
   const czechN2Words: N2WordsOptions = { lang: 'cs', feminine: false };
+
+  // Serbian options
+  const serbianCyrillicOptions: SerbianCyrillicOptions = { feminine: true };
+  const serbianLatinOptions: SerbianLatinOptions = { feminine: false };
 
   assert.ok(chineseOptions);
   assert.ok(chineseN2Words);
@@ -83,9 +98,12 @@ test('language-specific options type safety', () => {
   assert.ok(dutchN2Words);
   assert.ok(arabicOptions);
   assert.ok(arabicN2Words);
-  assert.ok(slavicOptions);
+  assert.ok(russianOptions);
   assert.ok(russianN2Words);
+  assert.ok(czechOptions);
   assert.ok(czechN2Words);
+  assert.ok(serbianCyrillicOptions);
+  assert.ok(serbianLatinOptions);
 });
 
 test('function signature type constraints', () => {
@@ -133,10 +151,10 @@ test('direct language imports with type safety', async () => {
   const result3: string = fr(789);
 
   // Test with language-specific options using types from individual language declarations
-  const chineseOptions: ChineseOptions = { formal: true };
+  const chineseOptions: ChineseSimplifiedOptions = { formal: true };
   const result4: string = zhHans(100, chineseOptions);
 
-  const hebrewOptions: HebrewOptions = { feminine: true, biblical: false };
+  const hebrewOptions: HebrewOptions = { and: 'ו' };
   const result5: string = he(50, hebrewOptions);
 
   // Test different input types
@@ -253,7 +271,7 @@ test('comprehensive language import validation', async () => {
   // Verify minimum number of languages (should be 45 based on docs)
   assert.ok(
     allLanguageTests.length >= 45,
-    `Should have at least 45 languages, found ${allLanguageTests.length}`,
+    `Should have at least 47 languages, found ${allLanguageTests.length}`,
   );
 });
 
@@ -265,6 +283,8 @@ test('type regression detection', () => {
     'en',
     'fr',
     'zh-Hans',
+    'zh-Hant',
+    'sr-Cyrl',
     'ar',
     'he',
     'es',
@@ -318,7 +338,7 @@ test('generated typings exist and are current', () => {
   );
 
   // Check specific language declaration files
-  const keyLanguages = ['en', 'zh-Hans', 'es', 'he', 'fr', 'ar'];
+  const keyLanguages = ['en', 'zh-Hans', 'zh-Hant', 'es', 'he', 'fr', 'ar'];
   for (const lang of keyLanguages) {
     const langTypingFile = join(languagesTypingsDir, `${lang}.d.ts`);
     assert.ok(
@@ -431,10 +451,10 @@ test('typings match actual language implementations', () => {
     );
   }
 
-  // Verify count is reasonable (should have 45+ languages)
+  // Verify count is reasonable (should have 47+ languages)
   const typeLanguageCount = (languageCodeType.match(/"/g) || []).length / 2;
   assert.ok(
     typeLanguageCount >= 45,
-    `LanguageCode should have 45+ languages, found ${typeLanguageCount}`,
+    `LanguageCode should have 47+ languages, found ${typeLanguageCount}`,
   );
 });

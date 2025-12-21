@@ -6,9 +6,9 @@
 [![npm](https://img.shields.io/npm/dw/n2words)](https://npmjs.com/package/n2words)
 [![jsDelivr](https://data.jsdelivr.com/v1/package/npm/n2words/badge)](https://www.jsdelivr.com/package/npm/n2words)
 
-**n2words** converts numerical numbers into written ones. Supports **45 languages** with **zero dependencies**.
+**n2words** converts numerical numbers into written ones. Supports **47 languages** with **zero dependencies**.
 
-- 🌍 **45 languages** - Comprehensive international language support
+- 🌍 **47 languages** - Comprehensive international language support
 - 📦 **Zero dependencies** - Lightweight and fast
 - 🚀 **Performance optimized** - Highly tuned for speed
 - 📱 **Universal** - Works in browsers, Node.js, and TypeScript
@@ -53,7 +53,7 @@ console.log(n2words(3.14)); // 'three point one four'
 ```ts
 import n2words, { type N2WordsOptions, type LanguageCode } from 'n2words';
 
-// Language code autocomplete (45+ languages)
+// Language code autocomplete (47+ languages)
 const lang: LanguageCode = 'zh-Hans'; // Full IntelliSense support
 
 // Type-safe language-specific options
@@ -98,33 +98,34 @@ Or import specific languages:
 
 ## Supported Languages
 
-Language codes follow [IETF BCP 47](https://tools.ietf.org/html/bcp47) standards with script specificity where needed (e.g., `zh-Hans` for Simplified Chinese, `sr-Latn` for Serbian Latin script).
+Language codes follow [IETF BCP 47](https://tools.ietf.org/html/bcp47) standards with script specificity where needed (e.g., `zh-Hans` for Simplified Chinese, `zh-Hant` for Traditional Chinese, `sr-Latn` for Serbian Latin script, `sr-Cyrl` for Serbian Cyrillic script).
 
-| Code      | Language             | Code      | Language         |
-| --------- | -------------------- | --------- | ---------------- |
-| `ar`      | Arabic               | `az`      | Azerbaijani      |
-| `bn`      | Bengali              | `cs`      | Czech            |
-| `de`      | German               | `da`      | Danish           |
-| `el`      | Greek                | `en`      | English          |
-| `es`      | Spanish              | `fa`      | Farsi/Persian    |
-| `fr`      | French               | `fr-BE`   | French (Belgium) |
-| `gu`      | Gujarati             | `he`      | Hebrew           |
-| `hi`      | Hindi                | `hr`      | Croatian         |
-| `hu`      | Hungarian            | `id`      | Indonesian       |
-| `it`      | Italian              | `ja`      | Japanese         |
-| `kn`      | Kannada              | `ko`      | Korean           |
-| `lt`      | Lithuanian           | `lv`      | Latvian          |
-| `mr`      | Marathi              | `ms`      | Malay            |
-| `nl`      | Dutch                | `nb`      | Norwegian        |
-| `pa-Guru` | Punjabi (Gurmukhi)   | `pl`      | Polish           |
-| `pt`      | Portuguese           | `ro`      | Romanian         |
-| `ru`      | Russian              | `sr-Latn` | Serbian (Latin)  |
-| `sv`      | Swedish              | `sw`      | Swahili          |
-| `ta`      | Tamil                | `te`      | Telugu           |
-| `th`      | Thai                 | `fil`     | Filipino/Tagalog |
-| `tr`      | Turkish              | `uk`      | Ukrainian        |
-| `ur`      | Urdu                 | `vi`      | Vietnamese       |
-| `zh-Hans` | Chinese (Simplified) | `gu`      | Gujarati         |
+| Code      | Language                | Code      | Language                |
+| --------- | ----------------------- | --------- | ----------------------- |
+| `ar`      | Arabic                  | `az`      | Azerbaijani             |
+| `bn`      | Bengali                 | `cs`      | Czech                   |
+| `de`      | German                  | `da`      | Danish                  |
+| `el`      | Greek                   | `en`      | English                 |
+| `es`      | Spanish                 | `fa`      | Persian                 |
+| `fr`      | French                  | `fr-BE`   | Belgian French          |
+| `gu`      | Gujarati                | `hbo`     | Biblical Hebrew         |
+| `he`      | Modern Hebrew           | `hi`      | Hindi                   |
+| `hr`      | Croatian                | `hu`      | Hungarian               |
+| `id`      | Indonesian              | `it`      | Italian                 |
+| `ja`      | Japanese                | `kn`      | Kannada                 |
+| `ko`      | Korean                  | `lt`      | Lithuanian              |
+| `lv`      | Latvian                 | `mr`      | Marathi                 |
+| `ms`      | Malay                   | `nl`      | Dutch                   |
+| `nb`      | Norwegian Bokmål        | `pa-Guru` | Punjabi (Gurmukhi)      |
+| `pl`      | Polish                  | `pt`      | Portuguese              |
+| `ro`      | Romanian                | `ru`      | Russian                 |
+| `sr-Cyrl` | Serbian Cyrillic        | `sr-Latn` | Serbian Latin           |
+| `sv`      | Swedish                 | `sw`      | Swahili                 |
+| `ta`      | Tamil                   | `te`      | Telugu                  |
+| `th`      | Thai                    | `fil`     | Filipino                |
+| `tr`      | Turkish                 | `uk`      | Ukrainian               |
+| `ur`      | Urdu                    | `vi`      | Vietnamese              |
+| `zh-Hans` | Chinese Simplified      | `zh-Hant` | Chinese Traditional     |
 
 ## Performance
 

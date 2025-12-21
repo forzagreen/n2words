@@ -125,41 +125,82 @@ n2words(90, { lang: 'fr-BE' }); // 'nonante' (automatic Belgian variant)
 
 ---
 
-### Hebrew (he) - Biblical vs. Modern Forms
+### Hebrew (he) - Modern Hebrew Forms
 
-Hebrew provides both modern (feminine default) and Biblical (masculine) number forms.
+Modern Hebrew provides feminine number forms as used in contemporary Israeli Hebrew.
 
 **Options:**
 
-| Option     | Type    | Description                                                        | Default |
-| ---------- | ------- | ------------------------------------------------------------------ | ------- |
-| `biblical` | boolean | Use Biblical Hebrew (masculine) forms instead of modern (feminine) | `false` |
-| `and`      | string  | Conjunction word for joining number components                     | `'ו'`   |
+| Option | Type   | Description                                    | Default |
+| ------ | ------ | ---------------------------------------------- | ------- |
+| `and`  | string | Conjunction word for joining number components | `'ו'`   |
 
 **Examples:**
 
 ```javascript
-// Modern Hebrew (feminine, default)
+// Modern Hebrew (feminine forms, default)
 n2words(1, { lang: 'he' }); // 'אחת'
 n2words(21, { lang: 'he' }); // 'עשרים ואחת'
-
-// Biblical Hebrew (masculine)
-n2words(1, { lang: 'he', biblical: true }); // 'אחד'
-n2words(21, { lang: 'he', biblical: true }); // 'עשרים ואחד'
+n2words(5000, { lang: 'he' }); // 'חמשת אלפים'
 
 // Decimal numbers (per-digit reading)
-n2words(3.14, { lang: 'he' }); // 'שלוש נקודה אחת ארבע'
+n2words(3.14, { lang: 'he' }); // 'שלש נקודה אחת ארבע'
 n2words(0.5, { lang: 'he' }); // 'אפס נקודה חמש'
 ```
 
 **Use Cases:**
 
-- Modern Hebrew (default): Contemporary Israeli Hebrew, everyday use
-- Biblical Hebrew: Religious texts, Torah readings, traditional contexts
+- Contemporary Israeli Hebrew: Everyday use, modern contexts
+- Educational materials: Mathematics, general education
+- Modern literature and media
 
 **Decimal Handling:**
 
-Hebrew uses per-digit decimal reading with "נקודה" (nekuda) as the decimal separator. Each decimal digit is read individually, which is the standard practice in Hebrew mathematical contexts.
+Modern Hebrew uses per-digit decimal reading with "נקודה" (nekuda) as the decimal separator. Each decimal digit is read individually, which is the standard practice in Hebrew mathematical contexts.
+
+**Note:** For Biblical Hebrew forms, use the separate `hbo` language code instead of the `he` language.
+
+---
+
+### Biblical Hebrew (hbo) - Ancient Hebrew Forms
+
+Biblical Hebrew provides authentic ancient Hebrew number words with proper grammatical gender handling, separate from the modern Hebrew implementation.
+
+**Options:**
+
+| Option     | Type    | Description                                                        | Default |
+| ---------- | ------- | ------------------------------------------------------------------ | ------- |
+| `feminine` | boolean | Use feminine forms for numbers (masculine is Biblical Hebrew default) | `false` |
+| `and`      | string  | Conjunction word for joining number components                     | `'ו'`   |
+
+**Examples:**
+
+```javascript
+// Masculine forms (default, historically accurate)
+n2words(1, { lang: 'hbo' }); // 'אחד'
+n2words(5, { lang: 'hbo' }); // 'חמשה'
+n2words(21, { lang: 'hbo' }); // 'עשרים ואחד'
+
+// Feminine forms (when specified)
+n2words(1, { lang: 'hbo', feminine: true }); // 'אחת'
+n2words(5, { lang: 'hbo', feminine: true }); // 'חמש'
+n2words(21, { lang: 'hbo', feminine: true }); // 'עשרים ואחת'
+n2words(5000, { lang: 'hbo', feminine: true }); // 'חמשת אלפים'
+
+// Decimal number in Biblical Hebrew
+n2words(3.14, { lang: 'hbo' }); // 'שלשה נקודה אחד ארבעה'
+n2words(0.5, { lang: 'hbo' }); // 'אפס נקודה חמשה'
+```
+
+**Use Cases:**
+
+- Biblical Hebrew: Religious texts, Torah study, ancient Hebrew contexts
+- Academic research: Historical linguistics, biblical studies
+- Traditional contexts: Ceremonial use, Hebrew learning
+
+**Decimal Handling:**
+
+Biblical Hebrew uses per-digit decimal reading with "נקודה" (nekuda) as the decimal separator, following traditional Hebrew mathematical conventions.
 
 ---
 
@@ -363,9 +404,9 @@ n2words(4, { lang: 'lv', feminine: true }); // 'četri' (Latvian shares ones set
 
 ---
 
-### Chinese (zh-Hans) - Formal vs. Common Numerals
+### Chinese Simplified (zh-Hans) - Formal vs. Common Numerals
 
-Chinese supports both formal/financial numerals (大写数字) and common/everyday numerals (小写数字).
+Chinese Simplified supports both formal/financial numerals (大写数字) and common/everyday numerals (小写数字).
 
 **Options:**
 
@@ -587,7 +628,7 @@ All other languages use only the common options:
 - English (en), German (de), Italian (it), Portuguese (pt), Dutch (nl)
 - Norwegian (no), Danish (dk), Swedish (sv)
 - Russian (ru), Polish (pl), Czech (cz), Ukrainian (uk), Serbian (sr-Latn), Croatian (hr), Lithuanian (lt), Latvian (lv)
-- Hungarian (hu), Japanese (ja), Korean (ko), Chinese (zh-Hans), Vietnamese (vi)
+- Hungarian (hu), Japanese (ja), Korean (ko), Vietnamese (vi)
 - Persian/Farsi (fa), Indonesian (id)
 - Hindi (hi), Bengali (bn), Tamil (ta), Telugu (te), Thai (th), Swahili (sw)
 
