@@ -81,15 +81,15 @@ This file gives targeted, actionable guidance for AI coding agents working in th
   - Run basic tests: `npm test` (runs unit and integration tests only).
     - Unit tests: `npm run test:unit` (test/unit/\*.js) — API, errors, validation, options.
     - Integration tests: `npm run test:integration` (test/integration/\*.js) — targeted coverage and CommonJS.
-    - TypeScript tests: `npm run types:validate` (test/typescript/typescript-integration.ts) — type validation. **Requires `npm run types:generate` first. TypeScript declarations are automatically built in CI.**
-    - Web tests: `npm run web:test` (test/web.js) — browser compatibility (Chrome/Firefox). **Requires `npm run web:build` first.**
+    - TypeScript tests: `npm run types:validate` (test/typescript/\*.ts) — type validation. **Requires `npm run types:generate` first. TypeScript declarations are automatically built in CI.**
+    - Web tests: `npm run web:test` (test/web/\*.js) — browser compatibility (Chrome/Firefox). **Requires `npm run web:build` first.**
   - Run coverage: `npm run coverage:generate` (runs npm test with c8 instrumentation).
   - Build browser bundle: `npm run web:build` (uses webpack, outputs to dist/).
   - Generate type declarations: `npm run types:generate` (TypeScript compiler, outputs to typings/) — **automated in CI, not required for development**.
   - Full build: `npm run web:build` (builds browser bundle only).
   - Lint JS: `npm run lint:js` (Standard.js); Lint markdown: `npm run lint:md` (markdownlint); Full lint: `npm run lint`.
   - Generate documentation: `npm run docs:generate` (JSDoc, outputs to docs/).
-  - Performance benchmarks: `npm run bench` (benchmark.js), `npm run bench:memory` (memory profiling).
+  - Performance benchmarks: `npm run bench:perf` (benchmark.js), `npm run bench:memory` (memory profiling).
   - Language tools: `npm run lang:add` (generate boilerplate), `npm run lang:validate xx` (validate implementation).
 
 - **Test organization:**
@@ -123,7 +123,7 @@ This file gives targeted, actionable guidance for AI coding agents working in th
   - `lib/classes/abstract-language.js` — essential algorithms and optimizations.
   - `test/unit/api.js` — API and language fallback tests.
   - `test/integration/language-comprehensive.js` — comprehensive language-specific tests.
-  - `test/typescript/typescript-integration.ts` — TypeScript integration and validation tests.
+  - `test/typescript/` — TypeScript integration and validation tests.
   - `scripts/add-language.js` — automated language boilerplate generator.
   - `scripts/validate-language.js` — implementation validation tool.
   - `bench.js` — performance benchmarking tool using benchmark.js library.

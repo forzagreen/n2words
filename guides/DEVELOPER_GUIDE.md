@@ -220,7 +220,7 @@ See [LANGUAGE_GUIDE.md](LANGUAGE_GUIDE.md) for comprehensive guidance.
 ### Performance Tools
 
 ```bash
-npm run bench         # Operations per second
+npm run bench:perf    # Operations per second
 npm run bench:memory  # Memory profiling
 ```
 

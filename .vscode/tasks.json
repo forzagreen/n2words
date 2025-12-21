@@ -88,9 +88,9 @@
       "problemMatcher": []
     },
     {
-      "label": "npm: bench",
+      "label": "npm: bench:perf",
       "type": "shell",
-      "command": "npm run bench",
+      "command": "npm run bench:perf",
       "presentation": {
         "reveal": "always",
         "panel": "new"
