@@ -80,7 +80,7 @@
     "types:generate": "npm run types:clean && tsc --project tsconfig.json",
     "types:clean": "node -e \"import { rmSync } from 'fs'; try { rmSync('typings', { recursive: true, force: true }) } catch (e) {}\"",
     "types:validate": "npm run types:build && tsc --noEmit --project test/typescript/tsconfig.json && node --import tsx --test test/typescript/*.ts",
-    "web:build": "npm run web:clean && webpack --progress",
+    "web:build": "npm run web:clean && rollup -c",
     "web:clean": "node -e \"import { rmSync } from 'fs'; try { rmSync('dist', { recursive: true, force: true }) } catch (e) {}\"",
     "web:test": "npm run web:build && ava --verbose test/web/*.js"
   },
@@ -109,8 +109,10 @@
   "devDependencies": {
     "@babel/core": "^7.28.5",
     "@babel/preset-env": "^7.28.5",
+    "@rollup/plugin-babel": "^6.0.4",
+    "@rollup/plugin-node-resolve": "^15.3.0",
+    "@rollup/plugin-terser": "^0.4.4",
     "ava": "^6.4.1",
-    "babel-loader": "^10.0.0",
     "benchmark": "^2.1.4",
     "c8": "^10.1.3",
     "chalk": "^5.6.2",
@@ -119,12 +121,11 @@
     "jsdoc": "^4.0.5",
     "markdownlint-cli2": "^0.20.0",
     "microtime": "^3.1.1",
+    "rollup": "^4.28.1",
     "selenium-webdriver": "^4.39.0",
     "standard": "^17.1.2",
     "tsx": "^4.21.0",
-    "typescript": "^5.9.3",
-    "webpack": "^5.104.1",
-    "webpack-cli": "^6.0.1"
+    "typescript": "^5.9.3"
   },
   "engines": {
     "node": "^20 || ^22 || >=24"

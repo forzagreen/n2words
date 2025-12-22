@@ -1,0 +1,26 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Simple n2words Test</title>
+  </head>
+  <body>
+    <h1>Simple n2words Test</h1>
+    <div id="output"></div>
+  </body>
+  <script src="../../dist/n2words.js"></script>
+  <script>
+    const output = document.getElementById('output');
+    try {
+      output.innerHTML = `n2words function available: ${typeof n2words}<br>`;
+      if (typeof n2words === 'function') {
+        output.innerHTML += `n2words(1) = ${n2words(1)}<br>`;
+        output.innerHTML += `SUCCESS: n2words is working!`;
+      } else {
+        output.innerHTML += `ERROR: n2words is not a function`;
+      }
+    } catch (error) {
+      output.innerHTML += `ERROR: ${error.message}`;
+    }
+  </script>
+</html>
