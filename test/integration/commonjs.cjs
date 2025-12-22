@@ -60,13 +60,12 @@ test('error handling works in CommonJS', async t => {
 })
 
 test('direct language import works in CommonJS', async t => {
-  // Test that individual language imports work
-  const enModule = await import('../../lib/languages/en.js')
-  const esModule = await import('../../lib/languages/es.js')
+  // Test that individual language imports work via main module (factory pattern)
+  const { en, es } = await import('../../lib/n2words.js')
 
-  t.is(typeof enModule.default, 'function')
-  t.is(typeof esModule.default, 'function')
+  t.is(typeof en, 'function')
+  t.is(typeof es, 'function')
 
-  t.is(enModule.default(42), 'forty-two')
-  t.is(esModule.default(42), 'cuarenta y dos')
+  t.is(en(42), 'forty-two')
+  t.is(es(42), 'cuarenta y dos')
 })
