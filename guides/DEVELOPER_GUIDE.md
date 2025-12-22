@@ -78,9 +78,16 @@ export default class EnglishLanguage extends GreedyScaleLanguage {
 **Constructor Parameters:** Only for behavior-changing options:
 
 ```javascript
-constructor({ genderStem = 'o' } = {}) {
+constructor(options = {}) {
+  options = {
+    ...{
+      genderStem: 'o'
+    },
+    ...options
+  }
+
   super()
-  this.genderStem = genderStem  // Affects behavior
+  this.genderStem = options.genderStem  // Affects behavior
 }
 ```
 
@@ -183,9 +190,16 @@ export default class GermanLanguage extends GreedyScaleLanguage {
   scaleWordPairs = [[1n, 'eins'], [2n, 'zwei'], ...]
 
   // Constructor only for behavior options (optional)
-  constructor({ option = false } = {}) {
+  constructor(options = {}) {
+    options = {
+      ...{
+        option: false
+      },
+      ...options
+    }
+
     super()
-    this.option = option
+    this.option = options.option
   }
 
   mergeScales(left, right) {

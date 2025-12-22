@@ -174,9 +174,16 @@ class ${className} extends ${baseClass} {
   thousands = {}
 
   // Optional: feminine forms flag
-  constructor ({ feminine = false } = {}) {
+  constructor (options = {}) {
+    options = {
+      ...{
+        feminine: false
+      },
+      ...options
+    }
+
     super()
-    this.feminine = feminine
+    this.feminine = options.feminine
   }
 }
 `

@@ -53,7 +53,7 @@ BigInt(100) === 100n // true
 
 ### Processing Flow
 
-```
+```text
 User Input → convertToWords() → BigInt → Language Class → String Output
 ```
 
@@ -253,7 +253,7 @@ n2words('1000000000000.5') // Large whole + decimal
 
 ### Decision Tree
 
-```
+```text
 Used in BigInt arithmetic (/, %, *)?
 ├─ YES → Use n suffix
 └─ NO → Compared to BigInt value?

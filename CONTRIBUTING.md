@@ -49,8 +49,9 @@ export class XxLanguage extends GreedyScaleLanguage {
   ]
 
   // Constructor only for behavior options (optional)
-  constructor({ option = false } = {}) {
+  constructor(options = {}) {
     super()
+    const { option = false } = options
     this.option = option
   }
 

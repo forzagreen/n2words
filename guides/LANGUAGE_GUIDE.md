@@ -560,7 +560,7 @@ mergeScales(left, right) {
 
 ```javascript
 class MyLanguage extends GreedyScaleLanguage {
-  constructor(options) {
+  constructor(options = {}) {
     super()
     this.doubleSpaceRegex = /\s{2,}/g // Pre-compile
   }
