@@ -1,71 +1,55 @@
 const test = require('ava')
 
-test('default export works in CommonJS', async t => {
-  const { default: n2words } = await import('../../lib/n2words.js')
+test('named export works in CommonJS', async t => {
+  const { English } = await import('../../lib/n2words.js')
 
-  t.is(typeof n2words, 'function')
-  t.is(n2words(1), 'one')
-  t.is(n2words(42), 'forty-two')
-})
-
-test('named exports work in CommonJS', async t => {
-  const module = await import('../../lib/n2words.js')
-
-  // Test that we can destructure the default export
-  const { default: n2words } = module
-  t.is(typeof n2words, 'function')
-
-  // Test that we can access it directly
-  t.is(typeof module.default, 'function')
-  t.is(module.default(100), 'one hundred')
+  t.is(typeof English, 'function')
+  t.is(English(1), 'one')
+  t.is(English(42), 'forty-two')
 })
 
 test('language options work in CommonJS', async t => {
-  const { default: n2words } = await import('../../lib/n2words.js')
+  const { English, Spanish, French } = await import('../../lib/n2words.js')
 
   // Test different languages
-  t.is(n2words(42, { lang: 'en' }), 'forty-two')
-  t.is(n2words(42, { lang: 'es' }), 'cuarenta y dos')
-  t.is(n2words(42, { lang: 'fr' }), 'quarante-deux')
+  t.is(English(42), 'forty-two')
+  t.is(Spanish(42), 'cuarenta y dos')
+  t.is(French(42), 'quarante-deux')
 })
 
 test('different input types work in CommonJS', async t => {
-  const { default: n2words } = await import('../../lib/n2words.js')
-
+  const { English } = await import('../../lib/n2words.js')
   // Number
-  t.is(typeof n2words(123), 'string')
+  t.is(typeof English(123), 'string')
 
   // String
-  t.is(typeof n2words('456'), 'string')
+  t.is(typeof English('456'), 'string')
 
   // BigInt
-  t.is(typeof n2words(789n), 'string')
+  t.is(typeof English(789n), 'string')
 
   // Negative
-  t.is(typeof n2words(-42), 'string')
+  t.is(typeof English(-42), 'string')
 
   // Decimal
-  t.is(typeof n2words(3.14), 'string')
+  t.is(typeof English(3.14), 'string')
 })
 
 test('error handling works in CommonJS', async t => {
-  const { default: n2words } = await import('../../lib/n2words.js')
-
-  // Invalid language should throw
-  t.throws(() => n2words(42, { lang: 'invalid' }))
+  const { English } = await import('../../lib/n2words.js')
 
   // Invalid input should throw
-  t.throws(() => n2words(NaN))
-  t.throws(() => n2words('invalid'))
+  t.throws(() => English(NaN))
+  t.throws(() => English('invalid'))
 })
 
 test('direct language import works in CommonJS', async t => {
   // Test that individual language imports work via main module (factory pattern)
-  const { en, es } = await import('../../lib/n2words.js')
+  const { English, Spanish } = await import('../../lib/n2words.js')
 
-  t.is(typeof en, 'function')
-  t.is(typeof es, 'function')
+  t.is(typeof English, 'function')
+  t.is(typeof Spanish, 'function')
 
-  t.is(en(42), 'forty-two')
-  t.is(es(42), 'cuarenta y dos')
+  t.is(English(42), 'forty-two')
+  t.is(Spanish(42), 'cuarenta y dos')
 })

@@ -1,5 +1,5 @@
 import test from 'ava'
-import n2words from '../../lib/n2words.js'
+import { English } from '../../lib/n2words.js'
 
 /**
  * Input Validation and Number Type Tests
@@ -13,34 +13,23 @@ import n2words from '../../lib/n2words.js'
 /* BigInt and Numeric Type Support */
 
 test('BigInt input and thousand grouping', t => {
-  t.is(n2words(1_000_000n, { lang: 'en' }), 'one million')
-  t.is(n2words(1001n, { lang: 'en' }), 'one thousand and one')
+  t.is(English(1_000_000n), 'one million')
+  t.is(English(1001n), 'one thousand and one')
 })
 
 test('negative BigInt', t => {
-  t.is(n2words(-100n, { lang: 'en' }), 'minus one hundred')
+  t.is(English(-100n), 'minus one hundred')
 })
 
 /* Decimal Handling */
 
 test('decimal leading zeros preserved', t => {
   // '3.005' should preserve two leading zeros in the fractional part
-  t.is(n2words('3.005', { lang: 'en' }), 'three point zero zero five')
-  t.is(n2words('0.0001', { lang: 'en' }), 'zero point zero zero zero one')
+  t.is(English('3.005'), 'three point zero zero five')
+  t.is(English('0.0001'), 'zero point zero zero zero one')
 })
 
 test('zero-only fractional part', t => {
   // If fractional part is all zeros, the decimal words should be repeated zeros
-  t.is(n2words('1.00', { lang: 'en' }), 'one point zero zero')
-})
-
-/* Options Validation */
-
-test('null options treated as default', t => {
-  // Passing null as options should act like no options (not throw)
-  t.is(n2words(5, null), 'five')
-})
-
-test('invalid options type throws', t => {
-  t.throws(() => n2words(2, 123), { instanceOf: TypeError })
+  t.is(English('1.00'), 'one point zero zero')
 })

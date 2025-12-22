@@ -208,9 +208,6 @@ export default class GermanLanguage extends GreedyScaleLanguage {
   }
 }
 
-export default function convertToWords(value, options = {}) {
-  return new GermanLanguage(options).convertToWords(value)
-}
 ```
 
 1. **Add Test Fixtures** (`test/fixtures/languages/xx.js`):
@@ -247,18 +244,24 @@ npm run bench:memory  # Memory profiling
 
 ```javascript
 const CLEAN_REGEX = /\s+/g
-convertToWords(value) {
-  return result.replace(CLEAN_REGEX, ' ')  // ✅
-  // return result.replace(/\s+/g, ' ')    // ❌ Creates new regex each call
+
+class MyLanguage extends GreedyScaleLanguage {
+  convertToWords(value) {
+    // Implementation here
+    return result.replace(CLEAN_REGEX, ' ')  // ✅
+    // return result.replace(/\s+/g, ' ')    // ❌ Creates new regex each call
+  }
 }
 ```
 
 **Early Returns:** Avoid unnecessary work
 
 ```javascript
-mergeScales(left, right) {
-  if (!right) return left        // ✅ Early return
-  return `${left} ${right}`
+class MyLanguage extends GreedyScaleLanguage {
+  mergeScales(left, right) {
+    if (!right) return left        // ✅ Early return
+    return `${left} ${right}`
+  }
 }
 ```
 
@@ -269,21 +272,23 @@ mergeScales(left, right) {
 **Print Intermediate Values:**
 
 ```javascript
-convertToWords(value) {
-  console.log('Input:', value)
-  const result = super.convertToWords(value)
-  console.log('Result:', result)
-  return result
+class MyLanguage extends GreedyScaleLanguage {
+  convertToWords(value) {
+    console.log('Input:', value)
+    const result = super.convertToWords(value)
+    console.log('Result:', result)
+    return result
+  }
 }
 ```
 
 **Test Specific Cases:**
 
 ```javascript
-import en from './lib/languages/en.js'
-console.log(en(0))     // Zero handling
-console.log(en(1000))  // Scale words
-console.log(en('3.14')) // Decimals
+import { English } from './lib/languages/en.js'
+console.log(English(0))     // Zero handling
+console.log(English(1000))  // Scale words
+console.log(English('3.14')) // Decimals
 ```
 
 **Coverage Gaps:**

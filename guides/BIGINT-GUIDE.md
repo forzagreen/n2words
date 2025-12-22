@@ -54,7 +54,7 @@ BigInt(100) === 100n // true
 ### Processing Flow
 
 ```text
-User Input → convertToWords() → BigInt → Language Class → String Output
+User Input → n2words() → BigInt → Language Class → String Output
 ```
 
 Once input becomes BigInt, all downstream operations must use BigInt or explicit conversions.

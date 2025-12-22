@@ -38,7 +38,22 @@
   </body>
   <script src="../../dist/n2words.js"></script>
   <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      console.log('DOMContentLoaded: n2words loaded:', typeof n2words);
+      console.log('DOMContentLoaded: n2words.English:', typeof n2words.English);
+    });
     window.onload = () => {
+      console.log('window.onload: Starting tests');
+      console.log('window.onload: n2words available:', typeof n2words);
+
+      try {
+        const testResult = n2words.English(5);
+        console.log('Test conversion n2words.English(5):', testResult);
+      } catch (error) {
+        console.error('Error in test conversion:', error);
+        document.getElementById('status').innerHTML = 'Error: ' + error.message;
+        return;
+      }
       const results = document.getElementById('results');
       const status = document.getElementById('status');
       let passCount = 0;
@@ -61,72 +76,72 @@
       }
 
       // Basic number tests
-      test('Basic: n2words(1)', 'one', n2words(1));
-      test('Basic: n2words(0)', 'zero', n2words(0));
-      test('Basic: n2words(42)', 'forty-two', n2words(42));
-      test('Basic: n2words(100)', 'one hundred', n2words(100));
-      test('Basic: n2words(1000)', 'one thousand', n2words(1000));
+      test('Basic: n2words(1)', 'one', n2words.English(1));
+      test('Basic: n2words(0)', 'zero', n2words.English(0));
+      test('Basic: n2words(42)', 'forty-two', n2words.English(42));
+      test('Basic: n2words(100)', 'one hundred', n2words.English(100));
+      test('Basic: n2words(1000)', 'one thousand', n2words.English(1000));
       test(
         'Basic: n2words(1234)',
         'one thousand two hundred and thirty-four',
-        n2words(1234),
+        n2words.English(1234),
       );
 
       // Negative numbers
-      test('Negative: n2words(-1)', 'minus one', n2words(-1));
-      test('Negative: n2words(-42)', 'minus forty-two', n2words(-42));
+      test('Negative: n2words(-1)', 'minus one', n2words.English(-1));
+      test('Negative: n2words(-42)', 'minus forty-two', n2words.English(-42));
 
       // Large numbers
-      test('Large: n2words(1000000)', 'one million', n2words(1000000));
+      test('Large: n2words(1000000)', 'one million', n2words.English(1000000));
       test(
         'Large: n2words(1234567)',
         'one million two hundred and thirty-four thousand five hundred and sixty-seven',
-        n2words(1234567),
+        n2words.English(1234567),
       );
 
       // String input
       test(
         'String: n2words("123")',
         'one hundred and twenty-three',
-        n2words('123'),
+        n2words.English('123'),
       );
 
       // Decimal numbers
-      test('Decimal: n2words("3.14")', 'three point fourteen', n2words('3.14'));
-      test('Decimal: n2words("0.5")', 'zero point five', n2words('0.5'));
+      test('Decimal: n2words("3.14")', 'three point fourteen', n2words.English('3.14'));
+      test('Decimal: n2words("0.5")', 'zero point five', n2words.English('0.5'));
 
       // Language options (Spanish)
       test(
         'Spanish: n2words(1, {lang: "es"})',
         'uno',
-        n2words(1, { lang: 'es' }),
+        n2words.English(1, { lang: 'es' }),
       );
       test(
         'Spanish: n2words(42, {lang: "es"})',
         'cuarenta y dos',
-        n2words(42, { lang: 'es' }),
+        n2words.English(42, { lang: 'es' }),
       );
       test(
         'Spanish: n2words(100, {lang: "es"})',
         'cien',
-        n2words(100, { lang: 'es' }),
+        n2words.English(100, { lang: 'es' }),
       );
 
       // Language options (French)
       test(
         'French: n2words(1, {lang: "fr"})',
         'un',
-        n2words(1, { lang: 'fr' }),
+        n2words.English(1, { lang: 'fr' }),
       );
       test(
         'French: n2words(42, {lang: "fr"})',
         'quarante-deux',
-        n2words(42, { lang: 'fr' }),
+        n2words.English(42, { lang: 'fr' }),
       );
       test(
         'French: n2words(100, {lang: "fr"})',
         'cent',
-        n2words(100, { lang: 'fr' }),
+        n2words.English(100, { lang: 'fr' }),
       );
 
       // Language options (German)
@@ -150,7 +165,7 @@
 
       // Error handling - invalid inputs should throw or return reasonable defaults
       try {
-        const result = n2words('invalid');
+        const result = n2words.English('invalid');
         test(
           'Invalid input handling',
           'Error thrown',
@@ -165,7 +180,7 @@
       }
 
       // Default language fallback
-      test('Default fallback: n2words(5)', 'five', n2words(5));
+      test('Default fallback: n2words(5)', 'five', n2words.English(5));
 
       // Update results and status
       results.innerHTML = output;

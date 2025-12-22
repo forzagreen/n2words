@@ -63,9 +63,6 @@ export class XxLanguage extends GreedyScaleLanguage {
   }
 }
 
-export default function convertToWords(value, options = {}) {
-  return new XxLanguage(options).convertToWords(value)
-}
 ```
 
 ### 2. Choose Base Class

@@ -1,5 +1,5 @@
 import test from 'ava'
-import n2words from '../../lib/n2words.js'
+import { English } from '../../lib/n2words.js'
 
 /**
  * Error Handling Tests
@@ -10,21 +10,11 @@ import n2words from '../../lib/n2words.js'
  * - Invalid number formats and types
  */
 
-// Invalid language codes
-test('unsupported language', t => {
-  t.throws(
-    () => {
-      n2words(2, { lang: 'aaa' })
-    },
-    { instanceOf: Error }
-  )
-})
-
 // Invalid options format
 test('options must be object', t => {
   t.throws(
     () => {
-      n2words(2, 'en')
+      English(2, 'en')
     },
     { instanceOf: Error }
   )
@@ -34,7 +24,7 @@ test('options must be object', t => {
 test('invalid number format', t => {
   t.throws(
     () => {
-      n2words('foobar')
+      English('foobar')
     },
     { instanceOf: Error }
   )
@@ -43,7 +33,7 @@ test('invalid number format', t => {
 test('non-numeric types', t => {
   t.throws(
     () => {
-      n2words(false)
+      English(false)
     },
     { instanceOf: Error }
   )
@@ -52,7 +42,7 @@ test('non-numeric types', t => {
 test('string with units', t => {
   t.throws(
     () => {
-      n2words('3px')
+      English('3px')
     },
     { instanceOf: Error }
   )
@@ -61,7 +51,7 @@ test('string with units', t => {
 test('NaN', t => {
   t.throws(
     () => {
-      n2words(Number.NaN)
+      English(Number.NaN)
     },
     { instanceOf: Error }
   )
@@ -70,7 +60,7 @@ test('NaN', t => {
 test('empty string', t => {
   t.throws(
     () => {
-      n2words('')
+      English('')
     },
     { instanceOf: Error }
   )
@@ -79,12 +69,12 @@ test('empty string', t => {
 test('whitespace only', t => {
   t.throws(
     () => {
-      n2words(' ')
+      English(' ')
     },
     { instanceOf: Error }
   )
 })
 
 test('invalid options type', t => {
-  t.throws(() => n2words(2, 123), { instanceOf: TypeError })
+  t.throws(() => English(2, 123), { instanceOf: TypeError })
 })

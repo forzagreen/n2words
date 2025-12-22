@@ -226,9 +226,6 @@ export class Czech extends GreedyScaleLanguage {
   }
 }
 
-export default function convertToWords(value, options = {}) {
-  return new MyLanguage(options).convertToWords(value)
-}
 ```
 
 **Important notes:**
@@ -255,11 +252,11 @@ For proper TypeScript integration, add JSDoc documentation:
  * @param {MyLanguageOptions} [options={}] Language-specific options.
  * @returns {string} The number in words.
  * @example
- * convertToWords(42); // 'language-specific result'
+ * const converter = new MyLanguage();
+ * converter.convertToWords(42); // 'language-specific result'
  */
-export default function convertToWords(value, options = {}) {
-  return new MyLanguage(options).convertToWords(value)
-}
+// Export only the class - wrapper function created dynamically by n2words.js
+// This eliminates ~10 lines of boilerplate per language file
 ```
 
 The build process automatically generates TypeScript declarations from your JSDoc.
@@ -403,9 +400,8 @@ export class HindiLanguage extends SouthAsianLanguage {
   }
 }
 
-export default function convertToWords(value, options = {}) {
-  return new HindiLanguage(options).convertToWords(value)
-}
+// Export only the class - wrapper function created dynamically by n2words.js
+// This eliminates ~10 lines of boilerplate per language file
 ```
 
 **Key points for SouthAsianLanguage:**

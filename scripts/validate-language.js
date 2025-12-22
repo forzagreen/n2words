@@ -63,17 +63,6 @@ function extractClassName (content) {
 }
 
 /**
- * Extract the constructor class name from the default export function.
- *
- * @param {string} content File content to analyze
- * @returns {string|null} Constructor class name or null if not found
- */
-function extractDefaultCtorName (content) {
-  const match = content.match(/return\s+new\s+([A-Za-z][A-Za-z0-9_]*)\s*\(/)
-  return match ? match[1] : null
-}
-
-/**
  * Check if test content includes large number test cases (>= 1 million).
  *
  * @param {string} testContent Test file content to analyze
@@ -189,28 +178,24 @@ async function validateLanguage (langCode) {
 
   const content = readFileSync(langFile, 'utf8')
 
-  // Check for default export
-  if (!content.includes('export default')) {
-    console.error(chalk.red('  ✗ Missing default export'))
+  // Check for class export (new pattern)
+  if (!content.includes('export class')) {
+    console.error(chalk.red('  ✗ Missing class export'))
     errors++
   } else {
-    console.log(chalk.green('  ✓ Has default export'))
+    console.log(chalk.green('  ✓ Has class export'))
   }
 
   // Check class naming
   const className = extractClassName(content)
   errors += checkClassNameFullLanguage(className, langCode)
 
-  // Check default export instantiates the declared class
-  const ctorName = extractDefaultCtorName(content)
-  if (!ctorName) {
-    console.error(chalk.red('  ✗ Default export does not instantiate a class (return new ClassName(...))'))
-    errors++
-  } else if (className && ctorName !== className) {
-    console.error(chalk.red(`  ✗ Default export instantiates '${ctorName}', expected '${className}'`))
+  // Check class export pattern (no wrapper function needed)
+  if (content.includes('export default function')) {
+    console.error(chalk.red('  ✗ Found old wrapper function export (should use class export only)'))
     errors++
   } else {
-    console.log(chalk.green(`  ✓ Default export instantiates ${ctorName}`))
+    console.log(chalk.green('  ✓ Uses new class export pattern (no wrapper function)'))
   }
 
   // Detect base class usage
@@ -378,24 +363,23 @@ async function validateLanguage (langCode) {
     }
   }
 
-  // Check 3: Registration in lib/n2words.js
+  // Check 3: Class import in lib/n2words.js
   const n2wordsFile = 'lib/n2words.js'
   const n2wordsContent = readFileSync(n2wordsFile, 'utf8')
 
-  const constName = langCode.replace('-', '')
-  const importRegex = new RegExp(
-    `import ${constName} from '\\./languages/${langCode}\\.js'`
-  )
-  if (!importRegex.test(n2wordsContent)) {
-    console.error(chalk.red(`✗ Not imported in ${n2wordsFile}`))
+  // Extract expected class name from language file
+  const classImportRegex = new RegExp(`import.*{.*} from '\\./languages/${langCode}\\.js'`)
+  if (!classImportRegex.test(n2wordsContent)) {
+    console.error(chalk.red(`✗ Class not imported in ${n2wordsFile}`))
     errors++
   } else {
-    console.log(chalk.green(`✓ Imported in ${n2wordsFile}`))
+    console.log(chalk.green(`✓ Class imported in ${n2wordsFile}`))
   }
 
+  // Check dictionary registration (using language variables, not class names)
   const dictKeyRegex = langCode.includes('-')
-    ? new RegExp(`['"]${langCode}['"]:\\s*${constName}[,\\s\\}]`)
-    : new RegExp(`\\b${constName}[,\\s\\}]`)
+    ? new RegExp(`['"]${langCode}['"]:\\s*\\w+[,\\s\\}]`)
+    : new RegExp(`\\b${langCode}[,\\s\\}]`)
 
   if (!dictKeyRegex.test(n2wordsContent)) {
     console.error(chalk.red(`✗ Not registered in dict in ${n2wordsFile}`))

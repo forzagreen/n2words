@@ -113,18 +113,6 @@ if (baseClass === 'SouthAsianLanguage') {
   languageTemplate = `import ${baseClass} from '../classes/${baseClassFile}.js'
 
 /**
- * ${langName} language implementation
- * Converts numeric values to written ${langName}.
- *
- * @example
- * convertToWords(42) // => TODO: Add example output
- * convertToWords(1000) // => TODO: Add example output
- */
-export default function convertToWords (value, options = {}) {
-  return new ${className}(options).convertToWords(value)
-}
-
-/**
  * ${langName} number-to-words converter
  */
 class ${className} extends ${baseClass} {
@@ -156,11 +144,7 @@ class ${className} extends ${baseClass} {
  * ${langName} language implementation
  * Converts numeric values to written ${langName}.
  */
-export default function convertToWords (value, options = {}) {
-  return new ${className}(options).convertToWords(value)
-}
-
-class ${className} extends ${baseClass} {
+export class ${className} extends ${baseClass} {
   negativeWord = '${negativeWord}'
   decimalSeparatorWord = '${separatorWord}'
   zeroWord = '${zeroWord}'
@@ -186,22 +170,12 @@ class ${className} extends ${baseClass} {
     this.feminine = options.feminine
   }
 }
+
+export { ${className} }
 `
 } else {
   // GreedyScaleLanguage and TurkicLanguage (scale-based)
   languageTemplate = `import ${baseClass} from '../classes/${baseClassFile}.js'
-
-/**
- * ${langName} language implementation
- * Converts numeric values to written ${langName}.
- *
- * @example
- * convertToWords(42) // => TODO: Add example output
- * convertToWords(1000) // => TODO: Add example output
- */
-export default function convertToWords (value, options = {}) {
-  return new ${className}(options).convertToWords(value)
-}
 
 /**
  * ${langName} number-to-words converter
@@ -228,6 +202,8 @@ class ${className} extends ${baseClass} {
   //   // TODO: Implement if needed
   // }
 }
+
+export { ${className} }
 `
 }
 

@@ -79,7 +79,7 @@
     "test:unit": "ava --verbose test/unit/*.js",
     "types:generate": "npm run types:clean && tsc --project tsconfig.json",
     "types:clean": "node -e \"import { rmSync } from 'fs'; try { rmSync('typings', { recursive: true, force: true }) } catch (e) {}\"",
-    "types:validate": "npm run types:build && tsc --noEmit --project test/typescript/tsconfig.json && node --import tsx --test test/typescript/*.ts",
+    "types:validate": "npm run types:generate && tsc --noEmit --project test/typescript/tsconfig.json && node --import tsx --test test/typescript/*.ts",
     "web:build": "npm run web:clean && rollup -c",
     "web:clean": "node -e \"import { rmSync } from 'fs'; try { rmSync('dist', { recursive: true, force: true }) } catch (e) {}\"",
     "web:test": "npm run web:build && ava --verbose test/web/*.js"

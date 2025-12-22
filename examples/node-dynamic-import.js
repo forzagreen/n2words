@@ -35,12 +35,12 @@ if (fs.existsSync('./lib/languages/' + lang + '.js')) {
   // Prompt user for the numeric value to convert
   const value = await rl.question(chalk.cyan('\nValue to convert?\n') + chalk.gray('> '))
 
-  // Dynamically import the language-specific converter module
-  // This allows loading only the needed language without bundling all supported languages
-  const { default: n2words } = await import('../lib/languages/' + lang + '.js')
+  // Dynamically import the main n2words module and use the factory pattern
+  // This is more robust than importing individual language files directly
+  const { default: n2words } = await import('../lib/n2words.js')
 
   // Convert the value to words using the selected language
-  const result = n2words(value)
+  const result = n2words(value, { lang })
 
   // Display the result with bold formatting for emphasis
   console.log('\n' + chalk.green('✓') + ' ' + chalk.bold(result) + '\n')

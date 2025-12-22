@@ -11,17 +11,13 @@
 // In a real project, these would be:
 // import n2words from 'n2words'
 // import type { N2WordsOptions, LanguageCode } from 'n2words'
-// import convertToFrench, { type FrenchOptions } from 'n2words/languages/fr'
+// import { English, French, Spanish, ChineseSimplified, Dutch } from 'n2words'
 
 import n2words from '../lib/n2words.js'
 import type { N2WordsOptions, LanguageCode } from '../lib/n2words.js'
 
-// Individual language imports with proper typings
-import convertToEnglish from '../lib/languages/en.js'
-import convertToFrench, { type FrenchOptions } from '../lib/languages/fr.js'
-import convertToSpanish, { type SpanishOptions } from '../lib/languages/es.js'
-import convertToChinese, { type ChineseOptions } from '../lib/languages/zh-Hans.js'
-import convertToDutch, { type DutchOptions } from '../lib/languages/nl.js'
+// Individual language imports with proper typings (using descriptive names)
+import { English, French, Spanish, ChineseSimplified, Dutch } from '../lib/n2words.js'
 
 // === Basic Usage ===
 const basic: string = n2words(42)
@@ -35,60 +31,51 @@ console.log(withTypedLang) // 'septante'
 // === Direct Language Imports (Type-Safe) ===
 
 // English (no options)
-const englishDirect = convertToEnglish(42)
+const englishDirect = English(42)
 console.log(englishDirect) // 'forty-two'
 
 // French with explicit type annotation
-const frenchOptions: FrenchOptions = { withHyphenSeparator: true }
-const frenchWithOptions = convertToFrench(2824, frenchOptions)
+const frenchWithOptions = French(2824, { withHyphenSeparator: true })
 console.log(frenchWithOptions) // 'deux-mille-huit-cent-vingt-quatre'
 
 // Spanish with gender options (using type inference)
-const spanishFeminine = convertToSpanish(21, { genderStem: 'a' })
+const spanishFeminine = Spanish(21, { genderStem: 'a' })
 console.log(spanishFeminine) // 'veintiuna'
 
 // Chinese with formal option (explicit typing)
-const chineseOptions: ChineseOptions = { formal: true }
-const chineseFormal = convertToChinese(123, chineseOptions)
+const chineseFormal = ChineseSimplified(123, { formal: true })
 console.log(chineseFormal) // '壹佰贰拾叁'
 
 // Dutch with multiple language-specific options
-const dutchOptions: DutchOptions = {
+const dutchCustom = Dutch(21, {
   includeOptionalAnd: true,
   accentOne: false
-}
-const dutchCustom = convertToDutch(21, dutchOptions)
+})
 console.log(dutchCustom) // 'eenentwintig'
 
 // === Type Inference vs Explicit Typing ===
 
 // Type inference (recommended) - cleaner code, same safety
-const inferredFrench = convertToFrench(91, { withHyphenSeparator: true })
-const inferredSpanish = convertToSpanish(21, { genderStem: 'a' })
-const inferredChinese = convertToChinese(100, { formal: true })
+const inferredFrench = French(91, { withHyphenSeparator: true })
+const inferredSpanish = Spanish(21, { genderStem: 'a' })
+const inferredChinese = ChineseSimplified(100, { formal: true })
 
 console.log(inferredFrench)  // 'quatre-vingt-onze'
 console.log(inferredSpanish) // 'veintiuna'
 console.log(inferredChinese) // '壹佰'
 
 // Multi-language conversion with type safety
-const converters = {
-  fr: convertToFrench,
-  es: convertToSpanish,
-  'zh-Hans': convertToChinese
-} as const
-
-function smartConvert(lang: keyof typeof converters, value: number): string {
+function smartConvert(lang: 'fr' | 'es' | 'zh-Hans', value: number): string {
   switch (lang) {
     case 'fr':
-      return converters.fr(value, { withHyphenSeparator: true })
+      return French(value, { withHyphenSeparator: true })
     case 'es':
-      return converters.es(value, { genderStem: 'a' })
+      return Spanish(value, { genderStem: 'a' })
     case 'zh-Hans':
-      return converters['zh-Hans'](value, { formal: true })
+      return ChineseSimplified(value, { formal: true })
     default:
       // This should never happen due to TypeScript constraints, but satisfies compiler
-      return converters.fr(value)
+      return French(value)
   }
 }
 
@@ -101,31 +88,27 @@ const smartResults = [42, 21, 100].map(num => ({
 console.log('Smart conversion results:', smartResults)
 
 // === BigInt and String Support ===
-const bigintResult = convertToEnglish(123456789012345n)
-const decimalResult = convertToEnglish('3.14159')
+const bigintResult = English(123456789012345n)
+const decimalResult = English('3.14159')
 
 console.log(bigintResult) // 'one hundred and twenty-three trillion...'
 console.log(decimalResult) // 'three point one four one five nine'
 
-// === Dynamic Language Loading ===
-const languageModules = {
-  en: () => import('../lib/languages/en.js'),
-  fr: () => import('../lib/languages/fr.js'),
-  es: () => import('../lib/languages/es.js')
-} as const
+// === Dynamic Language Loading (Updated Pattern) ===
+// With the new architecture, prefer using the main module with lang option
+// This is more efficient as it uses the pre-loaded converters
 
-type SupportedLanguage = keyof typeof languageModules
-
-async function convertWithDynamicImport(
+async function convertWithLanguageOption(
   value: number,
-  lang: SupportedLanguage
+  lang: LanguageCode
 ): Promise<string> {
-  const { default: convert } = await languageModules[lang]()
-  return convert(value)
+  // Import main module (all languages are pre-loaded)
+  const { default: convert } = await import('../lib/n2words.js')
+  return convert(value, { lang })
 }
 
 // Usage
-convertWithDynamicImport(42, 'fr').then(result => {
+convertWithLanguageOption(42, 'fr').then(result => {
   console.log(result) // 'quarante-deux'
 })
 
