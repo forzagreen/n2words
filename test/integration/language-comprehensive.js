@@ -1,5 +1,5 @@
 import test from 'ava'
-import n2words from '../../lib/n2words.js'
+import * as n2words from '../../lib/n2words.js'
 import { readdirSync } from 'node:fs'
 
 /**
@@ -10,7 +10,22 @@ import { readdirSync } from 'node:fs'
  * test cases specific to that language's number formatting rules.
  *
  * Test files are located in test/fixtures/languages/*.js and are loaded dynamically.
+ * This test dynamically imports all exported language converters from n2words.js.
+ * Files are now named with descriptive names (e.g., 'english.js', 'arabic.js')
+ * instead of language codes.
  */
+
+/**
+ * Converts kebab-case file name to PascalCase export name
+ * @param {string} fileName - The kebab-case file name (e.g., 'belgian-french')
+ * @returns {string} - The PascalCase export name (e.g., 'BelgianFrench')
+ */
+function fileNameToExportName (fileName) {
+  return fileName
+    .split('-')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join('')
+}
 
 const files = readdirSync('./test/fixtures/languages')
 
@@ -25,15 +40,23 @@ for (const file of files) {
  * @param {string} file language test file to run
  */
 async function testLanguage (file) {
-  const language = file.replace('.js', '')
+  const languageFileName = file.replace('.js', '')
+  const exportName = fileNameToExportName(languageFileName)
 
-  test(language, async t => {
+  const languageConverter = n2words[exportName]
+
+  if (!languageConverter) {
+    throw new Error(`Language converter '${exportName}' not found in n2words exports for file: ${languageFileName}`)
+  }
+
+  test(languageFileName, async t => {
     const { default: testFile } = await import('../fixtures/languages/' + file)
 
-    for (const test of testFile) {
+    for (const testCase of testFile) {
+      const [input, expected, options = {}] = testCase
       t.is(
-        n2words(test[0], Object.assign({ lang: language }, test[2])),
-        test[1]
+        languageConverter(input, options),
+        expected
       )
     }
   })

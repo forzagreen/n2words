@@ -39,10 +39,6 @@
     ".": {
       "import": "./lib/n2words.js",
       "types": "./typings/n2words.d.ts"
-    },
-    "./languages/*": {
-      "import": "./lib/languages/*.js",
-      "types": "./typings/languages/*.d.ts"
     }
   },
   "main": "lib/n2words.js",
