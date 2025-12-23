@@ -221,8 +221,13 @@ export class Czech extends GreedyScaleLanguage {
    * @param {Object} [options={}] Configuration options.
    */
   constructor(options = {}) {
-    super()
-    // Apply any option-dependent configuration here
+    super(options)
+    this.options = {
+      ...{
+        option: false
+      },
+      ...options
+    }
   }
 }
 
@@ -395,8 +400,12 @@ export class HindiLanguage extends SouthAsianLanguage {
    * @param {Object} [options={}] Configuration options.
    */
   constructor(options = {}) {
-    super()
-    this.options = options
+    super(options)
+    this.options = {
+      ...{
+        option = false
+      }, ...options
+    }
   }
 }
 
@@ -557,7 +566,7 @@ mergeScales(left, right) {
 ```javascript
 class MyLanguage extends GreedyScaleLanguage {
   constructor(options = {}) {
-    super()
+    super(options)
     this.doubleSpaceRegex = /\s{2,}/g // Pre-compile
   }
 

@@ -159,6 +159,8 @@ export class ${className} extends ${baseClass} {
 
   // Optional: feminine forms flag
   constructor (options = {}) {
+    super(options)
+
     options = {
       ...{
         feminine: false
@@ -166,7 +168,6 @@ export class ${className} extends ${baseClass} {
       ...options
     }
 
-    super()
     this.feminine = options.feminine
   }
 }

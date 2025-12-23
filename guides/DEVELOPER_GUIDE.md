@@ -79,15 +79,13 @@ export default class EnglishLanguage extends GreedyScaleLanguage {
 
 ```javascript
 constructor(options = {}) {
-  options = {
+  super(options)
+  this.options = {
     ...{
       genderStem: 'o'
     },
     ...options
   }
-
-  super()
-  this.genderStem = options.genderStem  // Affects behavior
 }
 ```
 
@@ -191,15 +189,13 @@ export default class GermanLanguage extends GreedyScaleLanguage {
 
   // Constructor only for behavior options (optional)
   constructor(options = {}) {
-    options = {
+    super(options)
+    this.options = {
       ...{
         option: false
       },
       ...options
     }
-
-    super()
-    this.option = options.option
   }
 
   mergeScales(left, right) {
