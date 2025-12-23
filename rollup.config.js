@@ -31,7 +31,8 @@ export default {
         [
           '@babel/preset-env',
           {
-            useBuiltIns: false,
+            useBuiltIns: true,
+            corejs: { version: corejs },
             targets: 'defaults',
             modules: false
           }
