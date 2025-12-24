@@ -11,8 +11,8 @@ import { readdirSync } from 'node:fs'
  *
  * Test files are located in test/fixtures/languages/*.js and are loaded dynamically.
  * This test dynamically imports all exported language converters from n2words.js.
- * Files are now named with descriptive names (e.g., 'english.js', 'arabic.js')
- * instead of language codes.
+ * Files are now named with IETF BCP 47 language codes (e.g., 'en.js', 'ar.js', 'fr-BE.js')
+ * following international standards for language identification.
  */
 
 /**
