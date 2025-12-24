@@ -8,10 +8,11 @@
 
 **Convert numbers to words in 47 languages with zero dependencies.**
 
-- 🌍 **47 languages** - Comprehensive international support
-- 📦 **Zero dependencies** - Lightweight and fast
-- 🚀 **TypeScript** - Full type safety with language-specific options
-- 📱 **Universal** - Node.js, browsers, ESM/CommonJS
+- 🌍 **47 languages** — Comprehensive international support
+- 📦 **Zero dependencies** — Lightweight and fast
+- 🚀 **TypeScript** — Full type safety with language-specific options
+- 🧪 **Tested & validated** — Language modules validated and tested on every PR
+- 📱 **Universal** — Node.js, browsers, ESM/CommonJS
 
 ## Quick Start
 
@@ -20,35 +21,37 @@ npm install n2words
 ```
 
 ```js
-import n2words from 'n2words'
+import { EnglishConverter } from 'n2words'
 
-n2words(123)                          // 'one hundred and twenty-three'
-n2words(-1.5)                         // 'minus one point five'
-n2words(123, { lang: 'es' })          // 'ciento veintitrés'
-n2words(123, { lang: 'ar' })          // 'مائة وثلاثة وعشرون'
-n2words(10000n, { lang: 'zh-Hans' })  // '壹万' (BigInt support)
+EnglishConverter(123)                          // 'one hundred and twenty-three'
+EnglishConverter(-1.5)                         // 'minus one point five'
+EnglishConverter(123, { lang: 'es' })          // 'ciento veintitrés'
+EnglishConverter(123, { lang: 'ar' })          // 'مائة وثلاثة وعشرون'
+EnglishConverter(10000n, { lang: 'zh-Hans' })  // '壹万' (BigInt support)
 ```
 
 ## Usage
 
 ```js
 // Node.js / ESM
-import n2words from 'n2words'
-n2words(42)  // 'forty-two'
+import { EnglishConverter } from 'n2words'
+EnglishConverter(42)  // 'forty-two'
 
 // TypeScript with full type safety
-import n2words, { type N2WordsOptions } from 'n2words'
-n2words(123, { lang: 'zh-Hans', formal: true })  // '壹佰贰拾叁'
-n2words(42, { lang: 'ar', feminine: true })      // Arabic feminine
+import { ArabicConverter, SimplifiedChinese, type N2WordsOptions } from 'n2words'
+SimplifiedChineseConverter(123, { formal: true })  // '壹佰贰拾叁'
+ArabicConverter(42, { feminine: true })            // Arabic feminine
 
 // CommonJS
-import('n2words').then(({ default: n2words }) => {
-  console.log(n2words(100))  // 'one hundred'
-})
+const { EnglishConverter } = require('n2words');
+console.log(EnglishConverter(100)); // 'one hundred'
+// For other languages:
+const { FrenchConverter } = require('n2words');
+console.log(FrenchConverter(123)); // 'cent vingt-trois'
 
 // Browser (CDN)
 // <script src="https://cdn.jsdelivr.net/npm/n2words/dist/n2words.js"></script>
-// console.log(n2words(100))  // 'one hundred'
+// console.log(n2words.EnglishConverter(100))  // 'one hundred'
 ```
 
 See [TYPESCRIPT_GUIDE.md](guides/TYPESCRIPT_GUIDE.md) for comprehensive TypeScript documentation.
@@ -73,7 +76,7 @@ Language codes follow [IETF BCP 47](https://tools.ietf.org/html/bcp47) standards
 | `ko`      | Korean              | `lt`      | Lithuanian          |
 | `lv`      | Latvian             | `mr`      | Marathi             |
 | `ms`      | Malay               | `nl`      | Dutch               |
-| `nb`      | Norwegian Bokmål    | `pa-Guru` | Punjabi             |
+| `nb`      | Norwegian Bokmål    | `pa`      | Punjabi             |
 | `pl`      | Polish              | `pt`      | Portuguese          |
 | `ro`      | Romanian            | `ru`      | Russian             |
 | `sr-Cyrl` | Serbian Cyrillic    | `sr-Latn` | Serbian Latin       |
@@ -88,21 +91,21 @@ Language codes follow [IETF BCP 47](https://tools.ietf.org/html/bcp47) standards
 
 ```js
 // Basic numbers
-n2words(0)        // 'zero'
-n2words(42)       // 'forty-two'
-n2words(1000000)  // 'one million'
+EnglishConverter(0)        // 'zero'
+EnglishConverter(42)       // 'forty-two'
+EnglishConverter(1000000)  // 'one million'
 
 // Decimals & negatives
-n2words(3.14)     // 'three point one four'
-n2words(-42)      // 'minus forty-two'
+EnglishConverter(3.14)     // 'three point one four'
+EnglishConverter(-42)      // 'minus forty-two'
 
 // Large numbers & BigInt
-n2words(1234567890)        // 'one billion two hundred and thirty-four million...'
-n2words(123456789012345n)  // Works with arbitrarily large integers
+EnglishConverter(1234567890)        // 'one billion two hundred and thirty-four million...'
+EnglishConverter(123456789012345n)  // Works with arbitrarily large integers
 
 // Language-specific features
-n2words(3.14, { lang: 'ja' })  // '三点一四' (digit-by-digit decimals)
-n2words(123, { lang: 'zh-Hans', formal: true })  // '壹佰贰拾叁' (formal Chinese)
+JapaneseConverter(3.14, { lang: 'ja' })  // '三点一四' (digit-by-digit decimals)
+SimplifiedChineseConverter(123, { lang: 'zh-Hans', formal: true })  // '壹佰贰拾叁' (formal Chinese)
 ```
 
 ## Documentation
@@ -117,9 +120,14 @@ n2words(123, { lang: 'zh-Hans', formal: true })  // '壹佰贰拾叁' (formal Ch
 **Add a new language:**
 
 ```bash
-npm run lang:add              # Generate boilerplate
-npm run lang:validate xx      # Validate implementation
+npm run lang:add <code>           # Scaffold a new language (BCP 47 code)
+npm run lang:validate <code>       # Validate implementation and tests
 ```
+
+**Validation & Testing:**
+
+- Validate all languages: `npm run lang:validate`
+- Run all tests: `npm test`
 
 **Other contributions:**
 
