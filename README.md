@@ -21,13 +21,13 @@ npm install n2words
 ```
 
 ```js
-import { EnglishConverter } from 'n2words'
+import { EnglishConverter, SpanishConverter, ArabicConverter, SimplifiedChineseConverter } from 'n2words'
 
-EnglishConverter(123)                          // 'one hundred and twenty-three'
-EnglishConverter(-1.5)                         // 'minus one point five'
-EnglishConverter(123, { lang: 'es' })          // 'ciento veintitrés'
-EnglishConverter(123, { lang: 'ar' })          // 'مائة وثلاثة وعشرون'
-EnglishConverter(10000n, { lang: 'zh-Hans' })  // '壹万' (BigInt support)
+EnglishConverter(123)                // 'one hundred and twenty-three'
+EnglishConverter(-1.5)               // 'minus one point five'
+SpanishConverter(123)                // 'ciento veintitrés'
+ArabicConverter(123)                 // 'مائة وثلاثة وعشرون'
+SimplifiedChineseConverter(10000n)   // '壹万' (BigInt support, formal Chinese)
 ```
 
 ## Usage
@@ -37,8 +37,24 @@ EnglishConverter(10000n, { lang: 'zh-Hans' })  // '壹万' (BigInt support)
 import { EnglishConverter } from 'n2words'
 EnglishConverter(42)  // 'forty-two'
 
-// TypeScript with full type safety
-import { ArabicConverter, SimplifiedChinese, type N2WordsOptions } from 'n2words'
+// TypeScript with full type safety and exported types
+import {
+  EnglishConverter,
+  FrenchConverter,
+  type NumericValue,
+  type ConverterFunction,
+  type ConverterOptions
+} from 'n2words'
+
+// Use the exported types in your code
+const convert: ConverterFunction = EnglishConverter
+const value: NumericValue = 42  // number | bigint | string
+const options: ConverterOptions = {}
+
+convert(value, options)  // 'forty-two'
+
+// Language-specific converters
+import { ArabicConverter, SimplifiedChineseConverter } from 'n2words'
 SimplifiedChineseConverter(123, { formal: true })  // '壹佰贰拾叁'
 ArabicConverter(42, { feminine: true })            // Arabic feminine
 
@@ -54,7 +70,32 @@ console.log(FrenchConverter(123)); // 'cent vingt-trois'
 // console.log(n2words.EnglishConverter(100))  // 'one hundred'
 ```
 
-See [TYPESCRIPT_GUIDE.md](guides/TYPESCRIPT_GUIDE.md) for comprehensive TypeScript documentation.
+## TypeScript Support
+
+n2words provides full TypeScript support with exported types for better developer experience:
+
+```typescript
+import type {
+  NumericValue,      // number | bigint | string
+  ConverterFunction, // (value: NumericValue, options?: ConverterOptions) => string
+  ConverterOptions,  // Configuration options object
+  LanguageClass      // Language class constructor interface
+} from 'n2words'
+
+// Use types in your functions
+function formatNumber(num: NumericValue, converter: ConverterFunction): string {
+  return converter(num).toUpperCase()
+}
+
+// Type-safe arrays
+const converters: ConverterFunction[] = [EnglishConverter, FrenchConverter]
+
+// All converters have proper type signatures
+EnglishConverter(42)           // ✓ Valid
+EnglishConverter('123')        // ✓ Valid (string numbers)
+EnglishConverter(100n)         // ✓ Valid (BigInt)
+EnglishConverter(42, {})       // ✓ Valid (with options)
+```
 
 ## Supported Languages (47 total)
 
@@ -104,16 +145,9 @@ EnglishConverter(1234567890)        // 'one billion two hundred and thirty-four 
 EnglishConverter(123456789012345n)  // Works with arbitrarily large integers
 
 // Language-specific features
-JapaneseConverter(3.14, { lang: 'ja' })  // '三点一四' (digit-by-digit decimals)
-SimplifiedChineseConverter(123, { lang: 'zh-Hans', formal: true })  // '壹佰贰拾叁' (formal Chinese)
+JapaneseConverter(3.14)  // '三点一四' (digit-by-digit decimals)
+SimplifiedChineseConverter(123)  // '壹佰贰拾叁'
 ```
-
-## Documentation
-
-- [TYPESCRIPT_GUIDE.md](./guides/TYPESCRIPT_GUIDE.md) - TypeScript usage with full type safety
-- [LANGUAGE_OPTIONS.md](./guides/LANGUAGE_OPTIONS.md) - Language-specific options
-- [LANGUAGE_GUIDE.md](./guides/LANGUAGE_GUIDE.md) - Adding new languages
-- [CONTRIBUTING.md](./CONTRIBUTING.md) - Contribution guidelines
 
 ## Contributing
 
@@ -134,8 +168,6 @@ npm run lang:validate <code>       # Validate implementation and tests
 - 🐛 Bug reports and fixes
 - ✨ Feature requests and improvements
 - 📝 Documentation enhancements
-
-See [CONTRIBUTING.md](./CONTRIBUTING.md) for detailed guidance.
 
 ## License
 
