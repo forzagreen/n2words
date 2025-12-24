@@ -1,10 +1,6 @@
-import { readFileSync } from 'node:fs'
 import { babel } from '@rollup/plugin-babel'
 import { nodeResolve } from '@rollup/plugin-node-resolve'
 import terser from '@rollup/plugin-terser'
-
-const pkg = JSON.parse(readFileSync('./package.json', 'utf8'))
-const corejs = pkg.devDependencies['core-js'].replace('^', '')
 
 /**
  * Rollup configuration for the main n2words bundle.
@@ -31,8 +27,7 @@ export default {
         [
           '@babel/preset-env',
           {
-            useBuiltIns: true,
-            corejs: { version: corejs },
+            useBuiltIns: false,
             targets: 'defaults',
             modules: false
           }

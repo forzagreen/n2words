@@ -40,15 +40,15 @@
   <script>
     document.addEventListener('DOMContentLoaded', function() {
       console.log('DOMContentLoaded: n2words loaded:', typeof n2words);
-      console.log('DOMContentLoaded: n2words.English:', typeof n2words.English);
+      console.log('DOMContentLoaded: n2words.EnglishConverter:', typeof n2words.EnglishConverter);
     });
     window.onload = () => {
       console.log('window.onload: Starting tests');
       console.log('window.onload: n2words available:', typeof n2words);
 
       try {
-        const testResult = n2words.English(5);
-        console.log('Test conversion n2words.English(5):', testResult);
+        const testResult = n2words.EnglishConverter(5);
+        console.log('Test conversion n2words.EnglishConverter(5):', testResult);
       } catch (error) {
         console.error('Error in test conversion:', error);
         document.getElementById('status').innerHTML = 'Error: ' + error.message;
@@ -76,96 +76,96 @@
       }
 
       // Basic number tests
-      test('Basic: n2words(1)', 'one', n2words.English(1));
-      test('Basic: n2words(0)', 'zero', n2words.English(0));
-      test('Basic: n2words(42)', 'forty-two', n2words.English(42));
-      test('Basic: n2words(100)', 'one hundred', n2words.English(100));
-      test('Basic: n2words(1000)', 'one thousand', n2words.English(1000));
+      test('Basic: EnglishConverter(1)', 'one', n2words.EnglishConverter(1));
+      test('Basic: EnglishConverter(0)', 'zero', n2words.EnglishConverter(0));
+      test('Basic: EnglishConverter(42)', 'forty-two', n2words.EnglishConverter(42));
+      test('Basic: EnglishConverter(100)', 'one hundred', n2words.EnglishConverter(100));
+      test('Basic: EnglishConverter(1000)', 'one thousand', n2words.EnglishConverter(1000));
       test(
-        'Basic: n2words(1234)',
+        'Basic: EnglishConverter(1234)',
         'one thousand two hundred and thirty-four',
-        n2words.English(1234),
+        n2words.EnglishConverter(1234),
       );
 
       // Negative numbers
-      test('Negative: n2words(-1)', 'minus one', n2words.English(-1));
-      test('Negative: n2words(-42)', 'minus forty-two', n2words.English(-42));
+      test('Negative: EnglishConverter(-1)', 'minus one', n2words.EnglishConverter(-1));
+      test('Negative: EnglishConverter(-42)', 'minus forty-two', n2words.EnglishConverter(-42));
 
       // Large numbers
-      test('Large: n2words(1000000)', 'one million', n2words.English(1000000));
+      test('Large: EnglishConverter(1000000)', 'one million', n2words.EnglishConverter(1000000));
       test(
-        'Large: n2words(1234567)',
+        'Large: EnglishConverter(1234567)',
         'one million two hundred and thirty-four thousand five hundred and sixty-seven',
-        n2words.English(1234567),
+        n2words.EnglishConverter(1234567),
       );
 
       // String input
       test(
-        'String: n2words("123")',
+        'String: EnglishConverter("123")',
         'one hundred and twenty-three',
-        n2words.English('123'),
+        n2words.EnglishConverter('123'),
       );
 
       // Decimal numbers
-      test('Decimal: n2words("3.14")', 'three point fourteen', n2words.English('3.14'));
-      test('Decimal: n2words("0.5")', 'zero point five', n2words.English('0.5'));
+      test('Decimal: EnglishConverter("3.14")', 'three point fourteen', n2words.EnglishConverter('3.14'));
+      test('Decimal: EnglishConverter("0.5")', 'zero point five', n2words.EnglishConverter('0.5'));
 
-      // Language options (Spanish)
+      // Different language converters (Spanish)
       test(
-        'Spanish: n2words(1, {lang: "es"})',
+        'Spanish: SpanishConverter(1)',
         'uno',
-        n2words.English(1, { lang: 'es' }),
+        n2words.SpanishConverter(1),
       );
       test(
-        'Spanish: n2words(42, {lang: "es"})',
+        'Spanish: SpanishConverter(42)',
         'cuarenta y dos',
-        n2words.English(42, { lang: 'es' }),
+        n2words.SpanishConverter(42),
       );
       test(
-        'Spanish: n2words(100, {lang: "es"})',
+        'Spanish: SpanishConverter(100)',
         'cien',
-        n2words.English(100, { lang: 'es' }),
+        n2words.SpanishConverter(100),
       );
 
-      // Language options (French)
+      // Different language converters (French)
       test(
-        'French: n2words(1, {lang: "fr"})',
+        'French: FrenchConverter(1)',
         'un',
-        n2words.English(1, { lang: 'fr' }),
+        n2words.FrenchConverter(1),
       );
       test(
-        'French: n2words(42, {lang: "fr"})',
+        'French: FrenchConverter(42)',
         'quarante-deux',
-        n2words.English(42, { lang: 'fr' }),
+        n2words.FrenchConverter(42),
       );
       test(
-        'French: n2words(100, {lang: "fr"})',
+        'French: FrenchConverter(100)',
         'cent',
-        n2words.English(100, { lang: 'fr' }),
+        n2words.FrenchConverter(100),
       );
 
-      // Language options (German)
+      // Different language converters (German)
       test(
-        'German: n2words(1, {lang: "de"})',
+        'German: GermanConverter(1)',
         'eins',
-        n2words(1, { lang: 'de' }),
+        n2words.GermanConverter(1),
       );
       test(
-        'German: n2words(42, {lang: "de"})',
+        'German: GermanConverter(42)',
         'zweiundvierzig',
-        n2words(42, { lang: 'de' }),
+        n2words.GermanConverter(42),
       );
 
       // Edge cases
       test(
-        'BigInt: n2words(BigInt(123))',
+        'BigInt: EnglishConverter(BigInt(123))',
         'one hundred and twenty-three',
-        n2words(BigInt(123)),
+        n2words.EnglishConverter(BigInt(123)),
       );
 
       // Error handling - invalid inputs should throw or return reasonable defaults
       try {
-        const result = n2words.English('invalid');
+        const result = n2words.EnglishConverter('invalid');
         test(
           'Invalid input handling',
           'Error thrown',
@@ -179,8 +179,10 @@
         );
       }
 
-      // Default language fallback
-      test('Default fallback: n2words(5)', 'five', n2words.English(5));
+      // Multiple language converters available
+      test('EnglishConverter(5)', 'five', n2words.EnglishConverter(5));
+      test('SpanishConverter(5)', 'cinco', n2words.SpanishConverter(5));
+      test('FrenchConverter(5)', 'cinq', n2words.FrenchConverter(5));
 
       // Update results and status
       results.innerHTML = output;
