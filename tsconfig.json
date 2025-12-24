@@ -6,6 +6,7 @@
 
     "declaration": true,
     "emitDeclarationOnly": true,
+    "declarationMap": true,
     "rootDir": "./lib",
     "outDir": "./typings",
 
