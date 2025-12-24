@@ -61,6 +61,12 @@ class LanguageValidator {
         return null
       }
 
+      // If CLDR returns the code unchanged (not recognized), return null
+      // This happens for rare/historical languages like 'hbo' (Biblical Hebrew)
+      if (cldrName === languageCode) {
+        return null
+      }
+
       // Convert CLDR display name to PascalCase
       // e.g., "Norwegian Bokmål" -> "NorwegianBokmal"
       const className = cldrName
@@ -106,8 +112,45 @@ class LanguageValidator {
     const expectedClassName = this.getExpectedClassName(languageCode)
 
     if (!expectedClassName) {
-      result.errors.push(`Could not determine CLDR display name for ${languageCode}`)
-      result.valid = false
+      result.warnings.push(`CLDR does not provide display name for ${languageCode} (rare/historical language)`)
+      result.info.push('⚠ Using descriptive class name instead of CLDR-derived name')
+
+      // For languages not in CLDR, we'll validate that ANY class is exported
+      // and skip CLDR-specific validation
+      try {
+        const languageModule = await import(pathToFileURL(languageFile).href)
+        const exportedClasses = Object.keys(languageModule).filter(key =>
+          typeof languageModule[key] === 'function' && languageModule[key].prototype
+        )
+
+        if (exportedClasses.length === 0) {
+          result.errors.push(`No class exported from ${languageFile}`)
+          result.valid = false
+          return result
+        }
+
+        const LanguageClass = languageModule[exportedClasses[0]]
+        result.info.push(`✓ Found class: ${exportedClasses[0]} (descriptive name for rare language)`)
+
+        // Continue with standard validation
+        this.validateClassStructure(LanguageClass, exportedClasses[0], languageCode, result)
+        const instance = new LanguageClass()
+        this.validateRequiredProperties(instance, languageCode, result)
+        this.validateMethods(instance, languageCode, result)
+        this.validateInheritance(LanguageClass, languageCode, result)
+        this.validateScaleWords(instance, languageCode, result)
+
+        const fileContent = readFileSync(languageFile, 'utf8')
+        this.validateDocumentation(fileContent, exportedClasses[0], result)
+        this.validateImports(fileContent, result)
+        this.validateTestFixture(languageCode, result)
+        this.validateN2wordsExport(languageCode, exportedClasses[0], result)
+      } catch (error) {
+        result.errors.push(`Failed to load language module: ${error.message}`)
+        result.valid = false
+      }
+
+      result.valid = result.errors.length === 0
       return result
     }
 
@@ -325,11 +368,24 @@ class LanguageValidator {
       return
     }
 
-    if (!validBaseClasses.includes(baseClassName)) {
-      result.errors.push(`Unknown base class: ${baseClassName}. Expected one of: ${validBaseClasses.join(', ')}`)
-    } else {
+    // Check if it extends a valid base class directly
+    if (validBaseClasses.includes(baseClassName)) {
       result.info.push(`✓ Extends ${baseClassName}`)
+      return baseClassName
     }
+
+    // Check if it extends another language (e.g., fr-BE extends fr)
+    // This is valid for regional variants
+    const grandProto = Object.getPrototypeOf(proto)
+    const grandParentClassName = grandProto?.name
+
+    if (grandParentClassName && validBaseClasses.includes(grandParentClassName)) {
+      result.info.push(`✓ Extends ${baseClassName} (which extends ${grandParentClassName})`)
+      return baseClassName
+    }
+
+    // If neither direct parent nor grandparent is valid, it's an error
+    result.errors.push(`Unknown base class: ${baseClassName}. Expected one of: ${validBaseClasses.join(', ')}, or a language that extends them`)
 
     return baseClassName
   }
@@ -426,16 +482,22 @@ class LanguageValidator {
    * Validate imports
    */
   validateImports (fileContent, result) {
-    const hasImport = fileContent.match(/^import\s+{[^}]+}\s+from\s+['"]\.\.\/classes\//m)
+    // Check for import from base classes
+    const hasBaseClassImport = fileContent.match(/^import\s+{[^}]+}\s+from\s+['"]\.\.\/classes\//m)
 
-    if (!hasImport) {
-      result.errors.push('Missing import statement from base class')
-    } else {
-      result.info.push('✓ Has proper import statement')
+    // Check for import from other languages (for variants like fr-BE extending fr)
+    const hasLanguageImport = fileContent.match(/^import\s+{[^}]+}\s+from\s+['"]\.\/[^'"]+\.js['"]/m)
+
+    if (!hasBaseClassImport && !hasLanguageImport) {
+      result.errors.push('Missing import statement from base class or parent language')
+    } else if (hasBaseClassImport) {
+      result.info.push('✓ Has proper base class import statement')
+    } else if (hasLanguageImport) {
+      result.info.push('✓ Has proper language import statement (regional variant)')
     }
 
     // Check for relative imports
-    const hasRelativePath = fileContent.match(/from\s+['"]\.\.\//g)
+    const hasRelativePath = fileContent.match(/from\s+['"]\.\.\//g) || fileContent.match(/from\s+['"].\//g)
     if (hasRelativePath) {
       result.info.push('✓ Uses relative imports')
     }
