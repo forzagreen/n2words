@@ -208,7 +208,9 @@ class LanguageValidator {
     // Validate class name follows CLDR conventions
     this.validateCLDRClassName(expectedClassName, languageCode, result)
   }
-   * The expectedClassName parameter already comes from CLDR (source of truth)
+
+  /**
+   * Validate that class name matches CLDR conventions
    */
   validateCLDRClassName (className, languageCode, result) {
     // Check for forbidden suffixes
@@ -228,8 +230,7 @@ class LanguageValidator {
         result.info.push(`✓ Class name derived from CLDR: "${cldrName}"`)
       }
     } catch (error) {
-      // Non-critical     `Could not validate CLDR class name: ${error.message}`
-      )
+      // Non-critical - could not validate CLDR class name
     }
   }
 
