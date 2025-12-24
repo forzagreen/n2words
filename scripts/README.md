@@ -2,6 +2,75 @@
 
 This directory contains development and maintenance scripts for the n2words library.
 
+## add-language.js
+
+Scaffolding tool for quickly setting up a new language implementation with all required boilerplate.
+
+### What it creates
+
+- **Language implementation file** (`lib/languages/{code}.js`)
+  - Class extending `GreedyScaleLanguage` (most common pattern)
+  - Placeholder properties (negativeWord, zeroWord, decimalSeparatorWord)
+  - Placeholder scaleWordPairs array
+  - Skeleton mergeScales() method with TODO comments
+  - Comprehensive JSDoc documentation
+
+- **Test fixture file** (`test/fixtures/languages/{code}.js`)
+  - Test case array with example inputs and expected outputs
+  - Covers basic numbers, teens, tens, hundreds, thousands, millions
+  - Includes negatives, decimals, and BigInt examples
+  - TODO comments for language-specific test cases
+
+- **Updates lib/n2words.js**
+  - Adds import statement for the new language class
+  - Creates converter using `makeConverter()` factory
+  - Adds to export statement
+
+### Usage
+
+```bash
+# Add a new language by IETF BCP 47 code
+npm run lang:add <language-code>
+
+# Examples
+npm run lang:add ko        # Korean
+npm run lang:add zh-Hans   # Simplified Chinese
+npm run lang:add fr-CA     # Canadian French
+npm run lang:add sr-Latn   # Serbian (Latin script)
+```
+
+### Validation
+
+The script validates that:
+
+- Language code follows IETF BCP 47 format (e.g., `en`, `zh-Hans`, `fr-BE`)
+- Language doesn't already exist
+- Creates all required files successfully
+
+### Next steps after scaffolding
+
+1. Edit `lib/languages/{code}.js`:
+   - Replace placeholder words with actual language words
+   - Add complete scaleWordPairs array (largest to smallest)
+   - Implement mergeScales() with language-specific rules
+
+2. Edit `test/fixtures/languages/{code}.js`:
+   - Replace English words with actual language equivalents
+   - Add comprehensive test cases
+   - Include edge cases and language-specific features
+
+3. Validate:
+
+   ```bash
+   npm run lang:validate -- {code} --verbose
+   ```
+
+4. Run tests:
+
+   ```bash
+   npm test
+   ```
+
 ## validate-language.js
 
 Comprehensive validator for language implementations to ensure they follow all required patterns and conventions.
@@ -63,7 +132,7 @@ Comprehensive validator for language implementations to ensure they follow all r
 - **Converter creation**: `makeConverter()` wrapper created
 - **Export**: Converter function exported (e.g., `EnglishConverter`)
 
-### Usage
+### Validation Usage
 
 ```bash
 # Validate all languages
@@ -101,7 +170,7 @@ n2words Language Validator
 ✓ en
   Info:
     ✓ File naming follows IETF BCP 47 convention
-    ✓ Class EnglishConverter properly defined
+    ✓ Class English properly defined
     ✓ Property negativeWord: "minus"
     ✓ Property zeroWord: "zero"
     ✓ Property decimalSeparatorWord: "point"
@@ -128,7 +197,7 @@ Summary:
   Total: 2
 ```
 
-## When to Use
+## When to Use validate-language.js
 
 ### During Development
 
@@ -221,9 +290,3 @@ export default [
   // ... more test cases
 ]
 ```
-
-## See Also
-
-- [add-language.js](./add-language.js) - Script to scaffold a new language
-- [Language Implementation Guide](../guides/LANGUAGE_GUIDE.md) - Complete guide for implementing languages
-- [Developer Guide](../guides/DEVELOPER_GUIDE.md) - General development information
