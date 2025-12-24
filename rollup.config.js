@@ -27,7 +27,8 @@ export default {
         [
           '@babel/preset-env',
           {
-            useBuiltIns: false,
+            useBuiltIns: 'usage',
+            corejs: 3,
             targets: 'defaults',
             modules: false
           }
@@ -45,13 +46,5 @@ export default {
         comments: false
       }
     })
-  ],
-  external: [],
-  onwarn (warning, warn) {
-    // Suppress circular dependency warnings from core-js
-    if (warning.code === 'CIRCULAR_DEPENDENCY' && warning.message.includes('node_modules/core-js')) {
-      return
-    }
-    warn(warning)
-  }
+  ]
 }
