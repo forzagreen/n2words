@@ -55,13 +55,13 @@ class LanguageValidator {
    */
   loadExpectedClassNames () {
     const n2wordsContent = readFileSync(this.n2wordsPath, 'utf8')
-    const importRegex = /import\s+{\s*(\w+)\s*}\s+from\s+['"]\.\/languages\/([^'"]+)\.js['"]/g
+    const importRegex = /import\s+{\s*([^}]+)\s*}\s+from\s+['"]\.\/languages\/([^'"]+)\.js['"]/g
     const mapping = {}
 
     let match
     while ((match = importRegex.exec(n2wordsContent)) !== null) {
       const [, className, languageCode] = match
-      mapping[languageCode] = className
+      mapping[languageCode] = className.trim()
     }
 
     return mapping
