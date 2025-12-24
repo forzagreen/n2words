@@ -16,15 +16,64 @@ import { readdirSync } from 'node:fs'
  */
 
 /**
- * Converts kebab-case file name to PascalCase export name
- * @param {string} fileName - The kebab-case file name (e.g., 'belgian-french')
- * @returns {string} - The PascalCase export name (e.g., 'BelgianFrench')
+ * Maps IETF BCP 47 language codes to n2words export names
+ * @param {string} languageCode - IETF language code (e.g., 'en', 'fr-BE', 'zh-Hans')
+ * @returns {string} - The corresponding n2words export name (e.g., 'EnglishConverter')
  */
-function fileNameToExportName (fileName) {
-  return fileName
-    .split('-')
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-    .join('')
+function languageCodeToExportName (languageCode) {
+  // Map of IETF language codes to export names
+  const codeToExport = {
+    ar: 'ArabicConverter',
+    az: 'AzerbaijaniConverter',
+    bn: 'BengaliConverter',
+    cs: 'CzechConverter',
+    da: 'DanishConverter',
+    de: 'GermanConverter',
+    el: 'GreekConverter',
+    en: 'EnglishConverter',
+    es: 'SpanishConverter',
+    fa: 'FarsiConverter',
+    fil: 'FilipinoConverter',
+    fr: 'FrenchConverter',
+    'fr-BE': 'BelgianFrenchConverter',
+    gu: 'GujaratiConverter',
+    he: 'HebrewConverter',
+    hbo: 'BiblicalHebrewConverter',
+    hi: 'HindiConverter',
+    hr: 'CroatianConverter',
+    hu: 'HungarianConverter',
+    id: 'IndonesianConverter',
+    it: 'ItalianConverter',
+    ja: 'JapaneseConverter',
+    kn: 'KannadaConverter',
+    ko: 'KoreanConverter',
+    lt: 'LithuanianConverter',
+    lv: 'LatvianConverter',
+    mr: 'MarathiConverter',
+    ms: 'MalayConverter',
+    nb: 'NorwegianBokmalConverter',
+    nl: 'DutchConverter',
+    pa: 'PunjabiConverter',
+    pl: 'PolishConverter',
+    pt: 'PortugueseConverter',
+    ro: 'RomanianConverter',
+    ru: 'RussianConverter',
+    'sr-Cyrl': 'SerbianCyrillicConverter',
+    'sr-Latn': 'SerbianLatinConverter',
+    sv: 'SwedishConverter',
+    sw: 'SwahiliConverter',
+    ta: 'TamilConverter',
+    te: 'TeluguConverter',
+    th: 'ThaiConverter',
+    tr: 'TurkishConverter',
+    uk: 'UkrainianConverter',
+    ur: 'UrduConverter',
+    vi: 'VietnameseConverter',
+    'zh-Hans': 'ChineseSimplifiedConverter',
+    'zh-Hant': 'ChineseTraditionalConverter'
+  }
+
+  return codeToExport[languageCode]
 }
 
 const files = readdirSync('./test/fixtures/languages')
@@ -40,16 +89,16 @@ for (const file of files) {
  * @param {string} file language test file to run
  */
 async function testLanguage (file) {
-  const languageFileName = file.replace('.js', '')
-  const exportName = fileNameToExportName(languageFileName)
+  const languageCode = file.replace('.js', '')
+  const exportName = languageCodeToExportName(languageCode)
 
   const languageConverter = n2words[exportName]
 
   if (!languageConverter) {
-    throw new Error(`Language converter '${exportName}' not found in n2words exports for file: ${languageFileName}`)
+    throw new Error(`Language converter '${exportName}' not found in n2words exports for language code: ${languageCode}`)
   }
 
-  test(languageFileName, async t => {
+  test(languageCode, async t => {
     const { default: testFile } = await import('../fixtures/languages/' + file)
 
     for (const testCase of testFile) {
