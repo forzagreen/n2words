@@ -9,7 +9,7 @@ const n2words = require(path.resolve(__dirname, '../../lib/n2words.js'))
 
 // List of languages to test (add more as needed)
 const languages = [
-  { code: 'en', converter: 'EnglishConverter', sample: 123, expected: 'one hundred twenty-three' },
+  { code: 'en', converter: 'EnglishConverter', sample: 123, expected: 'one hundred and twenty-three' },
   { code: 'fr', converter: 'FrenchConverter', sample: 456, expected: 'quatre cent cinquante-six' },
   { code: 'de', converter: 'GermanConverter', sample: 789, expected: 'siebenhundertneunundachtzig' }
 ]
