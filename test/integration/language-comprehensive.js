@@ -17,36 +17,21 @@ import { readdirSync } from 'node:fs'
 const files = readdirSync('./test/fixtures/languages')
 
 for (const file of files) {
-  if (file.includes('.js')) {
-    await testLanguage(file)
-  }
-}
-
-/**
- * Run language tests for specific language
- * @param {string} file language test file to run
- */
-async function testLanguage (file) {
+  if (!file.endsWith('.js')) continue
   const languageCode = file.replace('.js', '')
-
-  // Dynamically import the language class directly from lib/languages
-  const languageModule = await import(`../../lib/languages/${languageCode}.js`)
-  const LanguageClass = Object.values(languageModule)[0]
-
-  if (!LanguageClass) {
-    throw new Error(`Language class not found for language code: ${languageCode}`)
-  }
-
+  // Register the test at the top level synchronously
   test(languageCode, async t => {
+    const languageModule = await import(`../../lib/languages/${languageCode}.js`)
+    const LanguageClass = Object.values(languageModule)[0]
+    if (!LanguageClass) {
+      t.fail(`Language class not found for language code: ${languageCode}`)
+      return
+    }
     const { default: testFile } = await import('../fixtures/languages/' + file)
-
     for (const testCase of testFile) {
       const [input, expected, options = {}] = testCase
       const converter = new LanguageClass(options)
-      t.is(
-        converter.convertToWords(input),
-        expected
-      )
+      t.is(converter.convertToWords(input), expected)
     }
   })
 }
