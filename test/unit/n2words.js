@@ -14,17 +14,17 @@ import * as n2words from '../../lib/n2words.js'
 const expectedConverters = [
   'ArabicConverter',
   'AzerbaijaniConverter',
-  'BengaliConverter',
+  'BanglaConverter',
   'CzechConverter',
   'DanishConverter',
   'GermanConverter',
   'GreekConverter',
   'EnglishConverter',
   'SpanishConverter',
-  'FarsiConverter',
+  'PersianConverter',
   'FilipinoConverter',
   'FrenchConverter',
-  'BelgianFrenchConverter',
+  'FrenchBelgiumConverter',
   'GujaratiConverter',
   'HebrewConverter',
   'BiblicalHebrewConverter',
@@ -40,8 +40,8 @@ const expectedConverters = [
   'LatvianConverter',
   'MarathiConverter',
   'MalayConverter',
-  'NorwegianBokmalConverter',
   'DutchConverter',
+  'NorwegianBokmalConverter',
   'PunjabiConverter',
   'PolishConverter',
   'PortugueseConverter',
@@ -58,8 +58,8 @@ const expectedConverters = [
   'UkrainianConverter',
   'UrduConverter',
   'VietnameseConverter',
-  'ChineseSimplifiedConverter',
-  'ChineseTraditionalConverter'
+  'SimplifiedChineseConverter',
+  'TraditionalChineseConverter'
 ]
 
 test('all expected language converters are exported', t => {
