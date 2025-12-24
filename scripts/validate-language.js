@@ -24,18 +24,7 @@
 import { readFileSync, readdirSync, existsSync } from 'node:fs'
 import { basename, join } from 'node:path'
 import { pathToFileURL } from 'node:url'
-
-// ANSI color codes for terminal output
-const colors = {
-  reset: '\x1b[0m',
-  bright: '\x1b[1m',
-  dim: '\x1b[2m',
-  red: '\x1b[31m',
-  green: '\x1b[32m',
-  yellow: '\x1b[33m',
-  blue: '\x1b[34m',
-  cyan: '\x1b[36m'
-}
+import chalk from 'chalk'
 
 /**
  * Validation result object
@@ -464,24 +453,24 @@ class LanguageValidator {
    */
   displayResults (languageCode, result) {
     const header = result.valid
-      ? `${colors.green}✓ ${languageCode}${colors.reset}`
-      : `${colors.red}✗ ${languageCode}${colors.reset}`
+      ? chalk.green(`✓ ${languageCode}`)
+      : chalk.red(`✗ ${languageCode}`)
 
-    console.log(`\n${colors.bright}${header}${colors.reset}`)
+    console.log(`\n${chalk.bold(header)}`)
 
     if (result.errors.length > 0) {
-      console.log(`${colors.red}  Errors:${colors.reset}`)
-      result.errors.forEach(err => console.log(`    ${colors.red}✗${colors.reset} ${err}`))
+      console.log(chalk.red('  Errors:'))
+      result.errors.forEach(err => console.log(`    ${chalk.red('✗')} ${err}`))
     }
 
     if (result.warnings.length > 0) {
-      console.log(`${colors.yellow}  Warnings:${colors.reset}`)
-      result.warnings.forEach(warn => console.log(`    ${colors.yellow}⚠${colors.reset} ${warn}`))
+      console.log(chalk.yellow('  Warnings:'))
+      result.warnings.forEach(warn => console.log(`    ${chalk.yellow('⚠')} ${warn}`))
     }
 
     if (this.verbose && result.info.length > 0) {
-      console.log(`${colors.dim}  Info:${colors.reset}`)
-      result.info.forEach(info => console.log(`    ${colors.dim}${info}${colors.reset}`))
+      console.log(chalk.gray('  Info:'))
+      result.info.forEach(info => console.log(`    ${chalk.gray(info)}`))
     }
   }
 
@@ -489,7 +478,7 @@ class LanguageValidator {
    * Run validation for specified languages or all languages
    */
   async run (languageCodes = []) {
-    console.log(`${colors.bright}${colors.cyan}n2words Language Validator${colors.reset}\n`)
+    console.log(chalk.cyan.bold('n2words Language Validator') + '\n')
 
     // If no specific languages provided, validate all
     if (languageCodes.length === 0) {
@@ -518,10 +507,10 @@ class LanguageValidator {
     }
 
     // Summary
-    console.log(`\n${colors.bright}Summary:${colors.reset}`)
-    console.log(`  ${colors.green}Valid: ${totalValid}${colors.reset}`)
+    console.log('\n' + chalk.bold('Summary:'))
+    console.log('  ' + chalk.green(`Valid: ${totalValid}`))
     if (totalInvalid > 0) {
-      console.log(`  ${colors.red}Invalid: ${totalInvalid}${colors.reset}`)
+      console.log('  ' + chalk.red(`Invalid: ${totalInvalid}`))
     }
     console.log(`  Total: ${languageCodes.length}`)
 
@@ -540,6 +529,6 @@ const languages = args.filter(arg => !arg.startsWith('--') && !arg.startsWith('-
 // Run validator
 const validator = new LanguageValidator({ verbose })
 validator.run(languages).catch(error => {
-  console.error(`${colors.red}Fatal error:${colors.reset}`, error)
+  console.error(chalk.red('Fatal error:'), error)
   process.exit(1)
 })
