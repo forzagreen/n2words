@@ -107,10 +107,16 @@ suite
  * @param {Object} [options] Options to pass to the language converter.
  */
 async function benchFile (file, options) {
-  const { default: n2words } = await import('./lib/' + file + '.js')
+  const languageModule = await import('./lib/' + file + '.js')
+  const LanguageClass = Object.values(languageModule)[0]
+
+  if (!LanguageClass) {
+    throw new Error(`Language class not found for file: ${file}`)
+  }
 
   suite.add(file, async () => {
-    n2words(value, options)
+    const converter = new LanguageClass(options)
+    converter.convertToWords(value)
   })
 }
 
