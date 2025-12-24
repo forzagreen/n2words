@@ -45,26 +45,36 @@ class LanguageValidator {
     this.classDir = './lib/classes'
     this.testFixtureDir = './test/fixtures/languages'
     this.n2wordsPath = './lib/n2words.js'
-
-    // Map of IETF language codes to expected class names
-    this.expectedClassNames = this.loadExpectedClassNames()
   }
 
   /**
-   * Load the mapping of language codes to class names from n2words.js
+   * Get expected class name from BCP 47 code using CLDR as source of truth
+   * @param {string} languageCode - BCP 47 language code
+   * @returns {string|null} Expected PascalCase class name
    */
-  loadExpectedClassNames () {
-    const n2wordsContent = readFileSync(this.n2wordsPath, 'utf8')
-    const importRegex = /import\s+{\s*([^}]+)\s*}\s+from\s+['"]\.\/languages\/([^'"]+)\.js['"]/g
-    const mapping = {}
+  getExpectedClassName (languageCode) {
+    try {
+      const displayNames = new Intl.DisplayNames(['en'], { type: 'language' })
+      const cldrName = displayNames.of(languageCode)
 
-    let match
-    while ((match = importRegex.exec(n2wordsContent)) !== null) {
-      const [, className, languageCode] = match
-      mapping[languageCode] = className.trim()
+      if (!cldrName) {
+        return null
+      }
+
+      // Convert CLDR display name to PascalCase
+      // e.g., "Norwegian Bokmål" -> "NorwegianBokmal"
+      const className = cldrName
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '') // Remove diacritics
+        .replace(/[^A-Za-z0-9\s]/g, '') // Remove non-alphanumeric except spaces
+        .split(/\s+/)
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+        .join('')
+
+      return className
+    } catch (error) {
+      return null
     }
-
-    return mapping
   }
 
   /**
@@ -92,17 +102,20 @@ class LanguageValidator {
     // Validate file naming (IETF BCP 47)
     this.validateFileNaming(languageCode, result)
 
+    // Get expected class name from CLDR (source of truth)
+    const expectedClassName = this.getExpectedClassName(languageCode)
+
+    if (!expectedClassName) {
+      result.errors.push(`Could not determine CLDR display name for ${languageCode}`)
+      result.valid = false
+      return result
+    }
+
+    result.info.push(`✓ CLDR expected class name: ${expectedClassName}`)
+
     // Load and validate the language class
     try {
       const languageModule = await import(pathToFileURL(languageFile).href)
-      const expectedClassName = this.expectedClassNames[languageCode]
-
-      if (!expectedClassName) {
-        result.errors.push(`Language ${languageCode} not registered in n2words.js`)
-        result.valid = false
-        return result
-      }
-
       const LanguageClass = languageModule[expectedClassName]
 
       if (!LanguageClass) {
@@ -146,23 +159,37 @@ class LanguageValidator {
   }
 
   /**
-   * Validate IETF BCP 47 naming convention
+   * Validate IETF BCP 47 naming convention using Intl.getCanonicalLocales()
    */
   validateFileNaming (languageCode, result) {
-    // Valid patterns: 'en', 'zh-Hans', 'sr-Cyrl', 'fr-BE'
-    const ietfPattern = /^[a-z]{2,3}(-[A-Z][a-z]{3}|-[A-Z]{2})?$/
+    try {
+      // Attempt to canonicalize the locale - will throw if invalid BCP 47
+      const canonical = Intl.getCanonicalLocales(languageCode)
 
-    if (!ietfPattern.test(languageCode)) {
-      result.warnings.push(
-        `File name "${languageCode}.js" doesn't follow IETF BCP 47 convention (e.g., 'en', 'fr-BE', 'zh-Hans')`
+      if (canonical.length === 0) {
+        result.errors.push(`Invalid BCP 47 language tag: ${languageCode}`)
+        return
+      }
+
+      const canonicalTag = canonical[0]
+
+      // Check if our code matches the canonical form (case-insensitive comparison)
+      if (canonicalTag.toLowerCase() !== languageCode.toLowerCase()) {
+        result.warnings.push(
+          `Language code "${languageCode}" should use canonical form: ${canonicalTag}`
+        )
+      }
+
+      result.info.push(`✓ Valid BCP 47 tag: ${languageCode} (canonical: ${canonicalTag})`)
+    } catch (error) {
+      result.errors.push(
+        `Invalid BCP 47 language tag: ${languageCode} (${error.message})`
       )
-    } else {
-      result.info.push('✓ File naming follows IETF BCP 47 convention')
     }
   }
 
   /**
-   * Validate class structure
+   * Validate class structure and CLDR naming
    */
   validateClassStructure (LanguageClass, expectedClassName, languageCode, result) {
     if (typeof LanguageClass !== 'function') {
@@ -177,6 +204,33 @@ class LanguageValidator {
     }
 
     result.info.push(`✓ Class ${expectedClassName} properly defined`)
+
+    // Validate class name follows CLDR conventions
+    this.validateCLDRClassName(expectedClassName, languageCode, result)
+  }
+   * The expectedClassName parameter already comes from CLDR (source of truth)
+   */
+  validateCLDRClassName (className, languageCode, result) {
+    // Check for forbidden suffixes
+    if (className.endsWith('Converter') ||
+        className.endsWith('Language') ||
+        className.endsWith('NumberConverter')) {
+      result.errors.push(
+        `Class name "${className}" should not have suffix (use CLDR name only)`
+      )
+    }
+
+    // Get CLDR display name for informational purposes
+    try {
+      const displayNames = new Intl.DisplayNames(['en'], { type: 'language' })
+      const cldrName = displayNames.of(languageCode)
+      if (cldrName) {
+        result.info.push(`✓ Class name derived from CLDR: "${cldrName}"`)
+      }
+    } catch (error) {
+      // Non-critical     `Could not validate CLDR class name: ${error.message}`
+      )
+    }
   }
 
   /**
