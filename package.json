@@ -75,7 +75,7 @@
     "lint:md": "markdownlint-cli2 *.md guides/*.md scripts/*.md",
     "lint:md:fix": "markdownlint-cli2 *.md guides/*.md scripts/*.md --fix",
     "test": "npm run test:all",
-    "test:all": "npm run lang:validate && npm run test && npm run web:test && npm run types:validate",
+    "test:all": "npm run lang:validate && npm run test:integration && npm run web:test && npm run types:validate",
     "test:integration": "ava --verbose test/integration/*.{js,cjs}",
     "test:unit": "ava --verbose test/unit/*.js",
     "types:generate": "npm run types:clean && tsc --project tsconfig.json",
