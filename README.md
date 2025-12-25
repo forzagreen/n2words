@@ -16,7 +16,17 @@
 ## Quick Start
 
 ```bash
+# npm
 npm install n2words
+
+# yarn
+yarn add n2words
+
+# pnpm
+pnpm add n2words
+
+# bun
+bun add n2words
 ```
 
 ```js
@@ -31,45 +41,70 @@ SimplifiedChineseConverter(10000n)   // '壹万' (BigInt support, formal Chinese
 
 ## Usage
 
+### ESM (Node.js, modern bundlers)
+
 ```js
-// Node.js / ESM
-import { EnglishConverter } from 'n2words'
-EnglishConverter(42)  // 'forty-two'
+import { EnglishConverter, SpanishConverter } from 'n2words'
 
-// Language-specific converters
+EnglishConverter(42)   // 'forty-two'
+SpanishConverter(100)  // 'cien'
+```
+
+### CommonJS (Node.js)
+
+```js
+const { EnglishConverter, FrenchConverter } = require('n2words')
+
+EnglishConverter(42)   // 'forty-two'
+FrenchConverter(100)   // 'cent'
+```
+
+### Browser (UMD via CDN)
+
+```html
+<script src="https://cdn.jsdelivr.net/npm/n2words/dist/n2words.js"></script>
+<script>
+  console.log(n2words.EnglishConverter(42))   // 'forty-two'
+  console.log(n2words.GermanConverter(100))   // 'einhundert'
+</script>
+```
+
+### Language-Specific Options
+
+```js
 import { ArabicConverter, SimplifiedChineseConverter } from 'n2words'
-SimplifiedChineseConverter(123, { formal: true })  // '壹佰贰拾叁'
-ArabicConverter(42, { feminine: true })            // Arabic feminine
 
-// CommonJS
-const { EnglishConverter } = require('n2words');
-console.log(EnglishConverter(100)); // 'one hundred'
-// For other languages:
-const { FrenchConverter } = require('n2words');
-console.log(FrenchConverter(123)); // 'cent vingt-trois'
+// Arabic with gender
+ArabicConverter(1)                    // 'واحد' (masculine)
+ArabicConverter(1, { feminine: true }) // 'واحدة' (feminine)
 
-// Browser (CDN)
-// <script src="https://cdn.jsdelivr.net/npm/n2words/dist/n2words.js"></script>
-// console.log(n2words.EnglishConverter(100))  // 'one hundred'
+// Chinese formal vs common
+SimplifiedChineseConverter(123)                   // '壹佰贰拾叁' (formal)
+SimplifiedChineseConverter(123, { formal: false }) // '一百二十三' (common)
 ```
 
 ## Type Safety
 
-n2words provides type safety through JSDoc annotations. The library exports type definitions that work with both JavaScript and TypeScript:
+Full TypeScript support via JSDoc annotations - works in both JavaScript and TypeScript projects with IntelliSense:
 
-```ts
-// JSDoc types are exported and available for TypeScript users
-// NumericValue: number | bigint | string
-// ConverterFunction: (value: NumericValue, options?: ConverterOptions) => string
-// ConverterOptions: Configuration options object
-// LanguageClass: Language class constructor interface
+```typescript
+import { EnglishConverter, ArabicConverter, SimplifiedChineseConverter } from 'n2words'
 
-// All converters accept multiple input types
-EnglishConverter(42)           // ✓ number
-EnglishConverter('123')        // ✓ string
-EnglishConverter(100n)         // ✓ BigInt
-EnglishConverter(42, {})       // ✓ with options
+// All converters accept: number | bigint | string
+EnglishConverter(42)       // ✓ number → 'forty-two'
+EnglishConverter('123')    // ✓ string → 'one hundred and twenty-three'
+EnglishConverter(100n)     // ✓ BigInt → 'one hundred'
+
+// Language-specific options with IntelliSense
+ArabicConverter(1, { feminine: true })  // ✓ 'واحدة' (feminine form)
+SimplifiedChineseConverter(123, { formal: false })  // ✓ '一百二十三' (common style)
 ```
+
+**Exported Types:**
+
+- `NumericValue` - Input types: `number | bigint | string`
+- `ConverterOptions` - Configuration options (language-specific)
+- `ConverterFunction` - Converter function signature
 
 ## Supported Languages (47 total)
 
@@ -102,6 +137,16 @@ Language codes follow [IETF BCP 47](https://tools.ietf.org/html/bcp47) standards
 | `ur`      | Urdu                | `vi`      | Vietnamese          |
 | `zh-Hans` | Chinese Simplified  | `zh-Hant` | Chinese Traditional |
 
+## Browser Compatibility
+
+Works in all modern browsers and Node.js environments:
+
+- **Node.js**: ^20 || ^22 || >=24
+- **Browsers**: Chrome 51+, Firefox 54+, Safari 10+, Edge 79+
+- **Module Systems**: ESM, CommonJS, UMD (browser global)
+
+See [Browser Usage Guide](docs/guides/BROWSER_USAGE.md) for detailed integration instructions.
+
 ## Examples
 
 ```js
@@ -123,7 +168,27 @@ JapaneseConverter(3.14)  // '三点一四' (digit-by-digit decimals)
 SimplifiedChineseConverter(123)  // '壹佰贰拾叁'
 ```
 
+## Performance & Bundle Size
+
+- **Fast**: Sub-millisecond conversion for most numbers
+- **Small**: ~2-5 KB gzipped per language with tree-shaking
+- **Efficient**: Zero dependencies, minimal memory footprint
+
+See [Performance Guide](docs/guides/PERFORMANCE.md) for benchmarks and optimization tips.
+
+## Documentation
+
+- **[API Reference](docs/API.md)** - Complete API documentation for all converters
+- **[Migration Guide](docs/MIGRATION.md)** - Upgrading from v1.x to v2.0
+- **[Examples](docs/EXAMPLES.md)** - Real-world usage examples (invoicing, checks, i18n, etc.)
+- **[Contributing Guide](CONTRIBUTING.md)** - How to contribute to the project
+- **[Language Development](docs/guides/LANGUAGE_DEVELOPMENT.md)** - Adding new languages
+- **[Browser Usage](docs/guides/BROWSER_USAGE.md)** - Browser integration guide
+- **[Performance](docs/guides/PERFORMANCE.md)** - Performance optimization tips
+
 ## Contributing
+
+We welcome contributions! Here's how you can help:
 
 **Add a new language:**
 
@@ -135,13 +200,15 @@ npm run lang:validate <code>       # Validate implementation and tests
 **Validation & Testing:**
 
 - Validate all languages: `npm run lang:validate`
-- Run all tests: `npm test`
+- Run tests: `npm test`
 
 **Other contributions:**
 
 - 🐛 Bug reports and fixes
 - ✨ Feature requests and improvements
 - 📝 Documentation enhancements
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.
 
 ## License
 

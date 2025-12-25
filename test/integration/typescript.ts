@@ -142,3 +142,36 @@ test('exported types usage', (t) => {
 
   t.is(convertAndFormat(42, EnglishConverter), 'FORTY-TWO')
 })
+
+test('language-specific options', (t) => {
+  // Valid options should work
+  t.is(typeof ArabicConverter(1, { feminine: true }), 'string')
+  t.is(typeof ArabicConverter(1, { feminine: false }), 'string')
+  t.is(typeof SimplifiedChineseConverter(123, { formal: true }), 'string')
+  t.is(typeof SimplifiedChineseConverter(123, { formal: false }), 'string')
+
+  // Test actual functionality
+  const masculine = ArabicConverter(1)
+  const feminine = ArabicConverter(1, { feminine: true })
+  t.not(masculine, feminine, 'Feminine option should change output')
+
+  const formal = SimplifiedChineseConverter(123)
+  const common = SimplifiedChineseConverter(123, { formal: false })
+  t.not(formal, common, 'Formal option should change output')
+
+  t.pass('Language-specific options work correctly')
+})
+
+test('type safety for numeric inputs', (t) => {
+  // All valid NumericValue types should work
+  t.is(typeof EnglishConverter(42), 'string')
+  t.is(typeof EnglishConverter('42'), 'string')
+  t.is(typeof EnglishConverter(42n), 'string')
+
+  // Verify actual conversion
+  t.is(EnglishConverter(42), 'forty-two')
+  t.is(EnglishConverter('42'), 'forty-two')
+  t.is(EnglishConverter(42n), 'forty-two')
+
+  t.pass('All NumericValue types convert correctly')
+})
