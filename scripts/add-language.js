@@ -23,33 +23,11 @@ import chalk from 'chalk'
 import { getExpectedClassName, validateLanguageCode } from './validate-language.js'
 
 /**
- * Get language name from code using CLDR data (via validator)
- * Falls back to simple capitalization if CLDR doesn't recognize the code
- * @param {string} code - IETF BCP 47 language code
- * @returns {string} Pascal case language name
- */
-function getLanguageName (code) {
-  // Try to get the canonical name from CLDR first
-  const cldrName = getExpectedClassName(code)
-  if (cldrName) {
-    return cldrName
-  }
-
-  // Fallback: simple capitalization for codes CLDR doesn't recognize
-  // (e.g., historical languages like 'hbo' for Biblical Hebrew)
-  const parts = code.split('-')
-  return parts
-    .map(part => part.charAt(0).toUpperCase() + part.slice(1))
-    .join('')
-}
-
-/**
  * Generate language implementation file
- * @param {string} code - Language code
  * @param {string} className - Class name (e.g., 'English')
  * @returns {string}
  */
-function generateLanguageFile (code, className) {
+function generateLanguageFile (className) {
   return `import { GreedyScaleLanguage } from '../classes/greedy-scale-language.js'
 
 /**
@@ -236,7 +214,7 @@ function main () {
     console.log(chalk.gray('Consider using the canonical form for consistency.\n'))
   }
 
-  const className = getLanguageName(code)
+  const className = getExpectedClassName(code)
   const langFilePath = `./lib/languages/${code}.js`
   const fixtureFilePath = `./test/fixtures/languages/${code}.js`
 
