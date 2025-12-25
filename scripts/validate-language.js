@@ -26,15 +26,6 @@ import { basename, join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import chalk from 'chalk'
 
-// Default configuration
-export const DEFAULT_CONFIG = {
-  verbose: false,
-  languageDir: './lib/languages',
-  classDir: './lib/classes',
-  testFixtureDir: './test/fixtures/languages',
-  n2wordsPath: './lib/n2words.js'
-}
-
 /**
  * Get expected class name from BCP 47 code using CLDR as source of truth
  * Pure function - exported for reuse
@@ -106,22 +97,21 @@ export function validateLanguageCode (languageCode) {
 }
 
 /**
- * Validate IETF BCP 47 naming convention using Intl.getCanonicalLocales()
+ * Validate IETF BCP 47 naming convention
  * @param {string} languageCode - Language code to validate
  * @param {ValidationResult} result - Result object to populate
  */
 function validateFileNaming (languageCode, result) {
   try {
     // Attempt to canonicalize the locale - will throw if invalid BCP 47
-    const canonical = Intl.getCanonicalLocales(languageCode)
+    const validation = validateLanguageCode(languageCode)
 
-    if (canonical.length === 0) {
-      result.errors.push(`Invalid BCP 47 language tag: ${languageCode}`)
+    if (validation.valid === false) {
+      result.errors.push(validation.error)
       return
     }
 
-    const canonicalTag = canonical[0]
-
+    const canonicalTag = validation.canonical
     // Check if our code matches the canonical form (case-insensitive comparison)
     if (canonicalTag.toLowerCase() !== languageCode.toLowerCase()) {
       result.warnings.push(
@@ -433,11 +423,10 @@ function validateImports (fileContent, result) {
 /**
  * Validate test fixture exists
  * @param {string} languageCode - Language code
- * @param {ValidatorConfig} config - Validator configuration
  * @param {ValidationResult} result - Result object to populate
  */
-function validateTestFixture (languageCode, config, result) {
-  const fixtureFile = join(config.testFixtureDir, `${languageCode}.js`)
+function validateTestFixture (languageCode, result) {
+  const fixtureFile = join('./test/fixtures/languages', `${languageCode}.js`)
 
   if (!existsSync(fixtureFile)) {
     result.warnings.push(`Missing test fixture: ${fixtureFile}`)
@@ -466,30 +455,29 @@ function validateTestFixture (languageCode, config, result) {
  * Validate export in n2words.js
  * @param {string} languageCode - Language code
  * @param {string} className - Class name
- * @param {ValidatorConfig} config - Validator configuration
  * @param {ValidationResult} result - Result object to populate
  */
-function validateN2wordsExport (languageCode, className, config, result) {
-  const n2wordsContent = readFileSync(config.n2wordsPath, 'utf8')
+function validateN2wordsExport (languageCode, className, result) {
+  const n2wordsContent = readFileSync('./lib/n2words.js', 'utf8')
 
   // Check for import
   const importPattern = new RegExp(`import\\s+{\\s*${className}\\s*}\\s+from\\s+['"]\\./languages/${languageCode}\\.js['"]`)
   if (!importPattern.test(n2wordsContent)) {
-    result.errors.push(`Not imported in ${config.n2wordsPath}`)
+    result.errors.push(`Not imported in ./lib/n2words.js`)
   }
 
   // Check for converter creation
   const converterName = `${className}Converter`
   const converterPattern = new RegExp(`const\\s+${converterName}\\s*=\\s*makeConverter\\(${className}\\)`)
   if (!converterPattern.test(n2wordsContent)) {
-    result.errors.push(`${converterName} not created with makeConverter() in ${config.n2wordsPath}`)
+    result.errors.push(`${converterName} not created with makeConverter() in ./lib/n2words.js`)
   }
 
   // Check for export
   const exportPattern = new RegExp(`${converterName}`)
   const exportSection = n2wordsContent.match(/export\s*{[\s\S]*?}/)?.[0]
   if (!exportSection || !exportPattern.test(exportSection)) {
-    result.errors.push(`${converterName} not exported from ${config.n2wordsPath}`)
+    result.errors.push(`${converterName} not exported from ./lib/n2words.js`)
   }
 
   if (importPattern.test(n2wordsContent) &&
@@ -503,10 +491,9 @@ function validateN2wordsExport (languageCode, className, config, result) {
  * Validate a single language implementation
  * Pure function - takes all dependencies as parameters
  * @param {string} languageCode - IETF language code (e.g., 'en', 'fr-BE')
- * @param {ValidatorConfig} config - Validator configuration
  * @returns {Promise<ValidationResult>} Validation result
  */
-export async function validateLanguage (languageCode, config = DEFAULT_CONFIG) {
+export async function validateLanguage (languageCode) {
   const result = {
     valid: true,
     errors: [],
@@ -514,7 +501,7 @@ export async function validateLanguage (languageCode, config = DEFAULT_CONFIG) {
     info: []
   }
 
-  const languageFile = join(config.languageDir, `${languageCode}.js`)
+  const languageFile = join('./lib/languages', `${languageCode}.js`)
 
   // Check if file exists
   if (!existsSync(languageFile)) {
@@ -561,8 +548,8 @@ export async function validateLanguage (languageCode, config = DEFAULT_CONFIG) {
       const fileContent = readFileSync(languageFile, 'utf8')
       validateDocumentation(fileContent, exportedClasses[0], result)
       validateImports(fileContent, result)
-      validateTestFixture(languageCode, config, result)
-      validateN2wordsExport(languageCode, exportedClasses[0], config, result)
+      validateTestFixture(languageCode, result)
+      validateN2wordsExport(languageCode, exportedClasses[0], result)
     } catch (error) {
       result.errors.push(`Failed to load language module: ${error.message}`)
       result.valid = false
@@ -605,10 +592,10 @@ export async function validateLanguage (languageCode, config = DEFAULT_CONFIG) {
     validateImports(fileContent, result)
 
     // Validate test fixture exists
-    validateTestFixture(languageCode, config, result)
+    validateTestFixture(languageCode, result)
 
     // Validate export in n2words.js
-    validateN2wordsExport(languageCode, expectedClassName, config, result)
+    validateN2wordsExport(languageCode, expectedClassName, result)
   } catch (error) {
     result.errors.push(`Failed to load language module: ${error.message}`)
     result.valid = false
@@ -653,15 +640,14 @@ export function displayResults (languageCode, result, verbose = false) {
  * Run validation for specified languages or all languages
  * Pure function - orchestrates validation flow
  * @param {string[]} languageCodes - Language codes to validate (empty = all)
- * @param {ValidatorConfig} config - Validator configuration
  * @returns {Promise<{ results: Object<string, ValidationResult>, totalValid: number, totalInvalid: number }>}
  */
-export async function runValidation (languageCodes = [], config = DEFAULT_CONFIG) {
+export async function runValidation (languageCodes = []) {
   console.log(chalk.cyan.bold('n2words Language Validator') + '\n')
 
   // If no specific languages provided, validate all
   if (languageCodes.length === 0) {
-    const files = readdirSync(config.languageDir)
+    const files = readdirSync('./lib/languages')
     languageCodes = files
       .filter(file => file.endsWith('.js'))
       .map(file => basename(file, '.js'))
@@ -673,7 +659,7 @@ export async function runValidation (languageCodes = [], config = DEFAULT_CONFIG
   let totalInvalid = 0
 
   for (const code of languageCodes) {
-    const result = await validateLanguage(code, config)
+    const result = await validateLanguage(code)
     results[code] = result
 
     if (result.valid) {
@@ -682,7 +668,7 @@ export async function runValidation (languageCodes = [], config = DEFAULT_CONFIG
       totalInvalid++
     }
 
-    displayResults(code, result, config.verbose)
+    displayResults(code, result, /*config.verbose*/)
   }
 
   // Summary
@@ -707,8 +693,7 @@ if (isMainModule) {
   const languages = args.filter(arg => !arg.startsWith('--') && !arg.startsWith('-'))
 
   // Run validator
-  const config = { ...DEFAULT_CONFIG, verbose }
-  runValidation(languages, config).then(({ totalInvalid }) => {
+  runValidation(languages).then(({ totalInvalid }) => {
     // Exit with error code if any validation failed
     if (totalInvalid > 0) {
       process.exit(1)
