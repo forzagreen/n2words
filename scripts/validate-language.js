@@ -463,7 +463,7 @@ function validateN2wordsExport (languageCode, className, result) {
   // Check for import
   const importPattern = new RegExp(`import\\s+{\\s*${className}\\s*}\\s+from\\s+['"]\\./languages/${languageCode}\\.js['"]`)
   if (!importPattern.test(n2wordsContent)) {
-    result.errors.push(`Not imported in ./lib/n2words.js`)
+    result.errors.push('Not imported in ./lib/n2words.js')
   }
 
   // Check for converter creation
@@ -640,9 +640,10 @@ export function displayResults (languageCode, result, verbose = false) {
  * Run validation for specified languages or all languages
  * Pure function - orchestrates validation flow
  * @param {string[]} languageCodes - Language codes to validate (empty = all)
+ * @param {boolean} verbose - Show verbose output
  * @returns {Promise<{ results: Object<string, ValidationResult>, totalValid: number, totalInvalid: number }>}
  */
-export async function runValidation (languageCodes = []) {
+export async function runValidation (languageCodes = [], verbose = false) {
   console.log(chalk.cyan.bold('n2words Language Validator') + '\n')
 
   // If no specific languages provided, validate all
@@ -668,7 +669,7 @@ export async function runValidation (languageCodes = []) {
       totalInvalid++
     }
 
-    displayResults(code, result, /*config.verbose*/)
+    displayResults(code, result, verbose)
   }
 
   // Summary
@@ -693,7 +694,7 @@ if (isMainModule) {
   const languages = args.filter(arg => !arg.startsWith('--') && !arg.startsWith('-'))
 
   // Run validator
-  runValidation(languages).then(({ totalInvalid }) => {
+  runValidation(languages, verbose).then(({ totalInvalid }) => {
     // Exit with error code if any validation failed
     if (totalInvalid > 0) {
       process.exit(1)
