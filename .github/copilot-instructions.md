@@ -1,10 +1,10 @@
 # Copilot Instructions for n2words
 
 ## Project Overview
-- **n2words** converts numbers to words in 47 languages, supporting Node.js, browsers, ESM, CommonJS, and TypeScript.
+- **n2words** converts numbers to words in 48 languages, supporting Node.js, browsers, ESM, and CommonJS.
 - Language modules are in `lib/languages/`, each file named with a BCP 47 code (e.g., `fr-BE.js`).
-- Each language class name is derived from CLDR (e.g., `French`, `BelgianFrench`).
-- Main entry point is `lib/n2words.js`, which registers all language converters and exports them as `ClassNameConverter` (e.g., `EnglishConverter`).
+- Each language class name is derived from CLDR (e.g., `French`, `FrenchBelgium`).
+- Main entry point is `lib/n2words.js`, which registers all language converters and exports them as `ClassNameConverter` (e.g., `EnglishConverter`). Type generation has been removed from this project; consumers rely on the shipped JSDoc-based declarations in `lib/n2words.js`.
 
 ## Key Architectural Patterns
 - **Base Classes:** All language classes extend one of: `AbstractLanguage`, `GreedyScaleLanguage`, `SlavicLanguage`, `SouthAsianLanguage`, or `TurkicLanguage` (see `lib/classes/`).
@@ -40,7 +40,7 @@
 ## Key Files & Directories
 - `lib/languages/` — Language implementations
 - `lib/classes/` — Base classes
-- `lib/n2words.js` — Main registry/factory
+- `lib/n2words.js` — Main registry/factory (contains centralized JSDoc typedefs; project no longer emits .d.ts files)
 - `scripts/validate-language.js` — Language implementation validator
 - `test/fixtures/languages/` — Test cases per language
 - `test/integration/commonjs.cjs` — CommonJS integration test

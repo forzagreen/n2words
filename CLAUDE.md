@@ -1,0 +1,674 @@
+# CLAUDE.md - Project Context for AI Assistants
+
+This document provides comprehensive context about the n2words project structure, patterns, and conventions to help AI assistants understand and work with the codebase effectively.
+
+## Project Overview
+
+**n2words** is a JavaScript library that converts numbers to words in 47 languages with zero dependencies.
+
+- **Version**: 2.0.0
+- **Type**: ES Module (ESM) with CommonJS and UMD support
+- **Node.js**: ^20 || ^22 || >=24
+- **License**: MIT
+- **Zero dependencies**: Pure JavaScript implementation
+
+### Key Features
+
+- 🌍 47 language implementations
+- 📦 Zero runtime dependencies
+- 🧪 Comprehensive testing and validation
+- 📱 Universal (Node.js, browsers, ESM/CommonJS)
+- 🔢 Supports number, bigint, and string inputs
+- 🎯 Full TypeScript support via JSDoc annotations
+
+## Project Structure
+
+```text
+n2words/
+├── lib/
+│   ├── classes/              # Base classes for language implementations
+│   │   ├── abstract-language.js          # Abstract base class (all languages inherit)
+│   │   ├── greedy-scale-language.js      # Scale-based decomposition (most common)
+│   │   ├── slavic-language.js            # Three-form pluralization (Slavic languages)
+│   │   ├── south-asian-language.js       # Indian numbering system
+│   │   └── turkic-language.js            # Turkish-style implicit "bir" rules
+│   ├── languages/            # Individual language implementations (47 files)
+│   │   ├── en.js            # English
+│   │   ├── es.js            # Spanish
+│   │   ├── ar.js            # Arabic (with options)
+│   │   ├── zh-Hans.js       # Simplified Chinese (with options)
+│   │   └── ...              # 43 more languages
+│   └── n2words.js            # Main entry point (exports all converters)
+├── scripts/
+│   ├── add-language.js       # Scaffolding tool for new languages
+│   ├── validate-language.js  # Validation tool for language implementations
+│   └── README.md             # Scripts documentation
+├── test/
+│   ├── fixtures/languages/   # Test data for each language
+│   ├── unit/                 # Unit tests
+│   ├── integration/          # Integration tests
+│   └── web/                  # Browser tests
+└── dist/                     # Browser build (UMD)
+```
+
+## Core Architecture
+
+### 1. Class Hierarchy
+
+All language implementations follow an inheritance pattern:
+
+```text
+AbstractLanguage (base)
+├── GreedyScaleLanguage    # Most common: English, Spanish, French, etc.
+├── SlavicLanguage         # Russian, Polish, Czech, etc.
+├── SouthAsianLanguage     # Hindi, Tamil, Telugu, Bengali, etc.
+└── TurkicLanguage         # Turkish, Azerbaijani
+```
+
+#### AbstractLanguage (base class)
+
+**Responsibilities:**
+
+- Validates and normalizes input (`number | string | bigint`)
+- Splits into sign, whole, and decimal parts
+- Handles negative numbers (prepends `negativeWord`)
+- Converts decimal parts
+- Delegates whole number conversion to `convertWholePart()`
+
+**Required properties subclasses must provide:**
+
+```javascript
+negativeWord = ''           // Word for negative (e.g., "minus")
+zeroWord = ''              // Word for zero
+decimalSeparatorWord = ''  // Word between whole and decimal (e.g., "point")
+wordSeparator = ' '        // Separator between words
+```
+
+**Required methods subclasses must implement:**
+
+```javascript
+convertWholePart(wholeNumber) // bigint → string
+```
+
+**Optional properties:**
+
+```javascript
+convertDecimalsPerDigit = false  // true = digit-by-digit decimals
+digits = null                    // Array of digit words for lookup
+```
+
+#### GreedyScaleLanguage
+
+**Used by**: English, Spanish, French, German, Arabic, Italian, Portuguese, etc. (most languages)
+
+**How it works:**
+
+1. Defines `scaleWordPairs` array: `[[value, word], ...]` in descending order
+2. Greedily decomposes numbers using largest scale first
+3. Calls `mergeScales(leftWords, leftScale, rightWords, rightScale)` to combine parts
+
+**Example implementation pattern:**
+
+```javascript
+export class English extends GreedyScaleLanguage {
+  negativeWord = 'minus'
+  zeroWord = 'zero'
+  decimalSeparatorWord = 'point'
+
+  scaleWordPairs = [
+    [1000000000n, 'billion'],
+    [1000000n, 'million'],
+    [1000n, 'thousand'],
+    [100n, 'hundred'],
+    [90n, 'ninety'],
+    // ... down to 1n
+  ]
+
+  mergeScales(leftWords, leftScale, rightWords, rightScale) {
+    // Language-specific merge logic
+    if (leftScale === 100n && rightScale < 100n) {
+      return leftWords + ' and ' + rightWords
+    }
+    return leftWords + ' ' + rightWords
+  }
+}
+```
+
+#### SlavicLanguage
+
+**Used by**: Russian, Polish, Czech, Croatian, Serbian, Ukrainian
+
+**Key feature**: Three-form pluralization based on number endings
+
+**Pattern:**
+
+```javascript
+export class Russian extends SlavicLanguage {
+  pluralForms = {
+    1000000: ['миллион', 'миллиона', 'миллионов'],
+    1000: ['тысяча', 'тысячи', 'тысяч']
+  }
+
+  // Automatically selects correct form based on number
+}
+```
+
+#### SouthAsianLanguage
+
+**Used by**: Hindi, Tamil, Telugu, Bengali, Gujarati, Kannada, Marathi, Punjabi, Urdu
+
+**Key feature**: Supports Indian numbering system (lakh, crore)
+
+#### TurkicLanguage
+
+**Used by**: Turkish, Azerbaijani
+
+**Key feature**: Omits "bir" (one) before certain scales
+
+### 2. Entry Point Structure ([lib/n2words.js](lib/n2words.js))
+
+The main file is organized into clear sections:
+
+```javascript
+// ============================================================================
+// Language Imports
+// ============================================================================
+import { Arabic } from './languages/ar.js'
+import { English } from './languages/en.js'
+// ... (alphabetically sorted)
+
+// ============================================================================
+// Type Definitions
+// ============================================================================
+/** @typedef {number | bigint | string} NumericValue */
+/** @typedef {Object} ArabicOptions ... */
+// ... (alphabetically sorted by language)
+
+// ============================================================================
+// Converter Factory
+// ============================================================================
+function makeConverter (LanguageClass) {
+  return function convertToWords (value, options = {}) {
+    return new LanguageClass(options).convertToWords(value)
+  }
+}
+
+// ============================================================================
+// Language Converters
+// ============================================================================
+const ArabicConverter = /** @type {(value: NumericValue, options?: ArabicOptions) => string} */ (makeConverter(Arabic))
+const EnglishConverter = /** @type {(value: NumericValue) => string} */ (makeConverter(English))
+// ... (alphabetically sorted)
+
+// ============================================================================
+// Exports
+// ============================================================================
+export {
+  ArabicConverter,
+  EnglishConverter,
+  // ... (alphabetically sorted)
+}
+```
+
+**IMPORTANT PATTERNS:**
+
+- All imports, converters, and exports are **alphabetically sorted**
+- Languages with options have type annotations: `options?: LanguageOptions`
+- Languages without options: `(value: NumericValue) => string`
+- Each section is clearly marked with comment headers
+
+### 3. Language-Specific Options
+
+Some languages support additional options:
+
+| Language         | Option                | Type    | Description                           |
+| ---------------- | --------------------- | ------- | ------------------------------------- |
+| Arabic           | `feminine`            | boolean | Use feminine forms                    |
+| Arabic           | `negativeWord`        | string  | Custom negative word                  |
+| Chinese (both)   | `formal`              | boolean | Formal/financial vs common numerals   |
+| Dutch            | `includeOptionalAnd`  | boolean | Include optional "en" separator       |
+| Dutch            | `noHundredPairs`      | boolean | Disable comma before hundreds         |
+| Dutch            | `accentOne`           | boolean | Use accented "één"                    |
+| Spanish          | `genderStem`          | string  | 'o' (masculine) or 'a' (feminine)     |
+| French/French-BE | `withHyphenSeparator` | boolean | Use hyphens vs spaces                 |
+| Hebrew/Biblical  | `and`                 | string  | Conjunction character                 |
+| Turkish          | `dropSpaces`          | boolean | Remove spaces between words           |
+| Various Slavic   | `feminine`            | boolean | Use feminine forms                    |
+
+**Typedef pattern for options:**
+
+```javascript
+/**
+ * @typedef {Object} ArabicOptions
+ * @property {string} [negativeWord] Word for negative numbers
+ * @property {boolean} [feminine] Use feminine forms for numbers
+ */
+```
+
+## Development Workflows
+
+### Adding a New Language
+
+Use the scaffolding tool:
+
+```bash
+npm run lang:add <language-code>
+```
+
+**What it does:**
+
+1. Validates language code (IETF BCP 47 format: `en`, `zh-Hans`, `fr-BE`)
+2. Creates `lib/languages/{code}.js` with boilerplate
+3. Creates `test/fixtures/languages/{code}.js` with test cases
+4. Updates `lib/n2words.js`:
+   - Adds import (alphabetically in Language Imports section)
+   - Creates converter with type annotation (alphabetically in Language Converters section)
+   - Adds export (alphabetically in Exports section)
+
+**After scaffolding:**
+
+1. Edit `lib/languages/{code}.js`:
+   - Replace placeholder words
+   - Add complete `scaleWordPairs` array
+   - Implement `mergeScales()` logic
+2. Edit `test/fixtures/languages/{code}.js`:
+   - Add comprehensive test cases
+3. Validate: `npm run lang:validate -- {code} --verbose`
+4. Test: `npm test`
+
+### Validating Languages
+
+```bash
+npm run lang:validate              # All languages
+npm run lang:validate -- en es fr  # Specific languages
+npm run lang:validate -- --verbose # Detailed info
+```
+
+**What it validates:**
+
+- ✅ IETF BCP 47 naming convention
+- ✅ Class structure and inheritance
+- ✅ Required properties (negativeWord, zeroWord, etc.)
+- ✅ Method implementations (convertWholePart)
+- ✅ Scale word ordering (descending)
+- ✅ Import/converter/export in n2words.js
+- ✅ Test fixture exists
+- ✅ JSDoc documentation
+
+**Exit codes:**
+
+- 0: All validations passed
+- 1: One or more languages have errors
+
+### Testing
+
+```bash
+npm test                # Full test suite (validation + unit + integration)
+npm run test:unit       # Unit tests only
+npm run test:integration # Integration tests only
+npm run web:test        # Browser tests
+```
+
+### Code Quality
+
+```bash
+npm run lint            # Lint all (JS + Markdown)
+npm run lint:js         # JavaScript linting (StandardJS)
+npm run lint:md         # Markdown linting
+npm run lint:all:fix    # Auto-fix both
+```
+
+## Important Conventions
+
+### 1. Language Code Format
+
+**ALWAYS use IETF BCP 47 format:**
+
+- Base: `en`, `fr`, `es` (2-3 lowercase letters)
+- Script: `zh-Hans`, `sr-Latn` (language-Script)
+- Region: `fr-BE`, `en-US` (language-REGION)
+
+**File naming:**
+
+- Language file: `lib/languages/{code}.js` (e.g., `en.js`, `zh-Hans.js`)
+- Test fixture: `test/fixtures/languages/{code}.js`
+
+### 2. Class Naming
+
+**Use CLDR Display Names in PascalCase:**
+
+- `en` → `English`
+- `zh-Hans` → `SimplifiedChinese`
+- `fr-BE` → `FrenchBelgium`
+- `sr-Latn` → `SerbianLatin`
+- `nb` → `NorwegianBokmal`
+
+**Get canonical name:**
+
+```javascript
+const displayNames = new Intl.DisplayNames(['en'], { type: 'language' })
+displayNames.of('zh-Hans') // "Simplified Chinese"
+```
+
+**Exception**: Rare/historical languages not in CLDR (e.g., `hbo` - Biblical Hebrew) use descriptive names.
+
+### 3. Alphabetical Ordering
+
+**CRITICAL**: All lists in `lib/n2words.js` MUST be alphabetically sorted:
+
+- Imports
+- Type definitions
+- Converter declarations
+- Exports
+
+**Why**: Makes maintenance easier, reduces merge conflicts, aids readability.
+
+### 4. Type Annotations
+
+**Languages with options:**
+
+```javascript
+const ArabicConverter = /** @type {(value: NumericValue, options?: ArabicOptions) => string} */ (makeConverter(Arabic))
+```
+
+**Languages without options:**
+
+```javascript
+const EnglishConverter = /** @type {(value: NumericValue) => string} */ (makeConverter(English))
+```
+
+**Always define options typedef:**
+
+```javascript
+/**
+ * @typedef {Object} ArabicOptions
+ * @property {boolean} [feminine] Use feminine forms for numbers
+ */
+```
+
+### 5. Test Fixtures
+
+**Format:**
+
+```javascript
+export default [
+  [input, expectedOutput],
+  [input, expectedOutput, options],
+
+  // Examples:
+  [0, 'zero'],
+  [42, 'forty-two'],
+  [-1, 'minus one'],
+  [3.14, 'three point one four'],
+  [BigInt(999), 'nine hundred and ninety-nine'],
+  [1, 'واحدة', { feminine: true }]  // With options
+]
+```
+
+### 6. Documentation
+
+**Class-level JSDoc:**
+
+```javascript
+/**
+ * English language converter.
+ *
+ * Converts numbers to English words, supporting:
+ * - Negative numbers (prepended with "minus")
+ * - Decimal numbers ("point" separator)
+ * - Large numbers (up to billions)
+ *
+ * Examples:
+ * - 42 → "forty-two"
+ * - 123 → "one hundred and twenty-three"
+ * - -3.14 → "minus three point one four"
+ */
+export class English extends GreedyScaleLanguage {
+  // ...
+}
+```
+
+**Method-level JSDoc:**
+
+```javascript
+/**
+ * Merges scale components with appropriate separators.
+ *
+ * @param {string} leftWords - Words for the left (higher scale) component
+ * @param {bigint} leftScale - The scale value of the left component
+ * @param {string} rightWords - Words for the right (lower scale) component
+ * @param {bigint} rightScale - The scale value of the right component
+ * @returns {string} The merged result
+ */
+mergeScales(leftWords, leftScale, rightWords, rightScale) {
+  // ...
+}
+```
+
+## Common Patterns
+
+### Pattern 1: Basic Scale-Based Language
+
+```javascript
+import { GreedyScaleLanguage } from '../classes/greedy-scale-language.js'
+
+export class MyLanguage extends GreedyScaleLanguage {
+  negativeWord = 'minus'
+  zeroWord = 'zero'
+  decimalSeparatorWord = 'point'
+
+  scaleWordPairs = [
+    [1000000n, 'million'],
+    [1000n, 'thousand'],
+    [100n, 'hundred'],
+    // ... complete list down to 1n
+  ]
+
+  mergeScales(leftWords, leftScale, rightWords, rightScale) {
+    return leftWords + ' ' + rightWords
+  }
+}
+```
+
+### Pattern 2: Language with Options
+
+```javascript
+export class MyLanguage extends GreedyScaleLanguage {
+  constructor(options = {}) {
+    super(options)
+    // Apply options
+    if (options.feminine) {
+      this.scaleWordPairs = this.feminineScales
+    }
+  }
+
+  scaleWordPairs = [/* masculine forms */]
+  feminineScales = [/* feminine forms */]
+}
+```
+
+### Pattern 3: Regional Variant
+
+```javascript
+import { French } from './fr.js'
+
+export class FrenchBelgium extends French {
+  constructor(options = {}) {
+    super(options)
+    // Override specific scale words
+    this.updateScaleWord(70n, 'septante')
+    this.updateScaleWord(90n, 'nonante')
+  }
+}
+```
+
+## Scripts Deep Dive
+
+### add-language.js
+
+**Purpose**: Scaffold a new language implementation
+
+**Key functions:**
+
+- `validateLanguageCode(code)` - Validates IETF BCP 47 format
+- `getExpectedClassName(code)` - Gets CLDR-based class name
+- `generateLanguageFile(className)` - Creates language file template
+- `generateTestFixture(code)` - Creates test fixture template
+- `updateN2wordsFile(code, className)` - Updates main entry point
+
+**Important**: Maintains alphabetical ordering in all sections
+
+### validate-language.js
+
+**Purpose**: Validate language implementations
+
+**Validation checks:**
+
+1. File naming (IETF BCP 47)
+2. Class structure (proper ES6 class)
+3. CLDR class naming
+4. Required properties exist and have correct types
+5. Methods implemented (not abstract)
+6. Inheritance from valid base class
+7. Scale words properly ordered (descending)
+8. JSDoc documentation present
+9. Test fixture exists and properly formatted
+10. Registered in n2words.js (import, converter, export)
+
+**Pure functions** (can be imported):
+
+- `validateLanguageCode(code)`
+- `getExpectedClassName(code)`
+- `validateLanguage(code)`
+
+## Performance Considerations
+
+### Best Practices
+
+1. **BigInt arithmetic**: Use `BigInt` for all scale values to support large numbers
+2. **Greedy algorithm**: Most efficient for scale-based decomposition
+3. **Caching**: AbstractLanguage caches whole number for reuse
+4. **Zero dependencies**: No external libraries, minimal overhead
+
+### Bundle Size
+
+- Each language: ~2-5 KB gzipped
+- Tree-shaking supported: Only import what you need
+- UMD build: All languages, ~80 KB gzipped
+
+## Testing Strategy
+
+### Unit Tests
+
+Located in `test/unit/` - test individual class methods and edge cases.
+
+### Integration Tests
+
+Located in `test/integration/` - test full conversion workflows using fixtures.
+
+**Pattern:**
+
+```javascript
+import test from 'ava'
+import { EnglishConverter } from 'n2words'
+import fixtures from '../fixtures/languages/en.js'
+
+for (const [input, expected, options] of fixtures) {
+  test(`${input} → ${expected}`, t => {
+    t.is(EnglishConverter(input, options), expected)
+  })
+}
+```
+
+### Web Tests
+
+Located in `test/web/` - test browser builds (UMD) using Selenium.
+
+## TypeScript Support
+
+**Method**: JSDoc annotations (not TypeScript source)
+
+**Benefits:**
+
+- Works in both JS and TS projects
+- IntelliSense in VSCode
+- Type checking without compilation
+- Smaller package size (no .d.ts files needed)
+
+**Type exports:**
+
+```typescript
+import type { NumericValue, ArabicOptions } from 'n2words'
+```
+
+## Key Files Reference
+
+| File                                   | Purpose                                         |
+| -------------------------------------- | ----------------------------------------------- |
+| `lib/n2words.js`                       | Main entry point, exports all converters        |
+| `lib/classes/abstract-language.js`     | Base class, input validation, decimal handling  |
+| `lib/classes/greedy-scale-language.js` | Scale-based decomposition strategy              |
+| `lib/languages/*.js`                   | Individual language implementations             |
+| `scripts/add-language.js`              | Scaffolding tool                                |
+| `scripts/validate-language.js`         | Validation tool                                 |
+| `test/fixtures/languages/*.js`         | Test data for each language                     |
+| `package.json`                         | Scripts, dependencies, config                   |
+
+## Common Issues & Solutions
+
+### Issue: Validation fails with "not imported in n2words.js"
+
+**Solution**: Ensure three entries in `lib/n2words.js`:
+
+1. Import in Language Imports section
+2. Converter with type annotation in Language Converters section
+3. Export in Exports section
+
+All must be **alphabetically sorted** within their sections.
+
+### Issue: "scaleWordPairs not in descending order"
+
+**Solution**: Scale words MUST be ordered from largest to smallest:
+
+```javascript
+scaleWordPairs = [
+  [1000000n, 'million'],  // Largest first
+  [1000n, 'thousand'],
+  [100n, 'hundred'],
+  [1n, 'one']            // Smallest last
+]
+```
+
+### Issue: "convertWholePart() not implemented"
+
+**Solution**: Subclass must implement this abstract method:
+
+```javascript
+convertWholePart(wholeNumber) {
+  if (wholeNumber === 0n) return this.zeroWord
+  // Implementation here
+}
+```
+
+For GreedyScaleLanguage, this is auto-implemented if `scaleWordPairs` and `mergeScales` are provided.
+
+## Contributing Guidelines
+
+1. **Add new language**: Use `npm run lang:add <code>`
+2. **Validate**: `npm run lang:validate -- <code> --verbose`
+3. **Test**: `npm test`
+4. **Lint**: `npm run lint:all:fix`
+5. **Document**: Add JSDoc comments
+6. **Keep alphabetical**: All lists in n2words.js must stay sorted
+
+## Resources
+
+- IETF BCP 47: <https://tools.ietf.org/html/bcp47>
+- CLDR Language Names: Uses `Intl.DisplayNames` API
+- Language Codes Lookup: <https://en.wikipedia.org/wiki/IETF_language_tag>
+
+---
+
+**Last Updated**: 2025-12-24
+**Project Version**: 2.0.0
+**Maintained By**: Tyler Vigario & contributors
