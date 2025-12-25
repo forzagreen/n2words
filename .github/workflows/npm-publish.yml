@@ -51,11 +51,6 @@ jobs:
       - name: Build web bundles
         run: npm run web:build
 
-      - name: Build & test TypeScript declarations
-        run: |
-          npm run types:generate
-          npm run types:validate
-
       - name: Dry-run publish
         run: npm publish --dry-run
 

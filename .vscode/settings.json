@@ -21,7 +21,8 @@
     "**/coverage": true,
     "**/dist": true,
     "**/.nyc_output": true,
-    "**/bench-results.json": true
+    "**/bench-results.json": true,
+    "**/package-lock.json": true
   },
   "files.exclude": {
     "**/.DS_Store": true,

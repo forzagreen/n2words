@@ -12,7 +12,6 @@
     "localization",
     "multilingual",
     "pluralization",
-    "typescript",
     "browser",
     "nodejs",
     "zero-dependencies",
@@ -37,30 +36,20 @@
   "type": "module",
   "exports": {
     ".": {
-      "import": "./lib/n2words.js",
-      "types": "./typings/n2words.d.ts"
+      "import": "./lib/n2words.js"
     }
   },
   "main": "lib/n2words.js",
   "jsdelivr": "dist/n2words.js",
   "unpkg": "dist/n2words.js",
-  "types": "typings/n2words.d.ts",
-  "typesVersions": {
-    "*": {
-      "n2words/*": [
-        "typings/*"
-      ]
-    }
-  },
   "files": [
     "lib/*",
-    "dist/*",
-    "typings/*"
+    "dist/*"
   ],
   "scripts": {
     "bench:perf": "node bench.js",
     "bench:memory": "node --expose-gc bench-memory.js",
-    "clean": "npm run types:clean && npm run web:clean && npm run docs:clean && npm run coverage:clean",
+    "clean": "npm run coverage:clean && npm run docs:clean && npm run web:clean",
     "coverage:clean": "node -e \"import { rmSync } from 'fs'; try { rmSync('coverage', { recursive: true, force: true }) } catch (e) {}\"",
     "coverage:generate": "npm run coverage:clean && c8 npm run test",
     "docs:generate": "npm run docs:clean && jsdoc -c ./conf.json && npm run docs:validate",
@@ -75,12 +64,9 @@
     "lint:md": "markdownlint-cli2 *.md guides/*.md scripts/*.md",
     "lint:md:fix": "markdownlint-cli2 *.md guides/*.md scripts/*.md --fix",
     "test": "npm run lang:validate && npm run test:unit && npm run test:integration",
-    "test:all": "npm run test && npm run web:test && npm run types:validate",
+    "test:all": "npm run test && npm run web:test",
     "test:integration": "ava --verbose test/integration/*.{js,cjs}",
     "test:unit": "ava --verbose test/unit/*.js",
-    "types:generate": "npm run types:clean && tsc --project tsconfig.json",
-    "types:clean": "node -e \"import { rmSync } from 'fs'; try { rmSync('typings', { recursive: true, force: true }) } catch (e) {}\"",
-    "types:validate": "npm run types:generate && tsc --noEmit --project test/typescript/tsconfig.json && node --import tsx --test test/typescript/*.ts",
     "web:build": "npm run web:clean && rollup -c",
     "web:clean": "node -e \"import { rmSync } from 'fs'; try { rmSync('dist', { recursive: true, force: true }) } catch (e) {}\"",
     "web:test": "npm run web:build && ava --verbose test/web/*.js"
@@ -124,9 +110,7 @@
     "microtime": "^3.1.1",
     "rollup": "^4.54.0",
     "selenium-webdriver": "^4.39.0",
-    "standard": "^17.1.2",
-    "tsx": "^4.21.0",
-    "typescript": "^5.9.3"
+    "standard": "^17.1.2"
   },
   "engines": {
     "node": "^20 || ^22 || >=24"

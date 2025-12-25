@@ -40,9 +40,6 @@ jobs:
       - name: Build web bundles
         run: npm run web:build
 
-      - name: Build TypeScript declarations
-        run: npm run types:generate
-
       - name: Cache build artifacts
         uses: actions/cache/save@v5.0.1
         with:
@@ -97,9 +94,6 @@ jobs:
 
       - name: Run core tests
         run: npm run test
-
-      - name: Run TypeScript tests
-        run: npm run types:validate
 
       - name: Verify package contents
         if: matrix.node == '24' && matrix.os == 'ubuntu-latest'

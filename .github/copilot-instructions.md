@@ -47,7 +47,6 @@
 
 ## Integration & External
 - No runtime dependencies; all logic is in-repo.
-- TypeScript types in `typings/`.
 - CI runs validation and tests on every PR.
 
 ---

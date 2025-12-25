@@ -10,7 +10,6 @@
 
 - 🌍 **47 languages** — Comprehensive international support
 - 📦 **Zero dependencies** — Lightweight and fast
-- 🚀 **TypeScript** — Full type safety with language-specific options
 - 🧪 **Tested & validated** — Language modules validated and tested on every PR
 - 📱 **Universal** — Node.js, browsers, ESM/CommonJS
 
