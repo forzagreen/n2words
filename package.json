@@ -49,36 +49,32 @@
   "scripts": {
     "bench:perf": "node bench.js",
     "bench:memory": "node --expose-gc bench-memory.js",
-    "clean": "npm run coverage:clean && npm run web:clean",
-    "coverage:clean": "node -e \"import { rmSync } from 'fs'; try { rmSync('coverage', { recursive: true, force: true }) } catch (e) {}\"",
-    "coverage:generate": "npm run coverage:clean && c8 npm run test",
+    "build": "rollup -c",
+    "coverage": "c8 npm run test",
     "lang:add": "node scripts/add-language.js",
     "lang:validate": "node scripts/validate-language.js",
-    "lint": "npm run lint:all",
-    "lint:all": "npm run lint:js && npm run lint:md",
+    "lint": "npm run lint:js && npm run lint:md",
     "lint:all:fix": "npm run lint:js -- --fix && npm run lint:md -- --fix",
     "lint:js": "standard lib/ scripts/ test/ *.js",
     "lint:js:fix": "npm run lint:js -- --fix",
     "lint:md": "markdownlint-cli2 *.md docs/*.md docs/guides/*.md scripts/*.md",
     "lint:md:fix": "markdownlint-cli2 *.md docs/*.md docs/guides/*.md scripts/*.md --fix",
-    "test": "npm run lang:validate && npm run test:unit && npm run test:integration",
-    "test:all": "npm run test && npm run web:test",
-    "test:integration": "ava --verbose test/integration/*.{js,cjs,ts}",
-    "test:unit": "ava --verbose test/unit/*.js",
-    "web:build": "npm run web:clean && rollup -c",
-    "web:clean": "node -e \"import { rmSync } from 'fs'; try { rmSync('dist', { recursive: true, force: true }) } catch (e) {}\"",
-    "web:test": "npm run web:build && ava --verbose test/web/*.js"
+    "test": "npm run lang:validate && npm run test:unit && npm run test:integration && npm run test:types",
+    "test:all": "npm run test && npm run test:web",
+    "test:integration": "ava --verbose test/integration/*",
+    "test:types": "node test/types/n2words.js",
+    "test:unit": "ava --verbose test/unit/*",
+    "test:web": "npm run build && ava --verbose test/web/*"
   },
   "ava": {
     "extensions": [
       "js",
-      "cjs",
-      "ts"
+      "cjs"
     ],
     "files": [
-      "test/unit/*.js",
-      "test/integration/*.{js,cjs,ts}",
-      "test/web/*.js"
+      "test/unit/*",
+      "test/integration/*",
+      "test/web/*"
     ],
     "timeout": "30s"
   },
@@ -109,7 +105,9 @@
     "microtime": "^3.1.1",
     "rollup": "^4.54.0",
     "selenium-webdriver": "^4.39.0",
-    "standard": "^17.1.2"
+    "standard": "^17.1.2",
+    "tsd": "^0.33.0",
+    "typescript": "^5.9.3"
   },
   "engines": {
     "node": "^20 || ^22 || >=24"

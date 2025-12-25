@@ -120,6 +120,7 @@ Works in all modern browsers and Node.js environments:
 The pre-built [dist/n2words.js](dist/n2words.js) uses Babel with `@babel/preset-env` and core-js polyfills to support **100% of browsers currently in use** (targets: `defaults`). This includes older browsers like IE11.
 
 **Best for:**
+
 - CDN usage (`<script>` tag)
 - Legacy browser support
 - Simple drop-in integration
@@ -127,9 +128,11 @@ The pre-built [dist/n2words.js](dist/n2words.js) uses Babel with `@babel/preset-
 ### ESM Source (Modern Browsers)
 
 The source files in [lib/](lib/) use modern JavaScript (ES6+ classes, BigInt, etc.) and require:
+
 - Chrome 67+, Firefox 68+, Safari 14+, Edge 79+
 
 **Best for:**
+
 - Modern bundler setups (Webpack, Vite, Rollup)
 - Smaller bundle sizes (tree-shaking)
 - Targeting modern browsers only
