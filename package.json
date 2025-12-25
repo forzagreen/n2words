@@ -65,7 +65,7 @@
     "lint:md:fix": "markdownlint-cli2 *.md guides/*.md scripts/*.md --fix",
     "test": "npm run lang:validate && npm run test:unit && npm run test:integration",
     "test:all": "npm run test && npm run web:test",
-    "test:integration": "ava --verbose test/integration/*.{js,cjs}",
+    "test:integration": "ava --verbose test/integration/*.{js,cjs,ts}",
     "test:unit": "ava --verbose test/unit/*.js",
     "web:build": "npm run web:clean && rollup -c",
     "web:clean": "node -e \"import { rmSync } from 'fs'; try { rmSync('dist', { recursive: true, force: true }) } catch (e) {}\"",
@@ -74,11 +74,12 @@
   "ava": {
     "extensions": [
       "js",
-      "cjs"
+      "cjs",
+      "ts"
     ],
     "files": [
       "test/unit/*.js",
-      "test/integration/*.{js,cjs}",
+      "test/integration/*.{js,cjs,ts}",
       "test/web/*.js"
     ],
     "timeout": "30s"

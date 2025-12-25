@@ -12,7 +12,7 @@ const languages = [
 ]
 
 languages.forEach(({ code, converter, sample, expected }) => {
-  test(`CommonJS: ${converter} (${code})`, t => {
+  test(`${converter} (${code})`, t => {
     t.truthy(n2words[converter], `Converter for ${code} should be exported`)
     const result = n2words[converter](sample)
     t.is(typeof result, 'string', `Result for ${code} should be a string`)
