@@ -16,71 +16,38 @@
 ## Quick Start
 
 ```bash
-# npm
 npm install n2words
-
-# yarn
-yarn add n2words
-
-# pnpm
-pnpm add n2words
-
-# bun
-bun add n2words
 ```
 
 ```js
-import { EnglishConverter, SpanishConverter, ArabicConverter, SimplifiedChineseConverter } from 'n2words'
+import { EnglishConverter, SpanishConverter, ArabicConverter } from 'n2words'
 
-EnglishConverter(123)                // 'one hundred and twenty-three'
-EnglishConverter(-1.5)               // 'minus one point five'
-SpanishConverter(123)                // 'ciento veintitrés'
-ArabicConverter(123)                 // 'مائة وثلاثة وعشرون'
-SimplifiedChineseConverter(10000n)   // '壹万' (BigInt support, formal Chinese)
+EnglishConverter(123)                  // 'one hundred and twenty-three'
+SpanishConverter(123)                  // 'ciento veintitrés'
+ArabicConverter(1, { feminine: true }) // 'واحدة' (with options)
 ```
 
 ## Usage
 
-### ESM (Node.js, modern bundlers)
+**ESM (Node.js, modern bundlers):**
 
 ```js
-import { EnglishConverter, SpanishConverter } from 'n2words'
-
-EnglishConverter(42)   // 'forty-two'
-SpanishConverter(100)  // 'cien'
+import { EnglishConverter } from 'n2words'
 ```
 
-### CommonJS (Node.js)
+**CommonJS (Node.js):**
 
 ```js
-const { EnglishConverter, FrenchConverter } = require('n2words')
-
-EnglishConverter(42)   // 'forty-two'
-FrenchConverter(100)   // 'cent'
+const { EnglishConverter } = require('n2words')
 ```
 
-### Browser (UMD via CDN)
+**Browser (UMD via CDN):**
 
 ```html
 <script src="https://cdn.jsdelivr.net/npm/n2words/dist/n2words.js"></script>
 <script>
-  console.log(n2words.EnglishConverter(42))   // 'forty-two'
-  console.log(n2words.GermanConverter(100))   // 'einhundert'
+  n2words.EnglishConverter(42)  // 'forty-two'
 </script>
-```
-
-### Language-Specific Options
-
-```js
-import { ArabicConverter, SimplifiedChineseConverter } from 'n2words'
-
-// Arabic with gender
-ArabicConverter(1)                    // 'واحد' (masculine)
-ArabicConverter(1, { feminine: true }) // 'واحدة' (feminine)
-
-// Chinese formal vs common
-SimplifiedChineseConverter(123)                   // '壹佰贰拾叁' (formal)
-SimplifiedChineseConverter(123, { formal: false }) // '一百二十三' (common)
 ```
 
 ## Type Safety
@@ -105,11 +72,10 @@ SimplifiedChineseConverter(123, { formal: 'yes' })  // ✗ TypeScript error: wro
 
 **Exported Types:**
 
-- `NumericValue` - Input types: `number | bigint | string`
-- `ConverterOptions` - Base configuration options
-- `ConverterFunction` - Converter function signature
-- `ArabicOptions` - Arabic-specific options (feminine, negativeWord)
-- `ChineseOptions` - Chinese-specific options (formal)
+- `NumericValue` - Accepted input types: `number | bigint | string`
+- Language-specific option types (e.g., `ArabicOptions`, `SimplifiedChineseOptions`, `DutchOptions`, etc.)
+
+See the [API Reference](docs/API.md) for complete type documentation.
 
 ## Supported Languages (47 total)
 
@@ -147,8 +113,26 @@ Language codes follow [IETF BCP 47](https://tools.ietf.org/html/bcp47) standards
 Works in all modern browsers and Node.js environments:
 
 - **Node.js**: ^20 || ^22 || >=24
-- **Browsers**: Chrome 51+, Firefox 54+, Safari 10+, Edge 79+
-- **Module Systems**: ESM, CommonJS, UMD (browser global)
+- **Browsers**: Supports all major browsers via two deployment options:
+
+### UMD Build (Maximum Compatibility)
+
+The pre-built [dist/n2words.js](dist/n2words.js) uses Babel with `@babel/preset-env` and core-js polyfills to support **100% of browsers currently in use** (targets: `defaults`). This includes older browsers like IE11.
+
+**Best for:**
+- CDN usage (`<script>` tag)
+- Legacy browser support
+- Simple drop-in integration
+
+### ESM Source (Modern Browsers)
+
+The source files in [lib/](lib/) use modern JavaScript (ES6+ classes, BigInt, etc.) and require:
+- Chrome 67+, Firefox 68+, Safari 14+, Edge 79+
+
+**Best for:**
+- Modern bundler setups (Webpack, Vite, Rollup)
+- Smaller bundle sizes (tree-shaking)
+- Targeting modern browsers only
 
 See [Browser Usage Guide](docs/guides/BROWSER_USAGE.md) for detailed integration instructions.
 
