@@ -49,7 +49,7 @@ jobs:
         run: npm run test
 
       - name: Build web bundles
-        run: npm run web:build
+        run: npm run build
 
       - name: Dry-run publish
         run: npm publish --dry-run
@@ -60,7 +60,6 @@ jobs:
           name: dist-${{ github.ref_name }}
           path: |
             dist/
-            typings/
           retention-days: 90
 
       - name: Publish to npm with provenance

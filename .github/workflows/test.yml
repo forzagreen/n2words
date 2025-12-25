@@ -38,14 +38,13 @@ jobs:
         run: npm run lint
 
       - name: Build web bundles
-        run: npm run web:build
+        run: npm run build
 
       - name: Cache build artifacts
         uses: actions/cache/save@v5.0.1
         with:
           path: |
             dist/
-            typings/
           key: build-${{ github.sha }}
           enableCrossOsArchive: true
 
@@ -87,12 +86,11 @@ jobs:
         with:
           path: |
             dist/
-            typings/
           key: build-${{ github.sha }}
           enableCrossOsArchive: true
           fail-on-cache-miss: true
 
-      - name: Run core tests
+      - name: Run tests
         run: npm run test
 
       - name: Verify package contents
@@ -123,13 +121,12 @@ jobs:
         with:
           path: |
             dist/
-            typings/
           key: build-${{ github.sha }}
           enableCrossOsArchive: true
           fail-on-cache-miss: true
 
       - name: Run coverage
-        run: npm run coverage:generate
+        run: npm run coverage
 
       - name: Upload coverage to Coveralls
         uses: coverallsapp/github-action@v2.3.6
