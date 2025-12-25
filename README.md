@@ -36,22 +36,6 @@ SimplifiedChineseConverter(10000n)   // '壹万' (BigInt support, formal Chinese
 import { EnglishConverter } from 'n2words'
 EnglishConverter(42)  // 'forty-two'
 
-// TypeScript with full type safety and exported types
-import {
-  EnglishConverter,
-  FrenchConverter,
-  type NumericValue,
-  type ConverterFunction,
-  type ConverterOptions
-} from 'n2words'
-
-// Use the exported types in your code
-const convert: ConverterFunction = EnglishConverter
-const value: NumericValue = 42  // number | bigint | string
-const options: ConverterOptions = {}
-
-convert(value, options)  // 'forty-two'
-
 // Language-specific converters
 import { ArabicConverter, SimplifiedChineseConverter } from 'n2words'
 SimplifiedChineseConverter(123, { formal: true })  // '壹佰贰拾叁'
@@ -69,31 +53,22 @@ console.log(FrenchConverter(123)); // 'cent vingt-trois'
 // console.log(n2words.EnglishConverter(100))  // 'one hundred'
 ```
 
-## TypeScript Support
+## Type Safety
 
-n2words provides full TypeScript support with exported types for better developer experience:
+n2words provides type safety through JSDoc annotations. The library exports type definitions that work with both JavaScript and TypeScript:
 
-```typescript
-import type {
-  NumericValue,      // number | bigint | string
-  ConverterFunction, // (value: NumericValue, options?: ConverterOptions) => string
-  ConverterOptions,  // Configuration options object
-  LanguageClass      // Language class constructor interface
-} from 'n2words'
+```ts
+// JSDoc types are exported and available for TypeScript users
+// NumericValue: number | bigint | string
+// ConverterFunction: (value: NumericValue, options?: ConverterOptions) => string
+// ConverterOptions: Configuration options object
+// LanguageClass: Language class constructor interface
 
-// Use types in your functions
-function formatNumber(num: NumericValue, converter: ConverterFunction): string {
-  return converter(num).toUpperCase()
-}
-
-// Type-safe arrays
-const converters: ConverterFunction[] = [EnglishConverter, FrenchConverter]
-
-// All converters have proper type signatures
-EnglishConverter(42)           // ✓ Valid
-EnglishConverter('123')        // ✓ Valid (string numbers)
-EnglishConverter(100n)         // ✓ Valid (BigInt)
-EnglishConverter(42, {})       // ✓ Valid (with options)
+// All converters accept multiple input types
+EnglishConverter(42)           // ✓ number
+EnglishConverter('123')        // ✓ string
+EnglishConverter(100n)         // ✓ BigInt
+EnglishConverter(42, {})       // ✓ with options
 ```
 
 ## Supported Languages (47 total)
