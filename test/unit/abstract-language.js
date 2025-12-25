@@ -19,8 +19,16 @@ class TestLanguage extends AbstractLanguage {
   zeroWord = 'zero'
   wordSeparator = ' '
 
+  constructor (options = {}) {
+    super()
+    this.options = this.mergeOptions({
+      feminine: false
+    }, options)
+  }
+
   // Simple implementation: just return the number as string
   convertWholePart (wholeNumber) {
+    if (this.options.feminine) return `feminine-number-${wholeNumber}`
     if (wholeNumber === 0n) return this.zeroWord
     return `number-${wholeNumber}`
   }
@@ -54,15 +62,6 @@ class TestLanguagePerDigit extends AbstractLanguage {
 test('constructor accepts valid options object', t => {
   t.notThrows(() => new TestLanguage({}))
   t.notThrows(() => new TestLanguage({ someOption: true }))
-})
-
-test('constructor rejects non-object options', t => {
-  t.throws(() => new TestLanguage('string'), { instanceOf: TypeError })
-  t.throws(() => new TestLanguage(123), { instanceOf: TypeError })
-  t.throws(() => new TestLanguage([]), { instanceOf: TypeError })
-  // Note: null is typeof 'object' in JavaScript, so the constructor accepts it
-  // This is a known JavaScript quirk
-  t.notThrows(() => new TestLanguage(null))
 })
 
 test('abstract class throws error if convertWholePart not implemented', t => {
@@ -281,4 +280,27 @@ test('zero returns zeroWord', t => {
   t.is(lang.convertToWords(0), 'zero')
   t.is(lang.convertToWords(0n), 'zero')
   t.is(lang.convertToWords('0'), 'zero')
+})
+
+test('mergeOptions merges defaults with user options', t => {
+  const lang = new TestLanguage()
+  const defaults = { foo: 'default', bar: 1 }
+  const userOptions = { bar: 2, baz: 'new' }
+  const merged = lang.mergeOptions(defaults, userOptions)
+
+  t.deepEqual(merged, { foo: 'default', bar: 2, baz: 'new' })
+})
+
+test('mergeOptions handles empty defaults', t => {
+  const lang = new TestLanguage()
+  const merged = lang.mergeOptions({}, { option: 'value' })
+
+  t.deepEqual(merged, { option: 'value' })
+})
+
+test('mergeOptions handles empty user options', t => {
+  const lang = new TestLanguage()
+  const merged = lang.mergeOptions({ default: 'value' }, {})
+
+  t.deepEqual(merged, { default: 'value' })
 })

@@ -85,19 +85,6 @@ class TestSlavicLanguage extends SlavicLanguage {
   }
 }
 
-test('constructor accepts feminine option', t => {
-  const lang1 = new TestSlavicLanguage({ feminine: false })
-  t.is(lang1.feminine, false)
-
-  const lang2 = new TestSlavicLanguage({ feminine: true })
-  t.is(lang2.feminine, true)
-})
-
-test('constructor defaults feminine to false', t => {
-  const lang = new TestSlavicLanguage()
-  t.is(lang.feminine, false)
-})
-
 test('convertWholePart returns zero word for 0', t => {
   const lang = new TestSlavicLanguage()
   t.is(lang.convertWholePart(0n), 'zero')
