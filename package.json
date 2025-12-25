@@ -49,11 +49,9 @@
   "scripts": {
     "bench:perf": "node bench.js",
     "bench:memory": "node --expose-gc bench-memory.js",
-    "clean": "npm run coverage:clean && npm run docs:clean && npm run web:clean",
+    "clean": "npm run coverage:clean && npm run web:clean",
     "coverage:clean": "node -e \"import { rmSync } from 'fs'; try { rmSync('coverage', { recursive: true, force: true }) } catch (e) {}\"",
     "coverage:generate": "npm run coverage:clean && c8 npm run test",
-    "docs:generate": "npm run docs:clean && jsdoc -c ./conf.json",
-    "docs:clean": "node -e \"import { rmSync } from 'fs'; try { rmSync('docs', { recursive: true, force: true }) } catch (e) {}\"",
     "lang:add": "node scripts/add-language.js",
     "lang:validate": "node scripts/validate-language.js",
     "lint": "npm run lint:all",

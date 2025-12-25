@@ -11,9 +11,6 @@ coverage/
 .nyc_output/
 *.lcov
 
-# Documentation (generated)
-docs/
-
 # Benchmark results
 bench-results.json
 bench-memory-results.json
