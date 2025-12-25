@@ -19,7 +19,9 @@ import {
 import type {
   NumericValue,
   ConverterOptions,
-  ConverterFunction
+  ConverterFunction,
+  ArabicOptions,
+  ChineseOptions
 } from '../../lib/n2words.js'
 
 test('English conversion', (t) => {
@@ -159,7 +161,38 @@ test('language-specific options', (t) => {
   const common = SimplifiedChineseConverter(123, { formal: false })
   t.not(formal, common, 'Formal option should change output')
 
+  // Type checking: These lines should cause TypeScript errors
+  // @ts-expect-error - invalid option property
+  ArabicConverter(1, { invalid: true })
+
+  // @ts-expect-error - wrong type for feminine
+  ArabicConverter(1, { feminine: 'yes' })
+
+  // @ts-expect-error - invalid option property
+  SimplifiedChineseConverter(123, { invalid: true })
+
+  // @ts-expect-error - wrong type for formal
+  SimplifiedChineseConverter(123, { formal: 'yes' })
+
   t.pass('Language-specific options work correctly')
+})
+
+test('typed options usage', (t) => {
+  // Using explicitly typed options
+  const arabicOpts: ArabicOptions = { feminine: true }
+  t.is(typeof ArabicConverter(1, arabicOpts), 'string')
+
+  const chineseOpts: ChineseOptions = { formal: false }
+  t.is(typeof SimplifiedChineseConverter(123, chineseOpts), 'string')
+
+  // These should cause TypeScript errors
+  // @ts-expect-error - invalid property
+  const badArabicOpts: ArabicOptions = { invalid: true }
+
+  // @ts-expect-error - wrong type
+  const badChineseOpts: ChineseOptions = { formal: 'yes' }
+
+  t.pass('Typed options validated correctly')
 })
 
 test('type safety for numeric inputs', (t) => {

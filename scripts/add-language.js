@@ -144,35 +144,84 @@ function updateN2wordsFile (code, className) {
   const n2wordsPath = './lib/n2words.js'
   let content = readFileSync(n2wordsPath, 'utf-8')
 
-  // Find the last import statement
-  const importLines = content.split('\n').filter(line => line.startsWith('import {'))
-  const lastImport = importLines[importLines.length - 1]
-  const lastImportIndex = content.indexOf(lastImport)
-  const insertImportPos = content.indexOf('\n', lastImportIndex) + 1
+  // Find the Language Imports section and add import alphabetically
+  const importSectionStart = content.indexOf('// Language Imports')
+  const importSectionEnd = content.indexOf('\n// =', importSectionStart + 1)
+  const importSection = content.slice(importSectionStart, importSectionEnd)
+  const importLines = importSection.split('\n').filter(line => line.startsWith('import {'))
 
-  // Add import
-  const importStatement = `import { ${className} } from './languages/${code}.js'\n`
-  content = content.slice(0, insertImportPos) + importStatement + content.slice(insertImportPos)
+  // Create new import statement
+  const newImport = `import { ${className} } from './languages/${code}.js'`
 
-  // Find the converter creation section
-  const converterSectionStart = content.indexOf('// Create wrapper functions for ALL languages')
-  const converterSectionEnd = content.indexOf('\nexport {', converterSectionStart)
-  const lastConverterLine = content.lastIndexOf('\nconst', converterSectionEnd)
-  const insertConverterPos = content.indexOf('\n', lastConverterLine) + 1
+  // Find the correct position alphabetically
+  let insertPos = -1
+  for (let i = 0; i < importLines.length; i++) {
+    if (importLines[i] > newImport) {
+      const lineInFullContent = content.indexOf(importLines[i], importSectionStart)
+      insertPos = lineInFullContent
+      break
+    }
+  }
 
-  // Add converter creation
-  const converterStatement = `const ${className}Converter = makeConverter(${className})\n`
-  content = content.slice(0, insertConverterPos) + converterStatement + content.slice(insertConverterPos)
+  // If not found, insert before the section divider
+  if (insertPos === -1) {
+    insertPos = importSectionEnd
+  }
 
-  // Find export section
+  content = content.slice(0, insertPos) + newImport + '\n' + content.slice(insertPos)
+
+  // Find the Language Converters section and add converter alphabetically
+  const converterSectionStart = content.indexOf('// Language Converters')
+  const converterSectionEnd = content.indexOf('\n// =', converterSectionStart + 1)
+  const converterSection = content.slice(converterSectionStart, converterSectionEnd)
+  const converterLines = converterSection.split('\n').filter(line => line.trim().startsWith('const ') && line.includes('Converter'))
+
+  // Create new converter statement (no options for new languages by default)
+  const newConverter = `const ${className}Converter = /** @type {(value: NumericValue) => string} */ (makeConverter(${className}))`
+
+  // Find the correct position alphabetically
+  insertPos = -1
+  for (let i = 0; i < converterLines.length; i++) {
+    if (converterLines[i] > newConverter) {
+      const lineInFullContent = content.indexOf(converterLines[i], converterSectionStart)
+      insertPos = lineInFullContent
+      break
+    }
+  }
+
+  // If not found, insert before the section divider
+  if (insertPos === -1) {
+    insertPos = converterSectionEnd
+  }
+
+  content = content.slice(0, insertPos) + newConverter + '\n' + content.slice(insertPos)
+
+  // Find export section and add export alphabetically
   const exportStart = content.indexOf('export {')
   const exportEnd = content.indexOf('}', exportStart)
-  const lastExport = content.lastIndexOf(',', exportEnd)
-  const insertExportPos = lastExport + 1
+  const exportSection = content.slice(exportStart, exportEnd)
+  const exportLines = exportSection.split('\n').filter(line => line.trim() && line.trim() !== 'export {')
 
-  // Add export (with proper indentation)
-  const exportStatement = `\n  ${className}Converter`
-  content = content.slice(0, insertExportPos) + exportStatement + content.slice(insertExportPos)
+  // Create new export statement
+  const newExport = `  ${className}Converter,`
+
+  // Find the correct position alphabetically
+  insertPos = -1
+  for (let i = 0; i < exportLines.length; i++) {
+    const trimmed = exportLines[i].trim()
+    if (trimmed > `${className}Converter,`) {
+      const lineInFullContent = content.indexOf(exportLines[i], exportStart)
+      insertPos = lineInFullContent
+      break
+    }
+  }
+
+  // If not found, insert before the closing brace
+  if (insertPos === -1) {
+    insertPos = exportEnd
+  }
+
+  content = content.slice(0, insertPos) + newExport + '\n' + content.slice(insertPos)
 
   writeFileSync(n2wordsPath, content)
 }

@@ -460,24 +460,29 @@ function validateTestFixture (languageCode, result) {
 function validateN2wordsExport (languageCode, className, result) {
   const n2wordsContent = readFileSync('./lib/n2words.js', 'utf8')
 
-  // Check for import
+  // Check for import in Language Imports section
   const importPattern = new RegExp(`import\\s+{\\s*${className}\\s*}\\s+from\\s+['"]\\./languages/${languageCode}\\.js['"]`)
   if (!importPattern.test(n2wordsContent)) {
-    result.errors.push('Not imported in ./lib/n2words.js')
+    result.errors.push('Not imported in ./lib/n2words.js (Language Imports section)')
   }
 
-  // Check for converter creation
+  // Check for converter creation in Language Converters section
+  // Accept both patterns:
+  // const XConverter = /** @type {(value: NumericValue) => string} */ (makeConverter(X))
+  // const XConverter = /** @type {(value: NumericValue, options?: XOptions) => string} */ (makeConverter(X))
   const converterName = `${className}Converter`
-  const converterPattern = new RegExp(`const\\s+${converterName}\\s*=\\s*makeConverter\\(${className}\\)`)
+  const converterPattern = new RegExp(
+    `const\\s+${converterName}\\s*=\\s*\\/\\*\\*\\s*@type\\s*{[^}]+}\\s*\\*\\/\\s*\\(\\s*makeConverter\\(${className}\\)\\s*\\)`
+  )
   if (!converterPattern.test(n2wordsContent)) {
-    result.errors.push(`${converterName} not created with makeConverter() in ./lib/n2words.js`)
+    result.errors.push(`${converterName} not created with makeConverter() and type annotation in ./lib/n2words.js`)
   }
 
-  // Check for export
+  // Check for export in Exports section
   const exportPattern = new RegExp(`${converterName}`)
   const exportSection = n2wordsContent.match(/export\s*{[\s\S]*?}/)?.[0]
   if (!exportSection || !exportPattern.test(exportSection)) {
-    result.errors.push(`${converterName} not exported from ./lib/n2words.js`)
+    result.errors.push(`${converterName} not exported from ./lib/n2words.js (Exports section)`)
   }
 
   if (importPattern.test(n2wordsContent) &&

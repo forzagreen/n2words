@@ -85,7 +85,7 @@ SimplifiedChineseConverter(123, { formal: false }) // '一百二十三' (common)
 
 ## Type Safety
 
-Full TypeScript support via JSDoc annotations - works in both JavaScript and TypeScript projects with IntelliSense:
+Full TypeScript support via JSDoc annotations - works in both JavaScript and TypeScript projects with IntelliSense and type checking:
 
 ```typescript
 import { EnglishConverter, ArabicConverter, SimplifiedChineseConverter } from 'n2words'
@@ -95,16 +95,21 @@ EnglishConverter(42)       // ✓ number → 'forty-two'
 EnglishConverter('123')    // ✓ string → 'one hundred and twenty-three'
 EnglishConverter(100n)     // ✓ BigInt → 'one hundred'
 
-// Language-specific options with IntelliSense
+// Language-specific options with type checking
 ArabicConverter(1, { feminine: true })  // ✓ 'واحدة' (feminine form)
+ArabicConverter(1, { invalid: true })   // ✗ TypeScript error: invalid property
+
 SimplifiedChineseConverter(123, { formal: false })  // ✓ '一百二十三' (common style)
+SimplifiedChineseConverter(123, { formal: 'yes' })  // ✗ TypeScript error: wrong type
 ```
 
 **Exported Types:**
 
 - `NumericValue` - Input types: `number | bigint | string`
-- `ConverterOptions` - Configuration options (language-specific)
+- `ConverterOptions` - Base configuration options
 - `ConverterFunction` - Converter function signature
+- `ArabicOptions` - Arabic-specific options (feminine, negativeWord)
+- `ChineseOptions` - Chinese-specific options (formal)
 
 ## Supported Languages (47 total)
 

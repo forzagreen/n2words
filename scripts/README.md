@@ -22,9 +22,9 @@ Scaffolding tool for quickly setting up a new language implementation with all r
   - TODO comments for language-specific test cases
 
 - **Updates lib/n2words.js**
-  - Adds import statement for the new language class
-  - Creates converter using `makeConverter()` factory
-  - Adds to export statement
+  - Adds import statement in the Language Imports section (alphabetically)
+  - Creates converter using `makeConverter()` with type annotation in Language Converters section (alphabetically)
+  - Adds to export statement in Exports section (alphabetically)
 
 ### Usage
 
@@ -81,7 +81,10 @@ Comprehensive validator for language implementations to ensure they follow all r
 
 - **IETF BCP 47 naming**: Files named with standard language codes (`en.js`, `fr-BE.js`, `zh-Hans.js`)
 - **Proper imports**: Relative imports from base classes
-- **Export consistency**: Class exported and registered in `n2words.js`
+- **Export consistency**: Class exported and registered in `n2words.js` with proper:
+  - Import in Language Imports section
+  - Converter creation with type annotation in Language Converters section
+  - Export in Exports section
 
 #### ✅ Class Structure
 
@@ -128,9 +131,9 @@ Comprehensive validator for language implementations to ensure they follow all r
 
 #### ✅ Integration
 
-- **Import in n2words.js**: Language class imported
-- **Converter creation**: `makeConverter()` wrapper created
-- **Export**: Converter function exported (e.g., `EnglishConverter`)
+- **Import in n2words.js**: Language class imported in Language Imports section
+- **Converter creation**: `makeConverter()` wrapper created with type annotation in Language Converters section
+- **Export**: Converter function exported in Exports section (e.g., `EnglishConverter`)
 
 ### Validation Usage
 
@@ -262,19 +265,31 @@ convertWholePart(wholeNumber) {
 
 ### "Not imported in lib/n2words.js"
 
-**Fix**: Add import, converter creation, and export to `lib/n2words.js`:
+**Fix**: Add import, converter creation, and export to `lib/n2words.js` in their respective sections:
 
 ```javascript
-// 1. Import
+// ============================================================================
+// Language Imports
+// ============================================================================
+
 import { MyLanguage } from './languages/my.js'
+// ... other imports (alphabetically sorted)
 
-// 2. Create converter
-const MyLanguageConverter = makeConverter(MyLanguage)
+// ============================================================================
+// Language Converters
+// ============================================================================
 
-// 3. Export
+const MyLanguageConverter = /** @type {(value: NumericValue) => string} */ (makeConverter(MyLanguage))
+// ... other converters (alphabetically sorted)
+
+// ============================================================================
+// Exports
+// ============================================================================
+
 export {
   // ... other exports
-  MyLanguageConverter
+  MyLanguageConverter,
+  // ... (alphabetically sorted)
 }
 ```
 

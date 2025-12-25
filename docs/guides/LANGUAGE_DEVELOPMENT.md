@@ -46,7 +46,10 @@ This creates:
 
 - `lib/languages/<code>.js` - Language implementation
 - `test/fixtures/languages/<code>.js` - Test cases
-- Updates `lib/n2words.js` - Automatic registration
+- Updates `lib/n2words.js` - Automatic registration:
+  - Adds import in Language Imports section (alphabetically)
+  - Creates converter with type annotation in Language Converters section (alphabetically)
+  - Adds export in Exports section (alphabetically)
 
 ### Language Code Format
 
