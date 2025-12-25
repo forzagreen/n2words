@@ -46,9 +46,7 @@ jobs:
         run: npm run lint
 
       - name: Run core tests
-        run: |
-          npm run test:unit
-          npm run test:integration
+        run: npm run test
 
       - name: Build web bundles
         run: npm run web:build

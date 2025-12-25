@@ -96,9 +96,7 @@ jobs:
           fail-on-cache-miss: true
 
       - name: Run core tests
-        run: |
-          npm run test:unit
-          npm run test:integration
+        run: npm run test
 
       - name: Run TypeScript tests
         run: npm run types:validate
