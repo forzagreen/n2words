@@ -73,7 +73,6 @@ export default [
   [4_000_000, 'čtyři miliony'],
   [10_000_000_000_000, 'deset bilionů'],
   [100_000_000_000_000, 'sto bilionů'],
-  [1_000_000, 'milion'],
   [2_000_000, 'dva miliony'],
   [5_000_000, 'pět milionů'],
   [1_000_000_000, 'miliarda'],

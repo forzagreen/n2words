@@ -121,5 +121,11 @@ export default [
   [200, 'מאתיים', { gender: 'feminine' }],
   [1000, 'אלף', { gender: 'feminine' }],
   [2000, 'אלפיים', { gender: 'feminine' }],
-  [5000, 'חמשת אלפים', { gender: 'feminine' }]
+  [5000, 'חמשת אלפים', { gender: 'feminine' }],
+
+  // Custom 'and' conjunction tests
+  [21, 'עשרים +אחד', { andWord: '+' }],
+  [42, 'ארבעים +שניים', { andWord: '+' }],
+  [123, 'מאה עשרים +שלשה', { andWord: '+' }],
+  [1001, 'אלף +אחד', { andWord: '+' }]
 ]
