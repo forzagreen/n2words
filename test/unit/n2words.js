@@ -487,3 +487,94 @@ test('ArabicConverter respects custom negativeWord option', t => {
   t.is(defaultNegative, 'ناقص واحد')
   t.is(customNegative, 'سالب واحد')
 })
+
+// ============================================================================
+// Public API Input Validation Tests
+// ============================================================================
+
+test('EnglishConverter rejects NaN', t => {
+  const { EnglishConverter } = n2words
+  const error = t.throws(() => EnglishConverter(NaN), { instanceOf: Error })
+  t.is(error.message, 'Number must be finite (NaN and Infinity are not supported)')
+})
+
+test('EnglishConverter rejects Infinity', t => {
+  const { EnglishConverter } = n2words
+  const error = t.throws(() => EnglishConverter(Infinity), { instanceOf: Error })
+  t.is(error.message, 'Number must be finite (NaN and Infinity are not supported)')
+})
+
+test('EnglishConverter rejects negative Infinity', t => {
+  const { EnglishConverter } = n2words
+  const error = t.throws(() => EnglishConverter(-Infinity), { instanceOf: Error })
+  t.is(error.message, 'Number must be finite (NaN and Infinity are not supported)')
+})
+
+test('EnglishConverter rejects empty string', t => {
+  const { EnglishConverter } = n2words
+  const error = t.throws(() => EnglishConverter(''), { instanceOf: Error })
+  t.is(error.message, 'Invalid number format: ""')
+})
+
+test('EnglishConverter rejects whitespace-only string', t => {
+  const { EnglishConverter } = n2words
+  const error = t.throws(() => EnglishConverter('   '), { instanceOf: Error })
+  t.is(error.message, 'Invalid number format: "   "')
+})
+
+test('EnglishConverter rejects non-numeric string', t => {
+  const { EnglishConverter } = n2words
+  const error = t.throws(() => EnglishConverter('abc'), { instanceOf: Error })
+  t.is(error.message, 'Invalid number format: "abc"')
+})
+
+test('EnglishConverter rejects null', t => {
+  const { EnglishConverter } = n2words
+  const error = t.throws(() => EnglishConverter(null), { instanceOf: TypeError })
+  t.is(error.message, 'Invalid value type: expected number, string, or bigint, received object')
+})
+
+test('EnglishConverter rejects undefined', t => {
+  const { EnglishConverter } = n2words
+  const error = t.throws(() => EnglishConverter(undefined), { instanceOf: TypeError })
+  t.is(error.message, 'Invalid value type: expected number, string, or bigint, received undefined')
+})
+
+test('EnglishConverter rejects object', t => {
+  const { EnglishConverter } = n2words
+  const error = t.throws(() => EnglishConverter({}), { instanceOf: TypeError })
+  t.is(error.message, 'Invalid value type: expected number, string, or bigint, received object')
+})
+
+test('EnglishConverter rejects array', t => {
+  const { EnglishConverter } = n2words
+  const error = t.throws(() => EnglishConverter([42]), { instanceOf: TypeError })
+  t.is(error.message, 'Invalid value type: expected number, string, or bigint, received object')
+})
+
+test('EnglishConverter accepts valid number', t => {
+  const { EnglishConverter } = n2words
+  t.is(EnglishConverter(42), 'forty-two')
+})
+
+test('EnglishConverter accepts valid string', t => {
+  const { EnglishConverter } = n2words
+  t.is(EnglishConverter('42'), 'forty-two')
+})
+
+test('EnglishConverter accepts string with whitespace', t => {
+  const { EnglishConverter } = n2words
+  t.is(EnglishConverter('  42  '), 'forty-two')
+})
+
+test('EnglishConverter accepts bigint', t => {
+  const { EnglishConverter } = n2words
+  t.is(EnglishConverter(42n), 'forty-two')
+})
+
+test('EnglishConverter accepts large bigint', t => {
+  const { EnglishConverter } = n2words
+  const result = EnglishConverter(123456789012345678901234567890n)
+  t.truthy(result)
+  t.is(typeof result, 'string')
+})

@@ -92,39 +92,6 @@ test('convertToWords accepts bigint input', t => {
   t.is(lang.convertToWords(1000000n), 'number-1000000')
 })
 
-test('convertToWords rejects NaN', t => {
-  const lang = new TestLanguage()
-  t.throws(() => lang.convertToWords(NaN), {
-    message: 'NaN is not an accepted number.'
-  })
-})
-
-test('convertToWords rejects invalid string formats', t => {
-  const lang = new TestLanguage()
-  t.throws(() => lang.convertToWords('abc'), {
-    message: /Invalid number format/
-  })
-  t.throws(() => lang.convertToWords(''), {
-    message: /Invalid number format/
-  })
-  t.throws(() => lang.convertToWords('  '), {
-    message: /Invalid number format/
-  })
-})
-
-test('convertToWords rejects unsupported types', t => {
-  const lang = new TestLanguage()
-  t.throws(() => lang.convertToWords({}), {
-    instanceOf: TypeError,
-    message: /Invalid variable type/
-  })
-  t.throws(() => lang.convertToWords([]), {
-    instanceOf: TypeError
-  })
-  t.throws(() => lang.convertToWords(null), {
-    instanceOf: TypeError
-  })
-})
 
 test('handles negative numbers correctly', t => {
   const lang = new TestLanguage()
