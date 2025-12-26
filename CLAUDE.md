@@ -4,7 +4,7 @@ This document provides comprehensive context about the n2words project structure
 
 ## Project Overview
 
-**n2words** is a JavaScript library that converts numbers to words in 47 languages with zero dependencies.
+**n2words** is a JavaScript library that converts numbers to words in 48 languages with zero dependencies.
 
 - **Version**: 2.0.0
 - **Type**: ES Module (ESM) with CommonJS and UMD support
@@ -14,7 +14,7 @@ This document provides comprehensive context about the n2words project structure
 
 ### Key Features
 
-- 🌍 47 language implementations
+- 🌍 48 language implementations
 - 📦 Zero runtime dependencies
 - 🧪 Comprehensive testing and validation
 - 📱 Universal (Node.js, browsers, ESM/CommonJS)
@@ -32,12 +32,12 @@ n2words/
 │   │   ├── slavic-language.js            # Three-form pluralization (Slavic languages)
 │   │   ├── south-asian-language.js       # Indian numbering system
 │   │   └── turkic-language.js            # Turkish-style implicit "bir" rules
-│   ├── languages/            # Individual language implementations (47 files)
+│   ├── languages/            # Individual language implementations (48 files)
 │   │   ├── en.js            # English
 │   │   ├── es.js            # Spanish
 │   │   ├── ar.js            # Arabic (with options)
 │   │   ├── zh-Hans.js       # Simplified Chinese (with options)
-│   │   └── ...              # 43 more languages
+│   │   └── ...              # 44 more languages
 │   └── n2words.js            # Main entry point (exports all converters)
 ├── scripts/
 │   ├── add-language.js       # Scaffolding tool for new languages
@@ -221,19 +221,34 @@ export {
 
 Some languages support additional options:
 
-| Language         | Option                | Type    | Description                           |
-| ---------------- | --------------------- | ------- | ------------------------------------- |
-| Arabic           | `feminine`            | boolean | Use feminine forms                    |
-| Arabic           | `negativeWord`        | string  | Custom negative word                  |
-| Chinese (both)   | `formal`              | boolean | Formal/financial vs common numerals   |
-| Dutch            | `includeOptionalAnd`  | boolean | Include optional "en" separator       |
-| Dutch            | `noHundredPairs`      | boolean | Disable comma before hundreds         |
-| Dutch            | `accentOne`           | boolean | Use accented "één"                    |
-| Spanish          | `genderStem`          | string  | 'o' (masculine) or 'a' (feminine)     |
-| French/French-BE | `withHyphenSeparator` | boolean | Use hyphens vs spaces                 |
-| Hebrew/Biblical  | `and`                 | string  | Conjunction character                 |
-| Turkish          | `dropSpaces`          | boolean | Remove spaces between words           |
-| Various Slavic   | `feminine`            | boolean | Use feminine forms                    |
+| Language         | Option                | Type                            | Description                           |
+| ---------------- | --------------------- | ------------------------------- | ------------------------------------- |
+| Arabic           | `gender`              | 'masculine' \| 'feminine'       | Grammatical gender for number forms   |
+| Arabic           | `negativeWord`        | string                          | Custom negative word                  |
+| Bangla           | `feminine`            | boolean                         | Currently unused in Bangla            |
+| Biblical Hebrew  | `andWord`             | string                          | Conjunction character (default: 'ו')  |
+| Biblical Hebrew  | `gender`              | 'masculine' \| 'feminine'       | Grammatical gender for number forms   |
+| Chinese (both)   | `formal`              | boolean                         | Formal/financial vs common numerals   |
+| Croatian         | `gender`              | 'masculine' \| 'feminine'       | Grammatical gender for number forms   |
+| Czech            | `gender`              | 'masculine' \| 'feminine'       | Grammatical gender for number forms   |
+| Danish           | `ordFlag`             | boolean                         | Enable ordinal number conversion      |
+| Dutch            | `includeOptionalAnd`  | boolean                         | Include optional "en" separator       |
+| Dutch            | `noHundredPairs`      | boolean                         | Disable comma before hundreds         |
+| Dutch            | `accentOne`           | boolean                         | Use accented "één" for one            |
+| French           | `withHyphenSeparator` | boolean                         | Use hyphens vs spaces                 |
+| French Belgium   | `withHyphenSeparator` | boolean                         | Use hyphens vs spaces                 |
+| Hebrew           | `andWord`             | string                          | Conjunction character (default: 'ו')  |
+| Hindi            | `feminine`            | boolean                         | Currently unused in Hindi             |
+| Latvian          | `gender`              | 'masculine' \| 'feminine'       | Grammatical gender for number forms   |
+| Lithuanian       | `gender`              | 'masculine' \| 'feminine'       | Grammatical gender for number forms   |
+| Polish           | `gender`              | 'masculine' \| 'feminine'       | Grammatical gender for number forms   |
+| Romanian         | `gender`              | 'masculine' \| 'feminine'       | Grammatical gender for number forms   |
+| Russian          | `gender`              | 'masculine' \| 'feminine'       | Grammatical gender for number forms   |
+| Serbian Cyrillic | `gender`              | 'masculine' \| 'feminine'       | Grammatical gender for number forms   |
+| Serbian Latin    | `gender`              | 'masculine' \| 'feminine'       | Grammatical gender for number forms   |
+| Spanish          | `gender`              | 'masculine' \| 'feminine'       | Grammatical gender for number forms   |
+| Turkish          | `dropSpaces`          | boolean                         | Remove spaces between words           |
+| Ukrainian        | `gender`              | 'masculine' \| 'feminine'       | Grammatical gender for number forms   |
 
 **Typedef pattern for options:**
 
@@ -241,7 +256,7 @@ Some languages support additional options:
 /**
  * @typedef {Object} ArabicOptions
  * @property {string} [negativeWord] Word for negative numbers
- * @property {boolean} [feminine] Use feminine forms for numbers
+ * @property {('masculine'|'feminine')} [gender='masculine'] Grammatical gender for number forms
  */
 ```
 
@@ -303,19 +318,23 @@ npm run lang:validate -- --verbose # Detailed info
 ### Testing
 
 ```bash
-npm test                # Full test suite (validation + unit + integration)
-npm run test:unit       # Unit tests only
+npm test                 # Full test suite (validation + unit + integration + types)
+npm run test:unit        # Unit tests only
 npm run test:integration # Integration tests only
-npm run web:test        # Browser tests
+npm run test:types       # TypeScript type checking
+npm run test:web         # Browser tests
+npm run test:all         # All tests including web tests
 ```
 
 ### Code Quality
 
 ```bash
-npm run lint            # Lint all (JS + Markdown)
-npm run lint:js         # JavaScript linting (StandardJS)
-npm run lint:md         # Markdown linting
-npm run lint:all:fix    # Auto-fix both
+npm run lint         # Lint all (JS + Markdown)
+npm run lint:js      # JavaScript linting (StandardJS)
+npm run lint:md      # Markdown linting
+npm run lint:fix     # Auto-fix both
+npm run lint:js:fix  # Auto-fix JavaScript only
+npm run lint:md:fix  # Auto-fix Markdown only
 ```
 
 ## Important Conventions
@@ -382,7 +401,8 @@ const EnglishConverter = /** @type {(value: NumericValue) => string} */ (makeCon
 ```javascript
 /**
  * @typedef {Object} ArabicOptions
- * @property {boolean} [feminine] Use feminine forms for numbers
+ * @property {string} [negativeWord] Word for negative numbers
+ * @property {('masculine'|'feminine')} [gender='masculine'] Grammatical gender for number forms
  */
 ```
 
@@ -401,7 +421,7 @@ export default [
   [-1, 'minus one'],
   [3.14, 'three point one four'],
   [BigInt(999), 'nine hundred and ninety-nine'],
-  [1, 'واحدة', { feminine: true }]  // With options
+  [1, 'واحدة', { gender: 'feminine' }]  // With options
 ]
 ```
 
@@ -470,19 +490,26 @@ export class MyLanguage extends GreedyScaleLanguage {
 }
 ```
 
-### Pattern 2: Language with Options
+### Pattern 2: Language with Gender Options
 
 ```javascript
 export class MyLanguage extends GreedyScaleLanguage {
   constructor(options = {}) {
-    super(options)
-    // Apply options
-    if (options.feminine) {
-      this.scaleWordPairs = this.feminineScales
-    }
+    super()
+
+    this.options = this.mergeOptions({
+      gender: 'masculine'
+    }, options)
   }
 
-  scaleWordPairs = [/* masculine forms */]
+  get scaleWordPairs() {
+    // Return appropriate scale words based on gender
+    return this.options.gender === 'feminine'
+      ? this.feminineScales
+      : this.masculineScales
+  }
+
+  masculineScales = [/* masculine forms */]
   feminineScales = [/* feminine forms */]
 }
 ```
@@ -657,7 +684,7 @@ For GreedyScaleLanguage, this is auto-implemented if `scaleWordPairs` and `merge
 1. **Add new language**: Use `npm run lang:add <code>`
 2. **Validate**: `npm run lang:validate -- <code> --verbose`
 3. **Test**: `npm test`
-4. **Lint**: `npm run lint:all:fix`
+4. **Lint**: `npm run lint:fix`
 5. **Document**: Add JSDoc comments
 6. **Keep alphabetical**: All lists in n2words.js must stay sorted
 
@@ -669,6 +696,6 @@ For GreedyScaleLanguage, this is auto-implemented if `scaleWordPairs` and `merge
 
 ---
 
-**Last Updated**: 2025-12-24
+**Last Updated**: 2025-12-25
 **Project Version**: 2.0.0
 **Maintained By**: Tyler Vigario & contributors
