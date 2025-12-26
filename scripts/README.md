@@ -176,7 +176,15 @@ Comprehensive validator for language implementations to ensure they follow all r
 - **Default values match**: Default values in constructor match typedef defaults
 - **Converter type annotation**: Converter includes `options?: {LanguageName}Options` parameter
 - **Regional variants**: Languages that extend other languages (e.g., `fr-BE extends fr`) can pass options to super without mergeOptions
+  - Parent language file must exist
+  - Class must correctly extend the imported parent
+  - Constructor mutations to `scaleWordPairs` are validated for ordering
 - **Base class options**: Languages without constructors can use base class options (e.g., Slavic languages inherit from `SlavicLanguage`)
+- **Option type validation**:
+  - `gender` option must use enum type `('masculine'|'feminine')`, not boolean
+  - Boolean options (`formal`, `ordFlag`, `dropSpaces`, etc.) must have `boolean` type
+  - String options (`negativeWord`, `andWord`) must have `string` type
+  - Default values must match expected types
 
 #### ✅ Documentation
 
