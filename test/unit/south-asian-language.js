@@ -10,6 +10,10 @@ import { SouthAsianLanguage } from '../../lib/classes/south-asian-language.js'
  * - Below-hundred and below-thousand conversions
  */
 
+// ============================================================================
+// Test Implementation
+// ============================================================================
+
 // Concrete test implementation
 class TestSouthAsianLanguage extends SouthAsianLanguage {
   negativeWord = 'minus'
@@ -35,6 +39,10 @@ class TestSouthAsianLanguage extends SouthAsianLanguage {
   // Index: 0=ones, 1=thousands, 2=lakhs, 3=crores, 4=arabs
   scaleWords = ['', 'thousand', 'lakh', 'crore', 'arab']
 }
+
+// ============================================================================
+// Grouping Tests
+// ============================================================================
 
 test('splitToGroups handles numbers under 1000', t => {
   const lang = new TestSouthAsianLanguage()
@@ -73,6 +81,10 @@ test('splitToGroups groups correctly (last 3, then 2s)', t => {
   // 9,87,65,43,210 → groups: [9, 87, 65, 43, 210] (last 3, then groups of 2)
   t.deepEqual(lang.splitToGroups(9876543210n), [9, 87, 65, 43, 210])
 })
+
+// ============================================================================
+// Below-Thousand Conversion Tests
+// ============================================================================
 
 test('convertBelowThousand handles zero', t => {
   const lang = new TestSouthAsianLanguage()
@@ -120,6 +132,10 @@ test('convertBelowThousand handles hundreds with remainder', t => {
   // 999 = 9 hundred + 99
   t.is(lang.convertBelowThousand(999), 'nine hundred ninety-nine')
 })
+
+// ============================================================================
+// Whole Part Conversion Tests
+// ============================================================================
 
 test('convertWholePart returns zero word for 0', t => {
   const lang = new TestSouthAsianLanguage()
@@ -201,18 +217,6 @@ test('convertWholePart trims result', t => {
   t.is(result, result.trim())
 })
 
-test('integrates with AbstractLanguage for negative numbers', t => {
-  const lang = new TestSouthAsianLanguage()
-  const result = lang.convertToWords(-42)
-  t.true(result.startsWith('minus'))
-})
-
-test('integrates with AbstractLanguage for decimals', t => {
-  const lang = new TestSouthAsianLanguage()
-  const result = lang.convertToWords(3.14)
-  t.true(result.includes('point'))
-})
-
 test('handles complex number with all scale levels', t => {
   const lang = new TestSouthAsianLanguage()
   // 12,34,56,789
@@ -233,4 +237,20 @@ test('handles edge case of exactly 1 crore', t => {
   const result = lang.convertWholePart(10000000n)
   t.true(result.includes('one'))
   t.true(result.includes('crore'))
+})
+
+// ============================================================================
+// Integration Tests
+// ============================================================================
+
+test('integrates with AbstractLanguage for negative numbers', t => {
+  const lang = new TestSouthAsianLanguage()
+  const result = lang.convertToWords(-42)
+  t.true(result.startsWith('minus'))
+})
+
+test('integrates with AbstractLanguage for decimals', t => {
+  const lang = new TestSouthAsianLanguage()
+  const result = lang.convertToWords(3.14)
+  t.true(result.includes('point'))
 })

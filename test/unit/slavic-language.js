@@ -12,6 +12,10 @@ import { SlavicLanguage } from '../../lib/classes/slavic-language.js'
  * - Constructor options (gender option)
  */
 
+// ============================================================================
+// Test Implementation
+// ============================================================================
+
 // Concrete test implementation
 class TestSlavicLanguage extends SlavicLanguage {
   negativeWord = 'minus'
@@ -85,6 +89,10 @@ class TestSlavicLanguage extends SlavicLanguage {
   }
 }
 
+// ============================================================================
+// Basic Conversion Tests
+// ============================================================================
+
 test('convertWholePart returns zero word for 0', t => {
   const lang = new TestSlavicLanguage()
   t.is(lang.convertWholePart(0n), 'zero')
@@ -133,6 +141,10 @@ test('convertWholePart handles hundreds with remainder', t => {
   t.is(lang.convertWholePart(456n), 'four-hundred fifty six')
 })
 
+// ============================================================================
+// Gender Tests
+// ============================================================================
+
 test('convertWholePart uses feminine forms for thousands chunk', t => {
   const lang = new TestSlavicLanguage({ gender: 'masculine' })
   // 1001 = 1 thousand + 1 ones
@@ -141,6 +153,36 @@ test('convertWholePart uses feminine forms for thousands chunk', t => {
   t.true(result.includes('one-f')) // Feminine for thousand chunk
   t.true(result.includes('thousand'))
 })
+
+test('uses ones array when chunkIndex is 0 and gender is masculine', t => {
+  const lang = new TestSlavicLanguage({ gender: 'masculine' })
+  // 1 (chunkIndex 0) should use masculine form
+  t.is(lang.convertWholePart(1n), 'one-m')
+  t.is(lang.convertWholePart(2n), 'two-m')
+})
+
+test('uses onesFeminine when chunkIndex is 0 and gender is feminine', t => {
+  const lang = new TestSlavicLanguage({ gender: 'feminine' })
+  // 1 (chunkIndex 0) should use feminine form
+  t.is(lang.convertWholePart(1n), 'one-f')
+  t.is(lang.convertWholePart(2n), 'two-f')
+})
+
+test('thousands chunk always uses feminine forms regardless of gender option', t => {
+  const langMasc = new TestSlavicLanguage({ gender: 'masculine' })
+  const langFem = new TestSlavicLanguage({ gender: 'feminine' })
+
+  // 1001 has chunkIndex 1 for thousands, should use feminine
+  const resultMasc = langMasc.convertWholePart(1001n)
+  const resultFem = langFem.convertWholePart(1001n)
+
+  t.true(resultMasc.includes('one-f'), 'Thousands chunk should use feminine in masculine mode')
+  t.true(resultFem.includes('one-f'), 'Thousands chunk should use feminine in feminine mode')
+})
+
+// ============================================================================
+// Chunking Tests
+// ============================================================================
 
 test('splitByX handles numbers less than chunk size', t => {
   const lang = new TestSlavicLanguage()
@@ -167,6 +209,10 @@ test('getDigits extracts ones, tens, hundreds correctly', t => {
   t.deepEqual(lang.getDigits(456n), [6n, 5n, 4n])
   t.deepEqual(lang.getDigits(999n), [9n, 9n, 9n])
 })
+
+// ============================================================================
+// Pluralization Tests
+// ============================================================================
 
 test('pluralize returns singular form for 1, 21, 31, etc.', t => {
   const lang = new TestSlavicLanguage()
@@ -235,6 +281,10 @@ test('handles thousands with correct pluralization', t => {
   t.true(result5.includes('thousand-many'))
 })
 
+// ============================================================================
+// Large Number Tests
+// ============================================================================
+
 test('handles millions with correct pluralization', t => {
   const lang = new TestSlavicLanguage()
 
@@ -268,6 +318,17 @@ test('handles complex numbers with all components', t => {
   t.true(result.includes('thousand'))
 })
 
+test('handles very large numbers', t => {
+  const lang = new TestSlavicLanguage()
+  // 1 billion
+  const result = lang.convertWholePart(1000000000n)
+  t.true(result.includes('billion'))
+})
+
+// ============================================================================
+// Integration Tests
+// ============================================================================
+
 test('integrates with AbstractLanguage for negative numbers', t => {
   const lang = new TestSlavicLanguage()
   const result = lang.convertToWords(-42)
@@ -278,13 +339,6 @@ test('integrates with AbstractLanguage for decimals', t => {
   const lang = new TestSlavicLanguage()
   const result = lang.convertToWords(3.14)
   t.true(result.includes('point'))
-})
-
-test('handles very large numbers', t => {
-  const lang = new TestSlavicLanguage()
-  // 1 billion
-  const result = lang.convertWholePart(1000000000n)
-  t.true(result.includes('billion'))
 })
 
 // ============================================================================
@@ -308,30 +362,4 @@ test('constructor merges default and user options', t => {
   const lang = new TestSlavicLanguage({ gender: 'feminine', customOption: true })
   t.is(lang.options.gender, 'feminine')
   t.is(lang.options.customOption, true)
-})
-
-test('uses ones array when chunkIndex is 0 and gender is masculine', t => {
-  const lang = new TestSlavicLanguage({ gender: 'masculine' })
-  // 1 (chunkIndex 0) should use masculine form
-  t.is(lang.convertWholePart(1n), 'one-m')
-  t.is(lang.convertWholePart(2n), 'two-m')
-})
-
-test('uses onesFeminine when chunkIndex is 0 and gender is feminine', t => {
-  const lang = new TestSlavicLanguage({ gender: 'feminine' })
-  // 1 (chunkIndex 0) should use feminine form
-  t.is(lang.convertWholePart(1n), 'one-f')
-  t.is(lang.convertWholePart(2n), 'two-f')
-})
-
-test('thousands chunk always uses feminine forms regardless of gender option', t => {
-  const langMasc = new TestSlavicLanguage({ gender: 'masculine' })
-  const langFem = new TestSlavicLanguage({ gender: 'feminine' })
-
-  // 1001 has chunkIndex 1 for thousands, should use feminine
-  const resultMasc = langMasc.convertWholePart(1001n)
-  const resultFem = langFem.convertWholePart(1001n)
-
-  t.true(resultMasc.includes('one-f'), 'Thousands chunk should use feminine in masculine mode')
-  t.true(resultFem.includes('one-f'), 'Thousands chunk should use feminine in feminine mode')
 })
