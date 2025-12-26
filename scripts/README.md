@@ -165,6 +165,19 @@ Comprehensive validator for language implementations to ensure they follow all r
 - **Complete coverage**: Should include entry for `1n`
 - **Type checking**: First element bigint, second element string
 
+#### ✅ Options Pattern (for languages with options)
+
+- **Constructor pattern**: Languages with options must have:
+  - Constructor that accepts `options` parameter
+  - Call to `super()` or `super(options)`
+  - Call to `this.mergeOptions()` (unless passing options to super)
+- **Typedef exists**: Matching `{LanguageName}Options` typedef in `n2words.js`
+- **Typedef properties match**: Option properties in typedef match constructor defaults
+- **Default values match**: Default values in constructor match typedef defaults
+- **Converter type annotation**: Converter includes `options?: {LanguageName}Options` parameter
+- **Regional variants**: Languages that extend other languages (e.g., `fr-BE extends fr`) can pass options to super without mergeOptions
+- **Base class options**: Languages without constructors can use base class options (e.g., Slavic languages inherit from `SlavicLanguage`)
+
 #### ✅ Documentation
 
 - **Class JSDoc**: Description of language and conversion rules

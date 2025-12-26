@@ -452,6 +452,201 @@ function validateTestFixture (languageCode, result) {
 }
 
 /**
+ * Extract typedef information from n2words.js
+ * @param {string} className - Class name
+ * @param {string} n2wordsContent - Content of n2words.js
+ * @returns {{ exists: boolean, properties: Array<{name: string, type: string, defaultValue: string|null}> }}
+ */
+function extractTypedef (className, n2wordsContent) {
+  const typedefName = `${className}Options`
+
+  // Find the exact typedef block - must start with /** and end with */
+  // and have @typedef {Object} TypedefName on one line
+  const typedefStart = n2wordsContent.indexOf(`@typedef {Object} ${typedefName}`)
+  if (typedefStart === -1) {
+    return { exists: false, properties: [] }
+  }
+
+  // Find the start of the comment block (go backwards to find /**)
+  let commentStart = typedefStart
+  while (commentStart > 0 && n2wordsContent.substring(commentStart - 3, commentStart) !== '/**') {
+    commentStart--
+  }
+  commentStart -= 3 // Include the /**
+
+  // Find the end of the comment block (find the next */)
+  const commentEnd = n2wordsContent.indexOf('*/', typedefStart)
+  if (commentEnd === -1) {
+    return { exists: false, properties: [] }
+  }
+
+  const typedef = n2wordsContent.substring(commentStart, commentEnd + 2)
+  const properties = []
+
+  // Match @property lines: @property {type} [name=defaultValue] Description
+  // or @property {type} [name] Description
+  const propertyPattern = /@property\s*{([^}]+)}\s*\[(\w+)(?:=([^\]]+))?\]/g
+  let match
+
+  while ((match = propertyPattern.exec(typedef)) !== null) {
+    properties.push({
+      name: match[2],
+      type: match[1].trim(),
+      defaultValue: match[3] ? match[3].trim() : null
+    })
+  }
+
+  return { exists: true, properties }
+}
+
+/**
+ * Validate options pattern (constructor, typedef, converter annotation)
+ * @param {Object} instance - Language class instance
+ * @param {Function} LanguageClass - Language class constructor
+ * @param {string} className - Class name
+ * @param {string} fileContent - Language file content
+ * @param {ValidationResult} result - Result object to populate
+ */
+function validateOptionsPattern (instance, LanguageClass, className, fileContent, result) {
+  const n2wordsContent = readFileSync('./lib/n2words.js', 'utf8')
+  const converterName = `${className}Converter`
+
+  // Check if language has a constructor
+  const hasConstructor = fileContent.includes('constructor')
+
+  if (!hasConstructor) {
+    // No constructor in this language file - check if base class handles options
+    const typedef = extractTypedef(className, n2wordsContent)
+
+    if (typedef.exists) {
+      // Typedef exists, so converter should have options parameter
+      // This is OK if base class handles options (e.g., SlavicLanguage, SouthAsianLanguage)
+      const converterPattern = new RegExp(
+        `const\\s+${converterName}\\s*=\\s*\\/\\*\\*\\s*@type\\s*{\\(value: NumericValue, options\\?: ${className}Options\\) => string}\\s*\\*\\/`
+      )
+
+      if (converterPattern.test(n2wordsContent)) {
+        result.info.push(`✓ Options handled by base class (typedef ${className}Options exists, no local constructor)`)
+      } else {
+        result.errors.push(`Typedef ${className}Options exists but ${converterName} missing options type annotation`)
+      }
+    }
+
+    return
+  }
+
+  // Has constructor - check if it uses options
+  // Match constructor with better multiline support
+  const constructorMatch = fileContent.match(/constructor\s*\(([^)]*)\)\s*{([\s\S]*?)(?:\n  }\s*(?:\n|$)|\n\}\s*(?:\n|$))/)
+  if (!constructorMatch) {
+    result.warnings.push('Could not parse constructor (validation may be incomplete)')
+    return
+  }
+
+  const constructorParams = constructorMatch[1].trim()
+  const constructorBody = constructorMatch[2]
+
+  // Check if constructor takes options parameter
+  const hasOptionsParam = /options\s*=/.test(constructorParams)
+
+  if (!hasOptionsParam) {
+    // Constructor exists but doesn't take options
+    return
+  }
+
+  // Constructor takes options - validate the full pattern
+  result.info.push('✓ Constructor accepts options parameter')
+
+  // 1. Validate super() call
+  if (!constructorBody.includes('super(')) {
+    result.errors.push('Constructor missing super() call')
+  } else {
+    // Check if passing options to super (regional variant pattern)
+    if (constructorBody.includes('super(options)')) {
+      result.info.push('✓ Constructor passes options to super() (regional variant pattern)')
+      // Regional variants don't need mergeOptions - parent handles it
+      return
+    }
+    result.info.push('✓ Constructor calls super()')
+  }
+
+  // 2. Validate mergeOptions() call (only if not a regional variant)
+  if (!constructorBody.includes('this.mergeOptions(')) {
+    result.errors.push('Constructor with options should call this.mergeOptions() or pass options to super()')
+  } else {
+    result.info.push('✓ Constructor uses mergeOptions() pattern')
+
+    // Extract default options from mergeOptions call
+    const mergeOptionsMatch = constructorBody.match(/this\.mergeOptions\(\s*{([^}]*)}/)
+    if (mergeOptionsMatch) {
+      const defaultsStr = mergeOptionsMatch[1]
+      const defaults = []
+
+      // Parse default option properties
+      const optionPattern = /(\w+):\s*([^,\n]+)/g
+      let optMatch
+      while ((optMatch = optionPattern.exec(defaultsStr)) !== null) {
+        defaults.push({
+          name: optMatch[1].trim(),
+          value: optMatch[2].trim().replace(/['"]/g, '')
+        })
+      }
+
+      if (defaults.length > 0) {
+        result.info.push(`✓ Default options defined: ${defaults.map(d => d.name).join(', ')}`)
+
+        // 3. Validate typedef exists in n2words.js
+        const typedef = extractTypedef(className, n2wordsContent)
+
+        if (!typedef.exists) {
+          result.errors.push(`Constructor has options but typedef ${className}Options missing from n2words.js`)
+        } else {
+          result.info.push(`✓ Typedef ${className}Options exists in n2words.js`)
+
+          // 4. Validate typedef properties match constructor defaults
+          for (const def of defaults) {
+            const typedefProp = typedef.properties.find(p => p.name === def.name)
+
+            if (!typedefProp) {
+              result.warnings.push(`Option "${def.name}" in constructor but not in ${className}Options typedef`)
+            } else {
+              // Validate default values match
+              if (typedefProp.defaultValue) {
+                const typedefDefault = typedefProp.defaultValue.replace(/['"]/g, '')
+                if (typedefDefault !== def.value && typedefDefault !== String(def.value === 'true' || def.value === 'false')) {
+                  result.warnings.push(
+                    `Default value mismatch for "${def.name}": constructor="${def.value}", typedef="${typedefProp.defaultValue}"`
+                  )
+                }
+              }
+            }
+          }
+
+          // Check for typedef properties not in constructor
+          for (const prop of typedef.properties) {
+            const constructorDef = defaults.find(d => d.name === prop.name)
+            if (!constructorDef) {
+              result.warnings.push(`Option "${prop.name}" in typedef but not in constructor defaults`)
+            }
+          }
+        }
+
+        // 5. Validate converter type annotation includes options
+        const converterWithOptionsPattern = new RegExp(
+          `const\\s+${converterName}\\s*=\\s*\\/\\*\\*\\s*@type\\s*{\\(value: NumericValue, options\\?: ${className}Options\\) => string}\\s*\\*\\/`
+        )
+
+        if (!converterWithOptionsPattern.test(n2wordsContent)) {
+          result.errors.push(`${converterName} should have type annotation with options?: ${className}Options`)
+        } else {
+          result.info.push(`✓ ${converterName} has correct type annotation with options`)
+        }
+      }
+    }
+  }
+}
+
+/**
  * Validate export in n2words.js
  * @param {string} languageCode - Language code
  * @param {string} className - Class name
@@ -553,6 +748,7 @@ export async function validateLanguage (languageCode) {
       const fileContent = readFileSync(languageFile, 'utf8')
       validateDocumentation(fileContent, exportedClasses[0], result)
       validateImports(fileContent, result)
+      validateOptionsPattern(instance, LanguageClass, exportedClasses[0], fileContent, result)
       validateTestFixture(languageCode, result)
       validateN2wordsExport(languageCode, exportedClasses[0], result)
     } catch (error) {
@@ -595,6 +791,9 @@ export async function validateLanguage (languageCode) {
     const fileContent = readFileSync(languageFile, 'utf8')
     validateDocumentation(fileContent, expectedClassName, result)
     validateImports(fileContent, result)
+
+    // Validate options pattern (constructor, typedef, converter annotation)
+    validateOptionsPattern(instance, LanguageClass, expectedClassName, fileContent, result)
 
     // Validate test fixture exists
     validateTestFixture(languageCode, result)
