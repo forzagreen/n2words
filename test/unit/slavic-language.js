@@ -286,3 +286,52 @@ test('handles very large numbers', t => {
   const result = lang.convertWholePart(1000000000n)
   t.true(result.includes('billion'))
 })
+
+// ============================================================================
+// Constructor and Options Tests
+// ============================================================================
+
+test('constructor defaults to masculine gender', t => {
+  const lang = new TestSlavicLanguage()
+  t.is(lang.options.gender, 'masculine')
+})
+
+test('constructor accepts gender option', t => {
+  const langMasc = new TestSlavicLanguage({ gender: 'masculine' })
+  t.is(langMasc.options.gender, 'masculine')
+
+  const langFem = new TestSlavicLanguage({ gender: 'feminine' })
+  t.is(langFem.options.gender, 'feminine')
+})
+
+test('constructor merges default and user options', t => {
+  const lang = new TestSlavicLanguage({ gender: 'feminine', customOption: true })
+  t.is(lang.options.gender, 'feminine')
+  t.is(lang.options.customOption, true)
+})
+
+test('uses ones array when chunkIndex is 0 and gender is masculine', t => {
+  const lang = new TestSlavicLanguage({ gender: 'masculine' })
+  // 1 (chunkIndex 0) should use masculine form
+  t.is(lang.convertWholePart(1n), 'one-m')
+  t.is(lang.convertWholePart(2n), 'two-m')
+})
+
+test('uses onesFeminine when chunkIndex is 0 and gender is feminine', t => {
+  const lang = new TestSlavicLanguage({ gender: 'feminine' })
+  // 1 (chunkIndex 0) should use feminine form
+  t.is(lang.convertWholePart(1n), 'one-f')
+  t.is(lang.convertWholePart(2n), 'two-f')
+})
+
+test('thousands chunk always uses feminine forms regardless of gender option', t => {
+  const langMasc = new TestSlavicLanguage({ gender: 'masculine' })
+  const langFem = new TestSlavicLanguage({ gender: 'feminine' })
+
+  // 1001 has chunkIndex 1 for thousands, should use feminine
+  const resultMasc = langMasc.convertWholePart(1001n)
+  const resultFem = langFem.convertWholePart(1001n)
+
+  t.true(resultMasc.includes('one-f'), 'Thousands chunk should use feminine in masculine mode')
+  t.true(resultFem.includes('one-f'), 'Thousands chunk should use feminine in feminine mode')
+})

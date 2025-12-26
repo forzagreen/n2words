@@ -312,3 +312,17 @@ test('constructor properly applies options via mergeOptions', t => {
   const lang2 = new TestLanguage({ gender: 'masculine' })
   t.is(lang2.convertWholePart(42n), 'number-42')
 })
+
+test('mergeOptions handles no parameters', t => {
+  const lang = new TestLanguage()
+  const merged = lang.mergeOptions()
+
+  t.deepEqual(merged, {})
+})
+
+test('mergeOptions handles undefined parameters', t => {
+  const lang = new TestLanguage()
+  const merged = lang.mergeOptions(undefined, undefined)
+
+  t.deepEqual(merged, {})
+})
