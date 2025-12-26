@@ -557,7 +557,7 @@ function validateOptionsPattern (instance, LanguageClass, className, fileContent
 
           if (hasBooleanType) {
             result.errors.push(
-              `Gender option should use enum type "('masculine'|'feminine')", not boolean`
+              'Gender option should use enum type "(\'masculine\'|\'feminine\')", not boolean'
             )
           } else if (!hasEnumType) {
             result.warnings.push(
@@ -577,7 +577,7 @@ function validateOptionsPattern (instance, LanguageClass, className, fileContent
 
   // Has constructor - check if it uses options
   // Match constructor with better multiline support
-  const constructorMatch = fileContent.match(/constructor\s*\(([^)]*)\)\s*{([\s\S]*?)(?:\n  }\s*(?:\n|$)|\n\}\s*(?:\n|$))/)
+  const constructorMatch = fileContent.match(/constructor\s*\(([^)]*)\)\s*{([\s\S]*?)(?:\n {2}}\s*(?:\n|$)|\n\}\s*(?:\n|$))/)
   if (!constructorMatch) {
     result.warnings.push('Could not parse constructor (validation may be incomplete)')
     return
@@ -702,7 +702,7 @@ function validateOptionsPattern (instance, LanguageClass, className, fileContent
 
                 if (hasBooleanType) {
                   result.errors.push(
-                    `Gender option should use enum type "('masculine'|'feminine')", not boolean`
+                    'Gender option should use enum type "(\'masculine\'|\'feminine\')", not boolean'
                   )
                 } else if (!hasEnumType) {
                   result.warnings.push(
