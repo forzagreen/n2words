@@ -113,35 +113,35 @@ Language codes follow [IETF BCP 47](https://tools.ietf.org/html/bcp47) standards
 
 Languages marked with ✓ support additional options:
 
-| Language         | Option                | Type                      | Default        | Description                           |
-| ---------------- | --------------------- | ------------------------- | -------------- | ------------------------------------- |
-| Arabic           | `gender`              | `'masculine'\|'feminine'` | `'masculine'`  | Grammatical gender for number forms   |
-| Arabic           | `negativeWord`        | `string`                  | `'ناقص'`       | Custom negative word                  |
-| Bengali          | `feminine`            | `boolean`                 | `false`        | Currently unused                      |
-| Biblical Hebrew  | `andWord`             | `string`                  | `'ו'`          | Conjunction character                 |
-| Biblical Hebrew  | `gender`              | `'masculine'\|'feminine'` | `'masculine'`  | Grammatical gender for number forms   |
-| Croatian         | `gender`              | `'masculine'\|'feminine'` | `'masculine'`  | Grammatical gender for number forms   |
-| Czech            | `gender`              | `'masculine'\|'feminine'` | `'masculine'`  | Grammatical gender for number forms   |
-| Danish           | `ordFlag`             | `boolean`                 | `false`        | Enable ordinal number conversion      |
-| Dutch            | `includeOptionalAnd`  | `boolean`                 | `false`        | Include optional "en" separator       |
-| Dutch            | `noHundredPairs`      | `boolean`                 | `false`        | Disable comma before hundreds         |
-| Dutch            | `accentOne`           | `boolean`                 | `true`         | Use accented "één" for one            |
-| French           | `withHyphenSeparator` | `boolean`                 | `false`        | Use hyphens vs spaces                 |
-| French Belgium   | `withHyphenSeparator` | `boolean`                 | `false`        | Use hyphens vs spaces                 |
-| Hebrew           | `andWord`             | `string`                  | `'ו'`          | Conjunction character                 |
-| Hindi            | `feminine`            | `boolean`                 | `false`        | Currently unused                      |
-| Latvian          | `gender`              | `'masculine'\|'feminine'` | `'masculine'`  | Grammatical gender for number forms   |
-| Lithuanian       | `gender`              | `'masculine'\|'feminine'` | `'masculine'`  | Grammatical gender for number forms   |
-| Polish           | `gender`              | `'masculine'\|'feminine'` | `'masculine'`  | Grammatical gender for number forms   |
-| Romanian         | `gender`              | `'masculine'\|'feminine'` | `'masculine'`  | Grammatical gender for number forms   |
-| Russian          | `gender`              | `'masculine'\|'feminine'` | `'masculine'`  | Grammatical gender for number forms   |
-| Serbian Cyrillic | `gender`              | `'masculine'\|'feminine'` | `'masculine'`  | Grammatical gender for number forms   |
-| Serbian Latin    | `gender`              | `'masculine'\|'feminine'` | `'masculine'`  | Grammatical gender for number forms   |
-| Simplified Chinese | `formal`            | `boolean`                 | `true`         | Formal/financial vs common numerals   |
-| Spanish          | `gender`              | `'masculine'\|'feminine'` | `'masculine'`  | Grammatical gender for number forms   |
-| Traditional Chinese | `formal`       | `boolean`                 | `true`         | Formal/financial vs common numerals   |
-| Turkish          | `dropSpaces`          | `boolean`                 | `false`        | Remove spaces between words           |
-| Ukrainian        | `gender`              | `'masculine'\|'feminine'` | `'masculine'`  | Grammatical gender for number forms   |
+| Language | Option | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| Arabic | `gender` | `'masculine'\|'feminine'` | `'masculine'` | Grammatical gender for number forms |
+| Arabic | `negativeWord` | `string` | `'ناقص'` | Custom negative word |
+| Bengali | `feminine` | `boolean` | `false` | Currently unused |
+| Biblical Hebrew | `andWord` | `string` | `'ו'` | Conjunction character |
+| Biblical Hebrew | `gender` | `'masculine'\|'feminine'` | `'masculine'` | Grammatical gender for number forms |
+| Croatian | `gender` | `'masculine'\|'feminine'` | `'masculine'` | Grammatical gender for number forms |
+| Czech | `gender` | `'masculine'\|'feminine'` | `'masculine'` | Grammatical gender for number forms |
+| Danish | `ordFlag` | `boolean` | `false` | Enable ordinal number conversion |
+| Dutch | `includeOptionalAnd` | `boolean` | `false` | Include optional "en" separator |
+| Dutch | `noHundredPairs` | `boolean` | `false` | Disable comma before hundreds |
+| Dutch | `accentOne` | `boolean` | `true` | Use accented "één" for one |
+| French | `withHyphenSeparator` | `boolean` | `false` | Use hyphens vs spaces |
+| French Belgium | `withHyphenSeparator` | `boolean` | `false` | Use hyphens vs spaces |
+| Hebrew | `andWord` | `string` | `'ו'` | Conjunction character |
+| Hindi | `feminine` | `boolean` | `false` | Currently unused |
+| Latvian | `gender` | `'masculine'\|'feminine'` | `'masculine'` | Grammatical gender for number forms |
+| Lithuanian | `gender` | `'masculine'\|'feminine'` | `'masculine'` | Grammatical gender for number forms |
+| Polish | `gender` | `'masculine'\|'feminine'` | `'masculine'` | Grammatical gender for number forms |
+| Romanian | `gender` | `'masculine'\|'feminine'` | `'masculine'` | Grammatical gender for number forms |
+| Russian | `gender` | `'masculine'\|'feminine'` | `'masculine'` | Grammatical gender for number forms |
+| Serbian Cyrillic | `gender` | `'masculine'\|'feminine'` | `'masculine'` | Grammatical gender for number forms |
+| Serbian Latin | `gender` | `'masculine'\|'feminine'` | `'masculine'` | Grammatical gender for number forms |
+| Simplified Chinese | `formal` | `boolean` | `true` | Formal/financial vs common numerals |
+| Spanish | `gender` | `'masculine'\|'feminine'` | `'masculine'` | Grammatical gender for number forms |
+| Traditional Chinese | `formal` | `boolean` | `true` | Formal/financial vs common numerals |
+| Turkish | `dropSpaces` | `boolean` | `false` | Remove spaces between words |
+| Ukrainian | `gender` | `'masculine'\|'feminine'` | `'masculine'` | Grammatical gender for number forms |
 
 ## Browser Compatibility
 
@@ -171,8 +171,6 @@ The source files in [lib/](lib/) use modern JavaScript (ES6+ classes, BigInt, et
 - Modern bundler setups (Webpack, Vite, Rollup)
 - Smaller bundle sizes (tree-shaking)
 - Targeting modern browsers only
-
-See [Browser Usage Guide](docs/guides/BROWSER_USAGE.md) for detailed integration instructions.
 
 ## Examples
 
@@ -329,13 +327,8 @@ import { EnglishConverter, SpanishConverter } from 'n2words'
 
 ## Documentation
 
-- **[API Reference](docs/API.md)** - Complete API documentation for all converters
-- **[Migration Guide](docs/MIGRATION.md)** - Upgrading from v1.x to v2.0
-- **[Examples](docs/EXAMPLES.md)** - Real-world usage examples
-- **[Contributing Guide](CONTRIBUTING.md)** - How to contribute to the project
-- **[Language Development](docs/guides/LANGUAGE_DEVELOPMENT.md)** - Adding new languages
-- **[Browser Usage](docs/guides/BROWSER_USAGE.md)** - Browser integration guide
-- **[Performance](docs/guides/PERFORMANCE.md)** - Performance optimization tips
+- **[Contributing Guide](CONTRIBUTING.md)** - How to contribute, add languages, and development workflow
+- **[Project Context (CLAUDE.md)](CLAUDE.md)** - Comprehensive project architecture and patterns
 
 ## Contributing
 

@@ -48,22 +48,42 @@ Adding a new language is one of the most valuable contributions you can make! We
 
 ### Quick Start
 
+The scaffolding tool supports **interactive mode** (recommended) or **command-line mode**:
+
+**Interactive Mode (Recommended):**
+
 ```bash
-# Scaffold a new language implementation
-npm run lang:add <language-code>
+npm run lang:add -- <language-code>
 
 # Example: Add Korean
-npm run lang:add ko
+npm run lang:add -- ko
+```
 
-# Example: Add Canadian French
-npm run lang:add fr-CA
+You'll be prompted to select a base class:
+
+- **GreedyScaleLanguage** (default) - Most common, scale-based decomposition
+- **SlavicLanguage** - Three-form pluralization (Slavic languages)
+- **SouthAsianLanguage** - Indian numbering system (lakh, crore)
+- **TurkicLanguage** - Turkish-style implicit "bir" rules
+- **AbstractLanguage** - Direct implementation (advanced)
+
+**Command-Line Mode:**
+
+```bash
+npm run lang:add -- <language-code> --base=<base-class>
+
+# Examples:
+npm run lang:add -- ko                      # Uses default (greedy)
+npm run lang:add -- pl --base=slavic        # Polish (SlavicLanguage)
+npm run lang:add -- hi --base=south-asian   # Hindi (SouthAsianLanguage)
+npm run lang:add -- tr --base=turkic        # Turkish (TurkicLanguage)
 ```
 
 This will create:
 
 - Language implementation file: `lib/languages/<code>.js`
 - Test fixture file: `test/fixtures/languages/<code>.js`
-- Automatic registration in `lib/n2words.js`
+- Automatic registration in `lib/n2words.js` (import, converter, export)
 
 ### Implementation Steps
 
@@ -73,7 +93,8 @@ This will create:
    - Replace placeholder words with actual translations
    - Add complete `scaleWordPairs` array (ordered largest to smallest)
    - Implement `mergeScales()` with language-specific rules
-   - Add JSDoc documentation
+   - Add options if needed (e.g., `gender`, `formal`, custom separators)
+   - Add comprehensive JSDoc documentation with examples
 
 3. **Add comprehensive tests** in `test/fixtures/languages/<code>.js`:
    - Cover basic numbers (0-20)
@@ -81,6 +102,7 @@ This will create:
    - Test thousands, millions, billions
    - Add negative numbers and decimals
    - Include BigInt examples
+   - Test language-specific options (if applicable)
    - Add edge cases and language-specific features
 
 4. **Validate your implementation**:
@@ -89,15 +111,67 @@ This will create:
    npm run lang:validate -- <code> --verbose
    ```
 
+   The validator checks:
+   - IETF BCP 47 naming convention
+   - Class structure and inheritance
+   - Required properties and methods
+   - Scale word ordering (descending)
+   - Options pattern (constructor, typedef, type annotations)
+   - JSDoc documentation
+   - Test fixture exists and is valid
+   - Registration in `lib/n2words.js`
+
 5. **Run all tests**:
 
    ```bash
    npm test
    ```
 
-### Language Implementation Guide
+### Language Naming Convention
 
-For detailed guidance on implementing a new language, see [docs/guides/LANGUAGE_DEVELOPMENT.md](docs/guides/LANGUAGE_DEVELOPMENT.md).
+Language codes must follow **IETF BCP 47** format:
+
+- Base language: `en`, `fr`, `es` (2-3 lowercase letters)
+- With script: `zh-Hans`, `sr-Latn` (language-Script)
+- With region: `fr-BE`, `en-US` (language-REGION)
+
+Examples:
+
+- ✓ `en` (English)
+- ✓ `zh-Hans` (Simplified Chinese)
+- ✓ `fr-BE` (Belgian French)
+- ✗ `en_US` (use `en-US`)
+- ✗ `chinese` (use `zh-Hans` or `zh-Hant`)
+
+### Adding Language Options
+
+If your language requires options (e.g., gender, formal style), follow this pattern:
+
+1. **Add constructor** in language file:
+
+   ```javascript
+   constructor(options = {}) {
+     super()
+     this.options = this.mergeOptions({
+       gender: 'masculine'  // default value
+     }, options)
+   }
+   ```
+
+2. **Add typedef** in `lib/n2words.js`:
+
+   ```javascript
+   /**
+    * @typedef {Object} PolishOptions
+    * @property {('masculine'|'feminine')} [gender='masculine'] Grammatical gender
+    */
+   ```
+
+3. **Update converter** type annotation in `lib/n2words.js`:
+
+   ```javascript
+   const PolishConverter = /** @type {(value: NumericValue, options?: PolishOptions) => string} */ (makeConverter(Polish))
+   ```
 
 ## Code Style
 
@@ -157,7 +231,7 @@ export class English extends GreedyScaleLanguage {
 ### Running Tests
 
 ```bash
-# Run all tests (validation + unit + integration)
+# Run all tests (language validation + unit + integration + type checking)
 npm test
 
 # Run only unit tests
@@ -166,11 +240,17 @@ npm run test:unit
 # Run only integration tests
 npm run test:integration
 
-# Run web/browser tests
-npm run web:test
+# Run type checking tests
+npm run test:types
 
-# Run all tests including web
+# Run minimal tests (unit + integration, no validation)
+npm run test:minimal
+
+# Run all tests including browser tests
 npm run test:all
+
+# Run browser/web tests only
+npm run test:web
 ```
 
 ### Writing Tests
@@ -185,19 +265,27 @@ export default [
   [42, 'forty-two'],
   [-5, 'minus five'],
   [3.14, 'three point one four'],
-  [1000000n, 'one million']
+  [1000000n, 'one million'],
+
+  // With options (if language supports them)
+  [1, 'una', { gender: 'feminine' }]
 ]
 ```
+
+**Test fixture format:**
+
+- `[input, expected]` - Basic test case
+- `[input, expected, options]` - Test case with options
 
 ### Test Coverage
 
 Generate coverage reports:
 
 ```bash
-npm run coverage:generate
+npm run coverage
 ```
 
-Coverage reports will be in the `coverage/` directory.
+Coverage reports will be in the `coverage/` directory and displayed in the terminal.
 
 ## Submitting Changes
 
@@ -254,32 +342,41 @@ Coverage reports will be in the `coverage/` directory.
 ```text
 n2words/
 ├── lib/
-│   ├── classes/           # Base language classes
-│   │   ├── abstract-language.js
-│   │   ├── greedy-scale-language.js
-│   │   ├── slavic-language.js
-│   │   ├── south-asian-language.js
-│   │   └── turkic-language.js
-│   ├── languages/         # Language implementations
-│   │   ├── en.js
-│   │   ├── es.js
-│   │   └── ...
-│   └── n2words.js         # Main export file
+│   ├── classes/              # Base language classes
+│   │   ├── abstract-language.js          # Abstract base (all languages inherit)
+│   │   ├── greedy-scale-language.js      # Scale-based decomposition (most common)
+│   │   ├── slavic-language.js            # Three-form pluralization (Slavic)
+│   │   ├── south-asian-language.js       # Indian numbering (lakh, crore)
+│   │   └── turkic-language.js            # Turkish-style "bir" rules
+│   ├── languages/            # 48 language implementations
+│   │   ├── ar.js            # Arabic
+│   │   ├── en.js            # English
+│   │   ├── es.js            # Spanish
+│   │   ├── zh-Hans.js       # Simplified Chinese
+│   │   └── ...              # (44 more languages)
+│   └── n2words.js            # Main entry point (exports all converters)
 ├── test/
 │   ├── fixtures/
-│   │   └── languages/     # Test data for each language
-│   ├── unit/              # Unit tests
-│   ├── integration/       # Integration tests
-│   └── web/               # Browser tests
+│   │   └── languages/        # Test data for each language (48 files)
+│   ├── unit/                 # Unit tests (base classes)
+│   ├── integration/          # Integration tests (language converters)
+│   ├── types/                # TypeScript type checking tests
+│   └── web/                  # Browser/UMD bundle tests
 ├── scripts/
-│   ├── add-language.js    # Language scaffolding tool
-│   └── validate-language.js  # Language validation tool
-├── dist/                  # Built browser bundles
-└── docs/                  # Documentation
-    ├── guides/            # Development guides
-    ├── API.md
-    ├── MIGRATION.md
-    └── EXAMPLES.md
+│   ├── add-language.js       # Language scaffolding tool
+│   ├── validate-language.js  # Language validation tool
+│   └── README.md             # Scripts documentation
+├── bench.js                  # Performance benchmark script
+├── bench-memory.js           # Memory usage benchmark script
+├── dist/                     # Built UMD browser bundle
+│   ├── n2words.js            # Minified UMD bundle (~91KB, ~23KB gzipped)
+│   └── n2words.js.map        # Source map
+├── docs/
+│   ├── API.md                # Complete API documentation
+│   ├── MIGRATION.md          # v1.x to v2.0 migration guide
+│   └── EXAMPLES.md           # Usage examples
+├── CLAUDE.md                 # AI assistant context (project patterns)
+└── CONTRIBUTING.md           # This file
 ```
 
 ## Types of Contributions
@@ -316,16 +413,61 @@ Documentation improvements are always welcome:
 
 If proposing performance improvements:
 
-- Include benchmark results
+- Run benchmarks before and after your changes
+- Include benchmark results in your PR
 - Ensure tests still pass
 - Consider memory usage as well as speed
+
+**Running benchmarks:**
+
+```bash
+# Performance benchmarks (operations per second)
+npm run bench:perf                    # All languages
+npm run bench:perf -- --lang en       # Specific language
+npm run bench:perf -- --save          # Save results for comparison
+npm run bench:perf -- --compare       # Compare with previous run
+
+# Memory benchmarks
+npm run bench:memory                  # All languages
+npm run bench:memory -- --lang en     # Specific language
+npm run bench:memory -- --save --compare  # Track memory changes
+```
+
+## Language Validation
+
+The validation tool ensures language implementations follow project standards:
+
+```bash
+# Validate all languages
+npm run lang:validate
+
+# Validate specific languages
+npm run lang:validate -- en es fr
+
+# Verbose output with detailed checks
+npm run lang:validate -- en --verbose
+```
+
+**What gets validated:**
+
+- IETF BCP 47 naming convention (e.g., `en`, `zh-Hans`, `fr-BE`)
+- Class structure and proper inheritance
+- Required properties (`negativeWord`, `zeroWord`, etc.)
+- Method implementations (not abstract)
+- Scale words properly ordered (descending)
+- Options pattern (constructor, typedef, type annotations)
+- Gender option uses enum type (`'masculine'|'feminine'`)
+- JSDoc documentation present
+- Test fixture exists and is valid
+- Proper registration in `lib/n2words.js` (import, converter, export)
 
 ## Questions?
 
 If you have questions:
 
-- Check existing issues on GitHub
-- Read the [guides](guides/) documentation
+- Check existing issues on [GitHub](https://github.com/forzagreen/n2words/issues)
+- Read the documentation in the [docs/](docs/) directory
+- Check [CLAUDE.md](CLAUDE.md) for detailed project patterns
 - Open a new issue with the "question" label
 
 ## License
