@@ -22,13 +22,13 @@ class TestLanguage extends AbstractLanguage {
   constructor (options = {}) {
     super()
     this.options = this.mergeOptions({
-      feminine: false
+      gender: 'masculine'
     }, options)
   }
 
   // Simple implementation: just return the number as string
   convertWholePart (wholeNumber) {
-    if (this.options.feminine) return `feminine-number-${wholeNumber}`
+    if (this.options.gender === 'feminine') return `feminine-number-${wholeNumber}`
     if (wholeNumber === 0n) return this.zeroWord
     return `number-${wholeNumber}`
   }
@@ -306,9 +306,9 @@ test('mergeOptions handles empty user options', t => {
 })
 
 test('constructor properly applies options via mergeOptions', t => {
-  const lang = new TestLanguage({ feminine: true })
+  const lang = new TestLanguage({ gender: 'feminine' })
   t.is(lang.convertWholePart(42n), 'feminine-number-42')
 
-  const lang2 = new TestLanguage({ feminine: false })
+  const lang2 = new TestLanguage({ gender: 'masculine' })
   t.is(lang2.convertWholePart(42n), 'number-42')
 })

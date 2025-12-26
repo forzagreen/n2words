@@ -9,7 +9,7 @@ import { SlavicLanguage } from '../../lib/classes/slavic-language.js'
  * - Gender-aware number forms
  * - Chunk-based decomposition
  * - Hundreds, tens, ones patterns
- * - Constructor options (feminine flag)
+ * - Constructor options (gender option)
  */
 
 // Concrete test implementation
@@ -91,14 +91,14 @@ test('convertWholePart returns zero word for 0', t => {
 })
 
 test('convertWholePart handles single digits with masculine forms', t => {
-  const lang = new TestSlavicLanguage({ feminine: false })
+  const lang = new TestSlavicLanguage({ gender: 'masculine' })
   t.is(lang.convertWholePart(1n), 'one-m')
   t.is(lang.convertWholePart(2n), 'two-m')
   t.is(lang.convertWholePart(5n), 'five')
 })
 
 test('convertWholePart handles single digits with feminine option', t => {
-  const lang = new TestSlavicLanguage({ feminine: true })
+  const lang = new TestSlavicLanguage({ gender: 'feminine' })
   t.is(lang.convertWholePart(1n), 'one-f')
   t.is(lang.convertWholePart(2n), 'two-f')
   t.is(lang.convertWholePart(5n), 'five')
@@ -134,7 +134,7 @@ test('convertWholePart handles hundreds with remainder', t => {
 })
 
 test('convertWholePart uses feminine forms for thousands chunk', t => {
-  const lang = new TestSlavicLanguage({ feminine: false })
+  const lang = new TestSlavicLanguage({ gender: 'masculine' })
   // 1001 = 1 thousand + 1 ones
   // Thousands chunk (1) should use feminine form
   const result = lang.convertWholePart(1001n)
