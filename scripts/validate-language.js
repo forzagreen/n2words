@@ -403,14 +403,35 @@ function validateImports (fileContent, result) {
   const hasBaseClassImport = fileContent.match(/^import\s+{[^}]+}\s+from\s+['"]\.\.\/classes\//m)
 
   // Check for import from other languages (for variants like fr-BE extending fr)
-  const hasLanguageImport = fileContent.match(/^import\s+{[^}]+}\s+from\s+['"]\.\/[^'"]+\.js['"]/m)
+  const languageImportMatch = fileContent.match(/^import\s+{([^}]+)}\s+from\s+['"]\.\/([^'"]+)\.js['"]/m)
 
-  if (!hasBaseClassImport && !hasLanguageImport) {
+  if (!hasBaseClassImport && !languageImportMatch) {
     result.errors.push('Missing import statement from base class or parent language')
   } else if (hasBaseClassImport) {
     result.info.push('✓ Has proper base class import statement')
-  } else if (hasLanguageImport) {
+  } else if (languageImportMatch) {
     result.info.push('✓ Has proper language import statement (regional variant)')
+
+    // Validate parent language file exists
+    const parentLanguageCode = languageImportMatch[2]
+    const parentLanguageClass = languageImportMatch[1].trim()
+    const parentLanguagePath = `./lib/languages/${parentLanguageCode}.js`
+
+    if (existsSync(parentLanguagePath)) {
+      result.info.push(`✓ Parent language file exists: ${parentLanguageCode}.js`)
+    } else {
+      result.errors.push(`Parent language file not found: ${parentLanguagePath}`)
+    }
+
+    // Validate that the class actually extends the imported parent
+    const extendsMatch = fileContent.match(/extends\s+(\w+)/)
+    if (extendsMatch && extendsMatch[1] === parentLanguageClass) {
+      result.info.push(`✓ Correctly extends ${parentLanguageClass}`)
+    } else if (extendsMatch) {
+      result.warnings.push(
+        `Imports ${parentLanguageClass} but extends ${extendsMatch[1]}`
+      )
+    }
   }
 
   // Check for relative imports
@@ -527,6 +548,25 @@ function validateOptionsPattern (instance, LanguageClass, className, fileContent
 
       if (converterPattern.test(n2wordsContent)) {
         result.info.push(`✓ Options handled by base class (typedef ${className}Options exists, no local constructor)`)
+
+        // Validate gender option type for base class options
+        const genderProp = typedef.properties.find(p => p.name === 'gender')
+        if (genderProp) {
+          const hasEnumType = genderProp.type.includes('masculine') && genderProp.type.includes('feminine')
+          const hasBooleanType = genderProp.type === 'boolean'
+
+          if (hasBooleanType) {
+            result.errors.push(
+              `Gender option should use enum type "('masculine'|'feminine')", not boolean`
+            )
+          } else if (!hasEnumType) {
+            result.warnings.push(
+              `Gender option type "${genderProp.type}" should use enum pattern: "('masculine'|'feminine')"`
+            )
+          } else {
+            result.info.push('✓ Gender option uses correct enum type')
+          }
+        }
       } else {
         result.errors.push(`Typedef ${className}Options exists but ${converterName} missing options type annotation`)
       }
@@ -564,6 +604,41 @@ function validateOptionsPattern (instance, LanguageClass, className, fileContent
     // Check if passing options to super (regional variant pattern)
     if (constructorBody.includes('super(options)')) {
       result.info.push('✓ Constructor passes options to super() (regional variant pattern)')
+
+      // Check if constructor mutates scaleWordPairs (common in regional variants and conditional options)
+      if (constructorBody.includes('this.scaleWordPairs')) {
+        result.info.push('✓ Constructor mutates scaleWordPairs (variant or conditional behavior)')
+
+        // Validate that instance still has valid scaleWordPairs after construction
+        try {
+          if (instance.scaleWordPairs && Array.isArray(instance.scaleWordPairs)) {
+            // Check ordering is still maintained
+            let previousValue = Infinity
+            let hasOrderingError = false
+
+            for (let i = 0; i < instance.scaleWordPairs.length; i++) {
+              const pair = instance.scaleWordPairs[i]
+              if (Array.isArray(pair) && pair.length === 2) {
+                const value = Number(pair[0])
+                if (value >= previousValue && !hasOrderingError) {
+                  result.warnings.push(
+                    `scaleWordPairs still not in descending order after constructor mutation at index ${i}`
+                  )
+                  hasOrderingError = true
+                }
+                previousValue = value
+              }
+            }
+
+            if (!hasOrderingError) {
+              result.info.push('✓ Mutated scaleWordPairs still properly ordered')
+            }
+          }
+        } catch (error) {
+          result.warnings.push(`Could not validate mutated scaleWordPairs: ${error.message}`)
+        }
+      }
+
       // Regional variants don't need mergeOptions - parent handles it
       return
     }
@@ -616,6 +691,58 @@ function validateOptionsPattern (instance, LanguageClass, className, fileContent
                 if (typedefDefault !== def.value && typedefDefault !== String(def.value === 'true' || def.value === 'false')) {
                   result.warnings.push(
                     `Default value mismatch for "${def.name}": constructor="${def.value}", typedef="${typedefProp.defaultValue}"`
+                  )
+                }
+              }
+
+              // Special validation for gender option - must use enum type, not boolean
+              if (def.name === 'gender') {
+                const hasEnumType = typedefProp.type.includes('masculine') && typedefProp.type.includes('feminine')
+                const hasBooleanType = typedefProp.type === 'boolean'
+
+                if (hasBooleanType) {
+                  result.errors.push(
+                    `Gender option should use enum type "('masculine'|'feminine')", not boolean`
+                  )
+                } else if (!hasEnumType) {
+                  result.warnings.push(
+                    `Gender option type "${typedefProp.type}" should use enum pattern: "('masculine'|'feminine')"`
+                  )
+                } else {
+                  result.info.push('✓ Gender option uses correct enum type')
+                }
+
+                // Validate default value is 'masculine' or 'feminine'
+                if (def.value !== 'masculine' && def.value !== 'feminine') {
+                  result.warnings.push(
+                    `Gender default value "${def.value}" should be 'masculine' or 'feminine'`
+                  )
+                }
+              }
+
+              // Validate boolean options have boolean type
+              const booleanOptions = ['feminine', 'formal', 'ordFlag', 'includeOptionalAnd', 'noHundredPairs', 'accentOne', 'withHyphenSeparator', 'dropSpaces']
+              if (booleanOptions.includes(def.name)) {
+                if (typedefProp.type !== 'boolean') {
+                  result.warnings.push(
+                    `Option "${def.name}" should have boolean type, found: ${typedefProp.type}`
+                  )
+                }
+
+                // Validate default value is 'true' or 'false'
+                if (def.value !== 'true' && def.value !== 'false') {
+                  result.warnings.push(
+                    `Boolean option "${def.name}" default value "${def.value}" should be 'true' or 'false'`
+                  )
+                }
+              }
+
+              // Validate string options have string type
+              const stringOptions = ['negativeWord', 'andWord']
+              if (stringOptions.includes(def.name)) {
+                if (typedefProp.type !== 'string') {
+                  result.warnings.push(
+                    `Option "${def.name}" should have string type, found: ${typedefProp.type}`
                   )
                 }
               }
