@@ -1,8 +1,15 @@
 /**
  * Memory usage benchmark script for n2words library.
  *
- * Measures memory allocation across all languages or specific languages.
- * Supports saving results and comparing with previous runs.
+ * Measures memory allocation across all 48 languages or specific languages.
+ * Tracks heap usage, external memory, and per-iteration overhead.
+ * Requires --expose-gc flag for accurate garbage collection measurements.
+ *
+ * Usage:
+ *   npm run bench:memory                                   # Benchmark all languages
+ *   npm run bench:memory -- --lang en                      # Benchmark English only
+ *   npm run bench:memory -- --save --compare               # Track memory changes
+ *   npm run bench:memory -- --iterations 10000 --value 42  # Custom test
  */
 import { existsSync, readdirSync, writeFileSync, readFileSync } from 'node:fs'
 import chalk from 'chalk'
@@ -103,24 +110,38 @@ if (compareResults && existsSync(resultsFile)) {
 /**
  * Benchmark memory usage for a specific language converter.
  *
+ * Measures memory allocation by:
+ * 1. Running garbage collection (if available)
+ * 2. Taking baseline memory measurement
+ * 3. Importing language module
+ * 4. Running N iterations of conversion
+ * 5. Measuring memory delta
+ *
  * @param {string} file Library file path (relative to lib/).
  * @param {string} name Display name for the language.
+ * @throws {Error} If language class cannot be found in the module.
  */
 async function benchMemory (file, name) {
+  // Force garbage collection for more accurate baseline
   if (global.gc) {
     global.gc()
   }
 
+  // Allow GC to complete
   await new Promise(resolve => setTimeout(resolve, 100))
 
   const baseline = process.memoryUsage()
   const languageModule = await import('./lib/' + file + '.js')
+
+  // Get the first exported class from the module
+  // Language files export a single class (e.g., export class English)
   const LanguageClass = Object.values(languageModule)[0]
 
-  if (!LanguageClass) {
+  if (!LanguageClass || typeof LanguageClass !== 'function') {
     throw new Error(`Language class not found for file: ${file}`)
   }
 
+  // Run conversions and collect outputs (prevents optimization)
   const outputs = []
   for (let index = 0; index < iterations; index++) {
     const converter = new LanguageClass()
@@ -129,6 +150,7 @@ async function benchMemory (file, name) {
 
   const afterTest = process.memoryUsage()
 
+  // Calculate memory deltas
   const heapUsed = afterTest.heapUsed - baseline.heapUsed
   const external = afterTest.external - baseline.external
   const arrayBuffers = afterTest.arrayBuffers - baseline.arrayBuffers
@@ -145,8 +167,9 @@ async function benchMemory (file, name) {
     iterations
   })
 
+  // Sanity check
   if (outputs.length !== iterations) {
-    console.error('Unexpected output count')
+    console.error(chalk.red(`✗ Warning: Unexpected output count for ${name}`))
   }
 }
 

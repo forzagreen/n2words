@@ -1,8 +1,14 @@
 /**
  * Performance benchmark script for n2words library.
  *
- * Benchmarks conversion speed across all languages or specific languages.
+ * Benchmarks conversion speed across all 48 languages or specific languages.
+ * Measures operations per second (ops/sec) for convertToWords() calls.
  * Supports saving results and comparing with previous runs.
+ *
+ * Usage:
+ *   npm run bench:perf                       # Benchmark all languages
+ *   npm run bench:perf -- --lang en          # Benchmark English only
+ *   npm run bench:perf -- --save --compare   # Track performance changes
  */
 import Benchmark from 'benchmark'
 import { existsSync, readdirSync, writeFileSync, readFileSync } from 'node:fs'
@@ -103,14 +109,22 @@ suite
 /**
  * Queue a language converter for benchmarking.
  *
+ * Dynamically imports the language module and adds it to the benchmark suite.
+ * Each benchmark measures the time to instantiate the language class and
+ * convert a number to words.
+ *
  * @param {string} file Library file path (relative to lib/).
  * @param {Object} [options] Options to pass to the language converter.
+ * @throws {Error} If language class cannot be found in the module.
  */
 async function benchFile (file, options) {
   const languageModule = await import('./lib/' + file + '.js')
+
+  // Get the first exported class from the module
+  // Language files export a single class (e.g., export class English)
   const LanguageClass = Object.values(languageModule)[0]
 
-  if (!LanguageClass) {
+  if (!LanguageClass || typeof LanguageClass !== 'function') {
     throw new Error(`Language class not found for file: ${file}`)
   }
 
