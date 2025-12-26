@@ -304,3 +304,11 @@ test('mergeOptions handles empty user options', t => {
 
   t.deepEqual(merged, { default: 'value' })
 })
+
+test('constructor properly applies options via mergeOptions', t => {
+  const lang = new TestLanguage({ feminine: true })
+  t.is(lang.convertWholePart(42n), 'feminine-number-42')
+
+  const lang2 = new TestLanguage({ feminine: false })
+  t.is(lang2.convertWholePart(42n), 'number-42')
+})
