@@ -147,8 +147,11 @@ function updateN2wordsFile (code, className) {
   // Find the Language Imports section and add import alphabetically
   const importSectionStart = content.indexOf('// Language Imports')
   const importSectionEnd = content.indexOf('\n// =', importSectionStart + 1)
-  const importSection = content.slice(importSectionStart, importSectionEnd)
-  const importLines = importSection.split('\n').filter(line => line.startsWith('import {'))
+
+  // Find the start of actual imports (skip header comments and empty lines)
+  const importSectionHeaderEnd = content.indexOf('\n\n', importSectionStart)
+  const importSection = content.slice(importSectionHeaderEnd, importSectionEnd)
+  const importLines = importSection.split('\n').filter(line => line.trim().startsWith('import {'))
 
   // Create new import statement
   const newImport = `import { ${className} } from './languages/${code}.js'`
@@ -157,7 +160,7 @@ function updateN2wordsFile (code, className) {
   let insertPos = -1
   for (let i = 0; i < importLines.length; i++) {
     if (importLines[i] > newImport) {
-      const lineInFullContent = content.indexOf(importLines[i], importSectionStart)
+      const lineInFullContent = content.indexOf(importLines[i], importSectionHeaderEnd)
       insertPos = lineInFullContent
       break
     }
@@ -173,17 +176,22 @@ function updateN2wordsFile (code, className) {
   // Find the Language Converters section and add converter alphabetically
   const converterSectionStart = content.indexOf('// Language Converters')
   const converterSectionEnd = content.indexOf('\n// =', converterSectionStart + 1)
-  const converterSection = content.slice(converterSectionStart, converterSectionEnd)
+
+  // Find the start of actual converters (skip header comments)
+  const converterSectionHeaderEnd = content.indexOf('const ', converterSectionStart)
+  const converterSection = content.slice(converterSectionHeaderEnd, converterSectionEnd)
   const converterLines = converterSection.split('\n').filter(line => line.trim().startsWith('const ') && line.includes('Converter'))
 
   // Create new converter statement (no options for new languages by default)
   const newConverter = `const ${className}Converter = /** @type {(value: NumericValue) => string} */ (makeConverter(${className}))`
 
-  // Find the correct position alphabetically
+  // Find the correct position alphabetically by converter name
+  const converterName = `${className}Converter`
   insertPos = -1
   for (let i = 0; i < converterLines.length; i++) {
-    if (converterLines[i] > newConverter) {
-      const lineInFullContent = content.indexOf(converterLines[i], converterSectionStart)
+    const existingConverterName = converterLines[i].match(/const\s+(\w+Converter)/)?.[1]
+    if (existingConverterName && existingConverterName > converterName) {
+      const lineInFullContent = content.indexOf(converterLines[i], converterSectionHeaderEnd)
       insertPos = lineInFullContent
       break
     }
@@ -263,7 +271,18 @@ function main () {
     console.log(chalk.gray('Consider using the canonical form for consistency.\n'))
   }
 
-  const className = getExpectedClassName(code)
+  let className = getExpectedClassName(code)
+
+  // If CLDR doesn't provide a name (rare/historical languages), ask user or use code
+  if (!className) {
+    console.log(chalk.yellow(`\nWarning: CLDR does not provide a display name for "${code}"`))
+    console.log(chalk.gray('For rare or historical languages, you must provide a descriptive class name.'))
+    console.log(chalk.gray('Example: "hbo" → "BiblicalHebrew"\n'))
+    console.error(chalk.red('Error: Cannot auto-generate class name for this language code.'))
+    console.log(chalk.gray('Please add this language manually or use a recognized language code.'))
+    process.exit(1)
+  }
+
   const langFilePath = `./lib/languages/${code}.js`
   const fixtureFilePath = `./test/fixtures/languages/${code}.js`
 
@@ -278,7 +297,7 @@ function main () {
 
   // Create language file
   console.log(chalk.gray(`\nCreating ${langFilePath}...`))
-  writeFileSync(langFilePath, generateLanguageFile(code, className))
+  writeFileSync(langFilePath, generateLanguageFile(className))
   console.log(chalk.green('✓ Created language file'))
 
   // Create test fixture file
