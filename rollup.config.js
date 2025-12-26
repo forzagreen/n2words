@@ -3,9 +3,9 @@ import { nodeResolve } from '@rollup/plugin-node-resolve'
 import terser from '@rollup/plugin-terser'
 
 /**
- * Rollup configuration for the main n2words bundle.
- * With the new architecture, all languages are included in the main bundle
- * via class imports, so we only need to bundle the main entry point.
+ * Rollup configuration for n2words UMD bundle.
+ *
+ * Creates a browser-compatible UMD build with all language converters.
  */
 export default {
   input: './lib/n2words.js',
@@ -14,7 +14,8 @@ export default {
     format: 'umd',
     name: 'n2words',
     sourcemap: true,
-    exports: 'named'
+    exports: 'named',
+    banner: '/*! n2words v2.0.0 | MIT License | github.com/forzagreen/n2words */'
   },
   plugins: [
     nodeResolve({
@@ -37,13 +38,16 @@ export default {
     }),
     terser({
       compress: {
-        passes: 2
+        passes: 2,
+        drop_debugger: true,
+        ecma: 2020
       },
       mangle: {
         properties: false
       },
       format: {
-        comments: false
+        comments: /^!/,
+        ecma: 2020
       }
     })
   ]
