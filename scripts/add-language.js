@@ -10,25 +10,88 @@
  * - Updates lib/n2words.js with import and export
  *
  * Usage:
- *   npm run lang:add <language-code>
+ *   npm run lang:add <language-code> [--base=<base-class>]
+ *
+ * Base Classes:
+ *   --base=greedy         GreedyScaleLanguage (default) - Scale-based decomposition
+ *   --base=slavic         SlavicLanguage - Three-form pluralization (Slavic languages)
+ *   --base=south-asian    SouthAsianLanguage - Indian numbering system
+ *   --base=turkic         TurkicLanguage - Turkish-style implicit "bir" rules
+ *   --base=abstract       AbstractLanguage - Direct implementation (advanced)
  *
  * Examples:
- *   npm run lang:add ko        # Korean
- *   npm run lang:add zh-Hans   # Simplified Chinese
- *   npm run lang:add fr-CA     # Canadian French
+ *   npm run lang:add ko                      # Korean (GreedyScaleLanguage)
+ *   npm run lang:add sr-Cyrl --base=slavic  # Serbian Cyrillic (SlavicLanguage)
+ *   npm run lang:add ta --base=south-asian  # Tamil (SouthAsianLanguage)
+ *   npm run lang:add az --base=turkic       # Azerbaijani (TurkicLanguage)
  */
 
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
+import { createInterface } from 'node:readline'
 import chalk from 'chalk'
 import { getExpectedClassName, validateLanguageCode } from './validate-language.js'
 
 /**
+ * Base class configurations
+ */
+const BASE_CLASSES = {
+  greedy: {
+    name: 'GreedyScaleLanguage',
+    import: '../classes/greedy-scale-language.js',
+    description: 'Scale-based decomposition (most common)'
+  },
+  slavic: {
+    name: 'SlavicLanguage',
+    import: '../classes/slavic-language.js',
+    description: 'Three-form pluralization (Slavic languages)'
+  },
+  'south-asian': {
+    name: 'SouthAsianLanguage',
+    import: '../classes/south-asian-language.js',
+    description: 'Indian numbering system (lakh, crore)'
+  },
+  turkic: {
+    name: 'TurkicLanguage',
+    import: '../classes/turkic-language.js',
+    description: 'Turkish-style implicit "bir" rules'
+  },
+  abstract: {
+    name: 'AbstractLanguage',
+    import: '../classes/abstract-language.js',
+    description: 'Direct implementation (advanced)'
+  }
+}
+
+/**
  * Generate language implementation file
  * @param {string} className - Class name (e.g., 'English')
+ * @param {string} baseType - Base class type ('greedy', 'slavic', 'south-asian', 'turkic', 'abstract')
  * @returns {string}
  */
-function generateLanguageFile (className) {
-  return `import { GreedyScaleLanguage } from '../classes/greedy-scale-language.js'
+function generateLanguageFile (className, baseType = 'greedy') {
+  const base = BASE_CLASSES[baseType]
+
+  if (baseType === 'greedy') {
+    return generateGreedyLanguageFile(className, base)
+  } else if (baseType === 'slavic') {
+    return generateSlavicLanguageFile(className, base)
+  } else if (baseType === 'south-asian') {
+    return generateSouthAsianLanguageFile(className, base)
+  } else if (baseType === 'turkic') {
+    return generateTurkicLanguageFile(className, base)
+  } else if (baseType === 'abstract') {
+    return generateAbstractLanguageFile(className, base)
+  }
+}
+
+/**
+ * Generate GreedyScaleLanguage template
+ * @param {string} className - Class name
+ * @param {Object} base - Base class config
+ * @returns {string}
+ */
+function generateGreedyLanguageFile (className, base) {
+  return `import { ${base.name} } from '${base.import}'
 
 /**
  * ${className} language converter.
@@ -40,7 +103,7 @@ function generateLanguageFile (className) {
  *
  * TODO: Document merge rules and language-specific behavior
  */
-export class ${className} extends GreedyScaleLanguage {
+export class ${className} extends ${base.name} {
   negativeWord = 'minus' // TODO: Replace with ${className} word for negative
   decimalSeparatorWord = 'point' // TODO: Replace with ${className} decimal separator
   zeroWord = 'zero' // TODO: Replace with ${className} word for zero
@@ -75,6 +138,218 @@ export class ${className} extends GreedyScaleLanguage {
   mergeScales (leftWords, leftScale, rightWords, rightScale) {
     // TODO: Implement merge logic
     return leftWords + ' ' + rightWords
+  }
+}
+`
+}
+
+/**
+ * Generate SlavicLanguage template
+ * @param {string} className - Class name
+ * @param {Object} base - Base class config
+ * @returns {string}
+ */
+function generateSlavicLanguageFile (className, base) {
+  return `import { ${base.name} } from '${base.import}'
+
+/**
+ * ${className} language converter.
+ *
+ * Supports three-form pluralization (singular/few/many) common in Slavic languages.
+ *
+ * TODO: Document language-specific pluralization rules
+ */
+export class ${className} extends ${base.name} {
+  negativeWord = 'minus' // TODO: Replace with ${className} word
+  decimalSeparatorWord = 'point' // TODO: Replace with ${className} word
+  zeroWord = 'zero' // TODO: Replace with ${className} word
+
+  // TODO: Define masculine forms for 1-9
+  ones = {
+    1: 'one',
+    2: 'two',
+    3: 'three',
+    4: 'four',
+    5: 'five',
+    6: 'six',
+    7: 'seven',
+    8: 'eight',
+    9: 'nine'
+  }
+
+  // TODO: Define feminine forms for 1-9 (if applicable)
+  onesFeminine = {
+    1: 'one',
+    2: 'two',
+    // ... etc
+  }
+
+  // TODO: Define words for 10-19
+  tens = {
+    0: 'ten',
+    1: 'eleven',
+    2: 'twelve',
+    3: 'thirteen',
+    4: 'fourteen',
+    5: 'fifteen',
+    6: 'sixteen',
+    7: 'seventeen',
+    8: 'eighteen',
+    9: 'nineteen'
+  }
+
+  // TODO: Define words for 20-90 (multiples of ten)
+  twenties = {
+    2: 'twenty',
+    3: 'thirty',
+    4: 'forty',
+    5: 'fifty',
+    6: 'sixty',
+    7: 'seventy',
+    8: 'eighty',
+    9: 'ninety'
+  }
+
+  // TODO: Define words for hundreds (100-900)
+  hundreds = {
+    1: 'one hundred',
+    2: 'two hundred',
+    // ... etc
+  }
+
+  // TODO: Define plural forms for scale words [singular, few, many]
+  // Example for Russian: ['тысяча', 'тысячи', 'тысяч']
+  pluralForms = {
+    1000: ['thousand', 'thousands', 'thousands'], // TODO: Replace
+    1000000: ['million', 'millions', 'millions'] // TODO: Replace
+  }
+}
+`
+}
+
+/**
+ * Generate SouthAsianLanguage template
+ * @param {string} className - Class name
+ * @param {Object} base - Base class config
+ * @returns {string}
+ */
+function generateSouthAsianLanguageFile (className, base) {
+  return `import { ${base.name} } from '${base.import}'
+
+/**
+ * ${className} language converter.
+ *
+ * Uses Indian numbering system with lakh (100,000) and crore (10,000,000).
+ *
+ * TODO: Document language-specific number patterns
+ */
+export class ${className} extends ${base.name} {
+  negativeWord = 'minus' // TODO: Replace with ${className} word
+  decimalSeparatorWord = 'point' // TODO: Replace with ${className} word
+  zeroWord = 'zero' // TODO: Replace with ${className} word
+
+  // TODO: Define words for 0-99 (belowHundred array)
+  belowHundred = [
+    'zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine',
+    'ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen',
+    'twenty', 'twenty-one', 'twenty-two', 'twenty-three', 'twenty-four', 'twenty-five', 'twenty-six', 'twenty-seven', 'twenty-eight', 'twenty-nine',
+    // TODO: Continue through 99
+  ]
+
+  // TODO: Define word for "hundred"
+  hundredWord = 'hundred'
+
+  // TODO: Define scale words [empty, thousand, lakh, crore, ...]
+  scaleWords = [
+    '',         // ones (no scale word)
+    'thousand', // TODO: Replace with ${className} word for 1,000
+    'lakh',     // TODO: Replace with ${className} word for 100,000
+    'crore',    // TODO: Replace with ${className} word for 10,000,000
+    'arab'      // TODO: Replace with ${className} word for 1,000,000,000
+  ]
+}
+`
+}
+
+/**
+ * Generate TurkicLanguage template
+ * @param {string} className - Class name
+ * @param {Object} base - Base class config
+ * @returns {string}
+ */
+function generateTurkicLanguageFile (className, base) {
+  return `import { ${base.name} } from '${base.import}'
+
+/**
+ * ${className} language converter.
+ *
+ * Turkic languages typically omit "bir" (one) before hundreds and thousands.
+ * Inherits from GreedyScaleLanguage with Turkic-specific merge logic.
+ *
+ * TODO: Document language-specific grammar rules
+ */
+export class ${className} extends ${base.name} {
+  negativeWord = 'minus' // TODO: Replace with ${className} word
+  decimalSeparatorWord = 'point' // TODO: Replace with ${className} word
+  zeroWord = 'zero' // TODO: Replace with ${className} word
+
+  scaleWordPairs = [
+    // TODO: Add scale word pairs in descending order
+    // Format: [value as bigint, word as string]
+    // Example for Turkish:
+    // [1000000n, 'milyon'],
+    // [1000n, 'bin'],
+    // [100n, 'yüz'],
+    // [90n, 'doksan'],
+    // ... down to 1n
+    [1n, 'one'] // Placeholder - replace with complete list
+  ]
+
+  // Note: TurkicLanguage provides default mergeScales() implementation
+  // that handles implicit "bir" rules. Override only if needed.
+}
+`
+}
+
+/**
+ * Generate AbstractLanguage template
+ * @param {string} className - Class name
+ * @param {Object} base - Base class config
+ * @returns {string}
+ */
+function generateAbstractLanguageFile (className, base) {
+  return `import { ${base.name} } from '${base.import}'
+
+/**
+ * ${className} language converter.
+ *
+ * Direct implementation using AbstractLanguage.
+ * This requires implementing convertWholePart() from scratch.
+ *
+ * TODO: Document language-specific conversion logic
+ */
+export class ${className} extends ${base.name} {
+  negativeWord = 'minus' // TODO: Replace with ${className} word
+  decimalSeparatorWord = 'point' // TODO: Replace with ${className} word
+  zeroWord = 'zero' // TODO: Replace with ${className} word
+  wordSeparator = ' '
+
+  /**
+   * Convert a whole number (bigint) to words.
+   *
+   * @param {bigint} wholeNumber - The number to convert
+   * @returns {string} The number in words
+   */
+  convertWholePart (wholeNumber) {
+    if (wholeNumber === 0n) {
+      return this.zeroWord
+    }
+
+    // TODO: Implement conversion logic for ${className}
+    // This is where you write the core number-to-words algorithm
+    // for your language.
+
+    throw new Error('convertWholePart() not yet implemented for ${className}')
   }
 }
 `
@@ -148,9 +423,16 @@ function updateN2wordsFile (code, className) {
   const importSectionStart = content.indexOf('// Language Imports')
   const importSectionEnd = content.indexOf('\n// =', importSectionStart + 1)
 
-  // Find the start of actual imports (skip header comments and empty lines)
-  const importSectionHeaderEnd = content.indexOf('\n\n', importSectionStart)
-  const importSection = content.slice(importSectionHeaderEnd, importSectionEnd)
+  // Find where the closing divider ends (after the ====... line)
+  const dividerEnd = content.indexOf('\n', importSectionEnd + 1)
+
+  // Skip any empty lines after the divider to find first import
+  let importStart = dividerEnd + 1
+  while (content[importStart] === '\n') {
+    importStart++
+  }
+
+  const importSection = content.slice(importStart, content.indexOf('\n// =', importStart))
   const importLines = importSection.split('\n').filter(line => line.trim().startsWith('import {'))
 
   // Create new import statement
@@ -160,26 +442,33 @@ function updateN2wordsFile (code, className) {
   let insertPos = -1
   for (let i = 0; i < importLines.length; i++) {
     if (importLines[i] > newImport) {
-      const lineInFullContent = content.indexOf(importLines[i], importSectionHeaderEnd)
+      const lineInFullContent = content.indexOf(importLines[i], importStart)
       insertPos = lineInFullContent
       break
     }
   }
 
-  // If not found, insert before the section divider
+  // If not found, insert at the end of imports (before next section divider)
   if (insertPos === -1) {
-    insertPos = importSectionEnd
+    // Find the next section divider
+    const nextDivider = content.indexOf('\n// =', importStart)
+    insertPos = nextDivider
   }
 
   content = content.slice(0, insertPos) + newImport + '\n' + content.slice(insertPos)
 
   // Find the Language Converters section and add converter alphabetically
   const converterSectionStart = content.indexOf('// Language Converters')
-  const converterSectionEnd = content.indexOf('\n// =', converterSectionStart + 1)
+  const converterDividerEnd = content.indexOf('\n', content.indexOf('\n// =', converterSectionStart) + 1)
 
-  // Find the start of actual converters (skip header comments)
-  const converterSectionHeaderEnd = content.indexOf('const ', converterSectionStart)
-  const converterSection = content.slice(converterSectionHeaderEnd, converterSectionEnd)
+  // Skip any empty lines and comments after the divider
+  let converterStart = converterDividerEnd + 1
+  while (content[converterStart] === '\n' || content.substring(converterStart, converterStart + 2) === '//') {
+    converterStart = content.indexOf('\n', converterStart) + 1
+  }
+
+  const converterSectionEnd = content.indexOf('\n// =', converterStart)
+  const converterSection = content.slice(converterStart, converterSectionEnd)
   const converterLines = converterSection.split('\n').filter(line => line.trim().startsWith('const ') && line.includes('Converter'))
 
   // Create new converter statement (no options for new languages by default)
@@ -191,13 +480,13 @@ function updateN2wordsFile (code, className) {
   for (let i = 0; i < converterLines.length; i++) {
     const existingConverterName = converterLines[i].match(/const\s+(\w+Converter)/)?.[1]
     if (existingConverterName && existingConverterName > converterName) {
-      const lineInFullContent = content.indexOf(converterLines[i], converterSectionHeaderEnd)
+      const lineInFullContent = content.indexOf(converterLines[i], converterStart)
       insertPos = lineInFullContent
       break
     }
   }
 
-  // If not found, insert before the section divider
+  // If not found, insert at the end of converters (before next section divider)
   if (insertPos === -1) {
     insertPos = converterSectionEnd
   }
@@ -235,22 +524,104 @@ function updateN2wordsFile (code, className) {
 }
 
 /**
+ * Prompt user for base class selection
+ * @returns {Promise<string>} Selected base class type
+ */
+async function promptForBaseClass () {
+  const rl = createInterface({
+    input: process.stdin,
+    output: process.stdout
+  })
+
+  console.log(chalk.cyan('\nSelect a base class for your language:\n'))
+
+  const options = Object.entries(BASE_CLASSES).map(([key, config], index) => ({
+    key,
+    index: index + 1,
+    ...config
+  }))
+
+  // Display options
+  options.forEach(option => {
+    const isDefault = option.key === 'greedy' ? chalk.yellow(' (default)') : ''
+    console.log(`  ${chalk.white(option.index)}. ${chalk.bold(option.name)}${isDefault}`)
+    console.log(`     ${chalk.gray(option.description)}`)
+    console.log()
+  })
+
+  return new Promise((resolve) => {
+    rl.question(chalk.cyan('Enter your choice (1-5) [1]: '), (answer) => {
+      rl.close()
+
+      const trimmed = answer.trim()
+
+      // Default to greedy if empty
+      if (trimmed === '') {
+        console.log(chalk.gray('Using default: GreedyScaleLanguage\n'))
+        resolve('greedy')
+        return
+      }
+
+      // Parse selection
+      const selection = parseInt(trimmed, 10)
+
+      if (isNaN(selection) || selection < 1 || selection > options.length) {
+        console.error(chalk.red(`\nInvalid selection: "${answer}"`))
+        console.log(chalk.gray('Please run the command again and choose 1-5.\n'))
+        process.exit(1)
+      }
+
+      const selected = options[selection - 1]
+      console.log(chalk.gray(`Selected: ${selected.name}\n`))
+      resolve(selected.key)
+    })
+  })
+}
+
+/**
  * Main function
  */
-function main () {
+async function main () {
   const args = process.argv.slice(2)
 
   if (args.length === 0) {
     console.error(chalk.red('Error: Language code required'))
-    console.log(chalk.gray('\nUsage: npm run lang:add <language-code>'))
+    console.log(chalk.gray('\nUsage: npm run lang:add <language-code> [--base=<base-class>]'))
+    console.log(chalk.gray('\nBase Classes:'))
+    for (const [key, config] of Object.entries(BASE_CLASSES)) {
+      console.log(chalk.gray(`  --base=${key.padEnd(12)} ${config.description}`))
+    }
     console.log(chalk.gray('\nExamples:'))
-    console.log(chalk.gray('  npm run lang:add ko        # Korean'))
-    console.log(chalk.gray('  npm run lang:add zh-Hans   # Simplified Chinese'))
-    console.log(chalk.gray('  npm run lang:add fr-CA     # Canadian French'))
+    console.log(chalk.gray('  npm run lang:add ko                      # Korean (GreedyScaleLanguage)'))
+    console.log(chalk.gray('  npm run lang:add sr-Cyrl --base=slavic  # Serbian Cyrillic (SlavicLanguage)'))
+    console.log(chalk.gray('  npm run lang:add ta --base=south-asian  # Tamil (SouthAsianLanguage)'))
     process.exit(1)
   }
 
-  const code = args[0]
+  // Parse arguments
+  const code = args.find(arg => !arg.startsWith('--'))
+  const baseArg = args.find(arg => arg.startsWith('--base='))
+  let baseType = baseArg ? baseArg.split('=')[1] : null
+
+  if (!code) {
+    console.error(chalk.red('Error: Language code required'))
+    process.exit(1)
+  }
+
+  // Validate base class type if provided via argument
+  if (baseType && !BASE_CLASSES[baseType]) {
+    console.error(chalk.red(`Error: Invalid base class "${baseType}"`))
+    console.log(chalk.gray('\nValid base classes:'))
+    for (const [key, config] of Object.entries(BASE_CLASSES)) {
+      console.log(chalk.gray(`  ${key.padEnd(12)} - ${config.description}`))
+    }
+    process.exit(1)
+  }
+
+  // If no base class specified via argument, prompt the user
+  if (!baseType) {
+    baseType = await promptForBaseClass()
+  }
 
   // Validate language code using Intl API (same as validator)
   const validation = validateLanguageCode(code)
@@ -271,7 +642,7 @@ function main () {
     console.log(chalk.gray('Consider using the canonical form for consistency.\n'))
   }
 
-  let className = getExpectedClassName(code)
+  const className = getExpectedClassName(code)
 
   // If CLDR doesn't provide a name (rare/historical languages), ask user or use code
   if (!className) {
@@ -285,9 +656,11 @@ function main () {
 
   const langFilePath = `./lib/languages/${code}.js`
   const fixtureFilePath = `./test/fixtures/languages/${code}.js`
+  const baseClass = BASE_CLASSES[baseType]
 
   console.log(chalk.cyan(`\nAdding new language: ${code}`))
   console.log(chalk.gray(`Class name: ${className}`))
+  console.log(chalk.gray(`Base class: ${baseClass.name} (${baseClass.description})`))
 
   // Check if language already exists
   if (existsSync(langFilePath)) {
@@ -297,7 +670,7 @@ function main () {
 
   // Create language file
   console.log(chalk.gray(`\nCreating ${langFilePath}...`))
-  writeFileSync(langFilePath, generateLanguageFile(className))
+  writeFileSync(langFilePath, generateLanguageFile(className, baseType))
   console.log(chalk.green('✓ Created language file'))
 
   // Create test fixture file
@@ -315,12 +688,25 @@ function main () {
   console.log(chalk.green('✓ Updated n2words.js'))
 
   // Success message with next steps
-  console.log(chalk.green(`\n✓ Successfully scaffolded ${code} language`))
+  console.log(chalk.green(`\n✓ Successfully scaffolded ${code} language using ${baseClass.name}`))
   console.log(chalk.cyan('\nNext steps:'))
   console.log(chalk.gray('1. Edit ') + chalk.white(langFilePath))
-  console.log(chalk.gray('   - Replace placeholder values'))
-  console.log(chalk.gray('   - Add complete scaleWordPairs'))
-  console.log(chalk.gray('   - Implement mergeScales() logic'))
+  console.log(chalk.gray('   - Replace placeholder values with actual ' + code + ' words'))
+
+  // Base-class specific instructions
+  if (baseType === 'greedy' || baseType === 'turkic') {
+    console.log(chalk.gray('   - Add complete scaleWordPairs array'))
+    console.log(chalk.gray('   - Implement mergeScales() logic (if needed)'))
+  } else if (baseType === 'slavic') {
+    console.log(chalk.gray('   - Define ones, tens, twenties, hundreds dictionaries'))
+    console.log(chalk.gray('   - Add pluralForms for scale words [singular, few, many]'))
+  } else if (baseType === 'south-asian') {
+    console.log(chalk.gray('   - Complete belowHundred array (0-99)'))
+    console.log(chalk.gray('   - Define scaleWords [hazaar, lakh, crore, arab]'))
+  } else if (baseType === 'abstract') {
+    console.log(chalk.gray('   - Implement convertWholePart() method'))
+  }
+
   console.log(chalk.gray('\n2. Edit ') + chalk.white(fixtureFilePath))
   console.log(chalk.gray('   - Add comprehensive test cases'))
   console.log(chalk.gray('   - Include edge cases and language-specific features'))

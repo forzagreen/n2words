@@ -28,16 +28,64 @@ Scaffolding tool for quickly setting up a new language implementation with all r
 
 ### Usage
 
+#### Interactive Mode (Recommended)
+
+Simply provide the language code and you'll be prompted to select a base class:
+
 ```bash
-# Add a new language by IETF BCP 47 code
-npm run lang:add <language-code>
+npm run lang:add -- <language-code>
+
+# Example
+npm run lang:add -- ko
+```
+
+You'll see an interactive prompt:
+
+```text
+Select a base class for your language:
+
+  1. GreedyScaleLanguage (default)
+     Scale-based decomposition (most common)
+
+  2. SlavicLanguage
+     Three-form pluralization (Slavic languages)
+
+  3. SouthAsianLanguage
+     Indian numbering system (lakh, crore)
+
+  4. TurkicLanguage
+     Turkish-style implicit "bir" rules
+
+  5. AbstractLanguage
+     Direct implementation (advanced)
+
+Enter your choice (1-5) [1]:
+```
+
+Press Enter for the default (GreedyScaleLanguage) or enter 1-5 to select a specific base class.
+
+#### Command-Line Mode
+
+If you already know which base class you need, you can skip the prompt:
+
+```bash
+npm run lang:add -- <language-code> --base=<base-class>
 
 # Examples
-npm run lang:add ko        # Korean
-npm run lang:add zh-Hans   # Simplified Chinese
-npm run lang:add fr-CA     # Canadian French
-npm run lang:add sr-Latn   # Serbian (Latin script)
+npm run lang:add -- ko                          # Uses default (greedy)
+npm run lang:add -- sr-Cyrl --base=slavic      # Serbian Cyrillic (SlavicLanguage)
+npm run lang:add -- ta --base=south-asian      # Tamil (SouthAsianLanguage)
+npm run lang:add -- az --base=turkic           # Azerbaijani (TurkicLanguage)
+npm run lang:add -- custom-lang --base=abstract # Advanced: Direct implementation
 ```
+
+**Base Classes:**
+
+- `greedy` - GreedyScaleLanguage (default): Most common pattern, scale-based decomposition
+- `slavic` - SlavicLanguage: Three-form pluralization (singular/few/many)
+- `south-asian` - SouthAsianLanguage: Indian numbering system (lakh, crore)
+- `turkic` - TurkicLanguage: Turkish-style implicit "bir" rules
+- `abstract` - AbstractLanguage: Direct implementation (advanced, requires implementing convertWholePart from scratch)
 
 ### Validation
 
