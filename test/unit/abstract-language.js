@@ -92,7 +92,6 @@ test('convertToWords accepts bigint input', t => {
   t.is(lang.convertToWords(1000000n), 'number-1000000')
 })
 
-
 test('handles negative numbers correctly', t => {
   const lang = new TestLanguage()
   t.is(lang.convertToWords(-42), 'minus number-42')
