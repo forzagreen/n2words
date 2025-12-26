@@ -47,10 +47,10 @@
     "dist/*"
   ],
   "scripts": {
-    "bench:perf": "node bench.js",
     "bench:memory": "node --expose-gc bench-memory.js",
+    "bench:perf": "node bench.js",
     "build": "rollup -c",
-    "coverage": "c8 npm run test",
+    "coverage": "c8 npm run test:minimal",
     "lang:add": "node scripts/add-language.js",
     "lang:validate": "node scripts/validate-language.js",
     "lint": "npm run lint:js && npm run lint:md",
@@ -62,6 +62,7 @@
     "test": "npm run lang:validate && npm run test:unit && npm run test:integration && npm run test:types",
     "test:all": "npm run test && npm run test:web",
     "test:integration": "ava --verbose test/integration/*",
+    "test:minimal": "npm run test:unit && npm run test:integration",
     "test:types": "node test/types/n2words.js",
     "test:unit": "ava --verbose test/unit/*",
     "test:web": "npm run build && ava --verbose test/web/*"
