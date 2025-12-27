@@ -156,6 +156,7 @@ function generateSlavicLanguageFile (className, base) {
  * ${className} language converter.
  *
  * Supports three-form pluralization (singular/few/many) common in Slavic languages.
+ * Gender agreement (masculine/feminine) is inherited from SlavicLanguage base class.
  *
  * TODO: Document language-specific pluralization rules
  */
@@ -219,9 +220,11 @@ export class ${className} extends ${base.name} {
 
   // TODO: Define plural forms for scale words [singular, few, many]
   // Example for Russian: ['тысяча', 'тысячи', 'тысяч']
-  pluralForms = {
-    1000: ['thousand', 'thousands', 'thousands'], // TODO: Replace
-    1000000: ['million', 'millions', 'millions'] // TODO: Replace
+  thousands = {
+    1: ['thousand', 'thousands', 'thousands'], // 10^3 - TODO: Replace
+    2: ['million', 'millions', 'millions'], // 10^6 - TODO: Replace
+    3: ['billion', 'billions', 'billions'], // 10^9 - TODO: Replace
+    4: ['trillion', 'trillions', 'trillions'] // 10^12 - TODO: Replace
   }
 }
 `
