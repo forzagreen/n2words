@@ -14,9 +14,18 @@
 import { existsSync, readdirSync, writeFileSync, readFileSync } from 'node:fs'
 import chalk from 'chalk'
 import { join } from 'node:path'
+import * as n2words from '../lib/n2words.js'
 
 const resultsFile = join('.', 'bench-memory-results.json')
-const libPath = '../lib/'
+
+// Build converter map from n2words exports
+const converters = {}
+for (const [key, value] of Object.entries(n2words)) {
+  if (key.endsWith('Converter')) {
+    converters[key] = value
+  }
+}
+
 const arguments_ = process.argv.slice(2)
 
 let language
@@ -46,13 +55,13 @@ const results = []
 
 if (language) {
   if (existsSync('./lib/languages/' + language + '.js')) {
-    await benchMemory('languages/' + language, language)
+    await benchMemory(language, language)
   } else {
     console.error(chalk.red('\n✗ Language file does not exist: ' + language + '.js\n'))
     process.exit(1)
   }
 } else {
-  const files = readdirSync(libPath + 'languages')
+  const files = readdirSync('./lib/languages')
 
   console.log(chalk.cyan.bold('Memory Benchmark\n'))
   console.log(chalk.gray(`Testing ${files.length} languages with ${iterations} iterations each...`))
@@ -60,7 +69,7 @@ if (language) {
 
   for (const file of files) {
     if (file.endsWith('.js')) {
-      await benchMemory('languages/' + file.replace('.js', ''), file.replace('.js', ''))
+      await benchMemory(file.replace('.js', ''), file.replace('.js', ''))
     }
   }
 }
@@ -114,15 +123,31 @@ if (compareResults && existsSync(resultsFile)) {
  * Measures memory allocation by:
  * 1. Running garbage collection (if available)
  * 2. Taking baseline memory measurement
- * 3. Importing language module
- * 4. Running N iterations of conversion
- * 5. Measuring memory delta
+ * 3. Running N iterations of converter function
+ * 4. Measuring memory delta
  *
- * @param {string} file Library file path (relative to lib/).
+ * @param {string} languageCode Language code (e.g., 'en', 'es', 'zh-Hans').
  * @param {string} name Display name for the language.
- * @throws {Error} If language class cannot be found in the module.
+ * @throws {Error} If converter cannot be found for the language code.
  */
-async function benchMemory (file, name) {
+async function benchMemory (languageCode, name) {
+  // Import the language module to get the class name
+  const languageModule = await import(`../lib/languages/${languageCode}.js`)
+  const LanguageClass = Object.values(languageModule)[0]
+
+  if (!LanguageClass || typeof LanguageClass !== 'function') {
+    throw new Error(`Language class not found for: ${languageCode}`)
+  }
+
+  // Find the matching converter by class name
+  const className = LanguageClass.name
+  const converterName = `${className}Converter`
+  const converter = converters[converterName]
+
+  if (!converter) {
+    throw new Error(`Converter not found for: ${className} (expected ${converterName})`)
+  }
+
   // Force garbage collection for more accurate baseline
   if (global.gc) {
     global.gc()
@@ -132,21 +157,11 @@ async function benchMemory (file, name) {
   await new Promise(resolve => setTimeout(resolve, 100))
 
   const baseline = process.memoryUsage()
-  const languageModule = await import(libPath + file + '.js')
-
-  // Get the first exported class from the module
-  // Language files export a single class (e.g., export class English)
-  const LanguageClass = Object.values(languageModule)[0]
-
-  if (!LanguageClass || typeof LanguageClass !== 'function') {
-    throw new Error(`Language class not found for file: ${file}`)
-  }
 
   // Run conversions and collect outputs (prevents optimization)
   const outputs = []
   for (let index = 0; index < iterations; index++) {
-    const converter = new LanguageClass()
-    outputs.push(converter.convertToWords(value))
+    outputs.push(converter(value))
   }
 
   const afterTest = process.memoryUsage()
@@ -182,6 +197,7 @@ function displayResults () {
 
   results.sort((a, b) => a.name.localeCompare(b.name))
   const best = results.reduce((min, curr) => curr.totalAllocated < min.totalAllocated ? curr : min)
+  const worst = results.reduce((max, curr) => curr.totalAllocated > max.totalAllocated ? curr : max)
 
   for (const result of results) {
     const isBest = result === best
@@ -202,7 +218,6 @@ function displayResults () {
   console.log(chalk.gray('\n' + '─'.repeat(65)))
   console.log(chalk.green('Lowest memory: ' + best.name))
 
-  const worst = results[results.length - 1]
   const increase = ((worst.totalAllocated - best.totalAllocated) / best.totalAllocated) * 100
   console.log(chalk.gray(`Range: ${formatBytes(best.totalAllocated)} to ${formatBytes(worst.totalAllocated)} (+${increase.toFixed(1)}%)`))
 }
@@ -247,6 +262,6 @@ function displayHelp () {
   console.log('  ' + chalk.gray('npm run bench:memory -- --value 42 --iterations 10000  # Custom test'))
   console.log('  ' + chalk.gray('npm run bench:memory -- --save --compare               # Track changes over time'))
   console.log()
-  console.log(chalk.yellow.bold('Note:') + chalk.gray(' For more accurate results, run with: ') + chalk.cyan('node --expose-gc bench-memory.js'))
+  console.log(chalk.yellow.bold('Note:') + chalk.gray(' For more accurate results, run with: ') + chalk.cyan('node --expose-gc bench/memory.js'))
   console.log()
 }
