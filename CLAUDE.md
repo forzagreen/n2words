@@ -1029,38 +1029,31 @@ Advanced Rollup configuration details:
 
 ### GitHub Actions Workflows
 
-#### .github/workflows/test.yml
+#### .github/workflows/ci.yml
 
-Comprehensive test workflow with 3 jobs:
+Unified CI workflow with single job for efficiency:
 
-**1. lint-and-build job:**
-
-- Runs linting (JavaScript + Markdown)
-- Builds all dist/ bundles
-- Uploads build artifacts for other jobs
-- Fast fail: Stops workflow if linting or build fails
-
-**2. test job (matrix):**
+**Job: lint-build-test (matrix):**
 
 - **Node.js versions**: 20, 22, 24, 25
-- **Operating systems**: Ubuntu (all versions), Windows (Node 24), macOS (Node 24)
-- Downloads build artifacts from lint-and-build
-- Runs full test suite (validation + unit + integration + types + web)
-- Tests browser bundles in real browsers (Chrome, Firefox via Selenium)
-
-**3. coverage job:**
-
-- Runs on Node.js 24 (Ubuntu)
-- Generates test coverage report
-- Uploads to Coveralls for tracking
-
-**Additional features:**
-
+- **Operating systems**: Ubuntu (all versions), Windows (Node 24 LTS), macOS (Node 24 LTS)
+- **Steps**:
+  1. Linting (JavaScript + Markdown) - on Ubuntu + Node 24 only
+  2. Build all dist/ bundles - on Ubuntu + Node 24 only
+  3. Full test suite (validation + unit + integration + types + web)
+  4. Coverage generation and upload - on Ubuntu + Node 24 only, conditionally
+- **Coverage upload conditions**: Only uploads on PRs and pushes to `master`/`main` branch
 - **Concurrency control**: Cancels in-progress runs on new push to same branch
 - **Caching**: Uses actions/cache for node_modules
-- **Artifact sharing**: Build artifacts cached between jobs
 
-#### .github/workflows/npm-publish.yml
+**Why unified job?**
+
+- ✅ **Faster execution** - No job dependencies, parallel execution
+- ✅ **Less duplication** - Single `npm ci` per job instead of 3x
+- ✅ **Smarter coverage** - Only uploads when valuable (PRs + main)
+- ✅ **Better efficiency** - Coverage runs integrated with tests
+
+#### .github/workflows/publish.yml
 
 Automated npm publishing workflow:
 
@@ -1068,16 +1061,68 @@ Automated npm publishing workflow:
 
 **Steps:**
 
-1. **Version validation**: Ensures `package.json` version matches git tag
-2. **Build**: Generates all dist/ bundles
-3. **Publish to npm**: Uses npm provenance (`--provenance`) for supply chain security
-4. **Create GitHub Release**: Automatically creates release with dist files attached
+1. **Check CI Status**: Waits for CI workflow to complete successfully (max 30 min)
+2. **Version validation**: Ensures `package.json` version matches git tag
+3. **Build**: Generates all dist/ bundles
+4. **Dry-run**: Tests publish without actually publishing
+5. **Publish to npm**: Uses npm provenance (`--provenance`) for supply chain security
+6. **Create GitHub Release**: Automatically creates release with dist files attached
 
 **Security:**
 
 - Uses OIDC authentication (no long-lived tokens)
 - Publishes with provenance attestation
 - Requires write permissions for packages and contents
+- Requires `NPM_TOKEN` secret
+
+**Efficiency:**
+
+- ✅ **No redundant testing** - Waits for CI workflow results
+- ✅ **All platforms validated** - Won't publish if tests fail on any platform
+- ✅ **Faster publish** - No duplicate lint/test steps
+
+#### .github/workflows/pr_coverage.yml
+
+Coverage reporting workflow for pull requests:
+
+**Trigger:** After `ci.yml` completes on PRs
+
+**Features:**
+
+- Posts coverage reports as PR comments
+- Shows coverage percentages directly in PR
+- Updates existing comment (no spam)
+- Links to full Coveralls report
+- Only runs on successful CI completion
+
+### Local CI Testing with Act
+
+The project supports local GitHub Actions testing using [Act](https://github.com/nektos/act).
+
+**Quick Start:**
+
+```bash
+# 1. Install Act
+brew install act  # or choco install act-cli on Windows
+
+# 2. Pull Docker image
+docker pull catthehacker/ubuntu:act-latest
+
+# 3. Run CI locally (fast - 1-2 min)
+act -W .github/workflows/ci.yml --matrix node:24 --matrix os:ubuntu-latest
+
+# Or run full matrix (10-15 min)
+act -W .github/workflows/ci.yml
+```
+
+**Configuration:**
+
+The project includes `.actrc` configuration with:
+
+- Pre-configured Docker image
+- `--pull=false` to prevent authentication errors
+- Project directory binding and network access
+- Container reuse for faster iteration
 
 ### Deployment Process
 

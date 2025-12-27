@@ -1,6 +1,6 @@
 # n2words
 
-[![CI](https://github.com/forzagreen/n2words/actions/workflows/test.yml/badge.svg)](https://github.com/forzagreen/n2words/actions/workflows/test.yml)
+[![CI](https://github.com/forzagreen/n2words/actions/workflows/ci.yml/badge.svg)](https://github.com/forzagreen/n2words/actions/workflows/ci.yml)
 [![Coverage Status](https://coveralls.io/repos/github/forzagreen/n2words/badge.svg)](https://coveralls.io/github/forzagreen/n2words)
 [![npm](https://img.shields.io/npm/v/n2words.svg)](https://npmjs.com/package/n2words)
 [![npm](https://img.shields.io/npm/dw/n2words)](https://npmjs.com/package/n2words)
@@ -17,16 +17,23 @@
 
 ## Contents
 
-- [Quick Start](#quick-start)
-- [Usage](#usage)
-- [Type Safety](#type-safety)
-- [Supported Languages](#supported-languages-48)
-- [Browser Compatibility](#browser-compatibility)
-- [Performance & Bundle Size](#performance--bundle-size)
-- [Examples](#examples)
-- [Documentation](#documentation)
-- [Contributing](#contributing)
-- [License](#license)
+- [n2words](#n2words)
+  - [Contents](#contents)
+  - [Quick Start](#quick-start)
+  - [Usage](#usage)
+  - [Type Safety](#type-safety)
+  - [Supported Languages (48)](#supported-languages-48)
+    - [Language Options](#language-options)
+  - [Browser Compatibility](#browser-compatibility)
+  - [Performance \& Bundle Size](#performance--bundle-size)
+  - [Examples](#examples)
+    - [Basic Conversions](#basic-conversions)
+    - [Gender Agreement](#gender-agreement)
+    - [Language-Specific Features](#language-specific-features)
+    - [Input Flexibility](#input-flexibility)
+  - [Documentation](#documentation)
+  - [Contributing](#contributing)
+  - [License](#license)
 
 ## Quick Start
 

@@ -81,3 +81,8 @@ $RECYCLE.BIN/
 *.temp
 .tmp/
 .temp/
+
+# Act (local CI testing)
+.secrets
+.act/
+act-*.log

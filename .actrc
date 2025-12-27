@@ -1,0 +1,28 @@
+# Act configuration for local GitHub Actions testing
+# https://github.com/nektos/act
+
+# Use medium-sized runner image (includes Node.js and common tools)
+# Pinned to specific SHA to prevent image drift
+# Update periodically with: docker pull catthehacker/ubuntu:act-latest
+-P ubuntu-latest=catthehacker/ubuntu@sha256:act-latest
+
+# Bind project directory to preserve node_modules between runs
+--bind
+
+# Use host network for npm registry access
+--network host
+
+# Container architecture (use host architecture)
+--container-architecture linux/amd64
+
+# Reuse containers between runs for faster iteration
+--reuse
+
+# Verbose output for debugging
+--verbose=false
+
+# Detect event type from git context
+--detect-event
+
+# Don't pull images on every run (pull manually when needed)
+--pull=false

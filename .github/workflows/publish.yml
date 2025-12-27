@@ -1,0 +1,138 @@
+name: Publish
+
+on:
+  push:
+    tags:
+      - v*
+
+permissions:
+  id-token: write # Required for OIDC and provenance
+  contents: write # Required for GitHub Releases
+
+jobs:
+  # Wait for CI to pass before publishing
+  check-ci:
+    name: Check CI Status
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    outputs:
+      ci-success: ${{ steps.check.outputs.success }}
+
+    steps:
+      - name: Wait for CI workflow
+        uses: actions/github-script@v7
+        id: check
+        with:
+          script: |
+            const tagName = context.ref.replace('refs/tags/', '');
+            console.log(`Checking CI status for tag: ${tagName}`);
+
+            // Get the commit SHA for this tag
+            const { data: tag } = await github.rest.git.getRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: `tags/${tagName}`
+            });
+
+            const commitSha = tag.object.sha;
+            console.log(`Tag commit SHA: ${commitSha}`);
+
+            // Wait for CI workflow to complete (max 30 min)
+            const maxAttempts = 60;
+            const delayMs = 30000; // 30 seconds
+
+            for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+              console.log(`Attempt ${attempt}/${maxAttempts}: Checking CI status...`);
+
+              const { data: runs } = await github.rest.actions.listWorkflowRunsForRepo({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                workflow_id: 'ci.yml',
+                head_sha: commitSha,
+                per_page: 1
+              });
+
+              if (runs.total_count > 0) {
+                const run = runs.workflow_runs[0];
+                console.log(`CI workflow status: ${run.status}, conclusion: ${run.conclusion}`);
+
+                if (run.status === 'completed') {
+                  if (run.conclusion === 'success') {
+                    console.log('✅ CI passed! Proceeding with publish.');
+                    core.setOutput('success', 'true');
+                    return;
+                  } else {
+                    core.setFailed(`❌ CI failed with conclusion: ${run.conclusion}`);
+                    return;
+                  }
+                }
+              }
+
+              if (attempt < maxAttempts) {
+                console.log(`Waiting ${delayMs/1000}s before next check...`);
+                await new Promise(resolve => setTimeout(resolve, delayMs));
+              }
+            }
+
+            core.setFailed('⏱️ Timeout: CI workflow did not complete within 30 minutes');
+
+  publish:
+    name: Publish to npm
+    needs: check-ci
+    if: needs.check-ci.outputs.ci-success == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v6.0.1
+        with:
+          persist-credentials: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6.1.0
+        with:
+          node-version: '24'
+          registry-url: 'https://registry.npmjs.org'
+          cache: 'npm'
+
+      - name: Validate version matches tag
+        run: |
+          PKG_VERSION="v$(node -p "require('./package.json').version")"
+          TAG_VERSION="${GITHUB_REF#refs/tags/}"
+          if [ "$PKG_VERSION" != "$TAG_VERSION" ]; then
+            echo "❌ Error: package.json version ($PKG_VERSION) does not match tag ($TAG_VERSION)"
+            exit 1
+          fi
+          echo "✅ Version validated: $PKG_VERSION"
+
+      - name: Install dependencies
+        run: npm ci --prefer-offline
+
+      - name: Build web bundles
+        run: npm run build
+
+      - name: Dry-run publish
+        run: npm publish --dry-run
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v6.0.0
+        with:
+          name: dist-${{ github.ref_name }}
+          path: |
+            dist/
+          retention-days: 90
+
+      - name: Publish to npm with provenance
+        run: npm publish --provenance --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2.5.0
+        with:
+          generate_release_notes: true
+          files: |
+            dist/*.js
+            dist/*.js.map
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

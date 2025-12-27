@@ -1,0 +1,98 @@
+name: PR Coverage
+
+on:
+  workflow_run:
+    workflows: ['CI']
+    types:
+      - completed
+
+permissions:
+  pull-requests: write
+  contents: read
+
+jobs:
+  comment:
+    name: Post Coverage Comment
+    runs-on: ubuntu-latest
+    if: >
+      github.event.workflow_run.event == 'pull_request' &&
+      github.event.workflow_run.conclusion == 'success'
+
+    steps:
+      - name: Download coverage artifacts
+        uses: actions/download-artifact@v6.0.0
+        with:
+          name: coverage-report
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: ${{ github.event.workflow_run.id }}
+        continue-on-error: true
+
+      - name: Extract coverage summary
+        id: coverage
+        run: |
+          if [ -f coverage/coverage-summary.json ]; then
+            TOTAL=$(jq '.total.lines.pct' coverage/coverage-summary.json)
+            STATEMENTS=$(jq '.total.statements.pct' coverage/coverage-summary.json)
+            BRANCHES=$(jq '.total.branches.pct' coverage/coverage-summary.json)
+            FUNCTIONS=$(jq '.total.functions.pct' coverage/coverage-summary.json)
+
+            echo "total=$TOTAL" >> $GITHUB_OUTPUT
+            echo "statements=$STATEMENTS" >> $GITHUB_OUTPUT
+            echo "branches=$BRANCHES" >> $GITHUB_OUTPUT
+            echo "functions=$FUNCTIONS" >> $GITHUB_OUTPUT
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Comment on PR
+        if: steps.coverage.outputs.exists == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const coverage = {
+              total: '${{ steps.coverage.outputs.total }}',
+              statements: '${{ steps.coverage.outputs.statements }}',
+              branches: '${{ steps.coverage.outputs.branches }}',
+              functions: '${{ steps.coverage.outputs.functions }}'
+            };
+
+            const comment = `## 📊 Coverage Report
+
+            | Metric | Coverage |
+            |--------|----------|
+            | **Lines** | ${coverage.total}% |
+            | Statements | ${coverage.statements}% |
+            | Branches | ${coverage.branches}% |
+            | Functions | ${coverage.functions}% |
+
+            [View full coverage report on Coveralls](https://coveralls.io/github/${{ github.repository }})
+
+            <sub>Coverage report generated for commit ${{ github.event.workflow_run.head_sha }}</sub>`;
+
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+
+            const botComment = comments.find(comment =>
+              comment.user.type === 'Bot' &&
+              comment.body.includes('📊 Coverage Report')
+            );
+
+            if (botComment) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: botComment.id,
+                body: comment
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: comment
+              });
+            }

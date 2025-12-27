@@ -454,37 +454,35 @@ All pull requests run through comprehensive CI checks using GitHub Actions.
 
 ### CI Workflow Overview
 
-**1. Lint and Build Job:**
+The project uses a unified CI workflow (`ci.yml`) that combines linting, building, and testing in a single job for better efficiency.
 
-- JavaScript linting (StandardJS)
-- Markdown linting
-- Build all UMD bundles (`dist/`)
-- Verify package contents
-- Security audit (`npm audit`)
-
-**2. Test Matrix:**
+**Job Matrix:**
 
 Tests run on multiple environments:
 
 - **Node.js versions**: 20, 22, 24, 25
 - **Operating systems**:
   - Ubuntu (all Node versions)
-  - Windows (Node 24)
-  - macOS (Node 24)
+  - Windows (Node 24 LTS only)
+  - macOS (Node 24 LTS only)
 
-**Test suite includes:**
+**What the CI job does:**
 
-- Language validation
-- Unit tests
-- Integration tests
-- Type checking (TypeScript/JSDoc)
-- Browser tests (Chrome, Firefox via Selenium)
+1. **Linting** - JavaScript (StandardJS) and Markdown
+2. **Building** - All UMD bundles (`dist/`)
+3. **Testing** - Language validation, unit, integration, type checking, browser tests
+4. **Coverage** - Generated and uploaded conditionally (PRs and main branch only)
+5. **Security** - Package audit (`npm audit`)
 
-**3. Coverage Job:**
+**Coverage Strategy:**
 
-- Generates test coverage report
-- Uploads to Coveralls for tracking
-- Reports coverage percentage
+Coverage is only uploaded on:
+
+- Pull requests
+- Pushes to `master`/`main` branch
+- Ubuntu + Node 24 job only
+
+This prevents coverage spam from feature branches while maintaining visibility where it matters.
 
 ### Viewing CI Results
 
@@ -508,6 +506,20 @@ npm audit --production --audit-level=moderate  # Security audit
 npm run build
 npm run test:web
 ```
+
+### Testing with Act (Local GitHub Actions)
+
+You can test the actual CI workflow locally using [Act](https://github.com/nektos/act):
+
+```bash
+# Quick validation (1-2 min)
+act -W .github/workflows/ci.yml --matrix node:24 --matrix os:ubuntu-latest
+
+# Full validation (10-15 min)
+act -W .github/workflows/ci.yml
+```
+
+The project includes an `.actrc` configuration file with sensible defaults.
 
 ## Advanced Contributions
 
@@ -681,12 +693,14 @@ We follow [Semantic Versioning](https://semver.org/):
    ```
 
 3. **Automated process** (via GitHub Actions):
+   - Waits for CI workflow to complete successfully
    - Version validation (ensures package.json matches tag)
    - Build all dist/ bundles
-   - Run full test suite
    - Publish to npm with provenance
    - Create GitHub Release with auto-generated notes
    - Upload dist/ files as release artifacts
+
+**Note**: The publish workflow (`publish.yml`) waits for the CI workflow to pass before publishing, ensuring all tests pass on all platforms before releasing.
 
 ### Release Checklist
 
