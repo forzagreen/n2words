@@ -190,8 +190,8 @@ We use [StandardJS](https://standardjs.com/) for code style:
 # Check for style issues
 npm run lint:js
 
-# Automatically fix style issues
-npm run lint:js:fix
+# Automatically fix style issues (also available via npm run lint:fix)
+npm run lint:js -- --fix
 ```
 
 Key conventions:
@@ -210,8 +210,8 @@ We use [markdownlint](https://github.com/DavidAnson/markdownlint) for markdown f
 # Check markdown files
 npm run lint:md
 
-# Automatically fix markdown issues
-npm run lint:md:fix
+# Automatically fix markdown issues (also available via npm run lint:fix)
+npm run lint:md -- --fix
 ```
 
 ### JSDoc Documentation
@@ -250,13 +250,10 @@ npm run test:integration
 # Run type checking tests
 npm run test:types
 
-# Run minimal tests (unit + integration, no validation)
-npm run test:minimal
-
 # Run all tests including browser tests
 npm run test:all
 
-# Run browser/web tests only
+# Run browser/web tests only (automatically builds via pretest:web hook)
 npm run test:web
 ```
 
@@ -659,11 +656,29 @@ This targets ~86% of global users while requiring BigInt support (non-polyfillab
 
 **Testing browser compatibility:**
 
-1. Build UMD bundles: `npm run build`
-2. Run Selenium tests: `npm run test:web`
-3. Verify in target browsers manually if needed
+1. Run Playwright tests: `npm run test:web` (automatically builds via `pretest:web` hook)
+2. Verify in target browsers manually if needed
 
-**Note**: Browser tests run against `dist/` bundles, not `lib/` source.
+**Note**: Browser tests run against `dist/` bundles (not `lib/` source) in Chromium, Firefox, and WebKit.
+
+### CI Testing Strategy
+
+Our CI pipeline runs tests across multiple platforms with an optimized strategy:
+
+**Core Tests** (unit, integration, types):
+
+- ✅ Ubuntu: Node 20, 22, 24, 25
+- ✅ Windows: Node 24 (LTS)
+- ✅ macOS: Node 24 (LTS)
+
+**Browser Tests** (Playwright):
+
+- ✅ Ubuntu only: Node 20, 22, 24, 25
+- ❌ Windows/macOS: Not run
+
+**Why browser tests on Ubuntu only?**
+
+Browser engines (Chromium, Firefox, WebKit) are cross-platform and behave identically on all operating systems. Since we're testing UMD JavaScript bundles (not OS-specific native code), running browser tests on a single OS provides complete coverage while optimizing CI time and cost. This is the industry-standard approach for JavaScript libraries.
 
 ## Release Process
 
@@ -1015,16 +1030,16 @@ npm run build
 npm run lint
 ```
 
-#### Selenium/Browser Test Issues
+#### Browser Test Issues
 
 **Problem**: Browser tests fail to start
 
 **Solution**:
 
-1. Ensure you've built the project first: `npm run build`
-2. Check ChromeDriver is installed: `npm install`
-3. Update browser drivers: `npm update selenium-webdriver`
-4. Try running tests in headless mode (already default)
+1. Browser builds are automatically generated via `pretest:web` lifecycle hook
+2. Ensure Playwright browsers are installed: `npm run playwright:install`
+3. Check for errors in the test output
+4. Verify `dist/n2words.js` bundle exists after build
 
 #### Import/Export Errors
 

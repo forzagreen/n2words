@@ -53,6 +53,10 @@ jobs:
       - name: Install dependencies
         run: npm ci --prefer-offline
 
+      - name: Install Playwright browsers
+        if: matrix.os == 'ubuntu-latest'
+        run: npx playwright install --with-deps
+
       # Only lint on one job to avoid duplicate output
       - name: Security audit
         if: matrix.node == '24' && matrix.os == 'ubuntu-latest'
@@ -75,6 +79,21 @@ jobs:
       - name: Run tests
         if: matrix.node != '24' || matrix.os != 'ubuntu-latest'
         run: npm test
+
+      # Run browser tests (Ubuntu only - Playwright browsers installed)
+      - name: Run browser tests
+        if: matrix.os == 'ubuntu-latest'
+        run: npm run test:web
+
+      - name: Upload Playwright test results
+        if: failure() && matrix.os == 'ubuntu-latest'
+        uses: actions/upload-artifact@v6.0.0
+        with:
+          name: playwright-report-node-${{ matrix.node }}
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 7
 
       - name: Verify package contents
         if: matrix.node == '24' && matrix.os == 'ubuntu-latest'

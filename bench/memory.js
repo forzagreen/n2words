@@ -16,7 +16,7 @@ import chalk from 'chalk'
 import { join } from 'node:path'
 import * as n2words from '../lib/n2words.js'
 
-const resultsFile = join('.', 'bench-memory-results.json')
+const resultsFile = join(import.meta.dirname, 'memory-results.json')
 
 // Build converter map from n2words exports
 const converters = {}

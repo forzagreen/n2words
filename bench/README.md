@@ -31,7 +31,7 @@ npm run bench:perf -- --compare
 
 - **Accurate Measurements**: Uses [benchmark.js](https://benchmarkjs.com/) for statistically rigorous performance testing
 - **Operations/Second**: Reports ops/sec with confidence intervals
-- **Historical Tracking**: Save results to `bench-results.json` and compare over time
+- **Historical Tracking**: Save results to `bench/perf-results.json` and compare over time
 - **Custom Test Values**: Test with different numbers using `--value`
 - **Per-Language Testing**: Focus on specific languages for targeted optimization
 
@@ -47,7 +47,7 @@ npm run bench:perf [options]
 | ------ | ----------- | ------- |
 | `--lang <code>` | Benchmark specific language | `--lang en` |
 | `--value <number>` | Custom test value (default: `Number.MAX_SAFE_INTEGER`) | `--value 42` |
-| `--save` | Save results to `bench-results.json` | `--save` |
+| `--save` | Save results to `bench/perf-results.json` | `--save` |
 | `--compare` | Compare with previous saved results | `--compare` |
 | `--help` | Display help message | `--help` |
 
@@ -77,7 +77,7 @@ languages/es x 119,234 ops/sec ±0.98% (91 runs sampled)
 Results:
 Fastest is languages/en, languages/fr
 
-✓ Results saved to bench-results.json
+✓ Results saved to bench/perf-results.json
 
 📊 Comparison with previous run:
 Previous run: 2025-12-26T10:30:00.000Z
@@ -125,7 +125,7 @@ npm run bench:memory [options]
 | `--lang <code>` | Benchmark specific language | `--lang en` |
 | `--value <number>` | Custom test value (default: `Number.MAX_SAFE_INTEGER`) | `--value 42` |
 | `--iterations <n>` | Number of iterations (default: 1000) | `--iterations 5000` |
-| `--save` | Save results to `bench-memory-results.json` | `--save` |
+| `--save` | Save results to `bench/memory-results.json` | `--save` |
 | `--compare` | Compare with previous saved results | `--compare` |
 | `--help` | Display help message | `--help` |
 
@@ -164,7 +164,7 @@ en              │     1.98 MB total │   1.98 KB per iteration
 Lowest memory: en
 Range: 1.98 MB to 3.45 MB (+74.7%)
 
-✓ Results saved to bench-memory-results.json
+✓ Results saved to bench/memory-results.json
 
 📊 Comparison with previous run:
 Previous run: 2025-12-26T10:30:00.000Z
@@ -250,7 +250,7 @@ The memory benchmark prevents V8 optimizations that would make measurements inac
 
 ## Result Files
 
-### `bench-results.json` (Performance)
+### `bench/perf-results.json` (Performance)
 
 ```json
 {
@@ -271,7 +271,7 @@ The memory benchmark prevents V8 optimizations that would make measurements inac
 }
 ```
 
-### `bench-memory-results.json` (Memory)
+### `bench/memory-results.json` (Memory)
 
 ```json
 {

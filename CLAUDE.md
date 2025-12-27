@@ -62,10 +62,10 @@ n2words/
 │   └── README.md             # Scripts documentation
 ├── test/
 │   ├── fixtures/languages/   # Test data for each language (48 files)
-│   ├── unit/                 # Unit tests (class tests, edge cases)
-│   ├── integration/          # Integration tests (full conversion workflows)
+│   ├── unit/                 # Unit tests (*.test.js - class tests, edge cases)
+│   ├── integration/          # Integration tests (*.test.* - full conversion workflows)
 │   ├── types/                # TypeScript type checking tests
-│   └── web/                  # Browser tests (Selenium: Chrome, Firefox)
+│   └── web/                  # Browser tests (Playwright: Chromium, Firefox, WebKit)
 ├── bench/                    # Benchmark scripts (perf, memory)
 │   ├── perf.js               # Performance benchmark (uses benchmark.js)
 │   ├── memory.js             # Memory benchmark (requires --expose-gc)
@@ -328,8 +328,7 @@ The project provides comprehensive npm scripts for all development tasks:
 - `npm run test:unit` - Unit tests only
 - `npm run test:integration` - Integration tests only
 - `npm run test:types` - TypeScript type checking
-- `npm run test:web` - Browser tests (requires build first)
-- `npm run test:minimal` - Minimal test suite (unit + integration, no validation)
+- `npm run test:web` - Browser tests (Playwright: Chromium, Firefox, WebKit)
 - `npm run coverage` - Generate test coverage report
 
 **Language Development:**
@@ -348,9 +347,7 @@ The project provides comprehensive npm scripts for all development tasks:
 - `npm run lint` - Lint all (JavaScript + Markdown)
 - `npm run lint:fix` - Auto-fix all linting issues
 - `npm run lint:js` - Lint JavaScript only
-- `npm run lint:js:fix` - Auto-fix JavaScript only
 - `npm run lint:md` - Lint Markdown only
-- `npm run lint:md:fix` - Auto-fix Markdown only
 
 **Compatibility:**
 
@@ -363,6 +360,10 @@ The project provides comprehensive npm scripts for all development tasks:
 
 - `npm run bench:perf` - Performance benchmarks
 - `npm run bench:memory` - Memory usage benchmarks
+
+**Playwright:**
+
+- `npm run playwright:install` - Install Playwright browsers (Chromium, Firefox, WebKit)
 
 ### Adding a New Language
 
@@ -424,16 +425,18 @@ npm test                 # Full test suite (validation + unit + integration + ty
 npm run test:unit        # Unit tests only
 npm run test:integration # Integration tests only
 npm run test:types       # TypeScript type checking
-npm run test:web         # Browser tests (Chrome, Firefox via Selenium on dist/)
+npm run test:web         # Browser tests (Playwright: Chromium, Firefox, WebKit)
 npm run test:all         # All tests including web tests
 ```
 
 **IMPORTANT - Browser Testing:**
 
 - Browser tests (`test:web`) run against **`dist/` UMD bundles**, not `lib/` source
-- These tests verify actual browser compatibility (Chrome 67+, Firefox 68+, Safari 14+, Edge 79+)
+- Uses Playwright to test in Chromium, Firefox, and WebKit browsers
 - Browser compatibility claims are based on these `dist/` bundle tests
 - The `lib/` source is ES2022+ and is intended for modern bundlers, not direct browser usage
+- Build artifacts are automatically generated via `pretest:web` lifecycle hook
+- **First-time setup**: Run `npm run playwright:install` to install browsers
 
 ### Compatibility Verification
 
@@ -442,7 +445,7 @@ npm run test:all         # All tests including web tests
 npm run browsers            # Show targeted browser versions
 npm run browsers:coverage   # Show global browser coverage (~86%)
 npm run compat:web          # Verify dist/ bundle compatibility (ES version check)
-npm run test:web            # Test in real browsers (Chrome, Firefox)
+npm run test:web            # Test in real browsers (Chromium, Firefox, WebKit)
 
 # Node.js compatibility
 npm run compat:node         # Verify lib/ source is ES2022 compatible
@@ -491,8 +494,6 @@ npm run lint         # Lint all (JS + Markdown)
 npm run lint:js      # JavaScript linting (StandardJS)
 npm run lint:md      # Markdown linting
 npm run lint:fix     # Auto-fix both
-npm run lint:js:fix  # Auto-fix JavaScript only
-npm run lint:md:fix  # Auto-fix Markdown only
 ```
 
 ## Important Conventions
@@ -887,7 +888,7 @@ for (const [input, expected, options] of fixtures) {
 
 ### Web Tests
 
-Located in `test/web/` - test browser builds (UMD) using Selenium.
+Located in `test/web/` - test browser builds (UMD) using Playwright.
 
 ## TypeScript Support
 
@@ -1038,13 +1039,21 @@ Unified CI workflow with single job for efficiency:
 - **Node.js versions**: 20, 22, 24, 25
 - **Operating systems**: Ubuntu (all versions), Windows (Node 24 LTS), macOS (Node 24 LTS)
 - **Steps**:
-  1. Linting (JavaScript + Markdown) - on Ubuntu + Node 24 only
-  2. Build all dist/ bundles - on Ubuntu + Node 24 only
-  3. Full test suite (validation + unit + integration + types + web)
-  4. Coverage generation and upload - on Ubuntu + Node 24 only, conditionally
+  1. Install Playwright browsers - on Ubuntu only
+  2. Linting (JavaScript + Markdown) - on Ubuntu + Node 24 only
+  3. Build all dist/ bundles - on all jobs
+  4. Full test suite (validation + unit + integration + types) - on all jobs
+  5. Browser tests (Playwright) - on Ubuntu only (all Node versions)
+  6. Coverage generation and upload - on Ubuntu + Node 24 only, conditionally
 - **Coverage upload conditions**: Only uploads on PRs and pushes to `master`/`main` branch
 - **Concurrency control**: Cancels in-progress runs on new push to same branch
 - **Caching**: Uses actions/cache for node_modules
+
+**Testing Strategy:**
+
+- **Core tests** (unit, integration, types): All OS × All Node versions = 6 jobs
+- **Browser tests** (Playwright): Ubuntu only × All Node versions = 4 jobs
+- **Rationale**: Browser engines are cross-platform; testing UMD bundles on one OS provides complete coverage
 
 **Why unified job?**
 
@@ -1236,14 +1245,15 @@ The test passes if TypeScript reports no type errors in the JSDoc annotations.
 
 #### Web Tests ([test/web/](test/web/))
 
-**Purpose**: Test UMD bundles in real browsers using Selenium WebDriver
+**Purpose**: Test UMD bundles in real browsers using Playwright
 
 **Important**: These tests run against `dist/` bundles, NOT `lib/` source
 
 **Browsers tested:**
 
-- Chrome (latest)
-- Firefox (latest)
+- Chromium (Desktop Chrome)
+- Firefox (Desktop Firefox)
+- WebKit (Desktop Safari)
 
 **What it validates:**
 
@@ -1256,8 +1266,7 @@ The test passes if TypeScript reports no type errors in the JSDoc annotations.
 **Running web tests:**
 
 ```bash
-npm run build        # Must build first!
-npm run test:web     # Runs Selenium tests
+npm run test:web     # Builds and runs Playwright tests (via pretest:web hook)
 ```
 
 ### Test Fixture Format
@@ -1316,7 +1325,8 @@ export default [
 | `test/fixtures/languages/*.js`         | Test data for each language (48 files)                  |
 | `test/unit/*.js`                       | Unit tests for classes and methods                      |
 | `test/integration/*.js`                | Integration tests using fixtures                        |
-| `test/web/*.js`                        | Browser tests using Selenium                            |
+| `test/web/*.test.js`                   | Browser tests using Playwright                          |
+| `playwright.config.js`                 | Playwright browser testing configuration                |
 | `test/types/*.js`                      | TypeScript type checking tests                          |
 | `test/types/tsconfig.json`             | TypeScript configuration for type checking              |
 | `rollup.config.js`                     | Build configuration for UMD bundles                     |
@@ -1407,8 +1417,8 @@ For GreedyScaleLanguage, this is auto-implemented if `scaleWordPairs` and `merge
 
 The project uses modern development tools:
 
-- **Testing**: AVA (test runner), Selenium WebDriver (browser tests)
-- **Build**: Rollup (bundler), Babel (transpiler), Terser (minifier)
+- **Testing**: AVA (test runner), Playwright (browser tests)
+- **Build**: Rollup (bundler), Babel (transpiler), Terser (minifier), rimraf (cleaning)
 - **Quality**: Standard (linter), Markdownlint (markdown), c8 (coverage)
 - **Benchmarking**: benchmark.js (performance benchmarking)
 

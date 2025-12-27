@@ -52,24 +52,25 @@
     "browsers": "browserslist",
     "browsers:coverage": "browserslist --coverage",
     "build": "rollup -c",
+    "clean": "rimraf dist coverage playwright-report test-results .nyc_output",
     "compat:node": "es-check es2022 lib/**/*.js --module",
     "compat:web": "es-check checkBrowser dist/**/*.js",
-    "coverage": "c8 npm run test:minimal",
+    "coverage": "c8 npm test",
     "lang:add": "node scripts/add-language.js",
     "lang:validate": "node scripts/validate-language.js",
     "lint": "npm run lint:js && npm run lint:md",
     "lint:fix": "npm run lint:js -- --fix && npm run lint:md -- --fix",
     "lint:js": "standard **/*.{js,cjs,mjs}",
-    "lint:js:fix": "npm run lint:js -- --fix",
     "lint:md": "markdownlint-cli2 *.md {bench,scripts}/**/*.md",
-    "lint:md:fix": "npm run lint:md -- --fix",
+    "playwright:install": "playwright install --with-deps",
+    "prebuild": "npm run clean",
+    "pretest:web": "npm run build",
     "test": "npm run lang:validate && npm run test:unit && npm run test:integration && npm run test:types",
-    "test:all": "npm run test && npm run test:web",
-    "test:integration": "ava --verbose test/integration/*",
-    "test:minimal": "npm run test:unit && npm run test:integration",
-    "test:types": "node test/types/n2words.js",
-    "test:unit": "ava --verbose test/unit/*",
-    "test:web": "npm run build && ava --verbose test/web/*"
+    "test:all": "npm test && npm run test:web",
+    "test:integration": "ava --verbose test/integration/*.test.*",
+    "test:types": "node test/types/type-check.js",
+    "test:unit": "ava --verbose test/unit/*.test.js",
+    "test:web": "playwright test"
   },
   "ava": {
     "extensions": [
@@ -78,8 +79,7 @@
     ],
     "files": [
       "test/unit/*",
-      "test/integration/*",
-      "test/web/*"
+      "test/integration/*"
     ],
     "timeout": "30s"
   },
@@ -97,6 +97,7 @@
     "@babel/core": "^7.28.5",
     "@babel/preset-env": "^7.28.5",
     "@mdn/browser-compat-data": "^7.2.2",
+    "@playwright/test": "^1.57.0",
     "@rollup/plugin-babel": "^6.1.0",
     "@rollup/plugin-node-resolve": "^16.0.3",
     "@rollup/plugin-terser": "^0.4.4",
@@ -105,12 +106,11 @@
     "browserslist": "^4.28.1",
     "c8": "^10.1.3",
     "chalk": "^5.6.2",
-    "chromedriver": "^143.0.3",
     "es-check": "^9.5.3",
     "markdownlint-cli2": "^0.20.0",
     "microtime": "^3.1.1",
+    "rimraf": "^6.1.2",
     "rollup": "^4.54.0",
-    "selenium-webdriver": "^4.39.0",
     "standard": "^17.1.2",
     "typescript": "^5.9.3"
   },

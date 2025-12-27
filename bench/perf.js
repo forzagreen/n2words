@@ -17,7 +17,7 @@ import { join } from 'node:path'
 import * as n2words from '../lib/n2words.js'
 
 const suite = new Benchmark.Suite()
-const resultsFile = join('.', 'bench-results.json')
+const resultsFile = join(import.meta.dirname, 'perf-results.json')
 
 // Build converter map from n2words exports
 const converters = {}

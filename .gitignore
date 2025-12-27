@@ -8,9 +8,13 @@ node_modules/
 coverage/
 *.lcov
 
+# Playwright
+playwright-report/
+test-results/
+.playwright/
+
 # Benchmark results
-bench-results.json
-bench-memory-results.json
+bench/*-results.json
 
 # Logs
 *.log
