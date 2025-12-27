@@ -79,14 +79,12 @@ fnm use
 ```bash
 npm run browsers                # Show all targeted browser versions
 npm run browsers:coverage       # Coverage for our configured targets (~86%)
-npm run browsers:dist           # Coverage for all BigInt-capable browsers (~96%)
 ```
 
 **What they do:**
 
 - `browsers`: Lists all browser versions from `.browserslistrc`
 - `browsers:coverage`: Shows global coverage for `defaults and supports bigint`
-- `browsers:dist`: Shows coverage for all browsers with BigInt support
 
 #### Verify Browser Compatibility
 
@@ -102,26 +100,6 @@ npm run test:web                # Run real browser tests (Chrome, Firefox via Se
 
 ### Node.js Compatibility Checks
 
-#### Check Node.js Version
-
-```bash
-npm run compat:node             # Verify current Node.js version meets requirements
-```
-
-**What it does:**
-
-- Checks if your current Node.js version satisfies the `engines` field in `package.json`
-- Uses `check-node-version` package
-- Exits with error if version doesn't match
-
-**Example output:**
-
-```bash
-$ npm run compat:node
-node: 25.2.1 (satisfies ^20 || ^22 || >=24)
-✓ All versions satisfied
-```
-
 #### Verify Source Compatibility
 
 ```bash
@@ -133,6 +111,22 @@ npm run compat:node             # Verify lib/ source is ES2022 compatible
 - Static analysis of `lib/` source code using es-check
 - Ensures code is compatible with ES2022 specification
 - Used for validating source before bundling
+
+**Example output:**
+
+```bash
+$ npm run compat:node
+info: ES-Check: checking 54 files...
+info: ✓ ES-Check passed! All files are ES13 compatible.
+```
+
+**Note:** There is no automated script to check your Node.js version. To verify your Node.js version manually:
+
+```bash
+node --version                  # Check current Node.js version
+```
+
+Ensure it satisfies the `engines` field requirement: `^20 || ^22 || >=24`
 
 ## Configuration Files
 
@@ -189,8 +183,10 @@ This ensures:
 Specifies the recommended Node.js version for development:
 
 ```text
-20
+lts/*
 ```
+
+This configures version managers to use the **latest LTS (Long Term Support)** version, ensuring compatibility with the project's requirements while staying current with LTS releases.
 
 This file is automatically read by:
 
@@ -201,7 +197,7 @@ This file is automatically read by:
 **Usage:**
 
 ```bash
-# Automatically switch to the correct Node.js version
+# Automatically switch to the latest LTS Node.js version
 nvm use    # or: fnm use
 ```
 
@@ -257,7 +253,7 @@ Our Babel configuration targets only browsers with BigInt support, resulting in:
 
 ### Node.js Compatibility Tools
 
-- **`check-node-version`**: Validates Node.js version against package.json engines field
+- **`es-check`**: ECMAScript version compatibility checking for source code
 
 ## References
 
@@ -272,5 +268,4 @@ Our Babel configuration targets only browsers with BigInt support, resulting in:
 - [BigInt in Node.js](https://thecodebarbarian.com/an-overview-of-bigint-in-node-js.html)
 - [Optional Chaining & Nullish Coalescing in Node 14](https://www.ioannispoulakas.com/2020/10/18/node-14-optional-chaining-and-nullish-coalescing/)
 - [Private Class Fields in Node.js 12](https://thecodebarbarian.com/nodejs-12-private-class-fields.html)
-- [check-node-version package](https://www.npmjs.com/package/check-node-version)
 - [Node.js Release Schedule](https://nodejs.org/en/about/previous-releases)

@@ -353,8 +353,8 @@ npm run compat:node         # Verify lib/ source is ES2022 compatible
 **Node.js Version Management:**
 
 - Minimum required: Node.js 20+ (specified in `package.json` engines field)
-- Recommended: Use `.nvmrc` for automatic version selection with nvm/fnm
-- Verification: Run `npm run compat:node` to check your current version
+- Recommended: Use `.nvmrc` (set to `lts/*`) for automatic version selection with nvm/fnm
+- Verification: Run `node --version` and ensure it satisfies `^20 || ^22 || >=24`
 
 ### Build & Bundling
 
