@@ -46,9 +46,18 @@ const { EnglishConverter } = require('n2words')
 **Browser (UMD via CDN):**
 
 ```html
+<!-- All languages (~91KB) -->
 <script src="https://cdn.jsdelivr.net/npm/n2words/dist/n2words.js"></script>
 <script>
   n2words.EnglishConverter(42)  // 'forty-two'
+</script>
+
+<!-- Individual languages (~4-5KB each) - load only what you need -->
+<script src="https://cdn.jsdelivr.net/npm/n2words/dist/EnglishConverter.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/n2words/dist/SpanishConverter.js"></script>
+<script>
+  n2words.EnglishConverter(42)   // 'forty-two'
+  n2words.SpanishConverter(123)  // 'ciento veintitrés'
 </script>
 ```
 
