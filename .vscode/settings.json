@@ -1,28 +1,44 @@
 {
   // Code Quality (Project Standards)
   "editor.tabSize": 2,
+  "editor.detectIndentation": false, // Respect .editorconfig
   "files.trimTrailingWhitespace": true,
   "files.insertFinalNewline": true,
+  "files.eol": "\n", // LF line endings (matches .editorconfig)
 
   // JavaScript Standard Style (Project Linter)
   "standard.enable": true,
-  "standard.autoFixOnSave": true,
   "standard.validate": ["javascript"],
   "javascript.preferences.quoteStyle": "single",
 
-  // Markdown Linting (Project Standard)
-  "markdownlint.config": {
-    "MD013": false
+  // Auto-fix on save using code actions (modern approach)
+  "editor.formatOnSave": false, // Disable default formatter
+  "editor.codeActionsOnSave": {
+    "source.fixAll.standard": "explicit"
   },
 
-  // Project Build Artifacts
+  // Markdown Linting (Project Standard - matches .markdownlint.mjs)
+  "markdownlint.config": {
+    "line-length": false, // MD013: Allow long lines (links, tables, code examples)
+    "MD013": false // Deprecated alias for backward compatibility
+  },
+
+  // TypeScript - Use JSDoc for type checking
+  "javascript.validate.enable": true,
+  "typescript.validate.enable": true,
+
+  // Project Build Artifacts & Performance
   "search.exclude": {
     "**/node_modules": true,
     "**/coverage": true,
     "**/dist": true,
     "**/.nyc_output": true,
     "**/bench-results.json": true,
-    "**/package-lock.json": true
+    "**/bench-memory-results.json": true,
+    "**/package-lock.json": true,
+    "**/.claude": true,
+    "**/.cursor": true,
+    "**/.copilot": true
   },
   "files.exclude": {
     "**/.DS_Store": true,
@@ -32,6 +48,17 @@
     "**/node_modules/**": true,
     "**/coverage/**": true,
     "**/dist/**": true,
-    "**/.nyc_output/**": true
-  }
+    "**/.nyc_output/**": true,
+    "**/.claude/**": true,
+    "**/.cursor/**": true,
+    "**/.copilot/**": true
+  },
+
+  // NPM Scripts - Quick access to common commands
+  "npm.enableScriptExplorer": true,
+  "npm.scriptExplorerAction": "run",
+
+  // Git - Better commit message UX
+  "git.inputValidationLength": 72,
+  "git.inputValidationSubjectLength": 50
 }

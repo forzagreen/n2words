@@ -1,14 +1,11 @@
 # Build outputs
 dist/
-typings/
-*.tsbuildinfo
 
 # Dependencies
 node_modules/
 
 # Test coverage
 coverage/
-.nyc_output/
 *.lcov
 
 # Benchmark results
@@ -16,22 +13,21 @@ bench-results.json
 bench-memory-results.json
 
 # Logs
-logs/
 *.log
 npm-debug.log*
 yarn-debug.log*
 pnpm-debug.log*
+lerna-debug.log*
 
 # Runtime data
-pids/
 *.pid
 *.seed
 *.pid.lock
 
-# Caches
-.npm/
-.eslintcache
+# Caches & Build tools
 .cache/
+.npm/
+.rollup.cache/
 
 # Environment variables
 .env
@@ -40,6 +36,7 @@ pids/
 
 # Package manager
 .pnpm-store/
+.yarn/
 *.tgz
 
 # AI Assistant files
