@@ -7,7 +7,7 @@ This document provides comprehensive context about the n2words project structure
 **n2words** is a JavaScript library that converts numbers to words in 48 languages with zero dependencies.
 
 - **Version**: 2.0.0
-- **Type**: ES Module (ESM) with CommonJS and UMD support
+- **Type**: ES Module (ESM) with UMD browser bundles
 - **Node.js**: ^20 || ^22 || >=24
 - **License**: MIT
 - **Zero dependencies**: Pure JavaScript implementation
@@ -17,7 +17,7 @@ This document provides comprehensive context about the n2words project structure
 - 🌍 48 language implementations
 - 📦 Zero runtime dependencies
 - 🧪 Comprehensive testing and validation
-- 📱 Universal (Node.js, browsers, ESM/CommonJS)
+- 📱 Universal (Node.js, browsers, ESM/UMD)
 - 🔢 Supports number, bigint, and string inputs
 - 🎯 Full TypeScript support via JSDoc annotations
 
@@ -149,10 +149,12 @@ export class English extends GreedyScaleLanguage {
 ```javascript
 export class Russian extends SlavicLanguage {
   pluralForms = {
-    1000000: ['миллион', 'миллиона', 'миллионов'],
-    1000: ['тысяча', 'тысячи', 'тысяч']
+    1: ['тысяча', 'тысячи', 'тысяч'],       // 10^3 (chunk index 1)
+    2: ['миллион', 'миллиона', 'миллионов'], // 10^6 (chunk index 2)
+    3: ['миллиард', 'миллиарда', 'миллиардов'] // 10^9 (chunk index 3)
   }
 
+  // Keys are chunk indices: 1 = thousands, 2 = millions, 3 = billions, etc.
   // Automatically selects correct form based on number
 }
 ```
@@ -357,7 +359,10 @@ npm run compat:node         # Verify lib/ source is ES2022 compatible
 ### Build & Bundling
 
 - **Tooling:** `rollup` (configured in `rollup.config.js`) generates UMD bundles in `dist/`.
-- **Outputs:** `dist/n2words.js` (all converters) and `dist/{ConverterName}.js` (individual converter UMD files).
+- **Outputs:**
+  - `dist/n2words.js` - Main bundle with all 48 converters (~91KB)
+  - `dist/{ConverterName}.js` - Individual converter UMD files (48 files, ~5KB each)
+  - `dist/*.js.map` - Source maps for all bundles
 - **Babel:** `@babel/preset-env` is used with explicit targets that assume BigInt support (modern browsers). The build is configured to keep `BigInt` primitives in the output (no polyfill for BigInt).
 - **Minification:** `terser` with `ecma: 2020` is used for minification.
 - **Banner:** Builds include a versioned banner using `package.json` `version`.
