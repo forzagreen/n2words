@@ -12,6 +12,10 @@ import { GreedyScaleLanguage } from '../../lib/classes/greedy-scale-language.js'
  * - Integration with AbstractLanguage
  */
 
+// ============================================================================
+// Test Implementation
+// ============================================================================
+
 // Concrete test implementation with simple merge rules
 class TestGreedyLanguage extends GreedyScaleLanguage {
   negativeWord = 'minus'
@@ -66,6 +70,10 @@ class TestGreedyLanguage extends GreedyScaleLanguage {
   }
 }
 
+// ============================================================================
+// Abstract Method Tests
+// ============================================================================
+
 test('abstract class throws error if mergeScales not implemented', t => {
   class IncompleteLang extends GreedyScaleLanguage {
     scaleWordPairs = [[1n, 'one']]
@@ -75,6 +83,10 @@ test('abstract class throws error if mergeScales not implemented', t => {
     message: 'mergeScales() must be implemented by subclass'
   })
 })
+
+// ============================================================================
+// Scale Word Retrieval Tests
+// ============================================================================
 
 test('getScaleWord returns correct word for exact match', t => {
   const lang = new TestGreedyLanguage()
@@ -89,6 +101,20 @@ test('getScaleWord returns undefined for non-matching value', t => {
   t.is(lang.getScaleWord(999n), undefined)
   t.is(lang.getScaleWord(5000n), undefined)
 })
+
+test('scaleWordPairs should be ordered descending for correct algorithm', t => {
+  const lang = new TestGreedyLanguage()
+  // Verify that scale words are in descending order
+  for (let i = 0; i < lang.scaleWordPairs.length - 1; i++) {
+    const current = lang.scaleWordPairs[i][0]
+    const next = lang.scaleWordPairs[i + 1][0]
+    t.true(current > next, 'Scale words should be in descending order')
+  }
+})
+
+// ============================================================================
+// Decomposition Tests
+// ============================================================================
 
 test('decomposeToScales produces an array of word-sets', t => {
   const lang = new TestGreedyLanguage()
@@ -134,6 +160,21 @@ test('decomposeToScales handles multi-thousand numbers', t => {
   t.true(result.length >= 2)
 })
 
+test('decomposeToScales and mergeWordSets work together', t => {
+  const lang = new TestGreedyLanguage()
+  const decomposed = lang.decomposeToScales(23n)
+  const merged = lang.mergeWordSets(decomposed)
+
+  t.is(typeof merged, 'object')
+  t.is(Object.keys(merged).length, 1)
+  const resultWord = Object.keys(merged)[0]
+  t.is(typeof resultWord, 'string')
+})
+
+// ============================================================================
+// Merge Tests
+// ============================================================================
+
 test('mergeWordSets handles single word-set', t => {
   const lang = new TestGreedyLanguage()
   const input = [{ five: 5n }]
@@ -163,6 +204,29 @@ test('mergeWordSets handles complex nested structure', t => {
   t.is(typeof result, 'object')
   t.is(Object.keys(result).length, 1)
 })
+
+test('mergeScales receives correct word-set format', t => {
+  let capturedLeft, capturedRight
+  class SpyLang extends TestGreedyLanguage {
+    mergeScales (left, right) {
+      capturedLeft = left
+      capturedRight = right
+      return super.mergeScales(left, right)
+    }
+  }
+  const lang = new SpyLang()
+  lang.convertWholePart(23n) // twenty + three
+
+  // Verify word-sets have correct format
+  t.is(typeof capturedLeft, 'object')
+  t.is(typeof capturedRight, 'object')
+  t.is(Object.keys(capturedLeft).length, 1)
+  t.is(Object.keys(capturedRight).length, 1)
+})
+
+// ============================================================================
+// Whole Part Conversion Tests
+// ============================================================================
 
 test('convertWholePart returns a string', t => {
   const lang = new TestGreedyLanguage()
@@ -204,6 +268,26 @@ test('convertWholePart handles thousands', t => {
   t.true(result.includes('thousand'))
 })
 
+test('handles very large numbers', t => {
+  class LargeNumberLang extends TestGreedyLanguage {
+    scaleWordPairs = [
+      [1000000n, 'million'],
+      [1000n, 'thousand'],
+      [100n, 'hundred'],
+      [10n, 'ten'],
+      [1n, 'one'],
+      [0n, 'zero']
+    ]
+  }
+  const lang = new LargeNumberLang()
+  const result = lang.convertWholePart(1000000n)
+  t.true(result.includes('million'))
+})
+
+// ============================================================================
+// Finalization Tests
+// ============================================================================
+
 test('finalizeWords trims trailing whitespace', t => {
   const lang = new TestGreedyLanguage()
   t.is(lang.finalizeWords('test  '), 'test')
@@ -223,6 +307,10 @@ test('finalizeWords can be overridden by subclasses', t => {
   t.is(result, result.toUpperCase())
 })
 
+// ============================================================================
+// Integration Tests
+// ============================================================================
+
 test('integrates with AbstractLanguage for negative numbers', t => {
   const lang = new TestGreedyLanguage()
   const result = lang.convertToWords(-42)
@@ -233,60 +321,4 @@ test('integrates with AbstractLanguage for decimals', t => {
   const lang = new TestGreedyLanguage()
   const result = lang.convertToWords(3.14)
   t.true(result.includes('point'))
-})
-
-test('handles very large numbers', t => {
-  class LargeNumberLang extends TestGreedyLanguage {
-    scaleWordPairs = [
-      [1000000n, 'million'],
-      [1000n, 'thousand'],
-      [100n, 'hundred'],
-      [10n, 'ten'],
-      [1n, 'one'],
-      [0n, 'zero']
-    ]
-  }
-  const lang = new LargeNumberLang()
-  const result = lang.convertWholePart(1000000n)
-  t.true(result.includes('million'))
-})
-
-test('scaleWordPairs should be ordered descending for correct algorithm', t => {
-  const lang = new TestGreedyLanguage()
-  // Verify that scale words are in descending order
-  for (let i = 0; i < lang.scaleWordPairs.length - 1; i++) {
-    const current = lang.scaleWordPairs[i][0]
-    const next = lang.scaleWordPairs[i + 1][0]
-    t.true(current > next, 'Scale words should be in descending order')
-  }
-})
-
-test('mergeScales receives correct word-set format', t => {
-  let capturedLeft, capturedRight
-  class SpyLang extends TestGreedyLanguage {
-    mergeScales (left, right) {
-      capturedLeft = left
-      capturedRight = right
-      return super.mergeScales(left, right)
-    }
-  }
-  const lang = new SpyLang()
-  lang.convertWholePart(23n) // twenty + three
-
-  // Verify word-sets have correct format
-  t.is(typeof capturedLeft, 'object')
-  t.is(typeof capturedRight, 'object')
-  t.is(Object.keys(capturedLeft).length, 1)
-  t.is(Object.keys(capturedRight).length, 1)
-})
-
-test('decomposeToScales and mergeWordSets work together', t => {
-  const lang = new TestGreedyLanguage()
-  const decomposed = lang.decomposeToScales(23n)
-  const merged = lang.mergeWordSets(decomposed)
-
-  t.is(typeof merged, 'object')
-  t.is(Object.keys(merged).length, 1)
-  const resultWord = Object.keys(merged)[0]
-  t.is(typeof resultWord, 'string')
 })

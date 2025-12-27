@@ -9,8 +9,12 @@ import { SlavicLanguage } from '../../lib/classes/slavic-language.js'
  * - Gender-aware number forms
  * - Chunk-based decomposition
  * - Hundreds, tens, ones patterns
- * - Constructor options (feminine flag)
+ * - Constructor options (gender option)
  */
+
+// ============================================================================
+// Test Implementation
+// ============================================================================
 
 // Concrete test implementation
 class TestSlavicLanguage extends SlavicLanguage {
@@ -18,7 +22,7 @@ class TestSlavicLanguage extends SlavicLanguage {
   decimalSeparatorWord = 'point'
   zeroWord = 'zero'
 
-  ones = {
+  onesWords = {
     1: 'one-m',
     2: 'two-m',
     3: 'three-m',
@@ -30,7 +34,7 @@ class TestSlavicLanguage extends SlavicLanguage {
     9: 'nine'
   }
 
-  onesFeminine = {
+  onesFeminineWords = {
     1: 'one-f',
     2: 'two-f',
     3: 'three-f',
@@ -42,7 +46,7 @@ class TestSlavicLanguage extends SlavicLanguage {
     9: 'nine'
   }
 
-  tens = {
+  teensWords = {
     0: 'ten',
     1: 'eleven',
     2: 'twelve',
@@ -55,7 +59,7 @@ class TestSlavicLanguage extends SlavicLanguage {
     9: 'nineteen'
   }
 
-  twenties = {
+  twentiesWords = {
     2: 'twenty',
     3: 'thirty',
     4: 'forty',
@@ -66,7 +70,7 @@ class TestSlavicLanguage extends SlavicLanguage {
     9: 'ninety'
   }
 
-  hundreds = {
+  hundredsWords = {
     1: 'one-hundred',
     2: 'two-hundred',
     3: 'three-hundred',
@@ -78,25 +82,16 @@ class TestSlavicLanguage extends SlavicLanguage {
     9: 'nine-hundred'
   }
 
-  thousands = {
+  pluralForms = {
     1: ['thousand-sing', 'thousand-few', 'thousand-many'],
     2: ['million-sing', 'million-few', 'million-many'],
     3: ['billion-sing', 'billion-few', 'billion-many']
   }
 }
 
-test('constructor accepts feminine option', t => {
-  const lang1 = new TestSlavicLanguage({ feminine: false })
-  t.is(lang1.feminine, false)
-
-  const lang2 = new TestSlavicLanguage({ feminine: true })
-  t.is(lang2.feminine, true)
-})
-
-test('constructor defaults feminine to false', t => {
-  const lang = new TestSlavicLanguage()
-  t.is(lang.feminine, false)
-})
+// ============================================================================
+// Basic Conversion Tests
+// ============================================================================
 
 test('convertWholePart returns zero word for 0', t => {
   const lang = new TestSlavicLanguage()
@@ -104,14 +99,14 @@ test('convertWholePart returns zero word for 0', t => {
 })
 
 test('convertWholePart handles single digits with masculine forms', t => {
-  const lang = new TestSlavicLanguage({ feminine: false })
+  const lang = new TestSlavicLanguage({ gender: 'masculine' })
   t.is(lang.convertWholePart(1n), 'one-m')
   t.is(lang.convertWholePart(2n), 'two-m')
   t.is(lang.convertWholePart(5n), 'five')
 })
 
 test('convertWholePart handles single digits with feminine option', t => {
-  const lang = new TestSlavicLanguage({ feminine: true })
+  const lang = new TestSlavicLanguage({ gender: 'feminine' })
   t.is(lang.convertWholePart(1n), 'one-f')
   t.is(lang.convertWholePart(2n), 'two-f')
   t.is(lang.convertWholePart(5n), 'five')
@@ -146,14 +141,48 @@ test('convertWholePart handles hundreds with remainder', t => {
   t.is(lang.convertWholePart(456n), 'four-hundred fifty six')
 })
 
+// ============================================================================
+// Gender Tests
+// ============================================================================
+
 test('convertWholePart uses feminine forms for thousands chunk', t => {
-  const lang = new TestSlavicLanguage({ feminine: false })
+  const lang = new TestSlavicLanguage({ gender: 'masculine' })
   // 1001 = 1 thousand + 1 ones
   // Thousands chunk (1) should use feminine form
   const result = lang.convertWholePart(1001n)
   t.true(result.includes('one-f')) // Feminine for thousand chunk
   t.true(result.includes('thousand'))
 })
+
+test('uses ones array when chunkIndex is 0 and gender is masculine', t => {
+  const lang = new TestSlavicLanguage({ gender: 'masculine' })
+  // 1 (chunkIndex 0) should use masculine form
+  t.is(lang.convertWholePart(1n), 'one-m')
+  t.is(lang.convertWholePart(2n), 'two-m')
+})
+
+test('uses onesFeminine when chunkIndex is 0 and gender is feminine', t => {
+  const lang = new TestSlavicLanguage({ gender: 'feminine' })
+  // 1 (chunkIndex 0) should use feminine form
+  t.is(lang.convertWholePart(1n), 'one-f')
+  t.is(lang.convertWholePart(2n), 'two-f')
+})
+
+test('thousands chunk always uses feminine forms regardless of gender option', t => {
+  const langMasc = new TestSlavicLanguage({ gender: 'masculine' })
+  const langFem = new TestSlavicLanguage({ gender: 'feminine' })
+
+  // 1001 has chunkIndex 1 for thousands, should use feminine
+  const resultMasc = langMasc.convertWholePart(1001n)
+  const resultFem = langFem.convertWholePart(1001n)
+
+  t.true(resultMasc.includes('one-f'), 'Thousands chunk should use feminine in masculine mode')
+  t.true(resultFem.includes('one-f'), 'Thousands chunk should use feminine in feminine mode')
+})
+
+// ============================================================================
+// Chunking Tests
+// ============================================================================
 
 test('splitByX handles numbers less than chunk size', t => {
   const lang = new TestSlavicLanguage()
@@ -180,6 +209,10 @@ test('getDigits extracts ones, tens, hundreds correctly', t => {
   t.deepEqual(lang.getDigits(456n), [6n, 5n, 4n])
   t.deepEqual(lang.getDigits(999n), [9n, 9n, 9n])
 })
+
+// ============================================================================
+// Pluralization Tests
+// ============================================================================
 
 test('pluralize returns singular form for 1, 21, 31, etc.', t => {
   const lang = new TestSlavicLanguage()
@@ -248,6 +281,10 @@ test('handles thousands with correct pluralization', t => {
   t.true(result5.includes('thousand-many'))
 })
 
+// ============================================================================
+// Large Number Tests
+// ============================================================================
+
 test('handles millions with correct pluralization', t => {
   const lang = new TestSlavicLanguage()
 
@@ -281,6 +318,17 @@ test('handles complex numbers with all components', t => {
   t.true(result.includes('thousand'))
 })
 
+test('handles very large numbers', t => {
+  const lang = new TestSlavicLanguage()
+  // 1 billion
+  const result = lang.convertWholePart(1000000000n)
+  t.true(result.includes('billion'))
+})
+
+// ============================================================================
+// Integration Tests
+// ============================================================================
+
 test('integrates with AbstractLanguage for negative numbers', t => {
   const lang = new TestSlavicLanguage()
   const result = lang.convertToWords(-42)
@@ -293,9 +341,25 @@ test('integrates with AbstractLanguage for decimals', t => {
   t.true(result.includes('point'))
 })
 
-test('handles very large numbers', t => {
+// ============================================================================
+// Constructor and Options Tests
+// ============================================================================
+
+test('constructor defaults to masculine gender', t => {
   const lang = new TestSlavicLanguage()
-  // 1 billion
-  const result = lang.convertWholePart(1000000000n)
-  t.true(result.includes('billion'))
+  t.is(lang.options.gender, 'masculine')
+})
+
+test('constructor accepts gender option', t => {
+  const langMasc = new TestSlavicLanguage({ gender: 'masculine' })
+  t.is(langMasc.options.gender, 'masculine')
+
+  const langFem = new TestSlavicLanguage({ gender: 'feminine' })
+  t.is(langFem.options.gender, 'feminine')
+})
+
+test('constructor merges default and user options', t => {
+  const lang = new TestSlavicLanguage({ gender: 'feminine', customOption: true })
+  t.is(lang.options.gender, 'feminine')
+  t.is(lang.options.customOption, true)
 })

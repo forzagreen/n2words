@@ -2,12 +2,25 @@ root = true
 
 [*]
 charset = utf-8
+end_of_line = lf
 indent_size = 2
 tab_width = 2
 indent_style = space
 insert_final_newline = true
 trim_trailing_whitespace = true
+
+[*.{js,cjs,ts}]
 quote_type = single
 
 [*.json]
 quote_type = double
+
+[*.{yml,yaml}]
+indent_size = 2
+
+[*.md]
+trim_trailing_whitespace = false
+max_line_length = off
+
+[{.browserslistrc,.nvmrc}]
+insert_final_newline = true

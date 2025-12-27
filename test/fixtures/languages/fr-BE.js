@@ -12,13 +12,6 @@ export default [
   [-1, 'moins un'],
   [-20, 'moins vingt'],
 
-  [70, 'septante'],
-  [71, 'septante et un'],
-  [79, 'septante-neuf'],
-  [90, 'nonante'],
-  [91, 'nonante et un'],
-  [99, 'nonante-neuf'],
-
   [0, 'zéro'],
   [1, 'un'],
   [2, 'deux'],
@@ -92,5 +85,12 @@ export default [
   [2_000_000_000_000_000_000_000_000n, 'deux quadrillions'],
   [5_000_000_000_000_000_000_000_000n, 'cinq quadrillions'],
   [10_000_000_000_000_000_000_000_000n, 'dix quadrillions'],
-  [1_000_000_000_000_000_000_000_000_000n, 'un quadrilliard']
+  [1_000_000_000_000_000_000_000_000_000n, 'un quadrilliard'],
+
+  // Hyphen separator tests
+  [71, 'septante-et-un', { withHyphenSeparator: true }],
+  [91, 'nonante-et-un', { withHyphenSeparator: true }],
+  [142, 'cent-quarante-deux', { withHyphenSeparator: true }],
+  [1243, 'mille-deux-cent-quarante-trois', { withHyphenSeparator: true }],
+  [21_602, 'vingt-et-un-mille-six-cent-deux', { withHyphenSeparator: true }]
 ]

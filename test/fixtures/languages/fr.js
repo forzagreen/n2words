@@ -16,13 +16,6 @@ export default [
   [-1, 'moins un'],
   [-20, 'moins vingt'],
 
-  [70, 'soixante-dix'],
-  [71, 'soixante et onze'],
-  [79, 'soixante-dix-neuf'],
-  [90, 'quatre-vingt-dix'],
-  [91, 'quatre-vingt-onze'],
-  [99, 'quatre-vingt-dix-neuf'],
-
   [0, 'zéro'],
   [1, 'un'],
   [2, 'deux'],

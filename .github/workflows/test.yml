@@ -38,17 +38,13 @@ jobs:
         run: npm run lint
 
       - name: Build web bundles
-        run: npm run web:build
-
-      - name: Build TypeScript declarations
-        run: npm run types:generate
+        run: npm run build
 
       - name: Cache build artifacts
         uses: actions/cache/save@v5.0.1
         with:
           path: |
             dist/
-            typings/
           key: build-${{ github.sha }}
           enableCrossOsArchive: true
 
@@ -90,18 +86,12 @@ jobs:
         with:
           path: |
             dist/
-            typings/
           key: build-${{ github.sha }}
           enableCrossOsArchive: true
           fail-on-cache-miss: true
 
-      - name: Run core tests
-        run: |
-          npm run test:unit
-          npm run test:integration
-
-      - name: Run TypeScript tests
-        run: npm run types:validate
+      - name: Run tests
+        run: npm run test
 
       - name: Verify package contents
         if: matrix.node == '24' && matrix.os == 'ubuntu-latest'
@@ -131,13 +121,12 @@ jobs:
         with:
           path: |
             dist/
-            typings/
           key: build-${{ github.sha }}
           enableCrossOsArchive: true
           fail-on-cache-miss: true
 
       - name: Run coverage
-        run: npm run coverage:generate
+        run: npm run coverage
 
       - name: Upload coverage to Coveralls
         uses: coverallsapp/github-action@v2.3.6

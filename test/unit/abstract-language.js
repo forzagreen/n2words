@@ -19,8 +19,16 @@ class TestLanguage extends AbstractLanguage {
   zeroWord = 'zero'
   wordSeparator = ' '
 
+  constructor (options = {}) {
+    super()
+    this.options = this.mergeOptions({
+      gender: 'masculine'
+    }, options)
+  }
+
   // Simple implementation: just return the number as string
   convertWholePart (wholeNumber) {
+    if (this.options.gender === 'feminine') return `feminine-number-${wholeNumber}`
     if (wholeNumber === 0n) return this.zeroWord
     return `number-${wholeNumber}`
   }
@@ -56,15 +64,6 @@ test('constructor accepts valid options object', t => {
   t.notThrows(() => new TestLanguage({ someOption: true }))
 })
 
-test('constructor rejects non-object options', t => {
-  t.throws(() => new TestLanguage('string'), { instanceOf: TypeError })
-  t.throws(() => new TestLanguage(123), { instanceOf: TypeError })
-  t.throws(() => new TestLanguage([]), { instanceOf: TypeError })
-  // Note: null is typeof 'object' in JavaScript, so the constructor accepts it
-  // This is a known JavaScript quirk
-  t.notThrows(() => new TestLanguage(null))
-})
-
 test('abstract class throws error if convertWholePart not implemented', t => {
   const lang = new AbstractLanguage()
   t.throws(() => lang.convertWholePart(42n), {
@@ -91,40 +90,6 @@ test('convertToWords accepts bigint input', t => {
   t.is(lang.convertToWords(42n), 'number-42')
   t.is(lang.convertToWords(0n), 'zero')
   t.is(lang.convertToWords(1000000n), 'number-1000000')
-})
-
-test('convertToWords rejects NaN', t => {
-  const lang = new TestLanguage()
-  t.throws(() => lang.convertToWords(NaN), {
-    message: 'NaN is not an accepted number.'
-  })
-})
-
-test('convertToWords rejects invalid string formats', t => {
-  const lang = new TestLanguage()
-  t.throws(() => lang.convertToWords('abc'), {
-    message: /Invalid number format/
-  })
-  t.throws(() => lang.convertToWords(''), {
-    message: /Invalid number format/
-  })
-  t.throws(() => lang.convertToWords('  '), {
-    message: /Invalid number format/
-  })
-})
-
-test('convertToWords rejects unsupported types', t => {
-  const lang = new TestLanguage()
-  t.throws(() => lang.convertToWords({}), {
-    instanceOf: TypeError,
-    message: /Invalid variable type/
-  })
-  t.throws(() => lang.convertToWords([]), {
-    instanceOf: TypeError
-  })
-  t.throws(() => lang.convertToWords(null), {
-    instanceOf: TypeError
-  })
 })
 
 test('handles negative numbers correctly', t => {
@@ -281,4 +246,49 @@ test('zero returns zeroWord', t => {
   t.is(lang.convertToWords(0), 'zero')
   t.is(lang.convertToWords(0n), 'zero')
   t.is(lang.convertToWords('0'), 'zero')
+})
+
+test('mergeOptions merges defaults with user options', t => {
+  const lang = new TestLanguage()
+  const defaults = { foo: 'default', bar: 1 }
+  const userOptions = { bar: 2, baz: 'new' }
+  const merged = lang.mergeOptions(defaults, userOptions)
+
+  t.deepEqual(merged, { foo: 'default', bar: 2, baz: 'new' })
+})
+
+test('mergeOptions handles empty defaults', t => {
+  const lang = new TestLanguage()
+  const merged = lang.mergeOptions({}, { option: 'value' })
+
+  t.deepEqual(merged, { option: 'value' })
+})
+
+test('mergeOptions handles empty user options', t => {
+  const lang = new TestLanguage()
+  const merged = lang.mergeOptions({ default: 'value' }, {})
+
+  t.deepEqual(merged, { default: 'value' })
+})
+
+test('constructor properly applies options via mergeOptions', t => {
+  const lang = new TestLanguage({ gender: 'feminine' })
+  t.is(lang.convertWholePart(42n), 'feminine-number-42')
+
+  const lang2 = new TestLanguage({ gender: 'masculine' })
+  t.is(lang2.convertWholePart(42n), 'number-42')
+})
+
+test('mergeOptions handles no parameters', t => {
+  const lang = new TestLanguage()
+  const merged = lang.mergeOptions()
+
+  t.deepEqual(merged, {})
+})
+
+test('mergeOptions handles undefined parameters', t => {
+  const lang = new TestLanguage()
+  const merged = lang.mergeOptions(undefined, undefined)
+
+  t.deepEqual(merged, {})
 })

@@ -11,6 +11,10 @@ import { TurkicLanguage } from '../../lib/classes/turkic-language.js'
  * - Integration with GreedyScaleLanguage
  */
 
+// ============================================================================
+// Test Implementation
+// ============================================================================
+
 // Concrete test implementation
 class TestTurkicLanguage extends TurkicLanguage {
   negativeWord = 'eksi'
@@ -51,6 +55,10 @@ class TestTurkicLanguage extends TurkicLanguage {
     [0n, 'sıfır']
   ]
 }
+
+// ============================================================================
+// Merge Logic Tests
+// ============================================================================
 
 test('mergeScales omits implicit "bir" before yüz (100)', t => {
   const lang = new TestTurkicLanguage()
@@ -94,6 +102,45 @@ test('mergeScales uses wordSeparator for combining', t => {
   const result = lang.mergeScales({ yirmi: 20n }, { üç: 3n })
   t.deepEqual(result, { 'yirmi-üç': 23n })
 })
+
+test('mergeScales handles equal values (adds, not multiplies)', t => {
+  const lang = new TestTurkicLanguage()
+  // When right === left, it adds (since right > left is false)
+  // 10 + 10 = 20
+  const result = lang.mergeScales({ on: 10n }, { on: 10n })
+  t.is(Object.values(result)[0], 20n)
+})
+
+test('mergeScales handles exact addition boundary', t => {
+  const lang = new TestTurkicLanguage()
+  // 5 + 5 should add (right not greater than left)
+  const result = lang.mergeScales({ beş: 5n }, { beş: 5n })
+  t.is(Object.values(result)[0], 10n)
+})
+
+// ============================================================================
+// Implicit "Bir" Tests
+// ============================================================================
+
+test('implicit bir rule applies to values <= 100 and 1000', t => {
+  const lang = new TestTurkicLanguage()
+
+  // Should omit for 100
+  const result100 = lang.mergeScales({ bir: 1n }, { yüz: 100n })
+  t.deepEqual(result100, { yüz: 100n })
+
+  // Should omit for 1000
+  const result1000 = lang.mergeScales({ bir: 1n }, { bin: 1000n })
+  t.deepEqual(result1000, { bin: 1000n })
+
+  // Should also omit for 10 (since 10 <= 100)
+  const result10 = lang.mergeScales({ bir: 1n }, { on: 10n })
+  t.deepEqual(result10, { on: 10n })
+})
+
+// ============================================================================
+// Conversion Tests
+// ============================================================================
 
 test('convertWholePart handles zero', t => {
   const lang = new TestTurkicLanguage()
@@ -163,25 +210,6 @@ test('convertWholePart handles thousands with remainder', t => {
   t.true(result.includes('bin'))
 })
 
-test('integrates with GreedyScaleLanguage correctly', t => {
-  const lang = new TestTurkicLanguage()
-  // Verify it uses the greedy algorithm
-  t.is(typeof lang.decomposeToScales, 'function')
-  t.is(typeof lang.mergeWordSets, 'function')
-})
-
-test('integrates with AbstractLanguage for negative numbers', t => {
-  const lang = new TestTurkicLanguage()
-  const result = lang.convertToWords(-42)
-  t.true(result.startsWith('eksi'))
-})
-
-test('integrates with AbstractLanguage for decimals', t => {
-  const lang = new TestTurkicLanguage()
-  const result = lang.convertToWords(3.14)
-  t.true(result.includes('nokta'))
-})
-
 test('handles complex number with thousands and hundreds', t => {
   const lang = new TestTurkicLanguage()
   // 5432 = 5 thousand + 4 hundred + 32
@@ -190,35 +218,11 @@ test('handles complex number with thousands and hundreds', t => {
   t.true(result.length > 0)
 })
 
-test('mergeScales handles equal values (adds, not multiplies)', t => {
+test('handles teens correctly', t => {
   const lang = new TestTurkicLanguage()
-  // When right === left, it adds (since right > left is false)
-  // 10 + 10 = 20
-  const result = lang.mergeScales({ on: 10n }, { on: 10n })
-  t.is(Object.values(result)[0], 20n)
-})
-
-test('mergeScales handles exact addition boundary', t => {
-  const lang = new TestTurkicLanguage()
-  // 5 + 5 should add (right not greater than left)
-  const result = lang.mergeScales({ beş: 5n }, { beş: 5n })
-  t.is(Object.values(result)[0], 10n)
-})
-
-test('implicit bir rule applies to values <= 100 and 1000', t => {
-  const lang = new TestTurkicLanguage()
-
-  // Should omit for 100
-  const result100 = lang.mergeScales({ bir: 1n }, { yüz: 100n })
-  t.deepEqual(result100, { yüz: 100n })
-
-  // Should omit for 1000
-  const result1000 = lang.mergeScales({ bir: 1n }, { bin: 1000n })
-  t.deepEqual(result1000, { bin: 1000n })
-
-  // Should also omit for 10 (since 10 <= 100)
-  const result10 = lang.mergeScales({ bir: 1n }, { on: 10n })
-  t.deepEqual(result10, { on: 10n })
+  t.is(lang.convertWholePart(11n), 'on bir')
+  t.is(lang.convertWholePart(15n), 'on beş')
+  t.is(lang.convertWholePart(19n), 'on dokuz')
 })
 
 test('scaleWordPairs are ordered descending', t => {
@@ -236,9 +240,25 @@ test('wordSeparator defaults to space', t => {
   t.is(lang.wordSeparator, ' ')
 })
 
-test('handles teens correctly', t => {
+// ============================================================================
+// Integration Tests
+// ============================================================================
+
+test('integrates with GreedyScaleLanguage correctly', t => {
   const lang = new TestTurkicLanguage()
-  t.is(lang.convertWholePart(11n), 'on bir')
-  t.is(lang.convertWholePart(15n), 'on beş')
-  t.is(lang.convertWholePart(19n), 'on dokuz')
+  // Verify it uses the greedy algorithm
+  t.is(typeof lang.decomposeToScales, 'function')
+  t.is(typeof lang.mergeWordSets, 'function')
+})
+
+test('integrates with AbstractLanguage for negative numbers', t => {
+  const lang = new TestTurkicLanguage()
+  const result = lang.convertToWords(-42)
+  t.true(result.startsWith('eksi'))
+})
+
+test('integrates with AbstractLanguage for decimals', t => {
+  const lang = new TestTurkicLanguage()
+  const result = lang.convertToWords(3.14)
+  t.true(result.includes('nokta'))
 })

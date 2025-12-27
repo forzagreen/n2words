@@ -1,16 +1,31 @@
 /**
  * Performance benchmark script for n2words library.
  *
- * Benchmarks conversion speed across all languages or specific languages.
+ * Benchmarks conversion speed across all 48 languages or specific languages.
+ * Measures operations per second (ops/sec) for converter function calls.
  * Supports saving results and comparing with previous runs.
+ *
+ * Usage:
+ *   npm run bench:perf                       # Benchmark all languages
+ *   npm run bench:perf -- --lang en          # Benchmark English only
+ *   npm run bench:perf -- --save --compare   # Track performance changes
  */
 import Benchmark from 'benchmark'
 import { existsSync, readdirSync, writeFileSync, readFileSync } from 'node:fs'
 import chalk from 'chalk'
 import { join } from 'node:path'
+import * as n2words from '../lib/n2words.js'
 
 const suite = new Benchmark.Suite()
 const resultsFile = join('.', 'bench-results.json')
+
+// Build converter map from n2words exports
+const converters = {}
+for (const [key, value] of Object.entries(n2words)) {
+  if (key.endsWith('Converter')) {
+    converters[key] = value
+  }
+}
 
 const arguments_ = process.argv.slice(2)
 
@@ -21,7 +36,7 @@ let compareResults = false
 
 for (let index = 0; index < arguments_.length; index++) {
   if (arguments_[index] === '--lang' || arguments_[index] === '--language') {
-    language = arguments_[index + 1].toLowerCase()
+    language = arguments_[index + 1]?.toLowerCase()
   } else if (arguments_[index] === '--value') {
     value = arguments_[index + 1]
   } else if (arguments_[index] === '--save') {
@@ -33,9 +48,10 @@ for (let index = 0; index < arguments_.length; index++) {
 
 if (language) {
   if (existsSync('./lib/languages/' + language + '.js')) {
-    await benchFile('languages/' + language)
+    await benchConverter(language)
   } else {
     console.error(chalk.red('\nLanguage file does not exist: ' + language + '.js\n'))
+    process.exit(1)
   }
 } else if (arguments_.includes('--help')) {
   displayHelp()
@@ -44,8 +60,8 @@ if (language) {
   const files = readdirSync('./lib/languages')
 
   for (const file of files) {
-    if (file.includes('.js')) {
-      await benchFile('languages/' + file.replace('.js', ''))
+    if (file.endsWith('.js')) {
+      await benchConverter(file.replace('.js', ''))
     }
   }
 }
@@ -103,20 +119,33 @@ suite
 /**
  * Queue a language converter for benchmarking.
  *
- * @param {string} file Library file path (relative to lib/).
- * @param {Object} [options] Options to pass to the language converter.
+ * Finds the appropriate converter from n2words exports and adds it to the benchmark suite.
+ * Each benchmark measures the time to call the converter function.
+ *
+ * @param {string} languageCode Language code (e.g., 'en', 'es', 'zh-Hans').
+ * @param {Object} [options] Options to pass to the converter function.
+ * @throws {Error} If converter cannot be found for the language code.
  */
-async function benchFile (file, options) {
-  const languageModule = await import('./lib/' + file + '.js')
+async function benchConverter (languageCode, options) {
+  // Import the language module to get the class name
+  const languageModule = await import(`../lib/languages/${languageCode}.js`)
   const LanguageClass = Object.values(languageModule)[0]
 
-  if (!LanguageClass) {
-    throw new Error(`Language class not found for file: ${file}`)
+  if (!LanguageClass || typeof LanguageClass !== 'function') {
+    throw new Error(`Language class not found for: ${languageCode}`)
   }
 
-  suite.add(file, async () => {
-    const converter = new LanguageClass(options)
-    converter.convertToWords(value)
+  // Find the matching converter by class name
+  const className = LanguageClass.name
+  const converterName = `${className}Converter`
+  const converter = converters[converterName]
+
+  if (!converter) {
+    throw new Error(`Converter not found for: ${className} (expected ${converterName})`)
+  }
+
+  suite.add(languageCode, () => {
+    converter(value, options)
   })
 }
 

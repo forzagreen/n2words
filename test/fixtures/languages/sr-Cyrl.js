@@ -72,9 +72,9 @@ export default [
   [1000000000000000000n, 'један трилион'],
 
   // Feminine forms
-  [1, 'једна', { feminine: true }],
-  [2, 'две', { feminine: true }],
-  [21, 'двадесет једна', { feminine: true }],
-  [101, 'сто једна', { feminine: true }],
-  [1001, 'једна хиљада једна', { feminine: true }]
+  [1, 'једна', { gender: 'feminine' }],
+  [2, 'две', { gender: 'feminine' }],
+  [21, 'двадесет једна', { gender: 'feminine' }],
+  [101, 'сто једна', { gender: 'feminine' }],
+  [1001, 'једна хиљада једна', { gender: 'feminine' }]
 ]

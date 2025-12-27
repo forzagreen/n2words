@@ -18,7 +18,6 @@ export default [
 
   [0, 'sıfır'],
   [0, 'sıfır', { dropSpaces: true }],
-  [0, 'sıfır', { dropSpaces: false }],
   [1, 'bir'],
   [2, 'iki'],
   [3, 'üç'],

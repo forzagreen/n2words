@@ -1,14 +1,31 @@
 /**
  * Memory usage benchmark script for n2words library.
  *
- * Measures memory allocation across all languages or specific languages.
- * Supports saving results and comparing with previous runs.
+ * Measures memory allocation across all 48 languages or specific languages.
+ * Tracks heap usage, external memory, and per-iteration overhead.
+ * Requires --expose-gc flag for accurate garbage collection measurements.
+ *
+ * Usage:
+ *   npm run bench:memory                                   # Benchmark all languages
+ *   npm run bench:memory -- --lang en                      # Benchmark English only
+ *   npm run bench:memory -- --save --compare               # Track memory changes
+ *   npm run bench:memory -- --iterations 10000 --value 42  # Custom test
  */
 import { existsSync, readdirSync, writeFileSync, readFileSync } from 'node:fs'
 import chalk from 'chalk'
 import { join } from 'node:path'
+import * as n2words from '../lib/n2words.js'
 
 const resultsFile = join('.', 'bench-memory-results.json')
+
+// Build converter map from n2words exports
+const converters = {}
+for (const [key, value] of Object.entries(n2words)) {
+  if (key.endsWith('Converter')) {
+    converters[key] = value
+  }
+}
+
 const arguments_ = process.argv.slice(2)
 
 let language
@@ -38,7 +55,7 @@ const results = []
 
 if (language) {
   if (existsSync('./lib/languages/' + language + '.js')) {
-    await benchMemory('languages/' + language, language)
+    await benchMemory(language, language)
   } else {
     console.error(chalk.red('\n✗ Language file does not exist: ' + language + '.js\n'))
     process.exit(1)
@@ -52,7 +69,7 @@ if (language) {
 
   for (const file of files) {
     if (file.endsWith('.js')) {
-      await benchMemory('languages/' + file.replace('.js', ''), file.replace('.js', ''))
+      await benchMemory(file.replace('.js', ''), file.replace('.js', ''))
     }
   }
 }
@@ -103,32 +120,53 @@ if (compareResults && existsSync(resultsFile)) {
 /**
  * Benchmark memory usage for a specific language converter.
  *
- * @param {string} file Library file path (relative to lib/).
+ * Measures memory allocation by:
+ * 1. Running garbage collection (if available)
+ * 2. Taking baseline memory measurement
+ * 3. Running N iterations of converter function
+ * 4. Measuring memory delta
+ *
+ * @param {string} languageCode Language code (e.g., 'en', 'es', 'zh-Hans').
  * @param {string} name Display name for the language.
+ * @throws {Error} If converter cannot be found for the language code.
  */
-async function benchMemory (file, name) {
+async function benchMemory (languageCode, name) {
+  // Import the language module to get the class name
+  const languageModule = await import(`../lib/languages/${languageCode}.js`)
+  const LanguageClass = Object.values(languageModule)[0]
+
+  if (!LanguageClass || typeof LanguageClass !== 'function') {
+    throw new Error(`Language class not found for: ${languageCode}`)
+  }
+
+  // Find the matching converter by class name
+  const className = LanguageClass.name
+  const converterName = `${className}Converter`
+  const converter = converters[converterName]
+
+  if (!converter) {
+    throw new Error(`Converter not found for: ${className} (expected ${converterName})`)
+  }
+
+  // Force garbage collection for more accurate baseline
   if (global.gc) {
     global.gc()
   }
 
+  // Allow GC to complete
   await new Promise(resolve => setTimeout(resolve, 100))
 
   const baseline = process.memoryUsage()
-  const languageModule = await import('./lib/' + file + '.js')
-  const LanguageClass = Object.values(languageModule)[0]
 
-  if (!LanguageClass) {
-    throw new Error(`Language class not found for file: ${file}`)
-  }
-
+  // Run conversions and collect outputs (prevents optimization)
   const outputs = []
   for (let index = 0; index < iterations; index++) {
-    const converter = new LanguageClass()
-    outputs.push(converter.convertToWords(value))
+    outputs.push(converter(value))
   }
 
   const afterTest = process.memoryUsage()
 
+  // Calculate memory deltas
   const heapUsed = afterTest.heapUsed - baseline.heapUsed
   const external = afterTest.external - baseline.external
   const arrayBuffers = afterTest.arrayBuffers - baseline.arrayBuffers
@@ -145,8 +183,9 @@ async function benchMemory (file, name) {
     iterations
   })
 
+  // Sanity check
   if (outputs.length !== iterations) {
-    console.error('Unexpected output count')
+    console.error(chalk.red(`✗ Warning: Unexpected output count for ${name}`))
   }
 }
 
@@ -158,6 +197,7 @@ function displayResults () {
 
   results.sort((a, b) => a.name.localeCompare(b.name))
   const best = results.reduce((min, curr) => curr.totalAllocated < min.totalAllocated ? curr : min)
+  const worst = results.reduce((max, curr) => curr.totalAllocated > max.totalAllocated ? curr : max)
 
   for (const result of results) {
     const isBest = result === best
@@ -178,7 +218,6 @@ function displayResults () {
   console.log(chalk.gray('\n' + '─'.repeat(65)))
   console.log(chalk.green('Lowest memory: ' + best.name))
 
-  const worst = results[results.length - 1]
   const increase = ((worst.totalAllocated - best.totalAllocated) / best.totalAllocated) * 100
   console.log(chalk.gray(`Range: ${formatBytes(best.totalAllocated)} to ${formatBytes(worst.totalAllocated)} (+${increase.toFixed(1)}%)`))
 }
@@ -223,6 +262,6 @@ function displayHelp () {
   console.log('  ' + chalk.gray('npm run bench:memory -- --value 42 --iterations 10000  # Custom test'))
   console.log('  ' + chalk.gray('npm run bench:memory -- --save --compare               # Track changes over time'))
   console.log()
-  console.log(chalk.yellow.bold('Note:') + chalk.gray(' For more accurate results, run with: ') + chalk.cyan('node --expose-gc bench-memory.js'))
+  console.log(chalk.yellow.bold('Note:') + chalk.gray(' For more accurate results, run with: ') + chalk.cyan('node --expose-gc bench/memory.js'))
   console.log()
 }

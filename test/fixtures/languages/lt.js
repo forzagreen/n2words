@@ -67,5 +67,17 @@ export default [
   [4_000_000, 'keturi milijonai'],
   [10_000_000_000_000, 'dešimt trilijonų'],
   [100_000_000_000_000, 'vienas šimtas trilijonų'],
-  [1_000_000_000_000_000_000n, 'vienas kvintilijonas']
+  [1_000_000_000_000_000_000n, 'vienas kvintilijonas'],
+
+  // Feminine gender tests
+  [1, 'viena', { gender: 'feminine' }],
+  [2, 'dvi', { gender: 'feminine' }],
+  [4, 'keturios', { gender: 'feminine' }],
+  [5, 'penkios', { gender: 'feminine' }],
+  [21, 'dvidešimt viena', { gender: 'feminine' }],
+  [22, 'dvidešimt dvi', { gender: 'feminine' }],
+  [101, 'vienas šimtas viena', { gender: 'feminine' }],
+  [102, 'vienas šimtas dvi', { gender: 'feminine' }],
+  [1001, 'vienas tūkstantis vienas', { gender: 'feminine' }],
+  [1002, 'vienas tūkstantis du', { gender: 'feminine' }]
 ]
