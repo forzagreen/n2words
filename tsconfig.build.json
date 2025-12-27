@@ -9,7 +9,7 @@
     "checkJs": false,
     "outDir": "lib",
     "rootDir": "lib",
-    "strict": false,
+    "strict": true,
     "skipLibCheck": true,
     "esModuleInterop": true
   },
