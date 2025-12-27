@@ -1,10 +1,11 @@
 # n2words
 
 [![CI](https://github.com/forzagreen/n2words/actions/workflows/ci.yml/badge.svg)](https://github.com/forzagreen/n2words/actions/workflows/ci.yml)
-[![Coverage Status](https://coveralls.io/repos/github/forzagreen/n2words/badge.svg)](https://coveralls.io/github/forzagreen/n2words)
-[![npm](https://img.shields.io/npm/v/n2words.svg)](https://npmjs.com/package/n2words)
-[![npm](https://img.shields.io/npm/dw/n2words)](https://npmjs.com/package/n2words)
-[![jsDelivr](https://data.jsdelivr.com/v1/package/npm/n2words/badge)](https://www.jsdelivr.com/package/npm/n2words)
+[![Coverage](https://img.shields.io/coveralls/github/forzagreen/n2words)](https://coveralls.io/github/forzagreen/n2words)
+[![npm version](https://img.shields.io/npm/v/n2words)](https://npmjs.com/package/n2words)
+[![Bundle size](https://img.shields.io/bundlephobia/minzip/n2words)](https://bundlephobia.com/package/n2words)
+[![npm downloads](https://img.shields.io/npm/dw/n2words)](https://npmjs.com/package/n2words)
+[![jsDelivr](https://img.shields.io/jsdelivr/npm/hm/n2words)](https://www.jsdelivr.com/package/npm/n2words)
 
 **Convert numbers to words in 48 languages with zero dependencies.**
 
