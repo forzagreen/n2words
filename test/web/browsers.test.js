@@ -73,4 +73,33 @@ async function testBrowserCompatibility (page, browserName) {
     return window.n2words.EnglishConverter(42)
   })
   expect(sampleConversion).toBe('forty-two')
+
+  // Validate BigInt support in browser
+  const bigintSupport = await page.evaluate(() => {
+    try {
+      const result = window.n2words.EnglishConverter(1000000n)
+      return result === 'one million'
+    } catch (e) {
+      return false
+    }
+  })
+  expect(bigintSupport).toBe(true)
+
+  // Validate options work in browser
+  const optionsWork = await page.evaluate(() => {
+    try {
+      const masc = window.n2words.ArabicConverter(1, { gender: 'masculine' })
+      const fem = window.n2words.ArabicConverter(1, { gender: 'feminine' })
+      return masc !== fem
+    } catch (e) {
+      return false
+    }
+  })
+  expect(optionsWork).toBe(true)
+
+  // Validate decimal handling
+  const decimalConversion = await page.evaluate(() => {
+    return window.n2words.EnglishConverter(3.14)
+  })
+  expect(decimalConversion).toContain('point')
 }

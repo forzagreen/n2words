@@ -426,3 +426,60 @@ test('accepts large bigint', t => {
   t.truthy(result)
   t.is(typeof result, 'string')
 })
+
+// ============================================================================
+// Edge Case Tests
+// ============================================================================
+
+test('handles very small decimals', t => {
+  const { EnglishConverter } = n2words
+  t.is(EnglishConverter(0.000001), 'zero point zero zero zero zero zero one')
+})
+
+test('handles numbers with many decimal places', t => {
+  const { EnglishConverter } = n2words
+  const result = EnglishConverter(3.141592653589793)
+  t.is(typeof result, 'string')
+  t.true(result.startsWith('three point'))
+})
+
+test('handles negative zero', t => {
+  const { EnglishConverter } = n2words
+  // -0 should be treated as 0
+  t.is(EnglishConverter(-0), 'zero')
+})
+
+test('handles string with leading zeros', t => {
+  const { EnglishConverter } = n2words
+  t.is(EnglishConverter('00042'), 'forty-two')
+  t.is(EnglishConverter('0100'), 'one hundred')
+})
+
+test('handles string with decimal but no fractional part', t => {
+  const { EnglishConverter } = n2words
+  // Note: '42.0' is treated as having a decimal part (point zero)
+  t.is(EnglishConverter('42.0'), 'forty-two point zero')
+  t.is(EnglishConverter('42.00'), 'forty-two point zero zero')
+})
+
+test('handles trailing decimal point', t => {
+  const { EnglishConverter } = n2words
+  // Trailing decimal without digits is treated as whole number
+  t.is(EnglishConverter('42.'), 'forty-two')
+})
+
+test('handles Maximum safe integer boundary', t => {
+  const { EnglishConverter } = n2words
+  const maxSafe = Number.MAX_SAFE_INTEGER // 2^53 - 1
+  const result = EnglishConverter(maxSafe)
+  t.is(typeof result, 'string')
+  t.true(result.length > 0)
+})
+
+test('handles numbers beyond MAX_SAFE_INTEGER using BigInt', t => {
+  const { EnglishConverter } = n2words
+  const beyondSafe = BigInt(Number.MAX_SAFE_INTEGER) + 1n
+  const result = EnglishConverter(beyondSafe)
+  t.is(typeof result, 'string')
+  t.true(result.length > 0)
+})
