@@ -56,7 +56,7 @@ test('Dynamic import with .then() chain', t => {
 
 // Test 4: Async function wrapper pattern
 test('Dynamic import in async function', async t => {
-  async function convertNumber(num) {
+  async function convertNumber (num) {
     const modulePath = pathToFileURL(path.resolve(__dirname, '../../lib/n2words.js')).href
     const { SpanishConverter } = await import(modulePath)
     return SpanishConverter(num)
