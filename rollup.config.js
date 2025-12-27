@@ -29,9 +29,14 @@ const sharedPlugins = [
       [
         '@babel/preset-env',
         {
-          useBuiltIns: 'usage',
-          corejs: 3,
-          targets: 'defaults',
+          // Target browsers that support BigInt (hard requirement)
+          // Chrome 67+, Firefox 68+, Safari 14+, Edge 79+
+          targets: {
+            chrome: '67',
+            firefox: '68',
+            safari: '14',
+            edge: '79'
+          },
           modules: false
         }
       ]

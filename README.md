@@ -154,32 +154,32 @@ Languages marked with ✓ support additional options:
 
 ## Browser Compatibility
 
-Works in all modern browsers and Node.js environments:
+**Minimum Requirements** (due to BigInt):
 
 - **Node.js**: ^20 || ^22 || >=24
-- **Browsers**: Supports all major browsers via two deployment options:
+- **Browsers**: Chrome 67+, Firefox 68+, Safari 14+, Edge 79+
 
-### UMD Build (Maximum Compatibility)
+**Note**: BigInt is a hard requirement and cannot be polyfilled. Older browsers are not supported.
 
-The pre-built [dist/n2words.js](dist/n2words.js) uses Babel with `@babel/preset-env` and core-js polyfills to support **100% of browsers currently in use** (targets: `defaults`). This includes older browsers like IE11.
+### UMD Build (Browser/CDN)
+
+The pre-built [dist/n2words.js](dist/n2words.js) uses Babel targeting browsers with BigInt support.
 
 **Best for:**
 
 - CDN usage (`<script>` tag)
-- Legacy browser support
 - Simple drop-in integration
+- No build step required
 
-### ESM Source (Modern Browsers)
+### ESM Source (Modern Bundlers)
 
-The source files in [lib/](lib/) use modern JavaScript (ES6+ classes, BigInt, etc.) and require:
-
-- Chrome 67+, Firefox 68+, Safari 14+, Edge 79+
+The source files in [lib/](lib/) use modern JavaScript (ES6+ classes, BigInt, etc.).
 
 **Best for:**
 
 - Modern bundler setups (Webpack, Vite, Rollup)
 - Smaller bundle sizes (tree-shaking)
-- Targeting modern browsers only
+- Direct ESM imports
 
 ## Examples
 
