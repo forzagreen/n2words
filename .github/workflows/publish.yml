@@ -105,6 +105,15 @@ jobs:
           fi
           echo "✅ Version validated: $PKG_VERSION"
 
+      - name: Verify git tag signature
+        run: |
+          if git tag -v "${GITHUB_REF#refs/tags/}" 2>/dev/null; then
+            echo "✅ Tag is signed"
+          else
+            echo "⚠️ Warning: Tag is not signed (consider signing release tags)"
+          fi
+        continue-on-error: true
+
       - name: Install dependencies
         run: npm ci --prefer-offline
 

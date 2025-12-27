@@ -99,6 +99,21 @@ jobs:
         if: matrix.node == '24' && matrix.os == 'ubuntu-latest'
         run: npm pack --dry-run
 
+      - name: Generate job summary
+        if: matrix.node == '24' && matrix.os == 'ubuntu-latest' && always()
+        run: |
+          echo "## ✅ CI Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Node.js**: ${{ matrix.node }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **OS**: ${{ matrix.os_label }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Commit**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          if [ -f coverage/coverage-summary.json ]; then
+            COVERAGE=$(jq -r '.total.lines.pct' coverage/coverage-summary.json)
+            echo "### 📊 Coverage: ${COVERAGE}%" >> $GITHUB_STEP_SUMMARY
+          fi
+
       # Upload coverage only for PRs and main/master branch
       - name: Upload coverage to Coveralls
         if: |
