@@ -295,9 +295,8 @@ function validateDocumentation (fileContent, className, result) {
     result.info.push('✓ Has class documentation')
   }
 
-  if (fileContent.includes('mergeScales') && !fileContent.match(/\/\*\*[\s\S]*?mergeScales[\s\S]*?\*\//i)) {
-    result.warnings.push('mergeScales() method lacks JSDoc documentation')
-  }
+  // Note: mergeScales() is documented in the abstract base class (GreedyScaleLanguage)
+  // Individual implementations don't need to repeat full JSDoc documentation
 }
 
 /**
