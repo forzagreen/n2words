@@ -154,7 +154,7 @@ Languages marked with ✓ support additional options:
 
 **Minimum Requirements** (due to BigInt):
 
-- **Node.js**: ^20 || ^22 || >=24
+- **Node.js**: 20 or above
 - **Browsers**: Chrome 67+, Firefox 68+, Safari 14+, Edge 79+ (desktop + mobile)
 - **Global Coverage**: ~86% of all users worldwide
 

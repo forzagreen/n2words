@@ -8,7 +8,7 @@ This document provides comprehensive context about the n2words project structure
 
 - **Version**: 2.0.0
 - **Type**: ES Module (ESM) with UMD browser bundles
-- **Node.js**: ^20 || ^22 || >=24
+- **Node.js**: >=20
 - **License**: MIT
 - **Zero dependencies**: Pure JavaScript implementation
 
@@ -352,9 +352,9 @@ npm run compat:node         # Verify lib/ source is ES2022 compatible
 
 **Node.js Version Management:**
 
-- Minimum required: Node.js 20+ (specified in `package.json` engines field)
+- Minimum required: Node.js 20+ (specified in `package.json` engines field: `>=20`)
 - Recommended: Use `.nvmrc` (set to `lts/*`) for automatic version selection with nvm/fnm
-- Verification: Run `node --version` and ensure it satisfies `^20 || ^22 || >=24`
+- Verification: Run `node --version` and ensure it's 20 or above
 
 ### Build & Bundling
 

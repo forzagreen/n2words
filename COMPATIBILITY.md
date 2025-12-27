@@ -47,7 +47,7 @@ n2words requires **Node.js 20+** based on the ES2022+ features used in the `lib/
 ```json
 {
   "engines": {
-    "node": "^20 || ^22 || >=24"
+    "node": ">=20"
   }
 }
 ```
@@ -126,7 +126,7 @@ info: ✓ ES-Check passed! All files are ES13 compatible.
 node --version                  # Check current Node.js version
 ```
 
-Ensure it satisfies the `engines` field requirement: `^20 || ^22 || >=24`
+Ensure it satisfies the `engines` field requirement: `>=20`
 
 ## Configuration Files
 
@@ -167,16 +167,17 @@ Specifies supported Node.js versions:
 ```json
 {
   "engines": {
-    "node": "^20 || ^22 || >=24"
+    "node": ">=20"
   }
 }
 ```
 
 This ensures:
 
-- Package managers warn users on unsupported versions
+- Package managers warn users on unsupported versions (Node.js < 20)
 - CI/CD can validate Node.js version requirements
 - Documentation stays in sync with actual requirements
+- All Node.js versions 20 and above are supported (including odd-numbered releases)
 
 #### `.nvmrc`
 

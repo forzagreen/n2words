@@ -16,7 +16,7 @@ Thank you for your interest in contributing to n2words! This document provides g
 
 ### Prerequisites
 
-- Node.js (^20 || ^22 || >=24)
+- Node.js (>=20)
 - npm, yarn, pnpm, or bun
 - Git
 
