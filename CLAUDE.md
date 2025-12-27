@@ -337,6 +337,26 @@ npm run test:all         # All tests including web tests
 - Browser compatibility claims are based on these `dist/` bundle tests
 - The `lib/` source is ES2022+ and is intended for modern bundlers, not direct browser usage
 
+### Compatibility Verification
+
+```bash
+# Browser compatibility
+npm run browsers            # Show targeted browser versions
+npm run browsers:coverage   # Show global browser coverage (~86%)
+npm run compat:dist         # Verify dist/ bundle compatibility (ES version check)
+npm run test:web            # Test in real browsers (Chrome, Firefox)
+
+# Node.js compatibility
+npm run compat:node         # Verify Node.js version meets requirements
+npm run compat:check        # Verify lib/ source is ES2022 compatible
+```
+
+**Node.js Version Management:**
+
+- Minimum required: Node.js 20+ (specified in `package.json` engines field)
+- Recommended: Use `.nvmrc` for automatic version selection with nvm/fnm
+- Verification: Run `npm run compat:node` to check your current version
+
 ### Build & Bundling
 
 - **Tooling:** `rollup` (configured in `rollup.config.js`) generates UMD bundles in `dist/`.

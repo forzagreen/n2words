@@ -347,6 +347,7 @@ import { EnglishConverter, SpanishConverter } from 'n2words'
 
 ## Documentation
 
+- **[Compatibility Guide](COMPATIBILITY.md)** - Browser and Node.js compatibility requirements, verification tools
 - **[Contributing Guide](CONTRIBUTING.md)** - How to contribute, add languages, and development workflow
 - **[Project Context (CLAUDE.md)](CLAUDE.md)** - Comprehensive project architecture and patterns
 
