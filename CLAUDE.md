@@ -49,6 +49,10 @@ n2words/
 │   ├── integration/          # Integration tests
 │   └── web/                  # Browser tests
 └── dist/                     # Browser build (UMD)
+├── bench/                    # Benchmark scripts (perf, memory)
+│   ├── perf.js               # Performance benchmark
+│   └── memory.js             # Memory benchmark (requires --expose-gc)
+└── rollup.config.js          # Bundling config for UMD/dist builds
 ```
 
 ## Core Architecture
@@ -322,9 +326,38 @@ npm test                 # Full test suite (validation + unit + integration + ty
 npm run test:unit        # Unit tests only
 npm run test:integration # Integration tests only
 npm run test:types       # TypeScript type checking
-npm run test:web         # Browser tests
+npm run test:web         # Browser tests (Chrome, Firefox via Selenium on dist/)
 npm run test:all         # All tests including web tests
 ```
+
+**IMPORTANT - Browser Testing:**
+
+- Browser tests (`test:web`) run against **`dist/` UMD bundles**, not `lib/` source
+- These tests verify actual browser compatibility (Chrome 67+, Firefox 68+, Safari 14+, Edge 79+)
+- Browser compatibility claims are based on these `dist/` bundle tests
+- The `lib/` source is ES2022+ and is intended for modern bundlers, not direct browser usage
+
+### Build & Bundling
+
+- **Tooling:** `rollup` (configured in `rollup.config.js`) generates UMD bundles in `dist/`.
+- **Outputs:** `dist/n2words.js` (all converters) and `dist/{ConverterName}.js` (individual converter UMD files).
+- **Babel:** `@babel/preset-env` is used with explicit targets that assume BigInt support (modern browsers). The build is configured to keep `BigInt` primitives in the output (no polyfill for BigInt).
+- **Minification:** `terser` with `ecma: 2020` is used for minification.
+- **Banner:** Builds include a versioned banner using `package.json` `version`.
+
+**Note**: BigInt is a hard runtime requirement for the library; legacy engines without BigInt (e.g., IE11) are not supported by the distributed UMD bundles.
+
+**Two Build Targets:**
+
+1. **`dist/` (UMD bundles)**: For direct browser usage via CDN/`<script>` tags
+   - Transpiled with Babel to ES2020 (preserving BigInt)
+   - Tested in real browsers (Chrome, Firefox via Selenium)
+   - Browser compatibility: Chrome 67+, Firefox 68+, Safari 14+, Edge 79+
+
+2. **`lib/` (ESM source)**: For modern bundlers (Webpack, Vite, Rollup) and Node.js
+   - ES2022+ modern JavaScript (class fields, BigInt, optional chaining, etc.)
+   - Requires bundler/transpilation for browser compatibility
+   - Smaller final bundles with tree-shaking
 
 ### Code Quality
 

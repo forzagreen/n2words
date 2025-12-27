@@ -162,25 +162,35 @@ Languages marked with ✓ support additional options:
 
 **Note**: BigInt is a hard requirement and cannot be polyfilled. Older browsers are not supported.
 
-### UMD Build (Browser/CDN)
+### Which Build Should You Use?
 
-The pre-built [dist/n2words.js](dist/n2words.js) uses Babel targeting browsers with BigInt support.
+Choose the right build for your use case:
 
-**Best for:**
+#### UMD Build (dist/) - For Direct Browser Usage
 
-- CDN usage (`<script>` tag)
-- Simple drop-in integration
-- No build step required
-
-### ESM Source (Modern Bundlers)
-
-The source files in [lib/](lib/) use modern JavaScript (ES6+ classes, BigInt, etc.).
+The pre-built [dist/n2words.js](dist/n2words.js) is transpiled with Babel targeting browsers with BigInt support. These bundles are **tested in real browsers** (Chrome, Firefox via Selenium) to ensure compatibility.
 
 **Best for:**
 
-- Modern bundler setups (Webpack, Vite, Rollup)
-- Smaller bundle sizes (tree-shaking)
-- Direct ESM imports
+- ✅ CDN usage (`<script>` tag)
+- ✅ Simple drop-in integration
+- ✅ No build step required
+- ✅ Guaranteed browser compatibility (tested)
+
+**Browser requirements tested and verified**: Chrome 67+, Firefox 68+, Safari 14+, Edge 79+
+
+#### ESM Source (lib/) - For Modern Bundlers
+
+The source files in [lib/](lib/) use modern JavaScript (ES2022: class fields, ES2020: BigInt, optional chaining, etc.).
+
+**Best for:**
+
+- ✅ Modern bundler setups (Webpack, Vite, Rollup)
+- ✅ Smaller bundle sizes (tree-shaking)
+- ✅ Custom transpilation targets
+- ✅ Direct ESM imports in Node.js
+
+**Note**: When using `lib/`, your bundler is responsible for transpiling to your target browsers. The `lib/` source is ES2022+ and requires a build step for browser compatibility.
 
 ## Examples
 
