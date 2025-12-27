@@ -188,7 +188,7 @@ This ensures:
 
 Specifies the recommended Node.js version for development:
 
-```
+```text
 20
 ```
 
@@ -261,13 +261,13 @@ Our Babel configuration targets only browsers with BigInt support, resulting in:
 
 ## References
 
-### Browser Compatibility
+### Browser Resources
 
 - [BigInt Browser Compatibility](https://caniuse.com/bigint)
 - [Browserslist Documentation](https://github.com/browserslist/browserslist)
 - [ES-Check Documentation](https://github.com/yowainwright/es-check)
 
-### Node.js Compatibility
+### Node.js Resources
 
 - [BigInt in Node.js](https://thecodebarbarian.com/an-overview-of-bigint-in-node-js.html)
 - [Optional Chaining & Nullish Coalescing in Node 14](https://www.ioannispoulakas.com/2020/10/18/node-14-optional-chaining-and-nullish-coalescing/)
