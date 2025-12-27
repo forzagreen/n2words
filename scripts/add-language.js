@@ -166,7 +166,7 @@ export class ${className} extends ${base.name} {
   zeroWord = 'zero' // TODO: Replace with ${className} word
 
   // TODO: Define masculine forms for 1-9
-  ones = {
+  onesWords = {
     1: 'one',
     2: 'two',
     3: 'three',
@@ -179,14 +179,14 @@ export class ${className} extends ${base.name} {
   }
 
   // TODO: Define feminine forms for 1-9 (if applicable)
-  onesFeminine = {
+  onesFeminineWords = {
     1: 'one',
     2: 'two',
     // ... etc
   }
 
-  // TODO: Define words for 10-19
-  tens = {
+  // TODO: Define words for 10-19 (teen numbers)
+  teensWords = {
     0: 'ten',
     1: 'eleven',
     2: 'twelve',
@@ -200,7 +200,7 @@ export class ${className} extends ${base.name} {
   }
 
   // TODO: Define words for 20-90 (multiples of ten)
-  twenties = {
+  twentiesWords = {
     2: 'twenty',
     3: 'thirty',
     4: 'forty',
@@ -212,7 +212,7 @@ export class ${className} extends ${base.name} {
   }
 
   // TODO: Define words for hundreds (100-900)
-  hundreds = {
+  hundredsWords = {
     1: 'one hundred',
     2: 'two hundred',
     // ... etc

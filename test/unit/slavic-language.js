@@ -22,7 +22,7 @@ class TestSlavicLanguage extends SlavicLanguage {
   decimalSeparatorWord = 'point'
   zeroWord = 'zero'
 
-  ones = {
+  onesWords = {
     1: 'one-m',
     2: 'two-m',
     3: 'three-m',
@@ -34,7 +34,7 @@ class TestSlavicLanguage extends SlavicLanguage {
     9: 'nine'
   }
 
-  onesFeminine = {
+  onesFeminineWords = {
     1: 'one-f',
     2: 'two-f',
     3: 'three-f',
@@ -46,7 +46,7 @@ class TestSlavicLanguage extends SlavicLanguage {
     9: 'nine'
   }
 
-  tens = {
+  teensWords = {
     0: 'ten',
     1: 'eleven',
     2: 'twelve',
@@ -59,7 +59,7 @@ class TestSlavicLanguage extends SlavicLanguage {
     9: 'nineteen'
   }
 
-  twenties = {
+  twentiesWords = {
     2: 'twenty',
     3: 'thirty',
     4: 'forty',
@@ -70,7 +70,7 @@ class TestSlavicLanguage extends SlavicLanguage {
     9: 'ninety'
   }
 
-  hundreds = {
+  hundredsWords = {
     1: 'one-hundred',
     2: 'two-hundred',
     3: 'three-hundred',
