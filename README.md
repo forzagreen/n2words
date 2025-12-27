@@ -46,13 +46,13 @@ const { EnglishConverter } = require('n2words')
 **Browser (UMD via CDN):**
 
 ```html
-<!-- All languages (~91KB) -->
+<!-- All languages (~23KB gzipped) -->
 <script src="https://cdn.jsdelivr.net/npm/n2words/dist/n2words.js"></script>
 <script>
   n2words.EnglishConverter(42)  // 'forty-two'
 </script>
 
-<!-- Individual languages (~4-5KB each) - load only what you need -->
+<!-- Individual languages (~2KB gzipped each) - load only what you need -->
 <script src="https://cdn.jsdelivr.net/npm/n2words/dist/EnglishConverter.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/n2words/dist/SpanishConverter.js"></script>
 <script>
@@ -158,7 +158,7 @@ Languages marked with ✓ support additional options:
 
 - **Node.js**: ^20 || ^22 || >=24
 - **Browsers**: Chrome 67+, Firefox 68+, Safari 14+, Edge 79+ (desktop + mobile)
-- **Global Coverage**: ~86% of all users worldwide (all in-use browsers with BigInt support)
+- **Global Coverage**: ~86% of all users worldwide
 
 **Note**: BigInt is a hard requirement and cannot be polyfilled. Older browsers are not supported.
 
@@ -255,14 +255,14 @@ TraditionalChineseConverter(456, { formal: false }) // '四百五十六' (common
 JapaneseConverter(3.14)  // '三点一四'
 
 // Dutch: flexible formatting
-DutchConverter(123)                              // 'honderddrie en twintig'
-DutchConverter(123, { includeOptionalAnd: true })  // 'honderd en drie en twintig'
+DutchConverter(123)                              // 'honderddrieëntwintig' (default compound)
+DutchConverter(101, { includeOptionalAnd: true })  // 'honderdeneen' (with optional "en")
 DutchConverter(1)                                // 'één' (accented, default)
 DutchConverter(1, { accentOne: false })           // 'een' (unaccented)
 
-// French: hyphens vs spaces
-FrenchConverter(123)                              // 'cent vingt trois'
-FrenchConverter(123, { withHyphenSeparator: true }) // 'cent-vingt-trois'
+// French: selective hyphens vs all hyphens
+FrenchConverter(123)                              // 'cent vingt-trois' (default)
+FrenchConverter(123, { withHyphenSeparator: true }) // 'cent-vingt-trois' (all hyphens)
 ```
 
 ### Input Flexibility
@@ -342,7 +342,7 @@ AbstractLanguage (base)
 ```js
 // Import only what you need - bundler only includes used languages
 import { EnglishConverter, SpanishConverter } from 'n2words'
-// Final bundle: ~8-10 KB gzipped (only English + Spanish + core)
+// Final bundle: ~4-5 KB gzipped (only English + Spanish + core)
 ```
 
 ## Documentation
