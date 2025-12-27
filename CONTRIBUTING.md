@@ -369,11 +369,11 @@ n2words/
 ├── bench/
 │   ├── perf.js               # Performance benchmark script
 │   └── memory.js             # Memory usage benchmark script
-├── dist/                     # Built UMD browser bundle
-│   ├── n2words.js            # Minified UMD bundle (~91KB, ~23KB gzipped)
-│   └── n2words.js.map        # Source map
-├── docs/
-│   └── MIGRATION.md          # v1.x to v2.0 migration guide
+├── dist/                     # Built UMD browser bundles
+│   ├── n2words.js            # Main bundle with all converters (~91KB, ~23KB gzipped)
+│   ├── n2words.js.map        # Source map for main bundle
+│   ├── {LanguageName}Converter.js  # Individual converter UMD files (48 files)
+│   └── {LanguageName}Converter.js.map  # Source maps for each converter
 ├── CLAUDE.md                 # AI assistant context (project patterns)
 └── CONTRIBUTING.md           # This file
 ```
@@ -465,8 +465,8 @@ npm run lang:validate -- en --verbose
 If you have questions:
 
 - Check existing issues on [GitHub](https://github.com/forzagreen/n2words/issues)
-- Read the documentation in the [docs/](docs/) directory
 - Check [CLAUDE.md](CLAUDE.md) for detailed project patterns
+- Check [scripts/README.md](scripts/README.md) for tooling documentation
 - Open a new issue with the "question" label
 
 ## License
