@@ -15,6 +15,19 @@
 - 🔢 **Flexible input** — Supports number, bigint, and string inputs
 - 🎯 **Type-safe** — Full TypeScript support via JSDoc annotations
 
+## Contents
+
+- [Quick Start](#quick-start)
+- [Usage](#usage)
+- [Type Safety](#type-safety)
+- [Supported Languages](#supported-languages-48)
+- [Browser Compatibility](#browser-compatibility)
+- [Performance & Bundle Size](#performance--bundle-size)
+- [Examples](#examples)
+- [Documentation](#documentation)
+- [Contributing](#contributing)
+- [License](#license)
+
 ## Quick Start
 
 ```bash
@@ -120,35 +133,24 @@ Language codes follow [IETF BCP 47](https://tools.ietf.org/html/bcp47) standards
 
 ### Language Options
 
-Languages marked with ✓ support additional options:
+21 languages support additional options. Common options include:
 
-| Language | Option | Type | Default | Description |
-| --- | --- | --- | --- | --- |
-| Arabic | `gender` | `'masculine'\|'feminine'` | `'masculine'` | Grammatical gender for number forms |
-| Arabic | `negativeWord` | `string` | `'ناقص'` | Custom negative word |
-| Biblical Hebrew | `andWord` | `string` | `'ו'` | Conjunction character |
-| Biblical Hebrew | `gender` | `'masculine'\|'feminine'` | `'masculine'` | Grammatical gender for number forms |
-| Croatian | `gender` | `'masculine'\|'feminine'` | `'masculine'` | Grammatical gender for number forms |
-| Czech | `gender` | `'masculine'\|'feminine'` | `'masculine'` | Grammatical gender for number forms |
-| Danish | `ordFlag` | `boolean` | `false` | Enable ordinal number conversion |
-| Dutch | `includeOptionalAnd` | `boolean` | `false` | Include optional "en" separator |
-| Dutch | `noHundredPairs` | `boolean` | `false` | Disable comma before hundreds |
-| Dutch | `accentOne` | `boolean` | `true` | Use accented "één" for one |
-| French | `withHyphenSeparator` | `boolean` | `false` | Use hyphens vs spaces |
-| French Belgium | `withHyphenSeparator` | `boolean` | `false` | Use hyphens vs spaces |
-| Hebrew | `andWord` | `string` | `'ו'` | Conjunction character |
-| Latvian | `gender` | `'masculine'\|'feminine'` | `'masculine'` | Grammatical gender for number forms |
-| Lithuanian | `gender` | `'masculine'\|'feminine'` | `'masculine'` | Grammatical gender for number forms |
-| Polish | `gender` | `'masculine'\|'feminine'` | `'masculine'` | Grammatical gender for number forms |
-| Romanian | `gender` | `'masculine'\|'feminine'` | `'masculine'` | Grammatical gender for number forms |
-| Russian | `gender` | `'masculine'\|'feminine'` | `'masculine'` | Grammatical gender for number forms |
-| Serbian Cyrillic | `gender` | `'masculine'\|'feminine'` | `'masculine'` | Grammatical gender for number forms |
-| Serbian Latin | `gender` | `'masculine'\|'feminine'` | `'masculine'` | Grammatical gender for number forms |
-| Simplified Chinese | `formal` | `boolean` | `true` | Formal/financial vs common numerals |
-| Spanish | `gender` | `'masculine'\|'feminine'` | `'masculine'` | Grammatical gender for number forms |
-| Traditional Chinese | `formal` | `boolean` | `true` | Formal/financial vs common numerals |
-| Turkish | `dropSpaces` | `boolean` | `false` | Remove spaces between words |
-| Ukrainian | `gender` | `'masculine'\|'feminine'` | `'masculine'` | Grammatical gender for number forms |
+**`gender`** (`'masculine'` | `'feminine'`) - 16 languages
+Arabic, Croatian, Czech, Hebrew (Biblical), Latvian, Lithuanian, Polish, Romanian, Russian, Serbian (both scripts), Spanish, Ukrainian
+
+**`formal`** (`boolean`) - 2 languages
+Simplified Chinese, Traditional Chinese - Toggle between formal/financial and common numerals
+
+**Other options:**
+
+- Dutch: `includeOptionalAnd`, `accentOne`, `noHundredPairs`
+- French/French Belgium: `withHyphenSeparator`
+- Hebrew/Biblical Hebrew: `andWord`
+- Turkish: `dropSpaces`
+- Danish: `ordFlag` (ordinal numbers)
+- Arabic: `negativeWord` (custom negative word)
+
+[See complete options reference →](CLAUDE.md#3-language-specific-options)
 
 ## Browser Compatibility
 
@@ -160,35 +162,27 @@ Languages marked with ✓ support additional options:
 
 **Note**: BigInt is a hard requirement and cannot be polyfilled. Older browsers are not supported.
 
-### Which Build Should You Use?
+**Build options:**
 
-Choose the right build for your use case:
+- **Browser CDN**: Use `dist/n2words.js` (pre-built UMD, tested in real browsers)
+- **Node.js/Bundlers**: Use `lib/` source (ES modules, tree-shakable)
 
-#### UMD Build (dist/) - For Direct Browser Usage
+[See detailed compatibility guide →](COMPATIBILITY.md)
 
-The pre-built [dist/n2words.js](dist/n2words.js) is transpiled with Babel targeting browsers with BigInt support. These bundles are **tested in real browsers** (Chrome, Firefox via Selenium) to ensure compatibility.
+## Performance & Bundle Size
 
-**Best for:**
+- **Fast**: Sub-millisecond conversion for most numbers
+- **Small**: ~2-5 KB gzipped per language with tree-shaking
+- **Efficient**: Zero dependencies, minimal memory footprint
+- **BigInt support**: Handles arbitrarily large numbers without precision loss
 
-- ✅ CDN usage (`<script>` tag)
-- ✅ Simple drop-in integration
-- ✅ No build step required
-- ✅ Guaranteed browser compatibility (tested)
+**Tree-shaking example:**
 
-**Browser requirements tested and verified**: Chrome 67+, Firefox 68+, Safari 14+, Edge 79+
-
-#### ESM Source (lib/) - For Modern Bundlers
-
-The source files in [lib/](lib/) use modern JavaScript (ES2022: class fields, ES2020: BigInt, optional chaining, etc.).
-
-**Best for:**
-
-- ✅ Modern bundler setups (Webpack, Vite, Rollup)
-- ✅ Smaller bundle sizes (tree-shaking)
-- ✅ Custom transpilation targets
-- ✅ Direct ESM imports in Node.js
-
-**Note**: When using `lib/`, your bundler is responsible for transpiling to your target browsers. The `lib/` source is ES2022+ and requires a build step for browser compatibility.
+```js
+// Import only what you need - bundler only includes used languages
+import { EnglishConverter, SpanishConverter } from 'n2words'
+// Final bundle: ~4-5 KB gzipped (only English + Spanish + core)
+```
 
 ## Examples
 
@@ -284,65 +278,6 @@ EnglishConverter('-42')   // 'minus forty-two'
 EnglishConverter(999999999999999999999999n)  // Accurate conversion
 ```
 
-## Architecture
-
-### Class Hierarchy
-
-All language implementations inherit from one of four base classes:
-
-```text
-AbstractLanguage (base)
-├── GreedyScaleLanguage    # Most common: English, Spanish, French, German, etc.
-├── SlavicLanguage         # Russian, Polish, Czech, Croatian, Serbian, etc.
-├── SouthAsianLanguage     # Hindi, Tamil, Telugu, Bengali, Gujarati, etc.
-└── TurkicLanguage         # Turkish, Azerbaijani
-```
-
-**AbstractLanguage**: Provides core functionality for all languages
-
-- Validates and normalizes input (number, string, BigInt)
-- Handles negative numbers and decimals
-- Delegates whole number conversion to subclasses
-
-**GreedyScaleLanguage**: Scale-based decomposition (most languages)
-
-- Uses a greedy algorithm with descending scale words
-- Defines `scaleWordPairs`: array of `[value, word]` tuples
-- Implements `mergeScales()` for language-specific combining logic
-
-**SlavicLanguage**: Three-form pluralization (Slavic languages)
-
-- Handles complex plural forms (singular/few/many)
-- Gender-aware number forms (masculine/feminine)
-- Chunk-based large number handling
-
-**SouthAsianLanguage**: Indian numbering system
-
-- Supports lakh (100,000) and crore (10,000,000)
-- Indian-style grouping: 1,23,45,67,89
-- Used by Hindi, Bengali, Urdu, Punjabi, etc.
-
-**TurkicLanguage**: Turkish-style number grammar
-
-- Implicit "bir" (one) before hundreds and thousands
-- Space-separated combinations
-- Used by Turkish and Azerbaijani
-
-## Performance & Bundle Size
-
-- **Fast**: Sub-millisecond conversion for most numbers
-- **Small**: ~2-5 KB gzipped per language with tree-shaking
-- **Efficient**: Zero dependencies, minimal memory footprint
-- **BigInt support**: Handles arbitrarily large numbers without precision loss
-
-**Tree-shaking example:**
-
-```js
-// Import only what you need - bundler only includes used languages
-import { EnglishConverter, SpanishConverter } from 'n2words'
-// Final bundle: ~4-5 KB gzipped (only English + Spanish + core)
-```
-
 ## Documentation
 
 - **[Compatibility Guide](COMPATIBILITY.md)** - Browser and Node.js compatibility requirements, verification tools
@@ -351,45 +286,17 @@ import { EnglishConverter, SpanishConverter } from 'n2words'
 
 ## Contributing
 
-We welcome contributions! Here's how you can help:
-
-### Add a New Language
+We welcome contributions! Add a new language or improve existing ones:
 
 ```bash
 npm run lang:add <code>         # Scaffold a new language (BCP 47 code)
-npm run lang:validate -- <code> # Validate implementation and tests
+npm run lang:validate -- <code> # Validate implementation
 npm test                        # Run full test suite
 ```
 
-The scaffolding tool automatically:
+Also welcome: bug reports, feature requests, documentation improvements, and language enhancements.
 
-- Creates language implementation template
-- Creates test fixture template
-- Updates main entry point ([lib/n2words.js](lib/n2words.js))
-- Validates IETF BCP 47 naming
-
-### Validation & Testing
-
-```bash
-npm run lang:validate          # Validate all languages
-npm run lang:validate -- en es # Validate specific languages
-npm test                       # Full test suite (validation + unit + integration + types)
-npm run test:all               # All tests including browser tests
-npm run test:unit              # Unit tests only
-npm run test:integration       # Integration tests only
-npm run test:types             # TypeScript type checking
-npm run test:web               # Browser tests (Chrome, Firefox via Selenium)
-npm run coverage               # Generate code coverage report
-```
-
-### Other Contributions
-
-- 🐛 Bug reports and fixes
-- ✨ Feature requests and improvements
-- 📝 Documentation enhancements
-- 🌍 Language improvements
-
-See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.
+**[See full contributing guide →](CONTRIBUTING.md)**
 
 ## License
 
