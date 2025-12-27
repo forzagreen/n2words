@@ -60,8 +60,19 @@ import { EnglishConverter } from 'n2words'
 
 **CommonJS (Node.js):**
 
+n2words is an ES module. For CommonJS environments, use dynamic import with Promises:
+
 ```js
-const { EnglishConverter } = require('n2words')
+// Promise-based
+import('n2words').then(({ EnglishConverter }) => {
+  console.log(EnglishConverter(42))  // 'forty-two'
+})
+
+// Or use async function
+async function convertNumber(num) {
+  const { EnglishConverter } = await import('n2words')
+  return EnglishConverter(num)
+}
 ```
 
 **Browser (UMD via CDN):**
