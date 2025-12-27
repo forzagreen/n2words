@@ -127,7 +127,9 @@ digits = null                    // Array of digit words for lookup
 
 #### GreedyScaleLanguage
 
-**Used by**: English, Spanish, French, German, Arabic, Italian, Portuguese, etc. (most languages)
+**Used by**: English, Spanish, French, German, Portuguese, Swedish, Danish, Norwegian, Dutch, Korean, Filipino, Gujarati, Kannada, Marathi, Punjabi, Swahili, Greek, Hebrew, Biblical Hebrew, Azerbaijani, Simplified Chinese, Traditional Chinese, Urdu, Bangla
+
+**Note**: Some languages extending GreedyScaleLanguage also extend AbstractLanguage directly when they need complete custom decomposition (Arabic, Hungarian, Indonesian, Italian, Japanese, Malay, Persian, Romanian, Tamil, Telugu, Thai, Vietnamese).
 
 **How it works:**
 
@@ -162,6 +164,11 @@ export class English extends GreedyScaleLanguage {
 }
 ```
 
+**Helper methods available:**
+
+- `getScaleWord(scaleValue)` - Returns the word for an exact scale value. Used by languages that override `convertWholePart()` (e.g., Hungarian).
+- `finalizeWords(output)` - Post-processing hook for language-specific formatting (e.g., Portuguese uses this for final cleanup).
+
 #### SlavicLanguage
 
 **Used by**: Russian, Polish, Czech, Croatian, Serbian (both Cyrillic and Latin), Ukrainian, Lithuanian, Latvian
@@ -194,6 +201,26 @@ export class Russian extends SlavicLanguage {
 **Used by**: Turkish, Azerbaijani
 
 **Key feature**: Omits "bir" (one) before certain scales
+
+#### Languages Using AbstractLanguage Directly
+
+**12 languages** implement custom decomposition logic by extending AbstractLanguage directly instead of using helper classes:
+
+- **Arabic (ar)**: Gender-specific forms, dual numbers, complex pluralization
+- **Hungarian (hu)**: Custom override of `convertWholePart()` despite extending GreedyScaleLanguage
+- **Indonesian (id)**: Simple concatenation-based conversion
+- **Italian (it)**: Phonetic contractions, vowel elision, accent rules
+- **Japanese (ja)**: Groups by 10^4 instead of 10^3, uses kanji, omits 一 (one) in specific contexts
+- **Malay (ms)**: Similar to Indonesian with regional variations
+- **Persian (fa)**: Right-to-left text, Persian-specific number formatting
+- **Romanian (ro)**: Gender-specific lookups with separate dictionaries
+- **Swahili (sw)**: Bantu language number patterns
+- **Tamil (ta)**: Dravidian language with unique scale system
+- **Telugu (te)**: Dravidian language patterns
+- **Thai (th)**: Thai numerals and formatting
+- **Vietnamese (vi)**: Vietnamese-specific number patterns
+
+These languages have unique patterns that don't fit the standard base classes.
 
 ### 2. Entry Point Structure ([lib/n2words.js](lib/n2words.js))
 
@@ -645,7 +672,7 @@ export class MyLanguage extends GreedyScaleLanguage {
 }
 ```
 
-### Pattern 3: Regional Variant
+### Pattern 3: Regional Variant (Runtime Modification)
 
 ```javascript
 import { French } from './fr.js'
@@ -653,9 +680,72 @@ import { French } from './fr.js'
 export class FrenchBelgium extends French {
   constructor(options = {}) {
     super(options)
-    // Override specific scale words
-    this.updateScaleWord(70n, 'septante')
-    this.updateScaleWord(90n, 'nonante')
+
+    // Modify parent's scaleWordPairs by inserting regional variants
+    const pairs = [...this.scaleWordPairs]
+    const idx80 = pairs.findIndex(pair => pair[0] === 80n)
+    if (idx80 !== -1) pairs.splice(idx80, 0, [90n, 'nonante'])
+    const idx60 = pairs.findIndex(pair => pair[0] === 60n)
+    if (idx60 !== -1) pairs.splice(idx60, 0, [70n, 'septante'])
+    this.scaleWordPairs = pairs
+  }
+}
+```
+
+This pattern allows regional variants to **modify** parent scale words rather than completely redefining them.
+
+### Pattern 4: Dynamic Properties Using Getters
+
+Some languages use getters for dynamic property values based on runtime state:
+
+```javascript
+export class Czech extends SlavicLanguage {
+  constructor(options = {}) {
+    super(options)
+    // Delete inherited property to allow getter to work
+    delete this.decimalSeparatorWord
+  }
+
+  get decimalSeparatorWord() {
+    // Return different separator based on cached whole number
+    if (this.cachedWholeNumber === 0n || this.cachedWholeNumber === 1n) {
+      return 'celá'
+    } else if (this.cachedWholeNumber >= 2n && this.cachedWholeNumber <= 4n) {
+      return 'celé'
+    } else {
+      return 'celých'
+    }
+  }
+}
+```
+
+**Other examples:**
+
+- **Arabic**: Uses `get selectedOnes()` to return masculine or feminine forms based on options
+- **Gender-based languages**: Many use getters to return different `scaleWordPairs` based on gender option
+
+### Pattern 5: Custom convertWholePart() Override
+
+Languages can override `convertWholePart()` for complete custom logic while still using GreedyScaleLanguage helpers:
+
+```javascript
+export class Hungarian extends GreedyScaleLanguage {
+  // Define scaleWordPairs as usual
+  scaleWordPairs = [/* ... */]
+
+  // Override with completely custom implementation
+  convertWholePart(number) {
+    if (number === 0n) return this.zeroWord
+
+    // Custom Hungarian-specific decomposition logic
+    const thousands = number / 1000n
+    const remainder = number % 1000n
+
+    // Use getScaleWord() helper to lookup words
+    const word = this.getScaleWord(remainder)
+    if (word && thousands === 0n) return word
+
+    // Custom merging logic...
   }
 }
 ```
@@ -725,6 +815,35 @@ npm run lang:validate -- --verbose # Show detailed validation info
 
 - `0`: All validations passed
 - `1`: One or more validations failed
+
+**Interactive mode:**
+
+When `add-language.js` is run without a language code, it enters interactive mode:
+
+- Prompts user to select base class (greedy, slavic, south-asian, turkic, abstract)
+- Shows numbered menu with descriptions
+- Generates different templates based on base class choice
+- Provides guidance on which base class to use
+
+**Exportable functions:**
+
+Both scripts export pure functions that can be imported programmatically:
+
+```javascript
+// From validate-language.js
+import {
+  validateLanguageCode,
+  getExpectedClassName,
+  validateLanguage,
+  displayResults
+} from './scripts/validate-language.js'
+
+// From add-language.js
+import {
+  validateLanguageCode,
+  getExpectedClassName
+} from './scripts/add-language.js'
+```
 
 ## Performance Considerations
 
@@ -814,32 +933,357 @@ npm run bench:memory  # Run memory usage benchmarks (requires --expose-gc flag)
 
 For detailed usage, examples, and interpretation guides, see the [Benchmark Suite Documentation](bench/README.md).
 
+## Configuration Files
+
+### Code Style & Formatting
+
+#### .editorconfig
+
+Defines code formatting rules for consistent style across editors:
+
+- **Indent size**: 2 spaces for all files
+- **Line endings**: LF (Unix-style) on all platforms
+- **Charset**: UTF-8
+- **Final newline**: Required for all files
+- **Trim trailing whitespace**: Yes (except Markdown, to preserve intentional double-space line breaks)
+- **Quote style**: Single quotes for JS/TS, double quotes for JSON
+
+#### .gitattributes
+
+Normalizes repository behavior:
+
+- **Line endings**: `* text=auto eol=lf` - ensures consistent LF line endings
+- **Linguist**: Marks `package-lock.json` as generated (excluded from language statistics)
+
+#### .markdownlint.mjs
+
+Markdown linting configuration:
+
+- **Line length**: Disabled (no maximum line length)
+- **Inline HTML**: Allowed (for tables, complex formatting)
+- **Bare URLs**: Allowed (for simple link references)
+- **First line heading**: Enforced (documents must start with h1)
+
+### Development Environment
+
+#### .vscode/extensions.json
+
+Recommended VS Code extensions:
+
+- **Recommended**: `editorconfig.editorconfig`, `davidanson.vscode-markdownlint`, `standard.vscode-standard`
+- **Unwanted**: `esbenp.prettier-vscode` (conflicts with StandardJS)
+
+### Testing Configuration
+
+#### test/types/tsconfig.json
+
+TypeScript configuration for JSDoc type checking:
+
+- **Target**: ES2022
+- **Module**: ES2020
+- **Strict mode**: Enabled
+- **Allow JS**: Yes (checking JSDoc annotations)
+- **Check JS**: Yes
+- **No emit**: Yes (type checking only, no compilation)
+
+### Build Configuration
+
+#### .browserslistrc
+
+Browser targeting for Babel transpilation:
+
+```text
+defaults and supports bigint
+```
+
+This targets ~86% of global browser users while requiring BigInt support:
+
+- Chrome 67+
+- Firefox 68+
+- Safari 14+
+- Edge 79+
+
+#### rollup.config.js
+
+Advanced Rollup configuration details:
+
+- **Two-pass terser compression**: `passes: 2` for better minification
+- **Custom filter-exports plugin**: Inline plugin that modifies exports for individual converter bundles
+- **Tree-shaking**: `moduleSideEffects: false` for individual bundles
+- **Global extension**: `extend: true` - individual converter bundles extend existing global instead of replacing it
+- **Source maps**: Generated for all bundles
+
+### Package Configuration
+
+#### package.json key fields
+
+- **`"type": "module"`**: Package is ESM by default
+- **`"sideEffects": false`**: Enables aggressive tree-shaking in bundlers
+- **`"exports"`**: Defines ESM entry point explicitly
+- **`"jsdelivr"` and `"unpkg"`**: Points CDNs to UMD bundle
+- **`"engines"`**: Requires Node.js >=20
+- **AVA configuration**: Test timeout (30s), file patterns
+- **c8 configuration**: Coverage settings (lcov + text reporters, includes `lib/`)
+
+## CI/CD & Automation
+
+### GitHub Actions Workflows
+
+#### .github/workflows/test.yml
+
+Comprehensive test workflow with 3 jobs:
+
+**1. lint-and-build job:**
+
+- Runs linting (JavaScript + Markdown)
+- Builds all dist/ bundles
+- Uploads build artifacts for other jobs
+- Fast fail: Stops workflow if linting or build fails
+
+**2. test job (matrix):**
+
+- **Node.js versions**: 20, 22, 24, 25
+- **Operating systems**: Ubuntu (all versions), Windows (Node 24), macOS (Node 24)
+- Downloads build artifacts from lint-and-build
+- Runs full test suite (validation + unit + integration + types + web)
+- Tests browser bundles in real browsers (Chrome, Firefox via Selenium)
+
+**3. coverage job:**
+
+- Runs on Node.js 24 (Ubuntu)
+- Generates test coverage report
+- Uploads to Coveralls for tracking
+
+**Additional features:**
+
+- **Concurrency control**: Cancels in-progress runs on new push to same branch
+- **Caching**: Uses actions/cache for node_modules
+- **Artifact sharing**: Build artifacts cached between jobs
+
+#### .github/workflows/npm-publish.yml
+
+Automated npm publishing workflow:
+
+**Trigger:** Version tags matching `v*` (e.g., `v2.0.0`)
+
+**Steps:**
+
+1. **Version validation**: Ensures `package.json` version matches git tag
+2. **Build**: Generates all dist/ bundles
+3. **Publish to npm**: Uses npm provenance (`--provenance`) for supply chain security
+4. **Create GitHub Release**: Automatically creates release with dist files attached
+
+**Security:**
+
+- Uses OIDC authentication (no long-lived tokens)
+- Publishes with provenance attestation
+- Requires write permissions for packages and contents
+
+### Deployment Process
+
+**To publish a new version:**
+
+1. Update version in `package.json`
+2. Commit: `git commit -am "chore: bump version to X.Y.Z"`
+3. Tag: `git tag vX.Y.Z`
+4. Push with tags: `git push && git push --tags`
+5. GitHub Actions automatically publishes to npm and creates GitHub release
+
+## Advanced Edge Cases & Behaviors
+
+### Input Handling Edge Cases
+
+From AbstractLanguage tests and implementation:
+
+- **Decimal-only strings**: `.5` is handled by defaulting whole part to `'0'` → "zero point five"
+- **Whitespace**: Trimmed from string input before processing
+- **Sign handling**: `cachedWholeNumber` is always positive (sign is stripped and handled separately)
+- **Leading zeros in decimals**: Preserved differently in grouped vs per-digit mode:
+  - Per-digit: "0.05" → "zero point zero five"
+  - Grouped: "0.05" → "zero point five" (leading zeros may be stripped depending on language)
+- **Empty string**: Treated as zero
+- **BigInt literal**: Fully supported: `BigInt('9007199254740992')` works correctly
+
+### Language-Specific Unique Behaviors
+
+- **Japanese `wordSeparator = ''`**: No spaces between characters (e.g., "四十二" not "四十 二")
+- **Japanese group-by-4**: Uses 10^4 grouping (万、億、兆) instead of Western 10^3 (thousand, million, billion)
+- **Italian phonetic contractions**: `phoneticContraction()` method removes duplicate vowels at word boundaries
+- **Czech custom pluralization**: Overrides standard Slavic pattern with Czech-specific rules
+- **Arabic complex structures**: Separate arrays for masculine/feminine, dual forms, appended forms, plural groups
+- **Hungarian edge cases**: Custom `convertWholePart()` implementation handles compound number rules
+
+### Memory and Performance Patterns
+
+- **BigInt arithmetic preferred**: SlavicLanguage uses BigInt operations instead of string manipulation in `getDigits()`
+- **Expensive calculation caching**: Arabic caches `Math.log10()` result to avoid repeated computation
+- **Minimal allocations**: Base classes reuse `cachedWholeNumber` instead of re-parsing
+- **String concatenation**: Most languages use `+` operator; some use array join for better performance with many parts
+
+## Testing Infrastructure Details
+
+### Test Structure
+
+#### Unit Tests ([test/unit/](test/unit/))
+
+**Purpose**: Test individual class methods and edge cases in isolation
+
+**Key test files:**
+
+- `abstract-language.test.js` - Tests base class functionality (input validation, sign handling, decimal conversion)
+- `greedy-scale-language.test.js` - Tests greedy decomposition algorithm
+- `slavic-language.test.js` - Tests three-form pluralization logic
+- `south-asian-language.test.js` - Tests lakh/crore number system
+- `turkic-language.test.js` - Tests "bir" omission rules
+
+**Pattern for testing abstract classes:**
+
+```javascript
+import test from 'ava'
+import { AbstractLanguage } from '../../lib/classes/abstract-language.js'
+
+// Create concrete test subclass
+class TestLanguage extends AbstractLanguage {
+  negativeWord = 'minus'
+  zeroWord = 'zero'
+  decimalSeparatorWord = 'point'
+
+  convertWholePart(n) {
+    return n === 0n ? this.zeroWord : String(n)
+  }
+}
+
+test('handles negative numbers', t => {
+  const lang = new TestLanguage()
+  t.is(lang.convertToWords(-42), 'minus 42')
+})
+```
+
+#### Integration Tests ([test/integration/](test/integration/))
+
+**Purpose**: Test full conversion workflows using fixtures
+
+**Pattern:**
+
+- One test file per language: `{language-code}.test.js`
+- Imports fixture data from `test/fixtures/languages/{code}.js`
+- Tests all fixture cases (typically 50-200 cases per language)
+- Validates options handling for languages that support them
+
+#### Type Tests ([test/types/](test/types/))
+
+**Purpose**: Validate JSDoc type annotations using TypeScript compiler
+
+**Key files:**
+
+- `n2words.js` - Type checking test file (imports all converters with type annotations)
+- `tsconfig.json` - TypeScript configuration (strict mode, no emit)
+- Custom wrapper script filters TypeScript output to show only relevant errors
+
+**How it works:**
+
+```bash
+# Runs tsc and filters output
+npm run test:types
+```
+
+The test passes if TypeScript reports no type errors in the JSDoc annotations.
+
+#### Web Tests ([test/web/](test/web/))
+
+**Purpose**: Test UMD bundles in real browsers using Selenium WebDriver
+
+**Important**: These tests run against `dist/` bundles, NOT `lib/` source
+
+**Browsers tested:**
+
+- Chrome (latest)
+- Firefox (latest)
+
+**What it validates:**
+
+- UMD bundles load correctly in browsers
+- All converters are accessible via global `n2words` object
+- Conversions work correctly in browser environment
+- BigInt support is functional
+- Source maps are generated correctly
+
+**Running web tests:**
+
+```bash
+npm run build        # Must build first!
+npm run test:web     # Runs Selenium tests
+```
+
+### Test Fixture Format
+
+Each language has a fixture file in `test/fixtures/languages/{code}.js`:
+
+```javascript
+export default [
+  // [input, expected]
+  [0, 'zero'],
+  [42, 'forty-two'],
+
+  // [input, expected, options]
+  [1, 'واحدة', { gender: 'feminine' }],
+
+  // BigInt literals
+  [BigInt('9007199254740992'), 'nine quadrillion...'],
+
+  // Negative numbers
+  [-1, 'minus one'],
+
+  // Decimals
+  [3.14, 'three point one four'],
+
+  // Edge cases
+  ['0.5', 'zero point five'],
+  [' 42 ', 'forty-two']  // Whitespace handling
+]
+```
+
+**Best practices for fixtures:**
+
+- Cover 0, negative numbers, decimals, large numbers
+- Test edge cases (1, 10, 100, 1000 boundaries)
+- Include BigInt literals for numbers > `Number.MAX_SAFE_INTEGER`
+- Test all option combinations for languages with options
+- Include culture-specific edge cases (e.g., Japanese uses group-by-4)
+
 ## Key Files Reference
 
-| File                                   | Purpose                                         |
-| -------------------------------------- | ----------------------------------------------- |
-| `lib/n2words.js`                       | Main entry point, exports all converters        |
-| `lib/classes/abstract-language.js`     | Base class, input validation, decimal handling  |
-| `lib/classes/greedy-scale-language.js` | Scale-based decomposition strategy              |
-| `lib/classes/slavic-language.js`       | Three-form pluralization for Slavic languages   |
-| `lib/classes/south-asian-language.js`  | Indian numbering system (lakh, crore)           |
-| `lib/classes/turkic-language.js`       | Turkish-style implicit "bir" handling           |
-| `lib/languages/*.js`                   | Individual language implementations (48 files)  |
-| `scripts/add-language.js`              | Scaffolding tool for new languages              |
-| `scripts/validate-language.js`         | Validation tool for language implementations    |
-| `scripts/README.md`                    | Scripts documentation                           |
-| `bench/perf.js`                        | Performance benchmark script                    |
-| `bench/memory.js`                      | Memory usage benchmark script                   |
-| `bench/README.md`                      | Benchmarking documentation and usage guide      |
-| `test/fixtures/languages/*.js`         | Test data for each language (48 files)          |
-| `test/unit/*.js`                       | Unit tests for classes and methods              |
-| `test/integration/*.js`                | Integration tests using fixtures                |
-| `test/web/*.js`                        | Browser tests using Selenium                    |
-| `test/types/*.js`                      | TypeScript type checking tests                  |
-| `rollup.config.js`                     | Build configuration for UMD bundles             |
-| `.browserslistrc`                      | Browser targeting configuration                 |
-| `.nvmrc`                               | Node.js version specification (lts/*)           |
-| `package.json`                         | Scripts, dependencies, metadata, config         |
+| File                                   | Purpose                                                 |
+| -------------------------------------- | ------------------------------------------------------- |
+| `lib/n2words.js`                       | Main entry point, exports all converters                |
+| `lib/classes/abstract-language.js`     | Base class, input validation, decimal handling          |
+| `lib/classes/greedy-scale-language.js` | Scale-based decomposition strategy                      |
+| `lib/classes/slavic-language.js`       | Three-form pluralization for Slavic languages           |
+| `lib/classes/south-asian-language.js`  | Indian numbering system (lakh, crore)                   |
+| `lib/classes/turkic-language.js`       | Turkish-style implicit "bir" handling                   |
+| `lib/languages/*.js`                   | Individual language implementations (48 files)          |
+| `scripts/add-language.js`              | Scaffolding tool for new languages                      |
+| `scripts/validate-language.js`         | Validation tool for language implementations            |
+| `scripts/README.md`                    | Scripts documentation                                   |
+| `bench/perf.js`                        | Performance benchmark script                            |
+| `bench/memory.js`                      | Memory usage benchmark script                           |
+| `bench/README.md`                      | Benchmarking documentation and usage guide              |
+| `test/fixtures/languages/*.js`         | Test data for each language (48 files)                  |
+| `test/unit/*.js`                       | Unit tests for classes and methods                      |
+| `test/integration/*.js`                | Integration tests using fixtures                        |
+| `test/web/*.js`                        | Browser tests using Selenium                            |
+| `test/types/*.js`                      | TypeScript type checking tests                          |
+| `test/types/tsconfig.json`             | TypeScript configuration for type checking              |
+| `rollup.config.js`                     | Build configuration for UMD bundles                     |
+| `.browserslistrc`                      | Browser targeting configuration                         |
+| `.nvmrc`                               | Node.js version specification (lts/*)                   |
+| `.editorconfig`                        | Code style and formatting rules                         |
+| `.gitattributes`                       | Git repository normalization settings                   |
+| `.markdownlint.mjs`                    | Markdown linting configuration                          |
+| `.vscode/extensions.json`              | Recommended VS Code extensions                          |
+| `.github/workflows/test.yml`           | CI/CD test workflow (lint, test matrix, coverage)       |
+| `.github/workflows/npm-publish.yml`    | Automated npm publishing workflow                       |
+| `package.json`                         | Scripts, dependencies, metadata, config                 |
 
 ## Common Issues & Solutions
 
