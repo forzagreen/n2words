@@ -82,7 +82,7 @@ class TestSlavicLanguage extends SlavicLanguage {
     9: 'nine-hundred'
   }
 
-  thousands = {
+  pluralForms = {
     1: ['thousand-sing', 'thousand-few', 'thousand-many'],
     2: ['million-sing', 'million-few', 'million-many'],
     3: ['billion-sing', 'billion-few', 'billion-many']

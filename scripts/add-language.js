@@ -220,7 +220,7 @@ export class ${className} extends ${base.name} {
 
   // TODO: Define plural forms for scale words [singular, few, many]
   // Example for Russian: ['тысяча', 'тысячи', 'тысяч']
-  thousands = {
+  pluralForms = {
     1: ['thousand', 'thousands', 'thousands'], // 10^3 - TODO: Replace
     2: ['million', 'millions', 'millions'], // 10^6 - TODO: Replace
     3: ['billion', 'billions', 'billions'], // 10^9 - TODO: Replace
