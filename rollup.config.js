@@ -3,6 +3,9 @@ import { nodeResolve } from '@rollup/plugin-node-resolve'
 import terser from '@rollup/plugin-terser'
 import { readFileSync } from 'node:fs'
 
+// Read package.json for version
+const pkg = JSON.parse(readFileSync('./package.json', 'utf8'))
+
 /**
  * Rollup configuration for n2words UMD bundles.
  *
@@ -59,7 +62,7 @@ const mainConfig = {
     name: 'n2words',
     sourcemap: true,
     exports: 'named',
-    banner: '/*! n2words v2.0.0 | MIT License | github.com/forzagreen/n2words */'
+    banner: `/*! n2words v${pkg.version} | MIT License | github.com/forzagreen/n2words */`
   },
   plugins: sharedPlugins
 }
@@ -87,7 +90,7 @@ const converterConfigs = converters.map(converterName => {
       sourcemap: true,
       exports: 'named',
       extend: true, // Extend existing n2words global instead of replacing it
-      banner: `/*! n2words/${converterName} v2.0.0 | MIT License | github.com/forzagreen/n2words */`
+      banner: `/*! n2words/${converterName} v${pkg.version} | MIT License | github.com/forzagreen/n2words */`
     },
     // Tree-shake to include only this converter and its dependencies
     treeshake: {
