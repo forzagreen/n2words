@@ -432,8 +432,18 @@ function validateOptionsPattern (instance, LanguageClass, className, fileContent
     return
   }
 
-  // Regional variant pattern
-  if (body.includes('super(options)')) {
+  const hasSuperOptions = body.includes('super(options)')
+  const hasMergeOptions = body.includes('this.mergeOptions(')
+
+  // Hybrid pattern: passes options to super AND has own mergeOptions
+  if (hasSuperOptions && hasMergeOptions) {
+    result.info.push('✓ Constructor passes options to super() and adds own options')
+    validateOptionsTypedef(className, body, n2wordsContent, result)
+    return
+  }
+
+  // Regional variant pattern: only passes options to super
+  if (hasSuperOptions) {
     result.info.push('✓ Constructor passes options to super() (regional variant)')
 
     if (body.includes('this.scaleWordPairs')) {
@@ -445,8 +455,8 @@ function validateOptionsPattern (instance, LanguageClass, className, fileContent
 
   result.info.push('✓ Constructor calls super()')
 
-  // Standard options pattern
-  if (!body.includes('this.mergeOptions(')) {
+  // Standard options pattern: only uses mergeOptions
+  if (!hasMergeOptions) {
     result.errors.push('Constructor should call this.mergeOptions() or pass options to super()')
     return
   }
@@ -477,7 +487,7 @@ function validateGenderOption (typedef, result) {
  * Validate options typedef and defaults
  */
 function validateOptionsTypedef (className, constructorBody, n2wordsContent, result) {
-  // Extract default options
+  // Extract default options from mergeOptions()
   const mergeMatch = constructorBody.match(/this\.mergeOptions\(\s*{([^}]*)}/)
   if (!mergeMatch) return
 
@@ -505,6 +515,13 @@ function validateOptionsTypedef (className, constructorBody, n2wordsContent, res
   }
 
   result.info.push(`✓ Typedef ${className}Options exists`)
+
+  // Extract options accessed in constructor (e.g., options.propertyName)
+  const accessedOptions = new Set()
+  const accessPattern = /options\.(\w+)/g
+  while ((match = accessPattern.exec(constructorBody)) !== null) {
+    accessedOptions.add(match[1])
+  }
 
   // Validate options match typedef
   for (const def of defaults) {
@@ -541,10 +558,13 @@ function validateOptionsTypedef (className, constructorBody, n2wordsContent, res
     }
   }
 
-  // Check for typedef properties not in constructor
+  // Check for typedef properties not handled in constructor
   for (const prop of typedef.properties) {
-    if (!defaults.find(d => d.name === prop.name)) {
-      result.warnings.push(`Option "${prop.name}" in typedef but not in constructor`)
+    const inDefaults = defaults.find(d => d.name === prop.name)
+    const isAccessed = accessedOptions.has(prop.name)
+
+    if (!inDefaults && !isAccessed) {
+      result.warnings.push(`Option "${prop.name}" in typedef but not used in constructor`)
     }
   }
 
