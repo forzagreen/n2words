@@ -358,9 +358,9 @@ We welcome contributions! Here's how you can help:
 ### Add a New Language
 
 ```bash
-npm run lang:add <code>        # Scaffold a new language (BCP 47 code)
+npm run lang:add <code>         # Scaffold a new language (BCP 47 code)
 npm run lang:validate -- <code> # Validate implementation and tests
-npm test                       # Run full test suite
+npm test                        # Run full test suite
 ```
 
 The scaffolding tool automatically:
@@ -375,9 +375,13 @@ The scaffolding tool automatically:
 ```bash
 npm run lang:validate          # Validate all languages
 npm run lang:validate -- en es # Validate specific languages
-npm test                       # Full test suite
+npm test                       # Full test suite (validation + unit + integration + types)
+npm run test:all               # All tests including browser tests
 npm run test:unit              # Unit tests only
 npm run test:integration       # Integration tests only
+npm run test:types             # TypeScript type checking
+npm run test:web               # Browser tests (Chrome, Firefox via Selenium)
+npm run coverage               # Generate code coverage report
 ```
 
 ### Other Contributions
