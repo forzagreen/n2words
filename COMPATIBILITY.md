@@ -91,13 +91,13 @@ npm run browsers:dist           # Coverage for all BigInt-capable browsers (~96%
 #### Verify Browser Compatibility
 
 ```bash
-npm run compat:dist             # Verify dist/n2words.js browser compatibility (ES version check)
+npm run compat:web              # Verify dist/ bundles browser compatibility (ES version check)
 npm run test:web                # Run real browser tests (Chrome, Firefox via Selenium)
 ```
 
 **What they do:**
 
-- `compat:dist`: Static analysis of `dist/n2words.js` using es-check
+- `compat:web`: Static analysis of `dist/` bundles using es-check
 - `test:web`: Full integration tests in real browsers on `dist/` bundles
 
 ### Node.js Compatibility Checks
@@ -125,7 +125,7 @@ node: 25.2.1 (satisfies ^20 || ^22 || >=24)
 #### Verify Source Compatibility
 
 ```bash
-npm run compat:check            # Verify lib/ source is ES2022 compatible
+npm run compat:node             # Verify lib/ source is ES2022 compatible
 ```
 
 **What it does:**
@@ -217,7 +217,7 @@ Our `lib/` source code uses modern ES2022+ features:
 
 **Use case**: Modern bundler setups (Webpack, Vite, Rollup) that handle transpilation themselves
 
-**Verified with**: `npm run compat:check`
+**Verified with**: `npm run compat:node`
 
 ### Built Bundle (dist/) - For Browser Consumers
 
@@ -231,7 +231,7 @@ Babel transpiles modern features down while preserving BigInt:
 
 **Verified with**:
 
-- `npm run compat:dist` - Static ES version checking
+- `npm run compat:web` - Static ES version checking
 - `npm run test:web` - Real browser testing (Chrome, Firefox via Selenium)
 
 ## Why No Polyfills?

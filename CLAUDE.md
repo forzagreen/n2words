@@ -343,12 +343,11 @@ npm run test:all         # All tests including web tests
 # Browser compatibility
 npm run browsers            # Show targeted browser versions
 npm run browsers:coverage   # Show global browser coverage (~86%)
-npm run compat:dist         # Verify dist/ bundle compatibility (ES version check)
+npm run compat:web          # Verify dist/ bundle compatibility (ES version check)
 npm run test:web            # Test in real browsers (Chrome, Firefox)
 
 # Node.js compatibility
-npm run compat:node         # Verify Node.js version meets requirements
-npm run compat:check        # Verify lib/ source is ES2022 compatible
+npm run compat:node         # Verify lib/ source is ES2022 compatible
 ```
 
 **Node.js Version Management:**
@@ -632,9 +631,9 @@ export class FrenchBelgium extends French {
 
 ### Bundle Size
 
-- Each language: ~2-5 KB gzipped
+- Each language: ~2 KB gzipped
 - Tree-shaking supported: Only import what you need
-- UMD build: All languages, ~80 KB gzipped
+- UMD build: All languages, ~23 KB gzipped
 
 ## Testing Strategy
 
