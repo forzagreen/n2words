@@ -366,15 +366,14 @@ n2words/
 │   ├── add-language.js       # Language scaffolding tool
 │   ├── validate-language.js  # Language validation tool
 │   └── README.md             # Scripts documentation
-├── bench.js                  # Performance benchmark script
-├── bench-memory.js           # Memory usage benchmark script
+├── bench/
+│   ├── perf.js               # Performance benchmark script
+│   └── memory.js             # Memory usage benchmark script
 ├── dist/                     # Built UMD browser bundle
 │   ├── n2words.js            # Minified UMD bundle (~91KB, ~23KB gzipped)
 │   └── n2words.js.map        # Source map
 ├── docs/
-│   ├── API.md                # Complete API documentation
-│   ├── MIGRATION.md          # v1.x to v2.0 migration guide
-│   └── EXAMPLES.md           # Usage examples
+│   └── MIGRATION.md          # v1.x to v2.0 migration guide
 ├── CLAUDE.md                 # AI assistant context (project patterns)
 └── CONTRIBUTING.md           # This file
 ```

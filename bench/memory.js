@@ -16,6 +16,7 @@ import chalk from 'chalk'
 import { join } from 'node:path'
 
 const resultsFile = join('.', 'bench-memory-results.json')
+const libPath = '../lib/'
 const arguments_ = process.argv.slice(2)
 
 let language
@@ -51,7 +52,7 @@ if (language) {
     process.exit(1)
   }
 } else {
-  const files = readdirSync('./lib/languages')
+  const files = readdirSync(libPath + 'languages')
 
   console.log(chalk.cyan.bold('Memory Benchmark\n'))
   console.log(chalk.gray(`Testing ${files.length} languages with ${iterations} iterations each...`))
@@ -131,7 +132,7 @@ async function benchMemory (file, name) {
   await new Promise(resolve => setTimeout(resolve, 100))
 
   const baseline = process.memoryUsage()
-  const languageModule = await import('./lib/' + file + '.js')
+  const languageModule = await import(libPath + file + '.js')
 
   // Get the first exported class from the module
   // Language files export a single class (e.g., export class English)

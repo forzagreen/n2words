@@ -17,6 +17,7 @@ import { join } from 'node:path'
 
 const suite = new Benchmark.Suite()
 const resultsFile = join('.', 'bench-results.json')
+const libPath = '../lib/'
 
 const arguments_ = process.argv.slice(2)
 
@@ -47,7 +48,7 @@ if (language) {
   displayHelp()
   process.exit(0)
 } else {
-  const files = readdirSync('./lib/languages')
+  const files = readdirSync(libPath + 'languages')
 
   for (const file of files) {
     if (file.includes('.js')) {
@@ -118,7 +119,7 @@ suite
  * @throws {Error} If language class cannot be found in the module.
  */
 async function benchFile (file, options) {
-  const languageModule = await import('./lib/' + file + '.js')
+  const languageModule = await import(libPath + file + '.js')
 
   // Get the first exported class from the module
   // Language files export a single class (e.g., export class English)

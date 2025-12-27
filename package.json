@@ -47,8 +47,8 @@
     "dist/*"
   ],
   "scripts": {
-    "bench:memory": "node --expose-gc bench-memory.js",
-    "bench:perf": "node bench.js",
+    "bench:memory": "node --expose-gc bench/memory.js",
+    "bench:perf": "node bench/perf.js",
     "build": "rollup -c",
     "coverage": "c8 npm run test:minimal",
     "lang:add": "node scripts/add-language.js",

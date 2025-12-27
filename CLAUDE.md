@@ -638,6 +638,8 @@ import type { NumericValue, ArabicOptions } from 'n2words'
 | `lib/languages/*.js`                   | Individual language implementations             |
 | `scripts/add-language.js`              | Scaffolding tool                                |
 | `scripts/validate-language.js`         | Validation tool                                 |
+| `bench/perf.js`                        | Performance benchmark script                    |
+| `bench/memory.js`                      | Memory usage benchmark script                   |
 | `test/fixtures/languages/*.js`         | Test data for each language                     |
 | `package.json`                         | Scripts, dependencies, config                   |
 
