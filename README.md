@@ -94,14 +94,14 @@ Language codes follow [IETF BCP 47](https://tools.ietf.org/html/bcp47) standards
 | Code      | Language            | Options | Code      | Language            | Options |
 | --------- | ------------------- | ------- | --------- | ------------------- | ------- |
 | `ar`      | Arabic              | ✓       | `az`      | Azerbaijani         |         |
-| `bn`      | Bengali             | ✓       | `cs`      | Czech               | ✓       |
+| `bn`      | Bengali             |         | `cs`      | Czech               | ✓       |
 | `da`      | Danish              | ✓       | `de`      | German              |         |
 | `el`      | Greek               |         | `en`      | English             |         |
 | `es`      | Spanish             | ✓       | `fa`      | Persian             |         |
 | `fil`     | Filipino            |         | `fr`      | French              | ✓       |
 | `fr-BE`   | Belgian French      | ✓       | `gu`      | Gujarati            |         |
 | `hbo`     | Biblical Hebrew     | ✓       | `he`      | Modern Hebrew       | ✓       |
-| `hi`      | Hindi               | ✓       | `hr`      | Croatian            | ✓       |
+| `hi`      | Hindi               |         | `hr`      | Croatian            | ✓       |
 | `hu`      | Hungarian           |         | `id`      | Indonesian          |         |
 | `it`      | Italian             |         | `ja`      | Japanese            |         |
 | `kn`      | Kannada             |         | `ko`      | Korean              |         |
@@ -126,7 +126,6 @@ Languages marked with ✓ support additional options:
 | --- | --- | --- | --- | --- |
 | Arabic | `gender` | `'masculine'\|'feminine'` | `'masculine'` | Grammatical gender for number forms |
 | Arabic | `negativeWord` | `string` | `'ناقص'` | Custom negative word |
-| Bengali | `feminine` | `boolean` | `false` | Currently unused |
 | Biblical Hebrew | `andWord` | `string` | `'ו'` | Conjunction character |
 | Biblical Hebrew | `gender` | `'masculine'\|'feminine'` | `'masculine'` | Grammatical gender for number forms |
 | Croatian | `gender` | `'masculine'\|'feminine'` | `'masculine'` | Grammatical gender for number forms |
@@ -138,7 +137,6 @@ Languages marked with ✓ support additional options:
 | French | `withHyphenSeparator` | `boolean` | `false` | Use hyphens vs spaces |
 | French Belgium | `withHyphenSeparator` | `boolean` | `false` | Use hyphens vs spaces |
 | Hebrew | `andWord` | `string` | `'ו'` | Conjunction character |
-| Hindi | `feminine` | `boolean` | `false` | Currently unused |
 | Latvian | `gender` | `'masculine'\|'feminine'` | `'masculine'` | Grammatical gender for number forms |
 | Lithuanian | `gender` | `'masculine'\|'feminine'` | `'masculine'` | Grammatical gender for number forms |
 | Polish | `gender` | `'masculine'\|'feminine'` | `'masculine'` | Grammatical gender for number forms |

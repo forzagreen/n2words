@@ -229,7 +229,6 @@ Some languages support additional options:
 | ---------------- | --------------------- | ------------------------------- | ------------------------------------- |
 | Arabic           | `gender`              | 'masculine' \| 'feminine'       | Grammatical gender for number forms   |
 | Arabic           | `negativeWord`        | string                          | Custom negative word                  |
-| Bangla           | `feminine`            | boolean                         | Currently unused in Bangla            |
 | Biblical Hebrew  | `andWord`             | string                          | Conjunction character (default: 'ו')  |
 | Biblical Hebrew  | `gender`              | 'masculine' \| 'feminine'       | Grammatical gender for number forms   |
 | Chinese (both)   | `formal`              | boolean                         | Formal/financial vs common numerals   |
@@ -242,7 +241,6 @@ Some languages support additional options:
 | French           | `withHyphenSeparator` | boolean                         | Use hyphens vs spaces                 |
 | French Belgium   | `withHyphenSeparator` | boolean                         | Use hyphens vs spaces                 |
 | Hebrew           | `andWord`             | string                          | Conjunction character (default: 'ו')  |
-| Hindi            | `feminine`            | boolean                         | Currently unused in Hindi             |
 | Latvian          | `gender`              | 'masculine' \| 'feminine'       | Grammatical gender for number forms   |
 | Lithuanian       | `gender`              | 'masculine' \| 'feminine'       | Grammatical gender for number forms   |
 | Polish           | `gender`              | 'masculine' \| 'feminine'       | Grammatical gender for number forms   |
