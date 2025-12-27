@@ -66,7 +66,32 @@ npm run lang:add -- <language-code>
 npm run lang:add -- ko
 ```
 
-You'll be prompted to select a base class:
+You'll be prompted to select a base class. See the decision tree below to choose the right one.
+
+### Base Class Decision Tree
+
+```text
+┌─ Does your language use lakh/crore (Indian numbering)?
+│  └─ YES → SouthAsianLanguage
+│           (Hindi, Tamil, Telugu, Bengali, Gujarati, Kannada, Marathi, Punjabi, Urdu)
+│
+├─ Does your language have three-form pluralization? (singular/few/many)
+│  └─ YES → SlavicLanguage
+│           (Russian, Polish, Czech, Croatian, Serbian, Ukrainian, Lithuanian, Latvian)
+│
+├─ Does your language omit "one" before certain scales? (like Turkish "yüz" not "bir yüz")
+│  └─ YES → TurkicLanguage
+│           (Turkish, Azerbaijani)
+│
+├─ Does your language have unique number structure that doesn't fit patterns?
+│  └─ YES → AbstractLanguage (advanced - requires full custom implementation)
+│           (Arabic, Japanese, Italian, etc.)
+│
+└─ Otherwise → GreedyScaleLanguage (default - most common)
+               (English, Spanish, French, German, Portuguese, Chinese, Korean, etc.)
+```
+
+**Base Classes:**
 
 - **GreedyScaleLanguage** (default) - Most common, scale-based decomposition
 - **SlavicLanguage** - Three-form pluralization (Slavic languages)
@@ -94,45 +119,63 @@ This will create:
 
 ### Implementation Steps
 
-1. **Run the scaffolding tool** as shown above
-
-2. **Implement the language class** in `lib/languages/<code>.js`:
-   - Replace placeholder words with actual translations
-   - Add complete `scaleWordPairs` array (ordered largest to smallest)
-   - Implement `mergeScales()` with language-specific rules
-   - Add options if needed (e.g., `gender`, `formal`, custom separators)
-   - Add comprehensive JSDoc documentation with examples
-
-3. **Add comprehensive tests** in `test/fixtures/languages/<code>.js`:
-   - Cover basic numbers (0-20)
-   - Include teens, tens, hundreds
-   - Test thousands, millions, billions
-   - Add negative numbers and decimals
-   - Include BigInt examples
-   - Test language-specific options (if applicable)
-   - Add edge cases and language-specific features
-
-4. **Validate your implementation**:
-
-   ```bash
-   npm run lang:validate -- <code> --verbose
-   ```
-
-   The validator checks:
-   - IETF BCP 47 naming convention
-   - Class structure and inheritance
-   - Required properties and methods
-   - Scale word ordering (descending)
-   - Options pattern (constructor, typedef, type annotations)
-   - JSDoc documentation
-   - Test fixture exists and is valid
-   - Registration in `lib/n2words.js`
-
-5. **Run all tests**:
-
-   ```bash
-   npm test
-   ```
+```text
+┌───────────────────────────────────────────────────────────┐
+│ 1. Scaffold Language                                      │
+│    npm run lang:add -- <code>                             │
+│    - Creates lib/languages/<code>.js                      │
+│    - Creates test/fixtures/languages/<code>.js            │
+│    - Registers in lib/n2words.js                          │
+└────────────────────┬──────────────────────────────────────┘
+                     ↓
+┌───────────────────────────────────────────────────────────┐
+│ 2. Implement Language Class                               │
+│    Edit lib/languages/<code>.js                           │
+│    ✓ Replace placeholder words                            │
+│    ✓ Add complete scaleWordPairs (largest → smallest)     │
+│    ✓ Implement mergeScales() logic                        │
+│    ✓ Add options if needed (gender, formal, etc.)         │
+│    ✓ Write comprehensive JSDoc with examples              │
+└────────────────────┬──────────────────────────────────────┘
+                     ↓
+┌───────────────────────────────────────────────────────────┐
+│ 3. Add Test Cases                                         │
+│    Edit test/fixtures/languages/<code>.js                 │
+│    ✓ Basic numbers (0-20)                                 │
+│    ✓ Teens, tens, hundreds, thousands, millions           │
+│    ✓ Negative numbers and decimals                        │
+│    ✓ BigInt examples                                      │
+│    ✓ Language-specific options and features               │
+└────────────────────┬──────────────────────────────────────┘
+                     ↓
+┌───────────────────────────────────────────────────────────┐
+│ 4. Validate Implementation                                │
+│    npm run lang:validate -- <code> --verbose              │
+│    ✓ IETF BCP 47 naming                                   │
+│    ✓ Class structure and inheritance                      │
+│    ✓ Required properties and methods                      │
+│    ✓ Scale word ordering (descending)                     │
+│    ✓ Options pattern (if applicable)                      │
+│    ✓ JSDoc documentation                                  │
+│    ✓ Registration in lib/n2words.js                       │
+└────────────────────┬──────────────────────────────────────┘
+                     ↓
+┌───────────────────────────────────────────────────────────┐
+│ 5. Run Tests                                              │
+│    npm test                                               │
+│    ✓ Unit tests pass                                      │
+│    ✓ Integration tests pass                               │
+│    ✓ Type tests pass                                      │
+│    ✓ No linting errors                                    │
+└────────────────────┬──────────────────────────────────────┘
+                     ↓
+┌───────────────────────────────────────────────────────────┐
+│ 6. Submit Pull Request                                    │
+│    git checkout -b feature/add-<language>                 │
+│    git commit -m "feat(lang): add <Language> support"     │
+│    git push origin feature/add-<language>                 │
+└───────────────────────────────────────────────────────────┘
+```
 
 ### Language Naming Convention
 
@@ -1093,6 +1136,19 @@ npm run build
 # Check for syntax errors
 npm run lint
 ```
+
+### Quick Reference: Common Validation Errors
+
+| Error Message                              | Cause                                    | Fix                                           |
+| ------------------------------------------ | ---------------------------------------- | --------------------------------------------- |
+| "Missing required property: negativeWord"  | Property not defined in class            | Add `negativeWord = 'minus'` to class         |
+| "scaleWordPairs not in descending order"   | Scale values not sorted largest→smallest | Reorder array from largest to smallest        |
+| "convertWholePart() not implemented"       | Method is abstract/missing               | Implement `convertWholePart(n)` method        |
+| "Not imported in lib/n2words.js"           | Missing registration                     | Add import, converter, export (alphabetically)|
+| "Missing test fixture"                     | No test file exists                      | Create `test/fixtures/languages/<code>.js`    |
+| "Gender option must use enum type"         | Wrong JSDoc type                         | Use `('masculine'\|'feminine')` not `string`  |
+| "Class name doesn't match CLDR"            | Wrong class name                         | Use `Intl.DisplayNames` to get correct name   |
+| "File doesn't follow IETF BCP 47"          | Invalid language code                    | Use valid BCP 47 code (e.g., `en`, `zh-Hans`) |
 
 #### Browser Test Issues
 

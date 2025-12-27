@@ -10,32 +10,30 @@
 
 **Convert numbers to words in 48 languages with zero dependencies.**
 
-- 🌍 **48 languages** — Comprehensive international support
-- 📦 **Zero dependencies** — Lightweight and fast
-- 🧪 **Tested & validated** — Language modules validated and tested on every PR
-- 📱 **Universal** — Node.js, browsers, ESM/CommonJS
-- 🔢 **Flexible input** — Supports number, bigint, and string inputs
-- 🎯 **Type-safe** — Full TypeScript support via JSDoc annotations
+## Why n2words?
+
+- **Maximum Language Coverage** — 48 languages including European, Asian, Middle Eastern, and regional variants
+- **Zero Dependencies** — Pure JavaScript with no external runtime dependencies
+- **Universal Compatibility** — Works in Node.js, browsers (via CDN), and all modern bundlers
+- **Type-Safe** — Full TypeScript IntelliSense via JSDoc annotations
+- **Production Ready** — Comprehensive test coverage (unit, integration, browser, type checking)
+- **BigInt Support** — Handle arbitrarily large numbers without precision loss
+- **Flexible Input** — Accepts `number`, `bigint`, or `string` inputs
+- **Tree-Shakable** — Import only the languages you need (~2-5 KB gzipped per language)
+- **Browser Tested** — Verified in Chromium, Firefox, and WebKit via automated tests
 
 ## Contents
 
-- [n2words](#n2words)
-  - [Contents](#contents)
-  - [Quick Start](#quick-start)
-  - [Usage](#usage)
-  - [Type Safety](#type-safety)
-  - [Supported Languages (48)](#supported-languages-48)
-    - [Language Options](#language-options)
-  - [Browser Compatibility](#browser-compatibility)
-  - [Performance \& Bundle Size](#performance--bundle-size)
-  - [Examples](#examples)
-    - [Basic Conversions](#basic-conversions)
-    - [Gender Agreement](#gender-agreement)
-    - [Language-Specific Features](#language-specific-features)
-    - [Input Flexibility](#input-flexibility)
-  - [Documentation](#documentation)
-  - [Contributing](#contributing)
-  - [License](#license)
+- [Quick Start](#quick-start)
+- [Usage](#usage) — ESM, CommonJS, Browser (UMD)
+- [Type Safety](#type-safety) — TypeScript support
+- [Supported Languages](#supported-languages-48) — 48 languages with options
+- [Browser Compatibility](#browser-compatibility) — Chrome 67+, Firefox 68+, Safari 14+, Edge 79+
+- [Performance & Bundle Size](#performance--bundle-size) — Tree-shaking and benchmarks
+- [Examples](#examples) — Basic, gender agreement, language-specific features
+- [Documentation](#documentation) — Guides and API reference
+- [Contributing](#contributing) — How to contribute
+- [License](#license)
 
 ## Quick Start
 
@@ -191,10 +189,22 @@ Simplified Chinese, Traditional Chinese - Toggle between formal/financial and co
 
 ## Performance & Bundle Size
 
+### Bundle Size Comparison
+
+| Import Strategy              | Bundle Size (Minified) | Gzipped  | Languages Included |
+| ---------------------------- | ---------------------- | -------- | ------------------ |
+| All languages (UMD)          | ~92 KB                 | ~23 KB   | All 48             |
+| Single language (UMD)        | ~4-6 KB                | ~2 KB    | 1                  |
+| Tree-shaken (ESM, 1 lang)    | ~4-5 KB                | ~2 KB    | 1                  |
+| Tree-shaken (ESM, 3 langs)   | ~12-15 KB              | ~4-5 KB  | 3                  |
+| Tree-shaken (ESM, 10 langs)  | ~40-50 KB              | ~12-15 KB| 10                 |
+
+### Performance Characteristics
+
 - **Fast**: Sub-millisecond conversion for most numbers
-- **Small**: ~2-5 KB gzipped per language with tree-shaking
 - **Efficient**: Zero dependencies, minimal memory footprint
 - **BigInt support**: Handles arbitrarily large numbers without precision loss
+- **Memory-efficient**: ~2 KB overhead per language when tree-shaken
 
 **Tree-shaking example:**
 
@@ -202,6 +212,13 @@ Simplified Chinese, Traditional Chinese - Toggle between formal/financial and co
 // Import only what you need - bundler only includes used languages
 import { EnglishConverter, SpanishConverter } from 'n2words'
 // Final bundle: ~4-5 KB gzipped (only English + Spanish + core)
+```
+
+**Run benchmarks:**
+
+```bash
+npm run bench:perf    # Performance benchmarks (ops/sec)
+npm run bench:memory  # Memory usage benchmarks
 ```
 
 ## Examples

@@ -4,10 +4,10 @@
 
 We actively support the following versions of n2words with security updates:
 
-| Version | Supported          | End of Life |
-| ------- | ------------------ | ----------- |
-| 2.x     | :white_check_mark: | -           |
-| < 2.0   | :x:                | 2025-01-XX  |
+| Version | Supported          | End of Life    |
+| ------- | ------------------ | -------------- |
+| 2.x     | :white_check_mark: | -              |
+| < 2.0   | :x:                | January 2025   |
 
 ## Reporting a Vulnerability
 
@@ -25,8 +25,8 @@ We take security seriously and appreciate responsible disclosure. If you discove
 
 If you prefer email or cannot use GitHub Security Advisories:
 
-- Email: [security contact - maintainer to fill in]
-- Use GPG encryption if possible: [GPG key - if available]
+- Email: security@vigario.tech
+- GPG encryption is encouraged for sensitive disclosures
 
 ## What to Include
 
@@ -92,6 +92,19 @@ n2words has zero runtime dependencies, minimizing supply chain risks.
 4. **Release**: Patch version is released with security fix
 5. **Announcement**: Security advisory is published
 6. **Notification**: Users are notified via GitHub Security Advisories
+
+## For Contributors: Security Checklist
+
+When contributing code, ensure:
+
+- [ ] Input validation for all user-provided values
+- [ ] No use of `eval()`, `Function()`, or dynamic code execution
+- [ ] No hardcoded credentials or sensitive data
+- [ ] Dependencies are up to date (`npm audit`)
+- [ ] No new dependencies without justification
+- [ ] Consider DoS implications for large inputs
+- [ ] Sanitize outputs if used in HTML contexts (though n2words outputs plain text)
+- [ ] Follow principle of least privilege in examples
 
 ## Acknowledgments
 

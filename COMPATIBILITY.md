@@ -4,6 +4,36 @@
 
 n2words has **BigInt as a hard requirement** which cannot be polyfilled. This sets our minimum baseline for both browsers and Node.js.
 
+## Quick Reference
+
+### Compatibility Matrix
+
+| Platform             | Minimum Version | Tested Versions | Global Coverage |
+| -------------------- | --------------- | --------------- | --------------- |
+| **Node.js**          | 20.0.0          | 20, 22, 24, 25  | N/A             |
+| **Chrome**           | 67 (May 2018)   | Latest          | ~65%            |
+| **Firefox**          | 68 (July 2019)  | Latest          | ~3%             |
+| **Safari**           | 14 (Sep 2020)   | Latest          | ~20%            |
+| **Edge**             | 79 (Jan 2020)   | Latest          | ~5%             |
+| **Mobile Safari**    | 14.0            | Latest          | Included        |
+| **Chrome Android**   | 67              | Latest          | Included        |
+| **Samsung Internet** | 8.2             | Latest          | Included        |
+| **Opera Mobile**     | 48              | Latest          | Included        |
+| **Total Coverage**   | -               | -               | **~86%**        |
+
+### Verification Commands
+
+| Check Type              | Command                     | What It Does                            |
+| ----------------------- | --------------------------- | --------------------------------------- |
+| Browser Targets         | `npm run browsers`          | Show all targeted browser versions      |
+| Browser Coverage        | `npm run browsers:coverage` | Show global coverage percentage (~86%)  |
+| Browser Compatibility   | `npm run compat:web`        | Verify dist/ bundles ES version (static)|
+| Browser Tests           | `npm run test:web`          | Test in real browsers (Playwright)      |
+| Node.js Compatibility   | `npm run compat:node`       | Verify lib/ source is ES2022 compatible |
+| Node.js Version         | `node --version`            | Check your current Node.js version      |
+
+---
+
 This guide covers:
 
 - **Browser Compatibility**: Requirements for using `dist/` UMD bundles
@@ -27,7 +57,7 @@ Based on BigInt support (non-polyfillable) and verified via `dist/` bundle tests
 
 **Global Coverage**: ~86% of all users worldwide (all in-use browsers with BigInt support, as of 2025)
 
-**Testing**: These requirements are verified using the `dist/` UMD bundles via Selenium browser tests (`npm run test:web`).
+**Testing**: These requirements are verified using the `dist/` UMD bundles via Playwright browser tests (`npm run test:web`) in Chromium, Firefox, and WebKit.
 
 ## Node.js Compatibility
 
@@ -90,13 +120,13 @@ npm run browsers:coverage       # Coverage for our configured targets (~86%)
 
 ```bash
 npm run compat:web              # Verify dist/ bundles browser compatibility (ES version check)
-npm run test:web                # Run real browser tests (Chrome, Firefox via Selenium)
+npm run test:web                # Run real browser tests (Chromium, Firefox, WebKit via Playwright)
 ```
 
 **What they do:**
 
 - `compat:web`: Static analysis of `dist/` bundles using es-check
-- `test:web`: Full integration tests in real browsers on `dist/` bundles
+- `test:web`: Full integration tests in real browsers on `dist/` bundles using Playwright
 
 ### Node.js Compatibility Checks
 
@@ -229,7 +259,7 @@ Babel transpiles modern features down while preserving BigInt:
 **Verified with**:
 
 - `npm run compat:web` - Static ES version checking
-- `npm run test:web` - Real browser testing (Chrome, Firefox via Selenium)
+- `npm run test:web` - Real browser testing (Chromium, Firefox, WebKit via Playwright)
 
 ## Why No Polyfills?
 
@@ -249,8 +279,7 @@ Our Babel configuration targets only browsers with BigInt support, resulting in:
 - **`es-check`**: ECMAScript version compatibility checking
 - **`@mdn/browser-compat-data`**: Browser compatibility data
 - **`@babel/preset-env`**: Smart transpilation based on targets
-- **`selenium-webdriver`**: Real browser testing automation
-- **`chromedriver`**: Chrome browser driver for Selenium
+- **`@playwright/test`**: Real browser testing automation (Chromium, Firefox, WebKit)
 
 ### Node.js Compatibility Tools
 

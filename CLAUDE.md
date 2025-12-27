@@ -2,15 +2,38 @@
 
 This document provides comprehensive context about the n2words project structure, patterns, and conventions to help AI assistants understand and work with the codebase effectively.
 
+## Quick Reference
+
+**Project**: n2words — Number to words converter
+**Version**: 2.0.0
+**Type**: ES Module (ESM) + UMD browser bundles
+**Node.js**: >=20
+**Languages**: 48
+**Zero Dependencies**: ✅
+
+### Critical Patterns
+
+- **Alphabetical ordering**: All imports, converters, exports in `lib/n2words.js` MUST be alphabetically sorted
+- **IETF BCP 47**: Language codes must follow standard (e.g., `en`, `zh-Hans`, `fr-BE`)
+- **CLDR naming**: Class names use CLDR Display Names in PascalCase (e.g., `SimplifiedChinese`)
+- **Base classes**: 5 base classes (Abstract, GreedyScale, Slavic, SouthAsian, Turkic)
+- **Scale order**: scaleWordPairs must be descending (largest to smallest)
+
+### Common Commands
+
+```bash
+npm run lang:add <code>          # Scaffold new language
+npm run lang:validate -- <code>  # Validate language implementation
+npm test                         # Full test suite
+npm run test:web                 # Browser tests (Playwright)
+npm run build                    # Build UMD bundles
+```
+
+---
+
 ## Project Overview
 
 **n2words** is a JavaScript library that converts numbers to words in 48 languages with zero dependencies.
-
-- **Version**: 2.0.0
-- **Type**: ES Module (ESM) with UMD browser bundles
-- **Node.js**: >=20
-- **License**: MIT
-- **Zero dependencies**: Pure JavaScript implementation
 
 ### Key Features
 
@@ -1006,234 +1029,85 @@ For detailed usage, examples, and interpretation guides, see the [Benchmark Suit
 
 ## Configuration Files
 
-### Code Style & Formatting
+### Key Configuration Files
 
-#### .editorconfig
+| File                     | Purpose                                          | Key Settings                                  |
+| ------------------------ | ------------------------------------------------ | --------------------------------------------- |
+| `.editorconfig`          | Code formatting rules                            | 2 spaces, LF, UTF-8, single quotes            |
+| `.gitattributes`         | Git normalization                                | LF line endings, linguist exclusions          |
+| `.markdownlint.mjs`      | Markdown linting                                 | No line length limit, allow inline HTML       |
+| `.browserslistrc`        | Browser targets                                  | `defaults and supports bigint` (~86% coverage)|
+| `tsconfig.json`          | IDE IntelliSense                                 | ES2022, no emit, all files                    |
+| `tsconfig.build.json`    | Declaration generation                           | ES2022, emit `.d.ts` only, lib/n2words.js     |
+| `tsd.json`               | Type testing                                     | ES2022, strict, test/types/*.test-d.ts        |
+| `.attw.json`             | Package validation                               | Validates exports for all module systems      |
+| `rollup.config.js`       | UMD bundle build                                 | Two-pass terser, tree-shaking, source maps    |
+| `package.json`           | Package config                                   | ESM, sideEffects: false, engines: >=20        |
+| `.vscode/extensions.json`| VS Code extensions                               | EditorConfig, Markdownlint, Standard          |
 
-Defines code formatting rules for consistent style across editors:
+### Build Configuration Details
 
-- **Indent size**: 2 spaces for all files
-- **Line endings**: LF (Unix-style) on all platforms
-- **Charset**: UTF-8
-- **Final newline**: Required for all files
-- **Trim trailing whitespace**: Yes (except Markdown, to preserve intentional double-space line breaks)
-- **Quote style**: Single quotes for JS/TS, double quotes for JSON
+**Browser targets** (`.browserslistrc`):
 
-#### .gitattributes
-
-Normalizes repository behavior:
-
-- **Line endings**: `* text=auto eol=lf` - ensures consistent LF line endings
-- **Linguist**: Marks `package-lock.json` as generated (excluded from language statistics)
-
-#### .markdownlint.mjs
-
-Markdown linting configuration:
-
-- **Line length**: Disabled (no maximum line length)
-- **Inline HTML**: Allowed (for tables, complex formatting)
-- **Bare URLs**: Allowed (for simple link references)
-- **First line heading**: Enforced (documents must start with h1)
-
-### Development Environment
-
-#### .vscode/extensions.json
-
-Recommended VS Code extensions:
-
-- **Recommended**: `editorconfig.editorconfig`, `davidanson.vscode-markdownlint`, `standard.vscode-standard`
-- **Unwanted**: `esbenp.prettier-vscode` (conflicts with StandardJS)
-
-### Testing Configuration
-
-#### tsd.json
-
-Configuration for tsd type testing tool:
-
-- **directory**: `test/types` - Location of `.test-d.ts` files
-- **target**: ES2022
-- **module**: ES2022
-- **strict**: true - Enables strict type checking for tests
-- **skipLibCheck**: false - Validates all type declarations
-
-### Build Configuration
-
-#### tsconfig.json
-
-Main TypeScript configuration for IDE IntelliSense:
-
-- **Target**: ES2022
-- **Module**: ES2022
-- **Allow JS**: Yes - Enables JavaScript file processing
-- **Check JS**: No - Generates types without strict validation
-- **No emit**: Yes - IDE support only, no file generation
-- **Include**: All project files (lib/, test/, scripts/, bench/)
-
-#### tsconfig.build.json
-
-Build-specific TypeScript configuration for declaration generation:
-
-- **Target**: ES2022
-- **Module**: ES2022
-- **Allow JS**: Yes
-- **Check JS**: No - Emit declarations without strict JS validation
-- **Declaration**: Yes - Generate `.d.ts` files
-- **Emit Declaration Only**: Yes - Only generate declarations
-- **Include**: `lib/n2words.js` only (main entry point)
-
-#### .browserslistrc
-
-Browser targeting for Babel transpilation:
-
-```text
+```browserslistrc
 defaults and supports bigint
 ```
 
-This targets ~86% of global browser users while requiring BigInt support:
+Targets Chrome 67+, Firefox 68+, Safari 14+, Edge 79+ (~86% global coverage)
 
-- Chrome 67+
-- Firefox 68+
-- Safari 14+
-- Edge 79+
+**TypeScript declarations** (`tsconfig.build.json`):
 
-#### rollup.config.js
+- Generates `.d.ts` files from JSDoc annotations
+- Validates JSDoc correctness during build
+- Outputs to `lib/` (included in npm package, ignored by git)
 
-Advanced Rollup configuration details:
+**UMD bundles** (`rollup.config.js`):
 
-- **Two-pass terser compression**: `passes: 2` for better minification
-- **Custom filter-exports plugin**: Inline plugin that modifies exports for individual converter bundles
-- **Tree-shaking**: `moduleSideEffects: false` for individual bundles
-- **Global extension**: `extend: true` - individual converter bundles extend existing global instead of replacing it
-- **Source maps**: Generated for all bundles
+- Two-pass terser compression for optimal size
+- Tree-shaking for individual converter bundles
+- Source maps for all bundles
+- Custom filter-exports plugin for selective exports
 
-### Package Configuration
+**Package** (`package.json`):
 
-#### package.json key fields
-
-- **`"type": "module"`**: Package is ESM by default
-- **`"sideEffects": false`**: Enables aggressive tree-shaking in bundlers
-- **`"exports"`**: Defines ESM entry point explicitly
-- **`"jsdelivr"` and `"unpkg"`**: Points CDNs to UMD bundle
-- **`"engines"`**: Requires Node.js >=20
-- **AVA configuration**: Test timeout (30s), file patterns
-- **c8 configuration**: Coverage settings (lcov + text reporters, includes `lib/`)
+- `"type": "module"` - ESM by default
+- `"sideEffects": false` - Enables aggressive tree-shaking
+- `"exports"` - Explicit ESM entry point with types
+- `"engines"` - Node.js >=20 required
 
 ## CI/CD & Automation
 
 ### GitHub Actions Workflows
 
-#### .github/workflows/ci.yml
+**Three workflows** handle continuous integration and deployment:
 
-Unified CI workflow with single job for efficiency:
+1. **`.github/workflows/ci.yml`** - Unified CI workflow
+   - Matrix: Node 20/22/24/25 × Ubuntu/Windows/macOS
+   - Runs: Lint, build, test (unit/integration/types/browser), coverage
+   - Browser tests (Playwright): Ubuntu only (cross-platform engines)
 
-**Job: lint-build-test (matrix):**
+2. **`.github/workflows/publish.yml`** - Automated npm publishing
+   - Trigger: Version tags (`v*`)
+   - Waits for CI, validates version, builds, publishes with provenance
+   - Creates GitHub Release with dist files
 
-- **Node.js versions**: 20, 22, 24, 25
-- **Operating systems**: Ubuntu (all versions), Windows (Node 24 LTS), macOS (Node 24 LTS)
-- **Steps**:
-  1. Install Playwright browsers - on Ubuntu only
-  2. Linting (JavaScript + Markdown) - on Ubuntu + Node 24 only
-  3. Build all dist/ bundles - on all jobs
-  4. Full test suite (validation + unit + integration + types) - on all jobs
-  5. Browser tests (Playwright) - on Ubuntu only (all Node versions)
-  6. Coverage generation and upload - on Ubuntu + Node 24 only, conditionally
-- **Coverage upload conditions**: Only uploads on PRs and pushes to `master`/`main` branch
-- **Concurrency control**: Cancels in-progress runs on new push to same branch
-- **Caching**: Uses actions/cache for node_modules
+3. **`.github/workflows/pr_coverage.yml`** - Coverage reporting
+   - Posts coverage reports as PR comments
+   - Updates existing comment to avoid spam
 
-**Testing Strategy:**
-
-- **Core tests** (unit, integration, types): All OS × All Node versions = 6 jobs
-- **Browser tests** (Playwright): Ubuntu only × All Node versions = 4 jobs
-- **Rationale**: Browser engines are cross-platform; testing UMD bundles on one OS provides complete coverage
-
-**Why unified job?**
-
-- ✅ **Faster execution** - No job dependencies, parallel execution
-- ✅ **Less duplication** - Single `npm ci` per job instead of 3x
-- ✅ **Smarter coverage** - Only uploads when valuable (PRs + main)
-- ✅ **Better efficiency** - Coverage runs integrated with tests
-
-#### .github/workflows/publish.yml
-
-Automated npm publishing workflow:
-
-**Trigger:** Version tags matching `v*` (e.g., `v2.0.0`)
-
-**Steps:**
-
-1. **Check CI Status**: Waits for CI workflow to complete successfully (max 30 min)
-2. **Version validation**: Ensures `package.json` version matches git tag
-3. **Build**: Generates all dist/ bundles
-4. **Dry-run**: Tests publish without actually publishing
-5. **Publish to npm**: Uses npm provenance (`--provenance`) for supply chain security
-6. **Create GitHub Release**: Automatically creates release with dist files attached
-
-**Security:**
-
-- Uses OIDC authentication (no long-lived tokens)
-- Publishes with provenance attestation
-- Requires write permissions for packages and contents
-- Requires `NPM_TOKEN` secret
-
-**Efficiency:**
-
-- ✅ **No redundant testing** - Waits for CI workflow results
-- ✅ **All platforms validated** - Won't publish if tests fail on any platform
-- ✅ **Faster publish** - No duplicate lint/test steps
-
-#### .github/workflows/pr_coverage.yml
-
-Coverage reporting workflow for pull requests:
-
-**Trigger:** After `ci.yml` completes on PRs
-
-**Features:**
-
-- Posts coverage reports as PR comments
-- Shows coverage percentages directly in PR
-- Updates existing comment (no spam)
-- Links to full Coveralls report
-- Only runs on successful CI completion
-
-### Local CI Testing with Act
-
-The project supports local GitHub Actions testing using [Act](https://github.com/nektos/act).
-
-**Quick Start:**
+**Local testing**: Use [Act](https://github.com/nektos/act) to test GitHub Actions locally
 
 ```bash
-# 1. Install Act
-brew install act  # or choco install act-cli on Windows
-
-# 2. Pull Docker image
-docker pull catthehacker/ubuntu:act-latest
-
-# 3. Run CI locally (fast - 1-2 min)
 act -W .github/workflows/ci.yml --matrix node:24 --matrix os:ubuntu-latest
-
-# Or run full matrix (10-15 min)
-act -W .github/workflows/ci.yml
 ```
 
-**Configuration:**
+**Deployment**: Tag and push to trigger automated publishing
 
-The project includes `.actrc` configuration with:
+```bash
+git tag vX.Y.Z && git push --tags
+```
 
-- Pre-configured Docker image
-- `--pull=false` to prevent authentication errors
-- Project directory binding and network access
-- Container reuse for faster iteration
-
-### Deployment Process
-
-**To publish a new version:**
-
-1. Update version in `package.json`
-2. Commit: `git commit -am "chore: bump version to X.Y.Z"`
-3. Tag: `git tag vX.Y.Z`
-4. Push with tags: `git push && git push --tags`
-5. GitHub Actions automatically publishes to npm and creates GitHub release
+See [CONTRIBUTING.md](CONTRIBUTING.md#continuous-integration) for detailed CI/CD documentation.
 
 ## Advanced Edge Cases & Behaviors
 
