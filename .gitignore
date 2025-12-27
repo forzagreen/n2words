@@ -1,5 +1,6 @@
 # Build outputs
 dist/
+*.d.ts
 
 # Dependencies
 node_modules/

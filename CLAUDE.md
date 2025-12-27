@@ -890,22 +890,92 @@ for (const [input, expected, options] of fixtures) {
 
 Located in `test/web/` - test browser builds (UMD) using Playwright.
 
+### Type Tests
+
+The project uses a two-layer type testing approach:
+
+#### 1. Declaration Generation (`build:types`)
+
+- Generates `.d.ts` files from JSDoc using `tsc --declaration --emitDeclarationOnly`
+- **Automatically validates JSDoc** - build fails if JSDoc has errors
+- Configuration in [tsconfig.build.json](tsconfig.build.json)
+- Outputs to `lib/` directory (ignored by git, included in npm package)
+- Run with: `npm run build:types`
+
+#### 2. tsd Type Declaration Tests (`test/types/n2words.test-d.ts`)
+
+- Tests that generated `.d.ts` files work correctly for TypeScript consumers
+- Uses [tsd](https://github.com/tsdjs/tsd) for type assertion testing
+- Validates all 48 converters have correct type signatures
+- Tests options types (gender, formal, etc.) and input types (number, bigint, string)
+- Ensures invalid usage produces type errors
+- Run with: `npm run test:types:tsd`
+
+Example tsd tests:
+
+```typescript
+import { expectType, expectError } from 'tsd'
+import { EnglishConverter, ArabicConverter } from '../../lib/n2words.js'
+
+// Test valid usage
+expectType<string>(EnglishConverter(42))
+expectType<string>(ArabicConverter(42, { gender: 'feminine' }))
+
+// Test that errors are caught
+expectError(EnglishConverter(null))
+expectError(ArabicConverter(42, { gender: 'invalid' }))
+```
+
+#### 3. attw Package Validation (`.attw.json`)
+
+- Uses [@arethetypeswrong/cli](https://github.com/arethetypeswrong/arethetypeswrong.github.io) to validate package.json exports
+- Checks module resolution for node10, node16 (CJS/ESM), and bundlers
+- Ensures TypeScript declarations resolve correctly across all module systems
+- Configured to ignore `cjs-resolves-to-esm` (intentional ESM-only design)
+- Run with: `npm run test:types:attw`
+
+**Why this approach?**
+
+1. **Declaration generation** - Validates JSDoc → `.d.ts` conversion (catches JSDoc errors)
+2. **tsd tests** - Validates generated declarations provide correct types to consumers
+3. **attw validation** - Validates package.json is correctly configured for all module systems
+
+Together they guarantee:
+
+- All `lib/` files have valid JSDoc that can emit TypeScript declarations
+- Generated typings provide correct IntelliSense and type safety
+- Package works correctly across all module systems (node10, node16, bundlers)
+
+**Run all type tests:**
+
+```bash
+npm run test:types  # Runs all three: build:types + tsd + attw
+```
+
 ## TypeScript Support
 
-**Method**: JSDoc annotations (not TypeScript source)
+**Method**: JSDoc annotations with generated `.d.ts` files
 
 **Benefits:**
 
 - Works in both JS and TS projects
-- IntelliSense in VSCode
+- Full IntelliSense in VSCode
 - Type checking without compilation
-- Smaller package size (no .d.ts files needed)
+- Generated `.d.ts` files for TypeScript consumers
+- Comprehensive type testing (declaration generation + tsd + attw)
 
 **Type exports:**
 
 ```typescript
 import type { NumericValue, ArabicOptions } from 'n2words'
 ```
+
+**Declaration files:**
+
+- Generated from JSDoc using `tsc --declaration --emitDeclarationOnly`
+- Treated as build artifacts (not committed to git)
+- Included in npm package and GitHub releases
+- Configuration in [tsconfig.build.json](tsconfig.build.json)
 
 ## Benchmarking
 
@@ -976,18 +1046,40 @@ Recommended VS Code extensions:
 
 ### Testing Configuration
 
-#### test/types/tsconfig.json
+#### tsd.json
 
-TypeScript configuration for JSDoc type checking:
+Configuration for tsd type testing tool:
 
-- **Target**: ES2022
-- **Module**: ES2020
-- **Strict mode**: Enabled
-- **Allow JS**: Yes (checking JSDoc annotations)
-- **Check JS**: Yes
-- **No emit**: Yes (type checking only, no compilation)
+- **directory**: `test/types` - Location of `.test-d.ts` files
+- **target**: ES2022
+- **module**: ES2022
+- **strict**: true - Enables strict type checking for tests
+- **skipLibCheck**: false - Validates all type declarations
 
 ### Build Configuration
+
+#### tsconfig.json
+
+Main TypeScript configuration for IDE IntelliSense:
+
+- **Target**: ES2022
+- **Module**: ES2022
+- **Allow JS**: Yes - Enables JavaScript file processing
+- **Check JS**: No - Generates types without strict validation
+- **No emit**: Yes - IDE support only, no file generation
+- **Include**: All project files (lib/, test/, scripts/, bench/)
+
+#### tsconfig.build.json
+
+Build-specific TypeScript configuration for declaration generation:
+
+- **Target**: ES2022
+- **Module**: ES2022
+- **Allow JS**: Yes
+- **Check JS**: No - Emit declarations without strict JS validation
+- **Declaration**: Yes - Generate `.d.ts` files
+- **Emit Declaration Only**: Yes - Only generate declarations
+- **Include**: `lib/n2words.js` only (main entry point)
 
 #### .browserslistrc
 
@@ -1327,8 +1419,11 @@ export default [
 | `test/integration/*.js`                | Integration tests using fixtures                        |
 | `test/web/*.test.js`                   | Browser tests using Playwright                          |
 | `playwright.config.js`                 | Playwright browser testing configuration                |
-| `test/types/*.js`                      | TypeScript type checking tests                          |
-| `test/types/tsconfig.json`             | TypeScript configuration for type checking              |
+| `test/types/n2words.test-d.ts`         | tsd type declaration tests                              |
+| `tsconfig.json`                        | TypeScript IDE configuration for IntelliSense           |
+| `tsconfig.build.json`                  | TypeScript build configuration for `.d.ts` generation   |
+| `tsd.json`                             | tsd configuration for type testing                      |
+| `.attw.json`                           | Are The Types Wrong configuration                       |
 | `rollup.config.js`                     | Build configuration for UMD bundles                     |
 | `.browserslistrc`                      | Browser targeting configuration                         |
 | `.nvmrc`                               | Node.js version specification (lts/*)                   |
@@ -1336,8 +1431,12 @@ export default [
 | `.gitattributes`                       | Git repository normalization settings                   |
 | `.markdownlint.mjs`                    | Markdown linting configuration                          |
 | `.vscode/extensions.json`              | Recommended VS Code extensions                          |
-| `.github/workflows/test.yml`           | CI/CD test workflow (lint, test matrix, coverage)       |
-| `.github/workflows/npm-publish.yml`    | Automated npm publishing workflow                       |
+| `.commitlintrc.json`                   | Commitlint configuration for conventional commits       |
+| `.github/workflows/ci.yml`             | Unified CI workflow (lint, test matrix, coverage)       |
+| `.github/workflows/publish.yml`        | Automated npm publishing workflow                       |
+| `.github/dependabot.yml`               | Dependabot configuration for dependency updates         |
+| `CHANGELOG.md`                         | Project changelog following Keep a Changelog format     |
+| `SECURITY.md`                          | Security policy and vulnerability reporting             |
 | `package.json`                         | Scripts, dependencies, metadata, config                 |
 
 ## Common Issues & Solutions

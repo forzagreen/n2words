@@ -247,8 +247,13 @@ npm run test:unit
 # Run only integration tests
 npm run test:integration
 
-# Run type checking tests
+# Run all type tests (build declarations + tsd + attw)
 npm run test:types
+
+# Run individual type test suites
+npm run build:types       # Generate .d.ts files (validates JSDoc)
+npm run test:types:tsd    # Test TypeScript declarations work
+npm run test:types:attw   # Validate package.json exports
 
 # Run all tests including browser tests
 npm run test:all
@@ -280,6 +285,65 @@ export default [
 
 - `[input, expected]` - Basic test case
 - `[input, expected, options]` - Test case with options
+
+### Type Testing
+
+The project uses a two-layer type testing strategy:
+
+#### 1. Declaration Generation (`build:types`)
+
+Generates TypeScript declaration files from JSDoc annotations:
+
+- Uses TypeScript compiler (`tsc --declaration --emitDeclarationOnly`)
+- Configuration in [tsconfig.build.json](tsconfig.build.json)
+- **Validates JSDoc automatically** - if JSDoc has errors, `.d.ts` generation fails
+- Outputs `.d.ts` files to `lib/` (ignored by git, included in npm package)
+
+#### 2. tsd Type Declaration Tests (`test:types:tsd`)
+
+Tests that generated TypeScript declarations work correctly:
+
+- Located in [test/types/n2words.test-d.ts](test/types/n2words.test-d.ts)
+- Uses [tsd](https://github.com/tsdjs/tsd) with `expectType`, `expectError`, `expectAssignable`
+- Validates all 48 converters have correct type signatures
+- Ensures options are properly typed (gender, formal, etc.)
+- Tests that invalid usage produces type errors
+
+Example tsd test:
+
+```typescript
+import { expectType, expectError } from 'tsd'
+import { EnglishConverter, ArabicConverter } from '../../lib/n2words.js'
+
+// Valid usage
+expectType<string>(EnglishConverter(42))
+expectType<string>(ArabicConverter(42, { gender: 'feminine' }))
+
+// Should produce type errors
+expectError(EnglishConverter(42, { invalidOption: true }))
+expectError(ArabicConverter(42, { gender: 'invalid' }))
+```
+
+#### 3. attw Package Validation (`test:types:attw`)
+
+Validates package.json exports for different module systems:
+
+- Uses [@arethetypeswrong/cli](https://github.com/arethetypeswrong/arethetypeswrong.github.io)
+- Checks node10, node16 (CJS/ESM), and bundler resolution
+- Ensures TypeScript declarations resolve correctly across all module systems
+- Configuration in [.attw.json](.attw.json)
+
+**Why this approach?**
+
+1. **`build:types`** - Validates JSDoc → `.d.ts` conversion works (catches JSDoc errors)
+2. **`test:types:tsd`** - Validates generated declarations provide correct types to consumers
+3. **`test:types:attw`** - Validates package.json is correctly configured for all module systems
+
+Together they ensure:
+
+- All `lib/` files have valid JSDoc that can emit TypeScript declarations
+- Generated typings work correctly for TypeScript consumers
+- Package is correctly configured for Node.js and bundlers
 
 ### Test Coverage
 

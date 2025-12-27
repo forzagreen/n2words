@@ -120,6 +120,7 @@ jobs:
           name: dist-${{ github.ref_name }}
           path: |
             dist/
+            lib/**/*.d.ts
           retention-days: 90
 
       - name: Publish to npm with provenance
