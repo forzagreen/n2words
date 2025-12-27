@@ -65,7 +65,7 @@ export default defineConfig({
     //   name: 'Mobile Safari',
     //   use: { ...devices['iPhone 12'] }
     // }
-  ],
+  ]
 
   // Run local dev server before tests (not needed for static files)
   // webServer: {
