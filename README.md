@@ -157,7 +157,8 @@ Languages marked with ✓ support additional options:
 **Minimum Requirements** (due to BigInt):
 
 - **Node.js**: ^20 || ^22 || >=24
-- **Browsers**: Chrome 67+, Firefox 68+, Safari 14+, Edge 79+
+- **Browsers**: Chrome 67+, Firefox 68+, Safari 14+, Edge 79+ (desktop + mobile)
+- **Global Coverage**: ~86% of all users worldwide (all in-use browsers with BigInt support)
 
 **Note**: BigInt is a hard requirement and cannot be polyfilled. Older browsers are not supported.
 

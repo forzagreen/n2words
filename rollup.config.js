@@ -9,19 +9,29 @@ const pkg = JSON.parse(readFileSync('./package.json', 'utf8'))
 /**
  * Rollup configuration for n2words UMD bundles.
  *
- * Generates:
- * 1. Main bundle (dist/n2words.js) - All 48 language converters
- * 2. Individual converter bundles (dist/{ConverterName}.js) - One per language
+ * Build Strategy:
+ * 1. Source (lib/): Modern ES2022+ code with BigInt, optional chaining, class fields
+ * 2. Babel: Transpiles ES2022+ features down while preserving BigInt support
+ * 3. Terser: Minifies using ES2020 syntax (safe for BigInt-supporting browsers)
+ * 4. Target: ~86% global coverage via .browserslistrc ("defaults and supports bigint")
  *
- * Individual bundles re-export only the specific converter from n2words.js,
- * with tree-shaking removing unused languages for smaller bundle sizes.
+ * Generates:
+ * - Main bundle (dist/n2words.js): All 48 language converters (~97KB)
+ * - Individual bundles (dist/{ConverterName}.js): One per language (~5KB each)
+ *
+ * Individual bundles extend the n2words global, allowing multiple languages
+ * to be loaded together without conflicts.
  */
 
 // Shared plugin configuration
 const sharedPlugins = [
+  // Resolve imports from node_modules (none currently used)
   nodeResolve({
     preferBuiltins: false
   }),
+
+  // Transpile ES2022+ features to ES2020 (preserves BigInt, async/await, etc.)
+  // Uses .browserslistrc ("defaults and supports bigint") for target browsers
   babel({
     babelHelpers: 'bundled',
     exclude: 'node_modules/**',
@@ -29,30 +39,25 @@ const sharedPlugins = [
       [
         '@babel/preset-env',
         {
-          // Target browsers that support BigInt (hard requirement)
-          // Chrome 67+, Firefox 68+, Safari 14+, Edge 79+
-          targets: {
-            chrome: '67',
-            firefox: '68',
-            safari: '14',
-            edge: '79'
-          },
-          modules: false
+          // .browserslistrc determines targets (all BigInt-capable browsers)
+          modules: false // Preserve ES modules for Rollup's tree-shaking
         }
       ]
     ]
   }),
+
+  // Minify using ES2020 syntax (BigInt, optional chaining are preserved if not transpiled)
   terser({
     compress: {
-      passes: 2,
+      passes: 2, // Two passes for better compression
       drop_debugger: true,
-      ecma: 2020
+      ecma: 2020 // Use ES2020 minification (safe for BigInt browsers)
     },
     mangle: {
-      properties: false
+      properties: false // Don't mangle property names (public API)
     },
     format: {
-      comments: /^!/,
+      comments: /^!/, // Preserve banner comments (license)
       ecma: 2020
     }
   })
