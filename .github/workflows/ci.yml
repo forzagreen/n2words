@@ -84,10 +84,6 @@ jobs:
         if: matrix.node == '24' && matrix.os == 'ubuntu-latest'
         run: npm run lint
 
-      - name: Build web bundles
-        if: matrix.node == '24' && matrix.os == 'ubuntu-latest'
-        run: npm run build
-
       # Run tests with coverage on primary Ubuntu job
       - name: Run tests with coverage
         if: matrix.node == '24' && matrix.os == 'ubuntu-latest'
