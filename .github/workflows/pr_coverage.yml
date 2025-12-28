@@ -20,13 +20,31 @@ jobs:
       github.event.workflow_run.conclusion == 'success'
 
     steps:
+      - name: Debug workflow_run event
+        run: |
+          echo "Workflow run ID: ${{ github.event.workflow_run.id }}"
+          echo "Workflow run event: ${{ github.event.workflow_run.event }}"
+          echo "Workflow run conclusion: ${{ github.event.workflow_run.conclusion }}"
+          echo "Head SHA: ${{ github.event.workflow_run.head_sha }}"
+
       - name: Download coverage artifacts
-        uses: actions/download-artifact@v6.0.0
+        uses: actions/download-artifact@v4
         with:
           name: coverage-report
           github-token: ${{ secrets.GITHUB_TOKEN }}
           run-id: ${{ github.event.workflow_run.id }}
         continue-on-error: true
+
+      - name: Check downloaded files
+        run: |
+          echo "Files in current directory:"
+          ls -la
+          if [ -d coverage ]; then
+            echo "Coverage directory contents:"
+            ls -la coverage/
+          else
+            echo "No coverage directory found"
+          fi
 
       - name: Extract coverage summary
         id: coverage

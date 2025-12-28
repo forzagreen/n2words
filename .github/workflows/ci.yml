@@ -21,11 +21,38 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  # Single unified job for quick feedback
-  lint-build-test:
-    name: Lint, Build & Test (Node ${{ matrix.node }}, ${{ matrix.os_label }})
+  lint:
+    name: Lint & Security
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - uses: actions/checkout@v6.0.1
+        with:
+          persist-credentials: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6.1.0
+        with:
+          node-version: '24'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci --prefer-offline
+
+      - name: Security audit
+        run: npm audit --production --audit-level=moderate
+        continue-on-error: true
+
+      - name: Lint
+        run: npm run lint
+
+  # Test matrix: All Node versions on Ubuntu, cross-platform on Node 24
+  test:
+    name: Test (Node ${{ matrix.node }}, ${{ matrix.os_label }})
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 15
+    needs: lint
+    timeout-minutes: 10
 
     strategy:
       fail-fast: false
@@ -57,70 +84,100 @@ jobs:
       - name: Install dependencies
         run: npm ci --prefer-offline
 
+      - name: Run tests
+        run: npm test
+
+  # Browser tests: Playwright on Ubuntu Node 24
+  test-web:
+    name: Browser Tests
+    runs-on: ubuntu-latest
+    needs: lint
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v6.0.1
+        with:
+          persist-credentials: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6.1.0
+        with:
+          node-version: '24'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci --prefer-offline
+
       - name: Install Playwright browsers
-        if: matrix.node == '24' && matrix.os == 'ubuntu-latest'
         run: npx playwright install --with-deps
 
-      # Only lint on one job to avoid duplicate output
-      - name: Security audit
-        if: matrix.node == '24' && matrix.os == 'ubuntu-latest'
-        run: npm audit --production --audit-level=moderate
-        continue-on-error: true
-
-      - name: Lint
-        if: matrix.node == '24' && matrix.os == 'ubuntu-latest'
-        run: npm run lint
-
-      # Run browser tests (Ubuntu only - Playwright browsers installed)
       - name: Run browser tests
-        if: matrix.node == '24' && matrix.os == 'ubuntu-latest'
         run: npm run test:web
 
       - name: Upload Playwright test results
-        if: failure() && matrix.node == '24' && matrix.os == 'ubuntu-latest'
+        if: failure()
         uses: actions/upload-artifact@v6.0.0
         with:
-          name: playwright-report-node-${{ matrix.node }}
+          name: playwright-report
           path: |
             playwright-report/
             test-results/
           retention-days: 30
           if-no-files-found: ignore
 
-      # Run tests with coverage on primary Ubuntu job
+  # Coverage: Generate and upload coverage reports
+  coverage:
+    name: Coverage
+    runs-on: ubuntu-latest
+    needs: lint
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v6.0.1
+        with:
+          persist-credentials: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6.1.0
+        with:
+          node-version: '24'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci --prefer-offline
+
       - name: Run tests with coverage
-        if: matrix.node == '24' && matrix.os == 'ubuntu-latest'
+        id: coverage
         run: npm run coverage
 
-      # Run tests without coverage on other jobs
-      - name: Run tests
-        if: matrix.node != '24' || matrix.os != 'ubuntu-latest'
-        run: npm test
-
-      - name: Verify package contents
-        if: matrix.node == '24' && matrix.os == 'ubuntu-latest'
-        run: npm pack --dry-run
+      - name: Check coverage thresholds
+        run: npx c8 check-coverage --lines 90 --functions 90 --branches 85 --statements 90
 
       - name: Generate job summary
-        if: matrix.node == '24' && matrix.os == 'ubuntu-latest'
+        id: summary
+        continue-on-error: true
         run: |
-          echo "## ✅ CI Summary" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "- **Node.js**: ${{ matrix.node }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **OS**: ${{ matrix.os_label }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **Commit**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "## 📊 Coverage Report" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
 
-          if [ -f coverage/coverage-summary.json ]; then
-            COVERAGE=$(jq -r '.total.lines.pct' coverage/coverage-summary.json)
-            echo "### 📊 Coverage: ${COVERAGE}%" >> $GITHUB_STEP_SUMMARY
+          if [ -f coverage/coverage-summary.json ] && command -v jq &> /dev/null; then
+            TOTAL=$(jq -r '.total.lines.pct' coverage/coverage-summary.json)
+            STATEMENTS=$(jq -r '.total.statements.pct' coverage/coverage-summary.json)
+            BRANCHES=$(jq -r '.total.branches.pct' coverage/coverage-summary.json)
+            FUNCTIONS=$(jq -r '.total.functions.pct' coverage/coverage-summary.json)
+
+            echo "| Metric | Coverage |" >> $GITHUB_STEP_SUMMARY
+            echo "|--------|----------|" >> $GITHUB_STEP_SUMMARY
+            echo "| **Lines** | ${TOTAL}% |" >> $GITHUB_STEP_SUMMARY
+            echo "| Statements | ${STATEMENTS}% |" >> $GITHUB_STEP_SUMMARY
+            echo "| Branches | ${BRANCHES}% |" >> $GITHUB_STEP_SUMMARY
+            echo "| Functions | ${FUNCTIONS}% |" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "### ℹ️ Coverage data not available" >> $GITHUB_STEP_SUMMARY
           fi
 
-      # Upload coverage only for PRs and main/master branch
       - name: Upload coverage to Coveralls
         if: |
-          matrix.node == '24' &&
-          matrix.os == 'ubuntu-latest' &&
           github.event_name == 'pull_request' &&
           (github.event.pull_request.base.ref == 'main' || github.event.pull_request.base.ref == 'master')
         uses: coverallsapp/github-action@v2.3.6
@@ -128,11 +185,37 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           fail-on-error: false
 
-      # Store coverage artifacts for PR comments
       - name: Upload coverage artifacts
-        if: matrix.node == '24' && matrix.os == 'ubuntu-latest' && github.event_name == 'pull_request'
+        if: |
+          github.event_name == 'pull_request' &&
+          (github.event.pull_request.base.ref == 'main' || github.event.pull_request.base.ref == 'master')
         uses: actions/upload-artifact@v6.0.0
         with:
           name: coverage-report
           path: coverage/
           retention-days: 30
+          if-no-files-found: ignore
+
+  # Package validation: Verify package contents
+  verify:
+    name: Verify Package
+    runs-on: ubuntu-latest
+    needs: [test, test-web, coverage]
+    timeout-minutes: 5
+
+    steps:
+      - uses: actions/checkout@v6.0.1
+        with:
+          persist-credentials: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6.1.0
+        with:
+          node-version: '24'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci --prefer-offline
+
+      - name: Verify package contents
+        run: npm pack --dry-run
