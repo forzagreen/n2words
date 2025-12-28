@@ -81,5 +81,26 @@ export default [
   [1_000_000_000_000_000_000_000n, 'mil trillones'],
   [1_000_000_000_000_000_000_000_000n, 'un cuatrillón'],
   [2_000_000_000_000_000_000_000_000n, 'dos cuatrillones'],
-  [5_000_000_000_000_000_000_000_000n, 'cinco cuatrillones']
+  [5_000_000_000_000_000_000_000_000n, 'cinco cuatrillones'],
+
+  // Feminine gender tests
+  [1, 'una', { gender: 'feminine' }],
+  [21, 'veintiuna', { gender: 'feminine' }],
+  [31, 'treinta y una', { gender: 'feminine' }],
+  [101, 'cienta una', { gender: 'feminine' }],
+  [121, 'cienta veintiuna', { gender: 'feminine' }],
+  [201, 'doscientas una', { gender: 'feminine' }],
+  [221, 'doscientas veintiuna', { gender: 'feminine' }],
+  [300, 'trescientas', { gender: 'feminine' }],
+  [301, 'trescientas una', { gender: 'feminine' }],
+  [321, 'trescientas veintiuna', { gender: 'feminine' }],
+  [400, 'cuatrocientas', { gender: 'feminine' }],
+  [500, 'quinientas', { gender: 'feminine' }],
+  [600, 'seiscientas', { gender: 'feminine' }],
+  [700, 'setecientas', { gender: 'feminine' }],
+  [800, 'ochocientas', { gender: 'feminine' }],
+  [900, 'novecientas', { gender: 'feminine' }],
+  [1001, 'mil una', { gender: 'feminine' }],
+  [2001, 'dos mil una', { gender: 'feminine' }],
+  [2121, 'dos mil cienta veintiuna', { gender: 'feminine' }]
 ]

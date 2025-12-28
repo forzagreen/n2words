@@ -1,18 +1,29 @@
 {
   "compilerOptions": {
-    "target": "es2020",
-    "module": "esnext",
-    "moduleResolution": "bundler",
-
-    "declaration": true,
-    "emitDeclarationOnly": true,
-    "declarationMap": true,
-    "rootDir": "./lib",
-    "outDir": "./typings",
+    "target": "ES2022",
+    "module": "ES2022",
+    "moduleResolution": "node",
+    "lib": ["ES2022"],
 
     "allowJs": true,
+    "checkJs": false,
+    "noEmit": true,
+
+    "strict": false,
+    "skipLibCheck": true,
     "esModuleInterop": true,
-    "skipLibCheck": true
+    "resolveJsonModule": true,
+
+    "types": ["node"]
   },
-  "include": ["lib/**/*.js"]
+  "include": [
+    "lib/**/*.js",
+    "test/**/*.js",
+    "scripts/**/*.js",
+    "bench/**/*.js"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist"
+  ]
 }

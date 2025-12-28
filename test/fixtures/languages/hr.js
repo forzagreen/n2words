@@ -67,5 +67,17 @@ export default [
   [4_000_000, 'četiri milijuna'],
   [10_000_000_000_000, 'deset bilijuna'],
   [100_000_000_000_000, 'sto bilijuna'],
-  [1_000_000_000_000_000_000n, 'jedan trilijun']
+  [1_000_000_000_000_000_000n, 'jedan trilijun'],
+
+  // Feminine gender tests
+  [1, 'jedna', { gender: 'feminine' }],
+  [2, 'dvije', { gender: 'feminine' }],
+  [21, 'dvadeset jedna', { gender: 'feminine' }],
+  [22, 'dvadeset dvije', { gender: 'feminine' }],
+  [101, 'sto jedna', { gender: 'feminine' }],
+  [102, 'sto dvije', { gender: 'feminine' }],
+  [1001, 'jedna tisuća jedna', { gender: 'feminine' }],
+  [1002, 'jedna tisuća dvije', { gender: 'feminine' }],
+  [2001, 'dvije tisuće jedna', { gender: 'feminine' }],
+  [2002, 'dvije tisuće dvije', { gender: 'feminine' }]
 ]
