@@ -74,7 +74,7 @@ jobs:
 
       # Run tests without coverage on other jobs
       - name: Run tests
-        if: matrix.node != '24' && matrix.os != 'ubuntu-latest'
+        if: matrix.node != '24' || matrix.os != 'ubuntu-latest'
         run: npm test
 
       # Run browser tests (Ubuntu only - Playwright browsers installed)
@@ -90,7 +90,7 @@ jobs:
           path: |
             playwright-report/
             test-results/
-          retention-days: 7
+          retention-days: 30
           if-no-files-found: ignore
 
       - name: Verify package contents
@@ -131,4 +131,4 @@ jobs:
         with:
           name: coverage-report
           path: coverage/
-          retention-days: 7
+          retention-days: 30
