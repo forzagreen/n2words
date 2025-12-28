@@ -104,7 +104,9 @@
       "test/unit/*",
       "test/integration/*"
     ],
-    "timeout": "30s"
+    "timeout": "30s",
+    "concurrency": 8,
+    "workerThreads": false
   },
   "c8": {
     "all": true,

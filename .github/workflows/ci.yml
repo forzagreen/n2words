@@ -53,8 +53,21 @@ jobs:
       - name: Install dependencies
         run: npm ci --prefer-offline
 
-      - name: Install Playwright browsers
+      - name: Get Playwright version
         if: matrix.os == 'ubuntu-latest'
+        id: playwright-version
+        run: echo "version=$(node -e "console.log(require('./package-lock.json').dependencies['@playwright/test'].version)")" >> $GITHUB_OUTPUT
+
+      - name: Cache Playwright browsers
+        if: matrix.os == 'ubuntu-latest'
+        uses: actions/cache@v4
+        id: playwright-cache
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ steps.playwright-version.outputs.version }}
+
+      - name: Install Playwright browsers
+        if: matrix.os == 'ubuntu-latest' && steps.playwright-cache.outputs.cache-hit != 'true'
         run: npx playwright install --with-deps
 
       # Only lint on one job to avoid duplicate output
