@@ -41,7 +41,7 @@ jobs:
         run: npm ci --prefer-offline
 
       - name: Security audit
-        run: npm audit --production --audit-level=moderate
+        run: npm audit --audit-level=high
         continue-on-error: true
 
       - name: Lint
