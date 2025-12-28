@@ -328,6 +328,7 @@ EnglishConverter(999999999999999999999999n)  // Accurate conversion
 
 - **[Compatibility Guide](COMPATIBILITY.md)** - Browser and Node.js compatibility requirements, verification tools
 - **[Contributing Guide](CONTRIBUTING.md)** - How to contribute, add languages, and development workflow
+- **[Code of Conduct](CODE_OF_CONDUCT.md)** - Community standards and expectations
 - **[Project Context (CLAUDE.md)](CLAUDE.md)** - Comprehensive project architecture and patterns
 
 ## Contributing
@@ -341,6 +342,8 @@ npm test                        # Run full test suite
 ```
 
 Also welcome: bug reports, feature requests, documentation improvements, and language enhancements.
+
+Please read our [Code of Conduct](CODE_OF_CONDUCT.md) before contributing.
 
 **[See full contributing guide →](CONTRIBUTING.md)**
 

@@ -1018,23 +1018,16 @@ npm run bench:memory -- --save --compare  # Track memory changes
 
 ### Code of Conduct
 
-We are committed to providing a welcoming and inclusive environment for all contributors. We expect all participants to:
+This project adheres to a [Code of Conduct](CODE_OF_CONDUCT.md) that all contributors are expected to follow. By participating, you agree to maintain a respectful, professional, and inclusive environment.
 
-- **Be respectful**: Treat everyone with respect and consideration
-- **Be collaborative**: Work together constructively
-- **Be patient**: Help newcomers and be understanding of mistakes
-- **Be professional**: Keep discussions focused and productive
-- **Give credit**: Acknowledge others' contributions
+**In brief, we expect all participants to:**
 
-**Unacceptable behavior includes:**
+- Be respectful and collaborative
+- Help newcomers and be patient with mistakes
+- Keep discussions focused and productive
+- Give credit to others' contributions
 
-- Harassment, discrimination, or offensive comments
-- Personal attacks or trolling
-- Spam or off-topic discussions
-- Disclosing others' private information
-- Any conduct that would be inappropriate in a professional setting
-
-**Enforcement**: Violations may result in warnings, temporary bans, or permanent removal from the project.
+For the full Code of Conduct, including reporting procedures and enforcement policies, please see [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md).
 
 ### Communication Channels
 
