@@ -59,16 +59,20 @@ jobs:
         run: echo "version=$(node -e "console.log(require('./package-lock.json').dependencies['@playwright/test'].version)")" >> $GITHUB_OUTPUT
 
       - name: Cache Playwright browsers
-        if: matrix.os == 'ubuntu-latest'
+        if: matrix.node == '24' && matrix.os == 'ubuntu-latest'
         uses: actions/cache@v4
         id: playwright-cache
         with:
           path: ~/.cache/ms-playwright
           key: ${{ runner.os }}-playwright-${{ steps.playwright-version.outputs.version }}
 
+      - name: Install Playwright dependencies
+        if: matrix.node == '24' && matrix.os == 'ubuntu-latest'
+        run: npx playwright install-deps
+
       - name: Install Playwright browsers
-        if: matrix.os == 'ubuntu-latest' && steps.playwright-cache.outputs.cache-hit != 'true'
-        run: npx playwright install --with-deps
+        if: matrix.node == '24' && matrix.os == 'ubuntu-latest' && steps.playwright-cache.outputs.cache-hit != 'true'
+        run: npx playwright install
 
       # Only lint on one job to avoid duplicate output
       - name: Security audit
@@ -95,11 +99,11 @@ jobs:
 
       # Run browser tests (Ubuntu only - Playwright browsers installed)
       - name: Run browser tests
-        if: matrix.os == 'ubuntu-latest'
+        if: matrix.node == '24' && matrix.os == 'ubuntu-latest'
         run: npm run test:web
 
       - name: Upload Playwright test results
-        if: failure() && matrix.os == 'ubuntu-latest'
+        if: failure() && matrix.node == '24' && matrix.os == 'ubuntu-latest'
         uses: actions/upload-artifact@v6.0.0
         with:
           name: playwright-report-node-${{ matrix.node }}
