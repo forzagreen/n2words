@@ -398,6 +398,60 @@ npm run coverage
 
 Coverage reports will be in the `coverage/` directory and displayed in the terminal.
 
+## Git Hooks (Optional for Contributors)
+
+This project uses [Husky](https://typicode.github.io/husky/) for git hooks that validate commit messages and run linters. **Git hooks are completely optional for contributors** - the same validations run in CI when you create a pull request.
+
+### For Contributors (No Setup Required)
+
+When you run `npm install`, git hooks are **not** automatically installed. You can commit freely without any local validation:
+
+```bash
+npm install
+git commit -m "your message"  # No hooks run, commits freely
+```
+
+Your commit messages will be validated by CI when you create a pull request, so there's no need to worry about the format locally.
+
+### For Maintainers (Opt-In)
+
+If you're a maintainer and want to enable local commit validation:
+
+```bash
+# After npm install, explicitly set up git hooks
+npm run prepare:husky
+```
+
+This will install git hooks that:
+
+- Validate commit messages follow [Conventional Commits](https://www.conventionalcommits.org/)
+- Run linters on staged files (JavaScript and Markdown)
+
+**To disable hooks later:**
+
+```bash
+# Remove the .husky directory
+rm -rf .husky
+```
+
+### Interactive Commit Tool (Recommended)
+
+Both contributors and maintainers can use the interactive commit tool to ensure proper formatting:
+
+```bash
+npm run commit
+```
+
+This launches an interactive prompt that guides you through creating a conventional commit message.
+
+### Commit Message Help
+
+For quick reference on commit message format:
+
+```bash
+npm run commit:help
+```
+
 ## Submitting Changes
 
 ### Pull Request Process

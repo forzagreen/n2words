@@ -61,7 +61,7 @@
     "CHANGELOG.md"
   ],
   "scripts": {
-    "prepare": "husky",
+    "prepare:husky": "husky",
     "prebuild": "npm run clean",
     "pretest:types": "npm run build:types",
     "pretest:web": "npm run build:web",
