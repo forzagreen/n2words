@@ -45,10 +45,11 @@ npm run bench:perf [options]
 
 | Option | Description | Example |
 | ------ | ----------- | ------- |
-| `--lang <code>` | Benchmark specific language | `--lang en` |
+| `--lang <code>` | Benchmark specific language(s) | `--lang en` or `--lang en,es,fr` |
 | `--value <number>` | Custom test value (default: `Number.MAX_SAFE_INTEGER`) | `--value 42` |
 | `--save` | Save results to `bench/perf-results.json` | `--save` |
-| `--compare` | Compare with previous saved results | `--compare` |
+| `--compare` | Compare with previous saved results (inline) | `--compare` |
+| `--history` | Show performance history (single language only) | `--history` |
 | `--help` | Display help message | `--help` |
 
 **Examples:**
@@ -57,11 +58,20 @@ npm run bench:perf [options]
 # Test English only
 npm run bench:perf -- --lang en
 
+# Test multiple languages (comma-separated)
+npm run bench:perf -- --lang en,es,fr
+
+# Test multiple languages (repeated flag)
+npm run bench:perf -- --lang en --lang es --lang fr
+
 # Save results with custom value
 npm run bench:perf -- --value 999999 --save
 
 # Track performance changes over time
 npm run bench:perf -- --save --compare
+
+# View historical performance for a language
+npm run bench:perf -- --lang en --history
 
 # Test large numbers
 npm run bench:perf -- --value 999999999999999
@@ -69,20 +79,53 @@ npm run bench:perf -- --value 999999999999999
 
 ### Performance Output
 
-```text
-languages/en x 123,456 ops/sec ±1.23% (89 runs sampled)
-languages/es x 119,234 ops/sec ±0.98% (91 runs sampled)
-...
+**Single Language:**
 
-Results:
-Fastest is languages/en, languages/fr
+```text
+Language        │      ops/sec │    Error │       Runs
+────────────────────────────────────────────────────────────
+en              │       20,183 │   ±3.49% │  (72 runs)
+────────────────────────────────────────────────────────────
+```
+
+**Multiple Languages:**
+
+```text
+Language        │      ops/sec │    Error │       Runs
+────────────────────────────────────────────────────────────
+en              │       23,338 │   ±3.58% │  (77 runs)
+es              │       24,165 │   ±2.40% │  (72 runs)
+────────────────────────────────────────────────────────────
+Fastest: es, en
+Range: 23,338 to 24,165 ops/sec (+3.5%)
+```
+
+**With --compare:**
+
+```text
+Language        │      ops/sec │    Error │       Runs │     Change
+──────────────────────────────────────────────────────────────────────
+en              │       23,338 │   ±3.58% │  (77 runs) │   ↑ +9.66%
+es              │       24,165 │   ±2.40% │  (72 runs) │  ↑ +11.31%
+──────────────────────────────────────────────────────────────────────
+Fastest: es, en
+Range: 23,338 to 24,165 ops/sec (+3.5%)
 
 ✓ Results saved to bench/perf-results.json
+```
 
-📊 Comparison with previous run:
-Previous run: 2025-12-26T10:30:00.000Z
-languages/en: ↑ +5.23%
-languages/es: ↓ -2.11%
+**With --history:**
+
+```text
+📈 Performance History for en (last 10 runs):
+
+Date                 │      ops/sec │     Change
+──────────────────────────────────────────────────
+Dec 27, 05:51 PM     │       19,122 │   baseline
+Dec 27, 05:51 PM     │       20,477 │   ↑ +7.09%
+Dec 27, 05:51 PM     │       19,985 │   ↓ -2.40%
+Dec 27, 05:58 PM     │       20,483 │   ↑ +2.49%
+Dec 27, 05:58 PM     │       21,625 │   ↑ +5.57%
 ```
 
 ## Memory Benchmarks
@@ -122,11 +165,12 @@ npm run bench:memory [options]
 
 | Option | Description | Example |
 | ------ | ----------- | ------- |
-| `--lang <code>` | Benchmark specific language | `--lang en` |
+| `--lang <code>` | Benchmark specific language(s) | `--lang en` or `--lang en,es,fr` |
 | `--value <number>` | Custom test value (default: `Number.MAX_SAFE_INTEGER`) | `--value 42` |
 | `--iterations <n>` | Number of iterations (default: 1000) | `--iterations 5000` |
 | `--save` | Save results to `bench/memory-results.json` | `--save` |
-| `--compare` | Compare with previous saved results | `--compare` |
+| `--compare` | Compare with previous saved results (inline) | `--compare` |
+| `--history` | Show memory history (single language only) | `--history` |
 | `--help` | Display help message | `--help` |
 
 **Examples:**
@@ -135,11 +179,20 @@ npm run bench:memory [options]
 # Test English only
 npm run bench:memory -- --lang en
 
+# Test multiple languages (comma-separated)
+npm run bench:memory -- --lang en,es,fr
+
+# Test multiple languages (repeated flag)
+npm run bench:memory -- --lang en --lang es --lang fr
+
 # High-precision test with more iterations
 npm run bench:memory -- --iterations 10000
 
 # Track memory changes over time
 npm run bench:memory -- --save --compare
+
+# View historical memory usage for a language
+npm run bench:memory -- --lang en --history
 
 # Custom value with tracking
 npm run bench:memory -- --value 42 --iterations 5000 --save
@@ -147,30 +200,54 @@ npm run bench:memory -- --value 42 --iterations 5000 --save
 
 ### Memory Output
 
+**Single Language:**
+
 ```text
-Memory Benchmark
+Language        │        Total │ Per Iteration
+────────────────────────────────────────────────────────────
+en              │    568.30 KB │     581.94 B
+────────────────────────────────────────────────────────────
+```
 
-Testing 48 languages with 1000 iterations each...
-Value: 9007199254740991
+**Multiple Languages:**
 
-Memory Usage Results:
+```text
+Language        │        Total │ Per Iteration
+────────────────────────────────────────────────────────────
+ar              │    675.26 KB │     691.59 B
+en              │    568.30 KB │     581.94 B
+es              │    451.66 KB │     462.50 B
+────────────────────────────────────────────────────────────
+Lowest memory: es
+Range: 451.66 KB to 675.26 KB (+49.5%)
+```
 
-ar              │     2.34 MB total │   2.34 KB per iteration
-az              │     2.12 MB total │   2.12 KB per iteration
-en              │     1.98 MB total │   1.98 KB per iteration
-...
+**With --compare:**
 
-─────────────────────────────────────────────────────────────────
-Lowest memory: en
-Range: 1.98 MB to 3.45 MB (+74.7%)
+```text
+Language        │        Total │ Per Iteration │     Change
+──────────────────────────────────────────────────────────────────────
+en              │    707.91 KB │     724.90 B │   ↓ -0.61%
+es              │    451.66 KB │     462.50 B │        new
+──────────────────────────────────────────────────────────────────────
+Lowest memory: es
+Range: 451.66 KB to 707.91 KB (+56.7%)
 
 ✓ Results saved to bench/memory-results.json
+```
 
-📊 Comparison with previous run:
-Previous run: 2025-12-26T10:30:00.000Z
+**With --history:**
 
-ar              ↓  -2.34% (-56.23 KB)
-en              ↑  +1.12% (+22.45 KB)
+```text
+📈 Memory History for en (last 10 runs):
+
+Date                 │        Total │ Per Iteration │     Change
+──────────────────────────────────────────────────────────────────────
+Dec 27, 05:51 PM     │    122.20 KB │      1.22 KB │   baseline
+Dec 27, 05:51 PM     │    154.61 KB │      1.55 KB │  ↑ +26.53%
+Dec 27, 05:51 PM     │    128.00 KB │      1.28 KB │  ↓ -17.21%
+Dec 27, 06:11 PM     │    712.26 KB │     729.35 B │ ↑ +456.45%
+Dec 27, 06:11 PM     │    707.91 KB │     724.90 B │   ↓ -0.61%
 ```
 
 ## Implementation Details
