@@ -15,7 +15,7 @@
 - **Maximum Language Coverage** — 48 languages including European, Asian, Middle Eastern, and regional variants
 - **Zero Dependencies** — Pure JavaScript with no external runtime dependencies
 - **Universal Compatibility** — Works in Node.js, browsers (via CDN), and all modern bundlers
-- **Type-Safe** — Full TypeScript IntelliSense via JSDoc annotations
+- **Type-Safe** — Full TypeScript support with generated `.d.ts` declarations
 - **Production Ready** — Comprehensive test coverage (unit, integration, browser, type checking)
 - **BigInt Support** — Handle arbitrarily large numbers without precision loss
 - **Flexible Input** — Accepts `number`, `bigint`, or `string` inputs
@@ -94,7 +94,7 @@ async function convertNumber(num) {
 
 ## Type Safety
 
-Full TypeScript support via JSDoc annotations - works in both JavaScript and TypeScript projects with IntelliSense and type checking:
+Full TypeScript support via JSDoc annotations and generated type definitions - works in both JavaScript and TypeScript projects with IntelliSense and type checking:
 
 ```typescript
 import { EnglishConverter, ArabicConverter, SimplifiedChineseConverter } from 'n2words'
@@ -112,6 +112,15 @@ ArabicConverter(1, { invalid: true })       // ✗ TypeScript error: invalid pro
 SimplifiedChineseConverter(123, { formal: false })  // ✓ '一百二十三' (common style)
 SimplifiedChineseConverter(123, { formal: 'yes' })  // ✗ TypeScript error: wrong type
 ```
+
+**Type Definitions:**
+
+n2words includes TypeScript declaration files (`.d.ts`) generated from JSDoc annotations:
+
+- **Source**: JSDoc annotations in JavaScript source files
+- **Generated**: TypeScript declarations built via `tsc` during package preparation
+- **Included**: Published to npm with the package (no separate `@types` package needed)
+- **Validated**: Comprehensive type tests ensure correctness
 
 **Exported Types:**
 
@@ -319,6 +328,7 @@ EnglishConverter(999999999999999999999999n)  // Accurate conversion
 
 - **[Compatibility Guide](COMPATIBILITY.md)** - Browser and Node.js compatibility requirements, verification tools
 - **[Contributing Guide](CONTRIBUTING.md)** - How to contribute, add languages, and development workflow
+- **[Code of Conduct](CODE_OF_CONDUCT.md)** - Community standards and expectations
 - **[Project Context (CLAUDE.md)](CLAUDE.md)** - Comprehensive project architecture and patterns
 
 ## Contributing
@@ -332,6 +342,8 @@ npm test                        # Run full test suite
 ```
 
 Also welcome: bug reports, feature requests, documentation improvements, and language enhancements.
+
+Please read our [Code of Conduct](CODE_OF_CONDUCT.md) before contributing.
 
 **[See full contributing guide →](CONTRIBUTING.md)**
 

@@ -5,19 +5,40 @@ Thank you for your interest in contributing to n2words! This document provides g
 ## Table of Contents
 
 - [Getting Started](#getting-started)
-- [Development Setup](#development-setup)
+  - [Prerequisites](#prerequisites)
+  - [Git Hooks (Optional for Contributors)](#git-hooks-optional-for-contributors)
+  - [Development Setup](#development-setup)
+- [Contributing Workflow](#contributing-workflow)
+  - [Pull Request Process](#pull-request-process)
+  - [Commit Message Guidelines](#commit-message-guidelines)
+  - [Code Review Process](#code-review-process)
 - [Adding a New Language](#adding-a-new-language)
-- [Code Style](#code-style)
-- [Testing](#testing)
-- [Submitting Changes](#submitting-changes)
-- [Code Review Process](#code-review-process)
-- [Continuous Integration](#continuous-integration)
-- [Advanced Contributions](#advanced-contributions)
-- [Release Process](#release-process)
-- [Security](#security)
-- [Project Structure](#project-structure)
-- [Community Guidelines](#community-guidelines)
-- [Troubleshooting](#troubleshooting)
+  - [Quick Start](#quick-start)
+  - [Base Class Decision Tree](#base-class-decision-tree)
+  - [Implementation Steps](#implementation-steps)
+  - [Language Naming Convention](#language-naming-convention)
+  - [Adding Language Options](#adding-language-options)
+- [Code Quality](#code-quality)
+  - [Code Style](#code-style)
+  - [Testing](#testing)
+  - [Language Validation](#language-validation)
+- [Advanced Topics](#advanced-topics)
+  - [Regional Language Variants](#regional-language-variants)
+  - [Modifying Base Classes](#modifying-base-classes)
+  - [Building and Testing UMD Bundles](#building-and-testing-umd-bundles)
+  - [Browser Compatibility](#browser-compatibility)
+  - [CI Testing Strategy](#ci-testing-strategy)
+  - [Performance Improvements](#performance-improvements)
+- [Project Information](#project-information)
+  - [Project Structure](#project-structure)
+  - [Continuous Integration](#continuous-integration)
+  - [Release Process](#release-process)
+  - [Security](#security)
+  - [Community Guidelines](#community-guidelines)
+- [Help & Support](#help--support)
+  - [Troubleshooting](#troubleshooting)
+  - [Getting Help](#getting-help)
+  - [Questions](#questions)
 
 ## Getting Started
 
@@ -26,6 +47,66 @@ Thank you for your interest in contributing to n2words! This document provides g
 - Node.js (>=20)
 - npm, yarn, pnpm, or bun
 - Git
+
+> **⚠️ IMPORTANT**: Before running `npm install`, please read the [Git Hooks](#git-hooks-optional-for-contributors) section below to understand how commit validation works in this project.
+
+### Git Hooks (Optional for Contributors)
+
+This project uses [Husky](https://typicode.github.io/husky/) for git hooks that validate code quality and ensure all commits pass CI workflows. **Git hooks are completely optional for contributors** - the same validations run in CI when you create a pull request.
+
+#### For Contributors (No Setup Required)
+
+When you run `npm install`, git hooks are **not** automatically installed. You can commit and push freely without any local validation:
+
+```bash
+npm install
+git commit -m "your message"  # No hooks run, commits freely
+git push                      # No pre-push tests run
+```
+
+Your commit messages and code will be validated by CI when you create a pull request, so there's no need to worry about the format locally.
+
+#### For Maintainers (Opt-In)
+
+If you're a maintainer and want to enable local validation before commits and pushes:
+
+```bash
+# After npm install, explicitly set up git hooks
+npm run prepare:husky
+```
+
+This will install three git hooks:
+
+1. **commit-msg**: Validates commit messages follow [Conventional Commits](https://www.conventionalcommits.org/)
+2. **pre-commit**: Runs linters on staged files (JavaScript and Markdown via lint-staged)
+3. **pre-push**: Runs full test suite (`npm test`) to ensure all commits pass CI workflows before pushing
+
+**Why pre-push?** The pre-push hook runs the complete test suite before allowing a push to the remote. This catches issues early and ensures you don't push broken code that will fail CI, saving time and maintaining a clean commit history on the remote.
+
+**To disable hooks later:**
+
+```bash
+# Remove the .husky directory
+rm -rf .husky
+```
+
+#### Interactive Commit Tool (Recommended)
+
+Both contributors and maintainers can use the interactive commit tool to ensure proper formatting:
+
+```bash
+npm run commit
+```
+
+This launches an interactive prompt that guides you through creating a conventional commit message.
+
+#### Commit Message Help
+
+For quick reference on commit message format:
+
+```bash
+npm run commit:help
+```
 
 ### Development Setup
 
@@ -49,6 +130,175 @@ Thank you for your interest in contributing to n2words! This document provides g
    npm test
    ```
 
+## Contributing Workflow
+
+### Pull Request Process
+
+1. **Create a feature branch**:
+
+   ```bash
+   git checkout -b feature/add-korean-language
+   ```
+
+2. **Make your changes** following the code style guidelines
+
+3. **Validate and test**:
+
+   ```bash
+   npm run lint
+   npm test
+   ```
+
+4. **Commit your changes** following [Conventional Commits](https://www.conventionalcommits.org/):
+
+   ```bash
+   git add .
+   git commit -m "feat(lang): add Korean language support"
+   ```
+
+   See [Commit Message Guidelines](#commit-message-guidelines) for detailed format.
+
+5. **Push to your fork**:
+
+   ```bash
+   git push origin feature/add-korean-language
+   ```
+
+6. **Open a Pull Request** on GitHub:
+   - Provide a clear description of the changes
+   - Reference any related issues
+   - Ensure all CI checks pass
+
+#### Pull Request Guidelines
+
+- **One feature per PR**: Keep PRs focused on a single change
+- **Test coverage**: Include tests for new features
+- **Documentation**: Update docs for API changes
+- **Validation**: Ensure `npm run lang:validate` passes for language changes
+- **Backwards compatibility**: Avoid breaking changes when possible
+- **Target branch**: Submit PRs to the `main` branch (default)
+- **Draft PRs**: Use draft PRs for work-in-progress to get early feedback
+
+#### Git Workflow
+
+**Keeping your fork in sync:**
+
+```bash
+# Add upstream remote (one-time setup)
+git remote add upstream https://github.com/forzagreen/n2words.git
+
+# Sync with upstream
+git fetch upstream
+git checkout main
+git merge upstream/main
+git push origin main
+```
+
+**Branch naming conventions:**
+
+- `feature/<description>` - New features
+- `fix/<description>` - Bug fixes
+- `docs/<description>` - Documentation updates
+- `refactor/<description>` - Code refactoring
+
+Examples: `feature/add-korean`, `fix/french-plurals`, `docs/contributing-guide`
+
+### Commit Message Guidelines
+
+**Commit message format:**
+
+```text
+<type>(<scope>): <description>
+
+[optional body]
+
+[optional footer(s)]
+```
+
+**Types:**
+
+- `feat:` - New feature
+- `fix:` - Bug fix
+- `docs:` - Documentation changes
+- `refactor:` - Code refactoring (no functional changes)
+- `test:` - Adding or updating tests
+- `chore:` - Maintenance tasks (dependencies, build, etc.)
+- `perf:` - Performance improvements
+- `style:` - Code style changes (formatting, semicolons, etc.)
+- `build:` - Build system changes
+- `ci:` - CI/CD changes
+- `revert:` - Revert previous commit
+- `lang:` - Language implementation changes
+
+**Scopes (optional):**
+
+- `lang` - Language implementations
+- `core` - Core/base classes
+- `build` - Build system
+- `ci` - CI/CD changes
+- `deps` - Dependencies
+- `docs` - Documentation
+- `test` - Tests
+- `types` - TypeScript types
+
+**Examples:**
+
+```bash
+feat(lang): add Korean language support
+fix(lang): correct French plural forms for numbers ending in 1
+docs: update CONTRIBUTING.md with commit conventions
+refactor(core): improve BigInt handling in AbstractLanguage
+test(lang): add edge cases for Japanese group-by-4 pattern
+chore(deps): update AVA to v6.0.0
+```
+
+**Guidelines:**
+
+- Use present tense ("Add" not "Added")
+- Use imperative mood ("Move cursor to..." not "Moves cursor to...")
+- Don't capitalize first letter of description
+- No period at the end of description
+- Reference issues in footer: `Closes #123` or `Fixes #456`
+
+### Code Review Process
+
+#### What to Expect
+
+1. **Automated Checks**: CI must pass before review begins
+   - All tests (unit, integration, type checking)
+   - Linting (JavaScript and Markdown)
+   - Language validation (if applicable)
+   - Build verification
+   - Coverage report generation
+
+2. **Review Timeline**: Most PRs are reviewed within 2-3 business days
+
+3. **Reviewers**: Core maintainers review all PRs
+
+4. **Approval Requirements**: At least one approval from a maintainer
+
+#### What Reviewers Look For
+
+- **Code quality**: Follows project style and patterns
+- **Test coverage**: Adequate tests for new code
+- **Documentation**: Clear JSDoc comments and updated guides
+- **Breaking changes**: Avoided when possible, clearly documented when necessary
+- **Performance**: No significant performance regressions
+- **Backwards compatibility**: Existing code continues to work
+
+#### Addressing Feedback
+
+- Respond to all review comments
+- Push additional commits to address feedback
+- Mark conversations as resolved when addressed
+- Request re-review when ready
+
+#### After Approval
+
+- Maintainers will merge your PR (squash merge for multi-commit PRs)
+- Your contribution will be included in the next release
+- You'll be added to the contributors list if it's your first contribution
+
 ## Adding a New Language
 
 Adding a new language is one of the most valuable contributions you can make! We've created tooling to make this process straightforward.
@@ -67,6 +317,24 @@ npm run lang:add -- ko
 ```
 
 You'll be prompted to select a base class. See the decision tree below to choose the right one.
+
+**Command-Line Mode:**
+
+```bash
+npm run lang:add -- <language-code> --base=<base-class>
+
+# Examples:
+npm run lang:add -- ko                      # Uses default (greedy)
+npm run lang:add -- pl --base=slavic        # Polish (SlavicLanguage)
+npm run lang:add -- hi --base=south-asian   # Hindi (SouthAsianLanguage)
+npm run lang:add -- tr --base=turkic        # Turkish (TurkicLanguage)
+```
+
+This will create:
+
+- Language implementation file: `lib/languages/<code>.js`
+- Test fixture file: `test/fixtures/languages/<code>.js`
+- Automatic registration in `lib/n2words.js` (import, converter, export)
 
 ### Base Class Decision Tree
 
@@ -98,24 +366,6 @@ You'll be prompted to select a base class. See the decision tree below to choose
 - **SouthAsianLanguage** - Indian numbering system (lakh, crore)
 - **TurkicLanguage** - Turkish-style implicit "bir" rules
 - **AbstractLanguage** - Direct implementation (advanced)
-
-**Command-Line Mode:**
-
-```bash
-npm run lang:add -- <language-code> --base=<base-class>
-
-# Examples:
-npm run lang:add -- ko                      # Uses default (greedy)
-npm run lang:add -- pl --base=slavic        # Polish (SlavicLanguage)
-npm run lang:add -- hi --base=south-asian   # Hindi (SouthAsianLanguage)
-npm run lang:add -- tr --base=turkic        # Turkish (TurkicLanguage)
-```
-
-This will create:
-
-- Language implementation file: `lib/languages/<code>.js`
-- Test fixture file: `test/fixtures/languages/<code>.js`
-- Automatic registration in `lib/n2words.js` (import, converter, export)
 
 ### Implementation Steps
 
@@ -223,9 +473,11 @@ If your language requires options (e.g., gender, formal style), follow this patt
    const PolishConverter = /** @type {(value: NumericValue, options?: PolishOptions) => string} */ (makeConverter(Polish))
    ```
 
-## Code Style
+## Code Quality
 
-### JavaScript Style
+### Code Style
+
+#### JavaScript Style
 
 We use [StandardJS](https://standardjs.com/) for code style:
 
@@ -245,7 +497,7 @@ Key conventions:
 - Single quotes for strings
 - Use `const` and `let`, never `var`
 
-### Markdown Style
+#### Markdown Style
 
 We use [markdownlint](https://github.com/DavidAnson/markdownlint) for markdown files:
 
@@ -257,7 +509,7 @@ npm run lint:md
 npm run lint:md -- --fix
 ```
 
-### JSDoc Documentation
+#### JSDoc Documentation
 
 All classes and public methods should have JSDoc comments:
 
@@ -276,9 +528,9 @@ export class English extends GreedyScaleLanguage {
 }
 ```
 
-## Testing
+### Testing
 
-### Running Tests
+#### Running Tests
 
 ```bash
 # Run all tests (language validation + unit + integration + type checking)
@@ -305,7 +557,7 @@ npm run test:all
 npm run test:web
 ```
 
-### Writing Tests
+#### Writing Tests
 
 Tests use [AVA](https://github.com/avajs/ava) test framework. Language tests are defined in fixture files:
 
@@ -329,11 +581,11 @@ export default [
 - `[input, expected]` - Basic test case
 - `[input, expected, options]` - Test case with options
 
-### Type Testing
+#### Type Testing
 
 The project uses a two-layer type testing strategy:
 
-#### 1. Declaration Generation (`build:types`)
+**1. Declaration Generation (`build:types`)**
 
 Generates TypeScript declaration files from JSDoc annotations:
 
@@ -342,7 +594,7 @@ Generates TypeScript declaration files from JSDoc annotations:
 - **Validates JSDoc automatically** - if JSDoc has errors, `.d.ts` generation fails
 - Outputs `.d.ts` files to `lib/` (ignored by git, included in npm package)
 
-#### 2. tsd Type Declaration Tests (`test:types:tsd`)
+**2. tsd Type Declaration Tests (`test:types:tsd`)**
 
 Tests that generated TypeScript declarations work correctly:
 
@@ -367,7 +619,7 @@ expectError(EnglishConverter(42, { invalidOption: true }))
 expectError(ArabicConverter(42, { gender: 'invalid' }))
 ```
 
-#### 3. attw Package Validation (`test:types:attw`)
+**3. attw Package Validation (`test:types:attw`)**
 
 Validates package.json exports for different module systems:
 
@@ -388,7 +640,7 @@ Together they ensure:
 - Generated typings work correctly for TypeScript consumers
 - Package is correctly configured for Node.js and bundlers
 
-### Test Coverage
+#### Test Coverage
 
 Generate coverage reports:
 
@@ -398,234 +650,35 @@ npm run coverage
 
 Coverage reports will be in the `coverage/` directory and displayed in the terminal.
 
-## Submitting Changes
+### Language Validation
 
-### Pull Request Process
-
-1. **Create a feature branch**:
-
-   ```bash
-   git checkout -b feature/add-korean-language
-   ```
-
-2. **Make your changes** following the code style guidelines
-
-3. **Validate and test**:
-
-   ```bash
-   npm run lint
-   npm test
-   ```
-
-4. **Commit your changes** following [Conventional Commits](https://www.conventionalcommits.org/):
-
-   ```bash
-   git add .
-   git commit -m "feat(lang): add Korean language support"
-   ```
-
-   **Commit message format:**
-
-   ```text
-   <type>(<scope>): <description>
-
-   [optional body]
-
-   [optional footer(s)]
-   ```
-
-   **Types:**
-   - `feat:` - New feature
-   - `fix:` - Bug fix
-   - `docs:` - Documentation changes
-   - `refactor:` - Code refactoring (no functional changes)
-   - `test:` - Adding or updating tests
-   - `chore:` - Maintenance tasks (dependencies, build, etc.)
-   - `perf:` - Performance improvements
-
-   **Scopes (optional):**
-   - `lang` - Language implementations
-   - `core` - Core/base classes
-   - `build` - Build system
-   - `ci` - CI/CD changes
-   - `deps` - Dependencies
-
-   **Examples:**
-
-   ```bash
-   feat(lang): add Korean language support
-   fix(lang): correct French plural forms for numbers ending in 1
-   docs: update CONTRIBUTING.md with commit conventions
-   refactor(core): improve BigInt handling in AbstractLanguage
-   test(lang): add edge cases for Japanese group-by-4 pattern
-   chore(deps): update AVA to v6.0.0
-   ```
-
-   **Guidelines:**
-   - Use present tense ("Add" not "Added")
-   - Use imperative mood ("Move cursor to..." not "Moves cursor to...")
-   - Don't capitalize first letter of description
-   - No period at the end of description
-   - Reference issues in footer: `Closes #123` or `Fixes #456`
-
-5. **Push to your fork**:
-
-   ```bash
-   git push origin feature/add-korean-language
-   ```
-
-6. **Open a Pull Request** on GitHub:
-   - Provide a clear description of the changes
-   - Reference any related issues
-   - Ensure all CI checks pass
-
-### Pull Request Guidelines
-
-- **One feature per PR**: Keep PRs focused on a single change
-- **Test coverage**: Include tests for new features
-- **Documentation**: Update docs for API changes
-- **Validation**: Ensure `npm run lang:validate` passes for language changes
-- **Backwards compatibility**: Avoid breaking changes when possible
-- **Target branch**: Submit PRs to the `main` branch (default)
-- **Draft PRs**: Use draft PRs for work-in-progress to get early feedback
-
-### Git Workflow
-
-**Keeping your fork in sync:**
+The validation tool ensures language implementations follow project standards:
 
 ```bash
-# Add upstream remote (one-time setup)
-git remote add upstream https://github.com/forzagreen/n2words.git
+# Validate all languages
+npm run lang:validate
 
-# Sync with upstream
-git fetch upstream
-git checkout main
-git merge upstream/main
-git push origin main
+# Validate specific languages
+npm run lang:validate -- en es fr
+
+# Verbose output with detailed checks
+npm run lang:validate -- en --verbose
 ```
 
-**Branch naming conventions:**
+**What gets validated:**
 
-- `feature/<description>` - New features
-- `fix/<description>` - Bug fixes
-- `docs/<description>` - Documentation updates
-- `refactor/<description>` - Code refactoring
+- IETF BCP 47 naming convention (e.g., `en`, `zh-Hans`, `fr-BE`)
+- Class structure and proper inheritance
+- Required properties (`negativeWord`, `zeroWord`, etc.)
+- Method implementations (not abstract)
+- Scale words properly ordered (descending)
+- Options pattern (constructor, typedef, type annotations)
+- Gender option uses enum type (`'masculine'|'feminine'`)
+- JSDoc documentation present
+- Test fixture exists and is valid
+- Proper registration in `lib/n2words.js` (import, converter, export)
 
-Examples: `feature/add-korean`, `fix/french-plurals`, `docs/contributing-guide`
-
-## Code Review Process
-
-### What to Expect
-
-1. **Automated Checks**: CI must pass before review begins
-   - All tests (unit, integration, type checking)
-   - Linting (JavaScript and Markdown)
-   - Language validation (if applicable)
-   - Build verification
-   - Coverage report generation
-
-2. **Review Timeline**: Most PRs are reviewed within 2-3 business days
-
-3. **Reviewers**: Core maintainers review all PRs
-
-4. **Approval Requirements**: At least one approval from a maintainer
-
-### What Reviewers Look For
-
-- **Code quality**: Follows project style and patterns
-- **Test coverage**: Adequate tests for new code
-- **Documentation**: Clear JSDoc comments and updated guides
-- **Breaking changes**: Avoided when possible, clearly documented when necessary
-- **Performance**: No significant performance regressions
-- **Backwards compatibility**: Existing code continues to work
-
-### Addressing Feedback
-
-- Respond to all review comments
-- Push additional commits to address feedback
-- Mark conversations as resolved when addressed
-- Request re-review when ready
-
-### After Approval
-
-- Maintainers will merge your PR (squash merge for multi-commit PRs)
-- Your contribution will be included in the next release
-- You'll be added to the contributors list if it's your first contribution
-
-## Continuous Integration
-
-All pull requests run through comprehensive CI checks using GitHub Actions.
-
-### CI Workflow Overview
-
-The project uses a unified CI workflow (`ci.yml`) that combines linting, building, and testing in a single job for better efficiency.
-
-**Job Matrix:**
-
-Tests run on multiple environments:
-
-- **Node.js versions**: 20, 22, 24, 25
-- **Operating systems**:
-  - Ubuntu (all Node versions)
-  - Windows (Node 24 LTS only)
-  - macOS (Node 24 LTS only)
-
-**What the CI job does:**
-
-1. **Linting** - JavaScript (StandardJS) and Markdown
-2. **Building** - All UMD bundles (`dist/`)
-3. **Testing** - Language validation, unit, integration, type checking, browser tests
-4. **Coverage** - Generated and uploaded conditionally (PRs and main branch only)
-5. **Security** - Package audit (`npm audit`)
-
-**Coverage Strategy:**
-
-Coverage is only uploaded on:
-
-- Pull requests
-- Pushes to `master`/`main` branch
-- Ubuntu + Node 24 job only
-
-This prevents coverage spam from feature branches while maintaining visibility where it matters.
-
-### Viewing CI Results
-
-- Check the "Checks" tab on your pull request
-- All checks must pass (green checkmark) before merge
-- Click on failed checks to see detailed logs
-- Re-run failed checks if you suspect a flaky test
-
-### Running CI Checks Locally
-
-Before pushing, run the same checks locally:
-
-```bash
-# Run all checks
-npm run lint         # Linting
-npm test             # Full test suite
-npm run build        # Build UMD bundles
-npm audit --production --audit-level=moderate  # Security audit
-
-# Optional: Run browser tests (requires build first)
-npm run build
-npm run test:web
-```
-
-### Testing with Act (Local GitHub Actions)
-
-You can test the actual CI workflow locally using [Act](https://github.com/nektos/act):
-
-```bash
-# Quick validation (1-2 min)
-act -W .github/workflows/ci.yml --matrix node:24 --matrix os:ubuntu-latest
-
-# Full validation (10-15 min)
-act -W .github/workflows/ci.yml
-```
-
-The project includes an `.actrc` configuration file with sensible defaults.
-
-## Advanced Contributions
+## Advanced Topics
 
 ### Regional Language Variants
 
@@ -689,7 +742,7 @@ npm run lang:validate
 npm run bench:perf -- --compare
 ```
 
-### Adding Helper Methods to Base Classes
+#### Adding Helper Methods to Base Classes
 
 When adding new helper methods to base classes:
 
@@ -787,85 +840,62 @@ Our CI pipeline runs tests across multiple platforms with an optimized strategy:
 
 Browser engines (Chromium, Firefox, WebKit) are cross-platform and behave identically on all operating systems. Since we're testing UMD JavaScript bundles (not OS-specific native code), running browser tests on a single OS provides complete coverage while optimizing CI time and cost. This is the industry-standard approach for JavaScript libraries.
 
-## Release Process
+### Performance Improvements
 
-### Versioning
+If proposing performance improvements:
 
-We follow [Semantic Versioning](https://semver.org/):
+- Run benchmarks before and after your changes
+- Include benchmark results in your PR
+- Ensure tests still pass
+- Consider memory usage as well as speed
 
-- **Major** (X.0.0): Breaking changes
-- **Minor** (0.X.0): New features (backwards compatible)
-- **Patch** (0.0.X): Bug fixes (backwards compatible)
+**Running benchmarks:**
 
-### Creating a Release
+```bash
+# Performance benchmarks (operations per second)
+npm run bench:perf                    # All languages
+npm run bench:perf -- --lang en       # Specific language
+npm run bench:perf -- --save          # Save results for comparison
+npm run bench:perf -- --compare       # Compare with previous run
 
-**For maintainers only:**
+# Memory benchmarks
+npm run bench:memory                  # All languages
+npm run bench:memory -- --lang en     # Specific language
+npm run bench:memory -- --save --compare  # Track memory changes
+```
 
-1. **Update version** in `package.json`:
+#### Performance Best Practices
+
+If your contribution introduces performance regressions:
+
+1. **Profile before optimizing**:
 
    ```bash
-   npm version major|minor|patch
-   # Example: npm version minor
+   npm run bench:perf -- --lang <your-language>
+   npm run bench:memory -- --lang <your-language>
    ```
 
-2. **Create and push tag**:
+2. **Common performance pitfalls**:
+   - Avoid string concatenation in loops (use array join)
+   - Use BigInt arithmetic instead of string manipulation
+   - Cache expensive calculations
+   - Minimize object allocations
+
+3. **Compare with baseline**:
 
    ```bash
-   git push && git push --tags
+   # Save baseline
+   npm run bench:perf -- --save
+
+   # Make your changes
+
+   # Compare
+   npm run bench:perf -- --compare
    ```
 
-3. **Automated process** (via GitHub Actions):
-   - Waits for CI workflow to complete successfully
-   - Version validation (ensures package.json matches tag)
-   - Build all dist/ bundles
-   - Publish to npm with provenance
-   - Create GitHub Release with auto-generated notes
-   - Upload dist/ files as release artifacts
+## Project Information
 
-**Note**: The publish workflow (`publish.yml`) waits for the CI workflow to pass before publishing, ensuring all tests pass on all platforms before releasing.
-
-### Release Checklist
-
-- [ ] All tests passing on `main`
-- [ ] CHANGELOG.md updated (if exists)
-- [ ] Version bumped appropriately
-- [ ] Tag matches package.json version (format: `vX.Y.Z`)
-- [ ] No uncommitted changes
-
-## Security
-
-### Reporting Security Issues
-
-**Do NOT open public issues for security vulnerabilities.**
-
-Instead, please email security concerns to the maintainers privately:
-
-- Report via GitHub Security Advisories
-- Or contact maintainers directly through GitHub
-
-Include:
-
-- Description of the vulnerability
-- Steps to reproduce
-- Potential impact
-- Suggested fix (if any)
-
-### Security Practices
-
-- Dependencies are audited in CI (`npm audit`)
-- No credentials or secrets in code
-- Input validation in AbstractLanguage
-- Safe BigInt arithmetic (no eval or Function constructor)
-- Provenance attestation on npm releases
-
-### Dependency Security
-
-- Keep dependencies up to date
-- Run `npm audit` before submitting PRs
-- Fix security vulnerabilities before adding features
-- Use `npm audit fix` for automated fixes
-
-## Project Structure
+### Project Structure
 
 ```text
 n2words/
@@ -906,89 +936,179 @@ n2words/
 └── CONTRIBUTING.md           # This file
 ```
 
-## Types of Contributions
+### Continuous Integration
 
-### Bug Reports
+All pull requests run through comprehensive CI checks using GitHub Actions.
 
-When reporting bugs, please include:
+#### CI Workflow Overview
 
-- Node.js version
-- n2words version
-- Clear description of the issue
-- Minimal code to reproduce the problem
-- Expected vs actual behavior
+The project uses a unified CI workflow (`ci.yml`) that combines linting, building, and testing in a single job for better efficiency.
 
-### Feature Requests
+**Job Matrix:**
 
-We welcome feature requests! Please:
+Tests run on multiple environments:
 
-- Check if the feature already exists or is planned
-- Describe the use case
-- Provide examples of the desired API
-- Consider backwards compatibility
+- **Node.js versions**: 20, 22, 24, 25
+- **Operating systems**:
+  - Ubuntu (all Node versions)
+  - Windows (Node 24 LTS only)
+  - macOS (Node 24 LTS only)
 
-### Documentation
+**What the CI job does:**
 
-Documentation improvements are always welcome:
+1. **Linting** - JavaScript (StandardJS) and Markdown
+2. **Building** - All UMD bundles (`dist/`)
+3. **Testing** - Language validation, unit, integration, type checking, browser tests
+4. **Coverage** - Generated and uploaded conditionally (PRs and main branch only)
+5. **Security** - Package audit (`npm audit`)
 
-- Fix typos or unclear explanations
-- Add examples
-- Improve API documentation
-- Translate documentation
+**Coverage Strategy:**
 
-### Performance Improvements
+Coverage is only uploaded on:
 
-If proposing performance improvements:
+- Pull requests
+- Pushes to `master`/`main` branch
+- Ubuntu + Node 24 job only
 
-- Run benchmarks before and after your changes
-- Include benchmark results in your PR
-- Ensure tests still pass
-- Consider memory usage as well as speed
+This prevents coverage spam from feature branches while maintaining visibility where it matters.
 
-**Running benchmarks:**
+#### Viewing CI Results
+
+- Check the "Checks" tab on your pull request
+- All checks must pass (green checkmark) before merge
+- Click on failed checks to see detailed logs
+- Re-run failed checks if you suspect a flaky test
+
+#### Running CI Checks Locally
+
+Before pushing, run the same checks locally:
 
 ```bash
-# Performance benchmarks (operations per second)
-npm run bench:perf                    # All languages
-npm run bench:perf -- --lang en       # Specific language
-npm run bench:perf -- --save          # Save results for comparison
-npm run bench:perf -- --compare       # Compare with previous run
+# Run all checks
+npm run lint         # Linting
+npm test             # Full test suite
+npm run build        # Build UMD bundles
+npm audit --production --audit-level=moderate  # Security audit
 
-# Memory benchmarks
-npm run bench:memory                  # All languages
-npm run bench:memory -- --lang en     # Specific language
-npm run bench:memory -- --save --compare  # Track memory changes
+# Optional: Run browser tests (requires build first)
+npm run build
+npm run test:web
 ```
 
-## Community Guidelines
+#### Testing with Act (Local GitHub Actions)
 
-### Code of Conduct
+You can test the actual CI workflow locally using [Act](https://github.com/nektos/act):
 
-We are committed to providing a welcoming and inclusive environment for all contributors. We expect all participants to:
+```bash
+# Quick validation (1-2 min)
+act -W .github/workflows/ci.yml --matrix node:24 --matrix os:ubuntu-latest
 
-- **Be respectful**: Treat everyone with respect and consideration
-- **Be collaborative**: Work together constructively
-- **Be patient**: Help newcomers and be understanding of mistakes
-- **Be professional**: Keep discussions focused and productive
-- **Give credit**: Acknowledge others' contributions
+# Full validation (10-15 min)
+act -W .github/workflows/ci.yml
+```
 
-**Unacceptable behavior includes:**
+The project includes an `.actrc` configuration file with sensible defaults.
 
-- Harassment, discrimination, or offensive comments
-- Personal attacks or trolling
-- Spam or off-topic discussions
-- Disclosing others' private information
-- Any conduct that would be inappropriate in a professional setting
+### Release Process
 
-**Enforcement**: Violations may result in warnings, temporary bans, or permanent removal from the project.
+#### Versioning
 
-### Communication Channels
+We follow [Semantic Versioning](https://semver.org/):
+
+- **Major** (X.0.0): Breaking changes
+- **Minor** (0.X.0): New features (backwards compatible)
+- **Patch** (0.0.X): Bug fixes (backwards compatible)
+
+#### Creating a Release
+
+**For maintainers only:**
+
+1. **Update version** in `package.json`:
+
+   ```bash
+   npm version major|minor|patch
+   # Example: npm version minor
+   ```
+
+2. **Create and push tag**:
+
+   ```bash
+   git push && git push --tags
+   ```
+
+3. **Automated process** (via GitHub Actions):
+   - Waits for CI workflow to complete successfully
+   - Version validation (ensures package.json matches tag)
+   - Build all dist/ bundles
+   - Publish to npm with provenance
+   - Create GitHub Release with auto-generated notes
+   - Upload dist/ files as release artifacts
+
+**Note**: The publish workflow (`publish.yml`) waits for the CI workflow to pass before publishing, ensuring all tests pass on all platforms before releasing.
+
+#### Release Checklist
+
+- [ ] All tests passing on `main`
+- [ ] CHANGELOG.md updated (if exists)
+- [ ] Version bumped appropriately
+- [ ] Tag matches package.json version (format: `vX.Y.Z`)
+- [ ] No uncommitted changes
+
+### Security
+
+#### Reporting Security Issues
+
+**Do NOT open public issues for security vulnerabilities.**
+
+Instead, please email security concerns to the maintainers privately:
+
+- Report via GitHub Security Advisories
+- Or contact maintainers directly through GitHub
+
+Include:
+
+- Description of the vulnerability
+- Steps to reproduce
+- Potential impact
+- Suggested fix (if any)
+
+#### Security Practices
+
+- Dependencies are audited in CI (`npm audit`)
+- No credentials or secrets in code
+- Input validation in AbstractLanguage
+- Safe BigInt arithmetic (no eval or Function constructor)
+- Provenance attestation on npm releases
+
+#### Dependency Security
+
+- Keep dependencies up to date
+- Run `npm audit` before submitting PRs
+- Fix security vulnerabilities before adding features
+- Use `npm audit fix` for automated fixes
+
+### Community Guidelines
+
+#### Code of Conduct
+
+This project adheres to a [Code of Conduct](CODE_OF_CONDUCT.md) that all contributors are expected to follow. By participating, you agree to maintain a respectful, professional, and inclusive environment.
+
+**In brief, we expect all participants to:**
+
+- Be respectful and collaborative
+- Help newcomers and be patient with mistakes
+- Keep discussions focused and productive
+- Give credit to others' contributions
+
+For the full Code of Conduct, including reporting procedures and enforcement policies, please see [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md).
+
+#### Communication Channels
 
 - **GitHub Issues**: Bug reports, feature requests, questions
 - **Pull Requests**: Code contributions and technical discussions
 - **GitHub Discussions**: General questions and community support
 
-### First-Time Contributors
+#### First-Time Contributors
 
 We welcome first-time contributors! Look for issues labeled:
 
@@ -1004,7 +1124,7 @@ We welcome first-time contributors! Look for issues labeled:
 4. Run tests locally - ensure everything works before submitting
 5. Be patient - maintainers will help guide you through the process
 
-### Recognition
+#### Recognition
 
 Contributors are recognized in several ways:
 
@@ -1013,11 +1133,43 @@ Contributors are recognized in several ways:
 - **Release notes** - Notable contributions mentioned in releases
 - **GitHub contributors page** - Automatically tracked by GitHub
 
-## Troubleshooting
+#### Types of Contributions
 
-### Common Issues
+##### Bug Reports
 
-#### Node Version Mismatch
+When reporting bugs, please include:
+
+- Node.js version
+- n2words version
+- Clear description of the issue
+- Minimal code to reproduce the problem
+- Expected vs actual behavior
+
+##### Feature Requests
+
+We welcome feature requests! Please:
+
+- Check if the feature already exists or is planned
+- Describe the use case
+- Provide examples of the desired API
+- Consider backwards compatibility
+
+##### Documentation
+
+Documentation improvements are always welcome:
+
+- Fix typos or unclear explanations
+- Add examples
+- Improve API documentation
+- Translate documentation
+
+## Help & Support
+
+### Troubleshooting
+
+#### Common Issues
+
+##### Node Version Mismatch
 
 **Problem**: Tests fail with syntax errors or BigInt not supported
 
@@ -1038,7 +1190,7 @@ fnm install lts-latest
 fnm use lts-latest
 ```
 
-#### Windows Path Issues
+##### Windows Path Issues
 
 **Problem**: Tests fail on Windows with path separator errors
 
@@ -1048,7 +1200,7 @@ fnm use lts-latest
 - Git will handle line endings automatically (`.gitattributes`)
 - Run tests in Git Bash or WSL for better compatibility
 
-#### Character Encoding Issues
+##### Character Encoding Issues
 
 **Problem**: Non-Latin characters display incorrectly
 
@@ -1058,7 +1210,7 @@ fnm use lts-latest
 - Check `.editorconfig` is being respected by your editor
 - Install EditorConfig extension for your editor
 
-#### Test Timeouts
+##### Test Timeouts
 
 **Problem**: Tests timeout, especially browser tests
 
@@ -1071,7 +1223,7 @@ npm run test:web -- --timeout=60s
 # Or increase globally in package.json ava.timeout
 ```
 
-#### BigInt Support
+##### BigInt Support
 
 **Problem**: BigInt literal syntax errors
 
@@ -1082,7 +1234,7 @@ npm run test:web -- --timeout=60s
 - Use `123n` literal syntax for static values
 - Never use `parseInt()` or `Number()` on BigInt values
 
-#### Validation Errors
+##### Validation Errors
 
 **Problem**: `npm run lang:validate` reports errors
 
@@ -1121,7 +1273,7 @@ npm run test:web -- --timeout=60s
    @property {('masculine'|'feminine')} [gender='masculine']
    ```
 
-#### Commit Message Errors
+##### Commit Message Errors
 
 **Problem**: Git commit fails with commitlint validation error
 
@@ -1208,7 +1360,7 @@ git commit --amend
 
 - `deps`, `ci`, `docs`, `test`, `build`, `lang`, `core`, `types`
 
-#### Build Failures
+##### Build Failures
 
 **Problem**: `npm run build` fails
 
@@ -1224,7 +1376,29 @@ npm run build
 npm run lint
 ```
 
-### Quick Reference: Common Validation Errors
+##### Browser Test Issues
+
+**Problem**: Browser tests fail to start
+
+**Solution**:
+
+1. Browser builds are automatically generated via `pretest:web` lifecycle hook
+2. Ensure Playwright browsers are installed: `npm run playwright:install`
+3. Check for errors in the test output
+4. Verify `dist/n2words.js` bundle exists after build
+
+##### Import/Export Errors
+
+**Problem**: `Cannot find module` or `SyntaxError: Unexpected token export`
+
+**Solution**:
+
+- Project uses ES modules (`"type": "module"` in package.json)
+- Use `.js` extensions in import statements: `import { French } from './fr.js'`
+- Don't use `require()`, use `import` instead
+- Run with Node.js >= 20
+
+#### Quick Reference: Common Validation Errors
 
 | Error Message                              | Cause                                    | Fix                                           |
 | ------------------------------------------ | ---------------------------------------- | --------------------------------------------- |
@@ -1236,57 +1410,6 @@ npm run lint
 | "Gender option must use enum type"         | Wrong JSDoc type                         | Use `('masculine'\|'feminine')` not `string`  |
 | "Class name doesn't match CLDR"            | Wrong class name                         | Use `Intl.DisplayNames` to get correct name   |
 | "File doesn't follow IETF BCP 47"          | Invalid language code                    | Use valid BCP 47 code (e.g., `en`, `zh-Hans`) |
-
-#### Browser Test Issues
-
-**Problem**: Browser tests fail to start
-
-**Solution**:
-
-1. Browser builds are automatically generated via `pretest:web` lifecycle hook
-2. Ensure Playwright browsers are installed: `npm run playwright:install`
-3. Check for errors in the test output
-4. Verify `dist/n2words.js` bundle exists after build
-
-#### Import/Export Errors
-
-**Problem**: `Cannot find module` or `SyntaxError: Unexpected token export`
-
-**Solution**:
-
-- Project uses ES modules (`"type": "module"` in package.json)
-- Use `.js` extensions in import statements: `import { French } from './fr.js'`
-- Don't use `require()`, use `import` instead
-- Run with Node.js >= 20
-
-### Performance Issues
-
-If your contribution introduces performance regressions:
-
-1. **Profile before optimizing**:
-
-   ```bash
-   npm run bench:perf -- --lang <your-language>
-   npm run bench:memory -- --lang <your-language>
-   ```
-
-2. **Common performance pitfalls**:
-   - Avoid string concatenation in loops (use array join)
-   - Use BigInt arithmetic instead of string manipulation
-   - Cache expensive calculations
-   - Minimize object allocations
-
-3. **Compare with baseline**:
-
-   ```bash
-   # Save baseline
-   npm run bench:perf -- --save
-
-   # Make your changes
-
-   # Compare
-   npm run bench:perf -- --compare
-   ```
 
 ### Getting Help
 
@@ -1305,35 +1428,7 @@ If you're stuck:
    - Provide full context (Node version, OS, error messages)
    - Include steps to reproduce the issue
 
-## Language Validation
-
-The validation tool ensures language implementations follow project standards:
-
-```bash
-# Validate all languages
-npm run lang:validate
-
-# Validate specific languages
-npm run lang:validate -- en es fr
-
-# Verbose output with detailed checks
-npm run lang:validate -- en --verbose
-```
-
-**What gets validated:**
-
-- IETF BCP 47 naming convention (e.g., `en`, `zh-Hans`, `fr-BE`)
-- Class structure and proper inheritance
-- Required properties (`negativeWord`, `zeroWord`, etc.)
-- Method implementations (not abstract)
-- Scale words properly ordered (descending)
-- Options pattern (constructor, typedef, type annotations)
-- Gender option uses enum type (`'masculine'|'feminine'`)
-- JSDoc documentation present
-- Test fixture exists and is valid
-- Proper registration in `lib/n2words.js` (import, converter, export)
-
-## Questions?
+### Questions
 
 If you have questions:
 
