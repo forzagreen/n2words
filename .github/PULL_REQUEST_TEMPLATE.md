@@ -27,6 +27,7 @@
 ### General
 
 - [ ] I have read the [CONTRIBUTING.md](../CONTRIBUTING.md) guide
+- [ ] I have read and agree to follow the [Code of Conduct](../CODE_OF_CONDUCT.md)
 - [ ] My code follows the project's style guidelines (StandardJS)
 - [ ] I have performed a self-review of my code
 - [ ] I have commented my code, particularly in hard-to-understand areas

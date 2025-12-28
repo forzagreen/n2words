@@ -1079,21 +1079,41 @@ Targets Chrome 67+, Firefox 68+, Safari 14+, Edge 79+ (~86% global coverage)
 
 ### GitHub Actions Workflows
 
-**Three workflows** handle continuous integration and deployment:
+**Four workflows** handle continuous integration, validation, and deployment:
 
-1. **`.github/workflows/ci.yml`** - Unified CI workflow
-   - Matrix: Node 20/22/24/25 × Ubuntu/Windows/macOS
-   - Runs: Lint, build, test (unit/integration/types/browser), coverage
-   - Browser tests (Playwright): Ubuntu only (cross-platform engines)
+1. **`.github/workflows/ci.yml`** - Main CI workflow
+   - **Triggers**: Push to main/develop/v* branches, PRs, manual dispatch
+   - **Jobs**:
+     - `lint` - Linting (JavaScript, Markdown) and security audit
+     - `test` - Test matrix (Node 20/22/25 on Ubuntu, Node 24 on Windows/macOS)
+     - `test-web` - Browser tests (Playwright on Ubuntu only)
+     - `test-coverage` - Tests with coverage (Node 24 Ubuntu, replaces duplicate test run)
+     - `verify` - Package verification (depends on all test jobs)
+   - **Optimizations**:
+     - Concurrency groups cancel old PR runs on new commits
+     - Coverage job combines testing + coverage reporting (saves ~16% CI time)
+     - Default read-only permissions, granular overrides per job
+     - No Playwright browser caching (per official recommendation)
 
-2. **`.github/workflows/publish.yml`** - Automated npm publishing
-   - Trigger: Version tags (`v*`)
-   - Waits for CI, validates version, builds, publishes with provenance
-   - Creates GitHub Release with dist files
+2. **`.github/workflows/commitlint.yml`** - Commit message validation
+   - **Triggers**: PRs only (opened, synchronize, reopened, edited)
+   - **Purpose**: Validates all PR commits follow Conventional Commits format
+   - **Uses**: `wagoid/commitlint-github-action@v6` with `.commitlintrc.mjs` config
+   - **Note**: Local git hooks are opt-in (`npm run prepare:husky`)
 
-3. **`.github/workflows/pr_coverage.yml`** - Coverage reporting
-   - Posts coverage reports as PR comments
-   - Updates existing comment to avoid spam
+3. **`.github/workflows/pr-title.yml`** - PR title validation
+   - **Triggers**: PRs only (opened, edited, synchronize)
+   - **Purpose**: Ensures PR titles follow Conventional Commits (for squash-merge)
+   - **Uses**: `amannn/action-semantic-pull-request@v5`
+   - **Validates**: Type, optional scope, lowercase subject
+
+4. **`.github/workflows/publish.yml`** - Automated npm publishing
+   - **Triggers**: Version tags (`v*`)
+   - **Jobs**:
+     - `check-ci` - Waits for CI workflow to complete successfully
+     - `publish` - Builds, publishes to npm with provenance, creates GitHub Release
+   - **Security**: Default read-only permissions, granular overrides, concurrency protection
+   - **Concurrency**: `cancel-in-progress: false` to protect in-flight releases
 
 **Local testing**: Use [Act](https://github.com/nektos/act) to test GitHub Actions locally
 
@@ -1305,8 +1325,10 @@ export default [
 | `.gitattributes`                       | Git repository normalization settings                   |
 | `.markdownlint.mjs`                    | Markdown linting configuration                          |
 | `.vscode/extensions.json`              | Recommended VS Code extensions                          |
-| `.commitlintrc.json`                   | Commitlint configuration for conventional commits       |
-| `.github/workflows/ci.yml`             | Unified CI workflow (lint, test matrix, coverage)       |
+| `.commitlintrc.mjs`                    | Commitlint configuration for conventional commits       |
+| `.github/workflows/ci.yml`             | Main CI workflow (lint, test matrix, coverage, verify)  |
+| `.github/workflows/commitlint.yml`     | PR commit message validation workflow                   |
+| `.github/workflows/pr-title.yml`       | PR title validation workflow (for squash-merge)         |
 | `.github/workflows/publish.yml`        | Automated npm publishing workflow                       |
 | `.github/dependabot.yml`               | Dependabot configuration for dependency updates         |
 | `CHANGELOG.md`                         | Project changelog following Keep a Changelog format     |
