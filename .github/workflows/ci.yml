@@ -85,6 +85,7 @@ jobs:
         run: npm run lint
 
       - name: Build web bundles
+        if: matrix.node == '24' && matrix.os == 'ubuntu-latest'
         run: npm run build
 
       # Run tests with coverage on primary Ubuntu job
@@ -94,7 +95,7 @@ jobs:
 
       # Run tests without coverage on other jobs
       - name: Run tests
-        if: matrix.node != '24' || matrix.os != 'ubuntu-latest'
+        if: matrix.node != '24' && matrix.os != 'ubuntu-latest'
         run: npm test
 
       # Run browser tests (Ubuntu only - Playwright browsers installed)
