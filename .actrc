@@ -2,12 +2,13 @@
 # https://github.com/nektos/act
 
 # Use medium-sized runner image (includes Node.js and common tools)
-# Pinned to specific SHA to prevent image drift
+# Using :act-latest tag for up-to-date image
 # Update periodically with: docker pull catthehacker/ubuntu:act-latest
--P ubuntu-latest=catthehacker/ubuntu@sha256:act-latest
+-P ubuntu-latest=catthehacker/ubuntu:act-latest
 
-# Bind project directory to preserve node_modules between runs
---bind
+# Don't bind on Windows - causes filesystem issues with node_modules
+# Uncomment on Linux/macOS for faster iteration:
+# --bind
 
 # Use host network for npm registry access
 --network host
@@ -15,8 +16,9 @@
 # Container architecture (use host architecture)
 --container-architecture linux/amd64
 
-# Reuse containers between runs for faster iteration
---reuse
+# Don't reuse containers on Windows (only useful with --bind)
+# Uncomment on Linux/macOS with --bind enabled:
+# --reuse
 
 # Verbose output for debugging
 --verbose=false
