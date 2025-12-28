@@ -115,7 +115,8 @@
     ],
     "reporter": [
       "lcov",
-      "text"
+      "text",
+      "json-summary"
     ]
   },
   "lint-staged": {
