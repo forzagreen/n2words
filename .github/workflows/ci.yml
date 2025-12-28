@@ -98,12 +98,12 @@ jobs:
         run: npm pack --dry-run
 
       - name: Generate job summary
-        if: matrix.node == '24' && matrix.os == 'ubuntu-latest' && always()
+        if: matrix.node == '24' && matrix.os == 'ubuntu-latest'
         run: |
           echo "## ✅ CI Summary" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "- **Node.js**: ${{ matrix.node }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **OS**: ${{ matrix.os_label }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **OS**: ${{ matrix.os }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Commit**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
 
