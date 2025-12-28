@@ -117,9 +117,8 @@ jobs:
         if: |
           matrix.node == '24' &&
           matrix.os == 'ubuntu-latest' &&
-          (github.event_name == 'pull_request' ||
-           github.ref == 'refs/heads/master' ||
-           github.ref == 'refs/heads/main')
+          github.event_name == 'pull_request' &&
+          (github.event.pull_request.base.ref == 'main' || github.event.pull_request.base.ref == 'master')
         uses: coverallsapp/github-action@v2.3.6
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
