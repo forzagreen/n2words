@@ -1,5 +1,9 @@
 name: CI
 
+env:
+  HUSKY: 0
+  CI: true
+
 on:
   push:
     branches:
@@ -67,16 +71,6 @@ jobs:
         if: matrix.node == '24' && matrix.os == 'ubuntu-latest'
         run: npm run lint
 
-      # Run tests with coverage on primary Ubuntu job
-      - name: Run tests with coverage
-        if: matrix.node == '24' && matrix.os == 'ubuntu-latest'
-        run: npm run coverage
-
-      # Run tests without coverage on other jobs
-      - name: Run tests
-        if: matrix.node != '24' || matrix.os != 'ubuntu-latest'
-        run: npm test
-
       # Run browser tests (Ubuntu only - Playwright browsers installed)
       - name: Run browser tests
         if: matrix.node == '24' && matrix.os == 'ubuntu-latest'
@@ -93,6 +87,16 @@ jobs:
           retention-days: 30
           if-no-files-found: ignore
 
+      # Run tests with coverage on primary Ubuntu job
+      - name: Run tests with coverage
+        if: matrix.node == '24' && matrix.os == 'ubuntu-latest'
+        run: npm run coverage
+
+      # Run tests without coverage on other jobs
+      - name: Run tests
+        if: matrix.node != '24' || matrix.os != 'ubuntu-latest'
+        run: npm test
+
       - name: Verify package contents
         if: matrix.node == '24' && matrix.os == 'ubuntu-latest'
         run: npm pack --dry-run
@@ -103,7 +107,7 @@ jobs:
           echo "## ✅ CI Summary" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "- **Node.js**: ${{ matrix.node }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **OS**: ${{ matrix.os }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **OS**: ${{ matrix.os_label }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Commit**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
 
