@@ -1,1 +1,34 @@
-npx lint-staged
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+echo ""
+echo "🧹 Running pre-commit checks..."
+echo ""
+
+if ! npx lint-staged 2>&1; then
+  EXIT_CODE=$?
+  echo ""
+  echo "❌ Pre-commit checks failed!"
+  echo ""
+  echo "Common issues and fixes:"
+  echo ""
+  echo "JavaScript/Linting errors:"
+  echo "  • Run: npm run lint:js -- --fix"
+  echo "  • Or manually fix the issues shown above"
+  echo ""
+  echo "Markdown errors:"
+  echo "  • Run: npm run lint:md -- --fix"
+  echo "  • Or manually fix markdown formatting"
+  echo ""
+  echo "Language validation errors:"
+  echo "  • Run: npm run lang:validate -- <code> --verbose"
+  echo "  • Check that language implementation follows conventions"
+  echo ""
+  echo "💡 Tip: Run 'npm run lint:fix' to auto-fix most issues"
+  echo ""
+  exit $EXIT_CODE
+fi
+
+echo ""
+echo "✅ All pre-commit checks passed!"
+echo ""

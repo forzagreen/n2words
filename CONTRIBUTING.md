@@ -1121,6 +1121,93 @@ npm run test:web -- --timeout=60s
    @property {('masculine'|'feminine')} [gender='masculine']
    ```
 
+#### Commit Message Errors
+
+**Problem**: Git commit fails with commitlint validation error
+
+**Common commit message errors:**
+
+1. **Invalid commit type**
+
+   ```bash
+   # ❌ Wrong
+   git commit -m "updated the README"
+   git commit -m "Add: new feature"
+   git commit -m "feature: add something"
+
+   # ✅ Correct
+   git commit -m "docs: update README"
+   git commit -m "feat: add new feature"
+   ```
+
+2. **Capitalized subject**
+
+   ```bash
+   # ❌ Wrong
+   git commit -m "feat: Add new language"
+
+   # ✅ Correct
+   git commit -m "feat: add new language"
+   ```
+
+3. **Period at end of subject**
+
+   ```bash
+   # ❌ Wrong
+   git commit -m "fix: resolve bug."
+
+   # ✅ Correct
+   git commit -m "fix: resolve bug"
+   ```
+
+4. **Invalid scope**
+
+   ```bash
+   # ❌ Wrong
+   git commit -m "feat(language): add Korean"
+
+   # ✅ Correct (scope is "lang" not "language")
+   git commit -m "feat(lang): add Korean"
+   ```
+
+**Solutions:**
+
+```bash
+# Option 1: Use the interactive commit tool (recommended)
+npm run commit
+
+# Option 2: Get help on commit message format
+npm run commit:help
+
+# Option 3: View detailed error messages
+# The Husky hook will show exactly what's wrong with your message
+
+# Option 4: Skip the hook temporarily (not recommended)
+git commit --no-verify -m "your message"
+
+# Option 5: Amend your last commit message
+git commit --amend
+```
+
+**Valid commit types:**
+
+- `feat` - New feature
+- `fix` - Bug fix
+- `docs` - Documentation changes
+- `style` - Code style changes (formatting, semicolons, etc.)
+- `refactor` - Code refactoring
+- `perf` - Performance improvements
+- `test` - Test changes
+- `build` - Build system changes
+- `ci` - CI/CD changes
+- `chore` - Other changes (dependencies, etc.)
+- `revert` - Revert previous commit
+- `lang` - Language implementation changes
+
+**Valid scopes (optional):**
+
+- `deps`, `ci`, `docs`, `test`, `build`, `lang`, `core`, `types`
+
 #### Build Failures
 
 **Problem**: `npm run build` fails

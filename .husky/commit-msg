@@ -1,1 +1,46 @@
-npx --no -- commitlint --edit $1
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+# Run commitlint with better error messages
+echo ""
+echo "🔍 Checking commit message format..."
+echo ""
+
+if ! npx --no -- commitlint --edit "$1" 2>&1; then
+  EXIT_CODE=$?
+  echo ""
+  echo "❌ Commit message validation failed!"
+  echo ""
+  echo "📋 Required format: <type>(<scope>): <subject>"
+  echo ""
+  echo "Valid types:"
+  echo "  • feat     - New feature"
+  echo "  • fix      - Bug fix"
+  echo "  • docs     - Documentation changes"
+  echo "  • style    - Code style changes (formatting, semicolons, etc.)"
+  echo "  • refactor - Code refactoring"
+  echo "  • perf     - Performance improvements"
+  echo "  • test     - Test changes"
+  echo "  • build    - Build system changes"
+  echo "  • ci       - CI/CD changes"
+  echo "  • chore    - Other changes (dependencies, etc.)"
+  echo "  • revert   - Revert previous commit"
+  echo "  • lang     - Language implementation changes"
+  echo ""
+  echo "Valid scopes (optional):"
+  echo "  • deps, ci, docs, test, build, lang, core, types"
+  echo ""
+  echo "Examples:"
+  echo "  ✓ feat: add new language support"
+  echo "  ✓ fix(core): handle edge case in conversion"
+  echo "  ✓ docs: update README"
+  echo "  ✓ test(lang): add tests for Spanish converter"
+  echo ""
+  echo "Your commit message:"
+  cat "$1"
+  echo ""
+  exit $EXIT_CODE
+fi
+
+echo "✅ Commit message format is valid!"
+echo ""
