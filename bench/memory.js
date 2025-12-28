@@ -8,7 +8,9 @@
  * Usage:
  *   npm run bench:memory                                   # Benchmark all languages
  *   npm run bench:memory -- --lang en                      # Benchmark English only
+ *   npm run bench:memory -- --lang en,es,fr                # Multiple languages (comma-separated)
  *   npm run bench:memory -- --save --compare               # Track memory changes
+ *   npm run bench:memory -- --lang en --history            # Show memory history for English
  *   npm run bench:memory -- --iterations 10000 --value 42  # Custom test
  */
 import { existsSync, readdirSync, writeFileSync, readFileSync } from 'node:fs'

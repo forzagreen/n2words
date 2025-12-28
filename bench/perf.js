@@ -3,12 +3,14 @@
  *
  * Benchmarks conversion speed across all 48 languages or specific languages.
  * Measures operations per second (ops/sec) for converter function calls.
- * Supports saving results and comparing with previous runs.
+ * Supports saving results, comparing with previous runs, and viewing history.
  *
  * Usage:
- *   npm run bench:perf                       # Benchmark all languages
- *   npm run bench:perf -- --lang en          # Benchmark English only
- *   npm run bench:perf -- --save --compare   # Track performance changes
+ *   npm run bench:perf                            # Benchmark all languages
+ *   npm run bench:perf -- --lang en               # Benchmark English only
+ *   npm run bench:perf -- --lang en,es,fr         # Multiple languages (comma-separated)
+ *   npm run bench:perf -- --save --compare        # Track performance changes
+ *   npm run bench:perf -- --lang en --history     # Show performance history for English
  */
 import Benchmark from 'benchmark'
 import { existsSync, readdirSync, writeFileSync, readFileSync } from 'node:fs'
