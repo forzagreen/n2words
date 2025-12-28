@@ -1,5 +1,9 @@
 name: Publish
 
+env:
+  HUSKY: 0
+  CI: true
+
 on:
   push:
     tags:
