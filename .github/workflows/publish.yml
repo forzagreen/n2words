@@ -9,9 +9,12 @@ on:
     tags:
       - v*
 
+concurrency:
+  group: publish-${{ github.ref }}
+  cancel-in-progress: false
+
 permissions:
-  id-token: write # Required for OIDC and provenance
-  contents: write # Required for GitHub Releases
+  contents: read
 
 jobs:
   # Wait for CI to pass before publishing
@@ -19,6 +22,9 @@ jobs:
     name: Check CI Status
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    permissions:
+      contents: read
+      actions: read
     outputs:
       ci-success: ${{ steps.check.outputs.success }}
 
@@ -86,6 +92,9 @@ jobs:
     if: needs.check-ci.outputs.ci-success == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    permissions:
+      contents: write
+      id-token: write
 
     steps:
       - uses: actions/checkout@v6.0.1

@@ -14,11 +14,15 @@ on:
     tags-ignore:
       - v*
   pull_request:
+    types: [opened, synchronize, reopened]
   workflow_dispatch:
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
+
+permissions:
+  contents: read
 
 jobs:
   lint:
@@ -47,7 +51,7 @@ jobs:
       - name: Lint
         run: npm run lint
 
-  # Test matrix: All Node versions on Ubuntu, cross-platform on Node 24
+  # Test matrix: Node versions on Ubuntu (excl. 24, covered by coverage job), cross-platform on Node 24
   test:
     name: Test (Node ${{ matrix.node }}, ${{ matrix.os_label }})
     runs-on: ${{ matrix.os }}
@@ -57,12 +61,12 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # Primary testing: Ubuntu on all Node versions
-        node: ['20', '22', '24', '25']
+        # Primary testing: Ubuntu on Node 20, 22, 25 (Node 24 tested in coverage job)
+        node: ['20', '22', '25']
         os: [ubuntu-latest]
         os_label: ['Ubuntu']
         include:
-          # Cross-platform validation: Windows & macOS on LTS only
+          # Cross-platform validation: Windows & macOS on Node 24
           - node: '24'
             os: windows-latest
             os_label: 'Windows'
@@ -125,12 +129,15 @@ jobs:
           retention-days: 30
           if-no-files-found: ignore
 
-  # Coverage: Generate and upload coverage reports
-  coverage:
-    name: Coverage
+  # Test with coverage: Node 24 on Ubuntu with coverage reporting
+  test-coverage:
+    name: Test w/ Coverage (Node 24, Ubuntu)
     runs-on: ubuntu-latest
     needs: lint
     timeout-minutes: 10
+    permissions:
+      contents: read
+      pull-requests: write
 
     steps:
       - uses: actions/checkout@v6.0.1
@@ -267,7 +274,7 @@ jobs:
   verify:
     name: Verify Package
     runs-on: ubuntu-latest
-    needs: [test, test-web, coverage]
+    needs: [test, test-web, test-coverage]
     timeout-minutes: 5
 
     steps:
