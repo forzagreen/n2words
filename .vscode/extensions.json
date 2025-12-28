@@ -2,8 +2,7 @@
   "recommendations": [
     "editorconfig.editorconfig",
     "davidanson.vscode-markdownlint",
-    "standard.vscode-standard",
-    "ms-vscode.vscode-typescript-next"
+    "standard.vscode-standard"
   ],
   "unwantedRecommendations": [
     "prettier.prettier-vscode"

@@ -22,22 +22,70 @@ Scaffolding tool for quickly setting up a new language implementation with all r
   - TODO comments for language-specific test cases
 
 - **Updates lib/n2words.js**
-  - Adds import statement for the new language class
-  - Creates converter using `makeConverter()` factory
-  - Adds to export statement
+  - Adds import statement in the Language Imports section (alphabetically)
+  - Creates converter using `makeConverter()` with type annotation in Language Converters section (alphabetically)
+  - Adds to export statement in Exports section (alphabetically)
 
 ### Usage
 
+#### Interactive Mode (Recommended)
+
+Simply provide the language code and you'll be prompted to select a base class:
+
 ```bash
-# Add a new language by IETF BCP 47 code
-npm run lang:add <language-code>
+npm run lang:add -- <language-code>
+
+# Example
+npm run lang:add -- ko
+```
+
+You'll see an interactive prompt:
+
+```text
+Select a base class for your language:
+
+  1. GreedyScaleLanguage (default)
+     Scale-based decomposition (most common)
+
+  2. SlavicLanguage
+     Three-form pluralization (Slavic languages)
+
+  3. SouthAsianLanguage
+     Indian numbering system (lakh, crore)
+
+  4. TurkicLanguage
+     Turkish-style implicit "bir" rules
+
+  5. AbstractLanguage
+     Direct implementation (advanced)
+
+Enter your choice (1-5) [1]:
+```
+
+Press Enter for the default (GreedyScaleLanguage) or enter 1-5 to select a specific base class.
+
+#### Command-Line Mode
+
+If you already know which base class you need, you can skip the prompt:
+
+```bash
+npm run lang:add -- <language-code> --base=<base-class>
 
 # Examples
-npm run lang:add ko        # Korean
-npm run lang:add zh-Hans   # Simplified Chinese
-npm run lang:add fr-CA     # Canadian French
-npm run lang:add sr-Latn   # Serbian (Latin script)
+npm run lang:add -- ko                          # Uses default (greedy)
+npm run lang:add -- sr-Cyrl --base=slavic      # Serbian Cyrillic (SlavicLanguage)
+npm run lang:add -- ta --base=south-asian      # Tamil (SouthAsianLanguage)
+npm run lang:add -- az --base=turkic           # Azerbaijani (TurkicLanguage)
+npm run lang:add -- custom-lang --base=abstract # Advanced: Direct implementation
 ```
+
+**Base Classes:**
+
+- `greedy` - GreedyScaleLanguage (default): Most common pattern, scale-based decomposition
+- `slavic` - SlavicLanguage: Three-form pluralization (singular/few/many)
+- `south-asian` - SouthAsianLanguage: Indian numbering system (lakh, crore)
+- `turkic` - TurkicLanguage: Turkish-style implicit "bir" rules
+- `abstract` - AbstractLanguage: Direct implementation (advanced, requires implementing convertWholePart from scratch)
 
 ### Validation
 
@@ -81,7 +129,10 @@ Comprehensive validator for language implementations to ensure they follow all r
 
 - **IETF BCP 47 naming**: Files named with standard language codes (`en.js`, `fr-BE.js`, `zh-Hans.js`)
 - **Proper imports**: Relative imports from base classes
-- **Export consistency**: Class exported and registered in `n2words.js`
+- **Export consistency**: Class exported and registered in `n2words.js` with proper:
+  - Import in Language Imports section
+  - Converter creation with type annotation in Language Converters section
+  - Export in Exports section
 
 #### ✅ Class Structure
 
@@ -114,6 +165,27 @@ Comprehensive validator for language implementations to ensure they follow all r
 - **Complete coverage**: Should include entry for `1n`
 - **Type checking**: First element bigint, second element string
 
+#### ✅ Options Pattern (for languages with options)
+
+- **Constructor pattern**: Languages with options must have:
+  - Constructor that accepts `options` parameter
+  - Call to `super()` or `super(options)`
+  - Call to `this.mergeOptions()` (unless passing options to super)
+- **Typedef exists**: Matching `{LanguageName}Options` typedef in `n2words.js`
+- **Typedef properties match**: Option properties in typedef match constructor defaults
+- **Default values match**: Default values in constructor match typedef defaults
+- **Converter type annotation**: Converter includes `options?: {LanguageName}Options` parameter
+- **Regional variants**: Languages that extend other languages (e.g., `fr-BE extends fr`) can pass options to super without mergeOptions
+  - Parent language file must exist
+  - Class must correctly extend the imported parent
+  - Constructor mutations to `scaleWordPairs` are validated for ordering
+- **Base class options**: Languages without constructors can use base class options (e.g., Slavic languages inherit from `SlavicLanguage`)
+- **Option type validation**:
+  - `gender` option must use enum type `('masculine'|'feminine')`, not boolean
+  - Boolean options (`formal`, `ordFlag`, `dropSpaces`, etc.) must have `boolean` type
+  - String options (`negativeWord`, `andWord`) must have `string` type
+  - Default values must match expected types
+
 #### ✅ Documentation
 
 - **Class JSDoc**: Description of language and conversion rules
@@ -128,9 +200,9 @@ Comprehensive validator for language implementations to ensure they follow all r
 
 #### ✅ Integration
 
-- **Import in n2words.js**: Language class imported
-- **Converter creation**: `makeConverter()` wrapper created
-- **Export**: Converter function exported (e.g., `EnglishConverter`)
+- **Import in n2words.js**: Language class imported in Language Imports section
+- **Converter creation**: `makeConverter()` wrapper created with type annotation in Language Converters section
+- **Export**: Converter function exported in Exports section (e.g., `EnglishConverter`)
 
 ### Validation Usage
 
@@ -262,19 +334,31 @@ convertWholePart(wholeNumber) {
 
 ### "Not imported in lib/n2words.js"
 
-**Fix**: Add import, converter creation, and export to `lib/n2words.js`:
+**Fix**: Add import, converter creation, and export to `lib/n2words.js` in their respective sections:
 
 ```javascript
-// 1. Import
+// ============================================================================
+// Language Imports
+// ============================================================================
+
 import { MyLanguage } from './languages/my.js'
+// ... other imports (alphabetically sorted)
 
-// 2. Create converter
-const MyLanguageConverter = makeConverter(MyLanguage)
+// ============================================================================
+// Language Converters
+// ============================================================================
 
-// 3. Export
+const MyLanguageConverter = /** @type {(value: NumericValue) => string} */ (makeConverter(MyLanguage))
+// ... other converters (alphabetically sorted)
+
+// ============================================================================
+// Exports
+// ============================================================================
+
 export {
   // ... other exports
-  MyLanguageConverter
+  MyLanguageConverter,
+  // ... (alphabetically sorted)
 }
 ```
 

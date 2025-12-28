@@ -7,9 +7,107 @@
     {
       "type": "node",
       "request": "launch",
-      "name": "Debug in Node",
+      "name": "Debug Current File",
       "skipFiles": ["<node_internals>/**"],
-      "program": "${workspaceFolder}\\examples\\node-dynamic-import.js",
+      "program": "${file}",
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Debug English Converter",
+      "skipFiles": ["<node_internals>/**"],
+      "runtimeArgs": [
+        "--experimental-repl-await"
+      ],
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}",
+      "program": "${workspaceFolder}/lib/languages/en.js"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Debug Spanish Converter",
+      "skipFiles": ["<node_internals>/**"],
+      "runtimeArgs": [
+        "--experimental-repl-await"
+      ],
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}",
+      "program": "${workspaceFolder}/lib/languages/es.js"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Debug Main Entry Point",
+      "skipFiles": ["<node_internals>/**"],
+      "program": "${workspaceFolder}/lib/n2words.js",
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Debug Tests (AVA)",
+      "skipFiles": ["<node_internals>/**"],
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "run",
+        "test:unit"
+      ],
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}",
+      "env": {
+        "NODE_ENV": "test"
+      }
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Debug Integration Tests",
+      "skipFiles": ["<node_internals>/**"],
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "run",
+        "test:integration"
+      ],
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}",
+      "env": {
+        "NODE_ENV": "test"
+      }
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Debug Performance Benchmark",
+      "skipFiles": ["<node_internals>/**"],
+      "program": "${workspaceFolder}/bench/perf.js",
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Debug Memory Benchmark",
+      "skipFiles": ["<node_internals>/**"],
+      "program": "${workspaceFolder}/bench/memory.js",
+      "runtimeArgs": [
+        "--expose-gc"
+      ],
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Debug Language Validation Script",
+      "skipFiles": ["<node_internals>/**"],
+      "program": "${workspaceFolder}/scripts/validate-language.js",
+      "args": [
+        "--verbose"
+      ],
       "console": "integratedTerminal",
       "cwd": "${workspaceFolder}"
     }

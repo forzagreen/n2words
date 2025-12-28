@@ -1,0 +1,60 @@
+version: 2
+updates:
+  # Enable version updates for npm
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "06:00"
+    open-pull-requests-limit: 10
+    reviewers:
+      - "TylerVigario"
+    labels:
+      - "dependencies"
+      - "automated"
+    commit-message:
+      prefix: "chore"
+      prefix-development: "chore"
+      include: "scope"
+    groups:
+      babel:
+        patterns:
+          - "@babel/*"
+      rollup:
+        patterns:
+          - "@rollup/*"
+          - "rollup"
+      playwright:
+        patterns:
+          - "@playwright/*"
+          - "playwright"
+      commitlint:
+        patterns:
+          - "@commitlint/*"
+      testing:
+        patterns:
+          - "ava"
+          - "c8"
+      linting:
+        patterns:
+          - "standard"
+          - "markdownlint*"
+
+  # Enable version updates for GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "06:00"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "TylerVigario"
+    labels:
+      - "dependencies"
+      - "github-actions"
+      - "automated"
+    commit-message:
+      prefix: "ci"
+      include: "scope"
