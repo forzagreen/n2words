@@ -112,9 +112,9 @@ if (customNumbers.length > 0) {
   console.log('Testing default cases...\n')
 }
 
-for (const input of testCases) {
-  const result = converter(input)
-  console.log(`${String(input).padStart(20)} → ${result}`)
+for (const testCase of testCases) {
+  const result = converter(testCase)
+  console.log(`${String(testCase).padStart(20)} → ${result}`)
 }
 
 console.log('\nDebug complete. Set breakpoints in language files to step through conversion.')
