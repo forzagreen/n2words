@@ -6,11 +6,14 @@
     "number-to-words",
     "num2words",
     "n2words",
+    "to-words",
     "spell-out",
-    "cardinal-numbers",
     "number-formatter",
+    "cardinal-numbers",
+    "number-converter",
     "i18n",
     "internationalization",
+    "localization",
     "multilingual",
     "48-languages",
     "bigint",
@@ -18,7 +21,8 @@
     "typescript",
     "zero-dependencies",
     "browser",
-    "nodejs"
+    "nodejs",
+    "umd"
   ],
   "homepage": "https://github.com/forzagreen/n2words#readme",
   "bugs": {
