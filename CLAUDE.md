@@ -466,7 +466,7 @@ npm run test:all         # All tests including web tests
 ```bash
 # Browser compatibility
 npm run browsers            # Show targeted browser versions
-npm run browsers:coverage   # Show global browser coverage (~86%)
+npm run browsers:coverage   # Show global browser coverage (~85.9%)
 npm run compat:web          # Verify dist/ bundle compatibility (ES version check)
 npm run test:web            # Test in real browsers (Chromium, Firefox, WebKit)
 
@@ -1031,19 +1031,20 @@ For detailed usage, examples, and interpretation guides, see the [Benchmark Suit
 
 ### Key Configuration Files
 
-| File                     | Purpose                                          | Key Settings                                  |
-| ------------------------ | ------------------------------------------------ | --------------------------------------------- |
-| `.editorconfig`          | Code formatting rules                            | 2 spaces, LF, UTF-8, single quotes            |
-| `.gitattributes`         | Git normalization                                | LF line endings, linguist exclusions          |
-| `.markdownlint.mjs`      | Markdown linting                                 | No line length limit, allow inline HTML       |
-| `.browserslistrc`        | Browser targets                                  | `defaults and supports bigint` (~86% coverage)|
-| `tsconfig.json`          | IDE IntelliSense                                 | ES2022, no emit, all files                    |
-| `tsconfig.build.json`    | Declaration generation                           | ES2022, emit `.d.ts` only, lib/n2words.js     |
-| `tsd.json`               | Type testing                                     | ES2022, strict, test/types/*.test-d.ts        |
-| `.attw.json`             | Package validation                               | Validates exports for all module systems      |
-| `rollup.config.js`       | UMD bundle build                                 | Two-pass terser, tree-shaking, source maps    |
-| `package.json`           | Package config                                   | ESM, sideEffects: false, engines: >=20        |
-| `.vscode/extensions.json`| VS Code extensions                               | EditorConfig, Markdownlint, Standard          |
+| File                      | Purpose                                          | Key Settings                                      |
+| ------------------------- | ------------------------------------------------ | ------------------------------------------------- |
+| `.editorconfig`           | Code formatting rules                            | 2 spaces, LF, UTF-8, single quotes                |
+| `.gitattributes`          | Git normalization                                | LF line endings, linguist exclusions              |
+| `.markdownlint.mjs`       | Markdown linting                                 | No line length limit, allow inline HTML           |
+| `.browserslistrc`         | Browser targets                                  | `defaults and supports bigint` (~85.9% coverage)  |
+| `.npmrc`                  | npm configuration                                | engine-strict, save-exact, lockfile-version=3     |
+| `tsconfig.json`           | IDE IntelliSense                                 | ES2022, moduleResolution: Bundler                 |
+| `tsconfig.build.json`     | Declaration generation                           | ES2022, emit `.d.ts` only, lib/n2words.js         |
+| `tsd.json`                | Type testing                                     | ES2022, strict, test/types/*.test-d.ts            |
+| `.attw.json`              | Package validation                               | Validates exports for all module systems          |
+| `rollup.config.js`        | UMD bundle build                                 | Two-pass terser, tree-shaking, source maps        |
+| `package.json`            | Package config                                   | ESM, sideEffects: false, engines: >=20, provenance|
+| `.vscode/extensions.json` | VS Code extensions                               | EditorConfig, Markdownlint, Standard              |
 
 ### Build Configuration Details
 
@@ -1053,7 +1054,7 @@ For detailed usage, examples, and interpretation guides, see the [Benchmark Suit
 defaults and supports bigint
 ```
 
-Targets Chrome 67+, Firefox 68+, Safari 14+, Edge 79+ (~86% global coverage)
+Targets Chrome 67+, Firefox 68+, Safari 14+, Edge 79+ (~85.9% global coverage)
 
 **TypeScript declarations** (`tsconfig.build.json`):
 
@@ -1404,7 +1405,7 @@ For GreedyScaleLanguage, this is auto-implemented if `scaleWordPairs` and `merge
 
 ### Coverage Metrics
 
-- **Browser Coverage**: ~86% of global users (via browserslist query: "defaults and supports bigint")
+- **Browser Coverage**: ~85.9% of global users (via browserslist query: "defaults and supports bigint")
 - **Test Coverage**: Comprehensive unit, integration, and browser tests for all 48 languages
 - **Type Coverage**: Full JSDoc annotations for TypeScript IntelliSense
 

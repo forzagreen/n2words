@@ -13,10 +13,10 @@ const pkg = JSON.parse(readFileSync('./package.json', 'utf8'))
  * 1. Source (lib/): Modern ES2022+ code with BigInt, optional chaining, class fields
  * 2. Babel: Transpiles ES2022+ features down while preserving BigInt support
  * 3. Terser: Minifies using ES2020 syntax (safe for BigInt-supporting browsers)
- * 4. Target: ~86% global coverage via .browserslistrc ("defaults and supports bigint")
+ * 4. Target: ~85.9% global coverage via .browserslistrc ("defaults and supports bigint")
  *
  * Generates:
- * - Main bundle (dist/n2words.js): All 48 language converters (~97KB)
+ * - Main bundle (dist/n2words.js): All 48 language converters (~92KB minified, ~23KB gzipped)
  * - Individual bundles (dist/{ConverterName}.js): One per language (~5KB each)
  *
  * Individual bundles extend the n2words global, allowing multiple languages
