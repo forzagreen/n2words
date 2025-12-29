@@ -67,5 +67,5 @@ export default [
   [4_000_000, 'fire million'],
   [10_000_000_000_000, 'ti billion'],
   [100_000_000_000_000, 'en hundre billion'],
-  [1_000_000_000_000_000_000n, 'en trillion']
+  [1_000_000_000_000_000_000n, 'en kvintillion']
 ]
