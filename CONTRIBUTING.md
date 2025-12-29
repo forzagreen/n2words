@@ -600,7 +600,7 @@ Tests that generated TypeScript declarations work correctly:
 
 - Located in [test/types/n2words.test-d.ts](test/types/n2words.test-d.ts)
 - Uses [tsd](https://github.com/tsdjs/tsd) with `expectType`, `expectError`, `expectAssignable`
-- Validates all 48 converters have correct type signatures
+- Validates all converters have correct type signatures
 - Ensures options are properly typed (gender, formal, etc.)
 - Tests that invalid usage produces type errors
 
@@ -715,7 +715,7 @@ To create a regional variant of an existing language (e.g., Belgian French):
 
 **Base classes:**
 
-- `AbstractLanguage` - Used by all 48 languages
+- `AbstractLanguage` - Used by all languages
 - `GreedyScaleLanguage` - Used by 24+ languages
 - `SlavicLanguage` - Used by 8 languages
 - `SouthAsianLanguage` - Used by 9 languages
@@ -793,7 +793,7 @@ npm run compat:web
 
 **Bundle outputs:**
 
-- `dist/n2words.js` - Main bundle (~92KB, ~23KB gzipped) with all 48 converters
+- `dist/n2words.js` - Main bundle (~92KB, ~23KB gzipped) with all converters
 - `dist/<Language>Converter.js` - Individual converter bundles (~4-6KB each)
 - `dist/*.js.map` - Source maps for debugging
 
@@ -906,7 +906,7 @@ n2words/
 │   │   ├── slavic-language.js            # Three-form pluralization (Slavic)
 │   │   ├── south-asian-language.js       # Indian numbering (lakh, crore)
 │   │   └── turkic-language.js            # Turkish-style "bir" rules
-│   ├── languages/            # 48 language implementations
+│   ├── languages/            # Language implementations
 │   │   ├── ar.js            # Arabic
 │   │   ├── en.js            # English
 │   │   ├── es.js            # Spanish
@@ -915,7 +915,7 @@ n2words/
 │   └── n2words.js            # Main entry point (exports all converters)
 ├── test/
 │   ├── fixtures/
-│   │   └── languages/        # Test data for each language (48 files)
+│   │   └── languages/        # Test data for each language
 │   ├── unit/                 # Unit tests (base classes)
 │   ├── integration/          # Integration tests (language converters)
 │   ├── types/                # TypeScript type checking tests
@@ -930,7 +930,7 @@ n2words/
 ├── dist/                     # Built UMD browser bundles
 │   ├── n2words.js            # Main bundle with all converters (~91KB, ~23KB gzipped)
 │   ├── n2words.js.map        # Source map for main bundle
-│   ├── {LanguageName}Converter.js  # Individual converter UMD files (48 files)
+│   ├── {LanguageName}Converter.js  # Individual converter UMD files
 │   └── {LanguageName}Converter.js.map  # Source maps for each converter
 ├── CLAUDE.md                 # AI assistant context (project patterns)
 └── CONTRIBUTING.md           # This file

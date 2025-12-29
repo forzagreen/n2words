@@ -22,7 +22,7 @@ test/
 ├── types/             # TypeScript type declaration tests
 ├── web/               # Browser compatibility tests (Playwright)
 └── fixtures/          # Test data for language converters
-    └── languages/     # One fixture file per language (48 files)
+    └── languages/     # One fixture file per language
 ```
 
 ### Unit Tests (`test/unit/`)

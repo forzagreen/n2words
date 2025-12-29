@@ -1,11 +1,13 @@
 {
   "directory": "test/types",
   "compilerOptions": {
-    "target": "ES2022",
-    "module": "ES2022",
-    "moduleResolution": "node",
+    "target": "es2022",
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
     "strict": true,
-    "esModuleInterop": true,
-    "skipLibCheck": false
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolvePackageJsonExports": true,
+    "resolvePackageJsonImports": true
   }
 }

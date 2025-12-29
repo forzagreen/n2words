@@ -5,7 +5,7 @@ import * as n2words from '../../lib/n2words.js'
  * Unit Tests for n2words.js (Public API)
  *
  * Tests the public API layer including:
- * 1. Converter exports (all 48 languages properly exported as functions)
+ * 1. Converter exports (all languages properly exported as functions)
  * 2. Input validation (early rejection of invalid inputs at API boundary)
  * 3. Options support (gender, formal, custom separators, etc.)
  * 4. Basic conversion functionality across all languages
@@ -74,7 +74,7 @@ test('all expected language converters are exported as functions', t => {
   const actualExports = Object.keys(n2words).sort()
 
   // Verify exact match
-  t.deepEqual(actualExports, expectedConverters, 'All 48 converters should be exported')
+  t.deepEqual(actualExports, expectedConverters, 'All expected converters should be exported')
 
   // Verify each is a function
   for (const converterName of expectedConverters) {

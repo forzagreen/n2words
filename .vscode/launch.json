@@ -16,33 +16,25 @@
     {
       "type": "node",
       "request": "launch",
-      "name": "Debug English Converter",
+      "name": "Debug Language Converter",
       "skipFiles": ["<node_internals>/**"],
-      "runtimeArgs": [
-        "--experimental-repl-await"
+      "program": "${workspaceFolder}/.vscode/debug-converter.js",
+      "args": [
+        "${input:languageCode}"
       ],
       "console": "integratedTerminal",
-      "cwd": "${workspaceFolder}",
-      "program": "${workspaceFolder}/lib/languages/en.js"
+      "cwd": "${workspaceFolder}"
     },
     {
       "type": "node",
       "request": "launch",
-      "name": "Debug Spanish Converter",
+      "name": "Debug Language Converter (Custom Numbers)",
       "skipFiles": ["<node_internals>/**"],
-      "runtimeArgs": [
-        "--experimental-repl-await"
+      "program": "${workspaceFolder}/.vscode/debug-converter.js",
+      "args": [
+        "${input:languageCode}",
+        "${input:customNumbers}"
       ],
-      "console": "integratedTerminal",
-      "cwd": "${workspaceFolder}",
-      "program": "${workspaceFolder}/lib/languages/es.js"
-    },
-    {
-      "type": "node",
-      "request": "launch",
-      "name": "Debug Main Entry Point",
-      "skipFiles": ["<node_internals>/**"],
-      "program": "${workspaceFolder}/lib/n2words.js",
       "console": "integratedTerminal",
       "cwd": "${workspaceFolder}"
     },
@@ -106,10 +98,65 @@
       "skipFiles": ["<node_internals>/**"],
       "program": "${workspaceFolder}/scripts/validate-language.js",
       "args": [
-        "--verbose"
+        "--verbose",
+        "${input:languageCode}"
       ],
       "console": "integratedTerminal",
       "cwd": "${workspaceFolder}"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Debug Add Language Script",
+      "skipFiles": ["<node_internals>/**"],
+      "program": "${workspaceFolder}/scripts/add-language.js",
+      "args": [
+        "${input:newLanguageCode}"
+      ],
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Debug Base Class (Prompt)",
+      "skipFiles": ["<node_internals>/**"],
+      "program": "${workspaceFolder}/lib/classes/${input:baseClass}.js",
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "languageCode",
+      "type": "promptString",
+      "description": "Language code (e.g., en, es, zh-Hans)",
+      "default": "en"
+    },
+    {
+      "id": "customNumbers",
+      "type": "promptString",
+      "description": "Custom numbers to test (space-separated, e.g., 42 -100 3.14 9007199254740992n) - leave empty for default test cases",
+      "default": ""
+    },
+    {
+      "id": "newLanguageCode",
+      "type": "promptString",
+      "description": "New language code to add (e.g., ko, pt-BR)",
+      "default": ""
+    },
+    {
+      "id": "baseClass",
+      "type": "pickString",
+      "description": "Base class to debug",
+      "options": [
+        "abstract-language",
+        "greedy-scale-language",
+        "slavic-language",
+        "south-asian-language",
+        "turkic-language"
+      ],
+      "default": "abstract-language"
     }
   ]
 }

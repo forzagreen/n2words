@@ -10,7 +10,7 @@ const testRunnerPath = join(__dirname, 'test-runner.html')
  * Browser Compatibility Tests using Playwright
  *
  * Tests the n2words UMD bundles in real browsers (Chromium, Firefox, WebKit).
- * Validates that all 48 language converters work correctly in browser environments.
+ * Validates that all language converters work correctly in browser environments.
  */
 
 // Configure test timeout for browser tests
