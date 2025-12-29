@@ -1,126 +1,376 @@
-# Scripts
+# n2words Development Scripts
 
-Utility scripts for maintaining and extending n2words.
+This directory contains development and maintenance scripts for the n2words library.
 
 ## add-language.js
 
-Interactive script to generate boilerplate for a new language implementation.
+Scaffolding tool for quickly setting up a new language implementation with all required boilerplate.
 
-**Usage:**
+### What it creates
+
+- **Language implementation file** (`lib/languages/{code}.js`)
+  - Class extending `GreedyScaleLanguage` (most common pattern)
+  - Placeholder properties (negativeWord, zeroWord, decimalSeparatorWord)
+  - Placeholder scaleWordPairs array
+  - Skeleton mergeScales() method with TODO comments
+  - Comprehensive JSDoc documentation
+
+- **Test fixture file** (`test/fixtures/languages/{code}.js`)
+  - Test case array with example inputs and expected outputs
+  - Covers basic numbers, teens, tens, hundreds, thousands, millions
+  - Includes negatives, decimals, and BigInt examples
+  - TODO comments for language-specific test cases
+
+- **Updates lib/n2words.js**
+  - Adds import statement in the Language Imports section (alphabetically)
+  - Creates converter using `makeConverter()` with type annotation in Language Converters section (alphabetically)
+  - Adds to export statement in Exports section (alphabetically)
+
+### Usage
+
+#### Interactive Mode (Recommended)
+
+Simply provide the language code and you'll be prompted to select a base class:
 
 ```bash
-npm run lang:add
-# or
-node scripts/add-language.js
+npm run lang:add -- <language-code>
+
+# Example
+npm run lang:add -- ko
 ```
 
-**What it does:**
+You'll see an interactive prompt:
 
-1. Prompts for language details (code, name, base class selection, etc.)
-2. Generates `lib/languages/xx.js` with implementation template
-3. Generates `test/fixtures/languages/xx.js` with test case template
-4. Updates `lib/n2words.js` with import statement and dict registration
-5. Ensures proper comma placement in dict (StandardJS style)
-6. Derives the class name from the language name (PascalCase), not the code token
-7. Provides clear next steps for completing the implementation
+```text
+Select a base class for your language:
 
-The script guides you to choose from five base classes:
+  1. GreedyScaleLanguage (default)
+     Scale-based decomposition (most common)
 
-- **GreedyScaleLanguage** - For most languages (English, Spanish, French, German, etc.)
-- **SlavicLanguage** - For Slavic/Baltic languages (Russian, Polish, Czech (cs), Ukrainian, Hebrew, Lithuanian, Latvian)
-- **TurkicLanguage** - For Turkic languages (Turkish, Azerbaijani)
-- **SouthAsianLanguage** - For Indian-style grouping (Hindi, Bengali, Urdu, Punjabi, Marathi, Gujarati, Kannada)
-- **AbstractLanguage** - For custom implementations (Arabic, Vietnamese, Romanian, etc.)
+  2. SlavicLanguage
+     Three-form pluralization (Slavic languages)
 
-**After running:**
+  3. SouthAsianLanguage
+     Indian numbering system (lakh, crore)
 
-- For Greedy/Turkic: fill `scaleWordPairs` (use `BigInt` literals like `1000n`, `100n`), and implement/adjust `mergeScales()` as needed.
-- For SouthAsian: fill `belowHundred` (0..99 words), set `hundredWord`, and define indexed `scaleWords` (e.g., thousand, lakh, crore).
-- For Slavic: fill core maps (`ones`, `onesFeminine`, `tens`, `twenties`, `hundreds`, `thousands`) and any options (e.g., feminine forms).
-- Complete test cases with expected outputs.
-- Run `npm run lang:validate xx` to check your work.
+  4. TurkicLanguage
+     Turkish-style implicit "bir" rules
+
+  5. AbstractLanguage
+     Direct implementation (advanced)
+
+Enter your choice (1-5) [1]:
+```
+
+Press Enter for the default (GreedyScaleLanguage) or enter 1-5 to select a specific base class.
+
+#### Command-Line Mode
+
+If you already know which base class you need, you can skip the prompt:
+
+```bash
+npm run lang:add -- <language-code> --base=<base-class>
+
+# Examples
+npm run lang:add -- ko                          # Uses default (greedy)
+npm run lang:add -- sr-Cyrl --base=slavic      # Serbian Cyrillic (SlavicLanguage)
+npm run lang:add -- ta --base=south-asian      # Tamil (SouthAsianLanguage)
+npm run lang:add -- az --base=turkic           # Azerbaijani (TurkicLanguage)
+npm run lang:add -- custom-lang --base=abstract # Advanced: Direct implementation
+```
+
+**Base Classes:**
+
+- `greedy` - GreedyScaleLanguage (default): Most common pattern, scale-based decomposition
+- `slavic` - SlavicLanguage: Three-form pluralization (singular/few/many)
+- `south-asian` - SouthAsianLanguage: Indian numbering system (lakh, crore)
+- `turkic` - TurkicLanguage: Turkish-style implicit "bir" rules
+- `abstract` - AbstractLanguage: Direct implementation (advanced, requires implementing convertWholePart from scratch)
+
+### Validation
+
+The script validates that:
+
+- Language code follows IETF BCP 47 format (e.g., `en`, `zh-Hans`, `fr-BE`)
+- Language doesn't already exist
+- Creates all required files successfully
+
+### Next steps after scaffolding
+
+1. Edit `lib/languages/{code}.js`:
+   - Replace placeholder words with actual language words
+   - Add complete scaleWordPairs array (largest to smallest)
+   - Implement mergeScales() with language-specific rules
+
+2. Edit `test/fixtures/languages/{code}.js`:
+   - Replace English words with actual language equivalents
+   - Add comprehensive test cases
+   - Include edge cases and language-specific features
+
+3. Validate:
+
+   ```bash
+   npm run lang:validate -- {code} --verbose
+   ```
+
+4. Run tests:
+
+   ```bash
+   npm test
+   ```
 
 ## validate-language.js
 
-Validates that a language implementation is complete and follows best practices.
+Comprehensive validator for language implementations to ensure they follow all required patterns and conventions.
 
-**Usage:**
+### What it validates
+
+#### ✅ File Structure
+
+- **IETF BCP 47 naming**: Files named with standard language codes (`en.js`, `fr-BE.js`, `zh-Hans.js`)
+- **Proper imports**: Relative imports from base classes
+- **Export consistency**: Class exported and registered in `n2words.js` with proper:
+  - Import in Language Imports section
+  - Converter creation with type annotation in Language Converters section
+  - Export in Exports section
+
+#### ✅ Class Structure
+
+- **Inheritance**: Extends one of the valid base classes:
+  - `AbstractLanguage` - Direct implementation
+  - `GreedyScaleLanguage` - Scale-based decomposition
+  - `SlavicLanguage` - Three-form pluralization
+  - `SouthAsianLanguage` - Indian numbering system
+  - `TurkicLanguage` - Turkish-style implicit "bir" rules
+- **Class definition**: Proper ES6 class with prototype
+
+#### ✅ Required Properties
+
+- `negativeWord` (string) - Word for negative numbers (e.g., "minus")
+- `zeroWord` (string) - Word for zero
+- `decimalSeparatorWord` (string) - Word between whole and decimal parts
+- `wordSeparator` (string) - Character(s) between words (typically space)
+- `convertDecimalsPerDigit` (boolean, optional) - Per-digit vs grouped decimal conversion
+
+#### ✅ Required Methods
+
+- `convertWholePart(bigint)` - Must be implemented (not abstract)
+- `convertToWords(value)` - Inherited from AbstractLanguage
+- `mergeScales(left, right)` - Required for GreedyScaleLanguage subclasses
+
+#### ✅ Scale Words Validation (for scale-based languages)
+
+- **Array structure**: `[[bigint, string], ...]` format
+- **Descending order**: Values must be ordered largest to smallest
+- **Complete coverage**: Should include entry for `1n`
+- **Type checking**: First element bigint, second element string
+
+#### ✅ Options Pattern (for languages with options)
+
+- **Constructor pattern**: Languages with options must have:
+  - Constructor that accepts `options` parameter
+  - Call to `super()` or `super(options)`
+  - Call to `this.mergeOptions()` (unless passing options to super)
+- **Typedef exists**: Matching `{LanguageName}Options` typedef in `n2words.js`
+- **Typedef properties match**: Option properties in typedef match constructor defaults
+- **Default values match**: Default values in constructor match typedef defaults
+- **Converter type annotation**: Converter includes `options?: {LanguageName}Options` parameter
+- **Regional variants**: Languages that extend other languages (e.g., `fr-BE extends fr`) can pass options to super without mergeOptions
+  - Parent language file must exist
+  - Class must correctly extend the imported parent
+  - Constructor mutations to `scaleWordPairs` are validated for ordering
+- **Base class options**: Languages without constructors can use base class options (e.g., Slavic languages inherit from `SlavicLanguage`)
+- **Option type validation**:
+  - `gender` option must use enum type `('masculine'|'feminine')`, not boolean
+  - Boolean options (`formal`, `ordFlag`, `dropSpaces`, etc.) must have `boolean` type
+  - String options (`negativeWord`, `andWord`) must have `string` type
+  - Default values must match expected types
+
+#### ✅ Documentation
+
+- **Class JSDoc**: Description of language and conversion rules
+- **Method documentation**: JSDoc for custom methods (especially `mergeScales`)
+- **Examples**: Usage examples in comments
+
+#### ✅ Testing
+
+- **Test fixture exists**: File in `test/fixtures/languages/{code}.js`
+- **Fixture format**: Exports array of `[input, expected, options]` tuples
+- **Export structure**: Uses `export default [...]`
+
+#### ✅ Integration
+
+- **Import in n2words.js**: Language class imported in Language Imports section
+- **Converter creation**: `makeConverter()` wrapper created with type annotation in Language Converters section
+- **Export**: Converter function exported in Exports section (e.g., `EnglishConverter`)
+
+### Validation Usage
 
 ```bash
-npm run lang:validate <language-code>
-# or
-node scripts/validate-language.js <language-code>
-
 # Validate all languages
 npm run lang:validate
-node scripts/validate-language.js
+
+# Validate specific languages by code
+npm run lang:validate -- en es fr de
+
+# Show detailed validation info
+npm run lang:validate -- --verbose
+
+# Validate specific language with details
+npm run lang:validate -- en --verbose
 ```
 
-**Example:**
+### Output Format
 
-```bash
-npm run lang:validate en
-npm run lang:validate fr-BE
+The validator provides color-coded output:
+
+- 🟢 **Green ✓**: Language passes all validations
+- 🔴 **Red ✗**: Language has errors (blocking issues)
+- 🟡 **Yellow ⚠**: Warnings (non-blocking but should be addressed)
+- ⚪ **Gray**: Informational messages (with `--verbose`)
+
+### Exit Codes
+
+- **0**: All validations passed
+- **1**: One or more languages have validation errors
+
+### Example Output
+
+```text
+n2words Language Validator
+
+✓ en
+  Info:
+    ✓ File naming follows IETF BCP 47 convention
+    ✓ Class English properly defined
+    ✓ Property negativeWord: "minus"
+    ✓ Property zeroWord: "zero"
+    ✓ Property decimalSeparatorWord: "point"
+    ✓ convertWholePart(0n) returns: "zero"
+    ✓ Extends GreedyScaleLanguage
+    ✓ scaleWordPairs properly ordered (60 entries)
+    ✓ Has class documentation
+    ✓ Has mergeScales() documentation
+    ✓ Has proper import statement
+    ✓ Has test fixture file
+    ✓ Properly registered in n2words.js as EnglishConverter
+
+✗ new-language
+  Errors:
+    ✗ Missing required property: negativeWord
+    ✗ convertWholePart() not implemented (still abstract)
+    ✗ Not imported in lib/n2words.js
+  Warnings:
+    ⚠ Missing test fixture: test/fixtures/languages/new-language.js
+
+Summary:
+  Valid: 1
+  Invalid: 1
+  Total: 2
 ```
 
-**What it checks:**
+## When to Use validate-language.js
 
-- ✓ Language code matches IETF BCP 47 format (e.g., "en", "fr-BE", "cs", "nb", "fil")
-- ✓ Language file exists with proper structure
-- ✓ Default export function is present and instantiates the declared class
-- ✓ Class name looks like the language name (not the code token)
-- ✓ Uses BigInt literals in number definitions (Greedy/Turkic only)
-- ✓ Has `mergeScales()` method OR `convertWholePart()` override (Greedy/Turkic)
-- ✓ SouthAsian has `belowHundred`, `hundredWord`, and `scaleWords`
-- ✓ Extends a recognized base class (GreedyScaleLanguage, SlavicLanguage, TurkicLanguage, SouthAsianLanguage, AbstractLanguage) or another language class
-- ✓ Test file exists with comprehensive cases (20+ recommended)
-- ✓ Tests cover: zero, negatives, decimals, large numbers (includes 1_000_000-style literals)
-- ✓ Language is correctly imported in lib/n2words.js and registered in the dict
-- ✓ Default export produces non-empty strings for sample inputs (runtime smoke test)
-- ⚠ Warns about TODO comments or thin test coverage
+### During Development
 
-**Exit codes:**
-
-- `0` - Validation passed (may have warnings)
-- `1` - Validation failed with errors
-
-## Development Workflow
-
-### Adding a New Language
+Run the validator while implementing a new language to ensure you haven't missed any requirements:
 
 ```bash
-# 1. Generate boilerplate
-npm run lang:add
-
-# 2. Implement the language
-# - Edit lib/languages/xx.js
-# - Edit test/fixtures/languages/xx.js
-
-# 3. Validate implementation
-npm run lang:validate xx
-
-# 4. Run tests
-npm test
-
-# 5. Lint code
-npm run lint
-
-# 6. Build
-npm run web:build
+npm run lang:validate -- your-language-code --verbose
 ```
 
-### Validating Existing Languages
+### Before Committing
+
+Validate your changes before creating a pull request:
 
 ```bash
-# Check a specific language
-npm run lang:validate fr
-
-# Check all languages
 npm run lang:validate
 ```
 
-## See Also
+### CI/CD Integration
 
-- [LANGUAGE_GUIDE.md](../guides/LANGUAGE_GUIDE.md) - Comprehensive language implementation guide
-- [BIGINT-GUIDE.md](../guides/BIGINT-GUIDE.md) - BigInt usage guide for language developers
-- [CONTRIBUTING.md](../CONTRIBUTING.md) - General contribution guidelines
+The validator is designed to be used in continuous integration:
+
+```bash
+npm run lang:validate || exit 1
+```
+
+## Common Issues and Fixes
+
+### "Missing required property: negativeWord"
+
+**Fix**: Add the property to your class:
+
+```javascript
+export class MyLanguage extends AbstractLanguage {
+  negativeWord = 'minus'
+  // ...
+}
+```
+
+### "scaleWordPairs not in descending order"
+
+**Fix**: Ensure scale word pairs are ordered from largest to smallest:
+
+```javascript
+scaleWordPairs = [
+  [1000000n, 'million'],  // ✓ Largest first
+  [1000n, 'thousand'],
+  [100n, 'hundred'],
+  [1n, 'one']             // ✓ Smallest last
+]
+```
+
+### "convertWholePart() not implemented (still abstract)"
+
+**Fix**: Implement the `convertWholePart` method in your class:
+
+```javascript
+convertWholePart(wholeNumber) {
+  if (wholeNumber === 0n) return this.zeroWord
+  // Your implementation here
+}
+```
+
+### "Not imported in lib/n2words.js"
+
+**Fix**: Add import, converter creation, and export to `lib/n2words.js` in their respective sections:
+
+```javascript
+// ============================================================================
+// Language Imports
+// ============================================================================
+
+import { MyLanguage } from './languages/my.js'
+// ... other imports (alphabetically sorted)
+
+// ============================================================================
+// Language Converters
+// ============================================================================
+
+const MyLanguageConverter = /** @type {(value: NumericValue) => string} */ (makeConverter(MyLanguage))
+// ... other converters (alphabetically sorted)
+
+// ============================================================================
+// Exports
+// ============================================================================
+
+export {
+  // ... other exports
+  MyLanguageConverter,
+  // ... (alphabetically sorted)
+}
+```
+
+### "Missing test fixture"
+
+**Fix**: Create a test fixture file at `test/fixtures/languages/{code}.js`:
+
+```javascript
+export default [
+  [1, 'one'],
+  [42, 'forty-two'],
+  [100, 'one hundred'],
+  // ... more test cases
+]
+```

@@ -89,23 +89,9 @@ export default [
   [1000000000000000n, 'קוודרליון'],
   [1000000000000000000n, 'קווינטיליון'],
 
-  // Biblical Hebrew Tests (masculine forms)
-  [1, 'אחד', { biblical: true }],
-  [2, 'שניים', { biblical: true }],
-  [3, 'שלשה', { biblical: true }],
-  [4, 'ארבעה', { biblical: true }],
-  [5, 'חמשה', { biblical: true }],
-  [10, 'עשרה', { biblical: true }],
-  [11, 'אחד עשר', { biblical: true }],
-  [12, 'שנים עשר', { biblical: true }],
-  [19, 'תשעה עשר', { biblical: true }],
-  [20, 'עשרים', { biblical: true }],
-  [21, 'עשרים ואחד', { biblical: true }],
-  [30, 'שלשים', { biblical: true }],
-  [100, 'מאה', { biblical: true }],
-  [101, 'מאה ואחד', { biblical: true }],
-  [200, 'מאתיים', { biblical: true }],
-  [1000, 'אלף', { biblical: true }],
-  [2000, 'אלפיים', { biblical: true }],
-  [5000, 'חמשת אלפים', { biblical: true }]
+  // Custom 'and' conjunction tests
+  [21, 'עשרים +אחת', { andWord: '+' }],
+  [42, 'ארבעים +שתים', { andWord: '+' }],
+  [123, 'מאה עשרים +שלש', { andWord: '+' }],
+  [1001, 'אלף +אחת', { andWord: '+' }]
 ]

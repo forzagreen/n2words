@@ -1,33 +1,29 @@
 {
   "compilerOptions": {
-    // Target and module resolution
-    "target": "esnext",
-    "module": "nodenext",
-    "lib": ["ESNext"],
-    "moduleResolution": "nodenext",
+    "target": "ES2022",
+    "module": "ES2022",
+    "moduleResolution": "node",
+    "lib": ["ES2022"],
 
-    // Declaration file generation
-    "declaration": true,
-    "declarationMap": false,
-    "emitDeclarationOnly": true,
-
-    // Input/output paths
-    "rootDir": "./lib",
-    "outDir": "./typings",
-
-    // JavaScript handling
     "allowJs": true,
     "checkJs": false,
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-    "importsNotUsedAsValues": "remove",
-    "resolveJsonModule": true,
+    "noEmit": true,
 
-    // Strictness and compatibility
     "strict": false,
     "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+
+    "types": ["node"]
   },
-  "include": ["lib/**/*.js"],
-  "exclude": ["node_modules", "test", "dist", "examples"]
+  "include": [
+    "lib/**/*.js",
+    "test/**/*.js",
+    "scripts/**/*.js",
+    "bench/**/*.js"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist"
+  ]
 }

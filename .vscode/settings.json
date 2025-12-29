@@ -1,54 +1,45 @@
 {
-  // Editor
-  "editor.formatOnSave": true,
-  "editor.defaultFormatter": "prettier.prettier-vscode",
-  "editor.codeActionsOnSave": {
-    "source.fixAll": "explicit"
-  },
-  "editor.rulers": [100],
+  // Code Quality (Project Standards)
   "editor.tabSize": 2,
-  "editor.insertSpaces": true,
-  "editor.trimAutoWhitespace": true,
+  "editor.detectIndentation": false, // Respect .editorconfig
   "files.trimTrailingWhitespace": true,
   "files.insertFinalNewline": true,
+  "files.eol": "\n", // LF line endings (matches .editorconfig)
 
-  // Language-specific
-  "[javascript]": {
-    "editor.defaultFormatter": null
-  },
-  "[json]": {
-    "editor.defaultFormatter": "prettier.prettier-vscode"
-  },
-  "[markdown]": {
-    "editor.defaultFormatter": "yzhang.markdown-all-in-one",
-    "editor.formatOnSave": false,
-    "editor.wordWrap": "on"
-  },
-
-  // JavaScript Standard Style
+  // JavaScript Standard Style (Project Linter)
   "standard.enable": true,
-  "standard.autoFixOnSave": true,
   "standard.validate": ["javascript"],
+  "javascript.preferences.quoteStyle": "single",
 
-  // Spell Checker
-  "cSpell.words": ["bigint"],
-  "cSpell.enableFiletypes": ["markdown", "javascript"],
-
-  // Markdown
-  "markdownlint.config": {
-    "MD013": false
+  // Auto-fix on save using code actions (modern approach)
+  "editor.formatOnSave": false, // Disable default formatter
+  "editor.codeActionsOnSave": {
+    "source.fixAll.standard": "explicit"
   },
 
-  // Search
+  // Markdown Linting (Project Standard - matches .markdownlint.mjs)
+  "markdownlint.config": {
+    "line-length": false, // MD013: Allow long lines (links, tables, code examples)
+    "MD013": false // Deprecated alias for backward compatibility
+  },
+
+  // TypeScript - Use JSDoc for type checking
+  "javascript.validate.enable": true,
+  "typescript.validate.enable": true,
+
+  // Project Build Artifacts & Performance
   "search.exclude": {
     "**/node_modules": true,
     "**/coverage": true,
     "**/dist": true,
     "**/.nyc_output": true,
-    "**/bench-results.json": true
+    "**/bench-results.json": true,
+    "**/bench-memory-results.json": true,
+    "**/package-lock.json": true,
+    "**/.claude": true,
+    "**/.cursor": true,
+    "**/.copilot": true
   },
-
-  // Files
   "files.exclude": {
     "**/.DS_Store": true,
     "**/Thumbs.db": true
@@ -57,36 +48,17 @@
     "**/node_modules/**": true,
     "**/coverage/**": true,
     "**/dist/**": true,
-    "**/.nyc_output/**": true
+    "**/.nyc_output/**": true,
+    "**/.claude/**": true,
+    "**/.cursor/**": true,
+    "**/.copilot/**": true
   },
 
-  // Testing (Testify)
-  "testify.autoOpen": false,
-  "testify.showOnRun": false,
+  // NPM Scripts - Quick access to common commands
+  "npm.enableScriptExplorer": true,
+  "npm.scriptExplorerAction": "run",
 
-  // GitHub Copilot
-  "github.copilot.enable": {
-    "*": true,
-    "markdown": true,
-    "javascript": true
-  },
-
-  // Terminal
-  "terminal.integrated.env.windows": {},
-  "terminal.integrated.env.linux": {},
-  "terminal.integrated.env.osx": {},
-
-  // Git
-  "git.ignoreLimitWarning": true,
-
-  // JavaScript/TypeScript
-  "javascript.preferences.quoteStyle": "single",
-  "javascript.updateImportsOnFileMove.enabled": "always",
-  "js/ts.implicitProjectConfig.checkJs": false,
-
-  // IntelliSense
-  "javascript.suggest.autoImports": true,
-  "typescript.suggest.autoImports": true,
-  "javascript.suggest.paths": true,
-  "typescript.suggest.paths": true
+  // Git - Better commit message UX
+  "git.inputValidationLength": 72,
+  "git.inputValidationSubjectLength": 50
 }

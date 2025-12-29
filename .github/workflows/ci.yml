@@ -1,0 +1,295 @@
+name: CI
+
+env:
+  HUSKY: 0
+  CI: true
+
+on:
+  push:
+    branches:
+      - master
+      - main
+      - develop
+      - v*
+    tags-ignore:
+      - v*
+  pull_request:
+    types: [opened, synchronize, reopened]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    name: Lint & Security
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - uses: actions/checkout@v6.0.1
+        with:
+          persist-credentials: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6.1.0
+        with:
+          node-version: '24'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci --prefer-offline
+
+      - name: Security audit
+        run: npm audit --audit-level=high
+        continue-on-error: true
+
+      - name: Lint
+        run: npm run lint
+
+  # Test matrix: Node versions on Ubuntu (excl. 24, covered by coverage job), cross-platform on Node 24
+  test:
+    name: Test (Node ${{ matrix.node }}, ${{ matrix.os_label }})
+    runs-on: ${{ matrix.os }}
+    needs: lint
+    timeout-minutes: 10
+
+    strategy:
+      fail-fast: false
+      matrix:
+        # Primary testing: Ubuntu on Node 20, 22, 25 (Node 24 tested in coverage job)
+        node: ['20', '22', '25']
+        os: [ubuntu-latest]
+        os_label: ['Ubuntu']
+        include:
+          # Cross-platform validation: Windows & macOS on Node 24
+          - node: '24'
+            os: windows-latest
+            os_label: 'Windows'
+          - node: '24'
+            os: macos-latest
+            os_label: 'macOS'
+
+    steps:
+      - uses: actions/checkout@v6.0.1
+        with:
+          persist-credentials: false
+
+      - name: Setup Node.js ${{ matrix.node }}
+        uses: actions/setup-node@v6.1.0
+        with:
+          node-version: ${{ matrix.node }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci --prefer-offline
+
+      - name: Run tests
+        run: npm test
+
+  # Browser tests: Playwright on Ubuntu Node 24
+  test-web:
+    name: Browser Tests
+    runs-on: ubuntu-latest
+    needs: lint
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v6.0.1
+        with:
+          persist-credentials: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6.1.0
+        with:
+          node-version: '24'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci --prefer-offline
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps
+
+      - name: Run browser tests
+        run: npm run test:web
+
+      - name: Upload Playwright test results
+        if: failure()
+        uses: actions/upload-artifact@v6.0.0
+        with:
+          name: playwright-report
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 30
+          if-no-files-found: ignore
+
+  # Test with coverage: Node 24 on Ubuntu with coverage reporting
+  test-coverage:
+    name: Test w/ Coverage (Node 24, Ubuntu)
+    runs-on: ubuntu-latest
+    needs: lint
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      pull-requests: write
+
+    steps:
+      - uses: actions/checkout@v6.0.1
+        with:
+          persist-credentials: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6.1.0
+        with:
+          node-version: '24'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci --prefer-offline
+
+      - name: Run tests with coverage
+        id: coverage
+        run: npm run coverage
+
+      - name: Check coverage thresholds
+        run: npx c8 check-coverage --lines 90 --functions 90 --branches 85 --statements 90
+
+      - name: Generate job summary
+        id: summary
+        continue-on-error: true
+        run: |
+          echo "## 📊 Coverage Report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          if [ -f coverage/coverage-summary.json ] && command -v jq &> /dev/null; then
+            TOTAL=$(jq -r '.total.lines.pct' coverage/coverage-summary.json)
+            STATEMENTS=$(jq -r '.total.statements.pct' coverage/coverage-summary.json)
+            BRANCHES=$(jq -r '.total.branches.pct' coverage/coverage-summary.json)
+            FUNCTIONS=$(jq -r '.total.functions.pct' coverage/coverage-summary.json)
+
+            echo "| Metric | Coverage |" >> $GITHUB_STEP_SUMMARY
+            echo "|--------|----------|" >> $GITHUB_STEP_SUMMARY
+            echo "| **Lines** | ${TOTAL}% |" >> $GITHUB_STEP_SUMMARY
+            echo "| Statements | ${STATEMENTS}% |" >> $GITHUB_STEP_SUMMARY
+            echo "| Branches | ${BRANCHES}% |" >> $GITHUB_STEP_SUMMARY
+            echo "| Functions | ${FUNCTIONS}% |" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "### ℹ️ Coverage data not available" >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Upload coverage to Coveralls
+        if: |
+          github.event_name == 'pull_request' &&
+          (github.event.pull_request.base.ref == 'main' || github.event.pull_request.base.ref == 'master')
+        uses: coverallsapp/github-action@v2.3.6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          fail-on-error: false
+
+      - name: Upload coverage artifacts
+        if: |
+          github.event_name == 'pull_request' &&
+          (github.event.pull_request.base.ref == 'main' || github.event.pull_request.base.ref == 'master')
+        uses: actions/upload-artifact@v6.0.0
+        with:
+          name: coverage-report
+          path: coverage/
+          retention-days: 30
+          if-no-files-found: ignore
+
+      - name: Comment PR with coverage
+        if: |
+          github.event_name == 'pull_request' &&
+          (github.event.pull_request.base.ref == 'main' || github.event.pull_request.base.ref == 'master')
+        uses: actions/github-script@v8.0.0
+        continue-on-error: true
+        with:
+          script: |
+            const fs = require('fs');
+
+            if (!fs.existsSync('coverage/coverage-summary.json')) {
+              console.log('No coverage summary found');
+              return;
+            }
+
+            const coverageData = JSON.parse(fs.readFileSync('coverage/coverage-summary.json', 'utf8'));
+            const coverage = {
+              total: coverageData.total.lines.pct,
+              statements: coverageData.total.statements.pct,
+              branches: coverageData.total.branches.pct,
+              functions: coverageData.total.functions.pct
+            };
+
+            const comment = [
+              '## 📊 Coverage Report',
+              '',
+              '| Metric | Coverage |',
+              '|--------|----------|',
+              `| **Lines** | ${coverage.total}% |`,
+              `| Statements | ${coverage.statements}% |`,
+              `| Branches | ${coverage.branches}% |`,
+              `| Functions | ${coverage.functions}% |`,
+              '',
+              '[View full coverage report on Coveralls](https://coveralls.io/github/${{ github.repository }})',
+              '',
+              '<sub>Coverage report generated for commit ${{ github.sha }}</sub>'
+            ].join('\n');
+
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number
+            });
+
+            const botComment = comments.find(comment =>
+              comment.user.type === 'Bot' &&
+              comment.body.includes('📊 Coverage Report')
+            );
+
+            if (botComment) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: botComment.id,
+                body: comment
+              });
+              console.log('Updated existing coverage comment');
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: comment
+              });
+              console.log('Created new coverage comment');
+            }
+
+  # Package validation: Verify package contents
+  verify:
+    name: Verify Package
+    runs-on: ubuntu-latest
+    needs: [test, test-web, test-coverage]
+    timeout-minutes: 5
+
+    steps:
+      - uses: actions/checkout@v6.0.1
+        with:
+          persist-credentials: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6.1.0
+        with:
+          node-version: '24'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci --prefer-offline
+
+      - name: Verify package contents
+        run: npm pack --dry-run

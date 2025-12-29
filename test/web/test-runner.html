@@ -1,0 +1,277 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>n2words Browser Test Suite</title>
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        background: #f5f5f5;
+        padding: 20px;
+        line-height: 1.6;
+      }
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        padding: 30px;
+      }
+      h1 {
+        color: #333;
+        margin-bottom: 10px;
+        font-size: 28px;
+      }
+      .subtitle {
+        color: #666;
+        margin-bottom: 30px;
+        font-size: 14px;
+      }
+      #status {
+        font-size: 20px;
+        font-weight: bold;
+        padding: 15px 20px;
+        border-radius: 6px;
+        margin-bottom: 20px;
+      }
+      #status.running {
+        background: #fff3cd;
+        color: #856404;
+        border: 1px solid #ffeaa7;
+      }
+      #status.pass {
+        background: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+      }
+      #status.fail {
+        background: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+      }
+      #results {
+        background: #fafafa;
+        border: 1px solid #e0e0e0;
+        border-radius: 6px;
+        padding: 20px;
+        font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+        font-size: 13px;
+        line-height: 1.8;
+        max-height: 600px;
+        overflow-y: auto;
+      }
+      .test-group {
+        margin-bottom: 20px;
+      }
+      .test-group-title {
+        font-weight: bold;
+        color: #444;
+        margin-bottom: 8px;
+        padding-bottom: 4px;
+        border-bottom: 1px solid #ddd;
+      }
+      .test-case {
+        padding: 4px 0;
+        display: flex;
+        align-items: flex-start;
+      }
+      .test-icon {
+        margin-right: 8px;
+        flex-shrink: 0;
+      }
+      .test-description {
+        flex: 1;
+        color: #555;
+      }
+      .test-details {
+        color: #888;
+        font-size: 11px;
+        margin-left: 24px;
+        margin-top: 2px;
+      }
+      .pass {
+        color: #28a745;
+      }
+      .fail {
+        color: #dc3545;
+      }
+      .summary {
+        margin-top: 20px;
+        padding-top: 20px;
+        border-top: 2px solid #e0e0e0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .summary-stats {
+        font-size: 16px;
+        color: #555;
+      }
+      .summary-stats strong {
+        color: #333;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+      <h1>n2words Browser Test Suite</h1>
+      <div class="subtitle">Testing UMD bundles across multiple browsers</div>
+
+      <div id="status" class="running">⏳ Running tests...</div>
+      <div id="results"></div>
+    </div>
+  </body>
+
+  <script src="../../dist/n2words.js"></script>
+  <script>
+    window.onload = () => {
+      const results = document.getElementById('results')
+      const status = document.getElementById('status')
+
+      let passCount = 0
+      let failCount = 0
+      let output = ''
+
+      // Test groups for better organization
+      const testGroups = {
+        basic: [],
+        negative: [],
+        decimal: [],
+        large: [],
+        multiLang: [],
+        bigint: [],
+        error: []
+      }
+
+      function test(group, description, expected, actual) {
+        const passed = actual === expected
+        const symbol = passed ? '✓' : '✗'
+        const className = passed ? 'pass' : 'fail'
+
+        testGroups[group].push({
+          passed,
+          symbol,
+          className,
+          description,
+          expected,
+          actual
+        })
+
+        if (passed) {
+          passCount++
+        } else {
+          failCount++
+        }
+      }
+
+      // Basic number tests
+      test('basic', 'EnglishConverter(0)', 'zero', n2words.EnglishConverter(0))
+      test('basic', 'EnglishConverter(1)', 'one', n2words.EnglishConverter(1))
+      test('basic', 'EnglishConverter(42)', 'forty-two', n2words.EnglishConverter(42))
+      test('basic', 'EnglishConverter(100)', 'one hundred', n2words.EnglishConverter(100))
+      test('basic', 'EnglishConverter(1000)', 'one thousand', n2words.EnglishConverter(1000))
+      test('basic', 'EnglishConverter(1234)', 'one thousand two hundred and thirty-four', n2words.EnglishConverter(1234))
+
+      // Negative numbers
+      test('negative', 'EnglishConverter(-1)', 'minus one', n2words.EnglishConverter(-1))
+      test('negative', 'EnglishConverter(-42)', 'minus forty-two', n2words.EnglishConverter(-42))
+
+      // Large numbers
+      test('large', 'EnglishConverter(1000000)', 'one million', n2words.EnglishConverter(1000000))
+      test('large', 'EnglishConverter(1234567)', 'one million two hundred and thirty-four thousand five hundred and sixty-seven', n2words.EnglishConverter(1234567))
+
+      // String input
+      test('basic', 'EnglishConverter("123")', 'one hundred and twenty-three', n2words.EnglishConverter('123'))
+
+      // Decimal numbers
+      test('decimal', 'EnglishConverter("3.14")', 'three point fourteen', n2words.EnglishConverter('3.14'))
+      test('decimal', 'EnglishConverter("0.5")', 'zero point five', n2words.EnglishConverter('0.5'))
+
+      // Multi-language tests
+      test('multiLang', 'SpanishConverter(1)', 'uno', n2words.SpanishConverter(1))
+      test('multiLang', 'SpanishConverter(42)', 'cuarenta y dos', n2words.SpanishConverter(42))
+      test('multiLang', 'SpanishConverter(100)', 'cien', n2words.SpanishConverter(100))
+      test('multiLang', 'FrenchConverter(1)', 'un', n2words.FrenchConverter(1))
+      test('multiLang', 'FrenchConverter(42)', 'quarante-deux', n2words.FrenchConverter(42))
+      test('multiLang', 'FrenchConverter(100)', 'cent', n2words.FrenchConverter(100))
+      test('multiLang', 'GermanConverter(1)', 'eins', n2words.GermanConverter(1))
+      test('multiLang', 'GermanConverter(42)', 'zweiundvierzig', n2words.GermanConverter(42))
+
+      // BigInt support
+      test('bigint', 'EnglishConverter(BigInt(123))', 'one hundred and twenty-three', n2words.EnglishConverter(BigInt(123)))
+      test('multiLang', 'EnglishConverter(5)', 'five', n2words.EnglishConverter(5))
+      test('multiLang', 'SpanishConverter(5)', 'cinco', n2words.SpanishConverter(5))
+      test('multiLang', 'FrenchConverter(5)', 'cinq', n2words.FrenchConverter(5))
+
+      // Error handling
+      try {
+        const result = n2words.EnglishConverter('invalid')
+        test('error', 'Invalid input handling', 'Error thrown', 'Unexpected success: ' + result)
+      } catch (e) {
+        test('error', 'Invalid input handling', 'Error thrown: Invalid number format: "invalid"', 'Error thrown: ' + e.message)
+      }
+
+      // Render results
+      const groupTitles = {
+        basic: 'Basic Conversions',
+        negative: 'Negative Numbers',
+        decimal: 'Decimal Numbers',
+        large: 'Large Numbers',
+        bigint: 'BigInt Support',
+        multiLang: 'Multi-Language Support',
+        error: 'Error Handling'
+      }
+
+      for (const [groupName, tests] of Object.entries(testGroups)) {
+        if (tests.length === 0) continue
+
+        output += `<div class="test-group">`
+        output += `<div class="test-group-title">${groupTitles[groupName]}</div>`
+
+        for (const test of tests) {
+          output += `<div class="test-case ${test.className}">`
+          output += `<span class="test-icon">${test.symbol}</span>`
+          output += `<div>`
+          output += `<div class="test-description">${test.description}</div>`
+          if (!test.passed) {
+            output += `<div class="test-details">Expected: "${test.expected}"</div>`
+            output += `<div class="test-details">Got: "${test.actual}"</div>`
+          }
+          output += `</div></div>`
+        }
+
+        output += `</div>`
+      }
+
+      // Add summary
+      const totalTests = passCount + failCount
+      output += `<div class="summary">`
+      output += `<div class="summary-stats">`
+      output += `<strong>${totalTests}</strong> tests: `
+      output += `<span class="pass"><strong>${passCount}</strong> passed</span>`
+      if (failCount > 0) {
+        output += `, <span class="fail"><strong>${failCount}</strong> failed</span>`
+      }
+      output += `</div></div>`
+
+      results.innerHTML = output
+
+      // Update status
+      if (failCount === 0) {
+        status.textContent = `✅ Complete: All tests passed (${passCount}/${totalTests})`
+        status.className = 'pass'
+      } else {
+        status.textContent = `❌ Complete: ${failCount} test(s) failed (${passCount}/${totalTests} passed)`
+        status.className = 'fail'
+      }
+    }
+  </script>
+</html>
