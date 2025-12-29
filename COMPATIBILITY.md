@@ -277,7 +277,6 @@ Our Babel configuration targets only browsers with BigInt support, resulting in:
 
 - **`browserslist`**: Browser target management and querying
 - **`es-check`**: ECMAScript version compatibility checking
-- **`@mdn/browser-compat-data`**: Browser compatibility data
 - **`@babel/preset-env`**: Smart transpilation based on targets
 - **`@playwright/test`**: Real browser testing automation (Chromium, Firefox, WebKit)
 

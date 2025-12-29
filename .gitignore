@@ -44,6 +44,16 @@ lerna-debug.log*
 .yarn/
 *.tgz
 
+# Alternative package manager lock files
+# (keep only package-lock.json for npm)
+pnpm-lock.yaml
+yarn.lock
+bun.lockb
+
+# Yarn Berry (v2+)
+.pnp.*
+.yarnrc.yml
+
 # AI Assistant files
 .claude/
 .cursor/

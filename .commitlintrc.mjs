@@ -3,6 +3,7 @@ export default {
   helpUrl: 'https://github.com/forzagreen/n2words/blob/master/CONTRIBUTING.md#commit-message-format',
 
   rules: {
+    // Type validation
     'type-enum': [
       2,
       'always',
@@ -21,9 +22,13 @@ export default {
         'lang'
       ]
     ],
+    'type-case': [2, 'always', 'lower-case'],
+    'type-empty': [2, 'never'],
+
+    // Scope validation (optional but validated when provided)
     'scope-enum': [
-      1,
-      'always',
+      2,
+      'never',
       [
         'deps',
         'ci',
@@ -35,6 +40,9 @@ export default {
         'types'
       ]
     ],
+    'scope-case': [2, 'always', 'lower-case'],
+
+    // Subject validation
     'subject-empty': [2, 'never'],
     'subject-case': [
       2,
@@ -42,14 +50,27 @@ export default {
       ['sentence-case', 'start-case', 'pascal-case', 'upper-case']
     ],
     'subject-full-stop': [2, 'never', '.'],
+
+    // Header validation
     'header-max-length': [2, 'always', 100],
+
+    // Body validation
     'body-leading-blank': [1, 'always'],
-    'body-max-line-length': [2, 'always', 100],
-    'footer-leading-blank': [1, 'always']
+    'body-max-line-length': [0], // Disabled - body can have long lines (URLs, etc.)
+
+    // Footer validation
+    'footer-leading-blank': [1, 'always'],
+    'footer-max-line-length': [0] // Disabled - footers often contain long URLs
   },
 
   prompt: {
-    settings: {},
+    settings: {
+      enableMultipleScopes: false,
+      scopeEnumSeparator: ',',
+      allowCustomScopes: true,
+      allowEmptyScopes: true,
+      allowBreakingChanges: ['feat', 'fix']
+    },
     messages: {
       skip: 'Press enter to skip',
       max: 'upper %d chars',
