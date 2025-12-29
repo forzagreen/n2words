@@ -7,8 +7,6 @@ env:
 on:
   push:
     branches:
-      - master
-      - main
       - develop
       - v*
     tags-ignore:
