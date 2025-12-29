@@ -2,9 +2,14 @@
   "recommendations": [
     "editorconfig.editorconfig",
     "davidanson.vscode-markdownlint",
-    "standard.vscode-standard"
+    "standard.vscode-standard",
+    "VisualStudioExptTeam.vscodeintellicode",
+    "ms-playwright.playwright",
+    "vivaxy.vscode-conventional-commits",
+    "usernamehw.errorlens"
   ],
   "unwantedRecommendations": [
-    "prettier.prettier-vscode"
+    "prettier.prettier-vscode",
+    "dbaeumer.vscode-eslint"
   ]
 }

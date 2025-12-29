@@ -58,7 +58,13 @@
   "npm.enableScriptExplorer": true,
   "npm.scriptExplorerAction": "run",
 
-  // Git - Better commit message UX
-  "git.inputValidationLength": 72,
-  "git.inputValidationSubjectLength": 50
+  // Git - Better commit message UX (aligned with commitlint)
+  "git.inputValidationLength": 100, // Matches header-max-length in .commitlintrc.mjs
+  "git.inputValidationSubjectLength": 100,
+
+  // Files - Project-specific patterns
+  "files.associations": {
+    ".commitlintrc.mjs": "javascript",
+    ".markdownlint.mjs": "javascript"
+  }
 }
