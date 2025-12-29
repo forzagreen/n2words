@@ -90,7 +90,7 @@ if (customNumbers.length > 0) {
 
     // Use BigInt for integers outside safe integer range
     if (Number.isInteger(parsed) && Math.abs(parsed) > Number.MAX_SAFE_INTEGER) {
-      return BigInt(num.split('.')[0])
+      return BigInt(Math.trunc(parsed))
     }
 
     return parsed

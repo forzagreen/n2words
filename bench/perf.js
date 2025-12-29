@@ -75,7 +75,7 @@ if (compareResults) {
         compareResults = false
       }
     } catch {
-      console.error(chalk.yellow('⚠ Could not read previous results for comparison\n'))
+      console.log(chalk.yellow('⚠ Could not read previous results for comparison\n'))
       compareResults = false
     }
   }
