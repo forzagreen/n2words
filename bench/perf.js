@@ -1,7 +1,7 @@
 /**
  * Performance benchmark script for n2words library.
  *
- * Benchmarks conversion speed across all 48 languages or specific languages.
+ * Benchmarks conversion speed across all languages or specific languages.
  * Measures operations per second (ops/sec) for converter function calls.
  * Supports saving results, comparing with previous runs, and viewing history.
  *

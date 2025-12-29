@@ -4,7 +4,7 @@ Comprehensive performance and memory benchmarking tools for the n2words library.
 
 ## Overview
 
-The benchmark suite provides two specialized tools for measuring the performance characteristics of all 48 language converters:
+The benchmark suite provides two specialized tools for measuring the performance characteristics of all language converters:
 
 - **`perf.js`** - Performance benchmarking (operations per second)
 - **`memory.js`** - Memory usage profiling (heap allocation, GC analysis)
@@ -14,7 +14,7 @@ The benchmark suite provides two specialized tools for measuring the performance
 ### Quick Start
 
 ```bash
-# Benchmark all 48 languages
+# Benchmark all languages
 npm run bench:perf
 
 # Benchmark specific language
@@ -133,7 +133,7 @@ Dec 27, 05:58 PM     │       21,625 │   ↑ +5.57%
 ### Memory Quick Start
 
 ```bash
-# Benchmark all 48 languages
+# Benchmark all languages
 npm run bench:memory
 
 # Benchmark specific language
@@ -257,7 +257,7 @@ Dec 27, 06:11 PM     │    707.91 KB │     724.90 B │   ↓ -0.61%
 The performance benchmark (`perf.js`):
 
 1. **Public API Usage**: Imports converters from n2words public API
-2. **Converter Mapping**: Builds map of all 48 converters on startup
+2. **Converter Mapping**: Builds map of all converters on startup
 3. **Dynamic Lookup**: Finds converter by matching language class name
 4. **Benchmark Suite**: Uses benchmark.js for statistical sampling
 5. **Synchronous Execution**: Direct converter calls for accurate timing
@@ -275,7 +275,7 @@ The performance benchmark (`perf.js`):
 The memory benchmark (`memory.js`):
 
 1. **Public API Usage**: Imports converters from n2words public API
-2. **Converter Mapping**: Builds map of all 48 converters on startup
+2. **Converter Mapping**: Builds map of all converters on startup
 3. **GC Control**: Forces garbage collection before baseline measurement
 4. **Baseline Capture**: Records memory state before test
 5. **Iteration Loop**: Runs N converter calls, collecting outputs

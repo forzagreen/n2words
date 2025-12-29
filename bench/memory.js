@@ -1,7 +1,7 @@
 /**
  * Memory usage benchmark script for n2words library.
  *
- * Measures memory allocation across all 48 languages or specific languages.
+ * Measures memory allocation across all languages or specific languages.
  * Tracks heap usage, external memory, and per-iteration overhead.
  * Requires --expose-gc flag for accurate garbage collection measurements.
  *
