@@ -66,7 +66,6 @@ export default {
   prompt: {
     settings: {
       enableMultipleScopes: false,
-      scopeEnumSeparator: ',',
       allowCustomScopes: true,
       allowEmptyScopes: true,
       allowBreakingChanges: ['feat', 'fix']
