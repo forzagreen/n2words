@@ -55,6 +55,8 @@ jobs:
               const { data: annotatedTag } = await github.rest.git.getTag({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
+                // NOTE: `tag_sha` expects the SHA of the tag *object* (for annotated tags),
+                // not the commit SHA. Here `tagRef.object.sha` is that tag object SHA.
                 tag_sha: tagRef.object.sha
               });
               commitSha = annotatedTag.object.sha;
