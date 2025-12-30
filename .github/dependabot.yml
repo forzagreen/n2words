@@ -8,8 +8,6 @@ updates:
       day: "monday"
       time: "06:00"
     open-pull-requests-limit: 10
-    reviewers:
-      - "TylerVigario"
     labels:
       - "dependencies"
       - "automated"
@@ -49,8 +47,6 @@ updates:
       day: "monday"
       time: "06:00"
     open-pull-requests-limit: 5
-    reviewers:
-      - "TylerVigario"
     labels:
       - "dependencies"
       - "github-actions"
