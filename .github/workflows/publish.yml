@@ -37,15 +37,31 @@ jobs:
             const tagName = context.ref.replace('refs/tags/', '');
             console.log(`Checking CI status for tag: ${tagName}`);
 
-            // Get the commit SHA for this tag
-            const { data: tag } = await github.rest.git.getRef({
+            // Get the ref object for this tag
+            const { data: tagRef } = await github.rest.git.getRef({
               owner: context.repo.owner,
               repo: context.repo.repo,
               ref: `tags/${tagName}`
             });
 
-            const commitSha = tag.object.sha;
-            console.log(`Tag commit SHA: ${commitSha}`);
+            // `tagRef.object` can be either the commit (lightweight tag)
+            // or a tag object (annotated tag). If it's an annotated tag
+            // the `object.sha` refers to the tag object, so we must
+            // resolve it to the underlying commit SHA.
+            let commitSha = tagRef.object.sha;
+            console.log(`Tag object type: ${tagRef.object.type}`);
+
+            if (tagRef.object.type === 'tag') {
+              const { data: annotatedTag } = await github.rest.git.getTag({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                tag_sha: tagRef.object.sha
+              });
+              commitSha = annotatedTag.object.sha;
+              console.log(`Resolved annotated tag to commit SHA: ${commitSha}`);
+            } else {
+              console.log(`Lightweight tag points directly to commit SHA: ${commitSha}`);
+            }
 
             // Wait for CI workflow to complete (max 30 min)
             const maxAttempts = 60;
