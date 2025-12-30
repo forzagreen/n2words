@@ -55,7 +55,6 @@
   },
 
   // NPM Scripts - Quick access to common commands
-  "npm.enableScriptExplorer": true,
   "npm.scriptExplorerAction": "run",
 
   // Git - Better commit message UX (aligned with commitlint)
