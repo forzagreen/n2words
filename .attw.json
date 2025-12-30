@@ -1,5 +1,4 @@
 {
-  "$schema": "https://raw.githubusercontent.com/arethetypeswrong/arethetypeswrong.github.io/main/packages/cli/config.schema.json",
   "entrypoints": [
     "."
   ],
