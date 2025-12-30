@@ -29,71 +29,66 @@ jobs:
       ci-success: ${{ steps.check.outputs.success }}
 
     steps:
-      - name: Wait for CI workflow
+      - name: Wait for CI checks on tag commit
         uses: actions/github-script@v8.0.0
         id: check
         with:
           script: |
             const tagName = context.ref.replace('refs/tags/', '');
-            console.log(`Checking CI status for tag: ${tagName}`);
+            console.log(`Checking CI checks for tag: ${tagName}`);
 
-            // Get the ref object for this tag
+            // Resolve tag -> commit SHA (handles annotated and lightweight tags)
             const { data: tagRef } = await github.rest.git.getRef({
               owner: context.repo.owner,
               repo: context.repo.repo,
               ref: `tags/${tagName}`
             });
 
-            // `tagRef.object` can be either the commit (lightweight tag)
-            // or a tag object (annotated tag). If it's an annotated tag
-            // the `object.sha` refers to the tag object, so we must
-            // resolve it to the underlying commit SHA.
             let commitSha = tagRef.object.sha;
-            console.log(`Tag object type: ${tagRef.object.type}`);
-
             if (tagRef.object.type === 'tag') {
               const { data: annotatedTag } = await github.rest.git.getTag({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                // NOTE: `tag_sha` expects the SHA of the tag *object* (for annotated tags),
-                // not the commit SHA. Here `tagRef.object.sha` is that tag object SHA.
                 tag_sha: tagRef.object.sha
               });
               commitSha = annotatedTag.object.sha;
-              console.log(`Resolved annotated tag to commit SHA: ${commitSha}`);
-            } else {
-              console.log(`Lightweight tag points directly to commit SHA: ${commitSha}`);
             }
 
-            // Wait for CI workflow to complete (max 30 min)
+            console.log(`Resolved commit SHA: ${commitSha}`);
+
+            // Poll the Checks API for the commit's check suites (max 30 minutes)
             const maxAttempts = 60;
-            const delayMs = 30000; // 30 seconds
+            const delayMs = 30000; // 30s
 
             for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-              console.log(`Attempt ${attempt}/${maxAttempts}: Checking CI status...`);
+              console.log(`Attempt ${attempt}/${maxAttempts}: checking check suites for ${commitSha}`);
 
-              const { data: runs } = await github.rest.actions.listWorkflowRunsForRepo({
+              const { data: suitesData } = await github.rest.checks.listSuitesForRef({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                workflow_id: 'ci.yml',
-                head_sha: commitSha,
-                per_page: 1
+                ref: commitSha,
+                per_page: 100
               });
 
-              if (runs.total_count > 0) {
-                const run = runs.workflow_runs[0];
-                console.log(`CI workflow status: ${run.status}, conclusion: ${run.conclusion}`);
+              if (suitesData.total_count > 0) {
+                console.log(`Found ${suitesData.total_count} check suite(s)`);
 
-                if (run.status === 'completed') {
-                  if (run.conclusion === 'success') {
-                    console.log('✅ CI passed! Proceeding with publish.');
-                    core.setOutput('success', 'true');
-                    return;
-                  } else {
-                    core.setFailed(`❌ CI failed with conclusion: ${run.conclusion}`);
-                    return;
-                  }
+                // Look for any completed suite with a successful conclusion
+                const succeeded = suitesData.check_suites.find(s => s.status === 'completed' && s.conclusion === 'success');
+                if (succeeded) {
+                  console.log('✅ Checks passed for commit. Proceeding with publish.');
+                  core.setOutput('success', 'true');
+                  return;
                 }
+
+                // If any suite completed with non-success conclusion, fail fast
+                const failedSuite = suitesData.check_suites.find(s => s.status === 'completed' && s.conclusion && s.conclusion !== 'success');
+                if (failedSuite) {
+                  core.setFailed(`❌ Checks completed but failed (conclusion=${failedSuite.conclusion})`);
+                  return;
+                }
+              } else {
+                console.log('No check suites found for this commit yet.');
               }
 
               if (attempt < maxAttempts) {
@@ -102,7 +97,71 @@ jobs:
               }
             }
 
-            core.setFailed('⏱️ Timeout: CI workflow did not complete within 30 minutes');
+            // Fallback: try matching workflow runs for the ci workflow by comparing head_sha/head_commit
+            console.log('⏳ Timeout waiting for check suites; falling back to workflow-run matching. Applying tighter filters (time window + event).');
+
+            // Derive a time window around the commit to avoid matching unrelated old runs.
+            const { data: commitInfo } = await github.rest.repos.getCommit({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: commitSha
+            });
+            const commitDate = new Date(commitInfo.commit.author.date || commitInfo.commit.committer.date);
+            const windowHours = 24; // restrict to runs within this many hours of the commit
+            const fromTs = new Date(commitDate.getTime() - windowHours * 3600 * 1000);
+            const toTs = new Date(commitDate.getTime() + windowHours * 3600 * 1000);
+            console.log(`Looking for runs between ${fromTs.toISOString()} and ${toTs.toISOString()}`);
+
+            const { data: runs } = await github.rest.actions.listWorkflowRunsForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'ci.yml',
+              per_page: 100
+            });
+
+            if (runs.total_count > 0) {
+              // Allowed triggering events for CI validation
+              const allowedEvents = new Set(['push', 'workflow_dispatch']);
+
+              const candidate = runs.workflow_runs.find(r => {
+                // basic sha match
+                const shaMatch = r.head_sha === commitSha || (r.head_commit && r.head_commit.id === commitSha);
+                if (!shaMatch) return false;
+
+                // event filter
+                if (!allowedEvents.has(r.event)) {
+                  console.log(`Rejecting run ${r.id} due to event=${r.event}`);
+                  return false;
+                }
+
+                // created_at within window
+                const created = new Date(r.created_at);
+                if (created < fromTs || created > toTs) {
+                  console.log(`Rejecting run ${r.id} due to created_at=${r.created_at} outside window`);
+                  return false;
+                }
+
+                // only accept completed runs here
+                if (r.status !== 'completed') {
+                  console.log(`Skipping run ${r.id} with status=${r.status}`);
+                  return false;
+                }
+
+                return true;
+              });
+
+              if (candidate) {
+                console.log(`Found candidate workflow run ${candidate.id}: conclusion=${candidate.conclusion}, event=${candidate.event}, created_at=${candidate.created_at}`);
+                if (candidate.conclusion === 'success') {
+                  core.setOutput('success', 'true');
+                  return;
+                }
+                core.setFailed(`❌ CI failed with conclusion: ${candidate.conclusion}`);
+                return;
+              }
+            }
+
+            core.setFailed('⏱️ Timeout: CI checks/workflow run not completed or not found for the tag commit (after applying tighter fallback filters)');
 
   publish:
     name: Publish to npm
