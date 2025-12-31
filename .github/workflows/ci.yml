@@ -165,30 +165,8 @@ jobs:
       - name: Install dependencies
         run: npm ci --prefer-offline
 
-      - name: Validate languages
-        run: |
-          echo "::group::Language Validation"
-          npm run lang:validate
-          echo "::endgroup::"
-
-      - name: Run unit tests with coverage
-        run: |
-          echo "::group::Unit Tests (with coverage)"
-          c8 npm run test:unit
-          echo "::endgroup::"
-
-      - name: Run integration tests with coverage
-        run: |
-          echo "::group::Integration Tests (with coverage)"
-          c8 --no-clean npm run test:integration
-          echo "::endgroup::"
-
-      - name: Run type tests
-        id: coverage
-        run: |
-          echo "::group::Type Tests"
-          npm run test:types
-          echo "::endgroup::"
+      - name: Run all tests with coverage
+        run: npm run coverage
 
       - name: Check coverage thresholds
         run: npx c8 check-coverage --lines 90 --functions 90 --branches 85 --statements 90
