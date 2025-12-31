@@ -30,12 +30,12 @@ jobs:
     timeout-minutes: 5
 
     steps:
-      - uses: actions/checkout@v6.0.1
+      - uses: actions/checkout@v6
         with:
           persist-credentials: false
 
       - name: Setup Node.js
-        uses: actions/setup-node@v6.1.0
+        uses: actions/setup-node@v6
         with:
           node-version: '24'
           cache: 'npm'
@@ -74,12 +74,12 @@ jobs:
             os_label: 'macOS'
 
     steps:
-      - uses: actions/checkout@v6.0.1
+      - uses: actions/checkout@v6
         with:
           persist-credentials: false
 
       - name: Setup Node.js ${{ matrix.node }}
-        uses: actions/setup-node@v6.1.0
+        uses: actions/setup-node@v6
         with:
           node-version: ${{ matrix.node }}
           cache: 'npm'
@@ -100,12 +100,12 @@ jobs:
     timeout-minutes: 10
 
     steps:
-      - uses: actions/checkout@v6.0.1
+      - uses: actions/checkout@v6
         with:
           persist-credentials: false
 
       - name: Setup Node.js
-        uses: actions/setup-node@v6.1.0
+        uses: actions/setup-node@v6
         with:
           node-version: '24'
           cache: 'npm'
@@ -121,7 +121,7 @@ jobs:
 
       - name: Upload Playwright test results
         if: failure()
-        uses: actions/upload-artifact@v6.0.0
+        uses: actions/upload-artifact@v6
         with:
           name: playwright-report
           path: |
@@ -138,12 +138,12 @@ jobs:
     timeout-minutes: 10
 
     steps:
-      - uses: actions/checkout@v6.0.1
+      - uses: actions/checkout@v6
         with:
           persist-credentials: false
 
       - name: Setup Node.js
-        uses: actions/setup-node@v6.1.0
+        uses: actions/setup-node@v6
         with:
           node-version: '24'
           cache: 'npm'
@@ -184,14 +184,14 @@ jobs:
       # Upload on all events so Coveralls can track baseline coverage and show diffs on PRs
       # PR comments are handled natively by Coveralls (requires @coveralls bot invite + settings)
       - name: Upload coverage to Coveralls
-        uses: coverallsapp/github-action@v2.3.6
+        uses: coverallsapp/github-action@v2
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           fail-on-error: false
 
       - name: Upload coverage artifacts
         if: github.event_name == 'pull_request'
-        uses: actions/upload-artifact@v6.0.0
+        uses: actions/upload-artifact@v6
         with:
           name: coverage-report
           path: coverage/
@@ -204,20 +204,21 @@ jobs:
     runs-on: ubuntu-latest
     needs: [test, test-web, test-coverage]
     # Run if required jobs succeeded and test-web either succeeded or was skipped
+    # Note: Using '!cancelled()' instead of 'always()' to avoid running on workflow cancellation
     if: |
-      always() &&
+      !cancelled() &&
       needs.test.result == 'success' &&
       needs.test-coverage.result == 'success' &&
       (needs.test-web.result == 'success' || needs.test-web.result == 'skipped')
     timeout-minutes: 5
 
     steps:
-      - uses: actions/checkout@v6.0.1
+      - uses: actions/checkout@v6
         with:
           persist-credentials: false
 
       - name: Setup Node.js
-        uses: actions/setup-node@v6.1.0
+        uses: actions/setup-node@v6
         with:
           node-version: '24'
           cache: 'npm'
