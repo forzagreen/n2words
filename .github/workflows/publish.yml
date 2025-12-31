@@ -62,7 +62,12 @@ jobs:
               repo: context.repo.repo,
               ref: commitSha
             });
-            const commitDate = new Date(commitInfo.commit.author.date ?? commitInfo.commit.committer.date);
+            const dateStr = commitInfo.commit.author?.date || commitInfo.commit.committer?.date;
+            if (!dateStr) {
+              core.setFailed('Could not determine commit date');
+              return;
+            }
+            const commitDate = new Date(dateStr);
             const windowHours = 24;
             const fromTs = new Date(commitDate.getTime() - windowHours * 3600 * 1000);
             const toTs = new Date(commitDate.getTime() + windowHours * 3600 * 1000);
@@ -105,7 +110,8 @@ jobs:
                 if (validRuns.length === 0) {
                   console.log('No valid CI runs found (filtered by event/time window)');
                 } else {
-                  // Check the most recent valid run
+                  // Sort by creation date (newest first) and check the most recent valid run
+                  validRuns.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
                   const run = validRuns[0];
                   console.log(`  Run ${run.id}: status=${run.status}, conclusion=${run.conclusion}, event=${run.event}`);
                   console.log(`  URL: ${run.html_url}`);
