@@ -1,4 +1,4 @@
-// test/integration/commonjs.cjs
+// test/integration/commonjs-compatibility.test.cjs
 // Integration test to ensure n2words works with CommonJS (.cjs) modules
 // Tests both modern Node.js require() interop AND dynamic import patterns
 

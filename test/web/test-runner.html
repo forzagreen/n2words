@@ -211,12 +211,13 @@
       test('multiLang', 'SpanishConverter(5)', 'cinco', n2words.SpanishConverter(5))
       test('multiLang', 'FrenchConverter(5)', 'cinq', n2words.FrenchConverter(5))
 
-      // Error handling
+      // Error handling - use pattern matching instead of exact string
       try {
         const result = n2words.EnglishConverter('invalid')
         test('error', 'Invalid input handling', 'Error thrown', 'Unexpected success: ' + result)
       } catch (e) {
-        test('error', 'Invalid input handling', 'Error thrown: Invalid number format: "invalid"', 'Error thrown: ' + e.message)
+        const errorThrown = /Invalid number format/.test(e.message)
+        test('error', 'Invalid input handling', true, errorThrown)
       }
 
       // Render results

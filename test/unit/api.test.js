@@ -353,6 +353,18 @@ test('rejects array', t => {
   t.is(error.message, 'Invalid value type: expected number, string, or bigint, received object')
 })
 
+test('rejects symbol', t => {
+  const { EnglishConverter } = n2words
+  const error = t.throws(() => EnglishConverter(Symbol('test')), { instanceOf: TypeError })
+  t.is(error.message, 'Invalid value type: expected number, string, or bigint, received symbol')
+})
+
+test('rejects function', t => {
+  const { EnglishConverter } = n2words
+  const error = t.throws(() => EnglishConverter(() => 42), { instanceOf: TypeError })
+  t.is(error.message, 'Invalid value type: expected number, string, or bigint, received function')
+})
+
 // Valid inputs (acceptance tests)
 
 test('accepts valid number', t => {
