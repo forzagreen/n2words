@@ -248,11 +248,12 @@ jobs:
       - name: Publish to npm with provenance
         id: publish
         run: |
-          echo "📤 Publishing to npm..."
+          echo "📤 Publishing to npm with trusted publishing (OIDC)..."
+          echo "npm version: $(npm --version)"
           npm publish --provenance --access public
           echo "published=true" >> $GITHUB_OUTPUT
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        # Authentication: OIDC trusted publishing (no tokens required)
+        # Setup: https://www.npmjs.com/package/n2words/access → Trusted Publishers
 
       - name: Verify npm publication
         if: steps.publish.outputs.published == 'true'
