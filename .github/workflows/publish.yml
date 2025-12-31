@@ -62,7 +62,7 @@ jobs:
               repo: context.repo.repo,
               ref: commitSha
             });
-            const commitDate = new Date(commitInfo.commit.author.date || commitInfo.commit.committer.date);
+            const commitDate = new Date(commitInfo.commit.author.date ?? commitInfo.commit.committer.date);
             const windowHours = 24;
             const fromTs = new Date(commitDate.getTime() - windowHours * 3600 * 1000);
             const toTs = new Date(commitDate.getTime() + windowHours * 3600 * 1000);
