@@ -7,7 +7,7 @@ env:
 on:
   push:
     tags:
-      - v[0-9]*.[0-9]*.[0-9]*  # Semver tags (v1.0.0, v2.1.0-beta.1, etc.)
+      - v[0-9]*.[0-9]*.[0-9]*
 
 concurrency:
   group: publish-${{ github.ref }}
@@ -17,7 +17,6 @@ permissions:
   contents: read
 
 jobs:
-  # Wait for CI to pass before publishing
   check-ci:
     name: Check CI Status
     runs-on: ubuntu-latest
@@ -187,7 +186,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: '24'
+          node-version: '25'
           registry-url: 'https://registry.npmjs.org'
           cache: 'npm'
 
@@ -214,10 +213,6 @@ jobs:
 
       - name: Install dependencies
         run: npm ci --prefer-offline
-
-      - name: Security audit
-        run: npm audit --audit-level=high
-        continue-on-error: true
 
       - name: Build type declarations
         run: npm run build:types
@@ -250,10 +245,8 @@ jobs:
         run: |
           echo "📤 Publishing to npm with trusted publishing (OIDC)..."
           echo "npm version: $(npm --version)"
-          npm publish --provenance --access public
+          npm publish --provenance
           echo "published=true" >> $GITHUB_OUTPUT
-        # Authentication: OIDC trusted publishing (no tokens required)
-        # Setup: https://www.npmjs.com/package/n2words/access → Trusted Publishers
 
       - name: Verify npm publication
         if: steps.publish.outputs.published == 'true'
