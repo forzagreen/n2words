@@ -87,8 +87,29 @@ jobs:
       - name: Install dependencies
         run: npm ci --prefer-offline
 
-      - name: Run tests
-        run: npm test
+      - name: Validate languages
+        run: |
+          echo "::group::Language Validation"
+          npm run lang:validate
+          echo "::endgroup::"
+
+      - name: Run unit tests
+        run: |
+          echo "::group::Unit Tests"
+          npm run test:unit
+          echo "::endgroup::"
+
+      - name: Run integration tests
+        run: |
+          echo "::group::Integration Tests"
+          npm run test:integration
+          echo "::endgroup::"
+
+      - name: Run type tests
+        run: |
+          echo "::group::Type Tests"
+          npm run test:types
+          echo "::endgroup::"
 
   # Browser tests: Playwright on Ubuntu Node 24
   # Skip only for direct pushes to main branch (runs for PRs, tags, and pushes to other branches)
@@ -151,9 +172,30 @@ jobs:
       - name: Install dependencies
         run: npm ci --prefer-offline
 
-      - name: Run tests with coverage
+      - name: Validate languages
+        run: |
+          echo "::group::Language Validation"
+          npm run lang:validate
+          echo "::endgroup::"
+
+      - name: Run unit tests with coverage
+        run: |
+          echo "::group::Unit Tests (with coverage)"
+          c8 npm run test:unit
+          echo "::endgroup::"
+
+      - name: Run integration tests with coverage
+        run: |
+          echo "::group::Integration Tests (with coverage)"
+          c8 --no-clean npm run test:integration
+          echo "::endgroup::"
+
+      - name: Run type tests
         id: coverage
-        run: npm run coverage
+        run: |
+          echo "::group::Type Tests"
+          npm run test:types
+          echo "::endgroup::"
 
       - name: Check coverage thresholds
         run: npx c8 check-coverage --lines 90 --functions 90 --branches 85 --statements 90
