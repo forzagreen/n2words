@@ -12,59 +12,14 @@ import * as n2words from '../../lib/n2words.js'
  */
 
 // ============================================================================
-// Expected Converters (alphabetically sorted)
+// Expected Converters (dynamically loaded from n2words entry point)
 // ============================================================================
 
-const expectedConverters = [
-  'ArabicConverter',
-  'AzerbaijaniConverter',
-  'BanglaConverter',
-  'BiblicalHebrewConverter',
-  'CroatianConverter',
-  'CzechConverter',
-  'DanishConverter',
-  'DutchConverter',
-  'EnglishConverter',
-  'FilipinoConverter',
-  'FrenchBelgiumConverter',
-  'FrenchConverter',
-  'GermanConverter',
-  'GreekConverter',
-  'GujaratiConverter',
-  'HebrewConverter',
-  'HindiConverter',
-  'HungarianConverter',
-  'IndonesianConverter',
-  'ItalianConverter',
-  'JapaneseConverter',
-  'KannadaConverter',
-  'KoreanConverter',
-  'LatvianConverter',
-  'LithuanianConverter',
-  'MalayConverter',
-  'MarathiConverter',
-  'NorwegianBokmalConverter',
-  'PersianConverter',
-  'PolishConverter',
-  'PortugueseConverter',
-  'PunjabiConverter',
-  'RomanianConverter',
-  'RussianConverter',
-  'SerbianCyrillicConverter',
-  'SerbianLatinConverter',
-  'SimplifiedChineseConverter',
-  'SpanishConverter',
-  'SwahiliConverter',
-  'SwedishConverter',
-  'TamilConverter',
-  'TeluguConverter',
-  'ThaiConverter',
-  'TraditionalChineseConverter',
-  'TurkishConverter',
-  'UkrainianConverter',
-  'UrduConverter',
-  'VietnameseConverter'
-]
+// Dynamically get all converters from the n2words entry point
+// This ensures the test stays in sync with the actual exports
+const expectedConverters = Object.keys(n2words)
+  .filter(name => name.endsWith('Converter'))
+  .sort()
 
 // ============================================================================
 // Converter Export Tests
