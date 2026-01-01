@@ -67,6 +67,7 @@
   "scripts": {
     "prepare:husky": "husky",
     "prebuild": "npm run clean",
+    "pretest:integration": "npm run build:web",
     "pretest:types": "npm run build:types",
     "pretest:web": "npm run build:web",
     "build": "npm run build:types && npm run build:web",
