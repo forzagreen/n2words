@@ -11,8 +11,6 @@ Thank you for your interest in contributing to n2words! This document provides g
     - [Git Hooks (Optional for Contributors)](#git-hooks-optional-for-contributors)
       - [For Contributors (No Setup Required)](#for-contributors-no-setup-required)
       - [For Maintainers (Opt-In)](#for-maintainers-opt-in)
-      - [Interactive Commit Tool (Recommended)](#interactive-commit-tool-recommended)
-      - [Commit Message Help](#commit-message-help)
     - [Development Setup](#development-setup)
   - [Contributing Workflow](#contributing-workflow)
     - [Pull Request Process](#pull-request-process)
@@ -140,24 +138,6 @@ This will install three git hooks:
 ```bash
 # Remove the .husky directory
 rm -rf .husky
-```
-
-#### Interactive Commit Tool (Recommended)
-
-Both contributors and maintainers can use the interactive commit tool to ensure proper formatting:
-
-```bash
-npm run commit
-```
-
-This launches an interactive prompt that guides you through creating a conventional commit message.
-
-#### Commit Message Help
-
-For quick reference on commit message format:
-
-```bash
-npm run commit:help
 ```
 
 ### Development Setup
@@ -1381,19 +1361,13 @@ npm run test:web -- --timeout=60s
 **Solutions:**
 
 ```bash
-# Option 1: Use the interactive commit tool (recommended)
-npm run commit
-
-# Option 2: Get help on commit message format
-npm run commit:help
-
-# Option 3: View detailed error messages
+# Option 1: View detailed error messages
 # The Husky hook will show exactly what's wrong with your message
 
-# Option 4: Skip the hook temporarily (not recommended)
+# Option 2: Skip the hook temporarily (not recommended)
 git commit --no-verify -m "your message"
 
-# Option 5: Amend your last commit message
+# Option 3: Amend your last commit message
 git commit --amend
 ```
 
