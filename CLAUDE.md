@@ -419,11 +419,15 @@ npm run lang:add <code>
 **After scaffolding:**
 
 1. Edit `lib/languages/{code}.js`:
-   - Replace placeholder words
-   - Add complete `scaleWordPairs` array
-   - Implement `mergeScales()` logic
+   - Replace placeholder words (`negativeWord`, `zeroWord`, `decimalSeparatorWord`)
+   - Implement base-class-specific requirements:
+     - **GreedyScaleLanguage**: Add `scaleWordPairs` array, implement `mergeScales()`
+     - **SlavicLanguage**: Add `pluralForms`, `belowHundred`, implement `getPluralForm()`
+     - **SouthAsianLanguage**: Add `scales`, `belowHundred`, implement merge logic
+     - **TurkicLanguage**: Add `scaleWordPairs`, configure `implicitOneScales`
+     - **AbstractLanguage**: Implement `convertWholePart()` from scratch
 2. Edit `test/fixtures/languages/{code}.js`:
-   - Add comprehensive test cases
+   - Add comprehensive test cases (see existing fixtures for examples)
 3. Validate: `npm run lang:validate -- {code} --verbose`
 4. Test: `npm test`
 

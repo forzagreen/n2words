@@ -102,9 +102,12 @@ The script validates that:
 ### Next steps after scaffolding
 
 1. Edit `lib/languages/{code}.js`:
-   - Replace placeholder words with actual language words
-   - Add complete scaleWordPairs array (largest to smallest)
-   - Implement mergeScales() with language-specific rules
+   - Replace placeholder words (`negativeWord`, `zeroWord`, `decimalSeparatorWord`)
+   - Complete base-class-specific requirements:
+     - **GreedyScaleLanguage/TurkicLanguage**: Add `scaleWordPairs` array, implement `mergeScales()`
+     - **SlavicLanguage**: Define ones/tens/twenties/hundreds dictionaries, add `pluralForms`
+     - **SouthAsianLanguage**: Complete `belowHundred` array (0-99), define `scaleWords`
+     - **AbstractLanguage**: Implement `convertWholePart()` from scratch
 
 2. Edit `test/fixtures/languages/{code}.js`:
    - Replace English words with actual language equivalents

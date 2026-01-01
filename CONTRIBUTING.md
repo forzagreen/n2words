@@ -381,9 +381,12 @@ This will create:
 ┌───────────────────────────────────────────────────────────┐
 │ 2. Implement Language Class                               │
 │    Edit lib/languages/<code>.js                           │
-│    ✓ Replace placeholder words                            │
-│    ✓ Add complete scaleWordPairs (largest → smallest)     │
-│    ✓ Implement mergeScales() logic                        │
+│    ✓ Replace placeholder words (negativeWord, zeroWord)   │
+│    ✓ Complete base-class-specific implementation:         │
+│      - Greedy/Turkic: scaleWordPairs + mergeScales()      │
+│      - Slavic: ones/tens/hundreds + pluralForms           │
+│      - SouthAsian: belowHundred + scaleWords              │
+│      - Abstract: convertWholePart() from scratch          │
 │    ✓ Add options if needed (gender, formal, etc.)         │
 │    ✓ Write comprehensive JSDoc with examples              │
 └────────────────────┬──────────────────────────────────────┘
