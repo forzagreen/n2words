@@ -111,7 +111,7 @@ All language implementations follow an inheritance pattern:
 AbstractLanguage (base)
 ├── GreedyScaleLanguage    # Most common: English, Spanish, French, etc.
 ├── SlavicLanguage         # Russian, Polish, Czech, etc.
-├── SouthAsianLanguage     # Hindi, Tamil, Telugu, Bengali, etc.
+├── SouthAsianLanguage     # Hindi, Bengali, Gujarati, Kannada, Marathi, Punjabi, Urdu
 └── TurkicLanguage         # Turkish, Azerbaijani
 ```
 
@@ -148,6 +148,15 @@ integerToWords(wholeNumber) // bigint → string
 
 ```javascript
 usePerDigitDecimals = false  // true = digit-by-digit decimals
+wordSeparator = ' '          // Override for CJK languages (empty string)
+```
+
+**Optional method overrides:**
+
+```javascript
+decimalIntegerToWords(n)     // Custom decimal integer conversion (e.g., Romanian masculine)
+decimalDigitsToWords(str)    // Complete decimal conversion override
+toWords(isNeg, whole, dec)   // Override to cache wholeNumber for context (e.g., Czech)
 ```
 
 #### GreedyScaleLanguage
@@ -214,11 +223,11 @@ export class English extends GreedyScaleLanguage {
 - `teensWords` - Object mapping 0-9 to teen numbers (10-19)
 - `twentiesWords` - Object mapping 2-9 to tens (20-90)
 - `hundredsWords` - Object mapping 1-9 to hundreds
-- `pluralForms` - Object mapping chunk indices to [singular, few, many] forms
+- `pluralForms` - Object mapping segment indices to [singular, few, many] forms
 
 **Optional properties:**
 
-- `scaleGenders` - Object mapping chunk indices to boolean (true = feminine scale word). Default is `{}` (all masculine). Languages with feminine thousands (Russian, Ukrainian, Serbian, Croatian) should set `{ 1: true }`.
+- `scaleGenders` - Object mapping segment indices to boolean (true = feminine scale word). Default is `{}` (all masculine). Languages with feminine thousands (Russian, Ukrainian, Serbian, Croatian) should set `{ 1: true }`.
 - `omitOneBeforeScale` - Boolean (default false). When true, omits "one" before scale words (e.g., "tysiąc" instead of "jeden tysiąc"). Used by Polish, Czech.
 
 **Pattern:**
@@ -226,12 +235,12 @@ export class English extends GreedyScaleLanguage {
 ```javascript
 export class Russian extends SlavicLanguage {
   pluralForms = {
-    1: ['тысяча', 'тысячи', 'тысяч'],       // 10^3 (chunk index 1)
-    2: ['миллион', 'миллиона', 'миллионов'], // 10^6 (chunk index 2)
-    3: ['миллиард', 'миллиарда', 'миллиардов'] // 10^9 (chunk index 3)
+    1: ['тысяча', 'тысячи', 'тысяч'],       // 10^3 (segment index 1)
+    2: ['миллион', 'миллиона', 'миллионов'], // 10^6 (segment index 2)
+    3: ['миллиард', 'миллиарда', 'миллиардов'] // 10^9 (segment index 3)
   }
 
-  // Keys are chunk indices: 1 = thousands, 2 = millions, 3 = billions, etc.
+  // Keys are segment indices: 1 = thousands, 2 = millions, 3 = billions, etc.
   // Automatically selects correct form based on number
 
   // Optional: per-scale gender (defaults to thousands being feminine)
@@ -1241,16 +1250,16 @@ class TestLanguage extends AbstractLanguage {
   }
 }
 
-// Unit tests call convert() with pre-normalized parameters
+// Unit tests call toWords() with pre-normalized parameters
 // (validation/normalization is tested in api.test.js)
 test('handles negative numbers', t => {
   const lang = new TestLanguage()
-  t.is(lang.convert(true, 42n), 'minus 42')
+  t.is(lang.toWords(true, 42n), 'minus 42')
 })
 
 test('handles decimals', t => {
   const lang = new TestLanguage()
-  t.is(lang.convert(false, 3n, '14'), 'three point 14')
+  t.is(lang.toWords(false, 3n, '14'), 'three point 14')
 })
 ```
 

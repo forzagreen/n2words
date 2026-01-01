@@ -373,7 +373,7 @@ This will create:
 ```text
 ┌─ Does your language use lakh/crore (Indian numbering)?
 │  └─ YES → SouthAsianLanguage
-│           (Hindi, Tamil, Telugu, Bengali, Gujarati, Kannada, Marathi, Punjabi, Urdu)
+│           (Hindi, Bengali, Gujarati, Kannada, Marathi, Punjabi, Urdu)
 │
 ├─ Does your language have three-form pluralization? (singular/few/many)
 │  └─ YES → SlavicLanguage

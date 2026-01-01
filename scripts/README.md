@@ -78,7 +78,7 @@ npm run lang:add -- <code> --base=<base-class>
 # Examples
 npm run lang:add -- ko                          # Uses default (greedy)
 npm run lang:add -- sr-Cyrl --base=slavic      # Serbian Cyrillic (SlavicLanguage)
-npm run lang:add -- ta --base=south-asian      # Tamil (SouthAsianLanguage)
+npm run lang:add -- hi --base=south-asian      # Hindi (SouthAsianLanguage)
 npm run lang:add -- az --base=turkic           # Azerbaijani (TurkicLanguage)
 npm run lang:add -- custom-lang --base=abstract # Advanced: Direct implementation
 ```
