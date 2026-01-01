@@ -283,6 +283,106 @@ function validateScaleWords (instance, result) {
 }
 
 /**
+ * Get the base class name for a language class
+ */
+function getBaseClassName (LanguageClass) {
+  const proto = Object.getPrototypeOf(LanguageClass)
+  const baseClassName = proto?.name
+
+  // Check for regional variants (e.g., fr-BE extends French which extends GreedyScaleLanguage)
+  const validBaseClasses = ['AbstractLanguage', 'GreedyScaleLanguage', 'SlavicLanguage', 'SouthAsianLanguage', 'TurkicLanguage']
+  if (validBaseClasses.includes(baseClassName)) {
+    return baseClassName
+  }
+
+  // Check grandparent for regional variants
+  const grandProto = Object.getPrototypeOf(proto)
+  const grandParentClassName = grandProto?.name
+  if (validBaseClasses.includes(grandParentClassName)) {
+    return grandParentClassName
+  }
+
+  return baseClassName
+}
+
+/**
+ * Validate base-class-specific requirements
+ */
+function validateBaseClassRequirements (instance, LanguageClass, result) {
+  const baseClass = getBaseClassName(LanguageClass)
+
+  switch (baseClass) {
+    case 'GreedyScaleLanguage':
+    case 'TurkicLanguage': {
+      // Must have scaleWordPairs
+      if (!('scaleWordPairs' in instance)) {
+        result.errors.push(`${baseClass} requires scaleWordPairs array`)
+      } else if (!Array.isArray(instance.scaleWordPairs) || instance.scaleWordPairs.length === 0) {
+        result.errors.push('scaleWordPairs must be a non-empty array')
+      } else {
+        result.info.push(`✓ Has scaleWordPairs (${instance.scaleWordPairs.length} entries)`)
+      }
+
+      // Must have mergeScales method (inherited is ok)
+      if (typeof instance.mergeScales !== 'function') {
+        result.errors.push(`${baseClass} requires mergeScales() method`)
+      } else {
+        result.info.push('✓ Has mergeScales() method')
+      }
+      break
+    }
+
+    case 'SlavicLanguage': {
+      // Must have pluralForms
+      if (!('pluralForms' in instance)) {
+        result.errors.push('SlavicLanguage requires pluralForms object')
+      } else if (typeof instance.pluralForms !== 'object' || Object.keys(instance.pluralForms).length === 0) {
+        result.errors.push('pluralForms must be a non-empty object')
+      } else {
+        result.info.push(`✓ Has pluralForms (${Object.keys(instance.pluralForms).length} scale levels)`)
+      }
+
+      // Must have onesWords
+      if (!('onesWords' in instance)) {
+        result.errors.push('SlavicLanguage requires onesWords object')
+      } else {
+        result.info.push('✓ Has onesWords')
+      }
+      break
+    }
+
+    case 'SouthAsianLanguage': {
+      // Must have belowHundred array
+      if (!('belowHundred' in instance)) {
+        result.errors.push('SouthAsianLanguage requires belowHundred array')
+      } else if (!Array.isArray(instance.belowHundred)) {
+        result.errors.push('belowHundred must be an array')
+      } else if (instance.belowHundred.length < 100) {
+        result.warnings.push(`belowHundred has ${instance.belowHundred.length} entries (expected 100)`)
+      } else {
+        result.info.push(`✓ Has belowHundred (${instance.belowHundred.length} entries)`)
+      }
+
+      // Must have scaleWords array
+      if (!('scaleWords' in instance)) {
+        result.errors.push('SouthAsianLanguage requires scaleWords array')
+      } else if (!Array.isArray(instance.scaleWords) || instance.scaleWords.length === 0) {
+        result.errors.push('scaleWords must be a non-empty array')
+      } else {
+        result.info.push(`✓ Has scaleWords (${instance.scaleWords.length} entries)`)
+      }
+      break
+    }
+
+    case 'AbstractLanguage': {
+      // AbstractLanguage just needs convertWholePart (already validated elsewhere)
+      result.info.push('✓ Direct AbstractLanguage implementation')
+      break
+    }
+  }
+}
+
+/**
  * Validate JSDoc documentation
  */
 function validateDocumentation (fileContent, className, result) {
@@ -773,6 +873,7 @@ async function performValidations (languageCode, className, LanguageClass, fileC
   validateMethods(instance, result)
   validateInheritance(LanguageClass, result)
   validateScaleWords(instance, result)
+  validateBaseClassRequirements(instance, LanguageClass, result)
   validateDocumentation(fileContent, className, result)
   validateImports(fileContent, result)
   validateOptionsPattern(instance, LanguageClass, className, fileContent, n2wordsContent, result)

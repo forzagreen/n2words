@@ -105,7 +105,7 @@ The script validates that:
    - Replace placeholder words (`negativeWord`, `zeroWord`, `decimalSeparatorWord`)
    - Complete base-class-specific requirements:
      - **GreedyScaleLanguage/TurkicLanguage**: Add `scaleWordPairs` array, implement `mergeScales()`
-     - **SlavicLanguage**: Define ones/tens/twenties/hundreds dictionaries, add `pluralForms`
+     - **SlavicLanguage**: Define `onesWords`, `onesFeminineWords`, `teensWords`, `twentiesWords`, `hundredsWords`, `pluralForms` (optionally `scaleGenders = { 1: true }` for feminine thousands, `omitOneBeforeScale` to skip "one" before scale words)
      - **SouthAsianLanguage**: Complete `belowHundred` array (0-99), define `scaleWords`
      - **AbstractLanguage**: Implement `convertWholePart()` from scratch
 

@@ -199,7 +199,21 @@ export class English extends GreedyScaleLanguage {
 
 **Used by**: Croatian, Czech, Hebrew (Modern & Biblical), Latvian, Lithuanian, Polish, Russian, Serbian (both Cyrillic and Latin), Ukrainian
 
-**Key feature**: Three-form pluralization based on number endings, optional gender support
+**Key feature**: Three-form pluralization based on number endings, optional gender support, per-scale gender control
+
+**Required properties:**
+
+- `onesWords` - Object mapping 1-9 to masculine forms
+- `onesFeminineWords` - Object mapping 1-9 to feminine forms
+- `teensWords` - Object mapping 0-9 to teen numbers (10-19)
+- `twentiesWords` - Object mapping 2-9 to tens (20-90)
+- `hundredsWords` - Object mapping 1-9 to hundreds
+- `pluralForms` - Object mapping chunk indices to [singular, few, many] forms
+
+**Optional properties:**
+
+- `scaleGenders` - Object mapping chunk indices to boolean (true = feminine scale word). Default is `{}` (all masculine). Languages with feminine thousands (Russian, Ukrainian, Serbian, Croatian) should set `{ 1: true }`.
+- `omitOneBeforeScale` - Boolean (default false). When true, omits "one" before scale words (e.g., "tysiąc" instead of "jeden tysiąc"). Used by Polish, Czech.
 
 **Pattern:**
 
@@ -213,6 +227,11 @@ export class Russian extends SlavicLanguage {
 
   // Keys are chunk indices: 1 = thousands, 2 = millions, 3 = billions, etc.
   // Automatically selects correct form based on number
+
+  // Optional: per-scale gender (defaults to thousands being feminine)
+  scaleGenders = {
+    1: true  // thousands are feminine
+  }
 }
 ```
 
@@ -422,9 +441,9 @@ npm run lang:add <code>
    - Replace placeholder words (`negativeWord`, `zeroWord`, `decimalSeparatorWord`)
    - Implement base-class-specific requirements:
      - **GreedyScaleLanguage**: Add `scaleWordPairs` array, implement `mergeScales()`
-     - **SlavicLanguage**: Add `pluralForms`, `belowHundred`, implement `getPluralForm()`
-     - **SouthAsianLanguage**: Add `scales`, `belowHundred`, implement merge logic
-     - **TurkicLanguage**: Add `scaleWordPairs`, configure `implicitOneScales`
+     - **SlavicLanguage**: Add `onesWords`, `onesFeminineWords`, `teensWords`, `twentiesWords`, `hundredsWords`, `pluralForms` (optionally `scaleGenders` for per-scale gender)
+     - **SouthAsianLanguage**: Add `belowHundred` array (100 entries), `scaleWords` array
+     - **TurkicLanguage**: Add `scaleWordPairs` array, implement `mergeScales()`
      - **AbstractLanguage**: Implement `convertWholePart()` from scratch
 2. Edit `test/fixtures/languages/{code}.js`:
    - Add comprehensive test cases (see existing fixtures for examples)

@@ -87,6 +87,11 @@ class TestSlavicLanguage extends SlavicLanguage {
     2: ['million-sing', 'million-few', 'million-many'],
     3: ['billion-sing', 'billion-few', 'billion-many']
   }
+
+  // Simulate Russian-style feminine thousands for testing
+  scaleGenders = {
+    1: true // thousands are feminine
+  }
 }
 
 // ============================================================================
