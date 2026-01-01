@@ -400,7 +400,7 @@ The project provides comprehensive npm scripts for all development tasks:
 Use the scaffolding tool:
 
 ```bash
-npm run lang:add <language-code>
+npm run lang:add <code>
 ```
 
 **What it does:**
@@ -412,6 +412,9 @@ npm run lang:add <language-code>
    - Adds import (alphabetically in Language Imports section)
    - Creates converter with type annotation (alphabetically in Language Converters section)
    - Adds export (alphabetically in Exports section)
+5. Updates `test/types/n2words.test-d.ts`:
+   - Adds converter to import block (alphabetically)
+   - Adds basic type test for the converter
 
 **After scaffolding:**
 
@@ -440,8 +443,10 @@ npm run lang:validate -- --verbose # Detailed info
 - ✅ Method implementations (convertWholePart)
 - ✅ Scale word ordering (descending)
 - ✅ Import/converter/export in n2words.js
-- ✅ Test fixture exists
+- ✅ Test fixture exists and tests options (for languages with options)
+- ✅ Type test registration in `test/types/n2words.test-d.ts`
 - ✅ JSDoc documentation
+- ✅ Options pattern (typedef, type annotations, gender enum type)
 
 **Exit codes:**
 
@@ -509,7 +514,7 @@ npm run build        # Generate all dist/ bundles (main + individual converters)
 
 1. **`dist/` (UMD bundles)**: For direct browser usage via CDN/`<script>` tags
    - Transpiled with Babel to ES2020 (preserving BigInt)
-   - Tested in real browsers (Chrome, Firefox via Selenium)
+   - Tested in real browsers (Chromium, Firefox, WebKit via Playwright)
    - Browser compatibility: Chrome 67+, Firefox 68+, Safari 14+, Edge 79+
 
 2. **`lib/` (ESM source)**: For modern bundlers (Webpack, Vite, Rollup) and Node.js
@@ -790,7 +795,7 @@ export class Hungarian extends GreedyScaleLanguage {
 **Usage:**
 
 ```bash
-npm run lang:add <language-code>
+npm run lang:add <code>
 # Example: npm run lang:add ko
 # Example: npm run lang:add zh-Hans
 ```
@@ -1408,7 +1413,7 @@ For GreedyScaleLanguage, this is auto-implemented if `scaleWordPairs` and `merge
 
 ---
 
-**Last Updated**: 2025-12-31
+**Last Updated**: 2026-01-01
 **Project Version**: 2.0.0
 **Maintained By**: Tyler Vigario & contributors
 
