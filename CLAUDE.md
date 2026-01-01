@@ -1211,7 +1211,7 @@ Input validation and normalization happen in `makeConverter()` (lib/n2words.js),
 
 ### Memory and Performance Patterns
 
-- **BigInt arithmetic preferred**: SlavicLanguage uses BigInt operations instead of string manipulation in `getDigits()`
+- **BigInt arithmetic preferred**: SlavicLanguage uses BigInt operations instead of string manipulation in `extractDigits()`
 - **Expensive calculation caching**: Arabic caches `Math.log10()` result to avoid repeated computation
 - **Minimal allocations**: Base classes reuse `cachedWholeNumber` instead of re-parsing
 - **String concatenation**: Most languages use `+` operator; some use array join for better performance with many parts

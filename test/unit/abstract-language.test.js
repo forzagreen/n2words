@@ -12,7 +12,7 @@ import { AbstractLanguage } from '../../lib/classes/abstract-language.js'
  *
  * Note: Input validation and normalization are tested in n2words.test.js
  * since that logic now lives in the public API wrapper (makeConverter).
- * These tests focus on the convert() method which receives pre-normalized input.
+ * These tests focus on the toWords() method which receives pre-normalized input.
  */
 
 // Concrete test implementation for testing abstract class
