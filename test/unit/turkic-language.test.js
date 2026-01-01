@@ -7,7 +7,7 @@ import { TurkicLanguage } from '../../lib/classes/turkic-language.js'
  * Tests Turkic language patterns including:
  * - Implicit 'bir' (one) before hundreds and thousands
  * - Space-separated number combinations
- * - Multiplication/addition logic in mergeScales
+ * - Multiplication/addition logic in combineWordSets
  * - Integration with GreedyScaleLanguage
  */
 
@@ -22,7 +22,7 @@ class TestTurkicLanguage extends TurkicLanguage {
   zeroWord = 'sıfır'
   wordSeparator = ' '
 
-  scaleWordPairs = [
+  scaleWords = [
     [1000n, 'bin'],
     [100n, 'yüz'],
     [90n, 'doksan'],
@@ -60,61 +60,61 @@ class TestTurkicLanguage extends TurkicLanguage {
 // Merge Logic Tests
 // ============================================================================
 
-test('mergeScales omits implicit "bir" before yüz (100)', t => {
+test('combineWordSets omits implicit "bir" before yüz (100)', t => {
   const lang = new TestTurkicLanguage()
-  const result = lang.mergeScales({ bir: 1n }, { yüz: 100n })
+  const result = lang.combineWordSets({ bir: 1n }, { yüz: 100n })
   t.deepEqual(result, { yüz: 100n })
 })
 
-test('mergeScales omits implicit "bir" before bin (1000)', t => {
+test('combineWordSets omits implicit "bir" before bin (1000)', t => {
   const lang = new TestTurkicLanguage()
-  const result = lang.mergeScales({ bir: 1n }, { bin: 1000n })
+  const result = lang.combineWordSets({ bir: 1n }, { bin: 1000n })
   t.deepEqual(result, { bin: 1000n })
 })
 
-test('mergeScales omits "bir" for magnitudes <= 100', t => {
+test('combineWordSets omits "bir" for magnitudes <= 100', t => {
   const lang = new TestTurkicLanguage()
   // The rule is: omit "bir" when right <= 100 OR right === 1000
   // So "bir" + "on" (10) returns just "on"
-  const result = lang.mergeScales({ bir: 1n }, { on: 10n })
+  const result = lang.combineWordSets({ bir: 1n }, { on: 10n })
   t.deepEqual(result, { on: 10n })
 })
 
-test('mergeScales multiplies when right > left', t => {
+test('combineWordSets multiplies when right > left', t => {
   const lang = new TestTurkicLanguage()
   // 5 * 100 = 500
-  const result = lang.mergeScales({ beş: 5n }, { yüz: 100n })
+  const result = lang.combineWordSets({ beş: 5n }, { yüz: 100n })
   t.deepEqual(result, { 'beş yüz': 500n })
 })
 
-test('mergeScales adds when right <= left', t => {
+test('combineWordSets adds when right <= left', t => {
   const lang = new TestTurkicLanguage()
   // 20 + 3 = 23
-  const result = lang.mergeScales({ yirmi: 20n }, { üç: 3n })
+  const result = lang.combineWordSets({ yirmi: 20n }, { üç: 3n })
   t.deepEqual(result, { 'yirmi üç': 23n })
 })
 
-test('mergeScales uses wordSeparator for combining', t => {
+test('combineWordSets uses wordSeparator for combining', t => {
   class CustomSeparatorLang extends TestTurkicLanguage {
     wordSeparator = '-'
   }
   const lang = new CustomSeparatorLang()
-  const result = lang.mergeScales({ yirmi: 20n }, { üç: 3n })
+  const result = lang.combineWordSets({ yirmi: 20n }, { üç: 3n })
   t.deepEqual(result, { 'yirmi-üç': 23n })
 })
 
-test('mergeScales handles equal values (adds, not multiplies)', t => {
+test('combineWordSets handles equal values (adds, not multiplies)', t => {
   const lang = new TestTurkicLanguage()
   // When right === left, it adds (since right > left is false)
   // 10 + 10 = 20
-  const result = lang.mergeScales({ on: 10n }, { on: 10n })
+  const result = lang.combineWordSets({ on: 10n }, { on: 10n })
   t.is(Object.values(result)[0], 20n)
 })
 
-test('mergeScales handles exact addition boundary', t => {
+test('combineWordSets handles exact addition boundary', t => {
   const lang = new TestTurkicLanguage()
   // 5 + 5 should add (right not greater than left)
-  const result = lang.mergeScales({ beş: 5n }, { beş: 5n })
+  const result = lang.combineWordSets({ beş: 5n }, { beş: 5n })
   t.is(Object.values(result)[0], 10n)
 })
 
@@ -126,15 +126,15 @@ test('implicit bir rule applies to values <= 100 and 1000', t => {
   const lang = new TestTurkicLanguage()
 
   // Should omit for 100
-  const result100 = lang.mergeScales({ bir: 1n }, { yüz: 100n })
+  const result100 = lang.combineWordSets({ bir: 1n }, { yüz: 100n })
   t.deepEqual(result100, { yüz: 100n })
 
   // Should omit for 1000
-  const result1000 = lang.mergeScales({ bir: 1n }, { bin: 1000n })
+  const result1000 = lang.combineWordSets({ bir: 1n }, { bin: 1000n })
   t.deepEqual(result1000, { bin: 1000n })
 
   // Should also omit for 10 (since 10 <= 100)
-  const result10 = lang.mergeScales({ bir: 1n }, { on: 10n })
+  const result10 = lang.combineWordSets({ bir: 1n }, { on: 10n })
   t.deepEqual(result10, { on: 10n })
 })
 
@@ -225,13 +225,13 @@ test('handles teens correctly', t => {
   t.is(lang.integerToWords(19n), 'on dokuz')
 })
 
-test('scaleWordPairs are ordered descending', t => {
+test('scaleWords are ordered descending', t => {
   const lang = new TestTurkicLanguage()
   // Verify ordering requirement from GreedyScaleLanguage
-  for (let i = 0; i < lang.scaleWordPairs.length - 1; i++) {
-    const current = lang.scaleWordPairs[i][0]
-    const next = lang.scaleWordPairs[i + 1][0]
-    t.true(current > next, `scaleWordPairs should be descending: ${current} > ${next}`)
+  for (let i = 0; i < lang.scaleWords.length - 1; i++) {
+    const current = lang.scaleWords[i][0]
+    const next = lang.scaleWords[i + 1][0]
+    t.true(current > next, `scaleWords should be descending: ${current} > ${next}`)
   }
 })
 
@@ -247,8 +247,8 @@ test('wordSeparator defaults to space', t => {
 test('integrates with GreedyScaleLanguage correctly', t => {
   const lang = new TestTurkicLanguage()
   // Verify it uses the greedy algorithm
-  t.is(typeof lang.decomposeToScales, 'function')
-  t.is(typeof lang.mergeWordSets, 'function')
+  t.is(typeof lang.decomposeInteger, 'function')
+  t.is(typeof lang.reduceWordSets, 'function')
 })
 
 test('integrates with AbstractLanguage for negative numbers', t => {

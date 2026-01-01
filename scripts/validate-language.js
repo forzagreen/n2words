@@ -232,14 +232,19 @@ function validateInheritance (LanguageClass, result) {
 
 /**
  * Validate scale words (for GreedyScaleLanguage/TurkicLanguage)
+ * This validates the scale words array structure and ordering.
+ * Note: SouthAsianLanguage also has scaleWords but in a different format.
  */
-function validateScaleWords (instance, result) {
-  if (!('scaleWordPairs' in instance)) return
+function validateScaleWords (instance, LanguageClass, result) {
+  // Only validate for GreedyScaleLanguage/TurkicLanguage
+  const baseClass = getBaseClassName(LanguageClass)
+  if (baseClass !== 'GreedyScaleLanguage' && baseClass !== 'TurkicLanguage') return
+  if (!('scaleWords' in instance)) return
 
-  const scaleWords = instance.scaleWordPairs
+  const scaleWords = instance.scaleWords
 
   if (!Array.isArray(scaleWords) || scaleWords.length === 0) {
-    result.errors.push('scaleWordPairs should be non-empty array')
+    result.errors.push('scaleWords should be non-empty array')
     return
   }
 
@@ -250,23 +255,23 @@ function validateScaleWords (instance, result) {
     const pair = scaleWords[i]
 
     if (!Array.isArray(pair) || pair.length !== 2) {
-      result.errors.push(`scaleWordPairs[${i}] should be [bigint, string] pair`)
+      result.errors.push(`scaleWords[${i}] should be [bigint, string] pair`)
       continue
     }
 
     const [value, word] = pair
 
     if (typeof value !== 'bigint') {
-      result.errors.push(`scaleWordPairs[${i}][0] should be bigint`)
+      result.errors.push(`scaleWords[${i}][0] should be bigint`)
     }
 
     if (typeof word !== 'string') {
-      result.errors.push(`scaleWordPairs[${i}][1] should be string`)
+      result.errors.push(`scaleWords[${i}][1] should be string`)
     }
 
     // Check descending order
     if (Number(value) >= previousValue && !hasOrderingError) {
-      result.errors.push(`scaleWordPairs not in descending order at index ${i}`)
+      result.errors.push(`scaleWords not in descending order at index ${i}`)
       hasOrderingError = true
     }
 
@@ -274,11 +279,11 @@ function validateScaleWords (instance, result) {
   }
 
   if (!hasOrderingError) {
-    result.info.push(`✓ scaleWordPairs properly ordered (${scaleWords.length} entries)`)
+    result.info.push(`✓ scaleWords properly ordered (${scaleWords.length} entries)`)
   }
 
   if (!scaleWords.some(pair => pair[0] === 1n)) {
-    result.warnings.push('scaleWordPairs missing entry for 1n')
+    result.warnings.push('scaleWords missing entry for 1n')
   }
 }
 
@@ -314,20 +319,20 @@ function validateBaseClassRequirements (instance, LanguageClass, result) {
   switch (baseClass) {
     case 'GreedyScaleLanguage':
     case 'TurkicLanguage': {
-      // Must have scaleWordPairs
-      if (!('scaleWordPairs' in instance)) {
-        result.errors.push(`${baseClass} requires scaleWordPairs array`)
-      } else if (!Array.isArray(instance.scaleWordPairs) || instance.scaleWordPairs.length === 0) {
-        result.errors.push('scaleWordPairs must be a non-empty array')
+      // Must have scaleWords
+      if (!('scaleWords' in instance)) {
+        result.errors.push(`${baseClass} requires scaleWords array`)
+      } else if (!Array.isArray(instance.scaleWords) || instance.scaleWords.length === 0) {
+        result.errors.push('scaleWords must be a non-empty array')
       } else {
-        result.info.push(`✓ Has scaleWordPairs (${instance.scaleWordPairs.length} entries)`)
+        result.info.push(`✓ Has scaleWords (${instance.scaleWords.length} entries)`)
       }
 
-      // Must have mergeScales method (inherited is ok)
-      if (typeof instance.mergeScales !== 'function') {
-        result.errors.push(`${baseClass} requires mergeScales() method`)
+      // Must have combineWordSets method (inherited is ok)
+      if (typeof instance.combineWordSets !== 'function') {
+        result.errors.push(`${baseClass} requires combineWordSets() method`)
       } else {
-        result.info.push('✓ Has mergeScales() method')
+        result.info.push('✓ Has combineWordSets() method')
       }
       break
     }
@@ -636,9 +641,9 @@ function validateOptionsPattern (instance, LanguageClass, className, fileContent
   if (hasSuperOptions) {
     result.info.push('✓ Constructor passes options to super() (regional variant)')
 
-    if (body.includes('this.scaleWordPairs')) {
-      result.info.push('✓ Constructor mutates scaleWordPairs')
-      validateScaleWords(instance, result) // Re-validate after mutation
+    if (body.includes('this.scaleWords')) {
+      result.info.push('✓ Constructor mutates scaleWords')
+      validateScaleWords(instance, LanguageClass, result) // Re-validate after mutation
     }
     return
   }
@@ -872,7 +877,7 @@ async function performValidations (languageCode, className, LanguageClass, fileC
   validateRequiredProperties(instance, result)
   validateMethods(instance, result)
   validateInheritance(LanguageClass, result)
-  validateScaleWords(instance, result)
+  validateScaleWords(instance, LanguageClass, result)
   validateBaseClassRequirements(instance, LanguageClass, result)
   validateDocumentation(fileContent, className, result)
   validateImports(fileContent, result)
