@@ -3,6 +3,10 @@
  * Tests that TypeScript declarations work correctly
  *
  * Run with: npm run test:tsd
+ *
+ * NOTE: Unlike runtime tests, type tests require explicit imports to verify
+ * each converter's type signature at compile time. When adding a new language,
+ * add its converter to the imports and include appropriate type tests below.
  */
 
 import { expectType, expectError, expectAssignable } from 'tsd'
@@ -11,8 +15,6 @@ import {
   AzerbaijaniConverter,
   BanglaConverter,
   BiblicalHebrewConverter,
-  SimplifiedChineseConverter,
-  TraditionalChineseConverter,
   CroatianConverter,
   CzechConverter,
   DanishConverter,
@@ -45,12 +47,14 @@ import {
   RussianConverter,
   SerbianCyrillicConverter,
   SerbianLatinConverter,
+  SimplifiedChineseConverter,
   SpanishConverter,
   SwahiliConverter,
   SwedishConverter,
   TamilConverter,
   TeluguConverter,
   ThaiConverter,
+  TraditionalChineseConverter,
   TurkishConverter,
   UkrainianConverter,
   UrduConverter,
@@ -61,16 +65,13 @@ import {
 // Basic Converter Tests - Converters without options
 // ============================================================================
 
-// English converter
+// English converter (representative test for input types)
 expectType<string>(EnglishConverter(42))
 expectType<string>(EnglishConverter(BigInt(42)))
 expectType<string>(EnglishConverter('42'))
 expectType<string>(EnglishConverter(3.14))
 
-// Should error if passing options to converters without options
-expectError(EnglishConverter(42, { gender: 'masculine' }))
-
-// Test multiple converters without options
+// Converters without options - verify they accept value and return string
 expectType<string>(AzerbaijaniConverter(42))
 expectType<string>(BanglaConverter(42))
 expectType<string>(FilipinoConverter(42))
@@ -97,6 +98,9 @@ expectType<string>(TeluguConverter(42))
 expectType<string>(ThaiConverter(42))
 expectType<string>(UrduConverter(42))
 expectType<string>(VietnameseConverter(42))
+
+// Should error if passing options to converters without options
+expectError(EnglishConverter(42, { gender: 'masculine' }))
 
 // ============================================================================
 // Converters with Gender Options
