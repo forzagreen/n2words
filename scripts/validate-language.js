@@ -365,6 +365,32 @@ function validateTestFixture (languageCode, result) {
 }
 
 /**
+ * Validate type test file includes the converter
+ */
+function validateTypeTest (className, result) {
+  const typeTestFile = './test/types/n2words.test-d.ts'
+  const converterName = `${className}Converter`
+
+  if (!existsSync(typeTestFile)) {
+    result.warnings.push(`Type test file not found: ${typeTestFile}`)
+    return
+  }
+
+  try {
+    const content = readFileSync(typeTestFile, 'utf8')
+
+    // Check if converter is imported
+    if (!content.includes(converterName)) {
+      result.errors.push(`${converterName} not imported in type test file (${typeTestFile})`)
+    } else {
+      result.info.push(`✓ ${converterName} included in type tests`)
+    }
+  } catch (error) {
+    result.warnings.push(`Could not read type test file: ${error.message}`)
+  }
+}
+
+/**
  * Extract typedef from n2words.js
  */
 function extractTypedef (className, n2wordsContent) {
@@ -627,6 +653,7 @@ async function performValidations (languageCode, className, LanguageClass, fileC
   validateImports(fileContent, result)
   validateOptionsPattern(instance, LanguageClass, className, fileContent, n2wordsContent, result)
   validateTestFixture(languageCode, result)
+  validateTypeTest(className, result)
   validateN2wordsExport(languageCode, className, n2wordsContent, result)
 }
 
