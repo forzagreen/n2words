@@ -1024,7 +1024,7 @@ Before pushing, run the same checks locally:
 npm run lint         # Linting
 npm test             # Full test suite
 npm run build        # Build UMD bundles
-npm audit --production --audit-level=moderate  # Security audit
+npm audit --audit-level=high  # Security audit (matches CI)
 
 # Optional: Run browser tests (pretest:web hook builds automatically)
 npm run test:web
