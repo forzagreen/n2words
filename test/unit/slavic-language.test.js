@@ -150,60 +150,60 @@ test('integerToWords handles hundreds with remainder', t => {
 // Gender Tests
 // ============================================================================
 
-test('integerToWords uses feminine forms for thousands chunk', t => {
+test('integerToWords uses feminine forms for thousands segment', t => {
   const lang = new TestSlavicLanguage({ gender: 'masculine' })
   // 1001 = 1 thousand + 1 ones
-  // Thousands chunk (1) should use feminine form
+  // Thousands segment (1) should use feminine form
   const result = lang.integerToWords(1001n)
-  t.true(result.includes('one-f')) // Feminine for thousand chunk
+  t.true(result.includes('one-f')) // Feminine for thousand segment
   t.true(result.includes('thousand'))
 })
 
-test('uses ones array when chunkIndex is 0 and gender is masculine', t => {
+test('uses ones array when segmentIndex is 0 and gender is masculine', t => {
   const lang = new TestSlavicLanguage({ gender: 'masculine' })
-  // 1 (chunkIndex 0) should use masculine form
+  // 1 (segmentIndex 0) should use masculine form
   t.is(lang.integerToWords(1n), 'one-m')
   t.is(lang.integerToWords(2n), 'two-m')
 })
 
-test('uses onesFeminine when chunkIndex is 0 and gender is feminine', t => {
+test('uses onesFeminine when segmentIndex is 0 and gender is feminine', t => {
   const lang = new TestSlavicLanguage({ gender: 'feminine' })
-  // 1 (chunkIndex 0) should use feminine form
+  // 1 (segmentIndex 0) should use feminine form
   t.is(lang.integerToWords(1n), 'one-f')
   t.is(lang.integerToWords(2n), 'two-f')
 })
 
-test('thousands chunk always uses feminine forms regardless of gender option', t => {
+test('thousands segment always uses feminine forms regardless of gender option', t => {
   const langMasc = new TestSlavicLanguage({ gender: 'masculine' })
   const langFem = new TestSlavicLanguage({ gender: 'feminine' })
 
-  // 1001 has chunkIndex 1 for thousands, should use feminine
+  // 1001 has segmentIndex 1 for thousands, should use feminine
   const resultMasc = langMasc.integerToWords(1001n)
   const resultFem = langFem.integerToWords(1001n)
 
-  t.true(resultMasc.includes('one-f'), 'Thousands chunk should use feminine in masculine mode')
-  t.true(resultFem.includes('one-f'), 'Thousands chunk should use feminine in feminine mode')
+  t.true(resultMasc.includes('one-f'), 'Thousands segment should use feminine in masculine mode')
+  t.true(resultFem.includes('one-f'), 'Thousands segment should use feminine in feminine mode')
 })
 
 // ============================================================================
-// Chunking Tests
+// Segmentation Tests
 // ============================================================================
 
-test('splitIntoChunks handles numbers less than chunk size', t => {
+test('splitToSegments handles numbers less than segment size', t => {
   const lang = new TestSlavicLanguage()
-  t.deepEqual(lang.splitIntoChunks('123', 3), [123n])
-  t.deepEqual(lang.splitIntoChunks('1', 3), [1n])
+  t.deepEqual(lang.splitToSegments('123', 3), [123n])
+  t.deepEqual(lang.splitToSegments('1', 3), [1n])
 })
 
-test('splitIntoChunks handles exact chunk multiples', t => {
+test('splitToSegments handles exact segment multiples', t => {
   const lang = new TestSlavicLanguage()
-  t.deepEqual(lang.splitIntoChunks('123456', 3), [123n, 456n])
+  t.deepEqual(lang.splitToSegments('123456', 3), [123n, 456n])
 })
 
-test('splitIntoChunks handles numbers with remainder', t => {
+test('splitToSegments handles numbers with remainder', t => {
   const lang = new TestSlavicLanguage()
-  t.deepEqual(lang.splitIntoChunks('1234567', 3), [1n, 234n, 567n])
-  t.deepEqual(lang.splitIntoChunks('12345678', 3), [12n, 345n, 678n])
+  t.deepEqual(lang.splitToSegments('1234567', 3), [1n, 234n, 567n])
+  t.deepEqual(lang.splitToSegments('12345678', 3), [12n, 345n, 678n])
 })
 
 test('extractDigits extracts ones, tens, hundreds correctly', t => {
@@ -306,9 +306,9 @@ test('handles millions with correct pluralization', t => {
   t.true(result5.includes('million-many'))
 })
 
-test('skips zero chunks', t => {
+test('skips zero segments', t => {
   const lang = new TestSlavicLanguage()
-  // 1,000,001 should skip the middle zero chunk
+  // 1,000,001 should skip the middle zero segment
   const result = lang.integerToWords(1000001n)
   t.false(result.includes('zero'))
   t.true(result.includes('million'))
