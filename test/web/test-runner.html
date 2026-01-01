@@ -214,10 +214,10 @@
       // Error handling - use pattern matching instead of exact string
       try {
         const result = n2words.EnglishConverter('invalid')
-        test('error', 'Invalid input handling', 'Error thrown', 'Unexpected success: ' + result)
+        test('error', 'Invalid input throws error', 'Error thrown', 'No error: returned "' + result + '"')
       } catch (e) {
-        const errorThrown = /Invalid number format/.test(e.message)
-        test('error', 'Invalid input handling', true, errorThrown)
+        const matchesPattern = /Invalid number format/.test(e.message)
+        test('error', 'Invalid input throws error', 'Error matches pattern', matchesPattern ? 'Error matches pattern' : 'Error: ' + e.message)
       }
 
       // Render results

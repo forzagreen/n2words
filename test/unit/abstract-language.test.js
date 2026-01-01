@@ -118,7 +118,7 @@ test('caches whole number correctly', t => {
   lang.convert(false, 100n, '5')
   t.is(lang.cachedWholeNumber, 100n)
 
-  // Negative numbers still cache the positive whole number
+  // convert() receives already-positive wholeNumber (sign is passed as isNegative flag)
   lang.convert(true, 50n)
   t.is(lang.cachedWholeNumber, 50n)
 })
