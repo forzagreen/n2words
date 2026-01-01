@@ -352,15 +352,15 @@ function validateBaseClassRequirements (instance, LanguageClass, result) {
     }
 
     case 'SouthAsianLanguage': {
-      // Must have belowHundred array
-      if (!('belowHundred' in instance)) {
-        result.errors.push('SouthAsianLanguage requires belowHundred array')
-      } else if (!Array.isArray(instance.belowHundred)) {
-        result.errors.push('belowHundred must be an array')
-      } else if (instance.belowHundred.length < 100) {
-        result.warnings.push(`belowHundred has ${instance.belowHundred.length} entries (expected 100)`)
+      // Must have belowHundredWords array
+      if (!('belowHundredWords' in instance)) {
+        result.errors.push('SouthAsianLanguage requires belowHundredWords array')
+      } else if (!Array.isArray(instance.belowHundredWords)) {
+        result.errors.push('belowHundredWords must be an array')
+      } else if (instance.belowHundredWords.length < 100) {
+        result.warnings.push(`belowHundredWords has ${instance.belowHundredWords.length} entries (expected 100)`)
       } else {
-        result.info.push(`✓ Has belowHundred (${instance.belowHundred.length} entries)`)
+        result.info.push(`✓ Has belowHundredWords (${instance.belowHundredWords.length} entries)`)
       }
 
       // Must have scaleWords array

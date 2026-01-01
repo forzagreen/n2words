@@ -11,7 +11,7 @@ Scaffolding tool for quickly setting up a new language implementation with all r
 - **Language implementation file** (`lib/languages/{code}.js`)
   - Class extending the selected base class (GreedyScaleLanguage by default)
   - Placeholder properties (negativeWord, zeroWord, decimalSeparatorWord)
-  - Base-class-specific structure (scaleWordPairs, pluralForms, belowHundred, etc.)
+  - Base-class-specific structure (scaleWordPairs, pluralForms, belowHundredWords, etc.)
   - Skeleton methods with TODO comments
   - Comprehensive JSDoc documentation
 
@@ -106,7 +106,7 @@ The script validates that:
    - Complete base-class-specific requirements:
      - **GreedyScaleLanguage/TurkicLanguage**: Add `scaleWordPairs` array, implement `mergeScales()`
      - **SlavicLanguage**: Define `onesWords`, `onesFeminineWords`, `teensWords`, `twentiesWords`, `hundredsWords`, `pluralForms` (optionally `scaleGenders = { 1: true }` for feminine thousands, `omitOneBeforeScale` to skip "one" before scale words)
-     - **SouthAsianLanguage**: Complete `belowHundred` array (0-99), define `scaleWords`
+     - **SouthAsianLanguage**: Complete `belowHundredWords` array (0-99), define `scaleWords`
      - **AbstractLanguage**: Implement `convertWholePart()` from scratch
 
 2. Edit `test/fixtures/languages/{code}.js`:

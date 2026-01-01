@@ -251,8 +251,8 @@ export class ${className} extends ${base.name} {
   decimalSeparatorWord = 'point' // TODO: Replace with ${className} word
   zeroWord = 'zero' // TODO: Replace with ${className} word
 
-  // TODO: Define words for 0-99 (belowHundred array)
-  belowHundred = [
+  // TODO: Define words for 0-99 (belowHundredWords array)
+  belowHundredWords = [
     'zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine',
     'ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen',
     'twenty', 'twenty-one', 'twenty-two', 'twenty-three', 'twenty-four', 'twenty-five', 'twenty-six', 'twenty-seven', 'twenty-eight', 'twenty-nine',
@@ -778,7 +778,7 @@ async function main () {
     console.log(chalk.gray('   - Define ones, tens, twenties, hundreds dictionaries'))
     console.log(chalk.gray('   - Add pluralForms for scale words [singular, few, many]'))
   } else if (baseType === 'south-asian') {
-    console.log(chalk.gray('   - Complete belowHundred array (0-99)'))
+    console.log(chalk.gray('   - Complete belowHundredWords array (0-99)'))
     console.log(chalk.gray('   - Define scaleWords [hazaar, lakh, crore, arab]'))
   } else if (baseType === 'abstract') {
     console.log(chalk.gray('   - Implement convertWholePart() method'))

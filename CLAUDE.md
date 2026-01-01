@@ -442,7 +442,7 @@ npm run lang:add <code>
    - Implement base-class-specific requirements:
      - **GreedyScaleLanguage**: Add `scaleWordPairs` array, implement `mergeScales()`
      - **SlavicLanguage**: Add `onesWords`, `onesFeminineWords`, `teensWords`, `twentiesWords`, `hundredsWords`, `pluralForms` (optionally `scaleGenders` for per-scale gender)
-     - **SouthAsianLanguage**: Add `belowHundred` array (100 entries), `scaleWords` array
+     - **SouthAsianLanguage**: Add `belowHundredWords` array (100 entries), `scaleWords` array
      - **TurkicLanguage**: Add `scaleWordPairs` array, implement `mergeScales()`
      - **AbstractLanguage**: Implement `convertWholePart()` from scratch
 2. Edit `test/fixtures/languages/{code}.js`:
