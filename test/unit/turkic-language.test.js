@@ -142,87 +142,87 @@ test('implicit bir rule applies to values <= 100 and 1000', t => {
 // Conversion Tests
 // ============================================================================
 
-test('convertWholePart handles zero', t => {
+test('integerToWords handles zero', t => {
   const lang = new TestTurkicLanguage()
-  t.is(lang.convertWholePart(0n), 'sıfır')
+  t.is(lang.integerToWords(0n), 'sıfır')
 })
 
-test('convertWholePart handles single digits', t => {
+test('integerToWords handles single digits', t => {
   const lang = new TestTurkicLanguage()
-  t.is(lang.convertWholePart(1n), 'bir')
-  t.is(lang.convertWholePart(5n), 'beş')
-  t.is(lang.convertWholePart(9n), 'dokuz')
+  t.is(lang.integerToWords(1n), 'bir')
+  t.is(lang.integerToWords(5n), 'beş')
+  t.is(lang.integerToWords(9n), 'dokuz')
 })
 
-test('convertWholePart handles tens', t => {
+test('integerToWords handles tens', t => {
   const lang = new TestTurkicLanguage()
-  t.is(lang.convertWholePart(10n), 'on')
-  t.is(lang.convertWholePart(20n), 'yirmi')
-  t.is(lang.convertWholePart(50n), 'elli')
+  t.is(lang.integerToWords(10n), 'on')
+  t.is(lang.integerToWords(20n), 'yirmi')
+  t.is(lang.integerToWords(50n), 'elli')
 })
 
-test('convertWholePart handles compound numbers under 100', t => {
+test('integerToWords handles compound numbers under 100', t => {
   const lang = new TestTurkicLanguage()
-  const result = lang.convertWholePart(23n)
+  const result = lang.integerToWords(23n)
   t.true(result.includes('yirmi'))
   t.true(result.includes('üç'))
 })
 
-test('convertWholePart handles exactly 100 (omits bir)', t => {
+test('integerToWords handles exactly 100 (omits bir)', t => {
   const lang = new TestTurkicLanguage()
   // Should be just 'yüz', not 'bir yüz'
-  t.is(lang.convertWholePart(100n), 'yüz')
+  t.is(lang.integerToWords(100n), 'yüz')
 })
 
-test('convertWholePart handles exactly 1000 (omits bir)', t => {
+test('integerToWords handles exactly 1000 (omits bir)', t => {
   const lang = new TestTurkicLanguage()
   // Should be just 'bin', not 'bir bin'
-  t.is(lang.convertWholePart(1000n), 'bin')
+  t.is(lang.integerToWords(1000n), 'bin')
 })
 
-test('convertWholePart handles multiples of 100 (keeps multiplier)', t => {
+test('integerToWords handles multiples of 100 (keeps multiplier)', t => {
   const lang = new TestTurkicLanguage()
   // 200 should be 'iki yüz'
-  const result = lang.convertWholePart(200n)
+  const result = lang.integerToWords(200n)
   t.true(result.includes('iki'))
   t.true(result.includes('yüz'))
 })
 
-test('convertWholePart handles multiples of 1000 (keeps multiplier)', t => {
+test('integerToWords handles multiples of 1000 (keeps multiplier)', t => {
   const lang = new TestTurkicLanguage()
   // 2000 should be 'iki bin'
-  const result = lang.convertWholePart(2000n)
+  const result = lang.integerToWords(2000n)
   t.true(result.includes('iki'))
   t.true(result.includes('bin'))
 })
 
-test('convertWholePart handles hundreds with remainder', t => {
+test('integerToWords handles hundreds with remainder', t => {
   const lang = new TestTurkicLanguage()
   // 123 should include yüz and other components
-  const result = lang.convertWholePart(123n)
+  const result = lang.integerToWords(123n)
   t.true(result.includes('yüz'))
 })
 
-test('convertWholePart handles thousands with remainder', t => {
+test('integerToWords handles thousands with remainder', t => {
   const lang = new TestTurkicLanguage()
   // 1234 should include bin
-  const result = lang.convertWholePart(1234n)
+  const result = lang.integerToWords(1234n)
   t.true(result.includes('bin'))
 })
 
 test('handles complex number with thousands and hundreds', t => {
   const lang = new TestTurkicLanguage()
   // 5432 = 5 thousand + 4 hundred + 32
-  const result = lang.convertWholePart(5432n)
+  const result = lang.integerToWords(5432n)
   t.is(typeof result, 'string')
   t.true(result.length > 0)
 })
 
 test('handles teens correctly', t => {
   const lang = new TestTurkicLanguage()
-  t.is(lang.convertWholePart(11n), 'on bir')
-  t.is(lang.convertWholePart(15n), 'on beş')
-  t.is(lang.convertWholePart(19n), 'on dokuz')
+  t.is(lang.integerToWords(11n), 'on bir')
+  t.is(lang.integerToWords(15n), 'on beş')
+  t.is(lang.integerToWords(19n), 'on dokuz')
 })
 
 test('scaleWordPairs are ordered descending', t => {
@@ -253,12 +253,12 @@ test('integrates with GreedyScaleLanguage correctly', t => {
 
 test('integrates with AbstractLanguage for negative numbers', t => {
   const lang = new TestTurkicLanguage()
-  const result = lang.convert(true, 42n)
+  const result = lang.toWords(true, 42n)
   t.true(result.startsWith('eksi'))
 })
 
 test('integrates with AbstractLanguage for decimals', t => {
   const lang = new TestTurkicLanguage()
-  const result = lang.convert(false, 3n, '14')
+  const result = lang.toWords(false, 3n, '14')
   t.true(result.includes('nokta'))
 })

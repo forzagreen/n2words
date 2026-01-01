@@ -215,7 +215,7 @@ test('mergeScales receives correct word-set format', t => {
     }
   }
   const lang = new SpyLang()
-  lang.convertWholePart(23n) // twenty + three
+  lang.integerToWords(23n) // twenty + three
 
   // Verify word-sets have correct format
   t.is(typeof capturedLeft, 'object')
@@ -228,18 +228,18 @@ test('mergeScales receives correct word-set format', t => {
 // Whole Part Conversion Tests
 // ============================================================================
 
-test('convertWholePart returns a string', t => {
+test('integerToWords returns a string', t => {
   const lang = new TestGreedyLanguage()
-  const result = lang.convertWholePart(0n)
+  const result = lang.integerToWords(0n)
   t.is(typeof result, 'string')
   t.true(result.length > 0)
 })
 
-test('convertWholePart handles single digits', t => {
+test('integerToWords handles single digits', t => {
   const lang = new TestGreedyLanguage()
-  const result1 = lang.convertWholePart(1n)
-  const result5 = lang.convertWholePart(5n)
-  const result9 = lang.convertWholePart(9n)
+  const result1 = lang.integerToWords(1n)
+  const result5 = lang.integerToWords(5n)
+  const result9 = lang.integerToWords(9n)
 
   t.is(typeof result1, 'string')
   t.is(typeof result5, 'string')
@@ -249,22 +249,22 @@ test('convertWholePart handles single digits', t => {
   t.true(result9.length > 0)
 })
 
-test('convertWholePart handles compound numbers under 100', t => {
+test('integerToWords handles compound numbers under 100', t => {
   const lang = new TestGreedyLanguage()
-  const result = lang.convertWholePart(23n)
+  const result = lang.integerToWords(23n)
   t.true(result.includes('twenty'))
   t.true(result.includes('three'))
 })
 
-test('convertWholePart handles hundreds', t => {
+test('integerToWords handles hundreds', t => {
   const lang = new TestGreedyLanguage()
-  const result = lang.convertWholePart(100n)
+  const result = lang.integerToWords(100n)
   t.true(result.includes('hundred'))
 })
 
-test('convertWholePart handles thousands', t => {
+test('integerToWords handles thousands', t => {
   const lang = new TestGreedyLanguage()
-  const result = lang.convertWholePart(1000n)
+  const result = lang.integerToWords(1000n)
   t.true(result.includes('thousand'))
 })
 
@@ -280,7 +280,7 @@ test('handles very large numbers', t => {
     ]
   }
   const lang = new LargeNumberLang()
-  const result = lang.convertWholePart(1000000n)
+  const result = lang.integerToWords(1000000n)
   t.true(result.includes('million'))
 })
 
@@ -302,7 +302,7 @@ test('finalizeWords can be overridden by subclasses', t => {
     }
   }
   const lang = new CustomFinalizeLang()
-  const result = lang.convertWholePart(5n)
+  const result = lang.integerToWords(5n)
   // Result should be uppercase
   t.is(result, result.toUpperCase())
 })
@@ -313,12 +313,12 @@ test('finalizeWords can be overridden by subclasses', t => {
 
 test('integrates with AbstractLanguage for negative numbers', t => {
   const lang = new TestGreedyLanguage()
-  const result = lang.convert(true, 42n)
+  const result = lang.toWords(true, 42n)
   t.true(result.startsWith('minus'))
 })
 
 test('integrates with AbstractLanguage for decimals', t => {
   const lang = new TestGreedyLanguage()
-  const result = lang.convert(false, 3n, '14')
+  const result = lang.toWords(false, 3n, '14')
   t.true(result.includes('point'))
 })

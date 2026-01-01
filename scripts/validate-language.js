@@ -151,11 +151,11 @@ function validateRequiredProperties (instance, result) {
   }
 
   // Check optional flag
-  if ('convertDecimalsPerDigit' in instance) {
-    if (typeof instance.convertDecimalsPerDigit !== 'boolean') {
-      result.errors.push('convertDecimalsPerDigit should be boolean')
+  if ('usePerDigitDecimals' in instance) {
+    if (typeof instance.usePerDigitDecimals !== 'boolean') {
+      result.errors.push('usePerDigitDecimals should be boolean')
     } else {
-      result.info.push(`✓ convertDecimalsPerDigit: ${instance.convertDecimalsPerDigit}`)
+      result.info.push(`✓ usePerDigitDecimals: ${instance.usePerDigitDecimals}`)
     }
   }
 }
@@ -164,31 +164,31 @@ function validateRequiredProperties (instance, result) {
  * Validate required methods
  */
 function validateMethods (instance, result) {
-  if (typeof instance.convertWholePart !== 'function') {
-    result.errors.push('Missing convertWholePart() method')
+  if (typeof instance.integerToWords !== 'function') {
+    result.errors.push('Missing integerToWords() method')
     return
   }
 
   // Test implementation
   try {
-    const testResult = instance.convertWholePart(0n)
+    const testResult = instance.integerToWords(0n)
     if (typeof testResult !== 'string') {
-      result.errors.push(`convertWholePart(0n) returned ${typeof testResult}, expected string`)
+      result.errors.push(`integerToWords(0n) returned ${typeof testResult}, expected string`)
     } else if (testResult === '') {
-      result.warnings.push('convertWholePart(0n) returned empty string')
+      result.warnings.push('integerToWords(0n) returned empty string')
     } else {
-      result.info.push(`✓ convertWholePart(0n) returns: "${testResult}"`)
+      result.info.push(`✓ integerToWords(0n) returns: "${testResult}"`)
     }
   } catch (error) {
     if (error.message.includes('must be implemented by subclass')) {
-      result.errors.push('convertWholePart() not implemented (still abstract)')
+      result.errors.push('integerToWords() not implemented (still abstract)')
     } else {
-      result.errors.push(`convertWholePart(0n) threw error: ${error.message}`)
+      result.errors.push(`integerToWords(0n) threw error: ${error.message}`)
     }
   }
 
-  if (typeof instance.convert !== 'function') {
-    result.errors.push('Missing convert() method (should be inherited)')
+  if (typeof instance.toWords !== 'function') {
+    result.errors.push('Missing toWords() method (should be inherited)')
   }
 }
 
@@ -623,10 +623,10 @@ function validateOptionsPattern (instance, LanguageClass, className, fileContent
   }
 
   const hasSuperOptions = body.includes('super(options)')
-  const hasMergeOptions = body.includes('this.mergeOptions(')
+  const hasSetOptions = body.includes('this.setOptions(')
 
-  // Hybrid pattern: passes options to super AND has own mergeOptions
-  if (hasSuperOptions && hasMergeOptions) {
+  // Hybrid pattern: passes options to super AND has own setOptions
+  if (hasSuperOptions && hasSetOptions) {
     result.info.push('✓ Constructor passes options to super() and adds own options')
     validateOptionsTypedef(className, body, n2wordsContent, result)
     return
@@ -645,13 +645,13 @@ function validateOptionsPattern (instance, LanguageClass, className, fileContent
 
   result.info.push('✓ Constructor calls super()')
 
-  // Standard options pattern: only uses mergeOptions
-  if (!hasMergeOptions) {
-    result.errors.push('Constructor should call this.mergeOptions() or pass options to super()')
+  // Standard options pattern: only uses setOptions
+  if (!hasSetOptions) {
+    result.errors.push('Constructor should call this.setOptions() or pass options to super()')
     return
   }
 
-  result.info.push('✓ Constructor uses mergeOptions()')
+  result.info.push('✓ Constructor uses setOptions()')
   validateOptionsTypedef(className, body, n2wordsContent, result)
 }
 
@@ -731,8 +731,8 @@ function inferDescriptionFromName (name) {
  * Validate options typedef and defaults
  */
 function validateOptionsTypedef (className, constructorBody, n2wordsContent, result) {
-  // Extract default options from mergeOptions()
-  const mergeMatch = constructorBody.match(/this\.mergeOptions\(\s*{([^}]*)}/)
+  // Extract default options from setOptions()
+  const mergeMatch = constructorBody.match(/this\.setOptions\(\s*{([^}]*)}/)
   if (!mergeMatch) return
 
   const defaults = []

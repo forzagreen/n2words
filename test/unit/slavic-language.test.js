@@ -98,63 +98,63 @@ class TestSlavicLanguage extends SlavicLanguage {
 // Basic Conversion Tests
 // ============================================================================
 
-test('convertWholePart returns zero word for 0', t => {
+test('integerToWords returns zero word for 0', t => {
   const lang = new TestSlavicLanguage()
-  t.is(lang.convertWholePart(0n), 'zero')
+  t.is(lang.integerToWords(0n), 'zero')
 })
 
-test('convertWholePart handles single digits with masculine forms', t => {
+test('integerToWords handles single digits with masculine forms', t => {
   const lang = new TestSlavicLanguage({ gender: 'masculine' })
-  t.is(lang.convertWholePart(1n), 'one-m')
-  t.is(lang.convertWholePart(2n), 'two-m')
-  t.is(lang.convertWholePart(5n), 'five')
+  t.is(lang.integerToWords(1n), 'one-m')
+  t.is(lang.integerToWords(2n), 'two-m')
+  t.is(lang.integerToWords(5n), 'five')
 })
 
-test('convertWholePart handles single digits with feminine option', t => {
+test('integerToWords handles single digits with feminine option', t => {
   const lang = new TestSlavicLanguage({ gender: 'feminine' })
-  t.is(lang.convertWholePart(1n), 'one-f')
-  t.is(lang.convertWholePart(2n), 'two-f')
-  t.is(lang.convertWholePart(5n), 'five')
+  t.is(lang.integerToWords(1n), 'one-f')
+  t.is(lang.integerToWords(2n), 'two-f')
+  t.is(lang.integerToWords(5n), 'five')
 })
 
-test('convertWholePart handles teens (10-19)', t => {
+test('integerToWords handles teens (10-19)', t => {
   const lang = new TestSlavicLanguage()
-  t.is(lang.convertWholePart(10n), 'ten')
-  t.is(lang.convertWholePart(11n), 'eleven')
-  t.is(lang.convertWholePart(15n), 'fifteen')
-  t.is(lang.convertWholePart(19n), 'nineteen')
+  t.is(lang.integerToWords(10n), 'ten')
+  t.is(lang.integerToWords(11n), 'eleven')
+  t.is(lang.integerToWords(15n), 'fifteen')
+  t.is(lang.integerToWords(19n), 'nineteen')
 })
 
-test('convertWholePart handles twenties', t => {
+test('integerToWords handles twenties', t => {
   const lang = new TestSlavicLanguage()
-  t.is(lang.convertWholePart(20n), 'twenty')
-  t.is(lang.convertWholePart(21n), 'twenty one-m')
-  t.is(lang.convertWholePart(25n), 'twenty five')
-  t.is(lang.convertWholePart(99n), 'ninety nine')
+  t.is(lang.integerToWords(20n), 'twenty')
+  t.is(lang.integerToWords(21n), 'twenty one-m')
+  t.is(lang.integerToWords(25n), 'twenty five')
+  t.is(lang.integerToWords(99n), 'ninety nine')
 })
 
-test('convertWholePart handles hundreds', t => {
+test('integerToWords handles hundreds', t => {
   const lang = new TestSlavicLanguage()
-  t.is(lang.convertWholePart(100n), 'one-hundred')
-  t.is(lang.convertWholePart(200n), 'two-hundred')
-  t.is(lang.convertWholePart(500n), 'five-hundred')
+  t.is(lang.integerToWords(100n), 'one-hundred')
+  t.is(lang.integerToWords(200n), 'two-hundred')
+  t.is(lang.integerToWords(500n), 'five-hundred')
 })
 
-test('convertWholePart handles hundreds with remainder', t => {
+test('integerToWords handles hundreds with remainder', t => {
   const lang = new TestSlavicLanguage()
-  t.is(lang.convertWholePart(123n), 'one-hundred twenty three-m')
-  t.is(lang.convertWholePart(456n), 'four-hundred fifty six')
+  t.is(lang.integerToWords(123n), 'one-hundred twenty three-m')
+  t.is(lang.integerToWords(456n), 'four-hundred fifty six')
 })
 
 // ============================================================================
 // Gender Tests
 // ============================================================================
 
-test('convertWholePart uses feminine forms for thousands chunk', t => {
+test('integerToWords uses feminine forms for thousands chunk', t => {
   const lang = new TestSlavicLanguage({ gender: 'masculine' })
   // 1001 = 1 thousand + 1 ones
   // Thousands chunk (1) should use feminine form
-  const result = lang.convertWholePart(1001n)
+  const result = lang.integerToWords(1001n)
   t.true(result.includes('one-f')) // Feminine for thousand chunk
   t.true(result.includes('thousand'))
 })
@@ -162,15 +162,15 @@ test('convertWholePart uses feminine forms for thousands chunk', t => {
 test('uses ones array when chunkIndex is 0 and gender is masculine', t => {
   const lang = new TestSlavicLanguage({ gender: 'masculine' })
   // 1 (chunkIndex 0) should use masculine form
-  t.is(lang.convertWholePart(1n), 'one-m')
-  t.is(lang.convertWholePart(2n), 'two-m')
+  t.is(lang.integerToWords(1n), 'one-m')
+  t.is(lang.integerToWords(2n), 'two-m')
 })
 
 test('uses onesFeminine when chunkIndex is 0 and gender is feminine', t => {
   const lang = new TestSlavicLanguage({ gender: 'feminine' })
   // 1 (chunkIndex 0) should use feminine form
-  t.is(lang.convertWholePart(1n), 'one-f')
-  t.is(lang.convertWholePart(2n), 'two-f')
+  t.is(lang.integerToWords(1n), 'one-f')
+  t.is(lang.integerToWords(2n), 'two-f')
 })
 
 test('thousands chunk always uses feminine forms regardless of gender option', t => {
@@ -178,8 +178,8 @@ test('thousands chunk always uses feminine forms regardless of gender option', t
   const langFem = new TestSlavicLanguage({ gender: 'feminine' })
 
   // 1001 has chunkIndex 1 for thousands, should use feminine
-  const resultMasc = langMasc.convertWholePart(1001n)
-  const resultFem = langFem.convertWholePart(1001n)
+  const resultMasc = langMasc.integerToWords(1001n)
+  const resultFem = langFem.integerToWords(1001n)
 
   t.true(resultMasc.includes('one-f'), 'Thousands chunk should use feminine in masculine mode')
   t.true(resultFem.includes('one-f'), 'Thousands chunk should use feminine in feminine mode')
@@ -274,15 +274,15 @@ test('handles thousands with correct pluralization', t => {
   const lang = new TestSlavicLanguage()
 
   // 1000 should use singular form
-  const result1 = lang.convertWholePart(1000n)
+  const result1 = lang.integerToWords(1000n)
   t.true(result1.includes('thousand-sing'))
 
   // 2000 should use few form
-  const result2 = lang.convertWholePart(2000n)
+  const result2 = lang.integerToWords(2000n)
   t.true(result2.includes('thousand-few'))
 
   // 5000 should use many form
-  const result5 = lang.convertWholePart(5000n)
+  const result5 = lang.integerToWords(5000n)
   t.true(result5.includes('thousand-many'))
 })
 
@@ -294,22 +294,22 @@ test('handles millions with correct pluralization', t => {
   const lang = new TestSlavicLanguage()
 
   // 1,000,000
-  const result1 = lang.convertWholePart(1000000n)
+  const result1 = lang.integerToWords(1000000n)
   t.true(result1.includes('million-sing'))
 
   // 2,000,000
-  const result2 = lang.convertWholePart(2000000n)
+  const result2 = lang.integerToWords(2000000n)
   t.true(result2.includes('million-few'))
 
   // 5,000,000
-  const result5 = lang.convertWholePart(5000000n)
+  const result5 = lang.integerToWords(5000000n)
   t.true(result5.includes('million-many'))
 })
 
 test('skips zero chunks', t => {
   const lang = new TestSlavicLanguage()
   // 1,000,001 should skip the middle zero chunk
-  const result = lang.convertWholePart(1000001n)
+  const result = lang.integerToWords(1000001n)
   t.false(result.includes('zero'))
   t.true(result.includes('million'))
   t.true(result.includes('one'))
@@ -318,7 +318,7 @@ test('skips zero chunks', t => {
 test('handles complex numbers with all components', t => {
   const lang = new TestSlavicLanguage()
   // 1,234,567 = 1 million, 234 thousand, 567
-  const result = lang.convertWholePart(1234567n)
+  const result = lang.integerToWords(1234567n)
   t.true(result.includes('million'))
   t.true(result.includes('thousand'))
 })
@@ -326,7 +326,7 @@ test('handles complex numbers with all components', t => {
 test('handles very large numbers', t => {
   const lang = new TestSlavicLanguage()
   // 1 billion
-  const result = lang.convertWholePart(1000000000n)
+  const result = lang.integerToWords(1000000000n)
   t.true(result.includes('billion'))
 })
 
@@ -336,13 +336,13 @@ test('handles very large numbers', t => {
 
 test('integrates with AbstractLanguage for negative numbers', t => {
   const lang = new TestSlavicLanguage()
-  const result = lang.convert(true, 42n)
+  const result = lang.toWords(true, 42n)
   t.true(result.startsWith('minus'))
 })
 
 test('integrates with AbstractLanguage for decimals', t => {
   const lang = new TestSlavicLanguage()
-  const result = lang.convert(false, 3n, '14')
+  const result = lang.toWords(false, 3n, '14')
   t.true(result.includes('point'))
 })
 

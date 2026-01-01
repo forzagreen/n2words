@@ -137,104 +137,104 @@ test('convertBelowThousand handles hundreds with remainder', t => {
 // Whole Part Conversion Tests
 // ============================================================================
 
-test('convertWholePart returns zero word for 0', t => {
+test('integerToWords returns zero word for 0', t => {
   const lang = new TestSouthAsianLanguage()
-  t.is(lang.convertWholePart(0n), 'zero')
+  t.is(lang.integerToWords(0n), 'zero')
 })
 
-test('convertWholePart handles single digits', t => {
+test('integerToWords handles single digits', t => {
   const lang = new TestSouthAsianLanguage()
-  t.is(lang.convertWholePart(5n), 'five')
+  t.is(lang.integerToWords(5n), 'five')
 })
 
-test('convertWholePart handles below hundred', t => {
+test('integerToWords handles below hundred', t => {
   const lang = new TestSouthAsianLanguage()
-  t.is(lang.convertWholePart(42n), 'forty-two')
+  t.is(lang.integerToWords(42n), 'forty-two')
 })
 
-test('convertWholePart handles hundreds', t => {
+test('integerToWords handles hundreds', t => {
   const lang = new TestSouthAsianLanguage()
-  t.is(lang.convertWholePart(123n), 'one hundred twenty-three')
+  t.is(lang.integerToWords(123n), 'one hundred twenty-three')
 })
 
-test('convertWholePart handles thousands', t => {
+test('integerToWords handles thousands', t => {
   const lang = new TestSouthAsianLanguage()
   // 1,234 = 1 thousand + 234 (Indian grouping: [1, 234])
-  const result = lang.convertWholePart(1234n)
+  const result = lang.integerToWords(1234n)
   t.true(result.includes('one'))
   t.true(result.includes('thousand'))
 })
 
-test('convertWholePart handles lakhs', t => {
+test('integerToWords handles lakhs', t => {
   const lang = new TestSouthAsianLanguage()
   // 1,23,456 = 1 lakh + 23 thousand + 456
-  const result = lang.convertWholePart(123456n)
+  const result = lang.integerToWords(123456n)
   t.true(result.includes('one'))
   t.true(result.includes('lakh'))
   t.true(result.includes('thousand'))
 })
 
-test('convertWholePart handles crores', t => {
+test('integerToWords handles crores', t => {
   const lang = new TestSouthAsianLanguage()
   // 1,23,45,678 = 1 crore + 23 lakh + 45 thousand + 678
-  const result = lang.convertWholePart(12345678n)
+  const result = lang.integerToWords(12345678n)
   t.true(result.includes('crore'))
 })
 
-test('convertWholePart handles arabs', t => {
+test('integerToWords handles arabs', t => {
   const lang = new TestSouthAsianLanguage()
   // Test with arab scale
-  const result = lang.convertWholePart(1234567890n)
+  const result = lang.integerToWords(1234567890n)
   t.true(result.includes('arab'))
 })
 
-test('convertWholePart skips zero groups', t => {
+test('integerToWords skips zero groups', t => {
   const lang = new TestSouthAsianLanguage()
   // 1,00,000 = 1 lakh + 0 thousand + 0 ones
-  const result = lang.convertWholePart(100000n)
+  const result = lang.integerToWords(100000n)
   t.true(result.includes('one'))
   t.true(result.includes('lakh'))
   // Should not include 'zero'
   t.false(result.includes('zero'))
 })
 
-test('convertWholePart uses correct scale word indices', t => {
+test('integerToWords uses correct scale word indices', t => {
   const lang = new TestSouthAsianLanguage()
 
   // 1000 uses scaleWords[1] = 'thousand'
-  t.true(lang.convertWholePart(1000n).includes('thousand'))
+  t.true(lang.integerToWords(1000n).includes('thousand'))
 
   // 100000 uses scaleWords[2] = 'lakh'
-  t.true(lang.convertWholePart(100000n).includes('lakh'))
+  t.true(lang.integerToWords(100000n).includes('lakh'))
 
   // 10000000 uses scaleWords[3] = 'crore'
-  t.true(lang.convertWholePart(10000000n).includes('crore'))
+  t.true(lang.integerToWords(10000000n).includes('crore'))
 })
 
-test('convertWholePart trims result', t => {
+test('integerToWords trims result', t => {
   const lang = new TestSouthAsianLanguage()
-  const result = lang.convertWholePart(5n)
+  const result = lang.integerToWords(5n)
   t.is(result, result.trim())
 })
 
 test('handles complex number with all scale levels', t => {
   const lang = new TestSouthAsianLanguage()
   // 12,34,56,789
-  const result = lang.convertWholePart(123456789n)
+  const result = lang.integerToWords(123456789n)
   t.is(typeof result, 'string')
   t.true(result.length > 0)
 })
 
 test('handles edge case of exactly 1 lakh', t => {
   const lang = new TestSouthAsianLanguage()
-  const result = lang.convertWholePart(100000n)
+  const result = lang.integerToWords(100000n)
   t.true(result.includes('one'))
   t.true(result.includes('lakh'))
 })
 
 test('handles edge case of exactly 1 crore', t => {
   const lang = new TestSouthAsianLanguage()
-  const result = lang.convertWholePart(10000000n)
+  const result = lang.integerToWords(10000000n)
   t.true(result.includes('one'))
   t.true(result.includes('crore'))
 })
@@ -245,12 +245,12 @@ test('handles edge case of exactly 1 crore', t => {
 
 test('integrates with AbstractLanguage for negative numbers', t => {
   const lang = new TestSouthAsianLanguage()
-  const result = lang.convert(true, 42n)
+  const result = lang.toWords(true, 42n)
   t.true(result.startsWith('minus'))
 })
 
 test('integrates with AbstractLanguage for decimals', t => {
   const lang = new TestSouthAsianLanguage()
-  const result = lang.convert(false, 3n, '14')
+  const result = lang.toWords(false, 3n, '14')
   t.true(result.includes('point'))
 })
