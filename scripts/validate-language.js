@@ -341,9 +341,9 @@ function validateImports (fileContent, result) {
 }
 
 /**
- * Validate test fixture
+ * Validate test fixture exists and tests options if applicable
  */
-function validateTestFixture (languageCode, result) {
+function validateTestFixture (languageCode, hasOptions, optionProperties, result) {
   const fixtureFile = join('./test/fixtures/languages', `${languageCode}.js`)
 
   if (!existsSync(fixtureFile)) {
@@ -356,8 +356,36 @@ function validateTestFixture (languageCode, result) {
 
     if (!content.match(/export default\s*\[/)) {
       result.warnings.push('Test fixture should export default array')
-    } else {
-      result.info.push('✓ Has test fixture file')
+      return
+    }
+
+    result.info.push('✓ Has test fixture file')
+
+    // If language has options, verify options are tested in fixtures
+    if (hasOptions && optionProperties.length > 0) {
+      // Check each option property is tested (dynamically based on typedef)
+      const testedOptions = []
+      const untestedOptions = []
+
+      for (const prop of optionProperties) {
+        if (content.includes(`${prop.name}:`)) {
+          testedOptions.push(prop.name)
+        } else {
+          untestedOptions.push(prop)
+        }
+      }
+
+      if (testedOptions.length === 0) {
+        result.warnings.push('Test fixture has no test cases with options')
+        result.warnings.push(`  Add tests like: [1, 'expected', { ${optionProperties[0].name}: ${getExampleValue(optionProperties[0])} }]`)
+      } else if (untestedOptions.length > 0) {
+        for (const prop of untestedOptions) {
+          result.warnings.push(`Option "${prop.name}" not tested in fixture file`)
+        }
+        result.info.push(`✓ Test fixture includes options tests (${testedOptions.join(', ')})`)
+      } else {
+        result.info.push('✓ Test fixture includes options tests')
+      }
     }
   } catch (error) {
     result.warnings.push(`Could not read test fixture: ${error.message}`)
@@ -365,9 +393,9 @@ function validateTestFixture (languageCode, result) {
 }
 
 /**
- * Validate type test file includes the converter
+ * Validate type test file includes the converter and tests options if applicable
  */
-function validateTypeTest (className, result) {
+function validateTypeTest (className, hasOptions, optionProperties, result) {
   const typeTestFile = './test/types/n2words.test-d.ts'
   const converterName = `${className}Converter`
 
@@ -382,12 +410,48 @@ function validateTypeTest (className, result) {
     // Check if converter is imported
     if (!content.includes(converterName)) {
       result.errors.push(`${converterName} not imported in type test file (${typeTestFile})`)
-    } else {
-      result.info.push(`✓ ${converterName} included in type tests`)
+      return
+    }
+
+    result.info.push(`✓ ${converterName} included in type tests`)
+
+    // If language has options, verify options are tested
+    if (hasOptions && optionProperties.length > 0) {
+      const hasOptionsTest = content.includes(`${converterName}(42, {`) ||
+                             content.includes(`${converterName}(42,{`)
+
+      if (!hasOptionsTest) {
+        result.warnings.push(`${converterName} has options but no options tests in type test file`)
+        result.warnings.push(`  Add tests like: expectType<string>(${converterName}(42, { ${optionProperties[0].name}: ${getExampleValue(optionProperties[0])} }))`)
+      } else {
+        // Check each option property is tested
+        for (const prop of optionProperties) {
+          if (!content.includes(`${prop.name}:`)) {
+            result.warnings.push(`Option "${prop.name}" not tested in type test file`)
+          }
+        }
+        result.info.push(`✓ ${converterName} options are tested`)
+      }
     }
   } catch (error) {
     result.warnings.push(`Could not read type test file: ${error.message}`)
   }
+}
+
+/**
+ * Get example value for an option property for documentation
+ */
+function getExampleValue (prop) {
+  if (prop.type.includes('masculine') || prop.type.includes('feminine')) {
+    return "'masculine'"
+  }
+  if (prop.type === 'boolean') {
+    return 'true'
+  }
+  if (prop.type === 'string') {
+    return "'example'"
+  }
+  return "'value'"
 }
 
 /**
@@ -510,6 +574,60 @@ function validateGenderOption (typedef, result) {
 }
 
 /**
+ * Generate typedef snippet for missing options
+ */
+function generateTypedefSnippet (className, defaults) {
+  const lines = [
+    '/**',
+    ` * @typedef {Object} ${className}Options`
+  ]
+
+  for (const def of defaults) {
+    const type = inferTypeFromDefault(def.name, def.value)
+    const description = inferDescriptionFromName(def.name)
+    lines.push(` * @property {${type}} [${def.name}=${def.value}] ${description}`)
+  }
+
+  lines.push(' */')
+  return lines
+}
+
+/**
+ * Infer JSDoc type from option name and default value
+ */
+function inferTypeFromDefault (name, value) {
+  if (name === 'gender') {
+    return "('masculine'|'feminine')"
+  }
+  if (value === 'true' || value === 'false') {
+    return 'boolean'
+  }
+  if (value.startsWith("'") || value.startsWith('"')) {
+    return 'string'
+  }
+  return 'string'
+}
+
+/**
+ * Infer description from option name
+ */
+function inferDescriptionFromName (name) {
+  const descriptions = {
+    gender: 'Grammatical gender for number forms',
+    negativeWord: 'Word for negative numbers',
+    andWord: 'Conjunction word/character',
+    formal: 'Use formal/financial numerals',
+    ordFlag: 'Enable ordinal number conversion',
+    includeOptionalAnd: 'Include optional "and" separator',
+    noHundredPairs: 'Disable hundred pairs',
+    accentOne: 'Use accented form for one',
+    withHyphenSeparator: 'Use hyphens instead of spaces',
+    dropSpaces: 'Remove spaces between words'
+  }
+  return descriptions[name] || `Configuration for ${name}`
+}
+
+/**
  * Validate options typedef and defaults
  */
 function validateOptionsTypedef (className, constructorBody, n2wordsContent, result) {
@@ -537,6 +655,10 @@ function validateOptionsTypedef (className, constructorBody, n2wordsContent, res
 
   if (!typedef.exists) {
     result.errors.push(`typedef ${className}Options missing from n2words.js`)
+    // Provide actionable snippet
+    const snippetLines = generateTypedefSnippet(className, defaults)
+    result.errors.push('  Add this typedef to lib/n2words.js (Type Definitions section):')
+    snippetLines.forEach(line => result.errors.push(`    ${line}`))
     return
   }
 
@@ -602,6 +724,8 @@ function validateOptionsTypedef (className, constructorBody, n2wordsContent, res
 
   if (!pattern.test(n2wordsContent)) {
     result.errors.push(`${converterName} missing type annotation with options`)
+    result.errors.push('  Update converter declaration in lib/n2words.js (Language Converters section):')
+    result.errors.push(`    const ${converterName} = /** @type {(value: NumericValue, options?: ${className}Options) => string} */ (makeConverter(${className}))`)
   } else {
     result.info.push(`✓ ${converterName} has correct type annotation`)
   }
@@ -652,8 +776,12 @@ async function performValidations (languageCode, className, LanguageClass, fileC
   validateDocumentation(fileContent, className, result)
   validateImports(fileContent, result)
   validateOptionsPattern(instance, LanguageClass, className, fileContent, n2wordsContent, result)
-  validateTestFixture(languageCode, result)
-  validateTypeTest(className, result)
+
+  // Extract options info for fixture and type test validation
+  const typedef = extractTypedef(className, n2wordsContent)
+  validateTestFixture(languageCode, typedef.exists, typedef.properties, result)
+  validateTypeTest(className, typedef.exists, typedef.properties, result)
+
   validateN2wordsExport(languageCode, className, n2wordsContent, result)
 }
 
