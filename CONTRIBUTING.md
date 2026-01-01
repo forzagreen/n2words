@@ -520,8 +520,8 @@ All classes and public methods should have JSDoc comments:
  *
  * @extends GreedyScaleLanguage
  * @example
- * const converter = new English()
- * converter.convertToWords(42) // 'forty-two'
+ * import { EnglishConverter } from 'n2words'
+ * EnglishConverter(42) // 'forty-two'
  */
 export class English extends GreedyScaleLanguage {
   // ...
