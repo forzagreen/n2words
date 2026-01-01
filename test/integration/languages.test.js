@@ -1,5 +1,6 @@
 import test from 'ava'
 import { readdirSync } from 'node:fs'
+import * as n2words from '../../lib/n2words.js'
 
 /**
  * Comprehensive Language-Specific Tests
@@ -9,10 +10,64 @@ import { readdirSync } from 'node:fs'
  * test cases specific to that language's number formatting rules.
  *
  * Test files are located in test/fixtures/languages/*.js and are loaded dynamically.
- * Language classes are imported directly from lib/languages/*.js using the BCP 47 code.
+ * Converters are imported from lib/n2words.js (the public API).
  * Files are named with IETF BCP 47 language codes (e.g., 'en.js', 'ar.js', 'fr-BE.js')
  * following international standards for language identification.
  */
+
+/**
+ * Map of BCP 47 codes to converter names for lookup
+ */
+const codeToConverterName = {
+  ar: 'Arabic',
+  az: 'Azerbaijani',
+  bn: 'Bangla',
+  cs: 'Czech',
+  da: 'Danish',
+  de: 'German',
+  el: 'Greek',
+  en: 'English',
+  es: 'Spanish',
+  fa: 'Persian',
+  fil: 'Filipino',
+  fr: 'French',
+  'fr-BE': 'FrenchBelgium',
+  gu: 'Gujarati',
+  hbo: 'BiblicalHebrew',
+  he: 'Hebrew',
+  hi: 'Hindi',
+  hr: 'Croatian',
+  hu: 'Hungarian',
+  id: 'Indonesian',
+  it: 'Italian',
+  ja: 'Japanese',
+  kn: 'Kannada',
+  ko: 'Korean',
+  lt: 'Lithuanian',
+  lv: 'Latvian',
+  mr: 'Marathi',
+  ms: 'Malay',
+  nb: 'NorwegianBokmal',
+  nl: 'Dutch',
+  pa: 'Punjabi',
+  pl: 'Polish',
+  pt: 'Portuguese',
+  ro: 'Romanian',
+  ru: 'Russian',
+  'sr-Cyrl': 'SerbianCyrillic',
+  'sr-Latn': 'SerbianLatin',
+  sv: 'Swedish',
+  sw: 'Swahili',
+  ta: 'Tamil',
+  te: 'Telugu',
+  th: 'Thai',
+  tr: 'Turkish',
+  uk: 'Ukrainian',
+  ur: 'Urdu',
+  vi: 'Vietnamese',
+  'zh-Hans': 'SimplifiedChinese',
+  'zh-Hant': 'TraditionalChinese'
+}
 
 /**
  * Safely stringify a value for error messages (handles BigInt)
@@ -108,12 +163,18 @@ for (const file of files) {
   const languageCode = file.replace('.js', '')
 
   test(languageCode, async t => {
-    // Import language class
-    const languageModule = await import(`../../lib/languages/${languageCode}.js`)
-    const LanguageClass = Object.values(languageModule)[0]
+    // Get converter from public API
+    const className = codeToConverterName[languageCode]
+    if (!className) {
+      t.fail(`No converter mapping found for language code: ${languageCode}`)
+      return
+    }
 
-    if (!LanguageClass) {
-      t.fail(`Language class not found for language code: ${languageCode}`)
+    const converterName = `${className}Converter`
+    const converter = n2words[converterName]
+
+    if (!converter) {
+      t.fail(`Converter not found: ${converterName}`)
       return
     }
 
@@ -129,16 +190,15 @@ for (const file of files) {
     // Run test cases with enhanced error reporting
     for (let i = 0; i < testFile.length; i++) {
       const testCase = testFile[i]
-      const [input, expected, options = {}] = testCase
+      const [input, expected, options] = testCase
 
       try {
-        const converter = new LanguageClass(options)
-        const actual = converter.convertToWords(input)
+        const actual = converter(input, options)
 
         // Provide detailed context on failure
         t.is(actual, expected,
           `Test case ${i + 1}/${testFile.length}: ${safeStringify(input)}${
-            Object.keys(options).length > 0 ? ` with options ${safeStringify(options)}` : ''
+            options ? ` with options ${safeStringify(options)}` : ''
           }`
         )
       } catch (error) {

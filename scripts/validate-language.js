@@ -187,8 +187,8 @@ function validateMethods (instance, result) {
     }
   }
 
-  if (typeof instance.convertToWords !== 'function') {
-    result.errors.push('Missing convertToWords() method (should be inherited)')
+  if (typeof instance.convert !== 'function') {
+    result.errors.push('Missing convert() method (should be inherited)')
   }
 }
 
