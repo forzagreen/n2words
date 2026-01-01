@@ -189,30 +189,30 @@ test('thousands chunk always uses feminine forms regardless of gender option', t
 // Chunking Tests
 // ============================================================================
 
-test('splitByX handles numbers less than chunk size', t => {
+test('splitIntoChunks handles numbers less than chunk size', t => {
   const lang = new TestSlavicLanguage()
-  t.deepEqual(lang.splitByX('123', 3), [123n])
-  t.deepEqual(lang.splitByX('1', 3), [1n])
+  t.deepEqual(lang.splitIntoChunks('123', 3), [123n])
+  t.deepEqual(lang.splitIntoChunks('1', 3), [1n])
 })
 
-test('splitByX handles exact chunk multiples', t => {
+test('splitIntoChunks handles exact chunk multiples', t => {
   const lang = new TestSlavicLanguage()
-  t.deepEqual(lang.splitByX('123456', 3), [123n, 456n])
+  t.deepEqual(lang.splitIntoChunks('123456', 3), [123n, 456n])
 })
 
-test('splitByX handles numbers with remainder', t => {
+test('splitIntoChunks handles numbers with remainder', t => {
   const lang = new TestSlavicLanguage()
-  t.deepEqual(lang.splitByX('1234567', 3), [1n, 234n, 567n])
-  t.deepEqual(lang.splitByX('12345678', 3), [12n, 345n, 678n])
+  t.deepEqual(lang.splitIntoChunks('1234567', 3), [1n, 234n, 567n])
+  t.deepEqual(lang.splitIntoChunks('12345678', 3), [12n, 345n, 678n])
 })
 
-test('getDigits extracts ones, tens, hundreds correctly', t => {
+test('extractDigits extracts ones, tens, hundreds correctly', t => {
   const lang = new TestSlavicLanguage()
-  t.deepEqual(lang.getDigits(0n), [0n, 0n, 0n])
-  t.deepEqual(lang.getDigits(5n), [5n, 0n, 0n])
-  t.deepEqual(lang.getDigits(23n), [3n, 2n, 0n])
-  t.deepEqual(lang.getDigits(456n), [6n, 5n, 4n])
-  t.deepEqual(lang.getDigits(999n), [9n, 9n, 9n])
+  t.deepEqual(lang.extractDigits(0n), [0n, 0n, 0n])
+  t.deepEqual(lang.extractDigits(5n), [5n, 0n, 0n])
+  t.deepEqual(lang.extractDigits(23n), [3n, 2n, 0n])
+  t.deepEqual(lang.extractDigits(456n), [6n, 5n, 4n])
+  t.deepEqual(lang.extractDigits(999n), [9n, 9n, 9n])
 })
 
 // ============================================================================
