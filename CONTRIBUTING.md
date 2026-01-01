@@ -419,7 +419,7 @@ This will create:
 │      - Slavic: ones/tens/hundreds + pluralForms           │
 │        (+ scaleGenders for per-scale gender control)      │
 │      - SouthAsian: belowHundred + scaleWords              │
-│      - Abstract: convertWholePart() from scratch          │
+│      - Abstract: integerToWords() from scratch          │
 │    ✓ Add options if needed (gender, formal, etc.)         │
 │    ✓ Write comprehensive JSDoc with examples              │
 └────────────────────┬──────────────────────────────────────┘
@@ -1434,7 +1434,7 @@ npm run lint
 | ------------------------------------------ | ---------------------------------------- | --------------------------------------------- |
 | "Missing required property: negativeWord"  | Property not defined in class            | Add `negativeWord = 'minus'` to class         |
 | "scaleWordPairs not in descending order"   | Scale values not sorted largest→smallest | Reorder array from largest to smallest        |
-| "convertWholePart() not implemented"       | Method is abstract/missing               | Implement `convertWholePart(n)` method        |
+| "integerToWords() not implemented"         | Method is abstract/missing               | Implement `integerToWords(n)` method          |
 | "Not imported in lib/n2words.js"           | Missing registration                     | Add import, converter, export (alphabetically)|
 | "Missing test fixture"                     | No test file exists                      | Create `test/fixtures/languages/<code>.js`    |
 | "Gender option must use enum type"         | Wrong JSDoc type                         | Use `('masculine'\|'feminine')` not `string`  |

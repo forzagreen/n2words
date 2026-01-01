@@ -327,7 +327,7 @@ function generateAbstractLanguageFile (className, base) {
  * ${className} language converter.
  *
  * Direct implementation using AbstractLanguage.
- * This requires implementing convertWholePart() from scratch.
+ * This requires implementing integerToWords() from scratch.
  *
  * TODO: Document language-specific conversion logic
  */
@@ -343,7 +343,7 @@ export class ${className} extends ${base.name} {
    * @param {bigint} wholeNumber - The number to convert
    * @returns {string} The number in words
    */
-  convertWholePart (wholeNumber) {
+  integerToWords (wholeNumber) {
     if (wholeNumber === 0n) {
       return this.zeroWord
     }
@@ -352,7 +352,7 @@ export class ${className} extends ${base.name} {
     // This is where you write the core number-to-words algorithm
     // for your language.
 
-    throw new Error('convertWholePart() not yet implemented for ${className}')
+    throw new Error('integerToWords() not yet implemented for ${className}')
   }
 }
 `
@@ -781,7 +781,7 @@ async function main () {
     console.log(chalk.gray('   - Complete belowHundredWords array (0-99)'))
     console.log(chalk.gray('   - Define scaleWords [hazaar, lakh, crore, arab]'))
   } else if (baseType === 'abstract') {
-    console.log(chalk.gray('   - Implement convertWholePart() method'))
+    console.log(chalk.gray('   - Implement integerToWords() method'))
   }
 
   console.log(chalk.gray('\n2. Edit ') + chalk.white(fixtureFilePath))

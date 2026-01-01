@@ -89,7 +89,7 @@ npm run lang:add -- custom-lang --base=abstract # Advanced: Direct implementatio
 - `slavic` - SlavicLanguage: Three-form pluralization (singular/few/many)
 - `south-asian` - SouthAsianLanguage: Indian numbering system (lakh, crore)
 - `turkic` - TurkicLanguage: Turkish-style implicit "bir" rules
-- `abstract` - AbstractLanguage: Direct implementation (advanced, requires implementing convertWholePart from scratch)
+- `abstract` - AbstractLanguage: Direct implementation (advanced, requires implementing integerToWords from scratch)
 
 ### Validation
 
@@ -107,7 +107,7 @@ The script validates that:
      - **GreedyScaleLanguage/TurkicLanguage**: Add `scaleWordPairs` array, implement `mergeScales()`
      - **SlavicLanguage**: Define `onesWords`, `onesFeminineWords`, `teensWords`, `twentiesWords`, `hundredsWords`, `pluralForms` (optionally `scaleGenders = { 1: true }` for feminine thousands, `omitOneBeforeScale` to skip "one" before scale words)
      - **SouthAsianLanguage**: Complete `belowHundredWords` array (0-99), define `scaleWords`
-     - **AbstractLanguage**: Implement `convertWholePart()` from scratch
+     - **AbstractLanguage**: Implement `integerToWords()` from scratch
 
 2. Edit `test/fixtures/languages/{code}.js`:
    - Replace English words with actual language equivalents
@@ -161,7 +161,7 @@ Comprehensive validator for language implementations to ensure they follow all r
 
 #### ✅ Required Methods
 
-- `convertWholePart(bigint)` - Must be implemented (not abstract)
+- `integerToWords(bigint)` - Must be implemented (not abstract)
 - `convert(isNegative, wholeNumber, decimalPart)` - Inherited from AbstractLanguage
 - `mergeScales(left, right)` - Required for GreedyScaleLanguage subclasses
 
@@ -259,7 +259,7 @@ n2words Language Validator
     ✓ Property negativeWord: "minus"
     ✓ Property zeroWord: "zero"
     ✓ Property decimalSeparatorWord: "point"
-    ✓ convertWholePart(0n) returns: "zero"
+    ✓ integerToWords(0n) returns: "zero"
     ✓ Extends GreedyScaleLanguage
     ✓ scaleWordPairs properly ordered (60 entries)
     ✓ Has class documentation
@@ -272,7 +272,7 @@ n2words Language Validator
 ✗ new-language
   Errors:
     ✗ Missing required property: negativeWord
-    ✗ convertWholePart() not implemented (still abstract)
+    ✗ integerToWords() not implemented (still abstract)
     ✗ Not imported in lib/n2words.js
     ✗ NewLanguageConverter not imported in type test file (test/types/n2words.test-d.ts)
   Warnings:
@@ -336,12 +336,12 @@ scaleWordPairs = [
 ]
 ```
 
-### "convertWholePart() not implemented (still abstract)"
+### "integerToWords() not implemented (still abstract)"
 
-**Fix**: Implement the `convertWholePart` method in your class:
+**Fix**: Implement the `integerToWords` method in your class:
 
 ```javascript
-convertWholePart(wholeNumber) {
+integerToWords(wholeNumber) {
   if (wholeNumber === 0n) return this.zeroWord
   // Your implementation here
 }

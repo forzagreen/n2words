@@ -165,7 +165,7 @@ class TestLanguage extends AbstractLanguage {
   zeroWord = 'zero'
   decimalSeparatorWord = 'point'
 
-  convertWholePart (n) {
+  integerToWords (n) {
     return `number-${n}`
   }
 }

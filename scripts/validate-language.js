@@ -380,7 +380,7 @@ function validateBaseClassRequirements (instance, LanguageClass, result) {
     }
 
     case 'AbstractLanguage': {
-      // AbstractLanguage just needs convertWholePart (already validated elsewhere)
+      // AbstractLanguage just needs integerToWords (already validated elsewhere)
       result.info.push('✓ Direct AbstractLanguage implementation')
       break
     }

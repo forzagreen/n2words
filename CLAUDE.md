@@ -123,7 +123,7 @@ AbstractLanguage (base)
 - Caches the whole number for languages that need it (e.g., Czech, Hebrew pluralization)
 - Handles negative numbers (prepends `negativeWord`)
 - Converts decimal parts via `decimalDigitsToWords()`
-- Delegates whole number conversion to `convertWholePart()`
+- Delegates whole number conversion to `integerToWords()`
 
 **Note:** Input validation and normalization happen at the public API boundary in `lib/n2words.js`.
 The `makeConverter()` wrapper handles type checking, format validation, sign detection, and
@@ -141,7 +141,7 @@ wordSeparator = ' '        // Separator between words
 **Required methods subclasses must implement:**
 
 ```javascript
-convertWholePart(wholeNumber) // bigint → string
+integerToWords(wholeNumber) // bigint → string
 ```
 
 **Optional properties:**
@@ -192,7 +192,7 @@ export class English extends GreedyScaleLanguage {
 
 **Helper methods available:**
 
-- `getScaleWord(scaleValue)` - Returns the word for an exact scale value. Used by languages that override `convertWholePart()` (e.g., Hungarian).
+- `getScaleWord(scaleValue)` - Returns the word for an exact scale value. Used by languages that override `integerToWords()` (e.g., Hungarian).
 - `finalizeWords(output)` - Post-processing hook for language-specific formatting (e.g., Portuguese uses this for final cleanup).
 
 #### SlavicLanguage
@@ -266,7 +266,7 @@ export class Russian extends SlavicLanguage {
 
 These languages have unique patterns that don't fit the standard base classes.
 
-**Note**: Hungarian extends GreedyScaleLanguage but overrides `convertWholePart()` with custom logic.
+**Note**: Hungarian extends GreedyScaleLanguage but overrides `integerToWords()` with custom logic.
 
 ### 2. Entry Point Structure ([lib/n2words.js](lib/n2words.js))
 
@@ -444,7 +444,7 @@ npm run lang:add <code>
      - **SlavicLanguage**: Add `onesWords`, `onesFeminineWords`, `teensWords`, `twentiesWords`, `hundredsWords`, `pluralForms` (optionally `scaleGenders` for per-scale gender)
      - **SouthAsianLanguage**: Add `belowHundredWords` array (100 entries), `scaleWords` array
      - **TurkicLanguage**: Add `scaleWordPairs` array, implement `mergeScales()`
-     - **AbstractLanguage**: Implement `convertWholePart()` from scratch
+     - **AbstractLanguage**: Implement `integerToWords()` from scratch
 2. Edit `test/fixtures/languages/{code}.js`:
    - Add comprehensive test cases (see existing fixtures for examples)
 3. Validate: `npm run lang:validate -- {code} --verbose`
@@ -463,7 +463,7 @@ npm run lang:validate -- --verbose # Detailed info
 - ✅ IETF BCP 47 naming convention
 - ✅ Class structure and inheritance
 - ✅ Required properties (negativeWord, zeroWord, etc.)
-- ✅ Method implementations (convertWholePart)
+- ✅ Method implementations (integerToWords)
 - ✅ Scale word ordering (descending)
 - ✅ Import/converter/export in n2words.js
 - ✅ Test fixture exists and tests options (for languages with options)
@@ -783,9 +783,9 @@ export class Czech extends SlavicLanguage {
 - **Arabic**: Uses `get selectedOnes()` to return masculine or feminine forms based on options
 - **Gender-based languages**: Many use getters to return different `scaleWordPairs` based on gender option
 
-### Pattern 5: Custom convertWholePart() Override
+### Pattern 5: Custom integerToWords() Override
 
-Languages can override `convertWholePart()` for complete custom logic while still using GreedyScaleLanguage helpers:
+Languages can override `integerToWords()` for complete custom logic while still using GreedyScaleLanguage helpers:
 
 ```javascript
 export class Hungarian extends GreedyScaleLanguage {
@@ -793,7 +793,7 @@ export class Hungarian extends GreedyScaleLanguage {
   scaleWordPairs = [/* ... */]
 
   // Override with completely custom implementation
-  convertWholePart(number) {
+  integerToWords(number) {
     if (number === 0n) return this.zeroWord
 
     // Custom Hungarian-specific decomposition logic
@@ -1189,7 +1189,7 @@ Input validation and normalization happen in `makeConverter()` (lib/n2words.js),
 - **Italian phonetic contractions**: `phoneticContraction()` method removes duplicate vowels at word boundaries
 - **Czech custom pluralization**: Overrides standard Slavic pattern with Czech-specific rules
 - **Arabic complex structures**: Separate arrays for masculine/feminine, dual forms, appended forms, plural groups
-- **Hungarian edge cases**: Custom `convertWholePart()` implementation handles compound number rules
+- **Hungarian edge cases**: Custom `integerToWords()` implementation handles compound number rules
 
 ### Memory and Performance Patterns
 
@@ -1227,7 +1227,7 @@ class TestLanguage extends AbstractLanguage {
   zeroWord = 'zero'
   decimalSeparatorWord = 'point'
 
-  convertWholePart(n) {
+  integerToWords(n) {
     return n === 0n ? this.zeroWord : String(n)
   }
 }
@@ -1406,12 +1406,12 @@ scaleWordPairs = [
 ]
 ```
 
-### Issue: "convertWholePart() not implemented"
+### Issue: "integerToWords() not implemented"
 
 **Solution**: Subclass must implement this abstract method:
 
 ```javascript
-convertWholePart(wholeNumber) {
+integerToWords(wholeNumber) {
   if (wholeNumber === 0n) return this.zeroWord
   // Implementation here
 }
