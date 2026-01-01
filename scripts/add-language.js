@@ -101,15 +101,15 @@ function generateGreedyLanguageFile (className, base) {
  * - Decimal numbers (separator word between whole and fractional parts)
  * - Large numbers
  *
- * TODO: Document merge rules and language-specific behavior
+ * TODO: Document combine rules and language-specific behavior
  */
 export class ${className} extends ${base.name} {
   negativeWord = 'minus' // TODO: Replace with ${className} word for negative
   decimalSeparatorWord = 'point' // TODO: Replace with ${className} decimal separator
   zeroWord = 'zero' // TODO: Replace with ${className} word for zero
 
-  scaleWordPairs = [
-    // TODO: Add scale word pairs in descending order
+  scaleWords = [
+    // TODO: Add scale words in descending order
     // Format: [value as bigint, word as string]
     // Example:
     // [1000000n, 'million'],
@@ -121,23 +121,26 @@ export class ${className} extends ${base.name} {
   ]
 
   /**
-   * Defines how to merge scale components.
+   * Combines two adjacent word-sets according to language grammar.
    *
-   * @param {string} leftWords - Words for the left (higher scale) component
-   * @param {bigint} leftScale - The scale value of the left component
-   * @param {string} rightWords - Words for the right (lower scale) component
-   * @param {bigint} rightScale - The scale value of the right component
-   * @returns {string} The merged result
+   * @param {Object} left - Left word-set as { word: bigint }
+   * @param {Object} right - Right word-set as { word: bigint }
+   * @returns {Object} Combined word-set with merged text and resulting value
    *
-   * TODO: Implement language-specific merge rules
+   * TODO: Implement language-specific combine rules
    * Common patterns:
-   * - Space-separated: "twenty three" → return leftWords + ' ' + rightWords
-   * - Hyphenated: "twenty-three" → return leftWords + '-' + rightWords
-   * - With connector: "twenty and three" → return leftWords + ' and ' + rightWords
+   * - Space-separated: "twenty three" → combine with space
+   * - Hyphenated: "twenty-three" → combine with hyphen
+   * - With connector: "twenty and three" → combine with " and "
    */
-  mergeScales (leftWords, leftScale, rightWords, rightScale) {
-    // TODO: Implement merge logic
-    return leftWords + ' ' + rightWords
+  combineWordSets (left, right) {
+    const leftWord = Object.keys(left)[0]
+    const rightWord = Object.keys(right)[0]
+    const leftNumber = Object.values(left)[0]
+    const rightNumber = Object.values(right)[0]
+    // Multiply when crossing magnitude boundary, add otherwise
+    const resultNumber = rightNumber > leftNumber ? leftNumber * rightNumber : leftNumber + rightNumber
+    return { [\`\${leftWord} \${rightWord}\`]: resultNumber }
   }
 }
 `
@@ -287,7 +290,7 @@ function generateTurkicLanguageFile (className, base) {
  * ${className} language converter.
  *
  * Turkic languages typically omit "bir" (one) before hundreds and thousands.
- * Inherits from GreedyScaleLanguage with Turkic-specific merge logic.
+ * Inherits from GreedyScaleLanguage with Turkic-specific combine logic.
  *
  * TODO: Document language-specific grammar rules
  */
@@ -296,8 +299,8 @@ export class ${className} extends ${base.name} {
   decimalSeparatorWord = 'point' // TODO: Replace with ${className} word
   zeroWord = 'zero' // TODO: Replace with ${className} word
 
-  scaleWordPairs = [
-    // TODO: Add scale word pairs in descending order
+  scaleWords = [
+    // TODO: Add scale words in descending order
     // Format: [value as bigint, word as string]
     // Example for Turkish:
     // [1000000n, 'milyon'],
@@ -308,7 +311,7 @@ export class ${className} extends ${base.name} {
     [1n, 'one'] // Placeholder - replace with complete list
   ]
 
-  // Note: TurkicLanguage provides default mergeScales() implementation
+  // Note: TurkicLanguage provides default combineWordSets() implementation
   // that handles implicit "bir" rules. Override only if needed.
 }
 `
@@ -772,8 +775,8 @@ async function main () {
 
   // Base-class specific instructions
   if (baseType === 'greedy' || baseType === 'turkic') {
-    console.log(chalk.gray('   - Add complete scaleWordPairs array'))
-    console.log(chalk.gray('   - Implement mergeScales() logic (if needed)'))
+    console.log(chalk.gray('   - Add complete scaleWords array'))
+    console.log(chalk.gray('   - Implement combineWordSets() logic (if needed)'))
   } else if (baseType === 'slavic') {
     console.log(chalk.gray('   - Define ones, tens, twenties, hundreds dictionaries'))
     console.log(chalk.gray('   - Add pluralForms for scale words [singular, few, many]'))

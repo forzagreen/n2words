@@ -11,7 +11,7 @@ Scaffolding tool for quickly setting up a new language implementation with all r
 - **Language implementation file** (`lib/languages/{code}.js`)
   - Class extending the selected base class (GreedyScaleLanguage by default)
   - Placeholder properties (negativeWord, zeroWord, decimalSeparatorWord)
-  - Base-class-specific structure (scaleWordPairs, pluralForms, belowHundredWords, etc.)
+  - Base-class-specific structure (scaleWords, pluralForms, belowHundredWords, etc.)
   - Skeleton methods with TODO comments
   - Comprehensive JSDoc documentation
 
@@ -104,7 +104,7 @@ The script validates that:
 1. Edit `lib/languages/{code}.js`:
    - Replace placeholder words (`negativeWord`, `zeroWord`, `decimalSeparatorWord`)
    - Complete base-class-specific requirements:
-     - **GreedyScaleLanguage/TurkicLanguage**: Add `scaleWordPairs` array, implement `mergeScales()`
+     - **GreedyScaleLanguage/TurkicLanguage**: Add `scaleWords` array, implement `combineWordSets()`
      - **SlavicLanguage**: Define `onesWords`, `onesFeminineWords`, `teensWords`, `twentiesWords`, `hundredsWords`, `pluralForms` (optionally `scaleGenders = { 1: true }` for feminine thousands, `omitOneBeforeScale` to skip "one" before scale words)
      - **SouthAsianLanguage**: Complete `belowHundredWords` array (0-99), define `scaleWords`
      - **AbstractLanguage**: Implement `integerToWords()` from scratch
@@ -157,13 +157,13 @@ Comprehensive validator for language implementations to ensure they follow all r
 - `zeroWord` (string) - Word for zero
 - `decimalSeparatorWord` (string) - Word between whole and decimal parts
 - `wordSeparator` (string) - Character(s) between words (typically space)
-- `convertDecimalsPerDigit` (boolean, optional) - Per-digit vs grouped decimal conversion
+- `usePerDigitDecimals` (boolean, optional) - Per-digit vs grouped decimal conversion
 
 #### ✅ Required Methods
 
 - `integerToWords(bigint)` - Must be implemented (not abstract)
-- `convert(isNegative, wholeNumber, decimalPart)` - Inherited from AbstractLanguage
-- `mergeScales(left, right)` - Required for GreedyScaleLanguage subclasses
+- `toWords(isNegative, wholeNumber, decimalPart)` - Inherited from AbstractLanguage
+- `combineWordSets(left, right)` - Required for GreedyScaleLanguage subclasses
 
 #### ✅ Scale Words Validation (for scale-based languages)
 
@@ -177,15 +177,15 @@ Comprehensive validator for language implementations to ensure they follow all r
 - **Constructor pattern**: Languages with options must have:
   - Constructor that accepts `options` parameter
   - Call to `super()` or `super(options)`
-  - Call to `this.mergeOptions()` (unless passing options to super)
+  - Call to `this.setOptions()` (unless passing options to super)
 - **Typedef exists**: Matching `{LanguageName}Options` typedef in `n2words.js`
 - **Typedef properties match**: Option properties in typedef match constructor defaults
 - **Default values match**: Default values in constructor match typedef defaults
 - **Converter type annotation**: Converter includes `options?: {LanguageName}Options` parameter
-- **Regional variants**: Languages that extend other languages (e.g., `fr-BE extends fr`) can pass options to super without mergeOptions
+- **Regional variants**: Languages that extend other languages (e.g., `fr-BE extends fr`) can pass options to super without setOptions
   - Parent language file must exist
   - Class must correctly extend the imported parent
-  - Constructor mutations to `scaleWordPairs` are validated for ordering
+  - Constructor mutations to `scaleWords` are validated for ordering
 - **Base class options**: Languages without constructors can use base class options (e.g., Slavic languages inherit from `SlavicLanguage`)
 - **Option type validation**:
   - `gender` option must use enum type `('masculine'|'feminine')`, not boolean
@@ -196,7 +196,7 @@ Comprehensive validator for language implementations to ensure they follow all r
 #### ✅ Documentation
 
 - **Class JSDoc**: Description of language and conversion rules
-- **Method documentation**: JSDoc for custom methods (especially `mergeScales`)
+- **Method documentation**: JSDoc for custom methods (especially `combineWordSets`)
 - **Examples**: Usage examples in comments
 
 #### ✅ Testing
@@ -261,9 +261,9 @@ n2words Language Validator
     ✓ Property decimalSeparatorWord: "point"
     ✓ integerToWords(0n) returns: "zero"
     ✓ Extends GreedyScaleLanguage
-    ✓ scaleWordPairs properly ordered (60 entries)
+    ✓ scaleWords properly ordered (60 entries)
     ✓ Has class documentation
-    ✓ Has mergeScales() documentation
+    ✓ Has combineWordSets() method
     ✓ Has proper import statement
     ✓ Has test fixture file
     ✓ Properly registered in n2words.js as EnglishConverter
@@ -323,12 +323,12 @@ export class MyLanguage extends AbstractLanguage {
 }
 ```
 
-### "scaleWordPairs not in descending order"
+### "scaleWords not in descending order"
 
-**Fix**: Ensure scale word pairs are ordered from largest to smallest:
+**Fix**: Ensure scale words are ordered from largest to smallest:
 
 ```javascript
-scaleWordPairs = [
+scaleWords = [
   [1000000n, 'million'],  // ✓ Largest first
   [1000n, 'thousand'],
   [100n, 'hundred'],

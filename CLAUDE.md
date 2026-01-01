@@ -16,7 +16,7 @@ This document provides comprehensive context about the n2words project structure
 - **IETF BCP 47**: Language codes must follow standard (e.g., `en`, `zh-Hans`, `fr-BE`)
 - **CLDR naming**: Class names use CLDR Display Names in PascalCase (e.g., `SimplifiedChinese`)
 - **Base classes**: 5 base classes (Abstract, GreedyScale, Slavic, SouthAsian, Turkic)
-- **Scale order**: scaleWordPairs must be descending (largest to smallest)
+- **Scale order**: scaleWords must be descending (largest to smallest)
 
 ### Common Commands
 
@@ -127,7 +127,7 @@ AbstractLanguage (base)
 
 **Note:** Input validation and normalization happen at the public API boundary in `lib/n2words.js`.
 The `makeConverter()` wrapper handles type checking, format validation, sign detection, and
-whole/decimal extraction before calling `convert()` on the language class.
+whole/decimal extraction before calling `toWords()` on the language class.
 
 **Required properties subclasses must provide:**
 
@@ -147,8 +147,7 @@ integerToWords(wholeNumber) // bigint → string
 **Optional properties:**
 
 ```javascript
-convertDecimalsPerDigit = false  // true = digit-by-digit decimals
-digits = null                    // Array of digit words for lookup
+usePerDigitDecimals = false  // true = digit-by-digit decimals
 ```
 
 #### GreedyScaleLanguage
@@ -159,9 +158,9 @@ digits = null                    // Array of digit words for lookup
 
 **How it works:**
 
-1. Defines `scaleWordPairs` array: `[[value, word], ...]` in descending order
-2. Greedily decomposes numbers using largest scale first
-3. Calls `mergeScales(leftWords, leftScale, rightWords, rightScale)` to combine parts
+1. Defines `scaleWords` array: `[[value, word], ...]` in descending order
+2. Greedily decomposes numbers into word-sets using largest scale first
+3. Calls `combineWordSets(left, right)` to combine adjacent word-sets per language grammar
 
 **Example implementation pattern:**
 
@@ -171,7 +170,7 @@ export class English extends GreedyScaleLanguage {
   zeroWord = 'zero'
   decimalSeparatorWord = 'point'
 
-  scaleWordPairs = [
+  scaleWords = [
     [1000000000n, 'billion'],
     [1000000n, 'million'],
     [1000n, 'thousand'],
@@ -180,20 +179,27 @@ export class English extends GreedyScaleLanguage {
     // ... down to 1n
   ]
 
-  mergeScales(leftWords, leftScale, rightWords, rightScale) {
+  combineWordSets(left, right) {
+    // left and right are word-sets: { word: bigint }
+    const leftWord = Object.keys(left)[0]
+    const leftNumber = Object.values(left)[0]
+    const rightWord = Object.keys(right)[0]
+    const rightNumber = Object.values(right)[0]
+
     // Language-specific merge logic
-    if (leftScale === 100n && rightScale < 100n) {
-      return leftWords + ' and ' + rightWords
+    if (leftNumber >= 100n && rightNumber < 100n) {
+      return { [`${leftWord} and ${rightWord}`]: leftNumber + rightNumber }
     }
-    return leftWords + ' ' + rightWords
+    return { [`${leftWord} ${rightWord}`]: leftNumber + rightNumber }
   }
 }
 ```
 
 **Helper methods available:**
 
-- `getScaleWord(scaleValue)` - Returns the word for an exact scale value. Used by languages that override `integerToWords()` (e.g., Hungarian).
-- `finalizeWords(output)` - Post-processing hook for language-specific formatting (e.g., Portuguese uses this for final cleanup).
+- `wordForScale(scaleValue)` - Returns the word for an exact scale value.
+- `decomposeInteger(integer)` - Decomposes a number into word-sets.
+- `reduceWordSets(wordSets)` - Reduces word-sets using `combineWordSets()`.
 
 #### SlavicLanguage
 
@@ -295,7 +301,7 @@ function makeConverter (LanguageClass) {
     // 1. Validate options and input type
     // 2. Normalize: extract isNegative, wholeNumber, decimalPart
     // 3. Delegate to class with pre-processed data
-    return new LanguageClass(options).convert(isNegative, wholeNumber, decimalPart)
+    return new LanguageClass(options).toWords(isNegative, wholeNumber, decimalPart)
   }
 }
 
@@ -440,10 +446,10 @@ npm run lang:add <code>
 1. Edit `lib/languages/{code}.js`:
    - Replace placeholder words (`negativeWord`, `zeroWord`, `decimalSeparatorWord`)
    - Implement base-class-specific requirements:
-     - **GreedyScaleLanguage**: Add `scaleWordPairs` array, implement `mergeScales()`
+     - **GreedyScaleLanguage**: Add `scaleWords` array, implement `combineWordSets()`
      - **SlavicLanguage**: Add `onesWords`, `onesFeminineWords`, `teensWords`, `twentiesWords`, `hundredsWords`, `pluralForms` (optionally `scaleGenders` for per-scale gender)
      - **SouthAsianLanguage**: Add `belowHundredWords` array (100 entries), `scaleWords` array
-     - **TurkicLanguage**: Add `scaleWordPairs` array, implement `mergeScales()`
+     - **TurkicLanguage**: Add `scaleWords` array (uses inherited `combineWordSets()`)
      - **AbstractLanguage**: Implement `integerToWords()` from scratch
 2. Edit `test/fixtures/languages/{code}.js`:
    - Add comprehensive test cases (see existing fixtures for examples)
@@ -669,15 +675,13 @@ export class English extends GreedyScaleLanguage {
 
 ```javascript
 /**
- * Merges scale components with appropriate separators.
+ * Combines two adjacent word-sets according to language grammar.
  *
- * @param {string} leftWords - Words for the left (higher scale) component
- * @param {bigint} leftScale - The scale value of the left component
- * @param {string} rightWords - Words for the right (lower scale) component
- * @param {bigint} rightScale - The scale value of the right component
- * @returns {string} The merged result
+ * @param {Object} left - Left word-set as { word: bigint }
+ * @param {Object} right - Right word-set as { word: bigint }
+ * @returns {Object} Combined word-set with merged text and resulting value
  */
-mergeScales(leftWords, leftScale, rightWords, rightScale) {
+combineWordSets(left, right) {
   // ...
 }
 ```
@@ -694,15 +698,20 @@ export class MyLanguage extends GreedyScaleLanguage {
   zeroWord = 'zero'
   decimalSeparatorWord = 'point'
 
-  scaleWordPairs = [
+  scaleWords = [
     [1000000n, 'million'],
     [1000n, 'thousand'],
     [100n, 'hundred'],
     // ... complete list down to 1n
   ]
 
-  mergeScales(leftWords, leftScale, rightWords, rightScale) {
-    return leftWords + ' ' + rightWords
+  combineWordSets(left, right) {
+    const leftWord = Object.keys(left)[0]
+    const rightWord = Object.keys(right)[0]
+    const leftNumber = Object.values(left)[0]
+    const rightNumber = Object.values(right)[0]
+    const resultNumber = rightNumber > leftNumber ? leftNumber * rightNumber : leftNumber + rightNumber
+    return { [`${leftWord} ${rightWord}`]: resultNumber }
   }
 }
 ```
@@ -714,12 +723,12 @@ export class MyLanguage extends GreedyScaleLanguage {
   constructor(options = {}) {
     super()
 
-    this.options = this.mergeOptions({
+    this.setOptions({
       gender: 'masculine'
     }, options)
   }
 
-  get scaleWordPairs() {
+  get scaleWords() {
     // Return appropriate scale words based on gender
     return this.options.gender === 'feminine'
       ? this.feminineScales
@@ -740,13 +749,13 @@ export class FrenchBelgium extends French {
   constructor(options = {}) {
     super(options)
 
-    // Modify parent's scaleWordPairs by inserting regional variants
-    const pairs = [...this.scaleWordPairs]
+    // Modify parent's scaleWords by inserting regional variants
+    const pairs = [...this.scaleWords]
     const idx80 = pairs.findIndex(pair => pair[0] === 80n)
     if (idx80 !== -1) pairs.splice(idx80, 0, [90n, 'nonante'])
     const idx60 = pairs.findIndex(pair => pair[0] === 60n)
     if (idx60 !== -1) pairs.splice(idx60, 0, [70n, 'septante'])
-    this.scaleWordPairs = pairs
+    this.scaleWords = pairs
   }
 }
 ```
@@ -781,7 +790,7 @@ export class Czech extends SlavicLanguage {
 **Other examples:**
 
 - **Arabic**: Uses `get selectedOnes()` to return masculine or feminine forms based on options
-- **Gender-based languages**: Many use getters to return different `scaleWordPairs` based on gender option
+- **Gender-based languages**: Many use getters to return different `scaleWords` based on gender option
 
 ### Pattern 5: Custom integerToWords() Override
 
@@ -789,8 +798,8 @@ Languages can override `integerToWords()` for complete custom logic while still 
 
 ```javascript
 export class Hungarian extends GreedyScaleLanguage {
-  // Define scaleWordPairs as usual
-  scaleWordPairs = [/* ... */]
+  // Define scaleWords as usual
+  scaleWords = [/* ... */]
 
   // Override with completely custom implementation
   integerToWords(number) {
@@ -800,8 +809,8 @@ export class Hungarian extends GreedyScaleLanguage {
     const thousands = number / 1000n
     const remainder = number % 1000n
 
-    // Use getScaleWord() helper to lookup words
-    const word = this.getScaleWord(remainder)
+    // Use wordForScale() helper to lookup words
+    const word = this.wordForScale(remainder)
     if (word && thousands === 0n) return word
 
     // Custom merging logic...
@@ -1393,12 +1402,12 @@ export default [
 
 All must be **alphabetically sorted** within their sections.
 
-### Issue: "scaleWordPairs not in descending order"
+### Issue: "scaleWords not in descending order"
 
 **Solution**: Scale words MUST be ordered from largest to smallest:
 
 ```javascript
-scaleWordPairs = [
+scaleWords = [
   [1000000n, 'million'],  // Largest first
   [1000n, 'thousand'],
   [100n, 'hundred'],
@@ -1417,7 +1426,7 @@ integerToWords(wholeNumber) {
 }
 ```
 
-For GreedyScaleLanguage, this is auto-implemented if `scaleWordPairs` and `mergeScales` are provided.
+For GreedyScaleLanguage, this is auto-implemented if `scaleWords` and `combineWordSets` are provided.
 
 ## Contributing Guidelines
 

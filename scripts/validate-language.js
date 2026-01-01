@@ -400,7 +400,7 @@ function validateDocumentation (fileContent, className, result) {
     result.info.push('✓ Has class documentation')
   }
 
-  // Note: mergeScales() is documented in the abstract base class (GreedyScaleLanguage)
+  // Note: combineWordSets() is documented in the abstract base class (GreedyScaleLanguage)
   // Individual implementations don't need to repeat full JSDoc documentation
 }
 

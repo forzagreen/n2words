@@ -415,7 +415,7 @@ This will create:
 │    Edit lib/languages/<code>.js                           │
 │    ✓ Replace placeholder words (negativeWord, zeroWord)   │
 │    ✓ Complete base-class-specific implementation:         │
-│      - Greedy/Turkic: scaleWordPairs + mergeScales()      │
+│      - Greedy/Turkic: scaleWords + combineWordSets()      │
 │      - Slavic: ones/tens/hundreds + pluralForms           │
 │        (+ scaleGenders for per-scale gender control)      │
 │      - SouthAsian: belowHundred + scaleWords              │
@@ -488,7 +488,7 @@ If your language requires options (e.g., gender, formal style), follow this patt
    ```javascript
    constructor(options = {}) {
      super()
-     this.options = this.mergeOptions({
+     this.setOptions({
        gender: 'masculine'  // default value
      }, options)
    }
@@ -731,12 +731,12 @@ To create a regional variant of an existing language (e.g., Belgian French):
        super(options)
 
        // Modify specific scale words
-       const pairs = [...this.scaleWordPairs]
+       const pairs = [...this.scaleWords]
        const idx80 = pairs.findIndex(pair => pair[0] === 80n)
        if (idx80 !== -1) pairs.splice(idx80, 0, [90n, 'nonante'])
        const idx60 = pairs.findIndex(pair => pair[0] === 60n)
        if (idx60 !== -1) pairs.splice(idx60, 0, [70n, 'septante'])
-       this.scaleWordPairs = pairs
+       this.scaleWords = pairs
      }
    }
    ```
@@ -1280,13 +1280,13 @@ npm run test:web -- --timeout=60s
 
    ```javascript
    // Wrong order
-   scaleWordPairs = [
+   scaleWords = [
      [100n, 'hundred'],
      [1000n, 'thousand']  // ❌ Should come before 100
    ]
 
    // Correct order
-   scaleWordPairs = [
+   scaleWords = [
      [1000n, 'thousand'],  // ✅ Largest first
      [100n, 'hundred']
    ]
@@ -1433,7 +1433,7 @@ npm run lint
 | Error Message                              | Cause                                    | Fix                                           |
 | ------------------------------------------ | ---------------------------------------- | --------------------------------------------- |
 | "Missing required property: negativeWord"  | Property not defined in class            | Add `negativeWord = 'minus'` to class         |
-| "scaleWordPairs not in descending order"   | Scale values not sorted largest→smallest | Reorder array from largest to smallest        |
+| "scaleWords not in descending order"       | Scale values not sorted largest→smallest | Reorder array from largest to smallest        |
 | "integerToWords() not implemented"         | Method is abstract/missing               | Implement `integerToWords(n)` method          |
 | "Not imported in lib/n2words.js"           | Missing registration                     | Add import, converter, export (alphabetically)|
 | "Missing test fixture"                     | No test file exists                      | Create `test/fixtures/languages/<code>.js`    |
