@@ -414,6 +414,75 @@ export default [
 }
 
 /**
+ * Update type test file with new converter
+ * @param {string} className - Class name
+ */
+function updateTypeTestFile (className) {
+  const typeTestPath = './test/types/n2words.test-d.ts'
+  let content = readFileSync(typeTestPath, 'utf-8')
+
+  const converterName = `${className}Converter`
+
+  // Check if already present
+  if (content.includes(converterName)) {
+    return // Already exists
+  }
+
+  // Find the import block from n2words.js and add the converter alphabetically
+  const importMatch = content.match(/import\s*{([^}]+)}\s*from\s*['"]\.\.\/\.\.\/lib\/n2words\.js['"]/)
+  if (!importMatch) {
+    throw new Error('Could not find n2words import block in type test file')
+  }
+
+  const importBlock = importMatch[1]
+  const imports = importBlock.split(',').map(s => s.trim()).filter(s => s)
+
+  // Add new converter alphabetically
+  imports.push(converterName)
+  imports.sort()
+
+  // Format the new import block (same style as existing)
+  const newImportBlock = '\n  ' + imports.join(',\n  ') + '\n'
+  content = content.replace(importMatch[1], newImportBlock)
+
+  // Add a basic type test for the new converter
+  // Find the section for converters without options and add the test
+  const noOptionsSection = '// Converters without options - verify they accept value and return string'
+  const noOptionsSectionIndex = content.indexOf(noOptionsSection)
+
+  if (noOptionsSectionIndex !== -1) {
+    // Find the end of the no-options tests (next section or blank line before next section)
+    const nextSectionMatch = content.slice(noOptionsSectionIndex).match(/\n\n\/\/ Should error/)
+    if (nextSectionMatch) {
+      const insertPos = noOptionsSectionIndex + nextSectionMatch.index
+      const newTest = `expectType<string>(${converterName}(42))\n`
+
+      // Find where to insert alphabetically
+      const testSection = content.slice(noOptionsSectionIndex, insertPos)
+      const testLines = testSection.split('\n').filter(l => l.startsWith('expectType<string>('))
+
+      // Find correct position
+      let insertAtEnd = true
+      for (const line of testLines) {
+        const existingConverter = line.match(/expectType<string>\((\w+Converter)/)?.[1]
+        if (existingConverter && existingConverter > converterName) {
+          const linePos = content.indexOf(line, noOptionsSectionIndex)
+          content = content.slice(0, linePos) + newTest + content.slice(linePos)
+          insertAtEnd = false
+          break
+        }
+      }
+
+      if (insertAtEnd) {
+        content = content.slice(0, insertPos) + newTest + content.slice(insertPos)
+      }
+    }
+  }
+
+  writeFileSync(typeTestPath, content)
+}
+
+/**
  * Update n2words.js with new language
  * @param {string} code - Language code
  * @param {string} className - Class name
@@ -689,6 +758,11 @@ async function main () {
   console.log(chalk.gray('Updating lib/n2words.js...'))
   updateN2wordsFile(code, className)
   console.log(chalk.green('✓ Updated n2words.js'))
+
+  // Update type test file
+  console.log(chalk.gray('Updating test/types/n2words.test-d.ts...'))
+  updateTypeTestFile(className)
+  console.log(chalk.green('✓ Updated type tests'))
 
   // Success message with next steps
   console.log(chalk.green(`\n✓ Successfully scaffolded ${code} language using ${baseClass.name}`))

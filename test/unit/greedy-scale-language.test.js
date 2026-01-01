@@ -313,12 +313,12 @@ test('finalizeWords can be overridden by subclasses', t => {
 
 test('integrates with AbstractLanguage for negative numbers', t => {
   const lang = new TestGreedyLanguage()
-  const result = lang.convertToWords(-42)
+  const result = lang.convert(true, 42n)
   t.true(result.startsWith('minus'))
 })
 
 test('integrates with AbstractLanguage for decimals', t => {
   const lang = new TestGreedyLanguage()
-  const result = lang.convertToWords(3.14)
+  const result = lang.convert(false, 3n, '14')
   t.true(result.includes('point'))
 })

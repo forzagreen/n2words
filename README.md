@@ -162,8 +162,8 @@ Language codes follow [IETF BCP 47](https://tools.ietf.org/html/bcp47) standards
 
 21 languages support additional options. Common options include:
 
-**`gender`** (`'masculine'` | `'feminine'`) - 16 languages
-Arabic, Croatian, Czech, Hebrew (Biblical), Latvian, Lithuanian, Polish, Romanian, Russian, Serbian (both scripts), Spanish, Ukrainian
+**`gender`** (`'masculine'` | `'feminine'`) - 13 languages
+Arabic, Biblical Hebrew, Croatian, Czech, Latvian, Lithuanian, Polish, Romanian, Russian, Serbian (both scripts), Spanish, Ukrainian
 
 **`formal`** (`boolean`) - 2 languages
 Simplified Chinese, Traditional Chinese - Toggle between formal/financial and common numerals
@@ -172,7 +172,7 @@ Simplified Chinese, Traditional Chinese - Toggle between formal/financial and co
 
 - Dutch: `includeOptionalAnd`, `accentOne`, `noHundredPairs`
 - French/French Belgium: `withHyphenSeparator`
-- Hebrew/Biblical Hebrew: `andWord`
+- Hebrew (Modern & Biblical): `andWord`
 - Turkish: `dropSpaces`
 - Danish: `ordFlag` (ordinal numbers)
 - Arabic: `negativeWord` (custom negative word)
@@ -349,4 +349,4 @@ Please read our [Code of Conduct](CODE_OF_CONDUCT.md) before contributing.
 
 ## License
 
-[MIT](./LICENSE) © 2025
+[MIT](./LICENSE) © Wael TELLAT, Tyler Vigario & contributors

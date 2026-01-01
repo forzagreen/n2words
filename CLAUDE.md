@@ -53,7 +53,7 @@ Croatian (hr), Czech (cs), Danish (da), Dutch (nl), English (en), French (fr), F
 **Asian & Middle Eastern Languages (24):**
 Arabic (ar), Azerbaijani (az), Bangla/Bengali (bn), Filipino/Tagalog (fil), Gujarati (gu), Hebrew (he), Biblical Hebrew (hbo), Hindi (hi), Indonesian (id), Japanese (ja), Kannada (kn), Korean (ko), Malay (ms), Marathi (mr), Persian/Farsi (fa), Punjabi (pa), Simplified Chinese (zh-Hans), Swahili (sw), Tamil (ta), Telugu (te), Thai (th), Traditional Chinese (zh-Hant), Urdu (ur), Vietnamese (vi)
 
-**Note:** 9 of the Asian languages are Indian subcontinent languages (Bangla, Gujarati, Hindi, Kannada, Marathi, Punjabi, Tamil, Telugu, Urdu) that use the SouthAsianLanguage base class with lakh/crore number system support.
+**Note:** 7 of the Asian languages are Indian subcontinent languages (Bangla, Gujarati, Hindi, Kannada, Marathi, Punjabi, Urdu) that use the SouthAsianLanguage base class with lakh/crore number system support. Tamil and Telugu extend AbstractLanguage directly due to their unique Dravidian language patterns.
 
 **Languages with Options (21):**
 Arabic, Biblical Hebrew, Croatian, Czech, Danish, Dutch, French, French Belgium, Hebrew, Latvian, Lithuanian, Polish, Romanian, Russian, Serbian Cyrillic, Serbian Latin, Simplified Chinese, Spanish, Traditional Chinese, Turkish, Ukrainian
@@ -119,11 +119,15 @@ AbstractLanguage (base)
 
 **Responsibilities:**
 
-- Validates and normalizes input (`number | string | bigint`)
-- Splits into sign, whole, and decimal parts
+- Receives pre-validated and normalized input from `makeConverter()` (the public API wrapper)
+- Caches the whole number for languages that need it (e.g., Czech, Hebrew pluralization)
 - Handles negative numbers (prepends `negativeWord`)
-- Converts decimal parts
+- Converts decimal parts via `decimalDigitsToWords()`
 - Delegates whole number conversion to `convertWholePart()`
+
+**Note:** Input validation and normalization happen at the public API boundary in `lib/n2words.js`.
+The `makeConverter()` wrapper handles type checking, format validation, sign detection, and
+whole/decimal extraction before calling `convert()` on the language class.
 
 **Required properties subclasses must provide:**
 
@@ -149,9 +153,9 @@ digits = null                    // Array of digit words for lookup
 
 #### GreedyScaleLanguage
 
-**Used by**: English, Spanish, French, German, Portuguese, Swedish, Danish, Norwegian, Dutch, Korean, Filipino, Gujarati, Kannada, Marathi, Punjabi, Swahili, Greek, Hebrew, Biblical Hebrew, Azerbaijani, Simplified Chinese, Traditional Chinese, Urdu, Bangla
+**Used by**: Danish, Dutch, English, Filipino, French, German, Greek, Hungarian, Korean, Norwegian Bokmål, Portuguese, Spanish, Swedish, Simplified Chinese, Traditional Chinese
 
-**Note**: Some languages extending GreedyScaleLanguage also extend AbstractLanguage directly when they need complete custom decomposition (Arabic, Hungarian, Indonesian, Italian, Japanese, Malay, Persian, Romanian, Tamil, Telugu, Thai, Vietnamese).
+**Note**: French Belgium extends French, not GreedyScaleLanguage directly.
 
 **How it works:**
 
@@ -193,7 +197,7 @@ export class English extends GreedyScaleLanguage {
 
 #### SlavicLanguage
 
-**Used by**: Russian, Polish, Czech, Croatian, Serbian (both Cyrillic and Latin), Ukrainian, Lithuanian, Latvian
+**Used by**: Croatian, Czech, Hebrew (Modern & Biblical), Latvian, Lithuanian, Polish, Russian, Serbian (both Cyrillic and Latin), Ukrainian
 
 **Key feature**: Three-form pluralization based on number endings, optional gender support
 
@@ -214,7 +218,7 @@ export class Russian extends SlavicLanguage {
 
 #### SouthAsianLanguage
 
-**Used by**: Hindi, Tamil, Telugu, Bengali, Gujarati, Kannada, Marathi, Punjabi, Urdu
+**Used by**: Bangla/Bengali, Gujarati, Hindi, Kannada, Marathi, Punjabi, Urdu
 
 **Key feature**: Supports Indian numbering system (lakh, crore)
 
@@ -229,7 +233,6 @@ export class Russian extends SlavicLanguage {
 **12 languages** implement custom decomposition logic by extending AbstractLanguage directly instead of using helper classes:
 
 - **Arabic (ar)**: Gender-specific forms, dual numbers, complex pluralization
-- **Hungarian (hu)**: Custom override of `convertWholePart()` despite extending GreedyScaleLanguage
 - **Indonesian (id)**: Simple concatenation-based conversion
 - **Italian (it)**: Phonetic contractions, vowel elision, accent rules
 - **Japanese (ja)**: Groups by 10^4 instead of 10^3, uses kanji, omits 一 (one) in specific contexts
@@ -243,6 +246,8 @@ export class Russian extends SlavicLanguage {
 - **Vietnamese (vi)**: Vietnamese-specific number patterns
 
 These languages have unique patterns that don't fit the standard base classes.
+
+**Note**: Hungarian extends GreedyScaleLanguage but overrides `convertWholePart()` with custom logic.
 
 ### 2. Entry Point Structure ([lib/n2words.js](lib/n2words.js))
 
@@ -267,8 +272,11 @@ import { English } from './languages/en.js'
 // Converter Factory
 // ============================================================================
 function makeConverter (LanguageClass) {
-  return function convertToWords (value, options = {}) {
-    return new LanguageClass(options).convertToWords(value)
+  return function convertToWords (value, options) {
+    // 1. Validate options and input type
+    // 2. Normalize: extract isNegative, wholeNumber, decimalPart
+    // 3. Delegate to class with pre-processed data
+    return new LanguageClass(options).convert(isNegative, wholeNumber, decimalPart)
   }
 }
 
@@ -1133,7 +1141,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md#continuous-integration) for detailed CI/CD
 
 ### Input Handling Edge Cases
 
-From AbstractLanguage tests and implementation:
+Input validation and normalization happen in `makeConverter()` (lib/n2words.js), not in the language classes:
 
 - **Decimal-only strings**: `.5` is handled by defaulting whole part to `'0'` → "zero point five"
 - **Whitespace**: Trimmed from string input before processing
@@ -1141,7 +1149,9 @@ From AbstractLanguage tests and implementation:
 - **Leading zeros in decimals**: Preserved differently in grouped vs per-digit mode:
   - Per-digit: "0.05" → "zero point zero five"
   - Grouped: "0.05" → "zero point five" (leading zeros may be stripped depending on language)
-- **Empty string**: Treated as zero
+- **Empty string**: Rejected with error (validation in makeConverter)
+- **Invalid types**: Rejected with TypeError (null, undefined, objects, arrays, symbols, functions)
+- **NaN/Infinity**: Rejected with error
 - **BigInt literal**: Fully supported: `BigInt('9007199254740992')` works correctly
 
 ### Language-Specific Unique Behaviors
@@ -1170,7 +1180,8 @@ From AbstractLanguage tests and implementation:
 
 **Key test files:**
 
-- `abstract-language.test.js` - Tests base class functionality (input validation, sign handling, decimal conversion)
+- `api.test.js` - Tests public API (input validation, options handling, all converters)
+- `abstract-language.test.js` - Tests base class functionality (sign handling, decimal conversion)
 - `greedy-scale-language.test.js` - Tests greedy decomposition algorithm
 - `slavic-language.test.js` - Tests three-form pluralization logic
 - `south-asian-language.test.js` - Tests lakh/crore number system
@@ -1193,9 +1204,16 @@ class TestLanguage extends AbstractLanguage {
   }
 }
 
+// Unit tests call convert() with pre-normalized parameters
+// (validation/normalization is tested in api.test.js)
 test('handles negative numbers', t => {
   const lang = new TestLanguage()
-  t.is(lang.convertToWords(-42), 'minus 42')
+  t.is(lang.convert(true, 42n), 'minus 42')
+})
+
+test('handles decimals', t => {
+  const lang = new TestLanguage()
+  t.is(lang.convert(false, 3n, '14'), 'three point 14')
 })
 ```
 
@@ -1295,8 +1313,8 @@ export default [
 
 | File                                   | Purpose                                                 |
 | -------------------------------------- | ------------------------------------------------------- |
-| `lib/n2words.js`                       | Main entry point, exports all converters                |
-| `lib/classes/abstract-language.js`     | Base class, input validation, decimal handling          |
+| `lib/n2words.js`                       | Main entry point, validation, normalization, exports    |
+| `lib/classes/abstract-language.js`     | Base class, decimal handling, word assembly             |
 | `lib/classes/greedy-scale-language.js` | Scale-based decomposition strategy                      |
 | `lib/classes/slavic-language.js`       | Three-form pluralization for Slavic languages           |
 | `lib/classes/south-asian-language.js`  | Indian numbering system (lakh, crore)                   |
@@ -1390,7 +1408,7 @@ For GreedyScaleLanguage, this is auto-implemented if `scaleWordPairs` and `merge
 
 ---
 
-**Last Updated**: 2025-12-26
+**Last Updated**: 2025-12-31
 **Project Version**: 2.0.0
 **Maintained By**: Tyler Vigario & contributors
 
@@ -1404,7 +1422,7 @@ For GreedyScaleLanguage, this is auto-implemented if `scaleWordPairs` and `merge
 
 ### Coverage Metrics
 
-- **Browser Coverage**: ~85.9% of global users (via browserslist query: "defaults and supports bigint")
+- **Browser Coverage**: ~86% of global users (via browserslist query: "defaults and supports bigint")
 - **Test Coverage**: Comprehensive unit, integration, and browser tests for all languages
 - **Type Coverage**: Full JSDoc annotations for TypeScript IntelliSense
 

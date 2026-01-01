@@ -155,7 +155,7 @@ Comprehensive validator for language implementations to ensure they follow all r
 #### ✅ Required Methods
 
 - `convertWholePart(bigint)` - Must be implemented (not abstract)
-- `convertToWords(value)` - Inherited from AbstractLanguage
+- `convert(isNegative, wholeNumber, decimalPart)` - Inherited from AbstractLanguage
 - `mergeScales(left, right)` - Required for GreedyScaleLanguage subclasses
 
 #### ✅ Scale Words Validation (for scale-based languages)
