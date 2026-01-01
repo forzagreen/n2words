@@ -252,3 +252,120 @@ test('mergeOptions handles undefined parameters', t => {
 
   t.deepEqual(merged, {})
 })
+
+// ============================================================================
+// convertDecimalWholePart Tests
+// ============================================================================
+
+test('convertDecimalWholePart defaults to convertWholePart', t => {
+  const lang = new TestLanguage()
+  // Without override, should delegate to convertWholePart
+  t.is(lang.convertDecimalWholePart(42n), 'number-42')
+  t.is(lang.convertDecimalWholePart(0n), 'zero')
+})
+
+test('convertDecimalWholePart can be overridden for custom decimal behavior', t => {
+  // Language that uses different forms for decimals
+  class TestLangWithDecimalOverride extends AbstractLanguage {
+    negativeWord = 'minus'
+    decimalSeparatorWord = 'point'
+    zeroWord = 'zero'
+
+    convertWholePart (n) {
+      return `whole-${n}`
+    }
+
+    // Override: decimals use different format
+    convertDecimalWholePart (n) {
+      return `decimal-${n}`
+    }
+  }
+
+  const lang = new TestLangWithDecimalOverride()
+  t.is(lang.convertWholePart(42n), 'whole-42')
+  t.is(lang.convertDecimalWholePart(42n), 'decimal-42')
+})
+
+test('decimalDigitsToWords uses convertDecimalWholePart in grouped mode', t => {
+  class TestLangWithDecimalOverride extends AbstractLanguage {
+    negativeWord = 'minus'
+    decimalSeparatorWord = 'point'
+    zeroWord = 'zero'
+
+    convertWholePart (n) {
+      return `whole-${n}`
+    }
+
+    convertDecimalWholePart (n) {
+      return `decimal-${n}`
+    }
+  }
+
+  const lang = new TestLangWithDecimalOverride()
+  // Grouped mode should use convertDecimalWholePart
+  t.deepEqual(lang.decimalDigitsToWords('14'), ['decimal-14'])
+  t.deepEqual(lang.decimalDigitsToWords('05'), ['zero', 'decimal-5'])
+})
+
+test('convertDigitToWord uses convertDecimalWholePart when no digits array', t => {
+  class TestLangWithDecimalOverride extends AbstractLanguage {
+    negativeWord = 'minus'
+    decimalSeparatorWord = 'point'
+    zeroWord = 'zero'
+
+    convertWholePart (n) {
+      return `whole-${n}`
+    }
+
+    convertDecimalWholePart (n) {
+      return `decimal-${n}`
+    }
+  }
+
+  const lang = new TestLangWithDecimalOverride()
+  // Per-digit conversion should use convertDecimalWholePart
+  t.is(lang.convertDigitToWord(5n), 'decimal-5')
+  t.is(lang.convertDigitToWord(0n), 'zero') // Zero still uses zeroWord
+})
+
+test('full decimal conversion uses convertDecimalWholePart', t => {
+  class TestLangWithDecimalOverride extends AbstractLanguage {
+    negativeWord = 'minus'
+    decimalSeparatorWord = 'point'
+    zeroWord = 'zero'
+
+    convertWholePart (n) {
+      return `whole-${n}`
+    }
+
+    convertDecimalWholePart (n) {
+      return `decimal-${n}`
+    }
+  }
+
+  const lang = new TestLangWithDecimalOverride()
+  // Full conversion: whole uses convertWholePart, decimal uses convertDecimalWholePart
+  t.is(lang.convert(false, 3n, '14'), 'whole-3 point decimal-14')
+  t.is(lang.convert(false, 0n, '5'), 'whole-0 point decimal-5')
+})
+
+test('convertDecimalWholePart with per-digit mode uses hook for each digit', t => {
+  class TestLangPerDigitWithOverride extends AbstractLanguage {
+    negativeWord = 'minus'
+    decimalSeparatorWord = 'point'
+    zeroWord = 'zero'
+    convertDecimalsPerDigit = true
+
+    convertWholePart (n) {
+      return `whole-${n}`
+    }
+
+    convertDecimalWholePart (n) {
+      return `d${n}`
+    }
+  }
+
+  const lang = new TestLangPerDigitWithOverride()
+  // Per-digit mode uses convertDigitToWord which delegates to convertDecimalWholePart
+  t.is(lang.convert(false, 1n, '23'), 'whole-1 point d2 d3')
+})
