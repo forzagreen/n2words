@@ -310,7 +310,7 @@ The scaffolding tool supports **interactive mode** (recommended) or **command-li
 **Interactive Mode (Recommended):**
 
 ```bash
-npm run lang:add -- <language-code>
+npm run lang:add -- <code>
 
 # Example: Add Korean
 npm run lang:add -- ko
@@ -321,7 +321,7 @@ You'll be prompted to select a base class. See the decision tree below to choose
 **Command-Line Mode:**
 
 ```bash
-npm run lang:add -- <language-code> --base=<base-class>
+npm run lang:add -- <code> --base=<base-class>
 
 # Examples:
 npm run lang:add -- ko                      # Uses default (greedy)
@@ -381,9 +381,12 @@ This will create:
 ┌───────────────────────────────────────────────────────────┐
 │ 2. Implement Language Class                               │
 │    Edit lib/languages/<code>.js                           │
-│    ✓ Replace placeholder words                            │
-│    ✓ Add complete scaleWordPairs (largest → smallest)     │
-│    ✓ Implement mergeScales() logic                        │
+│    ✓ Replace placeholder words (negativeWord, zeroWord)   │
+│    ✓ Complete base-class-specific implementation:         │
+│      - Greedy/Turkic: scaleWordPairs + mergeScales()      │
+│      - Slavic: ones/tens/hundreds + pluralForms           │
+│      - SouthAsian: belowHundred + scaleWords              │
+│      - Abstract: convertWholePart() from scratch          │
 │    ✓ Add options if needed (gender, formal, etc.)         │
 │    ✓ Write comprehensive JSDoc with examples              │
 └────────────────────┬──────────────────────────────────────┘

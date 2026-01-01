@@ -2,44 +2,43 @@
 
 ## What does this do?
 
-<!-- Describe your changes in a sentence or two -->
+<!-- A brief description of your changes -->
 
 ## Related Issue
 
-<!-- If this fixes an issue, mention it: Fixes #123 -->
+<!-- Optional: Fixes #123 -->
 
 ## Checklist
 
-**Before submitting, make sure:**
+- [ ] Tests pass (`npm test`)
+- [ ] Linting passes (`npm run lint`)
 
-- [ ] Tests pass locally (`npm test`)
-- [ ] Code follows the project style (runs automatically via StandardJS)
-
-**If adding a new language:**
-
-- [ ] Used `npm run lang:add <code>` to scaffold
-- [ ] Added test cases in `test/fixtures/languages/<code>.js`
-- [ ] Validation passes (`npm run lang:validate -- <code>`)
-
-## Test Results (optional)
-
-<!-- If you want, paste the output showing tests pass -->
-
-```bash
-npm test
-# ✓ All tests passed
-```
-
-## Example (optional)
-
-<!-- Show how your changes work if it helps! -->
-
-```javascript
-import { MyConverter } from 'n2words'
-console.log(MyConverter(42))
-// "forty-two"
-```
+<!-- That's it for most PRs! The sections below are optional. -->
 
 ---
 
-**Note:** By submitting this PR, you agree to follow the project's [Code of Conduct](../CODE_OF_CONDUCT.md). Thanks for contributing! 🎉
+<details>
+<summary><b>Adding a new language?</b> (click to expand)</summary>
+
+**Recommended:** Use the scaffolding tool to generate all files automatically:
+
+```bash
+npm run lang:add -- <code>
+```
+
+**Manual setup:** If not using the scaffolding tool, ensure you have:
+
+- [ ] Language class in `lib/languages/<code>.js`
+- [ ] Test fixture in `test/fixtures/languages/<code>.js` (include options if language has them)
+- [ ] In `lib/n2words.js` (alphabetically sorted): import, typedef, converter, export
+- [ ] Type test in `test/types/n2words.test-d.ts` (include options if language has them)
+- [ ] Validation passes (`npm run lang:validate -- <code>`)
+
+</details>
+
+<details>
+<summary><b>Breaking change?</b> (click to expand)</summary>
+
+Describe what breaks and how users should update:
+
+</details>

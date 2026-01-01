@@ -9,10 +9,10 @@ Scaffolding tool for quickly setting up a new language implementation with all r
 ### What it creates
 
 - **Language implementation file** (`lib/languages/{code}.js`)
-  - Class extending `GreedyScaleLanguage` (most common pattern)
+  - Class extending the selected base class (GreedyScaleLanguage by default)
   - Placeholder properties (negativeWord, zeroWord, decimalSeparatorWord)
-  - Placeholder scaleWordPairs array
-  - Skeleton mergeScales() method with TODO comments
+  - Base-class-specific structure (scaleWordPairs, pluralForms, belowHundred, etc.)
+  - Skeleton methods with TODO comments
   - Comprehensive JSDoc documentation
 
 - **Test fixture file** (`test/fixtures/languages/{code}.js`)
@@ -26,6 +26,10 @@ Scaffolding tool for quickly setting up a new language implementation with all r
   - Creates converter using `makeConverter()` with type annotation in Language Converters section (alphabetically)
   - Adds to export statement in Exports section (alphabetically)
 
+- **Updates test/types/n2words.test-d.ts**
+  - Adds the new converter to the import block (alphabetically)
+  - Adds a basic type test for the converter
+
 ### Usage
 
 #### Interactive Mode (Recommended)
@@ -33,7 +37,7 @@ Scaffolding tool for quickly setting up a new language implementation with all r
 Simply provide the language code and you'll be prompted to select a base class:
 
 ```bash
-npm run lang:add -- <language-code>
+npm run lang:add -- <code>
 
 # Example
 npm run lang:add -- ko
@@ -69,7 +73,7 @@ Press Enter for the default (GreedyScaleLanguage) or enter 1-5 to select a speci
 If you already know which base class you need, you can skip the prompt:
 
 ```bash
-npm run lang:add -- <language-code> --base=<base-class>
+npm run lang:add -- <code> --base=<base-class>
 
 # Examples
 npm run lang:add -- ko                          # Uses default (greedy)
@@ -98,9 +102,12 @@ The script validates that:
 ### Next steps after scaffolding
 
 1. Edit `lib/languages/{code}.js`:
-   - Replace placeholder words with actual language words
-   - Add complete scaleWordPairs array (largest to smallest)
-   - Implement mergeScales() with language-specific rules
+   - Replace placeholder words (`negativeWord`, `zeroWord`, `decimalSeparatorWord`)
+   - Complete base-class-specific requirements:
+     - **GreedyScaleLanguage/TurkicLanguage**: Add `scaleWordPairs` array, implement `mergeScales()`
+     - **SlavicLanguage**: Define ones/tens/twenties/hundreds dictionaries, add `pluralForms`
+     - **SouthAsianLanguage**: Complete `belowHundred` array (0-99), define `scaleWords`
+     - **AbstractLanguage**: Implement `convertWholePart()` from scratch
 
 2. Edit `test/fixtures/languages/{code}.js`:
    - Replace English words with actual language equivalents
@@ -197,6 +204,12 @@ Comprehensive validator for language implementations to ensure they follow all r
 - **Test fixture exists**: File in `test/fixtures/languages/{code}.js`
 - **Fixture format**: Exports array of `[input, expected, options]` tuples
 - **Export structure**: Uses `export default [...]`
+- **Options coverage**: For languages with options, verifies that options are tested in fixtures
+
+#### ✅ Type Tests
+
+- **Type test registration**: Converter is imported in `test/types/n2words.test-d.ts`
+- **Options coverage**: For languages with options, verifies that option types are tested
 
 #### ✅ Integration
 
@@ -254,12 +267,14 @@ n2words Language Validator
     ✓ Has proper import statement
     ✓ Has test fixture file
     ✓ Properly registered in n2words.js as EnglishConverter
+    ✓ EnglishConverter included in type tests
 
 ✗ new-language
   Errors:
     ✗ Missing required property: negativeWord
     ✗ convertWholePart() not implemented (still abstract)
     ✗ Not imported in lib/n2words.js
+    ✗ NewLanguageConverter not imported in type test file (test/types/n2words.test-d.ts)
   Warnings:
     ⚠ Missing test fixture: test/fixtures/languages/new-language.js
 
@@ -374,3 +389,31 @@ export default [
   // ... more test cases
 ]
 ```
+
+### "Converter not imported in type test file"
+
+**Fix**: Add the converter to `test/types/n2words.test-d.ts`:
+
+Add to the import block (alphabetically sorted):
+
+```typescript
+import {
+  // ... other converters
+  MyLanguageConverter,
+  // ... other converters
+} from '../../lib/n2words.js'
+```
+
+Add a basic type test:
+
+```typescript
+expectType<string>(MyLanguageConverter(42))
+```
+
+If the language has options, add options tests:
+
+```typescript
+expectType<string>(MyLanguageConverter(42, { gender: 'feminine' }))
+```
+
+**Note**: If you use `npm run lang:add`, this is done automatically.

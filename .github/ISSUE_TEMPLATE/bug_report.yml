@@ -6,47 +6,37 @@ body:
   - type: markdown
     attributes:
       value: |
-        Thanks for reporting a bug! Just describe what's wrong and show us how to reproduce it.
+        Thanks for taking the time to report this!
 
   - type: textarea
     id: description
     attributes:
-      label: What's wrong?
-      description: Describe the issue and what you expected to happen
-      placeholder: |
-        When I convert 42 to English, I get "forty two" but I expected "forty-two" with a hyphen.
+      label: What happened?
+      description: What did you expect vs what actually happened?
+      placeholder: "I expected X but got Y instead..."
     validations:
       required: true
 
   - type: textarea
     id: reproduction
     attributes:
-      label: How to reproduce
-      description: Share the code that triggers the bug
+      label: Code to reproduce
+      description: Minimal code that shows the problem
       placeholder: |
         import { EnglishConverter } from 'n2words'
-        console.log(EnglishConverter(42))
+        EnglishConverter(42)  // returns "..." but expected "..."
       render: javascript
     validations:
       required: true
 
   - type: input
-    id: language
-    attributes:
-      label: Which language?
-      description: Which language converter has the issue?
-      placeholder: "e.g., English, Spanish, Arabic"
-
-  - type: input
     id: version
     attributes:
-      label: n2words version (optional)
-      description: If you know it, what version are you using?
-      placeholder: "e.g., 2.0.0"
+      label: Version (optional)
+      placeholder: "e.g., 2.0.0 or 'latest'"
 
   - type: textarea
     id: additional
     attributes:
-      label: Anything else?
-      description: Environment, Node version, or other helpful details
-      placeholder: "Using Node.js v20, happens in both browser and Node..."
+      label: Anything else? (optional)
+      placeholder: "Node version, browser, etc."

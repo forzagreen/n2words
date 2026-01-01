@@ -30,18 +30,19 @@ test/
 Test individual classes and methods in isolation:
 
 - **`abstract-language.test.js`** - Base class functionality
+- **`api.test.js`** - Public API and input validation
 - **`greedy-scale-language.test.js`** - Scale-based decomposition
 - **`slavic-language.test.js`** - Slavic pluralization patterns
 - **`south-asian-language.test.js`** - Indian numbering system
 - **`turkic-language.test.js`** - Turkish-style implicit "bir"
-- **`api.test.js`** - Public API and input validation
-- **`performance.test.js`** - Performance regression tests
 
 ### Integration Tests (`test/integration/`)
 
-Test complete conversion workflows using fixtures:
+Test complete conversion workflows and module compatibility:
 
-- **`languages.test.js`** - Comprehensive language-specific tests
+- **`languages.test.js`** - Comprehensive language-specific tests using fixtures
+- **`umd-build.test.js`** - UMD bundle validation (structure, exports, functionality)
+- **`commonjs-compatibility.test.cjs`** - CommonJS import compatibility
 
 Each language has a corresponding fixture file in `test/fixtures/languages/`.
 
