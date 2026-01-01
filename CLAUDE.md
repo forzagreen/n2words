@@ -53,7 +53,7 @@ Croatian (hr), Czech (cs), Danish (da), Dutch (nl), English (en), French (fr), F
 **Asian & Middle Eastern Languages (24):**
 Arabic (ar), Azerbaijani (az), Bangla/Bengali (bn), Filipino/Tagalog (fil), Gujarati (gu), Hebrew (he), Biblical Hebrew (hbo), Hindi (hi), Indonesian (id), Japanese (ja), Kannada (kn), Korean (ko), Malay (ms), Marathi (mr), Persian/Farsi (fa), Punjabi (pa), Simplified Chinese (zh-Hans), Swahili (sw), Tamil (ta), Telugu (te), Thai (th), Traditional Chinese (zh-Hant), Urdu (ur), Vietnamese (vi)
 
-**Note:** 9 of the Asian languages are Indian subcontinent languages (Bangla, Gujarati, Hindi, Kannada, Marathi, Punjabi, Tamil, Telugu, Urdu) that use the SouthAsianLanguage base class with lakh/crore number system support.
+**Note:** 7 of the Asian languages are Indian subcontinent languages (Bangla, Gujarati, Hindi, Kannada, Marathi, Punjabi, Urdu) that use the SouthAsianLanguage base class with lakh/crore number system support. Tamil and Telugu extend AbstractLanguage directly due to their unique Dravidian language patterns.
 
 **Languages with Options (21):**
 Arabic, Biblical Hebrew, Croatian, Czech, Danish, Dutch, French, French Belgium, Hebrew, Latvian, Lithuanian, Polish, Romanian, Russian, Serbian Cyrillic, Serbian Latin, Simplified Chinese, Spanish, Traditional Chinese, Turkish, Ukrainian
@@ -149,9 +149,9 @@ digits = null                    // Array of digit words for lookup
 
 #### GreedyScaleLanguage
 
-**Used by**: English, Spanish, French, German, Portuguese, Swedish, Danish, Norwegian, Dutch, Korean, Filipino, Gujarati, Kannada, Marathi, Punjabi, Swahili, Greek, Hebrew, Biblical Hebrew, Azerbaijani, Simplified Chinese, Traditional Chinese, Urdu, Bangla
+**Used by**: Danish, Dutch, English, Filipino, French, German, Greek, Hungarian, Korean, Norwegian Bokmål, Portuguese, Spanish, Swedish, Simplified Chinese, Traditional Chinese
 
-**Note**: Some languages extending GreedyScaleLanguage also extend AbstractLanguage directly when they need complete custom decomposition (Arabic, Hungarian, Indonesian, Italian, Japanese, Malay, Persian, Romanian, Tamil, Telugu, Thai, Vietnamese).
+**Note**: French Belgium extends French, not GreedyScaleLanguage directly.
 
 **How it works:**
 
@@ -193,7 +193,7 @@ export class English extends GreedyScaleLanguage {
 
 #### SlavicLanguage
 
-**Used by**: Russian, Polish, Czech, Croatian, Serbian (both Cyrillic and Latin), Ukrainian, Lithuanian, Latvian
+**Used by**: Croatian, Czech, Hebrew (Modern & Biblical), Latvian, Lithuanian, Polish, Russian, Serbian (both Cyrillic and Latin), Ukrainian
 
 **Key feature**: Three-form pluralization based on number endings, optional gender support
 
@@ -214,7 +214,7 @@ export class Russian extends SlavicLanguage {
 
 #### SouthAsianLanguage
 
-**Used by**: Hindi, Tamil, Telugu, Bengali, Gujarati, Kannada, Marathi, Punjabi, Urdu
+**Used by**: Bangla/Bengali, Gujarati, Hindi, Kannada, Marathi, Punjabi, Urdu
 
 **Key feature**: Supports Indian numbering system (lakh, crore)
 
@@ -229,7 +229,6 @@ export class Russian extends SlavicLanguage {
 **12 languages** implement custom decomposition logic by extending AbstractLanguage directly instead of using helper classes:
 
 - **Arabic (ar)**: Gender-specific forms, dual numbers, complex pluralization
-- **Hungarian (hu)**: Custom override of `convertWholePart()` despite extending GreedyScaleLanguage
 - **Indonesian (id)**: Simple concatenation-based conversion
 - **Italian (it)**: Phonetic contractions, vowel elision, accent rules
 - **Japanese (ja)**: Groups by 10^4 instead of 10^3, uses kanji, omits 一 (one) in specific contexts
@@ -243,6 +242,8 @@ export class Russian extends SlavicLanguage {
 - **Vietnamese (vi)**: Vietnamese-specific number patterns
 
 These languages have unique patterns that don't fit the standard base classes.
+
+**Note**: Hungarian extends GreedyScaleLanguage but overrides `convertWholePart()` with custom logic.
 
 ### 2. Entry Point Structure ([lib/n2words.js](lib/n2words.js))
 
@@ -1390,7 +1391,7 @@ For GreedyScaleLanguage, this is auto-implemented if `scaleWordPairs` and `merge
 
 ---
 
-**Last Updated**: 2025-12-26
+**Last Updated**: 2025-12-31
 **Project Version**: 2.0.0
 **Maintained By**: Tyler Vigario & contributors
 
@@ -1404,7 +1405,7 @@ For GreedyScaleLanguage, this is auto-implemented if `scaleWordPairs` and `merge
 
 ### Coverage Metrics
 
-- **Browser Coverage**: ~85.9% of global users (via browserslist query: "defaults and supports bigint")
+- **Browser Coverage**: ~86% of global users (via browserslist query: "defaults and supports bigint")
 - **Test Coverage**: Comprehensive unit, integration, and browser tests for all languages
 - **Type Coverage**: Full JSDoc annotations for TypeScript IntelliSense
 

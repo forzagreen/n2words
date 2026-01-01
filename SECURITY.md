@@ -121,4 +121,4 @@ For questions about this policy or n2words security:
 
 ---
 
-**Last Updated**: 2025-12-27
+**Last Updated**: 2025-12-31

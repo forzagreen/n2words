@@ -715,10 +715,10 @@ To create a regional variant of an existing language (e.g., Belgian French):
 
 **Base classes:**
 
-- `AbstractLanguage` - Used by all languages
-- `GreedyScaleLanguage` - Used by 24+ languages
-- `SlavicLanguage` - Used by 8 languages
-- `SouthAsianLanguage` - Used by 9 languages
+- `AbstractLanguage` - Used by all languages (12 directly, others via subclasses)
+- `GreedyScaleLanguage` - Used by 15 languages
+- `SlavicLanguage` - Used by 11 languages
+- `SouthAsianLanguage` - Used by 7 languages
 - `TurkicLanguage` - Used by 2 languages
 
 **Before modifying a base class:**
