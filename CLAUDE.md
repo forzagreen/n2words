@@ -86,6 +86,7 @@ n2words/
 │   ├── fixtures/languages/   # Test data for each language
 │   ├── unit/                 # Unit tests (*.test.js - class tests, edge cases)
 │   ├── integration/          # Integration tests (*.test.* - full conversion workflows)
+│   ├── build/                # Build tests (UMD bundle validation)
 │   ├── types/                # TypeScript type checking tests
 │   └── web/                  # Browser tests (Playwright: Chromium, Firefox, WebKit)
 ├── bench/                    # Benchmark scripts (perf, memory)
@@ -493,21 +494,23 @@ npm run lang:validate -- --verbose # Detailed info
 ### Testing
 
 ```bash
-npm test                 # Full test suite (validation + unit + integration + types)
+npm test                 # Core tests (validation + unit + integration)
 npm run test:unit        # Unit tests only
 npm run test:integration # Integration tests only
+npm run test:build       # Build tests (UMD bundle validation)
 npm run test:types       # TypeScript type checking
 npm run test:web         # Browser tests (Playwright: Chromium, Firefox, WebKit)
-npm run test:all         # All tests including web tests
+npm run test:all         # All tests (core + types + build + web)
 ```
 
 **IMPORTANT - Browser Testing:**
 
 - Browser tests (`test:web`) run against **`dist/` UMD bundles**, not `lib/` source
+- Build tests (`test:build`) validate UMD bundle structure, exports, and source maps
 - Uses Playwright to test in Chromium, Firefox, and WebKit browsers
 - Browser compatibility claims are based on these `dist/` bundle tests
 - The `lib/` source is ES2022+ and is intended for modern bundlers, not direct browser usage
-- Build artifacts are automatically generated via `pretest:web` lifecycle hook
+- Build artifacts are automatically generated via `pretest:build` and `pretest:web` lifecycle hooks
 - **First-time setup**: Run `npm run playwright:install` to install browsers
 
 ### Compatibility Verification
@@ -969,6 +972,19 @@ for (const [input, expected, options] of fixtures) {
 }
 ```
 
+### Build Tests
+
+Located in `test/build/` - validate UMD bundle artifacts in `dist/`.
+
+**What it validates:**
+
+- Bundle structure and file existence
+- Named exports are accessible
+- Conversions work correctly
+- Source maps are generated
+
+**Note:** Build artifacts are automatically generated via `pretest:build` lifecycle hook.
+
 ### Web Tests
 
 Located in `test/web/` - test browser builds (UMD) using Playwright.
@@ -1143,16 +1159,16 @@ Targets Chrome 67+, Firefox 68+, Safari 14+, Edge 79+ (~85.9% global coverage)
 **Four workflows** handle continuous integration, validation, and deployment:
 
 1. **`.github/workflows/ci.yml`** - Main CI workflow
-   - **Triggers**: Push to main/develop/v* branches, PRs, manual dispatch
+   - **Triggers**: Push to main/v* branches, tags, PRs, manual dispatch
    - **Jobs**:
      - `lint` - Linting (JavaScript, Markdown) and security audit
      - `test` - Test matrix (Node 20/22/25 on Ubuntu)
-     - `test-web` - Browser tests (Playwright on Ubuntu only)
-     - `test-coverage` - Tests with coverage (Node 24 Ubuntu, replaces duplicate test run)
-     - `verify` - Package verification (depends on all test jobs)
+     - `test-web` - Browser tests (Playwright on Ubuntu)
+     - `test-coverage` - Tests with coverage (Node 24 Ubuntu)
+     - `verify` - Type tests, build tests, package verification (runs once after all tests pass)
    - **Optimizations**:
      - Concurrency groups cancel old PR runs on new commits
-     - Coverage job combines testing + coverage reporting (saves ~16% CI time)
+     - Type and build tests run once in verify job (static analysis doesn't vary by Node version)
      - Default read-only permissions, granular overrides per job
      - No Playwright browser caching (per official recommendation)
 
@@ -1179,7 +1195,7 @@ Targets Chrome 67+, Firefox 68+, Safari 14+, Edge 79+ (~85.9% global coverage)
 **Local testing**: Use [Act](https://github.com/nektos/act) to test GitHub Actions locally
 
 ```bash
-act -W .github/workflows/ci.yml --matrix node:24 --matrix os:ubuntu-latest
+act -W .github/workflows/ci.yml --matrix node:24
 ```
 
 **Deployment**: Tag and push to trigger automated publishing
@@ -1280,6 +1296,23 @@ test('handles decimals', t => {
 - Imports fixture data from `test/fixtures/languages/{code}.js`
 - Tests all fixture cases (typically 50-200 cases per language)
 - Validates options handling for languages that support them
+
+#### Build Tests ([test/build/](test/build/))
+
+**Purpose**: Validate UMD bundle artifacts in `dist/`
+
+**Key test files:**
+
+- `umd-build.test.js` - Bundle structure, exports, functionality, source maps
+
+**What it validates:**
+
+- All expected files exist (`n2words.js`, individual converter bundles, source maps)
+- Named exports are accessible from the main bundle
+- Conversions produce correct output
+- Source maps are generated and valid
+
+**Note:** Build artifacts are automatically generated via `pretest:build` lifecycle hook.
 
 #### Type Tests ([test/types/](test/types/))
 

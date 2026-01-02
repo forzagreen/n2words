@@ -13,12 +13,13 @@ Comprehensive testing guide for the n2words project.
 
 ## Test Organization
 
-The test suite is organized into four categories:
+The test suite is organized into five categories:
 
 ```text
 test/
 ├── unit/              # Unit tests for base classes and utilities
 ├── integration/       # Integration tests using language fixtures
+├── build/             # Build artifact validation (UMD bundles)
 ├── types/             # TypeScript type declaration tests
 ├── web/               # Browser compatibility tests (Playwright)
 └── fixtures/          # Test data for language converters
@@ -38,13 +39,17 @@ Test individual classes and methods in isolation:
 
 ### Integration Tests (`test/integration/`)
 
-Test complete conversion workflows and module compatibility:
+Test complete conversion workflows:
 
 - **`languages.test.js`** - Comprehensive language-specific tests using fixtures
-- **`umd-build.test.js`** - UMD bundle validation (structure, exports, functionality)
-- **`commonjs-compatibility.test.cjs`** - CommonJS import compatibility
 
 Each language has a corresponding fixture file in `test/fixtures/languages/`.
+
+### Build Tests (`test/build/`)
+
+Validate UMD bundle artifacts:
+
+- **`umd-build.test.js`** - Bundle structure, exports, functionality, source maps
 
 ### Type Tests (`test/types/`)
 
@@ -64,17 +69,18 @@ Browser compatibility tests using Playwright:
 ### All Tests
 
 ```bash
-npm test                    # Run all tests (validation + unit + integration + types)
-npm run test:all            # Include browser tests
+npm test                    # Run core tests (validation + unit + integration)
+npm run test:all            # Full suite (core + types + build + browser)
 ```
 
 ### Specific Test Categories
 
 ```bash
 npm run test:unit           # Unit tests only
-npm run test:integration    # Integration tests only (builds automatically)
-npm run test:types          # TypeScript type tests only (builds automatically)
-npm run test:web            # Browser tests only (builds automatically)
+npm run test:integration    # Integration tests only
+npm run test:build          # Build tests only (builds dist/ automatically)
+npm run test:types          # TypeScript type tests only (builds types automatically)
+npm run test:web            # Browser tests only (builds dist/ automatically)
 ```
 
 ### With Coverage

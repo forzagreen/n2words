@@ -67,7 +67,7 @@
   "scripts": {
     "prepare:husky": "husky",
     "prebuild": "npm run clean",
-    "pretest:integration": "npm run build:web",
+    "pretest:build": "npm run build:web",
     "pretest:types": "npm run build:types",
     "pretest:web": "npm run build:web",
     "build": "npm run build:types && npm run build:web",
@@ -75,10 +75,11 @@
     "build:web": "rollup -c",
     "clean": "rimraf dist coverage playwright-report test-results .nyc_output",
     "clean:types": "rimraf \"lib/**/*.d.ts\" --glob",
-    "test": "npm run lang:validate && npm run test:unit && npm run test:integration && npm run test:types",
-    "test:all": "npm test && npm run test:web",
+    "test": "npm run lang:validate && npm run test:unit && npm run test:integration",
+    "test:all": "npm test && npm run test:types && npm run test:build && npm run test:web",
     "test:unit": "ava --verbose test/unit/*.test.js",
-    "test:integration": "ava --verbose test/integration/*.test.*",
+    "test:integration": "ava --verbose test/integration/*.test.js",
+    "test:build": "ava --verbose test/build/*.test.js",
     "test:types": "npm run test:types:tsd && npm run test:types:attw",
     "test:types:tsd": "tsd --files test/types/*.test-d.ts",
     "test:types:attw": "attw --pack .",
@@ -105,7 +106,8 @@
     ],
     "files": [
       "test/unit/*",
-      "test/integration/*"
+      "test/integration/*",
+      "test/build/*"
     ],
     "timeout": "30s",
     "concurrency": 8,

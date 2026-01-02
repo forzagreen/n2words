@@ -75,28 +75,13 @@ jobs:
         run: npm ci --prefer-offline
 
       - name: Validate languages
-        run: |
-          echo "::group::Language Validation"
-          npm run lang:validate
-          echo "::endgroup::"
+        run: npm run lang:validate
 
       - name: Run unit tests
-        run: |
-          echo "::group::Unit Tests"
-          npm run test:unit
-          echo "::endgroup::"
+        run: npm run test:unit
 
       - name: Run integration tests
-        run: |
-          echo "::group::Integration Tests"
-          npm run test:integration
-          echo "::endgroup::"
-
-      - name: Run type tests
-        run: |
-          echo "::group::Type Tests"
-          npm run test:types
-          echo "::endgroup::"
+        run: npm run test:integration
 
   test-web:
     name: Browser Tests
@@ -224,6 +209,12 @@ jobs:
 
       - name: Install dependencies
         run: npm ci --prefer-offline
+
+      - name: Run type tests
+        run: npm run test:types
+
+      - name: Run build tests
+        run: npm run test:build
 
       - name: Verify package contents
         run: npm pack --dry-run
