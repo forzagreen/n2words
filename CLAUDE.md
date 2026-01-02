@@ -168,7 +168,7 @@ toWords(isNeg, int, dec)     // Override to cache integerPart for context (e.g.,
 
 1. Defines `scaleWords` array: `[[value, word], ...]` in descending order
 2. Greedily decomposes numbers into word-sets using largest scale first
-3. Calls `combineWordSets(left, right)` to combine adjacent word-sets per language grammar
+3. Calls `combineWordSets(preceding, following)` to combine adjacent word-sets per language grammar
 
 **Example implementation pattern:**
 
@@ -187,18 +187,18 @@ export class English extends GreedyScaleLanguage {
     // ... down to 1n
   ]
 
-  combineWordSets(left, right) {
-    // left and right are word-sets: { word: bigint }
-    const leftWord = Object.keys(left)[0]
-    const leftNumber = Object.values(left)[0]
-    const rightWord = Object.keys(right)[0]
-    const rightNumber = Object.values(right)[0]
+  combineWordSets(preceding, following) {
+    // preceding and following are word-sets: { word: bigint }
+    const precedingWord = Object.keys(preceding)[0]
+    const precedingValue = Object.values(preceding)[0]
+    const followingWord = Object.keys(following)[0]
+    const followingValue = Object.values(following)[0]
 
     // Language-specific merge logic
-    if (leftNumber >= 100n && rightNumber < 100n) {
-      return { [`${leftWord} and ${rightWord}`]: leftNumber + rightNumber }
+    if (precedingValue >= 100n && followingValue < 100n) {
+      return { [`${precedingWord} and ${followingWord}`]: precedingValue + followingValue }
     }
-    return { [`${leftWord} ${rightWord}`]: leftNumber + rightNumber }
+    return { [`${precedingWord} ${followingWord}`]: precedingValue + followingValue }
   }
 }
 ```
@@ -685,11 +685,11 @@ export class English extends GreedyScaleLanguage {
 /**
  * Combines two adjacent word-sets according to language grammar.
  *
- * @param {Object} left - Left word-set as { word: bigint }
- * @param {Object} right - Right word-set as { word: bigint }
+ * @param {Object} preceding - Preceding word-set as { word: bigint }
+ * @param {Object} following - Following word-set as { word: bigint }
  * @returns {Object} Combined word-set with merged text and resulting value
  */
-combineWordSets(left, right) {
+combineWordSets(preceding, following) {
   // ...
 }
 ```
@@ -713,13 +713,13 @@ export class MyLanguage extends GreedyScaleLanguage {
     // ... complete list down to 1n
   ]
 
-  combineWordSets(left, right) {
-    const leftWord = Object.keys(left)[0]
-    const rightWord = Object.keys(right)[0]
-    const leftNumber = Object.values(left)[0]
-    const rightNumber = Object.values(right)[0]
-    const resultNumber = rightNumber > leftNumber ? leftNumber * rightNumber : leftNumber + rightNumber
-    return { [`${leftWord} ${rightWord}`]: resultNumber }
+  combineWordSets(preceding, following) {
+    const precedingWord = Object.keys(preceding)[0]
+    const followingWord = Object.keys(following)[0]
+    const precedingValue = Object.values(preceding)[0]
+    const followingValue = Object.values(following)[0]
+    const resultNumber = followingValue > precedingValue ? precedingValue * followingValue : precedingValue + followingValue
+    return { [`${precedingWord} ${followingWord}`]: resultNumber }
   }
 }
 ```

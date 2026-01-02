@@ -56,17 +56,17 @@ class TestGreedyLanguage extends GreedyScaleLanguage {
   ]
 
   // Simple merge: just concatenate with space
-  combineWordSets (leftPair, rightPair) {
-    const leftWord = Object.keys(leftPair)[0]
-    const leftNumber = Object.values(leftPair)[0]
-    const rightWord = Object.keys(rightPair)[0]
-    const rightNumber = Object.values(rightPair)[0]
+  combineWordSets (preceding, following) {
+    const precedingWord = Object.keys(preceding)[0]
+    const precedingValue = Object.values(preceding)[0]
+    const followingWord = Object.keys(following)[0]
+    const followingValue = Object.values(following)[0]
 
-    const mergedNumber = rightNumber > leftNumber
-      ? leftNumber * rightNumber
-      : leftNumber + rightNumber
+    const mergedNumber = followingValue > precedingValue
+      ? precedingValue * followingValue
+      : precedingValue + followingValue
 
-    return { [`${leftWord} ${rightWord}`]: mergedNumber }
+    return { [`${precedingWord} ${followingWord}`]: mergedNumber }
   }
 }
 
