@@ -30,7 +30,7 @@ import chalk from 'chalk'
 
 /**
  * Get expected class name from BCP 47 code using CLDR
- * @param {string} languageCode - BCP 47 language code
+ * @param {string} languageCode BCP 47 language code
  * @returns {string|null} Expected PascalCase class name
  */
 export function getExpectedClassName (languageCode) {
@@ -58,7 +58,7 @@ export function getExpectedClassName (languageCode) {
 
 /**
  * Validate IETF BCP 47 language code
- * @param {string} languageCode - Language code to validate
+ * @param {string} languageCode Language code to validate
  * @returns {{ valid: boolean, canonical: string|null, error: string|null }}
  */
 export function validateLanguageCode (languageCode) {
@@ -893,7 +893,7 @@ async function performValidations (languageCode, className, LanguageClass, fileC
 
 /**
  * Validate a single language implementation
- * @param {string} languageCode - IETF language code (e.g., 'en', 'fr-BE')
+ * @param {string} languageCode IETF language code (e.g., 'en', 'fr-BE')
  * @returns {Promise<ValidationResult>}
  */
 export async function validateLanguage (languageCode) {

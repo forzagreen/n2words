@@ -685,8 +685,8 @@ export class English extends GreedyScaleLanguage {
 /**
  * Combines two adjacent word-sets according to language grammar.
  *
- * @param {Object} preceding - Preceding word-set as { word: bigint }
- * @param {Object} following - Following word-set as { word: bigint }
+ * @param {Object} preceding Preceding word-set as { word: bigint }
+ * @param {Object} following Following word-set as { word: bigint }
  * @returns {Object} Combined word-set with merged text and resulting value
  */
 combineWordSets(preceding, following) {

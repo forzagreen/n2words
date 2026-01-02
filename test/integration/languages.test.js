@@ -19,7 +19,7 @@ import * as n2words from '../../lib/n2words.js'
  * Extracts the class name from a language module's exports.
  * Language files export a single named class (e.g., `export class English`).
  *
- * @param {Object} languageModule - The imported language module
+ * @param {Object} languageModule The imported language module
  * @returns {string|null} The class name, or null if not found
  */
 function getClassNameFromModule (languageModule) {
@@ -30,7 +30,7 @@ function getClassNameFromModule (languageModule) {
 
 /**
  * Safely stringify a value for error messages (handles BigInt)
- * @param {*} value - Value to stringify
+ * @param {*} value Value to stringify
  * @returns {string} String representation
  */
 function safeStringify (value) {
@@ -47,8 +47,8 @@ function safeStringify (value) {
 
 /**
  * Validates a test fixture file format
- * @param {Array} testFile - The imported fixture file
- * @param {string} languageCode - Language code for error messages
+ * @param {Array} testFile The imported fixture file
+ * @param {string} languageCode Language code for error messages
  * @returns {{valid: boolean, error?: string}} Validation result
  */
 function validateFixture (testFile, languageCode) {

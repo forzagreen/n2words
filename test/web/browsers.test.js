@@ -32,8 +32,8 @@ test.describe('Browser Compatibility', () => {
 
 /**
  * Test n2words compatibility in a specific browser
- * @param {import('@playwright/test').Page} page - Playwright page object
- * @param {string} browserName - Browser name for logging
+ * @param {import('@playwright/test').Page} page Playwright page object
+ * @param {string} browserName Browser name for logging
  */
 async function testBrowserCompatibility (page, browserName) {
   // Navigate to test runner HTML

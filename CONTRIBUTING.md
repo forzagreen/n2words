@@ -786,7 +786,7 @@ When adding new helper methods to base classes:
 /**
  * Helper method description.
  *
- * @param {bigint} value - Parameter description
+ * @param {bigint} value Parameter description
  * @returns {string} Return value description
  * @example
  * const result = this.helperMethod(100n)

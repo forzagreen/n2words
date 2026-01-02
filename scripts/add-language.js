@@ -64,8 +64,8 @@ const BASE_CLASSES = {
 
 /**
  * Generate language implementation file
- * @param {string} className - Class name (e.g., 'English')
- * @param {string} baseType - Base class type ('greedy', 'slavic', 'south-asian', 'turkic', 'abstract')
+ * @param {string} className Class name (e.g., 'English')
+ * @param {string} baseType Base class type ('greedy', 'slavic', 'south-asian', 'turkic', 'abstract')
  * @returns {string}
  */
 function generateLanguageFile (className, baseType = 'greedy') {
@@ -86,8 +86,8 @@ function generateLanguageFile (className, baseType = 'greedy') {
 
 /**
  * Generate GreedyScaleLanguage template
- * @param {string} className - Class name
- * @param {Object} base - Base class config
+ * @param {string} className Class name
+ * @param {Object} base Base class config
  * @returns {string}
  */
 function generateGreedyLanguageFile (className, base) {
@@ -123,8 +123,8 @@ export class ${className} extends ${base.name} {
   /**
    * Combines two adjacent word-sets according to language grammar.
    *
-   * @param {Object} preceding - Preceding word-set as { word: bigint }.
-   * @param {Object} following - Following word-set as { word: bigint }.
+   * @param {Object} preceding Preceding word-set as { word: bigint }.
+   * @param {Object} following Following word-set as { word: bigint }.
    * @returns {Object} Combined word-set with merged text and resulting value.
    *
    * TODO: Implement language-specific combine rules
@@ -148,8 +148,8 @@ export class ${className} extends ${base.name} {
 
 /**
  * Generate SlavicLanguage template
- * @param {string} className - Class name
- * @param {Object} base - Base class config
+ * @param {string} className Class name
+ * @param {Object} base Base class config
  * @returns {string}
  */
 function generateSlavicLanguageFile (className, base) {
@@ -235,8 +235,8 @@ export class ${className} extends ${base.name} {
 
 /**
  * Generate SouthAsianLanguage template
- * @param {string} className - Class name
- * @param {Object} base - Base class config
+ * @param {string} className Class name
+ * @param {Object} base Base class config
  * @returns {string}
  */
 function generateSouthAsianLanguageFile (className, base) {
@@ -279,8 +279,8 @@ export class ${className} extends ${base.name} {
 
 /**
  * Generate TurkicLanguage template
- * @param {string} className - Class name
- * @param {Object} base - Base class config
+ * @param {string} className Class name
+ * @param {Object} base Base class config
  * @returns {string}
  */
 function generateTurkicLanguageFile (className, base) {
@@ -319,8 +319,8 @@ export class ${className} extends ${base.name} {
 
 /**
  * Generate AbstractLanguage template
- * @param {string} className - Class name
- * @param {Object} base - Base class config
+ * @param {string} className Class name
+ * @param {Object} base Base class config
  * @returns {string}
  */
 function generateAbstractLanguageFile (className, base) {
@@ -343,7 +343,7 @@ export class ${className} extends ${base.name} {
   /**
    * Converts an integer (bigint) to words.
    *
-   * @param {bigint} integerPart - The number to convert
+   * @param {bigint} integerPart The number to convert
    * @returns {string} The number in words
    */
   integerToWords (integerPart) {
@@ -363,7 +363,7 @@ export class ${className} extends ${base.name} {
 
 /**
  * Generate test fixture file
- * @param {string} code - Language code
+ * @param {string} code Language code
  * @returns {string}
  */
 function generateTestFixture (code) {
@@ -418,7 +418,7 @@ export default [
 
 /**
  * Update type test file with new converter
- * @param {string} className - Class name
+ * @param {string} className Class name
  */
 function updateTypeTestFile (className) {
   const typeTestPath = './test/types/n2words.test-d.ts'
@@ -487,8 +487,8 @@ function updateTypeTestFile (className) {
 
 /**
  * Update n2words.js with new language
- * @param {string} code - Language code
- * @param {string} className - Class name
+ * @param {string} code Language code
+ * @param {string} className Class name
  */
 function updateN2wordsFile (code, className) {
   const n2wordsPath = './lib/n2words.js'
