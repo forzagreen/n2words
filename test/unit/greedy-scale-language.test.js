@@ -206,22 +206,22 @@ test('reduceWordSets handles complex nested structure', t => {
 })
 
 test('combineWordSets receives correct word-set format', t => {
-  let capturedLeft, capturedRight
+  let capturedPreceding, capturedFollowing
   class SpyLang extends TestGreedyLanguage {
-    combineWordSets (left, right) {
-      capturedLeft = left
-      capturedRight = right
-      return super.combineWordSets(left, right)
+    combineWordSets (preceding, following) {
+      capturedPreceding = preceding
+      capturedFollowing = following
+      return super.combineWordSets(preceding, following)
     }
   }
   const lang = new SpyLang()
   lang.integerToWords(23n) // twenty + three
 
   // Verify word-sets have correct format
-  t.is(typeof capturedLeft, 'object')
-  t.is(typeof capturedRight, 'object')
-  t.is(Object.keys(capturedLeft).length, 1)
-  t.is(Object.keys(capturedRight).length, 1)
+  t.is(typeof capturedPreceding, 'object')
+  t.is(typeof capturedFollowing, 'object')
+  t.is(Object.keys(capturedPreceding).length, 1)
+  t.is(Object.keys(capturedFollowing).length, 1)
 })
 
 // ============================================================================

@@ -153,7 +153,7 @@ wordSeparator = ' '          // Override for CJK languages (empty string)
 **Optional method overrides:**
 
 ```javascript
-decimalIntegerToWords(n)     // Custom decimal integer conversion (e.g., Romanian masculine)
+decimalIntegerToWords(integerPart)  // Custom decimal integer conversion (e.g., Romanian masculine)
 decimalDigitsToWords(str)    // Complete decimal conversion override
 toWords(isNeg, int, dec)     // Override to cache integerPart for context (e.g., Czech)
 ```
@@ -1252,8 +1252,8 @@ class TestLanguage extends AbstractLanguage {
   zeroWord = 'zero'
   decimalSeparatorWord = 'point'
 
-  integerToWords(n) {
-    return n === 0n ? this.zeroWord : String(n)
+  integerToWords(integerPart) {
+    return integerPart === 0n ? this.zeroWord : String(integerPart)
   }
 }
 
