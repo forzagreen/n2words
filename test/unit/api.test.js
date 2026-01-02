@@ -458,7 +458,7 @@ test('handles string with decimal but no fractional part', t => {
 
 test('handles trailing decimal point', t => {
   const { EnglishConverter } = n2words
-  // Trailing decimal without digits is treated as whole number
+  // Trailing decimal without digits is treated as an integer
   t.is(EnglishConverter('42.'), 'forty-two')
 })
 

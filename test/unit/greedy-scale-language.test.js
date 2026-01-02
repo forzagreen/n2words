@@ -225,7 +225,7 @@ test('combineWordSets receives correct word-set format', t => {
 })
 
 // ============================================================================
-// Whole Part Conversion Tests
+// Integer Part Conversion Tests
 // ============================================================================
 
 test('integerToWords returns a string', t => {

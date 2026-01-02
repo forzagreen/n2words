@@ -341,7 +341,7 @@ export class ${className} extends ${base.name} {
   wordSeparator = ' '
 
   /**
-   * Convert a whole number (bigint) to words.
+   * Convert an integer (bigint) to words.
    *
    * @param {bigint} integerPart - The number to convert
    * @returns {string} The number in words

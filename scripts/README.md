@@ -155,15 +155,15 @@ Comprehensive validator for language implementations to ensure they follow all r
 
 - `negativeWord` (string) - Word for negative numbers (e.g., "minus")
 - `zeroWord` (string) - Word for zero
-- `decimalSeparatorWord` (string) - Word between whole and decimal parts
+- `decimalSeparatorWord` (string) - Word between integer and decimal parts
 - `wordSeparator` (string) - Character(s) between words (typically space)
 - `usePerDigitDecimals` (boolean, optional) - Per-digit vs grouped decimal conversion
 
 #### ✅ Required Methods
 
 - `integerToWords(bigint)` - Must be implemented (not abstract)
-- `toWords(isNegative, wholeNumber, decimalPart)` - Inherited from AbstractLanguage
-- `combineWordSets(left, right)` - Required for GreedyScaleLanguage subclasses
+- `toWords(isNegative, integerPart, decimalPart)` - Inherited from AbstractLanguage
+- `combineWordSets(preceding, following)` - Required for GreedyScaleLanguage subclasses
 
 #### ✅ Scale Words Validation (for scale-based languages)
 
@@ -341,8 +341,8 @@ scaleWords = [
 **Fix**: Implement the `integerToWords` method in your class:
 
 ```javascript
-integerToWords(wholeNumber) {
-  if (wholeNumber === 0n) return this.zeroWord
+integerToWords(integerPart) {
+  if (integerPart === 0n) return this.zeroWord
   // Your implementation here
 }
 ```

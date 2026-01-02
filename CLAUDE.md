@@ -1196,7 +1196,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md#continuous-integration) for detailed CI/CD
 
 Input validation and normalization happen in `makeConverter()` (lib/n2words.js), not in the language classes:
 
-- **Decimal-only strings**: `.5` is handled by defaulting whole part to `'0'` → "zero point five"
+- **Decimal-only strings**: `.5` is handled by defaulting integer part to `'0'` → "zero point five"
 - **Whitespace**: Trimmed from string input before processing
 - **Sign handling**: `integerPart` parameter is always non-negative (sign is stripped and handled separately via `isNegative`)
 - **Leading zeros in decimals**: Preserved differently in grouped vs per-digit mode:

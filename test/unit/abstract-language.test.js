@@ -62,7 +62,7 @@ test('abstract class throws error if integerToWords not implemented', t => {
   })
 })
 
-test('toWords handles positive whole numbers', t => {
+test('toWords handles positive integers', t => {
   const lang = new TestLanguage()
   t.is(lang.toWords(false, 42n), 'number-42')
   t.is(lang.toWords(false, 0n), 'zero')

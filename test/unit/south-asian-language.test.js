@@ -134,7 +134,7 @@ test('segmentToWords handles hundreds with remainder', t => {
 })
 
 // ============================================================================
-// Whole Part Conversion Tests
+// Integer Part Conversion Tests
 // ============================================================================
 
 test('integerToWords returns zero word for 0', t => {
