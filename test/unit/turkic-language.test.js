@@ -80,14 +80,14 @@ test('combineWordSets omits "bir" for magnitudes <= 100', t => {
   t.deepEqual(result, { on: 10n })
 })
 
-test('combineWordSets multiplies when right > left', t => {
+test('combineWordSets multiplies when following > preceding', t => {
   const lang = new TestTurkicLanguage()
   // 5 * 100 = 500
   const result = lang.combineWordSets({ beş: 5n }, { yüz: 100n })
   t.deepEqual(result, { 'beş yüz': 500n })
 })
 
-test('combineWordSets adds when right <= left', t => {
+test('combineWordSets adds when following <= preceding', t => {
   const lang = new TestTurkicLanguage()
   // 20 + 3 = 23
   const result = lang.combineWordSets({ yirmi: 20n }, { üç: 3n })
@@ -105,7 +105,7 @@ test('combineWordSets uses wordSeparator for combining', t => {
 
 test('combineWordSets handles equal values (adds, not multiplies)', t => {
   const lang = new TestTurkicLanguage()
-  // When right === left, it adds (since right > left is false)
+  // When following === preceding, it adds (since following > preceding is false)
   // 10 + 10 = 20
   const result = lang.combineWordSets({ on: 10n }, { on: 10n })
   t.is(Object.values(result)[0], 20n)
@@ -113,7 +113,7 @@ test('combineWordSets handles equal values (adds, not multiplies)', t => {
 
 test('combineWordSets handles exact addition boundary', t => {
   const lang = new TestTurkicLanguage()
-  // 5 + 5 should add (right not greater than left)
+  // 5 + 5 should add (following not greater than preceding)
   const result = lang.combineWordSets({ beş: 5n }, { beş: 5n })
   t.is(Object.values(result)[0], 10n)
 })

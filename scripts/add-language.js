@@ -123,9 +123,9 @@ export class ${className} extends ${base.name} {
   /**
    * Combines two adjacent word-sets according to language grammar.
    *
-   * @param {Object} left - Left word-set as { word: bigint }
-   * @param {Object} right - Right word-set as { word: bigint }
-   * @returns {Object} Combined word-set with merged text and resulting value
+   * @param {Object} preceding - Preceding word-set as { word: bigint }.
+   * @param {Object} following - Following word-set as { word: bigint }.
+   * @returns {Object} Combined word-set with merged text and resulting value.
    *
    * TODO: Implement language-specific combine rules
    * Common patterns:
@@ -133,14 +133,14 @@ export class ${className} extends ${base.name} {
    * - Hyphenated: "twenty-three" → combine with hyphen
    * - With connector: "twenty and three" → combine with " and "
    */
-  combineWordSets (left, right) {
-    const leftWord = Object.keys(left)[0]
-    const rightWord = Object.keys(right)[0]
-    const leftNumber = Object.values(left)[0]
-    const rightNumber = Object.values(right)[0]
+  combineWordSets (preceding, following) {
+    const precedingWord = Object.keys(preceding)[0]
+    const followingWord = Object.keys(following)[0]
+    const precedingValue = Object.values(preceding)[0]
+    const followingValue = Object.values(following)[0]
     // Multiply when crossing magnitude boundary, add otherwise
-    const resultNumber = rightNumber > leftNumber ? leftNumber * rightNumber : leftNumber + rightNumber
-    return { [\`\${leftWord} \${rightWord}\`]: resultNumber }
+    const resultNumber = followingValue > precedingValue ? precedingValue * followingValue : precedingValue + followingValue
+    return { [\`\${precedingWord} \${followingWord}\`]: resultNumber }
   }
 }
 `
