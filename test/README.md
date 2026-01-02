@@ -319,9 +319,9 @@ All tests run automatically on:
 
 CI runs tests on:
 
-- **Node.js**: 20, 22, 24, 25
-- **OS**: Ubuntu (all versions), Windows (LTS), macOS (LTS)
-- **Browsers**: Chromium, Firefox, WebKit (Ubuntu only)
+- **Node.js**: 20, 22, 25 (test matrix) + 24 (coverage job)
+- **OS**: Ubuntu
+- **Browsers**: Chromium, Firefox, WebKit
 
 ## Performance Testing
 

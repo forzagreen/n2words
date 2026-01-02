@@ -859,22 +859,20 @@ This targets ~86% of global users while requiring BigInt support (non-polyfillab
 
 ### CI Testing Strategy
 
-Our CI pipeline runs tests across multiple platforms with an optimized strategy:
+Our CI pipeline runs all tests on Ubuntu:
 
 **Core Tests** (unit, integration, types):
 
-- ✅ Ubuntu: Node 20, 22, 24, 25
-- ✅ Windows: Node 24 (LTS)
-- ✅ macOS: Node 24 (LTS)
+- Node 20, 22, 25 in the test matrix
+- Node 24 in the coverage job (avoids duplicate testing)
 
 **Browser Tests** (Playwright):
 
-- ✅ Ubuntu only: Node 20, 22, 24, 25
-- ❌ Windows/macOS: Not run
+- Chromium, Firefox, WebKit on Ubuntu
 
-**Why browser tests on Ubuntu only?**
+**Why Ubuntu only?**
 
-Browser engines (Chromium, Firefox, WebKit) are cross-platform and behave identically on all operating systems. Since we're testing UMD JavaScript bundles (not OS-specific native code), running browser tests on a single OS provides complete coverage while optimizing CI time and cost. This is the industry-standard approach for JavaScript libraries.
+n2words is a pure JavaScript library with no OS-specific code (no native modules, filesystem operations, or child processes). Cross-OS testing provides no additional coverage for the library itself. The JavaScript engines and test tooling are well-tested by their respective communities, making OS-specific CI runs unnecessary overhead.
 
 ### Performance Improvements
 
@@ -982,13 +980,9 @@ The project uses a unified CI workflow (`ci.yml`) that combines linting, buildin
 
 **Job Matrix:**
 
-Tests run on multiple environments:
+Tests run on Ubuntu with multiple Node.js versions:
 
-- **Node.js versions**: 20, 22, 24, 25
-- **Operating systems**:
-  - Ubuntu (all Node versions)
-  - Windows (Node 24 LTS only)
-  - macOS (Node 24 LTS only)
+- **Node.js versions**: 20, 22, 25 (test matrix) + 24 (coverage job)
 
 **What the CI job does:**
 

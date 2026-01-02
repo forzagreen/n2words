@@ -1146,7 +1146,7 @@ Targets Chrome 67+, Firefox 68+, Safari 14+, Edge 79+ (~85.9% global coverage)
    - **Triggers**: Push to main/develop/v* branches, PRs, manual dispatch
    - **Jobs**:
      - `lint` - Linting (JavaScript, Markdown) and security audit
-     - `test` - Test matrix (Node 20/22/25 on Ubuntu, Node 24 on Windows/macOS)
+     - `test` - Test matrix (Node 20/22/25 on Ubuntu)
      - `test-web` - Browser tests (Playwright on Ubuntu only)
      - `test-coverage` - Tests with coverage (Node 24 Ubuntu, replaces duplicate test run)
      - `verify` - Package verification (depends on all test jobs)
