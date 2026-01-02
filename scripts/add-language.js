@@ -64,8 +64,8 @@ const BASE_CLASSES = {
 
 /**
  * Generate language implementation file
- * @param {string} className - Class name (e.g., 'English')
- * @param {string} baseType - Base class type ('greedy', 'slavic', 'south-asian', 'turkic', 'abstract')
+ * @param {string} className Class name (e.g., 'English')
+ * @param {string} baseType Base class type ('greedy', 'slavic', 'south-asian', 'turkic', 'abstract')
  * @returns {string}
  */
 function generateLanguageFile (className, baseType = 'greedy') {
@@ -86,8 +86,8 @@ function generateLanguageFile (className, baseType = 'greedy') {
 
 /**
  * Generate GreedyScaleLanguage template
- * @param {string} className - Class name
- * @param {Object} base - Base class config
+ * @param {string} className Class name
+ * @param {Object} base Base class config
  * @returns {string}
  */
 function generateGreedyLanguageFile (className, base) {
@@ -101,15 +101,15 @@ function generateGreedyLanguageFile (className, base) {
  * - Decimal numbers (separator word between whole and fractional parts)
  * - Large numbers
  *
- * TODO: Document merge rules and language-specific behavior
+ * TODO: Document combine rules and language-specific behavior
  */
 export class ${className} extends ${base.name} {
   negativeWord = 'minus' // TODO: Replace with ${className} word for negative
   decimalSeparatorWord = 'point' // TODO: Replace with ${className} decimal separator
   zeroWord = 'zero' // TODO: Replace with ${className} word for zero
 
-  scaleWordPairs = [
-    // TODO: Add scale word pairs in descending order
+  scaleWords = [
+    // TODO: Add scale words in descending order
     // Format: [value as bigint, word as string]
     // Example:
     // [1000000n, 'million'],
@@ -121,23 +121,26 @@ export class ${className} extends ${base.name} {
   ]
 
   /**
-   * Defines how to merge scale components.
+   * Combines two adjacent word-sets according to language grammar.
    *
-   * @param {string} leftWords - Words for the left (higher scale) component
-   * @param {bigint} leftScale - The scale value of the left component
-   * @param {string} rightWords - Words for the right (lower scale) component
-   * @param {bigint} rightScale - The scale value of the right component
-   * @returns {string} The merged result
+   * @param {Object} preceding Preceding word-set as { word: bigint }.
+   * @param {Object} following Following word-set as { word: bigint }.
+   * @returns {Object} Combined word-set with merged text and resulting value.
    *
-   * TODO: Implement language-specific merge rules
+   * TODO: Implement language-specific combine rules
    * Common patterns:
-   * - Space-separated: "twenty three" → return leftWords + ' ' + rightWords
-   * - Hyphenated: "twenty-three" → return leftWords + '-' + rightWords
-   * - With connector: "twenty and three" → return leftWords + ' and ' + rightWords
+   * - Space-separated: "twenty three" → combine with space
+   * - Hyphenated: "twenty-three" → combine with hyphen
+   * - With connector: "twenty and three" → combine with " and "
    */
-  mergeScales (leftWords, leftScale, rightWords, rightScale) {
-    // TODO: Implement merge logic
-    return leftWords + ' ' + rightWords
+  combineWordSets (preceding, following) {
+    const precedingWord = Object.keys(preceding)[0]
+    const followingWord = Object.keys(following)[0]
+    const precedingValue = Object.values(preceding)[0]
+    const followingValue = Object.values(following)[0]
+    // Multiply when crossing magnitude boundary, add otherwise
+    const resultNumber = followingValue > precedingValue ? precedingValue * followingValue : precedingValue + followingValue
+    return { [\`\${precedingWord} \${followingWord}\`]: resultNumber }
   }
 }
 `
@@ -145,8 +148,8 @@ export class ${className} extends ${base.name} {
 
 /**
  * Generate SlavicLanguage template
- * @param {string} className - Class name
- * @param {Object} base - Base class config
+ * @param {string} className Class name
+ * @param {Object} base Base class config
  * @returns {string}
  */
 function generateSlavicLanguageFile (className, base) {
@@ -232,8 +235,8 @@ export class ${className} extends ${base.name} {
 
 /**
  * Generate SouthAsianLanguage template
- * @param {string} className - Class name
- * @param {Object} base - Base class config
+ * @param {string} className Class name
+ * @param {Object} base Base class config
  * @returns {string}
  */
 function generateSouthAsianLanguageFile (className, base) {
@@ -251,8 +254,8 @@ export class ${className} extends ${base.name} {
   decimalSeparatorWord = 'point' // TODO: Replace with ${className} word
   zeroWord = 'zero' // TODO: Replace with ${className} word
 
-  // TODO: Define words for 0-99 (belowHundred array)
-  belowHundred = [
+  // TODO: Define words for 0-99 (belowHundredWords array)
+  belowHundredWords = [
     'zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine',
     'ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen',
     'twenty', 'twenty-one', 'twenty-two', 'twenty-three', 'twenty-four', 'twenty-five', 'twenty-six', 'twenty-seven', 'twenty-eight', 'twenty-nine',
@@ -276,8 +279,8 @@ export class ${className} extends ${base.name} {
 
 /**
  * Generate TurkicLanguage template
- * @param {string} className - Class name
- * @param {Object} base - Base class config
+ * @param {string} className Class name
+ * @param {Object} base Base class config
  * @returns {string}
  */
 function generateTurkicLanguageFile (className, base) {
@@ -287,7 +290,7 @@ function generateTurkicLanguageFile (className, base) {
  * ${className} language converter.
  *
  * Turkic languages typically omit "bir" (one) before hundreds and thousands.
- * Inherits from GreedyScaleLanguage with Turkic-specific merge logic.
+ * Inherits from GreedyScaleLanguage with Turkic-specific combine logic.
  *
  * TODO: Document language-specific grammar rules
  */
@@ -296,8 +299,8 @@ export class ${className} extends ${base.name} {
   decimalSeparatorWord = 'point' // TODO: Replace with ${className} word
   zeroWord = 'zero' // TODO: Replace with ${className} word
 
-  scaleWordPairs = [
-    // TODO: Add scale word pairs in descending order
+  scaleWords = [
+    // TODO: Add scale words in descending order
     // Format: [value as bigint, word as string]
     // Example for Turkish:
     // [1000000n, 'milyon'],
@@ -308,7 +311,7 @@ export class ${className} extends ${base.name} {
     [1n, 'one'] // Placeholder - replace with complete list
   ]
 
-  // Note: TurkicLanguage provides default mergeScales() implementation
+  // Note: TurkicLanguage provides default combineWordSets() implementation
   // that handles implicit "bir" rules. Override only if needed.
 }
 `
@@ -316,8 +319,8 @@ export class ${className} extends ${base.name} {
 
 /**
  * Generate AbstractLanguage template
- * @param {string} className - Class name
- * @param {Object} base - Base class config
+ * @param {string} className Class name
+ * @param {Object} base Base class config
  * @returns {string}
  */
 function generateAbstractLanguageFile (className, base) {
@@ -327,7 +330,7 @@ function generateAbstractLanguageFile (className, base) {
  * ${className} language converter.
  *
  * Direct implementation using AbstractLanguage.
- * This requires implementing convertWholePart() from scratch.
+ * This requires implementing integerToWords() from scratch.
  *
  * TODO: Document language-specific conversion logic
  */
@@ -338,13 +341,13 @@ export class ${className} extends ${base.name} {
   wordSeparator = ' '
 
   /**
-   * Convert a whole number (bigint) to words.
+   * Converts an integer (bigint) to words.
    *
-   * @param {bigint} wholeNumber - The number to convert
+   * @param {bigint} integerPart The number to convert
    * @returns {string} The number in words
    */
-  convertWholePart (wholeNumber) {
-    if (wholeNumber === 0n) {
+  integerToWords (integerPart) {
+    if (integerPart === 0n) {
       return this.zeroWord
     }
 
@@ -352,7 +355,7 @@ export class ${className} extends ${base.name} {
     // This is where you write the core number-to-words algorithm
     // for your language.
 
-    throw new Error('convertWholePart() not yet implemented for ${className}')
+    throw new Error('integerToWords() not yet implemented for ${className}')
   }
 }
 `
@@ -360,7 +363,7 @@ export class ${className} extends ${base.name} {
 
 /**
  * Generate test fixture file
- * @param {string} code - Language code
+ * @param {string} code Language code
  * @returns {string}
  */
 function generateTestFixture (code) {
@@ -415,7 +418,7 @@ export default [
 
 /**
  * Update type test file with new converter
- * @param {string} className - Class name
+ * @param {string} className Class name
  */
 function updateTypeTestFile (className) {
   const typeTestPath = './test/types/n2words.test-d.ts'
@@ -484,8 +487,8 @@ function updateTypeTestFile (className) {
 
 /**
  * Update n2words.js with new language
- * @param {string} code - Language code
- * @param {string} className - Class name
+ * @param {string} code Language code
+ * @param {string} className Class name
  */
 function updateN2wordsFile (code, className) {
   const n2wordsPath = './lib/n2words.js'
@@ -772,16 +775,16 @@ async function main () {
 
   // Base-class specific instructions
   if (baseType === 'greedy' || baseType === 'turkic') {
-    console.log(chalk.gray('   - Add complete scaleWordPairs array'))
-    console.log(chalk.gray('   - Implement mergeScales() logic (if needed)'))
+    console.log(chalk.gray('   - Add complete scaleWords array'))
+    console.log(chalk.gray('   - Implement combineWordSets() logic (if needed)'))
   } else if (baseType === 'slavic') {
     console.log(chalk.gray('   - Define ones, tens, twenties, hundreds dictionaries'))
     console.log(chalk.gray('   - Add pluralForms for scale words [singular, few, many]'))
   } else if (baseType === 'south-asian') {
-    console.log(chalk.gray('   - Complete belowHundred array (0-99)'))
+    console.log(chalk.gray('   - Complete belowHundredWords array (0-99)'))
     console.log(chalk.gray('   - Define scaleWords [hazaar, lakh, crore, arab]'))
   } else if (baseType === 'abstract') {
-    console.log(chalk.gray('   - Implement convertWholePart() method'))
+    console.log(chalk.gray('   - Implement integerToWords() method'))
   }
 
   console.log(chalk.gray('\n2. Edit ') + chalk.white(fixtureFilePath))

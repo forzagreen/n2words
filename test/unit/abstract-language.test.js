@@ -12,7 +12,7 @@ import { AbstractLanguage } from '../../lib/classes/abstract-language.js'
  *
  * Note: Input validation and normalization are tested in n2words.test.js
  * since that logic now lives in the public API wrapper (makeConverter).
- * These tests focus on the convert() method which receives pre-normalized input.
+ * These tests focus on the toWords() method which receives pre-normalized input.
  */
 
 // Concrete test implementation for testing abstract class
@@ -24,28 +24,16 @@ class TestLanguage extends AbstractLanguage {
 
   constructor (options = {}) {
     super()
-    this.options = this.mergeOptions({
+    this.setOptions({
       gender: 'masculine'
     }, options)
   }
 
   // Simple implementation: just return the number as string
-  convertWholePart (wholeNumber) {
-    if (this.options.gender === 'feminine') return `feminine-number-${wholeNumber}`
-    if (wholeNumber === 0n) return this.zeroWord
-    return `number-${wholeNumber}`
-  }
-}
-
-// Test implementation with custom digits array
-class TestLanguageWithDigits extends AbstractLanguage {
-  negativeWord = 'minus'
-  decimalSeparatorWord = 'point'
-  zeroWord = 'zero'
-  digits = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine']
-
-  convertWholePart (wholeNumber) {
-    return `whole-${wholeNumber}`
+  integerToWords (integerPart) {
+    if (this.options.gender === 'feminine') return `feminine-number-${integerPart}`
+    if (integerPart === 0n) return this.zeroWord
+    return `number-${integerPart}`
   }
 }
 
@@ -54,11 +42,11 @@ class TestLanguagePerDigit extends AbstractLanguage {
   negativeWord = 'minus'
   decimalSeparatorWord = 'point'
   zeroWord = 'zero'
-  convertDecimalsPerDigit = true
-  digits = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine']
+  usePerDigitDecimals = true
 
-  convertWholePart (wholeNumber) {
-    return `whole-${wholeNumber}`
+  integerToWords (integerPart) {
+    if (integerPart === 0n) return this.zeroWord
+    return `number-${integerPart}`
   }
 }
 
@@ -67,120 +55,76 @@ test('constructor accepts valid options object', t => {
   t.notThrows(() => new TestLanguage({ someOption: true }))
 })
 
-test('abstract class throws error if convertWholePart not implemented', t => {
+test('abstract class throws error if integerToWords not implemented', t => {
   const lang = new AbstractLanguage()
-  t.throws(() => lang.convertWholePart(42n), {
-    message: 'convertWholePart() must be implemented by subclass'
+  t.throws(() => lang.integerToWords(42n), {
+    message: 'integerToWords() must be implemented by subclass'
   })
 })
 
-test('convert handles positive whole numbers', t => {
+test('toWords handles positive integers', t => {
   const lang = new TestLanguage()
-  t.is(lang.convert(false, 42n), 'number-42')
-  t.is(lang.convert(false, 0n), 'zero')
-  t.is(lang.convert(false, 100n), 'number-100')
-  t.is(lang.convert(false, 1000000n), 'number-1000000')
+  t.is(lang.toWords(false, 42n), 'number-42')
+  t.is(lang.toWords(false, 0n), 'zero')
+  t.is(lang.toWords(false, 100n), 'number-100')
+  t.is(lang.toWords(false, 1000000n), 'number-1000000')
 })
 
-test('convert handles negative numbers', t => {
+test('toWords handles negative numbers', t => {
   const lang = new TestLanguage()
-  t.is(lang.convert(true, 42n), 'minus number-42')
-  t.is(lang.convert(true, 1n), 'minus number-1')
-  t.is(lang.convert(true, 100n), 'minus number-100')
-  t.is(lang.convert(true, 1000n), 'minus number-1000')
+  t.is(lang.toWords(true, 42n), 'minus number-42')
+  t.is(lang.toWords(true, 1n), 'minus number-1')
+  t.is(lang.toWords(true, 100n), 'minus number-100')
+  t.is(lang.toWords(true, 1000n), 'minus number-1000')
 })
 
-test('convert handles decimal numbers in grouped mode', t => {
+test('toWords handles decimal numbers in grouped mode', t => {
   const lang = new TestLanguage()
-  t.is(lang.convert(false, 3n, '14'), 'number-3 point number-14')
-  t.is(lang.convert(false, 0n, '5'), 'zero point number-5')
-  t.is(lang.convert(false, 42n, '7'), 'number-42 point number-7')
+  t.is(lang.toWords(false, 3n, '14'), 'number-3 point number-14')
+  t.is(lang.toWords(false, 0n, '5'), 'zero point number-5')
+  t.is(lang.toWords(false, 42n, '7'), 'number-42 point number-7')
 })
 
-test('convert handles leading zeros in decimals (grouped mode)', t => {
+test('toWords handles leading zeros in decimals (grouped mode)', t => {
   const lang = new TestLanguage()
   // Leading zeros preserved, remaining grouped
-  t.is(lang.convert(false, 3n, '05'), 'number-3 point zero number-5')
-  t.is(lang.convert(false, 1n, '001'), 'number-1 point zero zero number-1')
+  t.is(lang.toWords(false, 3n, '05'), 'number-3 point zero number-5')
+  t.is(lang.toWords(false, 1n, '001'), 'number-1 point zero zero number-1')
 })
 
-test('convert handles negative decimals', t => {
+test('toWords handles negative decimals', t => {
   const lang = new TestLanguage()
-  t.is(lang.convert(true, 3n, '14'), 'minus number-3 point number-14')
-  t.is(lang.convert(true, 0n, '5'), 'minus zero point number-5')
-})
-
-test('caches whole number correctly', t => {
-  const lang = new TestLanguage()
-  lang.convert(false, 42n)
-  t.is(lang.cachedWholeNumber, 42n)
-
-  lang.convert(false, 100n, '5')
-  t.is(lang.cachedWholeNumber, 100n)
-
-  // convert() receives already-positive wholeNumber (sign is passed as isNegative flag)
-  lang.convert(true, 50n)
-  t.is(lang.cachedWholeNumber, 50n)
-})
-
-test('convertDigitToWord returns zeroWord for 0', t => {
-  const lang = new TestLanguageWithDigits()
-  t.is(lang.convertDigitToWord(0n), 'zero')
-})
-
-test('convertDigitToWord uses digits array (length 10)', t => {
-  const lang = new TestLanguageWithDigits()
-  t.is(lang.convertDigitToWord(1n), 'one')
-  t.is(lang.convertDigitToWord(5n), 'five')
-  t.is(lang.convertDigitToWord(9n), 'nine')
-})
-
-test('convertDigitToWord uses digits array (length 9)', t => {
-  class TestLang extends AbstractLanguage {
-    digits = ['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine']
-    zeroWord = 'zero'
-    convertWholePart (n) { return String(n) }
-  }
-  const lang = new TestLang()
-  t.is(lang.convertDigitToWord(0n), 'zero')
-  t.is(lang.convertDigitToWord(1n), 'one')
-  t.is(lang.convertDigitToWord(5n), 'five')
-  t.is(lang.convertDigitToWord(9n), 'nine')
-})
-
-test('convertDigitToWord falls back to convertWholePart when no digits array', t => {
-  const lang = new TestLanguage()
-  t.is(lang.convertDigitToWord(5n), 'number-5')
-  t.is(lang.convertDigitToWord(9n), 'number-9')
+  t.is(lang.toWords(true, 3n, '14'), 'minus number-3 point number-14')
+  t.is(lang.toWords(true, 0n, '5'), 'minus zero point number-5')
 })
 
 test('per-digit decimal mode converts each digit separately', t => {
   const lang = new TestLanguagePerDigit()
-  t.is(lang.convert(false, 3n, '14'), 'whole-3 point one four')
-  t.is(lang.convert(false, 0n, '05'), 'whole-0 point zero five')
-  t.is(lang.convert(false, 1n, '234'), 'whole-1 point two three four')
+  t.is(lang.toWords(false, 3n, '14'), 'number-3 point number-1 number-4')
+  t.is(lang.toWords(false, 0n, '05'), 'zero point zero number-5')
+  t.is(lang.toWords(false, 1n, '234'), 'number-1 point number-2 number-3 number-4')
 })
 
 test('decimalDigitsToWords in per-digit mode', t => {
   const lang = new TestLanguagePerDigit()
   const result = lang.decimalDigitsToWords('14')
-  t.deepEqual(result, ['one', 'four'])
+  t.deepEqual(result, ['number-1', 'number-4'])
 })
 
 test('decimalDigitsToWords in grouped mode with leading zeros', t => {
-  const lang = new TestLanguageWithDigits()
+  const lang = new TestLanguage()
   const result = lang.decimalDigitsToWords('05')
-  t.deepEqual(result, ['zero', 'whole-5'])
+  t.deepEqual(result, ['zero', 'number-5'])
 })
 
 test('decimalDigitsToWords in grouped mode without leading zeros', t => {
-  const lang = new TestLanguageWithDigits()
+  const lang = new TestLanguage()
   const result = lang.decimalDigitsToWords('14')
-  t.deepEqual(result, ['whole-14'])
+  t.deepEqual(result, ['number-14'])
 })
 
 test('decimalDigitsToWords handles all zeros', t => {
-  const lang = new TestLanguageWithDigits()
+  const lang = new TestLanguage()
   const result = lang.decimalDigitsToWords('000')
   t.deepEqual(result, ['zero', 'zero', 'zero'])
 })
@@ -191,64 +135,163 @@ test('wordSeparator is used correctly', t => {
     decimalSeparatorWord = 'DOT'
     zeroWord = 'ZERO'
     wordSeparator = '|'
-    convertWholePart (n) { return `NUM${n}` }
+    integerToWords (integerPart) { return `NUM${integerPart}` }
   }
   const lang = new TestLangCustomSeparator()
-  t.is(lang.convert(true, 3n, '14'), 'MINUS|NUM3|DOT|NUM14')
+  t.is(lang.toWords(true, 3n, '14'), 'MINUS|NUM3|DOT|NUM14')
 })
 
 test('handles very large bigint values', t => {
   const lang = new TestLanguage()
   const huge = 123456789012345678901234567890n
-  t.is(lang.convert(false, huge), `number-${huge}`)
+  t.is(lang.toWords(false, huge), `number-${huge}`)
 })
 
 test('zero returns zeroWord', t => {
   const lang = new TestLanguage()
-  t.is(lang.convert(false, 0n), 'zero')
+  t.is(lang.toWords(false, 0n), 'zero')
 })
 
-test('mergeOptions merges defaults with user options', t => {
-  const lang = new TestLanguage()
-  const defaults = { foo: 'default', bar: 1 }
-  const userOptions = { bar: 2, baz: 'new' }
-  const merged = lang.mergeOptions(defaults, userOptions)
+test('setOptions merges defaults with user options', t => {
+  const lang = new AbstractLanguage()
+  lang.setOptions({ foo: 'default', bar: 1 }, { bar: 2, baz: 'new' })
 
-  t.deepEqual(merged, { foo: 'default', bar: 2, baz: 'new' })
+  t.deepEqual(lang.options, { foo: 'default', bar: 2, baz: 'new' })
 })
 
-test('mergeOptions handles empty defaults', t => {
-  const lang = new TestLanguage()
-  const merged = lang.mergeOptions({}, { option: 'value' })
+test('setOptions handles empty defaults', t => {
+  const lang = new AbstractLanguage()
+  lang.setOptions({}, { option: 'value' })
 
-  t.deepEqual(merged, { option: 'value' })
+  t.deepEqual(lang.options, { option: 'value' })
 })
 
-test('mergeOptions handles empty user options', t => {
-  const lang = new TestLanguage()
-  const merged = lang.mergeOptions({ default: 'value' }, {})
+test('setOptions handles empty user options', t => {
+  const lang = new AbstractLanguage()
+  lang.setOptions({ default: 'value' }, {})
 
-  t.deepEqual(merged, { default: 'value' })
+  t.deepEqual(lang.options, { default: 'value' })
 })
 
-test('constructor properly applies options via mergeOptions', t => {
+test('constructor properly applies options via setOptions', t => {
   const lang = new TestLanguage({ gender: 'feminine' })
-  t.is(lang.convertWholePart(42n), 'feminine-number-42')
+  t.is(lang.integerToWords(42n), 'feminine-number-42')
 
   const lang2 = new TestLanguage({ gender: 'masculine' })
-  t.is(lang2.convertWholePart(42n), 'number-42')
+  t.is(lang2.integerToWords(42n), 'number-42')
 })
 
-test('mergeOptions handles no parameters', t => {
-  const lang = new TestLanguage()
-  const merged = lang.mergeOptions()
+test('setOptions handles no parameters', t => {
+  const lang = new AbstractLanguage()
+  lang.setOptions()
 
-  t.deepEqual(merged, {})
+  t.deepEqual(lang.options, {})
 })
 
-test('mergeOptions handles undefined parameters', t => {
-  const lang = new TestLanguage()
-  const merged = lang.mergeOptions(undefined, undefined)
+test('setOptions handles undefined parameters', t => {
+  const lang = new AbstractLanguage()
+  lang.setOptions(undefined, undefined)
 
-  t.deepEqual(merged, {})
+  t.deepEqual(lang.options, {})
+})
+
+test('options getter returns read-only access to options', t => {
+  const lang = new TestLanguage({ gender: 'feminine' })
+  t.is(lang.options.gender, 'feminine')
+})
+
+// ============================================================================
+// decimalIntegerToWords Tests
+// ============================================================================
+
+test('decimalIntegerToWords defaults to integerToWords', t => {
+  const lang = new TestLanguage()
+  // Without override, should delegate to integerToWords
+  t.is(lang.decimalIntegerToWords(42n), 'number-42')
+  t.is(lang.decimalIntegerToWords(0n), 'zero')
+})
+
+test('decimalIntegerToWords can be overridden for custom decimal behavior', t => {
+  // Language that uses different forms for decimals
+  class TestLangWithDecimalOverride extends AbstractLanguage {
+    negativeWord = 'minus'
+    decimalSeparatorWord = 'point'
+    zeroWord = 'zero'
+
+    integerToWords (integerPart) {
+      return `whole-${integerPart}`
+    }
+
+    // Override: decimals use different format
+    decimalIntegerToWords (integerPart) {
+      return `decimal-${integerPart}`
+    }
+  }
+
+  const lang = new TestLangWithDecimalOverride()
+  t.is(lang.integerToWords(42n), 'whole-42')
+  t.is(lang.decimalIntegerToWords(42n), 'decimal-42')
+})
+
+test('decimalDigitsToWords uses decimalIntegerToWords in grouped mode', t => {
+  class TestLangWithDecimalOverride extends AbstractLanguage {
+    negativeWord = 'minus'
+    decimalSeparatorWord = 'point'
+    zeroWord = 'zero'
+
+    integerToWords (integerPart) {
+      return `whole-${integerPart}`
+    }
+
+    decimalIntegerToWords (integerPart) {
+      return `decimal-${integerPart}`
+    }
+  }
+
+  const lang = new TestLangWithDecimalOverride()
+  // Grouped mode should use decimalIntegerToWords
+  t.deepEqual(lang.decimalDigitsToWords('14'), ['decimal-14'])
+  t.deepEqual(lang.decimalDigitsToWords('05'), ['zero', 'decimal-5'])
+})
+
+test('full decimal conversion uses decimalIntegerToWords', t => {
+  class TestLangWithDecimalOverride extends AbstractLanguage {
+    negativeWord = 'minus'
+    decimalSeparatorWord = 'point'
+    zeroWord = 'zero'
+
+    integerToWords (integerPart) {
+      return `whole-${integerPart}`
+    }
+
+    decimalIntegerToWords (integerPart) {
+      return `decimal-${integerPart}`
+    }
+  }
+
+  const lang = new TestLangWithDecimalOverride()
+  // Full conversion: whole uses integerToWords, decimal uses decimalIntegerToWords
+  t.is(lang.toWords(false, 3n, '14'), 'whole-3 point decimal-14')
+  t.is(lang.toWords(false, 0n, '5'), 'whole-0 point decimal-5')
+})
+
+test('decimalIntegerToWords with per-digit mode uses hook for each digit', t => {
+  class TestLangPerDigitWithOverride extends AbstractLanguage {
+    negativeWord = 'minus'
+    decimalSeparatorWord = 'point'
+    zeroWord = 'zero'
+    usePerDigitDecimals = true
+
+    integerToWords (integerPart) {
+      return `whole-${integerPart}`
+    }
+
+    decimalIntegerToWords (integerPart) {
+      return `d${integerPart}`
+    }
+  }
+
+  const lang = new TestLangPerDigitWithOverride()
+  // Per-digit mode uses convertDigitToWord which delegates to decimalIntegerToWords
+  t.is(lang.toWords(false, 1n, '23'), 'whole-1 point d2 d3')
 })

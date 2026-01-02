@@ -72,9 +72,9 @@ npm run test:all            # Include browser tests
 
 ```bash
 npm run test:unit           # Unit tests only
-npm run test:integration    # Integration tests only
-npm run test:types          # TypeScript type tests only
-npm run test:web            # Browser tests only (requires build first)
+npm run test:integration    # Integration tests only (builds automatically)
+npm run test:types          # TypeScript type tests only (builds automatically)
+npm run test:web            # Browser tests only (builds automatically)
 ```
 
 ### With Coverage
@@ -165,7 +165,7 @@ class TestLanguage extends AbstractLanguage {
   zeroWord = 'zero'
   decimalSeparatorWord = 'point'
 
-  convertWholePart (n) {
+  integerToWords (n) {
     return `number-${n}`
   }
 }
@@ -253,11 +253,16 @@ npm run test:web
 
 **Problem**: TypeScript declarations not generated
 
-**Solution**:
+**Solution**: The `pretest:types` hook builds automatically, so just run:
+
+```bash
+npm run test:types
+```
+
+If you need to rebuild manually:
 
 ```bash
 npm run build:types
-npm run test:types
 ```
 
 ### Tests Timeout

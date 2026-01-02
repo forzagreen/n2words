@@ -22,7 +22,7 @@ class TestGreedyLanguage extends GreedyScaleLanguage {
   decimalSeparatorWord = 'point'
   zeroWord = 'zero'
 
-  scaleWordPairs = [
+  scaleWords = [
     [1000n, 'thousand'],
     [100n, 'hundred'],
     [90n, 'ninety'],
@@ -56,17 +56,17 @@ class TestGreedyLanguage extends GreedyScaleLanguage {
   ]
 
   // Simple merge: just concatenate with space
-  mergeScales (leftPair, rightPair) {
-    const leftWord = Object.keys(leftPair)[0]
-    const leftNumber = Object.values(leftPair)[0]
-    const rightWord = Object.keys(rightPair)[0]
-    const rightNumber = Object.values(rightPair)[0]
+  combineWordSets (preceding, following) {
+    const precedingWord = Object.keys(preceding)[0]
+    const precedingValue = Object.values(preceding)[0]
+    const followingWord = Object.keys(following)[0]
+    const followingValue = Object.values(following)[0]
 
-    const mergedNumber = rightNumber > leftNumber
-      ? leftNumber * rightNumber
-      : leftNumber + rightNumber
+    const mergedNumber = followingValue > precedingValue
+      ? precedingValue * followingValue
+      : precedingValue + followingValue
 
-    return { [`${leftWord} ${rightWord}`]: mergedNumber }
+    return { [`${precedingWord} ${followingWord}`]: mergedNumber }
   }
 }
 
@@ -74,13 +74,13 @@ class TestGreedyLanguage extends GreedyScaleLanguage {
 // Abstract Method Tests
 // ============================================================================
 
-test('abstract class throws error if mergeScales not implemented', t => {
+test('abstract class throws error if combineWordSets not implemented', t => {
   class IncompleteLang extends GreedyScaleLanguage {
-    scaleWordPairs = [[1n, 'one']]
+    scaleWords = [[1n, 'one']]
   }
   const lang = new IncompleteLang()
-  t.throws(() => lang.mergeScales({}, {}), {
-    message: 'mergeScales() must be implemented by subclass'
+  t.throws(() => lang.combineWordSets({}, {}), {
+    message: 'combineWordSets() must be implemented by subclass'
   })
 })
 
@@ -88,26 +88,26 @@ test('abstract class throws error if mergeScales not implemented', t => {
 // Scale Word Retrieval Tests
 // ============================================================================
 
-test('getScaleWord returns correct word for exact match', t => {
+test('wordForScale returns correct word for exact match', t => {
   const lang = new TestGreedyLanguage()
-  t.is(lang.getScaleWord(1000n), 'thousand')
-  t.is(lang.getScaleWord(100n), 'hundred')
-  t.is(lang.getScaleWord(1n), 'one')
-  t.is(lang.getScaleWord(0n), 'zero')
+  t.is(lang.wordForScale(1000n), 'thousand')
+  t.is(lang.wordForScale(100n), 'hundred')
+  t.is(lang.wordForScale(1n), 'one')
+  t.is(lang.wordForScale(0n), 'zero')
 })
 
-test('getScaleWord returns undefined for non-matching value', t => {
+test('wordForScale returns undefined for non-matching value', t => {
   const lang = new TestGreedyLanguage()
-  t.is(lang.getScaleWord(999n), undefined)
-  t.is(lang.getScaleWord(5000n), undefined)
+  t.is(lang.wordForScale(999n), undefined)
+  t.is(lang.wordForScale(5000n), undefined)
 })
 
-test('scaleWordPairs should be ordered descending for correct algorithm', t => {
+test('scaleWords should be ordered descending for correct algorithm', t => {
   const lang = new TestGreedyLanguage()
   // Verify that scale words are in descending order
-  for (let i = 0; i < lang.scaleWordPairs.length - 1; i++) {
-    const current = lang.scaleWordPairs[i][0]
-    const next = lang.scaleWordPairs[i + 1][0]
+  for (let i = 0; i < lang.scaleWords.length - 1; i++) {
+    const current = lang.scaleWords[i][0]
+    const next = lang.scaleWords[i + 1][0]
     t.true(current > next, 'Scale words should be in descending order')
   }
 })
@@ -116,54 +116,54 @@ test('scaleWordPairs should be ordered descending for correct algorithm', t => {
 // Decomposition Tests
 // ============================================================================
 
-test('decomposeToScales produces an array of word-sets', t => {
+test('decomposeInteger produces an array of word-sets', t => {
   const lang = new TestGreedyLanguage()
-  const result = lang.decomposeToScales(5n)
+  const result = lang.decomposeInteger(5n)
   t.true(Array.isArray(result))
   t.true(result.length > 0)
 })
 
-test('decomposeToScales handles exact scale word', t => {
+test('decomposeInteger handles exact scale word', t => {
   const lang = new TestGreedyLanguage()
-  const result = lang.decomposeToScales(100n)
+  const result = lang.decomposeInteger(100n)
   // 100 = 1 * hundred
   t.deepEqual(result, [{ one: 1n }, { hundred: 100n }])
 })
 
-test('decomposeToScales handles compound numbers', t => {
+test('decomposeInteger handles compound numbers', t => {
   const lang = new TestGreedyLanguage()
-  const result = lang.decomposeToScales(23n)
+  const result = lang.decomposeInteger(23n)
   // Result structure may be nested
   t.true(Array.isArray(result))
   t.true(result.length > 0)
 })
 
-test('decomposeToScales handles hundreds with remainder', t => {
+test('decomposeInteger handles hundreds with remainder', t => {
   const lang = new TestGreedyLanguage()
-  const result = lang.decomposeToScales(123n)
+  const result = lang.decomposeInteger(123n)
   // Should decompose to: one * hundred + remainder
   t.true(Array.isArray(result))
   t.true(result.length > 0)
 })
 
-test('decomposeToScales handles thousands', t => {
+test('decomposeInteger handles thousands', t => {
   const lang = new TestGreedyLanguage()
-  const result = lang.decomposeToScales(1000n)
+  const result = lang.decomposeInteger(1000n)
   t.deepEqual(result, [{ one: 1n }, { thousand: 1000n }])
 })
 
-test('decomposeToScales handles multi-thousand numbers', t => {
+test('decomposeInteger handles multi-thousand numbers', t => {
   const lang = new TestGreedyLanguage()
-  const result = lang.decomposeToScales(5000n)
+  const result = lang.decomposeInteger(5000n)
   // Should have nested array for '5' times 'thousand'
   t.true(Array.isArray(result))
   t.true(result.length >= 2)
 })
 
-test('decomposeToScales and mergeWordSets work together', t => {
+test('decomposeInteger and reduceWordSets work together', t => {
   const lang = new TestGreedyLanguage()
-  const decomposed = lang.decomposeToScales(23n)
-  const merged = lang.mergeWordSets(decomposed)
+  const decomposed = lang.decomposeInteger(23n)
+  const merged = lang.reduceWordSets(decomposed)
 
   t.is(typeof merged, 'object')
   t.is(Object.keys(merged).length, 1)
@@ -175,71 +175,71 @@ test('decomposeToScales and mergeWordSets work together', t => {
 // Merge Tests
 // ============================================================================
 
-test('mergeWordSets handles single word-set', t => {
+test('reduceWordSets handles single word-set', t => {
   const lang = new TestGreedyLanguage()
   const input = [{ five: 5n }]
-  const result = lang.mergeWordSets(input)
+  const result = lang.reduceWordSets(input)
   t.deepEqual(result, { five: 5n })
 })
 
-test('mergeWordSets handles two word-sets', t => {
+test('reduceWordSets handles two word-sets', t => {
   const lang = new TestGreedyLanguage()
   const input = [{ twenty: 20n }, { three: 3n }]
-  const result = lang.mergeWordSets(input)
+  const result = lang.reduceWordSets(input)
   t.deepEqual(result, { 'twenty three': 23n })
 })
 
-test('mergeWordSets handles nested arrays', t => {
+test('reduceWordSets handles nested arrays', t => {
   const lang = new TestGreedyLanguage()
   const input = [[{ two: 2n }], { hundred: 100n }]
-  const result = lang.mergeWordSets(input)
+  const result = lang.reduceWordSets(input)
   t.is(typeof result, 'object')
   t.is(Object.keys(result).length, 1)
 })
 
-test('mergeWordSets handles complex nested structure', t => {
+test('reduceWordSets handles complex nested structure', t => {
   const lang = new TestGreedyLanguage()
   const input = [[{ five: 5n }, { hundred: 100n }], { twenty: 20n }]
-  const result = lang.mergeWordSets(input)
+  const result = lang.reduceWordSets(input)
   t.is(typeof result, 'object')
   t.is(Object.keys(result).length, 1)
 })
 
-test('mergeScales receives correct word-set format', t => {
-  let capturedLeft, capturedRight
+test('combineWordSets receives correct word-set format', t => {
+  let capturedPreceding, capturedFollowing
   class SpyLang extends TestGreedyLanguage {
-    mergeScales (left, right) {
-      capturedLeft = left
-      capturedRight = right
-      return super.mergeScales(left, right)
+    combineWordSets (preceding, following) {
+      capturedPreceding = preceding
+      capturedFollowing = following
+      return super.combineWordSets(preceding, following)
     }
   }
   const lang = new SpyLang()
-  lang.convertWholePart(23n) // twenty + three
+  lang.integerToWords(23n) // twenty + three
 
   // Verify word-sets have correct format
-  t.is(typeof capturedLeft, 'object')
-  t.is(typeof capturedRight, 'object')
-  t.is(Object.keys(capturedLeft).length, 1)
-  t.is(Object.keys(capturedRight).length, 1)
+  t.is(typeof capturedPreceding, 'object')
+  t.is(typeof capturedFollowing, 'object')
+  t.is(Object.keys(capturedPreceding).length, 1)
+  t.is(Object.keys(capturedFollowing).length, 1)
 })
 
 // ============================================================================
-// Whole Part Conversion Tests
+// Integer Part Conversion Tests
 // ============================================================================
 
-test('convertWholePart returns a string', t => {
+test('integerToWords returns a string', t => {
   const lang = new TestGreedyLanguage()
-  const result = lang.convertWholePart(0n)
+  const result = lang.integerToWords(0n)
   t.is(typeof result, 'string')
   t.true(result.length > 0)
 })
 
-test('convertWholePart handles single digits', t => {
+test('integerToWords handles single digits', t => {
   const lang = new TestGreedyLanguage()
-  const result1 = lang.convertWholePart(1n)
-  const result5 = lang.convertWholePart(5n)
-  const result9 = lang.convertWholePart(9n)
+  const result1 = lang.integerToWords(1n)
+  const result5 = lang.integerToWords(5n)
+  const result9 = lang.integerToWords(9n)
 
   t.is(typeof result1, 'string')
   t.is(typeof result5, 'string')
@@ -249,28 +249,28 @@ test('convertWholePart handles single digits', t => {
   t.true(result9.length > 0)
 })
 
-test('convertWholePart handles compound numbers under 100', t => {
+test('integerToWords handles compound numbers under 100', t => {
   const lang = new TestGreedyLanguage()
-  const result = lang.convertWholePart(23n)
+  const result = lang.integerToWords(23n)
   t.true(result.includes('twenty'))
   t.true(result.includes('three'))
 })
 
-test('convertWholePart handles hundreds', t => {
+test('integerToWords handles hundreds', t => {
   const lang = new TestGreedyLanguage()
-  const result = lang.convertWholePart(100n)
+  const result = lang.integerToWords(100n)
   t.true(result.includes('hundred'))
 })
 
-test('convertWholePart handles thousands', t => {
+test('integerToWords handles thousands', t => {
   const lang = new TestGreedyLanguage()
-  const result = lang.convertWholePart(1000n)
+  const result = lang.integerToWords(1000n)
   t.true(result.includes('thousand'))
 })
 
 test('handles very large numbers', t => {
   class LargeNumberLang extends TestGreedyLanguage {
-    scaleWordPairs = [
+    scaleWords = [
       [1000000n, 'million'],
       [1000n, 'thousand'],
       [100n, 'hundred'],
@@ -280,7 +280,7 @@ test('handles very large numbers', t => {
     ]
   }
   const lang = new LargeNumberLang()
-  const result = lang.convertWholePart(1000000n)
+  const result = lang.integerToWords(1000000n)
   t.true(result.includes('million'))
 })
 
@@ -302,7 +302,7 @@ test('finalizeWords can be overridden by subclasses', t => {
     }
   }
   const lang = new CustomFinalizeLang()
-  const result = lang.convertWholePart(5n)
+  const result = lang.integerToWords(5n)
   // Result should be uppercase
   t.is(result, result.toUpperCase())
 })
@@ -313,12 +313,12 @@ test('finalizeWords can be overridden by subclasses', t => {
 
 test('integrates with AbstractLanguage for negative numbers', t => {
   const lang = new TestGreedyLanguage()
-  const result = lang.convert(true, 42n)
+  const result = lang.toWords(true, 42n)
   t.true(result.startsWith('minus'))
 })
 
 test('integrates with AbstractLanguage for decimals', t => {
   const lang = new TestGreedyLanguage()
-  const result = lang.convert(false, 3n, '14')
+  const result = lang.toWords(false, 3n, '14')
   t.true(result.includes('point'))
 })

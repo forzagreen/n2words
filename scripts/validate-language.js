@@ -30,7 +30,7 @@ import chalk from 'chalk'
 
 /**
  * Get expected class name from BCP 47 code using CLDR
- * @param {string} languageCode - BCP 47 language code
+ * @param {string} languageCode BCP 47 language code
  * @returns {string|null} Expected PascalCase class name
  */
 export function getExpectedClassName (languageCode) {
@@ -58,7 +58,7 @@ export function getExpectedClassName (languageCode) {
 
 /**
  * Validate IETF BCP 47 language code
- * @param {string} languageCode - Language code to validate
+ * @param {string} languageCode Language code to validate
  * @returns {{ valid: boolean, canonical: string|null, error: string|null }}
  */
 export function validateLanguageCode (languageCode) {
@@ -151,11 +151,11 @@ function validateRequiredProperties (instance, result) {
   }
 
   // Check optional flag
-  if ('convertDecimalsPerDigit' in instance) {
-    if (typeof instance.convertDecimalsPerDigit !== 'boolean') {
-      result.errors.push('convertDecimalsPerDigit should be boolean')
+  if ('usePerDigitDecimals' in instance) {
+    if (typeof instance.usePerDigitDecimals !== 'boolean') {
+      result.errors.push('usePerDigitDecimals should be boolean')
     } else {
-      result.info.push(`✓ convertDecimalsPerDigit: ${instance.convertDecimalsPerDigit}`)
+      result.info.push(`✓ usePerDigitDecimals: ${instance.usePerDigitDecimals}`)
     }
   }
 }
@@ -164,31 +164,31 @@ function validateRequiredProperties (instance, result) {
  * Validate required methods
  */
 function validateMethods (instance, result) {
-  if (typeof instance.convertWholePart !== 'function') {
-    result.errors.push('Missing convertWholePart() method')
+  if (typeof instance.integerToWords !== 'function') {
+    result.errors.push('Missing integerToWords() method')
     return
   }
 
   // Test implementation
   try {
-    const testResult = instance.convertWholePart(0n)
+    const testResult = instance.integerToWords(0n)
     if (typeof testResult !== 'string') {
-      result.errors.push(`convertWholePart(0n) returned ${typeof testResult}, expected string`)
+      result.errors.push(`integerToWords(0n) returned ${typeof testResult}, expected string`)
     } else if (testResult === '') {
-      result.warnings.push('convertWholePart(0n) returned empty string')
+      result.warnings.push('integerToWords(0n) returned empty string')
     } else {
-      result.info.push(`✓ convertWholePart(0n) returns: "${testResult}"`)
+      result.info.push(`✓ integerToWords(0n) returns: "${testResult}"`)
     }
   } catch (error) {
     if (error.message.includes('must be implemented by subclass')) {
-      result.errors.push('convertWholePart() not implemented (still abstract)')
+      result.errors.push('integerToWords() not implemented (still abstract)')
     } else {
-      result.errors.push(`convertWholePart(0n) threw error: ${error.message}`)
+      result.errors.push(`integerToWords(0n) threw error: ${error.message}`)
     }
   }
 
-  if (typeof instance.convert !== 'function') {
-    result.errors.push('Missing convert() method (should be inherited)')
+  if (typeof instance.toWords !== 'function') {
+    result.errors.push('Missing toWords() method (should be inherited)')
   }
 }
 
@@ -232,14 +232,19 @@ function validateInheritance (LanguageClass, result) {
 
 /**
  * Validate scale words (for GreedyScaleLanguage/TurkicLanguage)
+ * This validates the scale words array structure and ordering.
+ * Note: SouthAsianLanguage also has scaleWords but in a different format.
  */
-function validateScaleWords (instance, result) {
-  if (!('scaleWordPairs' in instance)) return
+function validateScaleWords (instance, LanguageClass, result) {
+  // Only validate for GreedyScaleLanguage/TurkicLanguage
+  const baseClass = getBaseClassName(LanguageClass)
+  if (baseClass !== 'GreedyScaleLanguage' && baseClass !== 'TurkicLanguage') return
+  if (!('scaleWords' in instance)) return
 
-  const scaleWords = instance.scaleWordPairs
+  const scaleWords = instance.scaleWords
 
   if (!Array.isArray(scaleWords) || scaleWords.length === 0) {
-    result.errors.push('scaleWordPairs should be non-empty array')
+    result.errors.push('scaleWords should be non-empty array')
     return
   }
 
@@ -250,23 +255,23 @@ function validateScaleWords (instance, result) {
     const pair = scaleWords[i]
 
     if (!Array.isArray(pair) || pair.length !== 2) {
-      result.errors.push(`scaleWordPairs[${i}] should be [bigint, string] pair`)
+      result.errors.push(`scaleWords[${i}] should be [bigint, string] pair`)
       continue
     }
 
     const [value, word] = pair
 
     if (typeof value !== 'bigint') {
-      result.errors.push(`scaleWordPairs[${i}][0] should be bigint`)
+      result.errors.push(`scaleWords[${i}][0] should be bigint`)
     }
 
     if (typeof word !== 'string') {
-      result.errors.push(`scaleWordPairs[${i}][1] should be string`)
+      result.errors.push(`scaleWords[${i}][1] should be string`)
     }
 
     // Check descending order
     if (Number(value) >= previousValue && !hasOrderingError) {
-      result.errors.push(`scaleWordPairs not in descending order at index ${i}`)
+      result.errors.push(`scaleWords not in descending order at index ${i}`)
       hasOrderingError = true
     }
 
@@ -274,11 +279,111 @@ function validateScaleWords (instance, result) {
   }
 
   if (!hasOrderingError) {
-    result.info.push(`✓ scaleWordPairs properly ordered (${scaleWords.length} entries)`)
+    result.info.push(`✓ scaleWords properly ordered (${scaleWords.length} entries)`)
   }
 
   if (!scaleWords.some(pair => pair[0] === 1n)) {
-    result.warnings.push('scaleWordPairs missing entry for 1n')
+    result.warnings.push('scaleWords missing entry for 1n')
+  }
+}
+
+/**
+ * Get the base class name for a language class
+ */
+function getBaseClassName (LanguageClass) {
+  const proto = Object.getPrototypeOf(LanguageClass)
+  const baseClassName = proto?.name
+
+  // Check for regional variants (e.g., fr-BE extends French which extends GreedyScaleLanguage)
+  const validBaseClasses = ['AbstractLanguage', 'GreedyScaleLanguage', 'SlavicLanguage', 'SouthAsianLanguage', 'TurkicLanguage']
+  if (validBaseClasses.includes(baseClassName)) {
+    return baseClassName
+  }
+
+  // Check grandparent for regional variants
+  const grandProto = Object.getPrototypeOf(proto)
+  const grandParentClassName = grandProto?.name
+  if (validBaseClasses.includes(grandParentClassName)) {
+    return grandParentClassName
+  }
+
+  return baseClassName
+}
+
+/**
+ * Validate base-class-specific requirements
+ */
+function validateBaseClassRequirements (instance, LanguageClass, result) {
+  const baseClass = getBaseClassName(LanguageClass)
+
+  switch (baseClass) {
+    case 'GreedyScaleLanguage':
+    case 'TurkicLanguage': {
+      // Must have scaleWords
+      if (!('scaleWords' in instance)) {
+        result.errors.push(`${baseClass} requires scaleWords array`)
+      } else if (!Array.isArray(instance.scaleWords) || instance.scaleWords.length === 0) {
+        result.errors.push('scaleWords must be a non-empty array')
+      } else {
+        result.info.push(`✓ Has scaleWords (${instance.scaleWords.length} entries)`)
+      }
+
+      // Must have combineWordSets method (inherited is ok)
+      if (typeof instance.combineWordSets !== 'function') {
+        result.errors.push(`${baseClass} requires combineWordSets() method`)
+      } else {
+        result.info.push('✓ Has combineWordSets() method')
+      }
+      break
+    }
+
+    case 'SlavicLanguage': {
+      // Must have pluralForms
+      if (!('pluralForms' in instance)) {
+        result.errors.push('SlavicLanguage requires pluralForms object')
+      } else if (typeof instance.pluralForms !== 'object' || Object.keys(instance.pluralForms).length === 0) {
+        result.errors.push('pluralForms must be a non-empty object')
+      } else {
+        result.info.push(`✓ Has pluralForms (${Object.keys(instance.pluralForms).length} scale levels)`)
+      }
+
+      // Must have onesWords
+      if (!('onesWords' in instance)) {
+        result.errors.push('SlavicLanguage requires onesWords object')
+      } else {
+        result.info.push('✓ Has onesWords')
+      }
+      break
+    }
+
+    case 'SouthAsianLanguage': {
+      // Must have belowHundredWords array
+      if (!('belowHundredWords' in instance)) {
+        result.errors.push('SouthAsianLanguage requires belowHundredWords array')
+      } else if (!Array.isArray(instance.belowHundredWords)) {
+        result.errors.push('belowHundredWords must be an array')
+      } else if (instance.belowHundredWords.length < 100) {
+        result.warnings.push(`belowHundredWords has ${instance.belowHundredWords.length} entries (expected 100)`)
+      } else {
+        result.info.push(`✓ Has belowHundredWords (${instance.belowHundredWords.length} entries)`)
+      }
+
+      // Must have scaleWords array
+      if (!('scaleWords' in instance)) {
+        result.errors.push('SouthAsianLanguage requires scaleWords array')
+      } else if (!Array.isArray(instance.scaleWords) || instance.scaleWords.length === 0) {
+        result.errors.push('scaleWords must be a non-empty array')
+      } else {
+        result.info.push(`✓ Has scaleWords (${instance.scaleWords.length} entries)`)
+      }
+      break
+    }
+
+    case 'AbstractLanguage': {
+      // AbstractLanguage just needs integerToWords (already validated elsewhere)
+      result.info.push('✓ Direct AbstractLanguage implementation')
+      break
+    }
   }
 }
 
@@ -295,7 +400,7 @@ function validateDocumentation (fileContent, className, result) {
     result.info.push('✓ Has class documentation')
   }
 
-  // Note: mergeScales() is documented in the abstract base class (GreedyScaleLanguage)
+  // Note: combineWordSets() is documented in the abstract base class (GreedyScaleLanguage)
   // Individual implementations don't need to repeat full JSDoc documentation
 }
 
@@ -523,10 +628,10 @@ function validateOptionsPattern (instance, LanguageClass, className, fileContent
   }
 
   const hasSuperOptions = body.includes('super(options)')
-  const hasMergeOptions = body.includes('this.mergeOptions(')
+  const hasSetOptions = body.includes('this.setOptions(')
 
-  // Hybrid pattern: passes options to super AND has own mergeOptions
-  if (hasSuperOptions && hasMergeOptions) {
+  // Hybrid pattern: passes options to super AND has own setOptions
+  if (hasSuperOptions && hasSetOptions) {
     result.info.push('✓ Constructor passes options to super() and adds own options')
     validateOptionsTypedef(className, body, n2wordsContent, result)
     return
@@ -536,22 +641,22 @@ function validateOptionsPattern (instance, LanguageClass, className, fileContent
   if (hasSuperOptions) {
     result.info.push('✓ Constructor passes options to super() (regional variant)')
 
-    if (body.includes('this.scaleWordPairs')) {
-      result.info.push('✓ Constructor mutates scaleWordPairs')
-      validateScaleWords(instance, result) // Re-validate after mutation
+    if (body.includes('this.scaleWords')) {
+      result.info.push('✓ Constructor mutates scaleWords')
+      validateScaleWords(instance, LanguageClass, result) // Re-validate after mutation
     }
     return
   }
 
   result.info.push('✓ Constructor calls super()')
 
-  // Standard options pattern: only uses mergeOptions
-  if (!hasMergeOptions) {
-    result.errors.push('Constructor should call this.mergeOptions() or pass options to super()')
+  // Standard options pattern: only uses setOptions
+  if (!hasSetOptions) {
+    result.errors.push('Constructor should call this.setOptions() or pass options to super()')
     return
   }
 
-  result.info.push('✓ Constructor uses mergeOptions()')
+  result.info.push('✓ Constructor uses setOptions()')
   validateOptionsTypedef(className, body, n2wordsContent, result)
 }
 
@@ -619,7 +724,7 @@ function inferDescriptionFromName (name) {
     formal: 'Use formal/financial numerals',
     ordFlag: 'Enable ordinal number conversion',
     includeOptionalAnd: 'Include optional "and" separator',
-    noHundredPairs: 'Disable hundred pairs',
+    noHundredPairing: 'Disable hundred-pairing (e.g., "twelve hundred")',
     accentOne: 'Use accented form for one',
     withHyphenSeparator: 'Use hyphens instead of spaces',
     dropSpaces: 'Remove spaces between words'
@@ -631,8 +736,8 @@ function inferDescriptionFromName (name) {
  * Validate options typedef and defaults
  */
 function validateOptionsTypedef (className, constructorBody, n2wordsContent, result) {
-  // Extract default options from mergeOptions()
-  const mergeMatch = constructorBody.match(/this\.mergeOptions\(\s*{([^}]*)}/)
+  // Extract default options from setOptions()
+  const mergeMatch = constructorBody.match(/this\.setOptions\(\s*{([^}]*)}/)
   if (!mergeMatch) return
 
   const defaults = []
@@ -690,7 +795,7 @@ function validateOptionsTypedef (className, constructorBody, n2wordsContent, res
     }
 
     // Validate boolean options
-    const booleanOptions = ['formal', 'ordFlag', 'includeOptionalAnd', 'noHundredPairs', 'accentOne', 'withHyphenSeparator', 'dropSpaces']
+    const booleanOptions = ['formal', 'ordFlag', 'includeOptionalAnd', 'noHundredPairing', 'accentOne', 'withHyphenSeparator', 'dropSpaces']
     if (booleanOptions.includes(def.name)) {
       if (typedefProp.type !== 'boolean') {
         result.warnings.push(`Option "${def.name}" should have boolean type`)
@@ -772,7 +877,8 @@ async function performValidations (languageCode, className, LanguageClass, fileC
   validateRequiredProperties(instance, result)
   validateMethods(instance, result)
   validateInheritance(LanguageClass, result)
-  validateScaleWords(instance, result)
+  validateScaleWords(instance, LanguageClass, result)
+  validateBaseClassRequirements(instance, LanguageClass, result)
   validateDocumentation(fileContent, className, result)
   validateImports(fileContent, result)
   validateOptionsPattern(instance, LanguageClass, className, fileContent, n2wordsContent, result)
@@ -787,7 +893,7 @@ async function performValidations (languageCode, className, LanguageClass, fileC
 
 /**
  * Validate a single language implementation
- * @param {string} languageCode - IETF language code (e.g., 'en', 'fr-BE')
+ * @param {string} languageCode IETF language code (e.g., 'en', 'fr-BE')
  * @returns {Promise<ValidationResult>}
  */
 export async function validateLanguage (languageCode) {

@@ -231,6 +231,33 @@ test('converters handle large numbers', t => {
   t.not(million, billion)
 })
 
+test('converters handle scientific notation from Number.toString()', t => {
+  const { EnglishConverter } = n2words
+
+  // Numbers >= 1e21 trigger scientific notation in Number.toString()
+  t.is(EnglishConverter(1e21), 'one sextillion')
+  t.is(EnglishConverter(1e22), 'ten sextillion')
+
+  // Numbers < 1e-6 also trigger scientific notation
+  t.is(EnglishConverter(1e-7), 'zero point zero zero zero zero zero zero one')
+  t.is(EnglishConverter(1.5e-7), 'zero point zero zero zero zero zero zero fifteen')
+
+  // Edge cases at boundaries
+  t.is(EnglishConverter(1e20), 'one hundred quintillion') // Just below scientific notation
+  t.is(EnglishConverter(1e-6), 'zero point zero zero zero zero zero one') // At the boundary
+})
+
+test('converters handle scientific notation in string input', t => {
+  const { EnglishConverter } = n2words
+
+  // String input with scientific notation
+  t.is(EnglishConverter('1e21'), 'one sextillion')
+  t.is(EnglishConverter('1E21'), 'one sextillion') // Uppercase E
+  t.is(EnglishConverter('-1e21'), 'minus one sextillion')
+  t.is(EnglishConverter('1.5e3'), 'one thousand five hundred')
+  t.is(EnglishConverter('1e-3'), 'zero point zero zero one')
+})
+
 // ============================================================================
 // Options Inheritance Tests
 // ============================================================================
@@ -431,7 +458,7 @@ test('handles string with decimal but no fractional part', t => {
 
 test('handles trailing decimal point', t => {
   const { EnglishConverter } = n2words
-  // Trailing decimal without digits is treated as whole number
+  // Trailing decimal without digits is treated as an integer
   t.is(EnglishConverter('42.'), 'forty-two')
 })
 

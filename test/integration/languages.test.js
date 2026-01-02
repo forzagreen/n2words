@@ -16,62 +16,21 @@ import * as n2words from '../../lib/n2words.js'
  */
 
 /**
- * Map of BCP 47 codes to converter names for lookup
+ * Extracts the class name from a language module's exports.
+ * Language files export a single named class (e.g., `export class English`).
+ *
+ * @param {Object} languageModule The imported language module
+ * @returns {string|null} The class name, or null if not found
  */
-const codeToConverterName = {
-  ar: 'Arabic',
-  az: 'Azerbaijani',
-  bn: 'Bangla',
-  cs: 'Czech',
-  da: 'Danish',
-  de: 'German',
-  el: 'Greek',
-  en: 'English',
-  es: 'Spanish',
-  fa: 'Persian',
-  fil: 'Filipino',
-  fr: 'French',
-  'fr-BE': 'FrenchBelgium',
-  gu: 'Gujarati',
-  hbo: 'BiblicalHebrew',
-  he: 'Hebrew',
-  hi: 'Hindi',
-  hr: 'Croatian',
-  hu: 'Hungarian',
-  id: 'Indonesian',
-  it: 'Italian',
-  ja: 'Japanese',
-  kn: 'Kannada',
-  ko: 'Korean',
-  lt: 'Lithuanian',
-  lv: 'Latvian',
-  mr: 'Marathi',
-  ms: 'Malay',
-  nb: 'NorwegianBokmal',
-  nl: 'Dutch',
-  pa: 'Punjabi',
-  pl: 'Polish',
-  pt: 'Portuguese',
-  ro: 'Romanian',
-  ru: 'Russian',
-  'sr-Cyrl': 'SerbianCyrillic',
-  'sr-Latn': 'SerbianLatin',
-  sv: 'Swedish',
-  sw: 'Swahili',
-  ta: 'Tamil',
-  te: 'Telugu',
-  th: 'Thai',
-  tr: 'Turkish',
-  uk: 'Ukrainian',
-  ur: 'Urdu',
-  vi: 'Vietnamese',
-  'zh-Hans': 'SimplifiedChinese',
-  'zh-Hant': 'TraditionalChinese'
+function getClassNameFromModule (languageModule) {
+  const exportNames = Object.keys(languageModule)
+  // Language files export exactly one class
+  return exportNames.length === 1 ? exportNames[0] : null
 }
 
 /**
  * Safely stringify a value for error messages (handles BigInt)
- * @param {*} value - Value to stringify
+ * @param {*} value Value to stringify
  * @returns {string} String representation
  */
 function safeStringify (value) {
@@ -88,8 +47,8 @@ function safeStringify (value) {
 
 /**
  * Validates a test fixture file format
- * @param {Array} testFile - The imported fixture file
- * @param {string} languageCode - Language code for error messages
+ * @param {Array} testFile The imported fixture file
+ * @param {string} languageCode Language code for error messages
  * @returns {{valid: boolean, error?: string}} Validation result
  */
 function validateFixture (testFile, languageCode) {
@@ -163,13 +122,15 @@ for (const file of files) {
   const languageCode = file.replace('.js', '')
 
   test(languageCode, async t => {
-    // Get converter from public API
-    const className = codeToConverterName[languageCode]
+    // Import language module and extract class name from its exports
+    const languageModule = await import('../../lib/languages/' + file)
+    const className = getClassNameFromModule(languageModule)
     if (!className) {
-      t.fail(`No converter mapping found for language code: ${languageCode}`)
+      t.fail(`Could not extract class name from language file: ${file}`)
       return
     }
 
+    // Get converter from public API
     const converterName = `${className}Converter`
     const converter = n2words[converterName]
 

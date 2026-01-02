@@ -4,41 +4,91 @@ Thank you for your interest in contributing to n2words! This document provides g
 
 ## Table of Contents
 
-- [Getting Started](#getting-started)
-  - [Prerequisites](#prerequisites)
-  - [Git Hooks (Optional for Contributors)](#git-hooks-optional-for-contributors)
-  - [Development Setup](#development-setup)
-- [Contributing Workflow](#contributing-workflow)
-  - [Pull Request Process](#pull-request-process)
-  - [Commit Message Guidelines](#commit-message-guidelines)
-  - [Code Review Process](#code-review-process)
-- [Adding a New Language](#adding-a-new-language)
-  - [Quick Start](#quick-start)
-  - [Base Class Decision Tree](#base-class-decision-tree)
-  - [Implementation Steps](#implementation-steps)
-  - [Language Naming Convention](#language-naming-convention)
-  - [Adding Language Options](#adding-language-options)
-- [Code Quality](#code-quality)
-  - [Code Style](#code-style)
-  - [Testing](#testing)
-  - [Language Validation](#language-validation)
-- [Advanced Topics](#advanced-topics)
-  - [Regional Language Variants](#regional-language-variants)
-  - [Modifying Base Classes](#modifying-base-classes)
-  - [Building and Testing UMD Bundles](#building-and-testing-umd-bundles)
-  - [Browser Compatibility](#browser-compatibility)
-  - [CI Testing Strategy](#ci-testing-strategy)
-  - [Performance Improvements](#performance-improvements)
-- [Project Information](#project-information)
-  - [Project Structure](#project-structure)
-  - [Continuous Integration](#continuous-integration)
-  - [Release Process](#release-process)
-  - [Security](#security)
-  - [Community Guidelines](#community-guidelines)
-- [Help & Support](#help--support)
-  - [Troubleshooting](#troubleshooting)
-  - [Getting Help](#getting-help)
-  - [Questions](#questions)
+- [Contributing to n2words](#contributing-to-n2words)
+  - [Table of Contents](#table-of-contents)
+  - [Getting Started](#getting-started)
+    - [Prerequisites](#prerequisites)
+    - [Git Hooks (Optional for Contributors)](#git-hooks-optional-for-contributors)
+      - [For Contributors (No Setup Required)](#for-contributors-no-setup-required)
+      - [For Maintainers (Opt-In)](#for-maintainers-opt-in)
+    - [Development Setup](#development-setup)
+  - [Contributing Workflow](#contributing-workflow)
+    - [Pull Request Process](#pull-request-process)
+      - [Pull Request Guidelines](#pull-request-guidelines)
+      - [Git Workflow](#git-workflow)
+    - [Commit Message Guidelines](#commit-message-guidelines)
+    - [Code Review Process](#code-review-process)
+      - [What to Expect](#what-to-expect)
+      - [What Reviewers Look For](#what-reviewers-look-for)
+      - [Addressing Feedback](#addressing-feedback)
+      - [After Approval](#after-approval)
+  - [Adding a New Language](#adding-a-new-language)
+    - [Quick Start](#quick-start)
+    - [Base Class Decision Tree](#base-class-decision-tree)
+    - [Implementation Steps](#implementation-steps)
+    - [Language Naming Convention](#language-naming-convention)
+    - [Adding Language Options](#adding-language-options)
+  - [Code Quality](#code-quality)
+    - [Code Style](#code-style)
+      - [JavaScript Style](#javascript-style)
+      - [Markdown Style](#markdown-style)
+      - [JSDoc Documentation](#jsdoc-documentation)
+    - [Testing](#testing)
+      - [Running Tests](#running-tests)
+      - [Writing Tests](#writing-tests)
+      - [Type Testing](#type-testing)
+      - [Test Coverage](#test-coverage)
+    - [Language Validation](#language-validation)
+  - [Advanced Topics](#advanced-topics)
+    - [Regional Language Variants](#regional-language-variants)
+    - [Modifying Base Classes](#modifying-base-classes)
+      - [Adding Helper Methods to Base Classes](#adding-helper-methods-to-base-classes)
+    - [Building and Testing UMD Bundles](#building-and-testing-umd-bundles)
+    - [Browser Compatibility](#browser-compatibility)
+    - [CI Testing Strategy](#ci-testing-strategy)
+    - [Performance Improvements](#performance-improvements)
+      - [Performance Best Practices](#performance-best-practices)
+  - [Project Information](#project-information)
+    - [Project Structure](#project-structure)
+    - [Continuous Integration](#continuous-integration)
+      - [CI Workflow Overview](#ci-workflow-overview)
+      - [Viewing CI Results](#viewing-ci-results)
+      - [Running CI Checks Locally](#running-ci-checks-locally)
+      - [Testing with Act (Local GitHub Actions)](#testing-with-act-local-github-actions)
+    - [Release Process](#release-process)
+      - [Versioning](#versioning)
+      - [Creating a Release](#creating-a-release)
+      - [Release Checklist](#release-checklist)
+    - [Security](#security)
+      - [Reporting Security Issues](#reporting-security-issues)
+      - [Security Practices](#security-practices)
+      - [Dependency Security](#dependency-security)
+    - [Community Guidelines](#community-guidelines)
+      - [Code of Conduct](#code-of-conduct)
+      - [Communication Channels](#communication-channels)
+      - [First-Time Contributors](#first-time-contributors)
+      - [Recognition](#recognition)
+      - [Types of Contributions](#types-of-contributions)
+        - [Bug Reports](#bug-reports)
+        - [Feature Requests](#feature-requests)
+        - [Documentation](#documentation)
+  - [Help \& Support](#help--support)
+    - [Troubleshooting](#troubleshooting)
+      - [Common Issues](#common-issues)
+        - [Node Version Mismatch](#node-version-mismatch)
+        - [Windows Path Issues](#windows-path-issues)
+        - [Character Encoding Issues](#character-encoding-issues)
+        - [Test Timeouts](#test-timeouts)
+        - [BigInt Support](#bigint-support)
+        - [Validation Errors](#validation-errors)
+        - [Commit Message Errors](#commit-message-errors)
+        - [Build Failures](#build-failures)
+        - [Browser Test Issues](#browser-test-issues)
+        - [Import/Export Errors](#importexport-errors)
+      - [Quick Reference: Common Validation Errors](#quick-reference-common-validation-errors)
+    - [Getting Help](#getting-help)
+    - [Questions](#questions)
+  - [License](#license)
 
 ## Getting Started
 
@@ -88,24 +138,6 @@ This will install three git hooks:
 ```bash
 # Remove the .husky directory
 rm -rf .husky
-```
-
-#### Interactive Commit Tool (Recommended)
-
-Both contributors and maintainers can use the interactive commit tool to ensure proper formatting:
-
-```bash
-npm run commit
-```
-
-This launches an interactive prompt that guides you through creating a conventional commit message.
-
-#### Commit Message Help
-
-For quick reference on commit message format:
-
-```bash
-npm run commit:help
 ```
 
 ### Development Setup
@@ -341,7 +373,7 @@ This will create:
 ```text
 ┌─ Does your language use lakh/crore (Indian numbering)?
 │  └─ YES → SouthAsianLanguage
-│           (Hindi, Tamil, Telugu, Bengali, Gujarati, Kannada, Marathi, Punjabi, Urdu)
+│           (Hindi, Bengali, Gujarati, Kannada, Marathi, Punjabi, Urdu)
 │
 ├─ Does your language have three-form pluralization? (singular/few/many)
 │  └─ YES → SlavicLanguage
@@ -383,10 +415,11 @@ This will create:
 │    Edit lib/languages/<code>.js                           │
 │    ✓ Replace placeholder words (negativeWord, zeroWord)   │
 │    ✓ Complete base-class-specific implementation:         │
-│      - Greedy/Turkic: scaleWordPairs + mergeScales()      │
+│      - Greedy/Turkic: scaleWords + combineWordSets()      │
 │      - Slavic: ones/tens/hundreds + pluralForms           │
+│        (+ scaleGenders for per-scale gender control)      │
 │      - SouthAsian: belowHundred + scaleWords              │
-│      - Abstract: convertWholePart() from scratch          │
+│      - Abstract: integerToWords() from scratch          │
 │    ✓ Add options if needed (gender, formal, etc.)         │
 │    ✓ Write comprehensive JSDoc with examples              │
 └────────────────────┬──────────────────────────────────────┘
@@ -455,7 +488,7 @@ If your language requires options (e.g., gender, formal style), follow this patt
    ```javascript
    constructor(options = {}) {
      super()
-     this.options = this.mergeOptions({
+     this.setOptions({
        gender: 'masculine'  // default value
      }, options)
    }
@@ -698,12 +731,12 @@ To create a regional variant of an existing language (e.g., Belgian French):
        super(options)
 
        // Modify specific scale words
-       const pairs = [...this.scaleWordPairs]
-       const idx80 = pairs.findIndex(pair => pair[0] === 80n)
-       if (idx80 !== -1) pairs.splice(idx80, 0, [90n, 'nonante'])
-       const idx60 = pairs.findIndex(pair => pair[0] === 60n)
-       if (idx60 !== -1) pairs.splice(idx60, 0, [70n, 'septante'])
-       this.scaleWordPairs = pairs
+       const tuples = [...this.scaleWords]
+       const idx80 = tuples.findIndex(tuple => tuple[0] === 80n)
+       if (idx80 !== -1) tuples.splice(idx80, 0, [90n, 'nonante'])
+       const idx60 = tuples.findIndex(tuple => tuple[0] === 60n)
+       if (idx60 !== -1) tuples.splice(idx60, 0, [70n, 'septante'])
+       this.scaleWords = tuples
      }
    }
    ```
@@ -753,7 +786,7 @@ When adding new helper methods to base classes:
 /**
  * Helper method description.
  *
- * @param {bigint} value - Parameter description
+ * @param {bigint} value Parameter description
  * @returns {string} Return value description
  * @example
  * const result = this.helperMethod(100n)
@@ -991,10 +1024,9 @@ Before pushing, run the same checks locally:
 npm run lint         # Linting
 npm test             # Full test suite
 npm run build        # Build UMD bundles
-npm audit --production --audit-level=moderate  # Security audit
+npm audit --audit-level=high  # Security audit (matches CI)
 
-# Optional: Run browser tests (requires build first)
-npm run build
+# Optional: Run browser tests (pretest:web hook builds automatically)
 npm run test:web
 ```
 
@@ -1247,13 +1279,13 @@ npm run test:web -- --timeout=60s
 
    ```javascript
    // Wrong order
-   scaleWordPairs = [
+   scaleWords = [
      [100n, 'hundred'],
      [1000n, 'thousand']  // ❌ Should come before 100
    ]
 
    // Correct order
-   scaleWordPairs = [
+   scaleWords = [
      [1000n, 'thousand'],  // ✅ Largest first
      [100n, 'hundred']
    ]
@@ -1328,19 +1360,13 @@ npm run test:web -- --timeout=60s
 **Solutions:**
 
 ```bash
-# Option 1: Use the interactive commit tool (recommended)
-npm run commit
-
-# Option 2: Get help on commit message format
-npm run commit:help
-
-# Option 3: View detailed error messages
+# Option 1: View detailed error messages
 # The Husky hook will show exactly what's wrong with your message
 
-# Option 4: Skip the hook temporarily (not recommended)
+# Option 2: Skip the hook temporarily (not recommended)
 git commit --no-verify -m "your message"
 
-# Option 5: Amend your last commit message
+# Option 3: Amend your last commit message
 git commit --amend
 ```
 
@@ -1406,8 +1432,8 @@ npm run lint
 | Error Message                              | Cause                                    | Fix                                           |
 | ------------------------------------------ | ---------------------------------------- | --------------------------------------------- |
 | "Missing required property: negativeWord"  | Property not defined in class            | Add `negativeWord = 'minus'` to class         |
-| "scaleWordPairs not in descending order"   | Scale values not sorted largest→smallest | Reorder array from largest to smallest        |
-| "convertWholePart() not implemented"       | Method is abstract/missing               | Implement `convertWholePart(n)` method        |
+| "scaleWords not in descending order"       | Scale values not sorted largest→smallest | Reorder array from largest to smallest        |
+| "integerToWords() not implemented"         | Method is abstract/missing               | Implement `integerToWords(n)` method          |
 | "Not imported in lib/n2words.js"           | Missing registration                     | Add import, converter, export (alphabetically)|
 | "Missing test fixture"                     | No test file exists                      | Create `test/fixtures/languages/<code>.js`    |
 | "Gender option must use enum type"         | Wrong JSDoc type                         | Use `('masculine'\|'feminine')` not `string`  |
