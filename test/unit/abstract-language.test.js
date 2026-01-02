@@ -30,10 +30,10 @@ class TestLanguage extends AbstractLanguage {
   }
 
   // Simple implementation: just return the number as string
-  integerToWords (wholeNumber) {
-    if (this.options.gender === 'feminine') return `feminine-number-${wholeNumber}`
-    if (wholeNumber === 0n) return this.zeroWord
-    return `number-${wholeNumber}`
+  integerToWords (integerPart) {
+    if (this.options.gender === 'feminine') return `feminine-number-${integerPart}`
+    if (integerPart === 0n) return this.zeroWord
+    return `number-${integerPart}`
   }
 }
 
@@ -44,9 +44,9 @@ class TestLanguagePerDigit extends AbstractLanguage {
   zeroWord = 'zero'
   usePerDigitDecimals = true
 
-  integerToWords (wholeNumber) {
-    if (wholeNumber === 0n) return this.zeroWord
-    return `number-${wholeNumber}`
+  integerToWords (integerPart) {
+    if (integerPart === 0n) return this.zeroWord
+    return `number-${integerPart}`
   }
 }
 
@@ -135,7 +135,7 @@ test('wordSeparator is used correctly', t => {
     decimalSeparatorWord = 'DOT'
     zeroWord = 'ZERO'
     wordSeparator = '|'
-    integerToWords (n) { return `NUM${n}` }
+    integerToWords (integerPart) { return `NUM${integerPart}` }
   }
   const lang = new TestLangCustomSeparator()
   t.is(lang.toWords(true, 3n, '14'), 'MINUS|NUM3|DOT|NUM14')
@@ -218,13 +218,13 @@ test('decimalIntegerToWords can be overridden for custom decimal behavior', t =>
     decimalSeparatorWord = 'point'
     zeroWord = 'zero'
 
-    integerToWords (n) {
-      return `whole-${n}`
+    integerToWords (integerPart) {
+      return `whole-${integerPart}`
     }
 
     // Override: decimals use different format
-    decimalIntegerToWords (n) {
-      return `decimal-${n}`
+    decimalIntegerToWords (integerPart) {
+      return `decimal-${integerPart}`
     }
   }
 
@@ -239,12 +239,12 @@ test('decimalDigitsToWords uses decimalIntegerToWords in grouped mode', t => {
     decimalSeparatorWord = 'point'
     zeroWord = 'zero'
 
-    integerToWords (n) {
-      return `whole-${n}`
+    integerToWords (integerPart) {
+      return `whole-${integerPart}`
     }
 
-    decimalIntegerToWords (n) {
-      return `decimal-${n}`
+    decimalIntegerToWords (integerPart) {
+      return `decimal-${integerPart}`
     }
   }
 
@@ -260,12 +260,12 @@ test('full decimal conversion uses decimalIntegerToWords', t => {
     decimalSeparatorWord = 'point'
     zeroWord = 'zero'
 
-    integerToWords (n) {
-      return `whole-${n}`
+    integerToWords (integerPart) {
+      return `whole-${integerPart}`
     }
 
-    decimalIntegerToWords (n) {
-      return `decimal-${n}`
+    decimalIntegerToWords (integerPart) {
+      return `decimal-${integerPart}`
     }
   }
 
@@ -282,12 +282,12 @@ test('decimalIntegerToWords with per-digit mode uses hook for each digit', t => 
     zeroWord = 'zero'
     usePerDigitDecimals = true
 
-    integerToWords (n) {
-      return `whole-${n}`
+    integerToWords (integerPart) {
+      return `whole-${integerPart}`
     }
 
-    decimalIntegerToWords (n) {
-      return `d${n}`
+    decimalIntegerToWords (integerPart) {
+      return `d${integerPart}`
     }
   }
 

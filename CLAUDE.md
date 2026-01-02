@@ -120,28 +120,27 @@ AbstractLanguage (base)
 **Responsibilities:**
 
 - Receives pre-validated and normalized input from `makeConverter()` (the public API wrapper)
-- Caches the whole number for languages that need it (e.g., Czech, Hebrew pluralization)
 - Handles negative numbers (prepends `negativeWord`)
 - Converts decimal parts via `decimalDigitsToWords()`
-- Delegates whole number conversion to `integerToWords()`
+- Delegates integer part conversion to `integerToWords()`
 
 **Note:** Input validation and normalization happen at the public API boundary in `lib/n2words.js`.
 The `makeConverter()` wrapper handles type checking, format validation, sign detection, and
-whole/decimal extraction before calling `toWords()` on the language class.
+integer/decimal extraction before calling `toWords()` on the language class.
 
 **Required properties subclasses must provide:**
 
 ```javascript
 negativeWord = ''           // Word for negative (e.g., "minus")
 zeroWord = ''              // Word for zero
-decimalSeparatorWord = ''  // Word between whole and decimal (e.g., "point")
+decimalSeparatorWord = ''  // Word between integer and decimal (e.g., "point")
 wordSeparator = ' '        // Separator between words
 ```
 
 **Required methods subclasses must implement:**
 
 ```javascript
-integerToWords(wholeNumber) // bigint → string
+integerToWords(integerPart) // bigint → string
 ```
 
 **Optional properties:**
@@ -156,7 +155,7 @@ wordSeparator = ' '          // Override for CJK languages (empty string)
 ```javascript
 decimalIntegerToWords(n)     // Custom decimal integer conversion (e.g., Romanian masculine)
 decimalDigitsToWords(str)    // Complete decimal conversion override
-toWords(isNeg, whole, dec)   // Override to cache wholeNumber for context (e.g., Czech)
+toWords(isNeg, int, dec)     // Override to cache integerPart for context (e.g., Czech)
 ```
 
 #### GreedyScaleLanguage
@@ -308,9 +307,9 @@ import { English } from './languages/en.js'
 function makeConverter (LanguageClass) {
   return function convertToWords (value, options) {
     // 1. Validate options and input type
-    // 2. Normalize: extract isNegative, wholeNumber, decimalPart
+    // 2. Normalize: extract isNegative, integerPart, decimalPart
     // 3. Delegate to class with pre-processed data
-    return new LanguageClass(options).toWords(isNegative, wholeNumber, decimalPart)
+    return new LanguageClass(options).toWords(isNegative, integerPart, decimalPart)
   }
 }
 
@@ -777,6 +776,9 @@ Some languages use getters for dynamic property values based on runtime state:
 
 ```javascript
 export class Czech extends SlavicLanguage {
+  // Private field to cache integer part for decimal separator selection
+  #integerPart = 0n
+
   constructor(options = {}) {
     super(options)
     // Delete inherited property to allow getter to work
@@ -784,14 +786,20 @@ export class Czech extends SlavicLanguage {
   }
 
   get decimalSeparatorWord() {
-    // Return different separator based on cached whole number
-    if (this.cachedWholeNumber === 0n || this.cachedWholeNumber === 1n) {
+    // Return different separator based on cached integer part
+    if (this.#integerPart === 0n || this.#integerPart === 1n) {
       return 'celá'
-    } else if (this.cachedWholeNumber >= 2n && this.cachedWholeNumber <= 4n) {
+    } else if (this.#integerPart >= 2n && this.#integerPart <= 4n) {
       return 'celé'
     } else {
       return 'celých'
     }
+  }
+
+  // Override toWords to cache integer part before decimal separator is accessed
+  toWords(isNegative, integerPart, decimalPart) {
+    this.#integerPart = integerPart
+    return super.toWords(isNegative, integerPart, decimalPart)
   }
 }
 ```
@@ -928,8 +936,7 @@ import {
 
 1. **BigInt arithmetic**: Use `BigInt` for all scale values to support large numbers
 2. **Greedy algorithm**: Most efficient for scale-based decomposition
-3. **Caching**: AbstractLanguage caches whole number for reuse
-4. **Zero dependencies**: No external libraries, minimal overhead
+3. **Zero dependencies**: No external libraries, minimal overhead
 
 ### Bundle Size
 
@@ -1191,7 +1198,7 @@ Input validation and normalization happen in `makeConverter()` (lib/n2words.js),
 
 - **Decimal-only strings**: `.5` is handled by defaulting whole part to `'0'` → "zero point five"
 - **Whitespace**: Trimmed from string input before processing
-- **Sign handling**: `cachedWholeNumber` is always positive (sign is stripped and handled separately)
+- **Sign handling**: `integerPart` parameter is always non-negative (sign is stripped and handled separately via `isNegative`)
 - **Leading zeros in decimals**: Preserved differently in grouped vs per-digit mode:
   - Per-digit: "0.05" → "zero point zero five"
   - Grouped: "0.05" → "zero point five" (leading zeros may be stripped depending on language)
@@ -1213,7 +1220,7 @@ Input validation and normalization happen in `makeConverter()` (lib/n2words.js),
 
 - **BigInt arithmetic preferred**: SlavicLanguage uses BigInt operations instead of string manipulation in `extractDigits()`
 - **Expensive calculation caching**: Arabic caches `Math.log10()` result to avoid repeated computation
-- **Minimal allocations**: Base classes reuse `cachedWholeNumber` instead of re-parsing
+- **Language-specific caching**: Languages needing context (e.g., Czech) cache `integerPart` via private fields and `toWords()` override
 - **String concatenation**: Most languages use `+` operator; some use array join for better performance with many parts
 
 ## Testing Infrastructure Details
@@ -1429,8 +1436,8 @@ scaleWords = [
 **Solution**: Subclass must implement this abstract method:
 
 ```javascript
-integerToWords(wholeNumber) {
-  if (wholeNumber === 0n) return this.zeroWord
+integerToWords(integerPart) {
+  if (integerPart === 0n) return this.zeroWord
   // Implementation here
 }
 ```
