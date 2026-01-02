@@ -343,11 +343,11 @@ export class ${className} extends ${base.name} {
   /**
    * Convert a whole number (bigint) to words.
    *
-   * @param {bigint} wholeNumber - The number to convert
+   * @param {bigint} integerPart - The number to convert
    * @returns {string} The number in words
    */
-  integerToWords (wholeNumber) {
-    if (wholeNumber === 0n) {
+  integerToWords (integerPart) {
+    if (integerPart === 0n) {
       return this.zeroWord
     }
 
