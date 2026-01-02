@@ -731,12 +731,12 @@ To create a regional variant of an existing language (e.g., Belgian French):
        super(options)
 
        // Modify specific scale words
-       const pairs = [...this.scaleWords]
-       const idx80 = pairs.findIndex(pair => pair[0] === 80n)
-       if (idx80 !== -1) pairs.splice(idx80, 0, [90n, 'nonante'])
-       const idx60 = pairs.findIndex(pair => pair[0] === 60n)
-       if (idx60 !== -1) pairs.splice(idx60, 0, [70n, 'septante'])
-       this.scaleWords = pairs
+       const tuples = [...this.scaleWords]
+       const idx80 = tuples.findIndex(tuple => tuple[0] === 80n)
+       if (idx80 !== -1) tuples.splice(idx80, 0, [90n, 'nonante'])
+       const idx60 = tuples.findIndex(tuple => tuple[0] === 60n)
+       if (idx60 !== -1) tuples.splice(idx60, 0, [70n, 'septante'])
+       this.scaleWords = tuples
      }
    }
    ```

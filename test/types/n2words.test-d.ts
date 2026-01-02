@@ -202,11 +202,11 @@ expectType<string>(DanishConverter(42, { ordFlag: false }))
 // Dutch converter with multiple options
 expectType<string>(DutchConverter(42))
 expectType<string>(DutchConverter(42, { includeOptionalAnd: true }))
-expectType<string>(DutchConverter(42, { noHundredPairs: true }))
+expectType<string>(DutchConverter(42, { noHundredPairing: true }))
 expectType<string>(DutchConverter(42, { accentOne: true }))
 expectType<string>(DutchConverter(42, {
   includeOptionalAnd: true,
-  noHundredPairs: true,
+  noHundredPairing: true,
   accentOne: true
 }))
 

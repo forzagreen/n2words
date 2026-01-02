@@ -170,7 +170,7 @@ Simplified Chinese, Traditional Chinese - Toggle between formal/financial and co
 
 **Other options:**
 
-- Dutch: `includeOptionalAnd`, `accentOne`, `noHundredPairs`
+- Dutch: `includeOptionalAnd`, `accentOne`, `noHundredPairing`
 - French/French Belgium: `withHyphenSeparator`
 - Hebrew (Modern & Biblical): `andWord`
 - Turkish: `dropSpaces`

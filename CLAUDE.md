@@ -352,7 +352,7 @@ Some languages support additional options:
 | Czech            | `gender`              | 'masculine' \| 'feminine'       | Grammatical gender for number forms   |
 | Danish           | `ordFlag`             | boolean                         | Enable ordinal number conversion      |
 | Dutch            | `includeOptionalAnd`  | boolean                         | Include optional "en" separator       |
-| Dutch            | `noHundredPairs`      | boolean                         | Disable comma before hundreds         |
+| Dutch            | `noHundredPairing`    | boolean                         | Disable hundred-pairing               |
 | Dutch            | `accentOne`           | boolean                         | Use accented "één" for one            |
 | French           | `withHyphenSeparator` | boolean                         | Use hyphens vs spaces                 |
 | French Belgium   | `withHyphenSeparator` | boolean                         | Use hyphens vs spaces                 |
@@ -758,12 +758,12 @@ export class FrenchBelgium extends French {
     super(options)
 
     // Modify parent's scaleWords by inserting regional variants
-    const pairs = [...this.scaleWords]
-    const idx80 = pairs.findIndex(pair => pair[0] === 80n)
-    if (idx80 !== -1) pairs.splice(idx80, 0, [90n, 'nonante'])
-    const idx60 = pairs.findIndex(pair => pair[0] === 60n)
-    if (idx60 !== -1) pairs.splice(idx60, 0, [70n, 'septante'])
-    this.scaleWords = pairs
+    const tuples = [...this.scaleWords]
+    const idx80 = tuples.findIndex(tuple => tuple[0] === 80n)
+    if (idx80 !== -1) tuples.splice(idx80, 0, [90n, 'nonante'])
+    const idx60 = tuples.findIndex(tuple => tuple[0] === 60n)
+    if (idx60 !== -1) tuples.splice(idx60, 0, [70n, 'septante'])
+    this.scaleWords = tuples
   }
 }
 ```

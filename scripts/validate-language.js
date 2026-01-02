@@ -724,7 +724,7 @@ function inferDescriptionFromName (name) {
     formal: 'Use formal/financial numerals',
     ordFlag: 'Enable ordinal number conversion',
     includeOptionalAnd: 'Include optional "and" separator',
-    noHundredPairs: 'Disable hundred pairs',
+    noHundredPairing: 'Disable hundred-pairing (e.g., "twelve hundred")',
     accentOne: 'Use accented form for one',
     withHyphenSeparator: 'Use hyphens instead of spaces',
     dropSpaces: 'Remove spaces between words'
@@ -795,7 +795,7 @@ function validateOptionsTypedef (className, constructorBody, n2wordsContent, res
     }
 
     // Validate boolean options
-    const booleanOptions = ['formal', 'ordFlag', 'includeOptionalAnd', 'noHundredPairs', 'accentOne', 'withHyphenSeparator', 'dropSpaces']
+    const booleanOptions = ['formal', 'ordFlag', 'includeOptionalAnd', 'noHundredPairing', 'accentOne', 'withHyphenSeparator', 'dropSpaces']
     if (booleanOptions.includes(def.name)) {
       if (typedefProp.type !== 'boolean') {
         result.warnings.push(`Option "${def.name}" should have boolean type`)
