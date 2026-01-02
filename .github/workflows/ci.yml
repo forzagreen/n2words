@@ -50,7 +50,7 @@ jobs:
         run: npm run lint
 
   test:
-    name: Test (Node ${{ matrix.node }})
+    name: Test (Node ${{ matrix.node }}${{ matrix.coverage && ' + Coverage' || '' }})
     runs-on: ubuntu-latest
     needs: lint
     timeout-minutes: 10
@@ -58,7 +58,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        node: ['20', '22', '25']
+        node: ['20', '22', '24', '25']
+        coverage: [false]
+        include:
+          - node: '24'
+            coverage: true
 
     steps:
       - uses: actions/checkout@v6
@@ -74,81 +78,20 @@ jobs:
       - name: Install dependencies
         run: npm ci --prefer-offline
 
-      - name: Validate languages
-        run: npm run lang:validate
+      - name: Run tests
+        if: ${{ !matrix.coverage }}
+        run: npm test
 
-      - name: Run unit tests
-        run: npm run test:unit
-
-      - name: Run integration tests
-        run: npm run test:integration
-
-  test-web:
-    name: Browser Tests
-    if: ${{ github.event_name != 'push' || github.ref != 'refs/heads/main' }}
-    runs-on: ubuntu-latest
-    needs: lint
-    timeout-minutes: 10
-
-    steps:
-      - uses: actions/checkout@v6
-        with:
-          persist-credentials: false
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v6
-        with:
-          node-version: '24'
-          cache: 'npm'
-
-      - name: Install dependencies
-        run: npm ci --prefer-offline
-
-      - name: Install Playwright browsers
-        run: npx playwright install --with-deps
-
-      - name: Run browser tests
-        run: npm run test:web
-
-      - name: Upload Playwright test results
-        if: failure()
-        uses: actions/upload-artifact@v6
-        with:
-          name: playwright-report
-          path: |
-            playwright-report/
-            test-results/
-          retention-days: 30
-          if-no-files-found: ignore
-
-  test-coverage:
-    name: Test w/ Coverage (Node 24, Ubuntu)
-    runs-on: ubuntu-latest
-    needs: lint
-    timeout-minutes: 10
-
-    steps:
-      - uses: actions/checkout@v6
-        with:
-          persist-credentials: false
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v6
-        with:
-          node-version: '24'
-          cache: 'npm'
-
-      - name: Install dependencies
-        run: npm ci --prefer-offline
-
-      - name: Run all tests with coverage
+      - name: Run tests with coverage
+        if: ${{ matrix.coverage }}
         run: npm run coverage
 
       - name: Check coverage thresholds
+        if: ${{ matrix.coverage }}
         run: npx c8 check-coverage --lines 90 --functions 90 --branches 85 --statements 90
 
-      - name: Generate job summary
-        id: summary
+      - name: Generate coverage summary
+        if: ${{ matrix.coverage }}
         continue-on-error: true
         run: |
           echo "## 📊 Coverage Report" >> $GITHUB_STEP_SUMMARY
@@ -171,13 +114,14 @@ jobs:
           fi
 
       - name: Upload coverage to Coveralls
+        if: ${{ matrix.coverage }}
         uses: coverallsapp/github-action@v2
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           fail-on-error: false
 
       - name: Upload coverage artifacts
-        if: github.event_name == 'pull_request'
+        if: ${{ matrix.coverage && github.event_name == 'push' && github.ref == 'refs/heads/main' }}
         uses: actions/upload-artifact@v6
         with:
           name: coverage-report
@@ -185,15 +129,51 @@ jobs:
           retention-days: 30
           if-no-files-found: ignore
 
+  test-browsers:
+    name: Browser Tests
+    runs-on: ubuntu-latest
+    needs: lint
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci --prefer-offline
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps
+
+      - name: Run browser tests
+        run: npm run test:browsers
+
+      - name: Upload Playwright test results
+        if: failure()
+        uses: actions/upload-artifact@v6
+        with:
+          name: playwright-report
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 30
+          if-no-files-found: ignore
+
   verify:
     name: Verify Package
     runs-on: ubuntu-latest
-    needs: [test, test-web, test-coverage]
+    needs: [test, test-browsers]
     if: |
       !cancelled() &&
       needs.test.result == 'success' &&
-      needs.test-coverage.result == 'success' &&
-      (needs.test-web.result == 'success' || needs.test-web.result == 'skipped')
+      (needs.test-browsers.result == 'success' || needs.test-browsers.result == 'skipped')
     timeout-minutes: 5
 
     steps:
@@ -210,11 +190,17 @@ jobs:
       - name: Install dependencies
         run: npm ci --prefer-offline
 
-      - name: Run type tests
-        run: npm run test:types
+      - name: Build all artifacts
+        run: npm run build
 
-      - name: Run build tests
-        run: npm run test:build
+      - name: Run type tests
+        run: npm run test:types:run
+
+      - name: Run exports tests
+        run: npm run test:exports:run
+
+      - name: Run UMD bundle tests
+        run: npm run test:umd:run
 
       - name: Verify package contents
         run: npm pack --dry-run

@@ -24,7 +24,7 @@ This document provides comprehensive context about the n2words project structure
 npm run lang:add <code>          # Scaffold new language
 npm run lang:validate -- <code>  # Validate language implementation
 npm test                         # Full test suite
-npm run test:web                 # Browser tests (Playwright)
+npm run test:browsers            # Browser tests (Playwright)
 npm run build                    # Build UMD bundles
 ```
 
@@ -387,12 +387,18 @@ The project provides comprehensive npm scripts for all development tasks:
 
 **Testing:**
 
-- `npm test` - Full test suite (validation + unit + integration + types)
-- `npm run test:all` - All tests including browser tests
+- `npm test` - Core test suite (validation + unit + integration)
+- `npm run test:all` - All tests including browser tests (optimized, single build)
 - `npm run test:unit` - Unit tests only
 - `npm run test:integration` - Integration tests only
-- `npm run test:types` - TypeScript type checking
-- `npm run test:web` - Browser tests (Playwright: Chromium, Firefox, WebKit)
+- `npm run test:umd` - UMD bundle tests (includes build:umd)
+- `npm run test:umd:run` - UMD bundle tests only (no build step)
+- `npm run test:types` - TypeScript declaration tests (includes build:types)
+- `npm run test:types:run` - Declaration tests only (no build step)
+- `npm run test:exports` - Package exports validation (includes full build)
+- `npm run test:exports:run` - Exports validation only (no build step)
+- `npm run test:browsers` - Browser tests (includes build:umd)
+- `npm run test:browsers:run` - Browser tests only (no build step)
 - `npm run coverage` - Generate test coverage report
 
 **Language Development:**
@@ -404,7 +410,16 @@ The project provides comprehensive npm scripts for all development tasks:
 
 **Building:**
 
-- `npm run build` - Generate all UMD bundles in dist/
+- `npm run build` - Clean and generate all artifacts (types + UMD bundles)
+- `npm run build:types` - Clean and generate TypeScript declarations
+- `npm run build:types:run` - Generate TypeScript declarations (no clean)
+- `npm run build:umd` - Generate UMD bundles in dist/
+- `npm run build:umd:run` - Generate UMD bundles (atomic, no clean step)
+- `npm run clean` - Remove dist/, coverage, and test artifacts
+- `npm run clean:types` - Remove generated .d.ts files
+- `npm run clean:all` - Remove all generated files
+
+**Note:** Scripts with `:run` suffix are atomic (no dependencies). Use them after a shared build step for efficiency. Regular scripts include their dependencies for standalone use.
 
 **Code Quality:**
 
@@ -418,7 +433,7 @@ The project provides comprehensive npm scripts for all development tasks:
 - `npm run browsers` - Show targeted browser versions
 - `npm run browsers:coverage` - Show global browser coverage
 - `npm run compat:node` - Verify lib/ is ES2022 compatible
-- `npm run compat:web` - Verify dist/ bundles ES version
+- `npm run compat:umd` - Verify dist/ bundles ES version
 
 **Benchmarking:**
 
@@ -497,20 +512,21 @@ npm run lang:validate -- --verbose # Detailed info
 npm test                 # Core tests (validation + unit + integration)
 npm run test:unit        # Unit tests only
 npm run test:integration # Integration tests only
-npm run test:build       # Build tests (UMD bundle validation)
-npm run test:types       # TypeScript type checking
-npm run test:web         # Browser tests (Playwright: Chromium, Firefox, WebKit)
-npm run test:all         # All tests (core + types + build + web)
+npm run test:umd         # UMD bundle tests (validation)
+npm run test:types       # TypeScript declaration tests
+npm run test:exports     # Package exports validation
+npm run test:browsers    # Browser tests (Playwright: Chromium, Firefox, WebKit)
+npm run test:all         # All tests (core + types + exports + umd + browsers)
 ```
 
 **IMPORTANT - Browser Testing:**
 
-- Browser tests (`test:web`) run against **`dist/` UMD bundles**, not `lib/` source
-- Build tests (`test:build`) validate UMD bundle structure, exports, and source maps
+- Browser tests (`test:browsers`) run against **`dist/` UMD bundles**, not `lib/` source
+- UMD tests (`test:umd`) validate UMD bundle structure, exports, and source maps
 - Uses Playwright to test in Chromium, Firefox, and WebKit browsers
 - Browser compatibility claims are based on these `dist/` bundle tests
 - The `lib/` source is ES2022+ and is intended for modern bundlers, not direct browser usage
-- Build artifacts are automatically generated via `pretest:build` and `pretest:web` lifecycle hooks
+- Build artifacts are generated automatically when running `test:umd` or `test:browsers`
 - **First-time setup**: Run `npm run playwright:install` to install browsers
 
 ### Compatibility Verification
@@ -519,8 +535,8 @@ npm run test:all         # All tests (core + types + build + web)
 # Browser compatibility
 npm run browsers            # Show targeted browser versions
 npm run browsers:coverage   # Show global browser coverage (~85.9%)
-npm run compat:web          # Verify dist/ bundle compatibility (ES version check)
-npm run test:web            # Test in real browsers (Chromium, Firefox, WebKit)
+npm run compat:umd          # Verify dist/ bundle compatibility (ES version check)
+npm run test:browsers       # Test in real browsers (Chromium, Firefox, WebKit)
 
 # Node.js compatibility
 npm run compat:node         # Verify lib/ source is ES2022 compatible
@@ -974,7 +990,7 @@ for (const [input, expected, options] of fixtures) {
 
 ### Build Tests
 
-Located in `test/build/` - validate UMD bundle artifacts in `dist/`.
+Located in `test/umd/` - validate UMD bundle artifacts in `dist/`.
 
 **What it validates:**
 
@@ -983,15 +999,15 @@ Located in `test/build/` - validate UMD bundle artifacts in `dist/`.
 - Conversions work correctly
 - Source maps are generated
 
-**Note:** Build artifacts are automatically generated via `pretest:build` lifecycle hook.
+**Note:** The `test:umd` script automatically builds before running tests.
 
 ### Web Tests
 
-Located in `test/web/` - test browser builds (UMD) using Playwright.
+Located in `test/browsers/` - test browser builds (UMD) using Playwright.
 
 ### Type Tests
 
-The project uses a two-layer type testing approach:
+The project uses a three-layer approach for type and export validation:
 
 #### 1. Declaration Generation (`build:types`)
 
@@ -1001,14 +1017,14 @@ The project uses a two-layer type testing approach:
 - Outputs to `lib/` directory (ignored by git, included in npm package)
 - Run with: `npm run build:types`
 
-#### 2. tsd Type Declaration Tests (`test/types/n2words.test-d.ts`)
+#### 2. Type Declaration Tests (`test:types`)
 
 - Tests that generated `.d.ts` files work correctly for TypeScript consumers
 - Uses [tsd](https://github.com/tsdjs/tsd) for type assertion testing
 - Validates all converters have correct type signatures
 - Tests options types (gender, formal, etc.) and input types (number, bigint, string)
 - Ensures invalid usage produces type errors
-- Run with: `npm run test:types:tsd`
+- Run with: `npm run test:types` (includes build) or `npm run test:types:run` (no build)
 
 Example tsd tests:
 
@@ -1025,19 +1041,19 @@ expectError(EnglishConverter(null))
 expectError(ArabicConverter(42, { gender: 'invalid' }))
 ```
 
-#### 3. attw Package Validation (`.attw.json`)
+#### 3. Package Exports Validation (`test:exports`)
 
 - Uses [@arethetypeswrong/cli](https://github.com/arethetypeswrong/arethetypeswrong.github.io) to validate package.json exports
 - Checks module resolution for node10, node16 (CJS/ESM), and bundlers
 - Ensures TypeScript declarations resolve correctly across all module systems
 - Configured to ignore `cjs-resolves-to-esm` (intentional ESM-only design)
-- Run with: `npm run test:types:attw`
+- Run with: `npm run test:exports` (includes build) or `npm run test:exports:run` (no build)
 
 **Why this approach?**
 
 1. **Declaration generation** - Validates JSDoc → `.d.ts` conversion (catches JSDoc errors)
-2. **tsd tests** - Validates generated declarations provide correct types to consumers
-3. **attw validation** - Validates package.json is correctly configured for all module systems
+2. **Type tests** - Validates generated declarations provide correct types to consumers
+3. **Export tests** - Validates package.json is correctly configured for all module systems
 
 Together they guarantee:
 
@@ -1045,10 +1061,11 @@ Together they guarantee:
 - Generated typings provide correct IntelliSense and type safety
 - Package works correctly across all module systems (node10, node16, bundlers)
 
-**Run all type tests:**
+**Run type and export tests:**
 
 ```bash
-npm run test:types  # Runs all three: build:types + tsd + attw
+npm run test:types    # Type declaration tests (builds types first)
+npm run test:exports  # Package exports validation (builds all first)
 ```
 
 ## TypeScript Support
@@ -1297,7 +1314,7 @@ test('handles decimals', t => {
 - Tests all fixture cases (typically 50-200 cases per language)
 - Validates options handling for languages that support them
 
-#### Build Tests ([test/build/](test/build/))
+#### UMD Tests ([test/umd/](test/umd/))
 
 **Purpose**: Validate UMD bundle artifacts in `dist/`
 
@@ -1312,28 +1329,27 @@ test('handles decimals', t => {
 - Conversions produce correct output
 - Source maps are generated and valid
 
-**Note:** Build artifacts are automatically generated via `pretest:build` lifecycle hook.
+**Note:** The `test:umd` script automatically builds before running tests.
 
 #### Type Tests ([test/types/](test/types/))
 
-**Purpose**: Validate JSDoc type annotations using TypeScript compiler
+**Purpose**: Validate TypeScript declarations using tsd
 
 **Key files:**
 
-- `n2words.js` - Type checking test file (imports all converters with type annotations)
-- `tsconfig.json` - TypeScript configuration (strict mode, no emit)
-- Custom wrapper script filters TypeScript output to show only relevant errors
+- `n2words.test-d.ts` - Type assertion tests using tsd
+- `tsd.json` - tsd configuration (ES2022, strict)
 
 **How it works:**
 
 ```bash
-# Runs tsc and filters output
+# Runs tsd to validate type declarations
 npm run test:types
 ```
 
-The test passes if TypeScript reports no type errors in the JSDoc annotations.
+The test passes if all type assertions succeed (valid usage compiles, invalid usage produces errors).
 
-#### Web Tests ([test/web/](test/web/))
+#### Browser Tests ([test/browsers/](test/browsers/))
 
 **Purpose**: Test UMD bundles in real browsers using Playwright
 
@@ -1356,7 +1372,7 @@ The test passes if TypeScript reports no type errors in the JSDoc annotations.
 **Running web tests:**
 
 ```bash
-npm run test:web     # Builds and runs Playwright tests (via pretest:web hook)
+npm run test:browsers  # Builds UMD bundles and runs Playwright tests
 ```
 
 ### Test Fixture Format
@@ -1415,7 +1431,7 @@ export default [
 | `test/fixtures/languages/*.js`         | Test data for each language                             |
 | `test/unit/*.js`                       | Unit tests for classes and methods                      |
 | `test/integration/*.js`                | Integration tests using fixtures                        |
-| `test/web/*.test.js`                   | Browser tests using Playwright                          |
+| `test/browsers/*.test.js`              | Browser tests using Playwright                          |
 | `playwright.config.js`                 | Playwright browser testing configuration                |
 | `test/types/n2words.test-d.ts`         | tsd type declaration tests                              |
 | `tsconfig.json`                        | TypeScript IDE configuration for IntelliSense           |

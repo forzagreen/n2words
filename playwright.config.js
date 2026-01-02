@@ -6,7 +6,7 @@ import { defineConfig, devices } from '@playwright/test'
  */
 export default defineConfig({
   // Test directory
-  testDir: './test/web',
+  testDir: './test/browsers',
 
   // Match only test files in web directory
   testMatch: '*.test.js',
