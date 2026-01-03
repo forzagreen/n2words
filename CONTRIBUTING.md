@@ -589,8 +589,8 @@ npm run test:types:attw   # Validate package.json exports
 # Run all tests including browser tests
 npm run test:all
 
-# Run browser/web tests only (automatically builds via pretest:web hook)
-npm run test:web
+# Run browser tests only (builds UMD bundles first)
+npm run test:browsers
 ```
 
 #### Writing Tests
@@ -818,13 +818,13 @@ The project generates two build targets:
 npm run build
 
 # Run browser tests
-npm run test:web
+npm run test:browsers
 
 # Test specific bundle sizes
 ls -lh dist/
 
 # Verify bundle compatibility
-npm run compat:web
+npm run compat:umd
 ```
 
 **Bundle outputs:**
@@ -852,7 +852,7 @@ This targets ~86% of global users while requiring BigInt support (non-polyfillab
 
 **Testing browser compatibility:**
 
-1. Run Playwright tests: `npm run test:web` (automatically builds via `pretest:web` hook)
+1. Run Playwright tests: `npm run test:browsers` (builds UMD bundles first)
 2. Verify in target browsers manually if needed
 
 **Note**: Browser tests run against `dist/` bundles (not `lib/` source) in Chromium, Firefox, and WebKit.
@@ -1000,19 +1000,15 @@ The project uses a multi-job CI workflow (`ci.yml`) optimized for efficiency:
 **Jobs:**
 
 - **lint** - Linting (JavaScript, Markdown) and security audit
-- **test** - Test matrix (Node 20, 22, 25) running validation, unit, and integration tests
-- **test-web** - Browser tests (Playwright)
-- **test-coverage** - Tests with coverage (Node 24)
+- **test** - Test matrix (Node 20, 22, 24, 25) running validation, unit, and integration tests
+- **test-browsers** - Browser tests (Playwright)
 - **verify** - Type tests, build tests, package verification (runs once after all tests pass)
 
 **Coverage Strategy:**
 
-Coverage is uploaded on:
-
-- Pull requests
-- Pushes to `main` branch
-
-This prevents coverage spam from feature branches while maintaining visibility where it matters.
+- Coverage runs as part of the test matrix (Node 24 with coverage flag)
+- Coverage is uploaded to Coveralls on all PRs and pushes
+- Coverage artifacts are only saved on pushes to `main` branch
 
 #### Viewing CI Results
 
@@ -1033,10 +1029,10 @@ npm audit --audit-level=high      # Security audit
 
 # Static analysis (matches CI verify job)
 npm run test:types                # Type tests
-npm run test:build                # Build tests
+npm run test:umd                  # UMD bundle tests
 
 # Browser tests (optional)
-npm run test:web                  # Browser tests (builds dist/ automatically)
+npm run test:browsers             # Browser tests (builds dist/ automatically)
 ```
 
 #### Testing with Act (Local GitHub Actions)
@@ -1262,7 +1258,7 @@ fnm use lts-latest
 
 ```bash
 # Increase timeout for specific test
-npm run test:web -- --timeout=60s
+npm run test:browsers -- --timeout=60s
 
 # Or increase globally in package.json ava.timeout
 ```
@@ -1420,7 +1416,7 @@ npm run lint
 
 **Solution**:
 
-1. Browser builds are automatically generated via `pretest:web` lifecycle hook
+1. `test:browsers` automatically builds UMD bundles before running tests
 2. Ensure Playwright browsers are installed: `npm run playwright:install`
 3. Check for errors in the test output
 4. Verify `dist/n2words.js` bundle exists after build

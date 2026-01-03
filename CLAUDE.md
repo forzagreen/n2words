@@ -86,9 +86,9 @@ n2words/
 │   ├── fixtures/languages/   # Test data for each language
 │   ├── unit/                 # Unit tests (*.test.js - class tests, edge cases)
 │   ├── integration/          # Integration tests (*.test.* - full conversion workflows)
-│   ├── build/                # Build tests (UMD bundle validation)
+│   ├── umd/                  # UMD bundle validation tests
 │   ├── types/                # TypeScript type checking tests
-│   └── web/                  # Browser tests (Playwright: Chromium, Firefox, WebKit)
+│   └── browsers/             # Browser tests (Playwright: Chromium, Firefox, WebKit)
 ├── bench/                    # Benchmark scripts (perf, memory)
 │   ├── perf.js               # Performance benchmark (uses benchmark.js)
 │   ├── memory.js             # Memory benchmark (requires --expose-gc)
