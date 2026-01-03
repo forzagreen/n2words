@@ -21,6 +21,7 @@ import {
   DutchConverter,
   EnglishConverter,
   FilipinoConverter,
+  FinnishConverter,
   FrenchBelgiumConverter,
   FrenchConverter,
   GermanConverter,
@@ -75,6 +76,7 @@ expectType<string>(EnglishConverter(3.14))
 expectType<string>(AzerbaijaniConverter(42))
 expectType<string>(BanglaConverter(42))
 expectType<string>(FilipinoConverter(42))
+expectType<string>(FinnishConverter(42))
 expectType<string>(GermanConverter(42))
 expectType<string>(GreekConverter(42))
 expectType<string>(GujaratiConverter(42))
