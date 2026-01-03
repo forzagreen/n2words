@@ -81,7 +81,7 @@ The validator (`npm run lang:validate`) checks:
 - [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) - Detailed patterns, examples, edge cases
 - [scripts/README.md](scripts/README.md) - Script usage details
 - [bench/README.md](bench/README.md) - Benchmarking guide
-- [CONTRIBUTING.md](CONTRIBUTING.md) - CI/CD, commit conventions
+- [CONTRIBUTING.md](CONTRIBUTING.md) - Development setup, PR process, code style
 
 ---
 
