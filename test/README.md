@@ -1,5 +1,24 @@
 # Test Suite
 
+## Test Responsibilities
+
+Each test file has a focused responsibility. This prevents overlap and ensures clear coverage.
+
+| Test File                                      | Tests                                           | Does NOT Test          |
+| ---------------------------------------------- | ----------------------------------------------- | ---------------------- |
+| `unit/classes/*.test.js`                       | Base class algorithms with test fixtures        | Real language behavior |
+| `unit/utils/*.test.js`                         | Utility functions in isolation                  | Conversion logic       |
+| `unit/api.test.js`                             | Module structure, exports, alphabetical order   | Conversion correctness |
+| `integration/languages.test.js`                | Language implementations via fixtures           | API-layer validation   |
+| `integration/commonjs-compatibility.test.cjs`  | CJS require() pattern works                     | Conversion correctness |
+| `types/n2words.test-d.ts`                      | TypeScript type declarations                    | Runtime behavior       |
+| `umd/umd-build.test.js`                        | Bundle structure, exports, source maps          | Conversion correctness |
+| `browsers/browsers.test.js`                    | UMD bundle loads in browsers                    | Conversion correctness |
+
+### Conversion Correctness
+
+All conversion correctness testing is centralized in `integration/languages.test.js` using fixtures from `fixtures/languages/`. Other tests verify their specific layer works correctly without duplicating conversion tests.
+
 ## Test Organization
 
 ```text

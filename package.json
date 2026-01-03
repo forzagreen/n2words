@@ -91,8 +91,8 @@
     "coverage": "c8 npm test",
     "lint": "npm run lint:js && npm run lint:md",
     "lint:fix": "npm run lint:js -- --fix && npm run lint:md -- --fix",
-    "lint:js": "standard **/*.{js,cjs,mjs}",
-    "lint:md": "markdownlint-cli2 *.md {bench,scripts,.github}/**/*.md",
+    "lint:js": "standard",
+    "lint:md": "markdownlint-cli2",
     "lang:add": "node scripts/add-language.js",
     "bench:perf": "node bench/perf.js",
     "bench:memory": "node --expose-gc bench/memory.js",
@@ -115,6 +115,11 @@
     "timeout": "30s",
     "concurrency": 8,
     "workerThreads": false
+  },
+  "standard": {
+    "ignore": [
+      "!.vscode/"
+    ]
   },
   "c8": {
     "all": true,
