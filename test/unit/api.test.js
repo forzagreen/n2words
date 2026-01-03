@@ -1,4 +1,5 @@
 import test from 'ava'
+import { readFileSync } from 'node:fs'
 import * as n2words from '../../lib/n2words.js'
 
 /**
@@ -9,7 +10,10 @@ import * as n2words from '../../lib/n2words.js'
  * 2. Input validation (early rejection of invalid inputs at API boundary)
  * 3. Options support (gender, formal, custom separators, etc.)
  * 4. Basic conversion functionality across all languages
+ * 5. Module structure (alphabetical ordering of imports/exports)
  */
+
+const n2wordsContent = readFileSync('./lib/n2words.js', 'utf8')
 
 // ============================================================================
 // Expected Converters (dynamically loaded from n2words entry point)
@@ -476,4 +480,36 @@ test('handles numbers beyond MAX_SAFE_INTEGER using BigInt', t => {
   const result = EnglishConverter(beyondSafe)
   t.is(typeof result, 'string')
   t.true(result.length > 0)
+})
+
+// ============================================================================
+// Module Structure Tests
+// ============================================================================
+
+test('imports are alphabetically ordered', t => {
+  const importSection = n2wordsContent.match(/\/\/ Language Imports[\s\S]*?(?=\/\/ ===)/)?.[0]
+  if (!importSection) {
+    t.pass('No import section marker found')
+    return
+  }
+
+  const imports = [...importSection.matchAll(/import\s+{\s*(\w+)\s*}/g)].map(m => m[1])
+  const sorted = [...imports].sort((a, b) => a.localeCompare(b))
+  t.deepEqual(imports, sorted, 'Language imports should be alphabetically ordered')
+})
+
+test('exports are alphabetically ordered', t => {
+  const exportSection = n2wordsContent.match(/export\s*{([\s\S]*?)}/)?.[1]
+  if (!exportSection) {
+    t.fail('No export section found')
+    return
+  }
+
+  const exports = exportSection
+    .split(',')
+    .map(e => e.trim())
+    .filter(e => e.length > 0)
+
+  const sorted = [...exports].sort((a, b) => a.localeCompare(b))
+  t.deepEqual(exports, sorted, 'Exports should be alphabetically ordered')
 })

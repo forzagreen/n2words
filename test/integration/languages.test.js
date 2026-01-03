@@ -1,19 +1,38 @@
 import test from 'ava'
-import { readdirSync } from 'node:fs'
+import { readdirSync, readFileSync } from 'node:fs'
 import * as n2words from '../../lib/n2words.js'
 
 /**
- * Comprehensive Language-Specific Tests
+ * Comprehensive Language Tests
  *
- * Each language module defines an array of [input, expectedOutput, options] tuples.
- * These tests verify that each language correctly handles a comprehensive set of
- * test cases specific to that language's number formatting rules.
+ * Validates language implementations for both correctness and structure:
+ * - Fixture-based behavioral tests (input → expected output)
+ * - Structural validation (required properties, inheritance, registration)
+ * - Convention checks (BCP 47 naming, scale word ordering)
  *
- * Test files are located in test/fixtures/languages/*.js and are loaded dynamically.
- * Converters are imported from lib/n2words.js (the public API).
- * Files are named with IETF BCP 47 language codes (e.g., 'en.js', 'ar.js', 'fr-BE.js')
- * following international standards for language identification.
+ * Test fixtures are in test/fixtures/languages/*.js
+ * Language files are in lib/languages/*.js
+ * Files use IETF BCP 47 language codes (e.g., 'en.js', 'ar.js', 'fr-BE.js')
  */
+
+// ============================================================================
+// Constants
+// ============================================================================
+
+const VALID_BASE_CLASSES = [
+  'AbstractLanguage',
+  'GreedyScaleLanguage',
+  'HebrewLanguage',
+  'SlavicLanguage',
+  'SouthAsianLanguage',
+  'TurkicLanguage'
+]
+
+const n2wordsContent = readFileSync('./lib/n2words.js', 'utf8')
+
+// ============================================================================
+// Helper Functions
+// ============================================================================
 
 /**
  * Extracts the class name from a language module's exports.
@@ -26,6 +45,29 @@ function getClassNameFromModule (languageModule) {
   const exportNames = Object.keys(languageModule)
   // Language files export exactly one class
   return exportNames.length === 1 ? exportNames[0] : null
+}
+
+/**
+ * Get the effective base class name (handles regional variants).
+ * @param {Function} LanguageClass Language class constructor
+ * @returns {string|null} Base class name
+ */
+function getBaseClassName (LanguageClass) {
+  const proto = Object.getPrototypeOf(LanguageClass)
+  const baseClassName = proto?.name
+
+  if (VALID_BASE_CLASSES.includes(baseClassName)) {
+    return baseClassName
+  }
+
+  // Check grandparent for regional variants (e.g., FrenchBelgium → French → GreedyScaleLanguage)
+  const grandProto = Object.getPrototypeOf(proto)
+  const grandParentClassName = grandProto?.name
+  if (VALID_BASE_CLASSES.includes(grandParentClassName)) {
+    return grandParentClassName
+  }
+
+  return baseClassName
 }
 
 /**
@@ -176,5 +218,69 @@ for (const file of files) {
     if (testFile.length < 10) {
       t.log(`Warning: ${languageCode} has only ${testFile.length} test cases. Consider adding more comprehensive coverage.`)
     }
+
+    // ========================================================================
+    // Structural Validation
+    // ========================================================================
+
+    const LanguageClass = languageModule[className]
+    const instance = new LanguageClass()
+
+    // Valid BCP 47 language code
+    try {
+      const canonical = Intl.getCanonicalLocales(languageCode)
+      t.true(canonical.length > 0, `${languageCode} should be a valid BCP 47 tag`)
+    } catch (error) {
+      t.fail(`Invalid BCP 47 language tag: ${languageCode} (${error.message})`)
+    }
+
+    // Extends valid base class
+    const baseClass = getBaseClassName(LanguageClass)
+    t.true(
+      VALID_BASE_CLASSES.includes(baseClass),
+      `${className} should extend a valid base class, got: ${baseClass}`
+    )
+
+    // Has required properties
+    t.is(typeof instance.negativeWord, 'string', 'negativeWord should be a string')
+    t.is(typeof instance.zeroWord, 'string', 'zeroWord should be a string')
+    t.is(typeof instance.decimalSeparatorWord, 'string', 'decimalSeparatorWord should be a string')
+
+    // integerToWords works
+    t.is(typeof instance.integerToWords, 'function', 'integerToWords should be a function')
+    const zeroResult = instance.integerToWords(0n)
+    t.is(typeof zeroResult, 'string', 'integerToWords(0n) should return a string')
+    t.true(zeroResult.length > 0, 'integerToWords(0n) should return a non-empty string')
+
+    // Registered in n2words.js
+    const importPattern = new RegExp(`import\\s+{\\s*${className}\\s*}\\s+from\\s+['"]\\./languages/${languageCode}\\.js['"]`)
+    t.true(importPattern.test(n2wordsContent), `${className} should be imported in n2words.js`)
+
+    const exportSection = n2wordsContent.match(/export\s*{[\s\S]*?}/)?.[0]
+    t.true(exportSection?.includes(converterName), `${converterName} should be exported from n2words.js`)
+
+    // Scale words ordering (GreedyScaleLanguage/TurkicLanguage only)
+    if ((baseClass === 'GreedyScaleLanguage' || baseClass === 'TurkicLanguage') &&
+        'scaleWords' in instance && Array.isArray(instance.scaleWords)) {
+      let previousValue = Infinity
+      let orderError = null
+      for (let i = 0; i < instance.scaleWords.length; i++) {
+        const [value] = instance.scaleWords[i]
+        if (typeof value === 'bigint' && Number(value) >= previousValue) {
+          orderError = `scaleWords not in descending order at index ${i}`
+          break
+        }
+        previousValue = Number(value)
+      }
+      t.is(orderError, null, orderError || 'scaleWords should be in descending order')
+    }
   })
 }
+
+test('all language files have test fixtures', t => {
+  const languageFiles = readdirSync('./lib/languages').filter(f => f.endsWith('.js'))
+  const fixtureFiles = readdirSync('./test/fixtures/languages').filter(f => f.endsWith('.js'))
+
+  const missingFixtures = languageFiles.filter(f => !fixtureFiles.includes(f))
+  t.deepEqual(missingFixtures, [], `Missing test fixtures for: ${missingFixtures.join(', ')}`)
+})
