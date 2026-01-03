@@ -3,17 +3,18 @@ import { readFileSync, readdirSync } from 'node:fs'
 import * as n2words from '../../lib/n2words.js'
 
 /**
- * Unit Tests for n2words.js (Public API)
+ * Unit Tests for n2words.js (Public API Module Structure)
  *
- * Tests the public API layer - specifically makeConverter() behavior:
- * - Module structure (imports, exports, type annotations)
+ * Tests the lib/n2words.js module structure and makeConverter() behavior:
+ * - Module structure (imports, exports, alphabetical ordering)
+ * - Type annotations (typedefs, converter type hints)
  * - Options validation (plain object or undefined only)
- * - Converter behavior (stateless, isolated)
+ * - Converter behavior (stateless)
  *
- * Note: These tests focus on API-layer concerns only.
+ * Note: These tests focus on API module structure only.
  * - Input parsing/validation → utils/parse-numeric.test.js
  * - Base class behavior → classes/*.test.js
- * - Conversion correctness → integration/languages.test.js
+ * - Language implementation validation → integration/languages.test.js
  */
 
 const n2wordsContent = readFileSync('./lib/n2words.js', 'utf8')
@@ -249,22 +250,4 @@ test('converters are stateless between calls', t => {
 
   t.is(result1, result2)
   t.is(result2, result3)
-})
-
-test('each converter returns non-empty string for basic input', t => {
-  for (const name of Object.keys(n2words)) {
-    const converter = n2words[name]
-    const result = converter(42)
-    t.is(typeof result, 'string', `${name}(42) should return a string`)
-    t.true(result.length > 0, `${name}(42) should return a non-empty string`)
-  }
-})
-
-test('each converter handles zero', t => {
-  for (const name of Object.keys(n2words)) {
-    const converter = n2words[name]
-    const result = converter(0)
-    t.is(typeof result, 'string', `${name}(0) should return a string`)
-    t.true(result.length > 0, `${name}(0) should return a non-empty string`)
-  }
 })
