@@ -1,7 +1,7 @@
 import test from 'ava'
 import { readdirSync } from 'node:fs'
 import { isPlainObject } from '../../lib/utils/is-plain-object.js'
-import { parseNumericValue } from '../../lib/utils/parse-numeric.js'
+import { isValidNumericValue, parseNumericValue } from '../../lib/utils/parse-numeric.js'
 
 /**
  * Language Implementation Tests
@@ -134,12 +134,11 @@ function validateFixture (testFile, languageCode) {
 
     const [input, expected, options] = testCase
 
-    // Validate input type
-    const inputType = typeof input
-    if (inputType !== 'number' && inputType !== 'string' && inputType !== 'bigint') {
+    // Validate input (must be valid numeric value, same as runtime API)
+    if (!isValidNumericValue(input)) {
       return {
         valid: false,
-        error: `Invalid input at index ${i} in ${languageCode}: expected number|string|bigint, got ${inputType}`
+        error: `Invalid input at index ${i} in ${languageCode}: expected valid numeric value (number|string|bigint), got ${typeof input}`
       }
     }
 
