@@ -4,19 +4,29 @@ import { SlavicLanguage } from '../../../lib/classes/slavic-language.js'
 /**
  * Unit Tests for SlavicLanguage
  *
- * Tests Slavic language patterns including:
- * - Three-form pluralization (singular/few/many)
- * - Gender-aware number forms
- * - Chunk-based decomposition
- * - Hundreds, tens, ones patterns
- * - Constructor options (gender option)
+ * Tests the Slavic number construction algorithm:
+ * - Segment-based decomposition (hundreds, tens, ones)
+ * - Gender-aware number forms (masculine/feminine for 1-4)
+ * - Scale word gender (thousands feminine in Russian-style languages)
+ * - Three-form pluralization via pluralize() hook
+ * - omitOneBeforeScale behavior (Polish-style)
+ *
+ * Subclasses must define:
+ * - onesWords, onesFeminineWords, teensWords, twentiesWords, hundredsWords
+ * - pluralForms: mapping segment indices to [singular, few, many]
+ *
+ * Note: The underlying slavicPlural() utility is tested in segment-utils.test.js.
+ * These tests focus on how SlavicLanguage uses pluralization, not the algorithm itself.
  */
 
 // ============================================================================
-// Test Implementation
+// Test Fixtures
 // ============================================================================
 
-// Concrete test implementation
+/**
+ * Minimal fixture with gender support and feminine thousands.
+ * Only includes digits 1-5 since higher digits don't affect gender.
+ */
 class TestSlavicLanguage extends SlavicLanguage {
   negativeWord = 'minus'
   decimalSeparatorWord = 'point'
@@ -27,11 +37,7 @@ class TestSlavicLanguage extends SlavicLanguage {
     2: 'two-m',
     3: 'three-m',
     4: 'four-m',
-    5: 'five',
-    6: 'six',
-    7: 'seven',
-    8: 'eight',
-    9: 'nine'
+    5: 'five'
   }
 
   onesFeminineWords = {
@@ -39,11 +45,7 @@ class TestSlavicLanguage extends SlavicLanguage {
     2: 'two-f',
     3: 'three-f',
     4: 'four-f',
-    5: 'five',
-    6: 'six',
-    7: 'seven',
-    8: 'eight',
-    9: 'nine'
+    5: 'five'
   }
 
   teensWords = {
@@ -52,22 +54,14 @@ class TestSlavicLanguage extends SlavicLanguage {
     2: 'twelve',
     3: 'thirteen',
     4: 'fourteen',
-    5: 'fifteen',
-    6: 'sixteen',
-    7: 'seventeen',
-    8: 'eighteen',
-    9: 'nineteen'
+    5: 'fifteen'
   }
 
   twentiesWords = {
     2: 'twenty',
     3: 'thirty',
     4: 'forty',
-    5: 'fifty',
-    6: 'sixty',
-    7: 'seventy',
-    8: 'eighty',
-    9: 'ninety'
+    5: 'fifty'
   }
 
   hundredsWords = {
@@ -75,11 +69,7 @@ class TestSlavicLanguage extends SlavicLanguage {
     2: 'two-hundred',
     3: 'three-hundred',
     4: 'four-hundred',
-    5: 'five-hundred',
-    6: 'six-hundred',
-    7: 'seven-hundred',
-    8: 'eight-hundred',
-    9: 'nine-hundred'
+    5: 'five-hundred'
   }
 
   pluralForms = {
@@ -88,32 +78,30 @@ class TestSlavicLanguage extends SlavicLanguage {
     3: ['billion-sing', 'billion-few', 'billion-many']
   }
 
-  // Simulate Russian-style feminine thousands for testing
-  scaleGenders = {
-    1: true // thousands are feminine
-  }
+  // Russian-style: thousands are feminine
+  scaleGenders = { 1: true }
+}
+
+/**
+ * Fixture with omitOneBeforeScale enabled (Polish-style).
+ * Says "tysiąc" instead of "jeden tysiąc" for 1000.
+ */
+class TestOmitOneLanguage extends TestSlavicLanguage {
+  omitOneBeforeScale = true
 }
 
 // ============================================================================
-// Basic Conversion Tests
+// integerToWords() - Basic Conversion
 // ============================================================================
 
-test('integerToWords returns zero word for 0', t => {
+test('integerToWords returns zeroWord for 0', t => {
   const lang = new TestSlavicLanguage()
   t.is(lang.integerToWords(0n), 'zero')
 })
 
-test('integerToWords handles single digits with masculine forms', t => {
-  const lang = new TestSlavicLanguage({ gender: 'masculine' })
+test('integerToWords handles single digits', t => {
+  const lang = new TestSlavicLanguage()
   t.is(lang.integerToWords(1n), 'one-m')
-  t.is(lang.integerToWords(2n), 'two-m')
-  t.is(lang.integerToWords(5n), 'five')
-})
-
-test('integerToWords handles single digits with feminine option', t => {
-  const lang = new TestSlavicLanguage({ gender: 'feminine' })
-  t.is(lang.integerToWords(1n), 'one-f')
-  t.is(lang.integerToWords(2n), 'two-f')
   t.is(lang.integerToWords(5n), 'five')
 })
 
@@ -122,15 +110,14 @@ test('integerToWords handles teens (10-19)', t => {
   t.is(lang.integerToWords(10n), 'ten')
   t.is(lang.integerToWords(11n), 'eleven')
   t.is(lang.integerToWords(15n), 'fifteen')
-  t.is(lang.integerToWords(19n), 'nineteen')
 })
 
-test('integerToWords handles twenties', t => {
+test('integerToWords handles twenties and tens', t => {
   const lang = new TestSlavicLanguage()
   t.is(lang.integerToWords(20n), 'twenty')
   t.is(lang.integerToWords(21n), 'twenty one-m')
   t.is(lang.integerToWords(25n), 'twenty five')
-  t.is(lang.integerToWords(99n), 'ninety nine')
+  t.is(lang.integerToWords(53n), 'fifty three-m')
 })
 
 test('integerToWords handles hundreds', t => {
@@ -143,165 +130,178 @@ test('integerToWords handles hundreds', t => {
 test('integerToWords handles hundreds with remainder', t => {
   const lang = new TestSlavicLanguage()
   t.is(lang.integerToWords(123n), 'one-hundred twenty three-m')
-  t.is(lang.integerToWords(456n), 'four-hundred fifty six')
+  t.is(lang.integerToWords(415n), 'four-hundred fifteen')
 })
 
 // ============================================================================
-// Gender Tests
+// integerToWords() - Scale Words and Pluralization
 // ============================================================================
 
-test('integerToWords uses feminine forms for thousands segment', t => {
-  const lang = new TestSlavicLanguage({ gender: 'masculine' })
-  // 1001 = 1 thousand + 1 ones
-  // Thousands segment (1) should use feminine form
-  const result = lang.integerToWords(1001n)
-  t.true(result.includes('one-f')) // Feminine for thousand segment
+test('integerToWords handles thousands with singular form', t => {
+  const lang = new TestSlavicLanguage()
+  const result = lang.integerToWords(1000n)
+  t.true(result.includes('thousand-sing'))
+})
+
+test('integerToWords handles thousands with few form', t => {
+  const lang = new TestSlavicLanguage()
+  const result = lang.integerToWords(2000n)
+  t.true(result.includes('thousand-few'))
+})
+
+test('integerToWords handles thousands with many form', t => {
+  const lang = new TestSlavicLanguage()
+  const result = lang.integerToWords(5000n)
+  t.true(result.includes('thousand-many'))
+})
+
+test('integerToWords handles millions', t => {
+  const lang = new TestSlavicLanguage()
+  t.true(lang.integerToWords(1000000n).includes('million-sing'))
+  t.true(lang.integerToWords(2000000n).includes('million-few'))
+  t.true(lang.integerToWords(5000000n).includes('million-many'))
+})
+
+test('integerToWords handles billions', t => {
+  const lang = new TestSlavicLanguage()
+  const result = lang.integerToWords(1000000000n)
+  t.true(result.includes('billion-sing'))
+})
+
+test('integerToWords skips zero segments', t => {
+  const lang = new TestSlavicLanguage()
+  // 1,000,001 should skip the middle zero segments
+  const result = lang.integerToWords(1000001n)
+  t.false(result.includes('zero'))
+  t.false(result.includes('thousand'))
+  t.true(result.includes('million'))
+  t.true(result.includes('one-m'))
+})
+
+test('integerToWords handles complex numbers', t => {
+  const lang = new TestSlavicLanguage()
+  // 1,234,521 = 1 million, 234 thousand, 521
+  const result = lang.integerToWords(1234521n)
+  t.true(result.includes('million'))
   t.true(result.includes('thousand'))
+  t.true(result.includes('five-hundred'))
+  t.true(result.includes('twenty'))
 })
 
-test('uses ones array when segmentIndex is 0 and gender is masculine', t => {
-  const lang = new TestSlavicLanguage({ gender: 'masculine' })
-  // 1 (segmentIndex 0) should use masculine form
+// ============================================================================
+// Gender System
+// ============================================================================
+
+test('ones segment uses masculine forms by default', t => {
+  const lang = new TestSlavicLanguage()
   t.is(lang.integerToWords(1n), 'one-m')
   t.is(lang.integerToWords(2n), 'two-m')
+  t.is(lang.integerToWords(4n), 'four-m')
 })
 
-test('uses onesFeminine when segmentIndex is 0 and gender is feminine', t => {
+test('ones segment uses feminine forms with gender option', t => {
   const lang = new TestSlavicLanguage({ gender: 'feminine' })
-  // 1 (segmentIndex 0) should use feminine form
   t.is(lang.integerToWords(1n), 'one-f')
   t.is(lang.integerToWords(2n), 'two-f')
+  t.is(lang.integerToWords(4n), 'four-f')
 })
 
-test('thousands segment always uses feminine forms regardless of gender option', t => {
+test('thousands segment uses scaleGenders setting', t => {
+  const lang = new TestSlavicLanguage()
+  // 1000 should use feminine form for "1" because scaleGenders[1] = true
+  const result = lang.integerToWords(1000n)
+  t.true(result.includes('one-f'))
+})
+
+test('thousands segment ignores gender option', t => {
+  // Even with masculine gender option, thousands use scaleGenders
   const langMasc = new TestSlavicLanguage({ gender: 'masculine' })
   const langFem = new TestSlavicLanguage({ gender: 'feminine' })
 
-  // 1001 has segmentIndex 1 for thousands, should use feminine
-  const resultMasc = langMasc.integerToWords(1001n)
-  const resultFem = langFem.integerToWords(1001n)
+  const resultMasc = langMasc.integerToWords(2001n)
+  const resultFem = langFem.integerToWords(2001n)
 
-  t.true(resultMasc.includes('one-f'), 'Thousands segment should use feminine in masculine mode')
-  t.true(resultFem.includes('one-f'), 'Thousands segment should use feminine in feminine mode')
+  // Both should have feminine "two-f" for thousands segment
+  t.true(resultMasc.includes('two-f'))
+  t.true(resultFem.includes('two-f'))
+
+  // But ones segment differs based on gender option
+  t.true(resultMasc.includes('one-m'))
+  t.true(resultFem.includes('one-f'))
+})
+
+test('millions segment uses masculine forms (not in scaleGenders)', t => {
+  const lang = new TestSlavicLanguage()
+  // scaleGenders only has { 1: true }, so millions (index 2) are masculine
+  const result = lang.integerToWords(2000000n)
+  t.true(result.includes('two-m'))
 })
 
 // ============================================================================
-// Pluralization Tests
+// omitOneBeforeScale
 // ============================================================================
 
-test('pluralize returns singular form for 1, 21, 31, etc.', t => {
+test('omitOneBeforeScale omits one before thousands', t => {
+  const lang = new TestOmitOneLanguage()
+  const result = lang.integerToWords(1000n)
+  // Should have "thousand-sing" without "one-f" before it
+  t.true(result.includes('thousand-sing'))
+  t.false(result.includes('one-f'))
+  t.false(result.includes('one-m'))
+})
+
+test('omitOneBeforeScale omits one before millions', t => {
+  const lang = new TestOmitOneLanguage()
+  const result = lang.integerToWords(1000000n)
+  t.true(result.includes('million-sing'))
+  t.false(result.includes('one-m'))
+})
+
+test('omitOneBeforeScale keeps multipliers > 1', t => {
+  const lang = new TestOmitOneLanguage()
+  const result = lang.integerToWords(2000n)
+  t.true(result.includes('two-f'))
+  t.true(result.includes('thousand-few'))
+})
+
+test('omitOneBeforeScale does not affect ones segment', t => {
+  const lang = new TestOmitOneLanguage()
+  // 1001 = 1 thousand + 1
+  const result = lang.integerToWords(1001n)
+  // Should omit "one" before thousand but include "one" in ones segment
+  t.true(result.includes('thousand-sing'))
+  t.true(result.includes('one-m'))
+  // Count occurrences - should have exactly one "one"
+  const matches = result.match(/one-m/g)
+  t.is(matches?.length, 1)
+})
+
+test('omitOneBeforeScale disabled by default', t => {
+  const lang = new TestSlavicLanguage()
+  const result = lang.integerToWords(1000n)
+  // Should have "one-f" before "thousand-sing"
+  t.true(result.includes('one-f'))
+  t.true(result.includes('thousand-sing'))
+})
+
+// ============================================================================
+// pluralize() Hook
+// ============================================================================
+
+test('pluralize delegates to slavicPlural utility', t => {
   const lang = new TestSlavicLanguage()
   const forms = ['sing', 'few', 'many']
 
+  // Just verify the hook works - detailed rules tested in segment-utils.test.js
   t.is(lang.pluralize(1n, forms), 'sing')
-  t.is(lang.pluralize(21n, forms), 'sing')
-  t.is(lang.pluralize(31n, forms), 'sing')
-  t.is(lang.pluralize(101n, forms), 'sing')
-})
-
-test('pluralize returns few form for 2-4, 22-24, etc.', t => {
-  const lang = new TestSlavicLanguage()
-  const forms = ['sing', 'few', 'many']
-
   t.is(lang.pluralize(2n, forms), 'few')
-  t.is(lang.pluralize(3n, forms), 'few')
-  t.is(lang.pluralize(4n, forms), 'few')
-  t.is(lang.pluralize(22n, forms), 'few')
-  t.is(lang.pluralize(23n, forms), 'few')
-  t.is(lang.pluralize(24n, forms), 'few')
-  t.is(lang.pluralize(104n, forms), 'few')
-})
-
-test('pluralize returns many form for 0, 5-20, 25-30, etc.', t => {
-  const lang = new TestSlavicLanguage()
-  const forms = ['sing', 'few', 'many']
-
-  t.is(lang.pluralize(0n, forms), 'many')
   t.is(lang.pluralize(5n, forms), 'many')
-  t.is(lang.pluralize(10n, forms), 'many')
-  t.is(lang.pluralize(11n, forms), 'many') // Special case: 11-19
-  t.is(lang.pluralize(15n, forms), 'many')
-  t.is(lang.pluralize(20n, forms), 'many')
-  t.is(lang.pluralize(25n, forms), 'many')
-  t.is(lang.pluralize(100n, forms), 'many')
-})
-
-test('pluralize handles 11-19 as special case (always many)', t => {
-  const lang = new TestSlavicLanguage()
-  const forms = ['sing', 'few', 'many']
-
-  for (let i = 11; i <= 19; i++) {
-    t.is(lang.pluralize(BigInt(i), forms), 'many', `${i} should use many form`)
-  }
-
-  // Also test 111-119
-  for (let i = 111; i <= 119; i++) {
-    t.is(lang.pluralize(BigInt(i), forms), 'many', `${i} should use many form`)
-  }
-})
-
-test('handles thousands with correct pluralization', t => {
-  const lang = new TestSlavicLanguage()
-
-  // 1000 should use singular form
-  const result1 = lang.integerToWords(1000n)
-  t.true(result1.includes('thousand-sing'))
-
-  // 2000 should use few form
-  const result2 = lang.integerToWords(2000n)
-  t.true(result2.includes('thousand-few'))
-
-  // 5000 should use many form
-  const result5 = lang.integerToWords(5000n)
-  t.true(result5.includes('thousand-many'))
+  t.is(lang.pluralize(11n, forms), 'many') // teens special case
+  t.is(lang.pluralize(21n, forms), 'sing')
 })
 
 // ============================================================================
-// Large Number Tests
-// ============================================================================
-
-test('handles millions with correct pluralization', t => {
-  const lang = new TestSlavicLanguage()
-
-  // 1,000,000
-  const result1 = lang.integerToWords(1000000n)
-  t.true(result1.includes('million-sing'))
-
-  // 2,000,000
-  const result2 = lang.integerToWords(2000000n)
-  t.true(result2.includes('million-few'))
-
-  // 5,000,000
-  const result5 = lang.integerToWords(5000000n)
-  t.true(result5.includes('million-many'))
-})
-
-test('skips zero segments', t => {
-  const lang = new TestSlavicLanguage()
-  // 1,000,001 should skip the middle zero segment
-  const result = lang.integerToWords(1000001n)
-  t.false(result.includes('zero'))
-  t.true(result.includes('million'))
-  t.true(result.includes('one'))
-})
-
-test('handles complex numbers with all components', t => {
-  const lang = new TestSlavicLanguage()
-  // 1,234,567 = 1 million, 234 thousand, 567
-  const result = lang.integerToWords(1234567n)
-  t.true(result.includes('million'))
-  t.true(result.includes('thousand'))
-})
-
-test('handles very large numbers', t => {
-  const lang = new TestSlavicLanguage()
-  // 1 billion
-  const result = lang.integerToWords(1000000000n)
-  t.true(result.includes('billion'))
-})
-
-// ============================================================================
-// Constructor and Options Tests
+// Constructor Options
 // ============================================================================
 
 test('constructor defaults to masculine gender', t => {
@@ -310,15 +310,37 @@ test('constructor defaults to masculine gender', t => {
 })
 
 test('constructor accepts gender option', t => {
-  const langMasc = new TestSlavicLanguage({ gender: 'masculine' })
-  t.is(langMasc.options.gender, 'masculine')
-
-  const langFem = new TestSlavicLanguage({ gender: 'feminine' })
-  t.is(langFem.options.gender, 'feminine')
+  const lang = new TestSlavicLanguage({ gender: 'feminine' })
+  t.is(lang.options.gender, 'feminine')
 })
 
-test('constructor merges default and user options', t => {
-  const lang = new TestSlavicLanguage({ gender: 'feminine', customOption: true })
+test('constructor merges user options with defaults', t => {
+  const lang = new TestSlavicLanguage({ gender: 'feminine', custom: true })
   t.is(lang.options.gender, 'feminine')
-  t.is(lang.options.customOption, true)
+  t.is(lang.options.custom, true)
+})
+
+// ============================================================================
+// Inheritance
+// ============================================================================
+
+test('inherits AbstractLanguage properties', t => {
+  const lang = new TestSlavicLanguage()
+  t.is(lang.negativeWord, 'minus')
+  t.is(lang.decimalSeparatorWord, 'point')
+  t.is(lang.zeroWord, 'zero')
+  t.is(lang.wordSeparator, ' ')
+})
+
+test('inherits toWords from AbstractLanguage', t => {
+  const lang = new TestSlavicLanguage()
+  t.is(typeof lang.toWords, 'function')
+
+  // Handles negatives
+  const negative = lang.toWords(true, 5n)
+  t.true(negative.includes('minus'))
+
+  // Handles decimals
+  const decimal = lang.toWords(false, 3n, '14')
+  t.true(decimal.includes('point'))
 })
