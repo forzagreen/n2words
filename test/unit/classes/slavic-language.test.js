@@ -1,5 +1,5 @@
 import test from 'ava'
-import { SlavicLanguage } from '../../lib/classes/slavic-language.js'
+import { SlavicLanguage } from '../../../lib/classes/slavic-language.js'
 
 /**
  * Unit Tests for SlavicLanguage

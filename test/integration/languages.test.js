@@ -1,11 +1,15 @@
 import test from 'ava'
 import { readdirSync, readFileSync } from 'node:fs'
 import * as n2words from '../../lib/n2words.js'
+import { parseNumericValue } from '../../lib/utils/parse-numeric.js'
 
 /**
  * Comprehensive Language Tests
  *
- * Validates language implementations for both correctness and structure:
+ * Tests language classes directly at the class level by calling toWords()
+ * with pre-parsed input, matching how classes receive data from the API.
+ *
+ * Validates:
  * - Fixture-based behavioral tests (input → expected output)
  * - Structural validation (required properties, inheritance, registration)
  * - Convention checks (BCP 47 naming, scale word ordering)
@@ -172,12 +176,13 @@ for (const file of files) {
       return
     }
 
-    // Get converter from public API
-    const converterName = `${className}Converter`
-    const converter = n2words[converterName]
+    // Get language class for direct testing
+    const LanguageClass = languageModule[className]
 
-    if (!converter) {
-      t.fail(`Converter not found: ${converterName}`)
+    // Verify converter exists in public API (validates registration)
+    const converterName = `${className}Converter`
+    if (!n2words[converterName]) {
+      t.fail(`Converter not found in public API: ${converterName}`)
       return
     }
 
@@ -190,13 +195,18 @@ for (const file of files) {
       return
     }
 
-    // Run test cases with enhanced error reporting
+    // Run test cases by calling class directly with pre-parsed input
     for (let i = 0; i < testFile.length; i++) {
       const testCase = testFile[i]
       const [input, expected, options] = testCase
 
       try {
-        const actual = converter(input, options)
+        // Parse input to normalized form (same as API boundary does)
+        const { isNegative, integerPart, decimalPart } = parseNumericValue(input)
+
+        // Create instance and call toWords() directly
+        const instance = new LanguageClass(options)
+        const actual = instance.toWords(isNegative, integerPart, decimalPart)
 
         // Provide detailed context on failure
         t.is(actual, expected,
@@ -223,7 +233,6 @@ for (const file of files) {
     // Structural Validation
     // ========================================================================
 
-    const LanguageClass = languageModule[className]
     const instance = new LanguageClass()
 
     // Valid BCP 47 language code

@@ -1,5 +1,5 @@
 import test from 'ava'
-import { SouthAsianLanguage } from '../../lib/classes/south-asian-language.js'
+import { SouthAsianLanguage } from '../../../lib/classes/south-asian-language.js'
 
 /**
  * Unit Tests for SouthAsianLanguage

@@ -4,7 +4,10 @@
 
 ```text
 test/
-├── unit/              # Unit tests for base classes and utilities
+├── unit/
+│   ├── classes/       # Base class unit tests
+│   ├── utils/         # Utility unit tests
+│   └── api.test.js    # Public API tests
 ├── integration/       # Integration tests using language fixtures
 ├── umd/               # UMD bundle validation
 ├── types/             # TypeScript declaration tests (tsd)
@@ -15,13 +18,22 @@ test/
 
 ### Unit Tests (`test/unit/`)
 
+**Classes** (`test/unit/classes/`):
+
 - `abstract-language.test.js` - Base class functionality, sign/decimal handling
-- `api.test.js` - Public API, input validation, module structure
 - `greedy-scale-language.test.js` - Scale-based decomposition algorithm
-- `segment-utils.test.js` - Number segmentation utilities
 - `slavic-language.test.js` - Slavic pluralization patterns
 - `south-asian-language.test.js` - Indian numbering system (lakh/crore)
 - `turkic-language.test.js` - Turkish-style implicit "bir" rules
+
+**Utilities** (`test/unit/utils/`):
+
+- `parse-numeric.test.js` - Input parsing, validation, scientific notation
+- `segment-utils.test.js` - Number segmentation utilities
+
+**API** (`test/unit/`):
+
+- `api.test.js` - Converter exports, options, module structure
 
 ### Integration Tests (`test/integration/`)
 
@@ -73,8 +85,9 @@ export default [
 ### Unit Test Pattern
 
 ```javascript
+// test/unit/classes/example.test.js
 import test from 'ava'
-import { AbstractLanguage } from '../../lib/classes/abstract-language.js'
+import { AbstractLanguage } from '../../../lib/classes/abstract-language.js'
 
 class TestLanguage extends AbstractLanguage {
   negativeWord = 'minus'

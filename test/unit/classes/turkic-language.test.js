@@ -1,5 +1,5 @@
 import test from 'ava'
-import { TurkicLanguage } from '../../lib/classes/turkic-language.js'
+import { TurkicLanguage } from '../../../lib/classes/turkic-language.js'
 
 /**
  * Unit Tests for TurkicLanguage

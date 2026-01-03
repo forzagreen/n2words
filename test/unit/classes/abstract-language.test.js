@@ -1,5 +1,5 @@
 import test from 'ava'
-import { AbstractLanguage } from '../../lib/classes/abstract-language.js'
+import { AbstractLanguage } from '../../../lib/classes/abstract-language.js'
 
 /**
  * Unit Tests for AbstractLanguage

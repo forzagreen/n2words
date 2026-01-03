@@ -78,7 +78,7 @@
     "clean:all": "npm run clean && npm run clean:artifacts",
     "test": "npm run test:unit && npm run test:integration",
     "test:all": "npm test && npm run build && npm run test:types:run && npm run test:exports:run && npm run test:umd:run && npm run test:browsers:run",
-    "test:unit": "ava --verbose test/unit/*.test.js",
+    "test:unit": "ava --verbose \"test/unit/**/*.test.js\"",
     "test:integration": "ava --verbose test/integration/*.test.js",
     "test:umd": "npm run build:umd && npm run test:umd:run",
     "test:umd:run": "ava --verbose test/umd/*.test.js",
@@ -108,7 +108,7 @@
       "cjs"
     ],
     "files": [
-      "test/unit/*",
+      "test/unit/**/*",
       "test/integration/*",
       "test/umd/*"
     ],

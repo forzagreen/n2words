@@ -1,5 +1,5 @@
 import test from 'ava'
-import { GreedyScaleLanguage } from '../../lib/classes/greedy-scale-language.js'
+import { GreedyScaleLanguage } from '../../../lib/classes/greedy-scale-language.js'
 
 /**
  * Unit Tests for GreedyScaleLanguage
