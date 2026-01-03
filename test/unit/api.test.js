@@ -49,7 +49,7 @@ test('all language classes are imported', t => {
   for (const lang of languages) {
     const importPattern = new RegExp(`import\\s*\\{\\s*${lang.className}\\s*\\}\\s*from\\s*['"]\\./languages/${lang.code}\\.js['"]`)
     if (!importPattern.test(n2wordsContent)) {
-      missingImports.push(`${lang.className} (${lang.file})`)
+      missingImports.push(`${lang.className} (${lang.code})`)
     }
   }
 
@@ -76,7 +76,7 @@ test('all language converters are exported', t => {
   for (const lang of languages) {
     const converterName = `${lang.className}Converter`
     if (!exportSection.includes(converterName)) {
-      missingExports.push(`${converterName} (${lang.file})`)
+      missingExports.push(`${converterName} (${lang.code})`)
     }
   }
 
@@ -107,7 +107,7 @@ test('all converters have type annotations', t => {
     const converterName = `${lang.className}Converter`
     const typePattern = new RegExp(`const\\s+${converterName}\\s*=\\s*/\\*\\*\\s*@type\\s*\\{\\(value:\\s*NumericValue`)
     if (!typePattern.test(n2wordsContent)) {
-      missingAnnotations.push(`${converterName} (${lang.file})`)
+      missingAnnotations.push(`${converterName} (${lang.code})`)
     }
   }
 
@@ -123,13 +123,13 @@ test('languages with options have Options typedef and typed converter', t => {
   for (const lang of languages) {
     const typedefPattern = new RegExp(`@typedef\\s*\\{Object\\}\\s*${lang.className}Options`)
     if (!typedefPattern.test(n2wordsContent)) {
-      missingTypedefs.push(`${lang.className}Options (${lang.file})`)
+      missingTypedefs.push(`${lang.className}Options (${lang.code})`)
     }
 
     const converterName = `${lang.className}Converter`
     const optionsPattern = new RegExp(`const\\s+${converterName}\\s*=.*options\\?:\\s*${lang.className}Options`)
     if (!optionsPattern.test(n2wordsContent)) {
-      missingOptionsInConverter.push(`${converterName} (${lang.file})`)
+      missingOptionsInConverter.push(`${converterName} (${lang.code})`)
     }
   }
 

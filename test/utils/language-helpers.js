@@ -1,8 +1,8 @@
 /**
  * Language File Helpers
  *
- * Utilities for working with language files in tests.
- * Provides consistent methods for extracting metadata from language modules and files.
+ * Utilities for working with language files in tests and scripts.
+ * Provides methods for extracting metadata from language files and modules.
  */
 
 import { readFileSync, readdirSync } from 'node:fs'
@@ -26,87 +26,60 @@ export const VALID_BASE_CLASSES = [
 ]
 
 // ============================================================================
-// File-based Helpers (read from file content)
+// File-based Helpers
 // ============================================================================
-
-/**
- * Gets all language file paths.
- *
- * @returns {string[]} Array of language file paths
- */
-export function getLanguageFiles () {
-  return readdirSync(LANGUAGE_DIR)
-    .filter(f => f.endsWith('.js'))
-    .map(f => `${LANGUAGE_DIR}/${f}`)
-}
-
-/**
- * Extracts the class name from a language file by reading its content.
- *
- * @param {string} filePath Path to the language file
- * @returns {string|null} The class name, or null if not found
- */
-export function getClassNameFromFile (filePath) {
-  const content = readFileSync(filePath, 'utf8')
-  const match = content.match(/export\s+class\s+(\w+)/)
-  return match ? match[1] : null
-}
-
-/**
- * Checks if a language file uses options (has setOptions call in constructor).
- *
- * @param {string} filePath Path to the language file
- * @returns {boolean} True if language accepts options
- */
-export function languageHasOptions (filePath) {
-  const content = readFileSync(filePath, 'utf8')
-  return content.includes('this.setOptions(')
-}
 
 /**
  * Gets metadata for all language files.
  *
- * @returns {Array<{file: string, filePath: string, className: string, hasOptions: boolean, code: string}>}
+ * Reads each language file once and extracts:
+ * - code: Language code from filename (e.g., 'en', 'zh-Hans')
+ * - className: Exported class name (e.g., 'English', 'SimplifiedChinese')
+ * - hasOptions: Whether the language accepts options
+ *
+ * @returns {Array<{code: string, className: string, hasOptions: boolean}>}
  */
 export function getLanguageMetadata () {
-  const files = readdirSync(LANGUAGE_DIR).filter(f => f.endsWith('.js'))
+  return readdirSync(LANGUAGE_DIR)
+    .filter(file => file.endsWith('.js'))
+    .map(file => {
+      const code = file.replace('.js', '')
+      const content = readFileSync(`${LANGUAGE_DIR}/${file}`, 'utf8')
 
-  return files.map(file => {
-    const filePath = `${LANGUAGE_DIR}/${file}`
-    const className = getClassNameFromFile(filePath)
-    const hasOptions = languageHasOptions(filePath)
-    const code = file.replace('.js', '')
-    return { file, filePath, className, hasOptions, code }
-  }).filter(lang => lang.className !== null)
+      // Extract class name from export statement
+      const classMatch = content.match(/export\s+class\s+(\w+)/)
+      const className = classMatch ? classMatch[1] : null
+
+      // Check for options support
+      const hasOptions = content.includes('this.setOptions(')
+
+      return { code, className, hasOptions }
+    })
+    .filter(lang => lang.className !== null)
 }
 
 // ============================================================================
-// Module-based Helpers (work with imported modules)
+// Module-based Helpers
 // ============================================================================
 
 /**
- * Extracts the class name from a language module's exports.
- * Language files export a single named class (e.g., `export class English`).
+ * Gets the class name from a language module's exports.
+ *
+ * Language files export exactly one named class.
  *
  * @param {Object} languageModule The imported language module
  * @returns {string|null} The class name, or null if not found
  */
 export function getClassNameFromModule (languageModule) {
   const exportNames = Object.keys(languageModule)
-  // Language files export exactly one class
   return exportNames.length === 1 ? exportNames[0] : null
 }
 
 /**
- * Gets all converter functions from an n2words module.
+ * Gets converter functions from an n2words module.
  *
- * @param {Object} n2wordsModule The imported n2words module (import * as n2words)
+ * @param {Object} n2wordsModule The imported n2words module
  * @returns {Object<string, Function>} Map of converter names to functions
- *
- * @example
- * import * as n2words from '../../lib/n2words.js'
- * const converters = getConverters(n2words)
- * // { EnglishConverter: fn, FrenchConverter: fn, ... }
  */
 export function getConverters (n2wordsModule) {
   const converters = {}
@@ -119,33 +92,28 @@ export function getConverters (n2wordsModule) {
 }
 
 /**
- * Gets the effective base class name for a language class.
- * Handles regional variants by checking grandparent class.
+ * Gets the base class name for a language class.
+ *
+ * Handles regional variants by checking up to grandparent class.
  *
  * @param {Function} LanguageClass Language class constructor
- * @returns {string|null} Base class name, or null if not a valid base
- *
- * @example
- * // Direct inheritance
- * getBaseClassName(English) // 'GreedyScaleLanguage'
- *
- * // Regional variant (FrenchBelgium → French → GreedyScaleLanguage)
- * getBaseClassName(FrenchBelgium) // 'GreedyScaleLanguage'
+ * @returns {string|null} Base class name
  */
 export function getBaseClassName (LanguageClass) {
   const proto = Object.getPrototypeOf(LanguageClass)
-  const baseClassName = proto?.name
+  const parentName = proto?.name
 
-  if (VALID_BASE_CLASSES.includes(baseClassName)) {
-    return baseClassName
+  if (VALID_BASE_CLASSES.includes(parentName)) {
+    return parentName
   }
 
-  // Check grandparent for regional variants
+  // Check grandparent for regional variants (e.g., FrenchBelgium → French → GreedyScaleLanguage)
   const grandProto = Object.getPrototypeOf(proto)
-  const grandParentClassName = grandProto?.name
-  if (VALID_BASE_CLASSES.includes(grandParentClassName)) {
-    return grandParentClassName
+  const grandParentName = grandProto?.name
+
+  if (VALID_BASE_CLASSES.includes(grandParentName)) {
+    return grandParentName
   }
 
-  return baseClassName
+  return parentName
 }
