@@ -1,5 +1,6 @@
 import test from 'ava'
 import { readdirSync } from 'node:fs'
+import { isPlainObject } from '../../lib/utils/is-plain-object.js'
 import { parseNumericValue } from '../../lib/utils/parse-numeric.js'
 
 /**
@@ -150,11 +151,11 @@ function validateFixture (testFile, languageCode) {
       }
     }
 
-    // Validate options if present
-    if (options !== undefined && (typeof options !== 'object' || options === null || Array.isArray(options))) {
+    // Validate options if present (must be plain object, same as runtime API)
+    if (options !== undefined && !isPlainObject(options)) {
       return {
         valid: false,
-        error: `Invalid options at index ${i} in ${languageCode}: expected object or undefined, got ${typeof options}`
+        error: `Invalid options at index ${i} in ${languageCode}: expected plain object or undefined, got ${typeof options}`
       }
     }
   }
