@@ -1112,10 +1112,20 @@ export async function validateLanguage (languageCode) {
 
 /**
  * Display validation results
+ * @param {string} languageCode Language code being validated
+ * @param {object} result Validation result object
+ * @param {boolean} verbose Show detailed info messages
+ * @param {boolean} showAll Show all results including clean passes (default: true)
+ * @returns {boolean} Whether output was displayed
  */
-export function displayResults (languageCode, result, verbose = false) {
+export function displayResults (languageCode, result, verbose = false, showAll = true) {
+  // Skip display if clean pass and not showing all
+  if (!showAll && result.valid && result.warnings.length === 0) {
+    return false
+  }
+
   const header = result.valid
-    ? chalk.green(`✓ ${languageCode}`)
+    ? (result.warnings.length > 0 ? chalk.yellow(`⚠ ${languageCode}`) : chalk.green(`✓ ${languageCode}`))
     : chalk.red(`✗ ${languageCode}`)
 
   console.log(`\n${chalk.bold(header)}`)
@@ -1134,13 +1144,15 @@ export function displayResults (languageCode, result, verbose = false) {
     console.log(chalk.gray('  Info:'))
     result.info.forEach(info => console.log(`    ${chalk.gray(info)}`))
   }
+
+  return true
 }
 
 /**
  * Run validation for specified languages
  */
 export async function runValidation (languageCodes = [], verbose = false) {
-  console.log(chalk.cyan.bold('n2words Language Validator') + '\n')
+  console.log(chalk.cyan.bold('n2words Language Validator'))
 
   if (languageCodes.length === 0) {
     const files = readdirSync('./lib/languages')
@@ -1153,6 +1165,7 @@ export async function runValidation (languageCodes = [], verbose = false) {
   const results = {}
   let totalValid = 0
   let totalInvalid = 0
+  let totalWarnings = 0
 
   for (const code of languageCodes) {
     const result = await validateLanguage(code)
@@ -1160,22 +1173,34 @@ export async function runValidation (languageCodes = [], verbose = false) {
 
     if (result.valid) {
       totalValid++
+      if (result.warnings.length > 0) {
+        totalWarnings++
+      }
     } else {
       totalInvalid++
     }
 
-    displayResults(code, result, verbose)
+    // In default mode, only show failures/warnings; in verbose mode, show all
+    displayResults(code, result, verbose, verbose)
   }
 
   // Summary
   console.log('\n' + chalk.bold('Summary:'))
   console.log('  ' + chalk.green(`Valid: ${totalValid}`))
+  if (totalWarnings > 0) {
+    console.log('  ' + chalk.yellow(`With warnings: ${totalWarnings}`))
+  }
   if (totalInvalid > 0) {
     console.log('  ' + chalk.red(`Invalid: ${totalInvalid}`))
   }
   console.log(`  Total: ${languageCodes.length}`)
 
-  return { results, totalValid, totalInvalid }
+  // Success message when all pass with no warnings
+  if (totalInvalid === 0 && totalWarnings === 0) {
+    console.log(chalk.green('\nAll languages valid ✓'))
+  }
+
+  return { results, totalValid, totalInvalid, totalWarnings }
 }
 
 // Only run CLI if executed directly
