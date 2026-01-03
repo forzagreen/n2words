@@ -131,11 +131,11 @@ function validateClassStructure (LanguageClass, expectedClassName, result) {
  * Validate required properties
  */
 function validateRequiredProperties (instance, result) {
+  // Truly required properties (no defaults in AbstractLanguage)
   const required = {
     negativeWord: 'string',
     zeroWord: 'string',
-    decimalSeparatorWord: 'string',
-    wordSeparator: 'string'
+    decimalSeparatorWord: 'string'
   }
 
   for (const [prop, type] of Object.entries(required)) {
@@ -147,6 +147,17 @@ function validateRequiredProperties (instance, result) {
       result.warnings.push(`Property ${prop} is empty string (may be intentional)`)
     } else {
       result.info.push(`✓ Property ${prop}: "${instance[prop]}"`)
+    }
+  }
+
+  // Optional property with default (wordSeparator defaults to ' ')
+  if ('wordSeparator' in instance) {
+    if (typeof instance.wordSeparator !== 'string') {
+      result.errors.push(`Property wordSeparator should be string, got ${typeof instance.wordSeparator}`)
+    } else if (instance.wordSeparator === '') {
+      result.warnings.push('Property wordSeparator is empty string (may be intentional)')
+    } else {
+      result.info.push(`✓ Property wordSeparator: "${instance.wordSeparator}"`)
     }
   }
 
@@ -328,53 +339,175 @@ function validateBaseClassRequirements (instance, LanguageClass, result) {
         result.info.push(`✓ Has scaleWords (${instance.scaleWords.length} entries)`)
       }
 
-      // Must have combineWordSets method (inherited is ok)
-      if (typeof instance.combineWordSets !== 'function') {
-        result.errors.push(`${baseClass} requires combineWordSets() method`)
+      // Check if class overrides integerToWords (allows skipping combineWordSets)
+      const hasCustomIntegerToWords = Object.prototype.hasOwnProperty.call(
+        LanguageClass.prototype, 'integerToWords'
+      )
+
+      if (hasCustomIntegerToWords) {
+        // Custom implementation bypasses base class greedy algorithm
+        // This is used by Hungarian which has unique number patterns
+        result.warnings.push('Overrides integerToWords() - consider AbstractLanguage instead')
+        result.info.push('✓ Has custom integerToWords() (combineWordSets validation skipped)')
       } else {
-        result.info.push('✓ Has combineWordSets() method')
+        // Must have combineWordSets method (inherited is ok)
+        if (typeof instance.combineWordSets !== 'function') {
+          result.errors.push(`${baseClass} requires combineWordSets() method`)
+        } else {
+          // Smoke test: try combining two simple word-sets
+          try {
+            const testResult = instance.combineWordSets({ twenty: 20n }, { one: 1n })
+            if (typeof testResult !== 'object' || testResult === null) {
+              result.errors.push('combineWordSets() must return an object')
+            } else {
+              const keys = Object.keys(testResult)
+              const values = Object.values(testResult)
+              if (keys.length !== 1 || typeof values[0] !== 'bigint') {
+                result.errors.push('combineWordSets() must return { word: bigint } object')
+              } else {
+                result.info.push('✓ Has combineWordSets() method (tested)')
+              }
+            }
+          } catch (error) {
+            if (error.message.includes('must be implemented by subclass')) {
+              result.errors.push('combineWordSets() not implemented (still abstract)')
+            } else {
+              result.errors.push(`combineWordSets() threw error: ${error.message}`)
+            }
+          }
+        }
       }
       break
     }
 
     case 'SlavicLanguage': {
-      // Must have pluralForms
-      if (!('pluralForms' in instance)) {
-        result.errors.push('SlavicLanguage requires pluralForms object')
-      } else if (typeof instance.pluralForms !== 'object' || Object.keys(instance.pluralForms).length === 0) {
-        result.errors.push('pluralForms must be a non-empty object')
-      } else {
-        result.info.push(`✓ Has pluralForms (${Object.keys(instance.pluralForms).length} scale levels)`)
-      }
+      // Check if class overrides integerToWords (allows custom structure)
+      const hasCustomIntegerToWords = Object.prototype.hasOwnProperty.call(
+        LanguageClass.prototype, 'integerToWords'
+      )
 
-      // Must have onesWords
-      if (!('onesWords' in instance)) {
-        result.errors.push('SlavicLanguage requires onesWords object')
+      if (hasCustomIntegerToWords) {
+        // Custom implementation bypasses base class logic
+        // This is common for Hebrew/Biblical Hebrew which use different structures
+        result.warnings.push('Overrides integerToWords() - may not need SlavicLanguage base class')
+        result.info.push('✓ Has custom integerToWords() (relaxed validation)')
+
+        // Still require onesWords at minimum
+        if (!('onesWords' in instance) || typeof instance.onesWords !== 'object') {
+          result.errors.push('SlavicLanguage requires onesWords object')
+        } else if (Object.keys(instance.onesWords).length === 0) {
+          result.errors.push('onesWords must be non-empty')
+        } else {
+          result.info.push(`✓ Has onesWords (${Object.keys(instance.onesWords).length} entries)`)
+        }
+
+        // Validate other properties exist but don't enforce structure
+        for (const prop of ['teensWords', 'twentiesWords', 'hundredsWords', 'pluralForms']) {
+          if (prop in instance && typeof instance[prop] === 'object') {
+            result.info.push(`✓ Has ${prop} (${Object.keys(instance[prop]).length} entries)`)
+          }
+        }
       } else {
-        result.info.push('✓ Has onesWords')
+        // Standard SlavicLanguage - enforce full structure
+        const requiredDicts = {
+          onesWords: { keys: [1, 2, 3, 4, 5, 6, 7, 8, 9], desc: 'ones (1-9)' },
+          teensWords: { keys: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9], desc: 'teens (10-19)' },
+          twentiesWords: { keys: [2, 3, 4, 5, 6, 7, 8, 9], desc: 'twenties (20-90)' },
+          hundredsWords: { keys: [1, 2, 3, 4, 5, 6, 7, 8, 9], desc: 'hundreds (100-900)' }
+        }
+
+        for (const [prop, { keys, desc }] of Object.entries(requiredDicts)) {
+          if (!(prop in instance)) {
+            result.errors.push(`SlavicLanguage requires ${prop} object`)
+          } else if (typeof instance[prop] !== 'object') {
+            result.errors.push(`${prop} must be an object`)
+          } else {
+            const missing = keys.filter(k => !(k in instance[prop]))
+            if (missing.length > 0) {
+              result.errors.push(`${prop} missing keys: ${missing.join(', ')}`)
+            } else {
+              result.info.push(`✓ Has ${prop} (${desc})`)
+            }
+          }
+        }
+
+        // Optional: onesFeminineWords (only if gender-aware)
+        if ('onesFeminineWords' in instance) {
+          const missing = [1, 2, 3, 4, 5, 6, 7, 8, 9].filter(k => !(k in instance.onesFeminineWords))
+          if (missing.length > 0) {
+            result.warnings.push(`onesFeminineWords missing keys: ${missing.join(', ')}`)
+          } else {
+            result.info.push('✓ Has onesFeminineWords (gender support)')
+          }
+        }
+
+        // pluralForms validation - must be [singular, few, many] triplets
+        if (!('pluralForms' in instance)) {
+          result.errors.push('SlavicLanguage requires pluralForms object')
+        } else if (typeof instance.pluralForms !== 'object') {
+          result.errors.push('pluralForms must be an object')
+        } else {
+          const scales = Object.keys(instance.pluralForms)
+          if (scales.length === 0) {
+            result.errors.push('pluralForms must be non-empty')
+          } else {
+            let hasError = false
+            for (const scale of scales) {
+              const forms = instance.pluralForms[scale]
+              if (!Array.isArray(forms) || forms.length !== 3) {
+                result.errors.push(`pluralForms[${scale}] must be [singular, few, many] array`)
+                hasError = true
+              }
+            }
+            if (!hasError) {
+              result.info.push(`✓ Has pluralForms (${scales.length} scale levels)`)
+            }
+          }
+        }
       }
       break
     }
 
     case 'SouthAsianLanguage': {
-      // Must have belowHundredWords array
+      // belowHundredWords validation
       if (!('belowHundredWords' in instance)) {
         result.errors.push('SouthAsianLanguage requires belowHundredWords array')
       } else if (!Array.isArray(instance.belowHundredWords)) {
         result.errors.push('belowHundredWords must be an array')
-      } else if (instance.belowHundredWords.length < 100) {
-        result.warnings.push(`belowHundredWords has ${instance.belowHundredWords.length} entries (expected 100)`)
+      } else if (instance.belowHundredWords.length !== 100) {
+        result.errors.push(`belowHundredWords must have exactly 100 entries (has ${instance.belowHundredWords.length})`)
       } else {
-        result.info.push(`✓ Has belowHundredWords (${instance.belowHundredWords.length} entries)`)
+        // Validate all entries are non-empty strings
+        const emptyIndices = instance.belowHundredWords
+          .map((w, i) => (typeof w !== 'string' || w === '') ? i : -1)
+          .filter(i => i !== -1)
+        if (emptyIndices.length > 0) {
+          const shown = emptyIndices.slice(0, 5).join(', ')
+          const suffix = emptyIndices.length > 5 ? '...' : ''
+          result.errors.push(`belowHundredWords has empty/invalid entries at indices: ${shown}${suffix}`)
+        } else {
+          result.info.push('✓ Has belowHundredWords (100 entries)')
+        }
       }
 
-      // Must have scaleWords array
+      // hundredWord validation
+      if (!('hundredWord' in instance)) {
+        result.errors.push('SouthAsianLanguage requires hundredWord property')
+      } else if (typeof instance.hundredWord !== 'string' || instance.hundredWord === '') {
+        result.errors.push('hundredWord must be a non-empty string')
+      } else {
+        result.info.push(`✓ Has hundredWord: "${instance.hundredWord}"`)
+      }
+
+      // scaleWords validation (different format than GreedyScaleLanguage)
       if (!('scaleWords' in instance)) {
         result.errors.push('SouthAsianLanguage requires scaleWords array')
-      } else if (!Array.isArray(instance.scaleWords) || instance.scaleWords.length === 0) {
-        result.errors.push('scaleWords must be a non-empty array')
+      } else if (!Array.isArray(instance.scaleWords)) {
+        result.errors.push('scaleWords must be an array')
+      } else if (instance.scaleWords.length < 2) {
+        result.errors.push('scaleWords must have at least 2 entries (empty + thousands)')
       } else {
-        result.info.push(`✓ Has scaleWords (${instance.scaleWords.length} entries)`)
+        result.info.push(`✓ Has scaleWords (${instance.scaleWords.length} scale levels)`)
       }
       break
     }
