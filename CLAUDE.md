@@ -85,4 +85,4 @@ The validator (`npm run lang:validate`) checks:
 
 ---
 
-**Version**: 2.0.0 | **48 languages** | [GitHub](https://github.com/forzagreen/n2words)
+**Version**: 2.0.0 | **49 languages** | [GitHub](https://github.com/forzagreen/n2words)
