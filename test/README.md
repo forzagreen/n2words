@@ -15,12 +15,13 @@ test/
 
 ### Unit Tests (`test/unit/`)
 
-- `abstract-language.test.js` - Base class functionality
-- `api.test.js` - Public API and input validation
-- `greedy-scale-language.test.js` - Scale-based decomposition
+- `abstract-language.test.js` - Base class functionality, sign/decimal handling
+- `api.test.js` - Public API, input validation, module structure
+- `greedy-scale-language.test.js` - Scale-based decomposition algorithm
+- `segment-utils.test.js` - Number segmentation utilities
 - `slavic-language.test.js` - Slavic pluralization patterns
-- `south-asian-language.test.js` - Indian numbering system
-- `turkic-language.test.js` - Turkish-style implicit "bir"
+- `south-asian-language.test.js` - Indian numbering system (lakh/crore)
+- `turkic-language.test.js` - Turkish-style implicit "bir" rules
 
 ### Integration Tests (`test/integration/`)
 
@@ -41,7 +42,7 @@ test/
 ## Running Tests
 
 ```bash
-npm test                    # Core tests (validation + unit + integration)
+npm test                    # Core tests (unit + integration)
 npm run test:all            # Full suite (core + types + build + browser)
 npm run test:unit           # Unit tests only
 npm run test:integration    # Integration tests only

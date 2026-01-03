@@ -108,88 +108,15 @@ test('options affect converter output', t => {
 // Cross-Language Smoke Tests
 // ============================================================================
 
-test('each converter can convert zero', t => {
+test('each converter handles basic values (0, 1, 10, 100, 1000)', t => {
+  const testValues = [0, 1, 10, 100, 1000]
   for (const converterName of expectedConverters) {
     const converter = n2words[converterName]
-    const result = converter(0)
-
-    t.is(
-      typeof result,
-      'string',
-      `${converterName}(0) should return a string`
-    )
-    t.true(
-      result.length > 0,
-      `${converterName}(0) should return a non-empty string`
-    )
-  }
-})
-
-test('each converter can convert one', t => {
-  for (const converterName of expectedConverters) {
-    const converter = n2words[converterName]
-    const result = converter(1)
-
-    t.is(
-      typeof result,
-      'string',
-      `${converterName}(1) should return a string`
-    )
-    t.true(
-      result.length > 0,
-      `${converterName}(1) should return a non-empty string`
-    )
-  }
-})
-
-test('each converter can convert ten', t => {
-  for (const converterName of expectedConverters) {
-    const converter = n2words[converterName]
-    const result = converter(10)
-
-    t.is(
-      typeof result,
-      'string',
-      `${converterName}(10) should return a string`
-    )
-    t.true(
-      result.length > 0,
-      `${converterName}(10) should return a non-empty string`
-    )
-  }
-})
-
-test('each converter can convert one hundred', t => {
-  for (const converterName of expectedConverters) {
-    const converter = n2words[converterName]
-    const result = converter(100)
-
-    t.is(
-      typeof result,
-      'string',
-      `${converterName}(100) should return a string`
-    )
-    t.true(
-      result.length > 0,
-      `${converterName}(100) should return a non-empty string`
-    )
-  }
-})
-
-test('each converter can convert one thousand', t => {
-  for (const converterName of expectedConverters) {
-    const converter = n2words[converterName]
-    const result = converter(1000)
-
-    t.is(
-      typeof result,
-      'string',
-      `${converterName}(1000) should return a string`
-    )
-    t.true(
-      result.length > 0,
-      `${converterName}(1000) should return a non-empty string`
-    )
+    for (const value of testValues) {
+      const result = converter(value)
+      t.is(typeof result, 'string', `${converterName}(${value}) should return a string`)
+      t.true(result.length > 0, `${converterName}(${value}) should return a non-empty string`)
+    }
   }
 })
 

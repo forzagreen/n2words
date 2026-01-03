@@ -1,6 +1,5 @@
 import test from 'ava'
 import { SouthAsianLanguage } from '../../lib/classes/south-asian-language.js'
-import { groupByThreeThenTwos } from '../../lib/utils/segment-utils.js'
 
 /**
  * Unit Tests for SouthAsianLanguage
@@ -40,42 +39,6 @@ class TestSouthAsianLanguage extends SouthAsianLanguage {
   // Index: 0=ones, 1=thousands, 2=lakhs, 3=crores, 4=arabs
   scaleWords = ['', 'thousand', 'lakh', 'crore', 'arab']
 }
-
-// ============================================================================
-// Segmentation Tests
-// ============================================================================
-
-test('groupByThreeThenTwos handles numbers under 1000', t => {
-  t.deepEqual(groupByThreeThenTwos(0n), [0])
-  t.deepEqual(groupByThreeThenTwos(5n), [5])
-  t.deepEqual(groupByThreeThenTwos(99n), [99])
-  t.deepEqual(groupByThreeThenTwos(999n), [999])
-})
-
-test('groupByThreeThenTwos handles thousands (4 digits)', t => {
-  // 1,234 → segments: [1, 234] (last 3, then remaining)
-  t.deepEqual(groupByThreeThenTwos(1234n), [1, 234])
-})
-
-test('groupByThreeThenTwos handles lakhs (6 digits)', t => {
-  // 1,23,456 → segments: [1, 23, 456]
-  t.deepEqual(groupByThreeThenTwos(123456n), [1, 23, 456])
-})
-
-test('groupByThreeThenTwos handles crores (8 digits)', t => {
-  // 1,23,45,678 → segments: [1, 23, 45, 678]
-  t.deepEqual(groupByThreeThenTwos(12345678n), [1, 23, 45, 678])
-})
-
-test('groupByThreeThenTwos handles arabs (10 digits)', t => {
-  // 1,23,45,67,890 → segments: [1, 23, 45, 67, 890]
-  t.deepEqual(groupByThreeThenTwos(1234567890n), [1, 23, 45, 67, 890])
-})
-
-test('groupByThreeThenTwos segments correctly (last 3, then 2s)', t => {
-  // 9,87,65,43,210 → segments: [9, 87, 65, 43, 210] (last 3, then segments of 2)
-  t.deepEqual(groupByThreeThenTwos(9876543210n), [9, 87, 65, 43, 210])
-})
 
 // ============================================================================
 // Segment Conversion Tests
@@ -232,20 +195,4 @@ test('handles edge case of exactly 1 crore', t => {
   const result = lang.integerToWords(10000000n)
   t.true(result.includes('one'))
   t.true(result.includes('crore'))
-})
-
-// ============================================================================
-// Integration Tests
-// ============================================================================
-
-test('integrates with AbstractLanguage for negative numbers', t => {
-  const lang = new TestSouthAsianLanguage()
-  const result = lang.toWords(true, 42n)
-  t.true(result.startsWith('minus'))
-})
-
-test('integrates with AbstractLanguage for decimals', t => {
-  const lang = new TestSouthAsianLanguage()
-  const result = lang.toWords(false, 3n, '14')
-  t.true(result.includes('point'))
 })
