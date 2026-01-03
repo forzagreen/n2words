@@ -17,7 +17,7 @@
         line-height: 1.6;
       }
       .container {
-        max-width: 1200px;
+        max-width: 900px;
         margin: 0 auto;
         background: white;
         border-radius: 8px;
@@ -64,26 +64,14 @@
         font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
         font-size: 13px;
         line-height: 1.8;
-        max-height: 600px;
-        overflow-y: auto;
-      }
-      .test-group {
-        margin-bottom: 20px;
-      }
-      .test-group-title {
-        font-weight: bold;
-        color: #444;
-        margin-bottom: 8px;
-        padding-bottom: 4px;
-        border-bottom: 1px solid #ddd;
       }
       .test-case {
-        padding: 4px 0;
+        padding: 6px 0;
         display: flex;
         align-items: flex-start;
       }
       .test-icon {
-        margin-right: 8px;
+        margin-right: 10px;
         flex-shrink: 0;
       }
       .test-description {
@@ -93,7 +81,7 @@
       .test-details {
         color: #888;
         font-size: 11px;
-        margin-left: 24px;
+        margin-left: 26px;
         margin-top: 2px;
       }
       .pass {
@@ -106,9 +94,6 @@
         margin-top: 20px;
         padding-top: 20px;
         border-top: 2px solid #e0e0e0;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
       }
       .summary-stats {
         font-size: 16px;
@@ -123,7 +108,10 @@
   <body>
     <div class="container">
       <h1>n2words Browser Test Suite</h1>
-      <div class="subtitle">Testing UMD bundles across multiple browsers</div>
+      <div class="subtitle">
+        Tests UMD bundle loading in browser environment.
+        Conversion correctness is tested in languages.test.js.
+      </div>
 
       <div id="status" class="running">⏳ Running tests...</div>
       <div id="results"></div>
@@ -138,32 +126,19 @@
 
       let passCount = 0
       let failCount = 0
-      let output = ''
+      const tests = []
 
-      // Test groups for better organization
-      const testGroups = {
-        basic: [],
-        negative: [],
-        decimal: [],
-        large: [],
-        multiLang: [],
-        bigint: [],
-        error: []
-      }
+      function test(description, testFn) {
+        let passed = false
+        let error = null
 
-      function test(group, description, expected, actual) {
-        const passed = actual === expected
-        const symbol = passed ? '✓' : '✗'
-        const className = passed ? 'pass' : 'fail'
+        try {
+          passed = testFn()
+        } catch (e) {
+          error = e.message
+        }
 
-        testGroups[group].push({
-          passed,
-          symbol,
-          className,
-          description,
-          expected,
-          actual
-        })
+        tests.push({ description, passed, error })
 
         if (passed) {
           passCount++
@@ -172,87 +147,56 @@
         }
       }
 
-      // Basic number tests
-      test('basic', 'EnglishConverter(0)', 'zero', n2words.EnglishConverter(0))
-      test('basic', 'EnglishConverter(1)', 'one', n2words.EnglishConverter(1))
-      test('basic', 'EnglishConverter(42)', 'forty-two', n2words.EnglishConverter(42))
-      test('basic', 'EnglishConverter(100)', 'one hundred', n2words.EnglishConverter(100))
-      test('basic', 'EnglishConverter(1000)', 'one thousand', n2words.EnglishConverter(1000))
-      test('basic', 'EnglishConverter(1234)', 'one thousand two hundred and thirty-four', n2words.EnglishConverter(1234))
+      // ========================================================================
+      // UMD Bundle Loading Tests
+      // ========================================================================
 
-      // Negative numbers
-      test('negative', 'EnglishConverter(-1)', 'minus one', n2words.EnglishConverter(-1))
-      test('negative', 'EnglishConverter(-42)', 'minus forty-two', n2words.EnglishConverter(-42))
+      test('n2words global is defined', () => {
+        return typeof window.n2words === 'object' && window.n2words !== null
+      })
 
-      // Large numbers
-      test('large', 'EnglishConverter(1000000)', 'one million', n2words.EnglishConverter(1000000))
-      test('large', 'EnglishConverter(1234567)', 'one million two hundred and thirty-four thousand five hundred and sixty-seven', n2words.EnglishConverter(1234567))
+      test('All converters are exported as functions', () => {
+        const exports = Object.keys(window.n2words)
+        if (exports.length === 0) return false
 
-      // String input
-      test('basic', 'EnglishConverter("123")', 'one hundred and twenty-three', n2words.EnglishConverter('123'))
-
-      // Decimal numbers
-      test('decimal', 'EnglishConverter("3.14")', 'three point fourteen', n2words.EnglishConverter('3.14'))
-      test('decimal', 'EnglishConverter("0.5")', 'zero point five', n2words.EnglishConverter('0.5'))
-
-      // Multi-language tests
-      test('multiLang', 'SpanishConverter(1)', 'uno', n2words.SpanishConverter(1))
-      test('multiLang', 'SpanishConverter(42)', 'cuarenta y dos', n2words.SpanishConverter(42))
-      test('multiLang', 'SpanishConverter(100)', 'cien', n2words.SpanishConverter(100))
-      test('multiLang', 'FrenchConverter(1)', 'un', n2words.FrenchConverter(1))
-      test('multiLang', 'FrenchConverter(42)', 'quarante-deux', n2words.FrenchConverter(42))
-      test('multiLang', 'FrenchConverter(100)', 'cent', n2words.FrenchConverter(100))
-      test('multiLang', 'GermanConverter(1)', 'eins', n2words.GermanConverter(1))
-      test('multiLang', 'GermanConverter(42)', 'zweiundvierzig', n2words.GermanConverter(42))
-
-      // BigInt support
-      test('bigint', 'EnglishConverter(BigInt(123))', 'one hundred and twenty-three', n2words.EnglishConverter(BigInt(123)))
-      test('multiLang', 'EnglishConverter(5)', 'five', n2words.EnglishConverter(5))
-      test('multiLang', 'SpanishConverter(5)', 'cinco', n2words.SpanishConverter(5))
-      test('multiLang', 'FrenchConverter(5)', 'cinq', n2words.FrenchConverter(5))
-
-      // Error handling - use pattern matching instead of exact string
-      try {
-        const result = n2words.EnglishConverter('invalid')
-        test('error', 'Invalid input throws error', 'Error thrown', 'No error: returned "' + result + '"')
-      } catch (e) {
-        const matchesPattern = /Invalid number format/.test(e.message)
-        test('error', 'Invalid input throws error', 'Error matches pattern', matchesPattern ? 'Error matches pattern' : 'Error: ' + e.message)
-      }
-
-      // Render results
-      const groupTitles = {
-        basic: 'Basic Conversions',
-        negative: 'Negative Numbers',
-        decimal: 'Decimal Numbers',
-        large: 'Large Numbers',
-        bigint: 'BigInt Support',
-        multiLang: 'Multi-Language Support',
-        error: 'Error Handling'
-      }
-
-      for (const [groupName, tests] of Object.entries(testGroups)) {
-        if (tests.length === 0) continue
-
-        output += `<div class="test-group">`
-        output += `<div class="test-group-title">${groupTitles[groupName]}</div>`
-
-        for (const test of tests) {
-          output += `<div class="test-case ${test.className}">`
-          output += `<span class="test-icon">${test.symbol}</span>`
-          output += `<div>`
-          output += `<div class="test-description">${test.description}</div>`
-          if (!test.passed) {
-            output += `<div class="test-details">Expected: "${test.expected}"</div>`
-            output += `<div class="test-details">Got: "${test.actual}"</div>`
-          }
-          output += `</div></div>`
+        for (const name of exports) {
+          if (!name.endsWith('Converter')) return false
+          if (typeof window.n2words[name] !== 'function') return false
         }
+        return true
+      })
 
-        output += `</div>`
+      test('Has multiple converters exported', () => {
+        const count = Object.keys(window.n2words).length
+        return count >= 40 // Sanity check: at least 40 languages
+      })
+
+      test('Sample converter returns string', () => {
+        const result = window.n2words.EnglishConverter(42)
+        return typeof result === 'string' && result.length > 0
+      })
+
+      // ========================================================================
+      // Render Results
+      // ========================================================================
+
+      let output = ''
+
+      for (const t of tests) {
+        const symbol = t.passed ? '✓' : '✗'
+        const className = t.passed ? 'pass' : 'fail'
+
+        output += `<div class="test-case ${className}">`
+        output += `<span class="test-icon">${symbol}</span>`
+        output += `<div>`
+        output += `<div class="test-description">${t.description}</div>`
+        if (!t.passed && t.error) {
+          output += `<div class="test-details">Error: ${t.error}</div>`
+        }
+        output += `</div></div>`
       }
 
-      // Add summary
+      // Summary
       const totalTests = passCount + failCount
       output += `<div class="summary">`
       output += `<div class="summary-stats">`
