@@ -1,16 +1,17 @@
 // Project scopes for commit messages
 const PROJECT_SCOPES = [
-  'core', // lib/n2words.js, lib/classes/*
-  'lang', // lib/languages/* (general language work)
-  'scripts', // scripts/*
-  'types', // TypeScript definitions
-  'utils', // lib/utils/*
-  'docs', // Documentation
-  'test', // Test files and fixtures
+  'bench', // bench/* (benchmarking)
   'build', // Build configuration
   'ci', // CI/CD workflows
+  'core', // lib/n2words.js, lib/classes/*
   'deps', // Dependencies
-  'release' // Release-related changes
+  'docs', // Documentation
+  'lang', // lib/languages/* (general language work)
+  'release', // Release-related changes
+  'scripts', // scripts/*
+  'test', // Test files and fixtures
+  'types', // TypeScript definitions
+  'utils' // lib/utils/*
 ]
 
 // BCP 47 language code pattern (e.g., "en", "fr-BE", "zh-Hans", "sr-Latn")
