@@ -1,201 +1,107 @@
-# Test Suite Documentation
-
-Comprehensive testing guide for the n2words project.
-
-## Table of Contents
-
-- [Test Organization](#test-organization)
-- [Running Tests](#running-tests)
-- [Writing Tests](#writing-tests)
-- [Test Patterns](#test-patterns)
-- [Coverage](#coverage)
-- [Troubleshooting](#troubleshooting)
+# Test Suite
 
 ## Test Organization
-
-The test suite is organized into five categories:
 
 ```text
 test/
 ├── unit/              # Unit tests for base classes and utilities
 ├── integration/       # Integration tests using language fixtures
-├── umd/               # Build artifact validation (UMD bundles)
-├── types/             # TypeScript type declaration tests
-├── browsers/          # Browser compatibility tests (Playwright)
-└── fixtures/          # Test data for language converters
-    └── languages/     # One fixture file per language
+├── umd/               # UMD bundle validation
+├── types/             # TypeScript declaration tests (tsd)
+├── browsers/          # Browser tests (Playwright)
+└── fixtures/
+    └── languages/     # Test data per language
 ```
 
 ### Unit Tests (`test/unit/`)
 
-Test individual classes and methods in isolation:
-
-- **`abstract-language.test.js`** - Base class functionality
-- **`api.test.js`** - Public API and input validation
-- **`greedy-scale-language.test.js`** - Scale-based decomposition
-- **`slavic-language.test.js`** - Slavic pluralization patterns
-- **`south-asian-language.test.js`** - Indian numbering system
-- **`turkic-language.test.js`** - Turkish-style implicit "bir"
+- `abstract-language.test.js` - Base class functionality
+- `api.test.js` - Public API and input validation
+- `greedy-scale-language.test.js` - Scale-based decomposition
+- `slavic-language.test.js` - Slavic pluralization patterns
+- `south-asian-language.test.js` - Indian numbering system
+- `turkic-language.test.js` - Turkish-style implicit "bir"
 
 ### Integration Tests (`test/integration/`)
 
-Test complete conversion workflows:
-
-- **`languages.test.js`** - Comprehensive language-specific tests using fixtures
-
-Each language has a corresponding fixture file in `test/fixtures/languages/`.
+- `languages.test.js` - Language-specific tests using fixtures
 
 ### UMD Tests (`test/umd/`)
 
-Validate UMD bundle artifacts:
-
-- **`umd-build.test.js`** - Bundle structure, exports, functionality, source maps
+- `umd-build.test.js` - Bundle structure, exports, source maps
 
 ### Type Tests (`test/types/`)
 
-Validate TypeScript declarations:
-
-- **`n2words.test-d.ts`** - Type declaration tests using tsd
+- `n2words.test-d.ts` - Type declaration tests using tsd
 
 ### Browser Tests (`test/browsers/`)
 
-Browser compatibility tests using Playwright:
-
-- **`browsers.test.js`** - Multi-browser testing (Chromium, Firefox, WebKit)
-- **`test-runner.html`** - HTML test runner for browser tests
+- `browsers.test.js` - Multi-browser testing (Chromium, Firefox, WebKit)
 
 ## Running Tests
 
-### All Tests
-
 ```bash
-npm test                    # Run core tests (validation + unit + integration)
+npm test                    # Core tests (validation + unit + integration)
 npm run test:all            # Full suite (core + types + build + browser)
-```
-
-### Specific Test Categories
-
-```bash
 npm run test:unit           # Unit tests only
 npm run test:integration    # Integration tests only
-npm run test:umd            # UMD bundle tests (builds dist/ automatically)
-npm run test:types          # TypeScript declaration tests (builds types automatically)
-npm run test:exports        # Package exports validation (builds types automatically)
-npm run test:browsers       # Browser tests (builds dist/ automatically)
-```
-
-### With Coverage
-
-```bash
-npm run coverage            # Run tests with code coverage report
-```
-
-### Watch Mode
-
-```bash
-npx ava --watch             # Run tests in watch mode
+npm run test:umd            # UMD bundle tests (builds first)
+npm run test:types          # TypeScript declaration tests (builds first)
+npm run test:exports        # Package exports validation
+npm run test:browsers       # Browser tests (builds first)
+npm run coverage            # Tests with coverage report
+npx ava --watch             # Watch mode
 ```
 
 ## Writing Tests
+
+### Test Fixture Format
+
+```javascript
+// test/fixtures/languages/{code}.js
+export default [
+  [0, 'zero'],                              // [input, expected]
+  [42, 'forty-two'],
+  [-1, 'minus one'],
+  [3.14, 'three point one four'],
+  [1000000n, 'one million'],                // BigInt
+  [1, 'una', { gender: 'feminine' }]        // With options
+]
+```
 
 ### Unit Test Pattern
 
 ```javascript
 import test from 'ava'
-import { ClassName } from '../../lib/classes/class-name.js'
+import { AbstractLanguage } from '../../lib/classes/abstract-language.js'
 
-/**
- * Unit Tests for ClassName
- *
- * Brief description of what this test suite covers
- */
-
-// Create test implementation if testing abstract class
-class TestClass extends ClassName {
-  // Implement required abstract methods
-}
-
-test('descriptive test name', t => {
-  const instance = new TestClass()
-  t.is(instance.method(), 'expected')
-})
-```
-
-### Integration Test Pattern
-
-Add test cases to `test/fixtures/languages/{code}.js`:
-
-```javascript
-export default [
-  // [input, expectedOutput]
-  [0, 'zero'],
-  [42, 'forty-two'],
-
-  // [input, expectedOutput, options]
-  [1, 'feminine form', { gender: 'feminine' }],
-
-  // BigInt literals
-  [1000000n, 'one million'],
-
-  // Edge cases
-  [-42, 'minus forty-two'],
-  [3.14, 'three point fourteen']
-]
-```
-
-### Type Test Pattern
-
-Add to `test/types/n2words.test-d.ts`:
-
-```typescript
-import { expectType, expectError } from 'tsd'
-import { ConverterName } from '../../lib/n2words.js'
-
-// Valid usage
-expectType<string>(ConverterName(42))
-expectType<string>(ConverterName(42, { option: 'value' }))
-
-// Invalid usage should error
-expectError(ConverterName(null))
-expectError(ConverterName(42, { invalidOption: true }))
-```
-
-## Test Patterns
-
-### Testing Abstract Classes
-
-Create a concrete test implementation:
-
-```javascript
 class TestLanguage extends AbstractLanguage {
   negativeWord = 'minus'
   zeroWord = 'zero'
   decimalSeparatorWord = 'point'
-
-  integerToWords (n) {
-    return `number-${n}`
-  }
+  integerToWords(n) { return n === 0n ? this.zeroWord : String(n) }
 }
-```
 
-### Testing Options
-
-```javascript
-test('constructor accepts gender option', t => {
-  const lang = new TestLanguage({ gender: 'feminine' })
-  t.is(lang.options.gender, 'feminine')
-})
-
-test('options affect output', t => {
-  const masc = converter(1, { gender: 'masculine' })
-  const fem = converter(1, { gender: 'feminine' })
-  t.not(masc, fem)
+test('handles negative numbers', t => {
+  const lang = new TestLanguage()
+  t.is(lang.toWords(true, 42n), 'minus 42')
 })
 ```
 
-### Testing Edge Cases
+### Type Test Pattern
 
-Always test:
+```typescript
+import { expectType, expectError } from 'tsd'
+import { EnglishConverter, ArabicConverter } from '../../lib/n2words.js'
+
+expectType<string>(EnglishConverter(42))
+expectType<string>(ArabicConverter(42, { gender: 'feminine' }))
+expectError(EnglishConverter(null))
+```
+
+## Test Coverage
+
+### Always Test
 
 - Zero (`0`, `0n`, `'0'`)
 - Negative numbers (`-1`, `-42`)
@@ -203,151 +109,20 @@ Always test:
 - BigInt values (`1000000n`)
 - String input (`'42'`, `' 42 '`)
 - Invalid input (should throw)
+- All option combinations (for languages with options)
 
-### Testing Error Conditions
-
-```javascript
-test('throws on invalid input', t => {
-  const error = t.throws(() => converter(null), { instanceOf: TypeError })
-  t.is(error.message, 'Expected error message')
-})
-```
-
-## Coverage
-
-### Viewing Coverage
+### Generating Coverage Reports
 
 ```bash
-npm run coverage            # Generate coverage report
-open coverage/index.html    # Open HTML report (macOS)
-```
-
-### Coverage Configuration
-
-Configuration in `package.json`:
-
-```json
-{
-  "c8": {
-    "all": true,
-    "include": ["lib/"],
-    "reporter": ["lcov", "text"]
-  }
-}
-```
-
-### Coverage Goals
-
-- **Lines**: >95%
-- **Branches**: >90%
-- **Functions**: >95%
-- **Statements**: >95%
-
-## Troubleshooting
-
-### Browser Tests Fail
-
-**Problem**: `npx playwright install` not run
-
-**Solution**:
-
-```bash
-npm run playwright:install
-npm run test:browsers
-```
-
-### Type Tests Fail
-
-**Problem**: TypeScript declarations not generated
-
-**Solution**: The `test:types` script builds automatically, so just run:
-
-```bash
-npm run test:types
-```
-
-If you need to rebuild manually:
-
-```bash
-npm run build:types
-```
-
-### Tests Timeout
-
-**Problem**: Tests take too long on slow machines
-
-**Solution**: Increase timeout in `package.json`:
-
-```json
-{
-  "ava": {
-    "timeout": "60s"
-  }
-}
-```
-
-### Coverage Not Generated
-
-**Problem**: c8 not installed or coverage directory missing
-
-**Solution**:
-
-```bash
-npm ci
 npm run coverage
+# Reports in coverage/ directory
 ```
 
-## Best Practices
+## Adding a New Language
 
-### ✅ Do
-
-- Write descriptive test names
-- Test both happy path and edge cases
-- Use appropriate assertions (`t.is`, `t.deepEqual`, `t.throws`)
-- Group related tests with comments
-- Add JSDoc headers to test files
-- Test error messages, not just that errors are thrown
-
-### ❌ Don't
-
-- Write tests that depend on other tests
-- Use magic numbers without explanation
-- Skip edge case testing
-- Test implementation details (test behavior)
-- Commit coverage artifacts
-
-## Continuous Integration
-
-All tests run automatically on:
-
-- Every push to `master`, `main`, `develop`, or version branches
-- Every pull request
-- Before publishing to npm (via tag)
-
-CI runs tests on:
-
-- **Node.js**: 20, 22, 25 (test matrix) + 24 (coverage job)
-- **OS**: Ubuntu
-- **Browsers**: Chromium, Firefox, WebKit
-
-## Performance Testing
-
-Performance tests are separate from the main test suite:
-
-```bash
-npm run bench:perf          # Performance benchmarks
-npm run bench:memory        # Memory usage benchmarks
-```
-
-See [bench/README.md](../bench/README.md) for details.
-
-## Contributing
-
-When adding a new language:
-
-1. Create fixture file: `test/fixtures/languages/{code}.js`
-2. Add comprehensive test cases (50-200 cases recommended)
+1. Create fixture: `test/fixtures/languages/{code}.js`
+2. Add comprehensive test cases (50-200 recommended)
 3. Run tests: `npm test`
 4. Verify coverage: `npm run coverage`
 
-See [CLAUDE.md](../CLAUDE.md) for complete contribution guidelines.
+See [CONTRIBUTING.md](../CONTRIBUTING.md) for complete guidelines.
