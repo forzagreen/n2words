@@ -1,257 +1,121 @@
 import test from 'ava'
-import { readFileSync } from 'node:fs'
+import { readFileSync, readdirSync } from 'node:fs'
 import * as n2words from '../../lib/n2words.js'
 
 /**
  * Unit Tests for n2words.js (Public API)
  *
- * Tests the public API layer including:
- * 1. Converter exports (all languages properly exported as functions)
- * 2. Options support (gender, formal, custom separators, etc.)
- * 3. Basic conversion functionality via converters
- * 4. Module structure (alphabetical ordering of imports/exports)
+ * Tests the public API layer - specifically makeConverter() behavior:
+ * - Module structure (imports, exports, type annotations)
+ * - Options validation (plain object or undefined only)
+ * - Converter behavior (stateless, isolated)
  *
- * Note: Input parsing and validation is tested in utils/parse-numeric.test.js
+ * Note: These tests focus on API-layer concerns only.
+ * - Input parsing/validation → utils/parse-numeric.test.js
+ * - Base class behavior → classes/*.test.js
+ * - Conversion correctness → integration/languages.test.js
  */
 
 const n2wordsContent = readFileSync('./lib/n2words.js', 'utf8')
 
 // ============================================================================
-// Expected Converters (dynamically loaded from n2words entry point)
+// Helpers
 // ============================================================================
 
-// Dynamically get all converters from the n2words entry point
-// This ensures the test stays in sync with the actual exports
-const expectedConverters = Object.keys(n2words)
-  .filter(name => name.endsWith('Converter'))
-  .sort()
+/**
+ * Gets the exported class name from a language file.
+ */
+function getClassNameFromFile (filePath) {
+  const content = readFileSync(filePath, 'utf8')
+  const match = content.match(/export\s+class\s+(\w+)/)
+  return match ? match[1] : null
+}
+
+/**
+ * Checks if a language file uses options (has setOptions call in constructor).
+ */
+function languageHasOptions (filePath) {
+  const content = readFileSync(filePath, 'utf8')
+  return content.includes('this.setOptions(')
+}
+
+/**
+ * Gets all language files and their metadata.
+ */
+function getLanguageClasses () {
+  const languageDir = './lib/languages'
+  const files = readdirSync(languageDir).filter(f => f.endsWith('.js'))
+
+  return files.map(file => {
+    const filePath = `${languageDir}/${file}`
+    const className = getClassNameFromFile(filePath)
+    const hasOptions = languageHasOptions(filePath)
+    const code = file.replace('.js', '')
+    return { file, filePath, className, hasOptions, code }
+  }).filter(lang => lang.className !== null)
+}
 
 // ============================================================================
-// Converter Export Tests
+// Module Structure
 // ============================================================================
 
-test('all expected language converters are exported as functions', t => {
-  const actualExports = Object.keys(n2words).sort()
+test('all exports are converter functions', t => {
+  const exports = Object.keys(n2words)
 
-  // Verify exact match
-  t.deepEqual(actualExports, expectedConverters, 'All expected converters should be exported')
+  t.true(exports.length > 0, 'Should have exports')
 
-  // Verify each is a function
-  for (const converterName of expectedConverters) {
-    t.is(typeof n2words[converterName], 'function', `${converterName} should be a function`)
+  for (const name of exports) {
+    t.true(name.endsWith('Converter'), `Export "${name}" should end with "Converter"`)
+    t.is(typeof n2words[name], 'function', `${name} should be a function`)
   }
 })
 
-// ============================================================================
-// Basic Functionality Tests (using English as reference)
-// ============================================================================
+test('converter count matches language file count', t => {
+  const languageCount = getLanguageClasses().length
+  const exportCount = Object.keys(n2words).length
 
-test('EnglishConverter converts basic numbers correctly', t => {
-  const { EnglishConverter } = n2words
-  t.is(EnglishConverter(0), 'zero')
-  t.is(EnglishConverter(1), 'one')
-  t.is(EnglishConverter(10), 'ten')
-  t.is(EnglishConverter(21), 'twenty-one')
-  t.is(EnglishConverter(100), 'one hundred')
-  t.is(EnglishConverter(101), 'one hundred and one')
-  t.is(EnglishConverter(1000), 'one thousand')
+  t.is(exportCount, languageCount, `Should have ${languageCount} converters for ${languageCount} languages`)
 })
 
-test('EnglishConverter handles negative numbers', t => {
-  const { EnglishConverter } = n2words
-  t.is(EnglishConverter(-1), 'minus one')
-  t.is(EnglishConverter(-42), 'minus forty-two')
-  t.is(EnglishConverter(-100), 'minus one hundred')
-})
+test('all language classes are imported', t => {
+  const languages = getLanguageClasses()
 
-test('EnglishConverter handles decimal numbers', t => {
-  const { EnglishConverter } = n2words
-  t.is(EnglishConverter(1.5), 'one point five')
-  t.is(EnglishConverter(3.14), 'three point fourteen')
-  t.is(EnglishConverter(0.5), 'zero point five')
-})
-
-test('EnglishConverter handles BigInt values', t => {
-  const { EnglishConverter } = n2words
-  t.is(EnglishConverter(1000000n), 'one million')
-  t.is(EnglishConverter(1000000000n), 'one billion')
-  t.is(EnglishConverter(1000000000000n), 'one trillion')
-})
-
-test('EnglishConverter handles string input', t => {
-  const { EnglishConverter } = n2words
-  t.is(EnglishConverter('42'), 'forty-two')
-  t.is(EnglishConverter('100'), 'one hundred')
-  t.is(EnglishConverter('1000'), 'one thousand')
-})
-
-test('converters accept options parameter', t => {
-  const { EnglishConverter, ArabicConverter } = n2words
-  // Options should be accepted without throwing
-  t.notThrows(() => EnglishConverter(42, {}))
-  t.notThrows(() => EnglishConverter(42, { someOption: true }))
-  t.notThrows(() => ArabicConverter(42, { gender: 'feminine' }))
-})
-
-test('options affect converter output', t => {
-  // Test that options DO change output (without asserting specific option names)
-  const { ArabicConverter } = n2words
-  const withoutOptions = ArabicConverter(1)
-  const withOptions = ArabicConverter(1, { gender: 'feminine' })
-
-  // Options should affect the output
-  t.is(typeof withoutOptions, 'string')
-  t.is(typeof withOptions, 'string')
-  t.not(withoutOptions, withOptions, 'Options should affect output')
-})
-
-// ============================================================================
-// Cross-Language Smoke Tests
-// ============================================================================
-
-test('each converter handles basic values (0, 1, 10, 100, 1000)', t => {
-  const testValues = [0, 1, 10, 100, 1000]
-  for (const converterName of expectedConverters) {
-    const converter = n2words[converterName]
-    for (const value of testValues) {
-      const result = converter(value)
-      t.is(typeof result, 'string', `${converterName}(${value}) should return a string`)
-      t.true(result.length > 0, `${converterName}(${value}) should return a non-empty string`)
+  const missingImports = []
+  for (const lang of languages) {
+    const importPattern = new RegExp(`import\\s*\\{\\s*${lang.className}\\s*\\}\\s*from\\s*['"]\\./languages/${lang.code}\\.js['"]`)
+    if (!importPattern.test(n2wordsContent)) {
+      missingImports.push(`${lang.className} (${lang.file})`)
     }
   }
+
+  t.deepEqual(missingImports, [], `Missing imports: ${missingImports.join(', ')}`)
 })
 
-test('converters return different results for different inputs', t => {
-  const { EnglishConverter } = n2words
-
-  const zero = EnglishConverter(0)
-  const one = EnglishConverter(1)
-  const ten = EnglishConverter(10)
-  const hundred = EnglishConverter(100)
-
-  // All should be different from each other
-  t.not(zero, one)
-  t.not(zero, ten)
-  t.not(zero, hundred)
-  t.not(one, ten)
-  t.not(one, hundred)
-  t.not(ten, hundred)
-})
-
-test('converters are consistent across multiple calls', t => {
-  const { EnglishConverter } = n2words
-
-  const result1 = EnglishConverter(42)
-  const result2 = EnglishConverter(42)
-  const result3 = EnglishConverter(42)
-
-  t.is(result1, result2)
-  t.is(result2, result3)
-  t.is(result1, 'forty-two')
-})
-
-test('converters handle large numbers', t => {
-  const { EnglishConverter } = n2words
-
-  const million = EnglishConverter(1000000)
-  const billion = EnglishConverter(1000000000)
-
-  t.is(typeof million, 'string')
-  t.is(typeof billion, 'string')
-  t.true(million.length > 0)
-  t.true(billion.length > 0)
-  t.not(million, billion)
-})
-
-test('converters handle scientific notation from Number.toString()', t => {
-  const { EnglishConverter } = n2words
-
-  // Numbers >= 1e21 trigger scientific notation in Number.toString()
-  t.is(EnglishConverter(1e21), 'one sextillion')
-  t.is(EnglishConverter(1e22), 'ten sextillion')
-
-  // Numbers < 1e-6 also trigger scientific notation
-  t.is(EnglishConverter(1e-7), 'zero point zero zero zero zero zero zero one')
-  t.is(EnglishConverter(1.5e-7), 'zero point zero zero zero zero zero zero fifteen')
-
-  // Edge cases at boundaries
-  t.is(EnglishConverter(1e20), 'one hundred quintillion') // Just below scientific notation
-  t.is(EnglishConverter(1e-6), 'zero point zero zero zero zero zero one') // At the boundary
-})
-
-test('converters handle scientific notation in string input', t => {
-  const { EnglishConverter } = n2words
-
-  // String input with scientific notation
-  t.is(EnglishConverter('1e21'), 'one sextillion')
-  t.is(EnglishConverter('1E21'), 'one sextillion') // Uppercase E
-  t.is(EnglishConverter('-1e21'), 'minus one sextillion')
-  t.is(EnglishConverter('1.5e3'), 'one thousand five hundred')
-  t.is(EnglishConverter('1e-3'), 'zero point zero zero one')
-})
-
-// ============================================================================
-// Options Inheritance Tests
-// ============================================================================
-//
-// These tests verify that the public API correctly passes options to language
-// classes and that options are properly inherited through base classes.
-//
-// Specific option behaviors are tested in integration tests with fixtures.
-// ============================================================================
-
-test('options are passed to language classes', t => {
-  // Test that options object is successfully passed through the converter
-  const { SimplifiedChineseConverter } = n2words
-
-  // Should not throw when passing options
-  t.notThrows(() => SimplifiedChineseConverter(1, { formal: true }))
-  t.notThrows(() => SimplifiedChineseConverter(1, { formal: false }))
-
-  // Options should affect output
-  const formal = SimplifiedChineseConverter(1, { formal: true })
-  const common = SimplifiedChineseConverter(1, { formal: false })
-  t.not(formal, common, 'Options should affect converter output')
-})
-
-test('options work across different base classes', t => {
-  // Test GreedyScaleLanguage (Spanish)
-  const { SpanishConverter } = n2words
-  const spanishDefault = SpanishConverter(1)
-  const spanishWithOption = SpanishConverter(1, { gender: 'feminine' })
-  t.is(typeof spanishDefault, 'string')
-  t.is(typeof spanishWithOption, 'string')
-
-  // Test SlavicLanguage (Russian)
-  const { RussianConverter } = n2words
-  const russianDefault = RussianConverter(1)
-  const russianWithOption = RussianConverter(1, { gender: 'feminine' })
-  t.is(typeof russianDefault, 'string')
-  t.is(typeof russianWithOption, 'string')
-
-  // Test TurkicLanguage (Turkish)
-  const { TurkishConverter } = n2words
-  const turkishDefault = TurkishConverter(23)
-  const turkishWithOption = TurkishConverter(23, { dropSpaces: true })
-  t.is(typeof turkishDefault, 'string')
-  t.is(typeof turkishWithOption, 'string')
-  t.not(turkishDefault, turkishWithOption, 'Options should change output across base classes')
-})
-
-// ============================================================================
-// Module Structure Tests
-// ============================================================================
-
-test('imports are alphabetically ordered', t => {
+test('language imports are alphabetically ordered', t => {
   const importSection = n2wordsContent.match(/\/\/ Language Imports[\s\S]*?(?=\/\/ ===)/)?.[0]
   if (!importSection) {
-    t.pass('No import section marker found')
+    t.fail('No Language Imports section found')
     return
   }
 
   const imports = [...importSection.matchAll(/import\s+{\s*(\w+)\s*}/g)].map(m => m[1])
   const sorted = [...imports].sort((a, b) => a.localeCompare(b))
   t.deepEqual(imports, sorted, 'Language imports should be alphabetically ordered')
+})
+
+test('all language converters are exported', t => {
+  const languages = getLanguageClasses()
+  const exportSection = n2wordsContent.match(/export\s*{([\s\S]*?)}/)?.[1] || ''
+
+  const missingExports = []
+  for (const lang of languages) {
+    const converterName = `${lang.className}Converter`
+    if (!exportSection.includes(converterName)) {
+      missingExports.push(`${converterName} (${lang.file})`)
+    }
+  }
+
+  t.deepEqual(missingExports, [], `Missing exports: ${missingExports.join(', ')}`)
 })
 
 test('exports are alphabetically ordered', t => {
@@ -268,4 +132,139 @@ test('exports are alphabetically ordered', t => {
 
   const sorted = [...exports].sort((a, b) => a.localeCompare(b))
   t.deepEqual(exports, sorted, 'Exports should be alphabetically ordered')
+})
+
+test('all converters have type annotations', t => {
+  const languages = getLanguageClasses()
+
+  const missingAnnotations = []
+  for (const lang of languages) {
+    const converterName = `${lang.className}Converter`
+    const typePattern = new RegExp(`const\\s+${converterName}\\s*=\\s*/\\*\\*\\s*@type\\s*\\{\\(value:\\s*NumericValue`)
+    if (!typePattern.test(n2wordsContent)) {
+      missingAnnotations.push(`${converterName} (${lang.file})`)
+    }
+  }
+
+  t.deepEqual(missingAnnotations, [], `Missing type annotations: ${missingAnnotations.join(', ')}`)
+})
+
+test('languages with options have Options typedef and typed converter', t => {
+  const languages = getLanguageClasses().filter(lang => lang.hasOptions)
+
+  const missingTypedefs = []
+  const missingOptionsInConverter = []
+
+  for (const lang of languages) {
+    const typedefPattern = new RegExp(`@typedef\\s*\\{Object\\}\\s*${lang.className}Options`)
+    if (!typedefPattern.test(n2wordsContent)) {
+      missingTypedefs.push(`${lang.className}Options (${lang.file})`)
+    }
+
+    const converterName = `${lang.className}Converter`
+    const optionsPattern = new RegExp(`const\\s+${converterName}\\s*=.*options\\?:\\s*${lang.className}Options`)
+    if (!optionsPattern.test(n2wordsContent)) {
+      missingOptionsInConverter.push(`${converterName} (${lang.file})`)
+    }
+  }
+
+  t.deepEqual(missingTypedefs, [], `Missing Options typedefs: ${missingTypedefs.join(', ')}`)
+  t.deepEqual(missingOptionsInConverter, [], `Converters missing options type: ${missingOptionsInConverter.join(', ')}`)
+})
+
+// ============================================================================
+// Options Handling
+// ============================================================================
+
+test('accepts undefined options', t => {
+  const { EnglishConverter } = n2words
+  t.notThrows(() => EnglishConverter(42))
+  t.notThrows(() => EnglishConverter(42, undefined))
+})
+
+test('accepts plain object options', t => {
+  const { EnglishConverter } = n2words
+  t.notThrows(() => EnglishConverter(42, {}))
+  t.notThrows(() => EnglishConverter(42, { someOption: true }))
+})
+
+test('accepts Object.create(null) options', t => {
+  const { EnglishConverter } = n2words
+  const nullProtoOptions = Object.create(null)
+  nullProtoOptions.test = true
+  t.notThrows(() => EnglishConverter(42, nullProtoOptions))
+})
+
+test('rejects non-plain-object options', t => {
+  const { EnglishConverter } = n2words
+
+  // Array
+  t.throws(() => EnglishConverter(42, []), { message: 'options must be a plain object if provided' })
+
+  // Function
+  t.throws(() => EnglishConverter(42, () => {}), { message: 'options must be a plain object if provided' })
+
+  // Class instance
+  class MyClass {}
+  t.throws(() => EnglishConverter(42, new MyClass()), { message: 'options must be a plain object if provided' })
+
+  // Primitives
+  t.throws(() => EnglishConverter(42, 'string'), { message: 'options must be a plain object if provided' })
+  t.throws(() => EnglishConverter(42, 123), { message: 'options must be a plain object if provided' })
+  t.throws(() => EnglishConverter(42, true), { message: 'options must be a plain object if provided' })
+
+  // Null
+  t.throws(() => EnglishConverter(42, null), { message: 'options must be a plain object if provided' })
+})
+
+test('options are passed through to language class', t => {
+  const { ArabicConverter, TurkishConverter, SimplifiedChineseConverter } = n2words
+
+  t.notThrows(() => ArabicConverter(1, { gender: 'feminine' }))
+  t.notThrows(() => TurkishConverter(123, { dropSpaces: true }))
+  t.notThrows(() => SimplifiedChineseConverter(1, { formal: true }))
+})
+
+test('options do not persist between calls', t => {
+  const { ArabicConverter } = n2words
+
+  const withOption = ArabicConverter(1, { gender: 'feminine' })
+  const withoutOption = ArabicConverter(1)
+  const withDefault = ArabicConverter(1, { gender: 'masculine' })
+
+  t.is(withoutOption, withDefault, 'Default call should match explicit default option')
+  t.not(withOption, withoutOption, 'Options should not persist between calls')
+})
+
+// ============================================================================
+// Converter Behavior
+// ============================================================================
+
+test('converters are stateless between calls', t => {
+  const { EnglishConverter } = n2words
+
+  const result1 = EnglishConverter(42)
+  const result2 = EnglishConverter(42)
+  const result3 = EnglishConverter(42)
+
+  t.is(result1, result2)
+  t.is(result2, result3)
+})
+
+test('each converter returns non-empty string for basic input', t => {
+  for (const name of Object.keys(n2words)) {
+    const converter = n2words[name]
+    const result = converter(42)
+    t.is(typeof result, 'string', `${name}(42) should return a string`)
+    t.true(result.length > 0, `${name}(42) should return a non-empty string`)
+  }
+})
+
+test('each converter handles zero', t => {
+  for (const name of Object.keys(n2words)) {
+    const converter = n2words[name]
+    const result = converter(0)
+    t.is(typeof result, 'string', `${name}(0) should return a string`)
+    t.true(result.length > 0, `${name}(0) should return a non-empty string`)
+  }
 })
