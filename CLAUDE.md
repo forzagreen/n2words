@@ -415,9 +415,11 @@ The project provides comprehensive npm scripts for all development tasks:
 - `npm run build:types:run` - Generate TypeScript declarations (no clean)
 - `npm run build:umd` - Generate UMD bundles in dist/
 - `npm run build:umd:run` - Generate UMD bundles (atomic, no clean step)
-- `npm run clean` - Remove dist/, coverage, and test artifacts
+- `npm run clean` - Remove build outputs (dist/ and .d.ts files)
+- `npm run clean:dist` - Remove dist/ only
 - `npm run clean:types` - Remove generated .d.ts files
-- `npm run clean:all` - Remove all generated files
+- `npm run clean:artifacts` - Remove test artifacts (coverage, playwright reports)
+- `npm run clean:all` - Remove all generated files (build outputs + test artifacts)
 
 **Note:** Scripts with `:run` suffix are atomic (no dependencies). Use them after a shared build step for efficiency. Regular scripts include their dependencies for standalone use.
 
