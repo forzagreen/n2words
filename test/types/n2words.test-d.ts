@@ -12,6 +12,7 @@
 import { expectType, expectError, expectAssignable } from 'tsd'
 import {
   AmharicConverter,
+  AmharicLatinConverter,
   ArabicConverter,
   AzerbaijaniConverter,
   BanglaConverter,
@@ -75,6 +76,7 @@ expectType<string>(EnglishConverter(3.14))
 
 // Converters without options - verify they accept value and return string
 expectType<string>(AmharicConverter(42))
+expectType<string>(AmharicLatinConverter(42))
 expectType<string>(AzerbaijaniConverter(42))
 expectType<string>(BanglaConverter(42))
 expectType<string>(FilipinoConverter(42))

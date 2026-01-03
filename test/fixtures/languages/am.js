@@ -1,15 +1,15 @@
 /**
  * Test fixtures for Amharic (am) language
  *
- * Format: [input, expected_output, options?]
+ * Format: [input, expected_output]
  * - input: number, bigint, or string to convert
  * - expected_output: expected string result
- * - options: (optional) converter options object
  *
- * Default script is 'geez' (Ge'ez/Ethiopic script)
+ * Uses native Ge'ez/Ethiopic script.
+ * For Latin romanization, see am-Latn.js
  */
 export default [
-  // Basic numbers (0-10) - Ge'ez script (default)
+  // Basic numbers (0-10) - Ge'ez script
   [0, 'ዜሮ'],
   [1, 'አንድ'],
   [2, 'ሁለት'],
@@ -80,19 +80,5 @@ export default [
   ['0.5', 'ዜሮ ነጥብ አምስት'],
 
   // BigInt
-  [BigInt(999), 'ዘጠኝ መቶ ዘጠና ዘጠኝ'],
-
-  // Latin script option
-  [0, 'zero', { script: 'latin' }],
-  [1, 'and', { script: 'latin' }],
-  [2, 'hulet', { script: 'latin' }],
-  [10, 'asir', { script: 'latin' }],
-  [11, 'asra and', { script: 'latin' }],
-  [20, 'haya', { script: 'latin' }],
-  [21, 'haya and', { script: 'latin' }],
-  [100, 'and meto', { script: 'latin' }],
-  [1000, 'and shi', { script: 'latin' }],
-  [1000000, 'and miliyon', { script: 'latin' }],
-  [-5, 'asitegna amist', { script: 'latin' }],
-  ['3.14', 'sost netib and arat', { script: 'latin' }]
+  [BigInt(999), 'ዘጠኝ መቶ ዘጠና ዘጠኝ']
 ]

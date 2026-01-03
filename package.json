@@ -1,7 +1,7 @@
 {
   "name": "n2words",
   "version": "2.0.0",
-  "description": "Convert numbers to words in 50 languages with zero dependencies. Supports BigInt, decimals, and browser/Node.js environments.",
+  "description": "Convert numbers to words in 51 languages with zero dependencies. Supports BigInt, decimals, and browser/Node.js environments.",
   "keywords": [
     "number-to-words",
     "num2words",
@@ -15,7 +15,7 @@
     "internationalization",
     "localization",
     "multilingual",
-    "50-languages",
+    "51-languages",
     "bigint",
     "esm",
     "typescript",
