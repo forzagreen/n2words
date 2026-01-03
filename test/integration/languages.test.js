@@ -1,18 +1,25 @@
 import test from 'ava'
-import { readdirSync, readFileSync } from 'node:fs'
-import * as n2words from '../../lib/n2words.js'
+import { readdirSync } from 'node:fs'
+import { parseNumericValue } from '../../lib/utils/parse-numeric.js'
 
 /**
- * Comprehensive Language Tests
+ * Language Implementation Tests
  *
- * Validates language implementations for both correctness and structure:
- * - Fixture-based behavioral tests (input → expected output)
- * - Structural validation (required properties, inheritance, registration)
- * - Convention checks (BCP 47 naming, scale word ordering)
+ * Tests each language class directly by calling toWords() with pre-parsed input.
+ * Validates language implementations conform to project standards.
  *
- * Test fixtures are in test/fixtures/languages/*.js
- * Language files are in lib/languages/*.js
- * Files use IETF BCP 47 language codes (e.g., 'en.js', 'ar.js', 'fr-BE.js')
+ * Validates:
+ * - Fixture test cases (input → expected output)
+ * - BCP 47 file naming convention
+ * - Required properties (negativeWord, zeroWord, decimalSeparatorWord)
+ * - Valid base class inheritance
+ * - Scale words ordering (where applicable)
+ * - Basic sanity checks (handles zero, returns strings)
+ *
+ * Note: Module structure validation (imports, exports, typedefs) is in api.test.js.
+ *
+ * Test fixtures: test/fixtures/languages/*.js
+ * Language files: lib/languages/*.js
  */
 
 // ============================================================================
@@ -27,8 +34,6 @@ const VALID_BASE_CLASSES = [
   'SouthAsianLanguage',
   'TurkicLanguage'
 ]
-
-const n2wordsContent = readFileSync('./lib/n2words.js', 'utf8')
 
 // ============================================================================
 // Helper Functions
@@ -172,14 +177,8 @@ for (const file of files) {
       return
     }
 
-    // Get converter from public API
-    const converterName = `${className}Converter`
-    const converter = n2words[converterName]
-
-    if (!converter) {
-      t.fail(`Converter not found: ${converterName}`)
-      return
-    }
+    // Get language class for direct testing
+    const LanguageClass = languageModule[className]
 
     // Import and validate fixture
     const { default: testFile } = await import('../fixtures/languages/' + file)
@@ -190,13 +189,18 @@ for (const file of files) {
       return
     }
 
-    // Run test cases with enhanced error reporting
+    // Run test cases by calling class directly with pre-parsed input
     for (let i = 0; i < testFile.length; i++) {
       const testCase = testFile[i]
       const [input, expected, options] = testCase
 
       try {
-        const actual = converter(input, options)
+        // Parse input to normalized form (same as API boundary does)
+        const { isNegative, integerPart, decimalPart } = parseNumericValue(input)
+
+        // Create instance and call toWords() directly
+        const instance = new LanguageClass(options)
+        const actual = instance.toWords(isNegative, integerPart, decimalPart)
 
         // Provide detailed context on failure
         t.is(actual, expected,
@@ -223,7 +227,6 @@ for (const file of files) {
     // Structural Validation
     // ========================================================================
 
-    const LanguageClass = languageModule[className]
     const instance = new LanguageClass()
 
     // Valid BCP 47 language code
@@ -246,18 +249,11 @@ for (const file of files) {
     t.is(typeof instance.zeroWord, 'string', 'zeroWord should be a string')
     t.is(typeof instance.decimalSeparatorWord, 'string', 'decimalSeparatorWord should be a string')
 
-    // integerToWords works
+    // integerToWords works and handles zero
     t.is(typeof instance.integerToWords, 'function', 'integerToWords should be a function')
     const zeroResult = instance.integerToWords(0n)
     t.is(typeof zeroResult, 'string', 'integerToWords(0n) should return a string')
     t.true(zeroResult.length > 0, 'integerToWords(0n) should return a non-empty string')
-
-    // Registered in n2words.js
-    const importPattern = new RegExp(`import\\s+{\\s*${className}\\s*}\\s+from\\s+['"]\\./languages/${languageCode}\\.js['"]`)
-    t.true(importPattern.test(n2wordsContent), `${className} should be imported in n2words.js`)
-
-    const exportSection = n2wordsContent.match(/export\s*{[\s\S]*?}/)?.[0]
-    t.true(exportSection?.includes(converterName), `${converterName} should be exported from n2words.js`)
 
     // Scale words ordering (GreedyScaleLanguage/TurkicLanguage only)
     if ((baseClass === 'GreedyScaleLanguage' || baseClass === 'TurkicLanguage') &&

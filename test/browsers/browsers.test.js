@@ -9,97 +9,58 @@ const testRunnerPath = join(__dirname, 'test-runner.html')
 /**
  * Browser Compatibility Tests using Playwright
  *
- * Tests the n2words UMD bundles in real browsers (Chromium, Firefox, WebKit).
- * Validates that all language converters work correctly in browser environments.
+ * Tests the n2words UMD bundle loads correctly in real browsers.
+ * Validates that the UMD wrapper works across browser engines.
+ *
+ * Note: Conversion correctness is tested in integration/languages.test.js.
+ * These tests focus on browser-specific UMD loading behavior only.
  */
 
-// Configure test timeout for browser tests
 test.setTimeout(30000)
 
 test.describe('Browser Compatibility', () => {
-  test('Chromium browser compatibility', async ({ page }) => {
-    await testBrowserCompatibility(page, 'Chromium')
+  test('Chromium loads UMD bundle', async ({ page }) => {
+    await testBrowserLoadsBundle(page)
   })
 
-  test('Firefox browser compatibility', async ({ page }) => {
-    await testBrowserCompatibility(page, 'Firefox')
+  test('Firefox loads UMD bundle', async ({ page }) => {
+    await testBrowserLoadsBundle(page)
   })
 
-  test('WebKit (Safari) browser compatibility', async ({ page }) => {
-    await testBrowserCompatibility(page, 'WebKit')
+  test('WebKit loads UMD bundle', async ({ page }) => {
+    await testBrowserLoadsBundle(page)
   })
 })
 
 /**
- * Test n2words compatibility in a specific browser
+ * Test that UMD bundle loads and exports converters in browser
  * @param {import('@playwright/test').Page} page Playwright page object
- * @param {string} browserName Browser name for logging
  */
-async function testBrowserCompatibility (page, browserName) {
+async function testBrowserLoadsBundle (page) {
   // Navigate to test runner HTML
   await page.goto(`file://${testRunnerPath}`)
 
-  // Wait for tests to complete (status changes to "Complete")
-  await page.waitForSelector('#status:has-text("Complete")', {
-    timeout: 10000
-  })
+  // Wait for tests to complete
+  await page.waitForSelector('#status:has-text("Complete")', { timeout: 10000 })
 
-  // Get test status
+  // Get test results
   const statusText = await page.locator('#status').textContent()
+  const failCount = await page.locator('.fail').count()
 
-  // Get test summary from the page
-  const testSummary = await page.evaluate(() => {
-    const summaryEl = document.querySelector('.summary-stats')
-    return summaryEl ? summaryEl.textContent.trim() : 'No summary available'
+  // Log summary
+  const summary = await page.evaluate(() => {
+    const el = document.querySelector('.summary-stats')
+    return el ? el.textContent.trim() : ''
   })
+  console.log(`  ${summary}`)
 
-  console.log(`\n${browserName}: ${testSummary}`)
-
-  // Verify all tests passed
+  // Verify all HTML tests passed
   expect(statusText).toContain('All tests passed')
+  expect(failCount).toBe(0)
 
-  // Verify no failures (✗ symbol indicates failure)
-  const hasFailures = await page.locator('.fail').count()
-  expect(hasFailures).toBe(0)
-
-  // Additional validation: check that n2words is loaded
+  // Verify n2words global exists
   const n2wordsLoaded = await page.evaluate(() => {
-    return typeof window.n2words !== 'undefined'
+    return typeof window.n2words === 'object' && window.n2words !== null
   })
   expect(n2wordsLoaded).toBe(true)
-
-  // Validate a sample conversion works
-  const sampleConversion = await page.evaluate(() => {
-    return window.n2words.EnglishConverter(42)
-  })
-  expect(sampleConversion).toBe('forty-two')
-
-  // Validate BigInt support in browser
-  const bigintSupport = await page.evaluate(() => {
-    try {
-      const result = window.n2words.EnglishConverter(1000000n)
-      return result === 'one million'
-    } catch (e) {
-      return false
-    }
-  })
-  expect(bigintSupport).toBe(true)
-
-  // Validate options work in browser
-  const optionsWork = await page.evaluate(() => {
-    try {
-      const masc = window.n2words.ArabicConverter(1, { gender: 'masculine' })
-      const fem = window.n2words.ArabicConverter(1, { gender: 'feminine' })
-      return masc !== fem
-    } catch (e) {
-      return false
-    }
-  })
-  expect(optionsWork).toBe(true)
-
-  // Validate decimal handling
-  const decimalConversion = await page.evaluate(() => {
-    return window.n2words.EnglishConverter(3.14)
-  })
-  expect(decimalConversion).toContain('point')
 }

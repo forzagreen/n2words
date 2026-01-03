@@ -4,7 +4,7 @@ import {
   groupByThreeThenTwos,
   placeValues,
   slavicPlural
-} from '../../lib/utils/segment-utils.js'
+} from '../../../lib/utils/segment-utils.js'
 
 /**
  * Unit Tests for segment-utils.js

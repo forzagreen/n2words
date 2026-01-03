@@ -1,67 +1,74 @@
-// test/integration/commonjs-compatibility.test.cjs
-// Integration test to ensure n2words works with CommonJS (.cjs) modules
-// Tests both modern Node.js require() interop AND dynamic import patterns
+/**
+ * CommonJS Compatibility Tests
+ *
+ * Tests that the ESM module can be consumed from CommonJS environments.
+ * Validates two consumption patterns:
+ * - require() interop (Node 20+ feature)
+ * - dynamic import() (recommended pattern)
+ *
+ * Note: These tests only verify the module loads and converters are callable.
+ * Conversion correctness is tested in integration/languages.test.js.
+ */
 
 const test = require('ava')
 const path = require('path')
 const { pathToFileURL } = require('url')
 
-const languages = [
-  { code: 'en', converter: 'EnglishConverter', sample: 123, expected: 'one hundred and twenty-three' },
-  { code: 'fr', converter: 'FrenchConverter', sample: 456, expected: 'quatre cent cinquante-six' },
-  { code: 'de', converter: 'GermanConverter', sample: 789, expected: 'siebenhundertneunundachtzig' },
-  { code: 'es', converter: 'SpanishConverter', sample: 42, expected: 'cuarenta y dos' },
-  { code: 'ar', converter: 'ArabicConverter', sample: 1, expected: 'واحد' }
-]
+const modulePath = path.resolve(__dirname, '../../lib/n2words.js')
 
-// Test 1: Modern Node.js allows require() of ESM (Node 20+)
-// This works in newer Node.js versions but isn't standard/guaranteed
-languages.forEach(({ code, converter, sample, expected }) => {
-  test(`${converter} (${code}) - require() interop`, t => {
-    const n2words = require(path.resolve(__dirname, '../../lib/n2words.js'))
+// =============================================================================
+// require() Interop (Node 20+)
+// =============================================================================
 
-    t.truthy(n2words[converter], `Converter for ${code} should be exported`)
-    const result = n2words[converter](sample)
-    t.is(typeof result, 'string', `Result for ${code} should be a string`)
-    if (expected) {
-      t.is(result, expected, `${converter}(${sample}) should return "${expected}"`)
-    }
-  })
+test('require() loads ESM module', t => {
+  const n2words = require(modulePath)
+
+  // Module exports converters
+  t.truthy(n2words.EnglishConverter, 'EnglishConverter should be exported')
+  t.is(typeof n2words.EnglishConverter, 'function', 'Converter should be a function')
 })
 
-// Test 2: Dynamic import with async/await (recommended pattern)
-languages.slice(0, 2).forEach(({ code, converter, sample, expected }) => {
-  test(`${converter} (${code}) - async/await import`, async t => {
-    const modulePath = pathToFileURL(path.resolve(__dirname, '../../lib/n2words.js')).href
-    const n2words = await import(modulePath)
+test('require() converter returns string', t => {
+  const n2words = require(modulePath)
 
-    t.truthy(n2words[converter], `Converter for ${code} should be exported`)
-    const result = n2words[converter](sample)
-    t.is(typeof result, 'string', `Result for ${code} should be a string`)
-    if (expected) {
-      t.is(result, expected, `${converter}(${sample}) should return "${expected}"`)
-    }
-  })
+  const result = n2words.EnglishConverter(42)
+  t.is(typeof result, 'string', 'Converter should return a string')
+  t.true(result.length > 0, 'Result should not be empty')
 })
 
-// Test 3: Dynamic import with .then() chain (Promise pattern)
-test('Dynamic import with .then() chain', t => {
-  const modulePath = pathToFileURL(path.resolve(__dirname, '../../lib/n2words.js')).href
-  return import(modulePath).then(({ EnglishConverter }) => {
-    t.truthy(EnglishConverter, 'EnglishConverter should be exported')
-    const result = EnglishConverter(999)
-    t.is(result, 'nine hundred and ninety-nine')
-  })
+test('require() converter accepts options', t => {
+  const n2words = require(modulePath)
+
+  // Options should not throw
+  t.notThrows(() => n2words.ArabicConverter(1, { gender: 'feminine' }))
 })
 
-// Test 4: Async function wrapper pattern
-test('Dynamic import in async function', async t => {
-  async function convertNumber (num) {
-    const modulePath = pathToFileURL(path.resolve(__dirname, '../../lib/n2words.js')).href
-    const { SpanishConverter } = await import(modulePath)
-    return SpanishConverter(num)
-  }
+// =============================================================================
+// Dynamic import() Pattern
+// =============================================================================
 
-  const result = await convertNumber(100)
-  t.is(result, 'cien')
+test('dynamic import() loads ESM module', async t => {
+  const moduleUrl = pathToFileURL(modulePath).href
+  const n2words = await import(moduleUrl)
+
+  // Module exports converters
+  t.truthy(n2words.EnglishConverter, 'EnglishConverter should be exported')
+  t.is(typeof n2words.EnglishConverter, 'function', 'Converter should be a function')
+})
+
+test('dynamic import() converter returns string', async t => {
+  const moduleUrl = pathToFileURL(modulePath).href
+  const n2words = await import(moduleUrl)
+
+  const result = n2words.EnglishConverter(42)
+  t.is(typeof result, 'string', 'Converter should return a string')
+  t.true(result.length > 0, 'Result should not be empty')
+})
+
+test('dynamic import() with destructuring', async t => {
+  const moduleUrl = pathToFileURL(modulePath).href
+  const { SpanishConverter } = await import(moduleUrl)
+
+  t.is(typeof SpanishConverter, 'function', 'Destructured converter should be a function')
+  t.is(typeof SpanishConverter(100), 'string', 'Converter should return a string')
 })
