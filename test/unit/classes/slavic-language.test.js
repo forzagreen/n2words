@@ -8,15 +8,12 @@ import { SlavicLanguage } from '../../../lib/classes/slavic-language.js'
  * - Segment-based decomposition (hundreds, tens, ones)
  * - Gender-aware number forms (masculine/feminine for 1-4)
  * - Scale word gender (thousands feminine in Russian-style languages)
- * - Three-form pluralization via pluralize() hook
+ * - Three-form pluralization via pluralize() method
  * - omitOneBeforeScale behavior (Polish-style)
  *
  * Subclasses must define:
  * - onesWords, onesFeminineWords, teensWords, twentiesWords, hundredsWords
  * - pluralForms: mapping segment indices to [singular, few, many]
- *
- * Note: The underlying slavicPlural() utility is tested in segment-utils.test.js.
- * These tests focus on how SlavicLanguage uses pluralization, not the algorithm itself.
  */
 
 // ============================================================================
@@ -190,16 +187,30 @@ test('omitOneBeforeScale disabled by default', t => {
 // pluralize() Hook
 // ============================================================================
 
-test('pluralize delegates to slavicPlural utility', t => {
+test('pluralize uses Slavic pluralization rules', t => {
   const lang = new TestSlavicLanguage()
   const forms = ['sing', 'few', 'many']
 
-  // Just verify the hook works - detailed rules tested in segment-utils.test.js
+  // Singular: 1, 21, 31, etc. (ends in 1, except 11)
   t.is(lang.pluralize(1n, forms), 'sing')
-  t.is(lang.pluralize(2n, forms), 'few')
-  t.is(lang.pluralize(5n, forms), 'many')
-  t.is(lang.pluralize(11n, forms), 'many') // teens special case
   t.is(lang.pluralize(21n, forms), 'sing')
+  t.is(lang.pluralize(101n, forms), 'sing')
+
+  // Few: 2-4, 22-24, etc. (ends in 2-4, except 12-14)
+  t.is(lang.pluralize(2n, forms), 'few')
+  t.is(lang.pluralize(3n, forms), 'few')
+  t.is(lang.pluralize(4n, forms), 'few')
+  t.is(lang.pluralize(22n, forms), 'few')
+
+  // Many: 0, 5-20, 25-30, etc.
+  t.is(lang.pluralize(0n, forms), 'many')
+  t.is(lang.pluralize(5n, forms), 'many')
+  t.is(lang.pluralize(10n, forms), 'many')
+  t.is(lang.pluralize(11n, forms), 'many') // teens always many
+  t.is(lang.pluralize(12n, forms), 'many')
+  t.is(lang.pluralize(19n, forms), 'many')
+  t.is(lang.pluralize(20n, forms), 'many')
+  t.is(lang.pluralize(111n, forms), 'many') // ends in 11
 })
 
 // ============================================================================
