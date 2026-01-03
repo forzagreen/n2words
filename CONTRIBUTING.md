@@ -75,7 +75,10 @@ git fetch upstream && git checkout main && git merge upstream/main
 
 **Types**: `feat`, `fix`, `docs`, `refactor`, `test`, `chore`, `perf`, `style`, `build`, `ci`, `revert`, `lang`
 
-**Scopes** (optional): `lang`, `core`, `build`, `ci`, `deps`, `docs`, `test`, `types`
+**Scopes** (optional):
+
+- Project areas: `core`, `lang`, `scripts`, `types`, `docs`, `test`, `build`, `ci`, `deps`, `release`
+- Language codes: Any valid BCP 47 code (e.g., `en`, `fr-BE`, `zh-Hans`)
 
 **Examples**:
 
