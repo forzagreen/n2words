@@ -29,69 +29,7 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { createInterface } from 'node:readline'
 import chalk from 'chalk'
-
-// ============================================================================
-// BCP 47 Language Code Utilities
-// ============================================================================
-
-/**
- * Get expected class name from BCP 47 code using CLDR
- * @param {string} languageCode BCP 47 language code
- * @returns {string|null} Expected PascalCase class name
- */
-function getExpectedClassName (languageCode) {
-  try {
-    const displayNames = new Intl.DisplayNames(['en'], { type: 'language' })
-    const cldrName = displayNames.of(languageCode)
-
-    // CLDR doesn't recognize this code
-    if (!cldrName || cldrName === languageCode) {
-      return null
-    }
-
-    // Convert "Norwegian Bokmål" -> "NorwegianBokmal"
-    return cldrName
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '') // Remove diacritics
-      .replace(/[^A-Za-z0-9\s]/g, '') // Remove non-alphanumeric except spaces
-      .split(/\s+/)
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-      .join('')
-  } catch {
-    return null
-  }
-}
-
-/**
- * Validate IETF BCP 47 language code
- * @param {string} languageCode Language code to validate
- * @returns {{ valid: boolean, canonical: string|null, error: string|null }}
- */
-function validateLanguageCode (languageCode) {
-  try {
-    const canonical = Intl.getCanonicalLocales(languageCode)
-
-    if (canonical.length === 0) {
-      return {
-        valid: false,
-        canonical: null,
-        error: `Invalid BCP 47 language tag: ${languageCode}`
-      }
-    }
-
-    return {
-      valid: true,
-      canonical: canonical[0],
-      error: null
-    }
-  } catch (error) {
-    return {
-      valid: false,
-      canonical: null,
-      error: `Invalid BCP 47 language tag: ${languageCode} (${error.message})`
-    }
-  }
-}
+import { getExpectedClassName, validateLanguageCode } from '../test/utils/bcp47.js'
 
 // ============================================================================
 // Base Class Configurations

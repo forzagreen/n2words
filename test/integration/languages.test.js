@@ -1,5 +1,6 @@
 import test from 'ava'
 import { readdirSync } from 'node:fs'
+import { validateLanguageCode } from '../utils/bcp47.js'
 import { parseNumericValue } from '../../lib/utils/parse-numeric.js'
 import { getBaseClassName, getClassNameFromModule, VALID_BASE_CLASSES } from '../utils/language-helpers.js'
 import { safeStringify } from '../utils/stringify.js'
@@ -90,11 +91,11 @@ for (const file of files) {
     const instance = new LanguageClass()
 
     // Valid BCP 47 language code
-    try {
-      const canonical = Intl.getCanonicalLocales(languageCode)
-      t.true(canonical.length > 0, `${languageCode} should be a valid BCP 47 tag`)
-    } catch (error) {
-      t.fail(`Invalid BCP 47 language tag: ${languageCode} (${error.message})`)
+    const bcp47 = validateLanguageCode(languageCode)
+    if (!bcp47.valid) {
+      t.fail(bcp47.error)
+    } else {
+      t.pass(`${languageCode} is a valid BCP 47 tag`)
     }
 
     // Extends valid base class
