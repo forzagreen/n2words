@@ -17,7 +17,7 @@ AbstractLanguage (base)
 
 ### Languages by Base Class
 
-**GreedyScaleLanguage** (15): Danish, Dutch, English, Filipino, French, German, Greek, Hungarian, Korean, Norwegian Bokmål, Portuguese, Spanish, Swedish, Simplified Chinese, Traditional Chinese
+**GreedyScaleLanguage** (14): Danish, Dutch, English, Filipino, French, German, Greek, Korean, Norwegian Bokmål, Portuguese, Spanish, Swedish, Simplified Chinese, Traditional Chinese
 
 **HebrewLanguage** (2): Hebrew, Biblical Hebrew
 
@@ -27,7 +27,7 @@ AbstractLanguage (base)
 
 **TurkicLanguage** (2): Turkish, Azerbaijani
 
-**AbstractLanguage directly** (14): Arabic, Indonesian, Italian, Japanese, Latvian, Lithuanian, Malay, Persian, Romanian, Swahili, Tamil, Telugu, Thai, Vietnamese
+**AbstractLanguage directly** (15): Arabic, Hungarian, Indonesian, Italian, Japanese, Latvian, Lithuanian, Malay, Persian, Romanian, Swahili, Tamil, Telugu, Thai, Vietnamese
 
 **Note**: French Belgium extends French (not GreedyScaleLanguage directly).
 
