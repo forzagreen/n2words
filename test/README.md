@@ -13,14 +13,15 @@ Comprehensive testing guide for the n2words project.
 
 ## Test Organization
 
-The test suite is organized into four categories:
+The test suite is organized into five categories:
 
 ```text
 test/
 ├── unit/              # Unit tests for base classes and utilities
 ├── integration/       # Integration tests using language fixtures
+├── umd/               # Build artifact validation (UMD bundles)
 ├── types/             # TypeScript type declaration tests
-├── web/               # Browser compatibility tests (Playwright)
+├── browsers/          # Browser compatibility tests (Playwright)
 └── fixtures/          # Test data for language converters
     └── languages/     # One fixture file per language
 ```
@@ -38,13 +39,17 @@ Test individual classes and methods in isolation:
 
 ### Integration Tests (`test/integration/`)
 
-Test complete conversion workflows and module compatibility:
+Test complete conversion workflows:
 
 - **`languages.test.js`** - Comprehensive language-specific tests using fixtures
-- **`umd-build.test.js`** - UMD bundle validation (structure, exports, functionality)
-- **`commonjs-compatibility.test.cjs`** - CommonJS import compatibility
 
 Each language has a corresponding fixture file in `test/fixtures/languages/`.
+
+### UMD Tests (`test/umd/`)
+
+Validate UMD bundle artifacts:
+
+- **`umd-build.test.js`** - Bundle structure, exports, functionality, source maps
 
 ### Type Tests (`test/types/`)
 
@@ -52,7 +57,7 @@ Validate TypeScript declarations:
 
 - **`n2words.test-d.ts`** - Type declaration tests using tsd
 
-### Web Tests (`test/web/`)
+### Browser Tests (`test/browsers/`)
 
 Browser compatibility tests using Playwright:
 
@@ -64,17 +69,19 @@ Browser compatibility tests using Playwright:
 ### All Tests
 
 ```bash
-npm test                    # Run all tests (validation + unit + integration + types)
-npm run test:all            # Include browser tests
+npm test                    # Run core tests (validation + unit + integration)
+npm run test:all            # Full suite (core + types + build + browser)
 ```
 
 ### Specific Test Categories
 
 ```bash
 npm run test:unit           # Unit tests only
-npm run test:integration    # Integration tests only (builds automatically)
-npm run test:types          # TypeScript type tests only (builds automatically)
-npm run test:web            # Browser tests only (builds automatically)
+npm run test:integration    # Integration tests only
+npm run test:umd            # UMD bundle tests (builds dist/ automatically)
+npm run test:types          # TypeScript declaration tests (builds types automatically)
+npm run test:exports        # Package exports validation (builds types automatically)
+npm run test:browsers       # Browser tests (builds dist/ automatically)
 ```
 
 ### With Coverage
@@ -246,14 +253,14 @@ Configuration in `package.json`:
 
 ```bash
 npm run playwright:install
-npm run test:web
+npm run test:browsers
 ```
 
 ### Type Tests Fail
 
 **Problem**: TypeScript declarations not generated
 
-**Solution**: The `pretest:types` hook builds automatically, so just run:
+**Solution**: The `test:types` script builds automatically, so just run:
 
 ```bash
 npm run test:types
@@ -319,9 +326,9 @@ All tests run automatically on:
 
 CI runs tests on:
 
-- **Node.js**: 20, 22, 24, 25
-- **OS**: Ubuntu (all versions), Windows (LTS), macOS (LTS)
-- **Browsers**: Chromium, Firefox, WebKit (Ubuntu only)
+- **Node.js**: 20, 22, 25 (test matrix) + 24 (coverage job)
+- **OS**: Ubuntu
+- **Browsers**: Chromium, Firefox, WebKit
 
 ## Performance Testing
 

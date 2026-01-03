@@ -589,8 +589,8 @@ npm run test:types:attw   # Validate package.json exports
 # Run all tests including browser tests
 npm run test:all
 
-# Run browser/web tests only (automatically builds via pretest:web hook)
-npm run test:web
+# Run browser tests only (builds UMD bundles first)
+npm run test:browsers
 ```
 
 #### Writing Tests
@@ -818,13 +818,13 @@ The project generates two build targets:
 npm run build
 
 # Run browser tests
-npm run test:web
+npm run test:browsers
 
 # Test specific bundle sizes
 ls -lh dist/
 
 # Verify bundle compatibility
-npm run compat:web
+npm run compat:umd
 ```
 
 **Bundle outputs:**
@@ -852,29 +852,46 @@ This targets ~86% of global users while requiring BigInt support (non-polyfillab
 
 **Testing browser compatibility:**
 
-1. Run Playwright tests: `npm run test:web` (automatically builds via `pretest:web` hook)
+1. Run Playwright tests: `npm run test:browsers` (builds UMD bundles first)
 2. Verify in target browsers manually if needed
 
 **Note**: Browser tests run against `dist/` bundles (not `lib/` source) in Chromium, Firefox, and WebKit.
 
 ### CI Testing Strategy
 
-Our CI pipeline runs tests across multiple platforms with an optimized strategy:
+Our CI pipeline runs all tests on Ubuntu with an optimized job structure:
 
-**Core Tests** (unit, integration, types):
+**Test Matrix** (Node 20, 22, 25):
 
-- ✅ Ubuntu: Node 20, 22, 24, 25
-- ✅ Windows: Node 24 (LTS)
-- ✅ macOS: Node 24 (LTS)
+- Language validation
+- Unit tests
+- Integration tests (language fixtures)
+
+**Coverage Job** (Node 24):
+
+- Full test suite with coverage reporting
+
+**Verify Job** (runs once after all tests pass):
+
+- Type tests (static analysis - doesn't vary by Node version)
+- Build tests (UMD bundle validation)
+- Package verification
 
 **Browser Tests** (Playwright):
 
-- ✅ Ubuntu only: Node 20, 22, 24, 25
-- ❌ Windows/macOS: Not run
+- Chromium, Firefox, WebKit on Ubuntu
 
-**Why browser tests on Ubuntu only?**
+**Publish Workflow** (tag releases):
 
-Browser engines (Chromium, Firefox, WebKit) are cross-platform and behave identically on all operating systems. Since we're testing UMD JavaScript bundles (not OS-specific native code), running browser tests on a single OS provides complete coverage while optimizing CI time and cost. This is the industry-standard approach for JavaScript libraries.
+- Waits for CI workflow to pass on the tag commit
+- Builds artifacts and publishes to npm
+
+**Why this structure?**
+
+- Runtime tests run across Node versions (may have version-specific behavior)
+- Static analysis (types, builds) runs once - same result regardless of Node version
+- Browser tests validate dist/ bundles in real browsers
+- Publish workflow waits for CI to pass before building and publishing
 
 ### Performance Improvements
 
@@ -978,35 +995,20 @@ All pull requests run through comprehensive CI checks using GitHub Actions.
 
 #### CI Workflow Overview
 
-The project uses a unified CI workflow (`ci.yml`) that combines linting, building, and testing in a single job for better efficiency.
+The project uses a multi-job CI workflow (`ci.yml`) optimized for efficiency:
 
-**Job Matrix:**
+**Jobs:**
 
-Tests run on multiple environments:
-
-- **Node.js versions**: 20, 22, 24, 25
-- **Operating systems**:
-  - Ubuntu (all Node versions)
-  - Windows (Node 24 LTS only)
-  - macOS (Node 24 LTS only)
-
-**What the CI job does:**
-
-1. **Linting** - JavaScript (StandardJS) and Markdown
-2. **Building** - All UMD bundles (`dist/`)
-3. **Testing** - Language validation, unit, integration, type checking, browser tests
-4. **Coverage** - Generated and uploaded conditionally (PRs and main branch only)
-5. **Security** - Package audit (`npm audit`)
+- **lint** - Linting (JavaScript, Markdown) and security audit
+- **test** - Test matrix (Node 20, 22, 24, 25) running validation, unit, and integration tests
+- **test-browsers** - Browser tests (Playwright)
+- **verify** - Type tests, build tests, package verification (runs once after all tests pass)
 
 **Coverage Strategy:**
 
-Coverage is only uploaded on:
-
-- Pull requests
-- Pushes to `master`/`main` branch
-- Ubuntu + Node 24 job only
-
-This prevents coverage spam from feature branches while maintaining visibility where it matters.
+- Coverage runs as part of the test matrix (Node 24 with coverage flag)
+- Coverage is uploaded to Coveralls on all PRs and pushes
+- Coverage artifacts are only saved on pushes to `main` branch
 
 #### Viewing CI Results
 
@@ -1020,14 +1022,17 @@ This prevents coverage spam from feature branches while maintaining visibility w
 Before pushing, run the same checks locally:
 
 ```bash
-# Run all checks
-npm run lint         # Linting
-npm test             # Full test suite
-npm run build        # Build UMD bundles
-npm audit --audit-level=high  # Security audit (matches CI)
+# Core checks (matches CI test job)
+npm run lint                      # Linting
+npm test                          # Core tests (validation + unit + integration)
+npm audit --audit-level=high      # Security audit
 
-# Optional: Run browser tests (pretest:web hook builds automatically)
-npm run test:web
+# Static analysis (matches CI verify job)
+npm run test:types                # Type tests
+npm run test:umd                  # UMD bundle tests
+
+# Browser tests (optional)
+npm run test:browsers             # Browser tests (builds dist/ automatically)
 ```
 
 #### Testing with Act (Local GitHub Actions)
@@ -1035,10 +1040,10 @@ npm run test:web
 You can test the actual CI workflow locally using [Act](https://github.com/nektos/act):
 
 ```bash
-# Quick validation (1-2 min)
-act -W .github/workflows/ci.yml --matrix node:24 --matrix os:ubuntu-latest
+# Quick validation
+act -W .github/workflows/ci.yml --matrix node:24
 
-# Full validation (10-15 min)
+# Full validation
 act -W .github/workflows/ci.yml
 ```
 
@@ -1253,7 +1258,7 @@ fnm use lts-latest
 
 ```bash
 # Increase timeout for specific test
-npm run test:web -- --timeout=60s
+npm run test:browsers -- --timeout=60s
 
 # Or increase globally in package.json ava.timeout
 ```
@@ -1411,7 +1416,7 @@ npm run lint
 
 **Solution**:
 
-1. Browser builds are automatically generated via `pretest:web` lifecycle hook
+1. `test:browsers` automatically builds UMD bundles before running tests
 2. Ensure Playwright browsers are installed: `npm run playwright:install`
 3. Check for errors in the test output
 4. Verify `dist/n2words.js` bundle exists after build

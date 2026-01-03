@@ -217,8 +217,8 @@ jobs:
       - name: Build type declarations
         run: npm run build:types
 
-      - name: Build web bundles
-        run: npm run build
+      - name: Build UMD bundles
+        run: npm run build:umd
 
       - name: Verify build artifacts
         run: |

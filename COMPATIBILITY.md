@@ -23,14 +23,14 @@ n2words has **BigInt as a hard requirement** which cannot be polyfilled. This se
 
 ### Verification Commands
 
-| Check Type              | Command                     | What It Does                            |
-| ----------------------- | --------------------------- | --------------------------------------- |
-| Browser Targets         | `npm run browsers`          | Show all targeted browser versions      |
-| Browser Coverage        | `npm run browsers:coverage` | Show global coverage percentage (~86%)  |
-| Browser Compatibility   | `npm run compat:web`        | Verify dist/ bundles ES version (static)|
-| Browser Tests           | `npm run test:web`          | Test in real browsers (Playwright)      |
-| Node.js Compatibility   | `npm run compat:node`       | Verify lib/ source is ES2022 compatible |
-| Node.js Version         | `node --version`            | Check your current Node.js version      |
+| Check Type            | Command                          | What It Does                             |
+| --------------------- | -------------------------------- | ---------------------------------------- |
+| Browser Targets       | `npm run browserslist`           | Show all targeted browser versions       |
+| Browser Coverage      | `npm run browserslist:coverage`  | Show global coverage percentage (~86%)   |
+| Browser Compatibility | `npm run compat:umd`             | Verify dist/ bundles ES version (static) |
+| Browser Tests         | `npm run test:browsers`          | Test in real browsers (Playwright)       |
+| Node.js Compatibility | `npm run compat:node`            | Verify lib/ source is ES2022 compatible  |
+| Node.js Version       | `node --version`                 | Check your current Node.js version       |
 
 ---
 
@@ -57,7 +57,7 @@ Based on BigInt support (non-polyfillable) and verified via `dist/` bundle tests
 
 **Global Coverage**: ~86% of all users worldwide (all in-use browsers with BigInt support, as of 2025)
 
-**Testing**: These requirements are verified using the `dist/` UMD bundles via Playwright browser tests (`npm run test:web`) in Chromium, Firefox, and WebKit.
+**Testing**: These requirements are verified using the `dist/` UMD bundles via Playwright browser tests (`npm run test:browsers`) in Chromium, Firefox, and WebKit.
 
 ## Node.js Compatibility
 
@@ -107,26 +107,26 @@ fnm use
 #### Check Target Browsers
 
 ```bash
-npm run browsers                # Show all targeted browser versions
-npm run browsers:coverage       # Coverage for our configured targets (~86%)
+npm run browserslist                # Show all targeted browser versions
+npm run browserslist:coverage       # Coverage for our configured targets (~86%)
 ```
 
 **What they do:**
 
-- `browsers`: Lists all browser versions from `.browserslistrc`
-- `browsers:coverage`: Shows global coverage for `defaults and supports bigint`
+- `browserslist`: Lists all browser versions from `.browserslistrc`
+- `browserslist:coverage`: Shows global coverage for `defaults and supports bigint`
 
 #### Verify Browser Compatibility
 
 ```bash
-npm run compat:web              # Verify dist/ bundles browser compatibility (ES version check)
-npm run test:web                # Run real browser tests (Chromium, Firefox, WebKit via Playwright)
+npm run compat:umd              # Verify dist/ bundles browser compatibility (ES version check)
+npm run test:browsers                # Run real browser tests (Chromium, Firefox, WebKit via Playwright)
 ```
 
 **What they do:**
 
-- `compat:web`: Static analysis of `dist/` bundles using es-check
-- `test:web`: Full integration tests in real browsers on `dist/` bundles using Playwright
+- `compat:umd`: Static analysis of `dist/` bundles using es-check
+- `test:browsers`: Full integration tests in real browsers on `dist/` bundles using Playwright
 
 ### Node.js Compatibility Checks
 
@@ -258,8 +258,8 @@ Babel transpiles modern features down while preserving BigInt:
 
 **Verified with**:
 
-- `npm run compat:web` - Static ES version checking
-- `npm run test:web` - Real browser testing (Chromium, Firefox, WebKit via Playwright)
+- `npm run compat:umd` - Static ES version checking
+- `npm run test:browsers` - Real browser testing (Chromium, Firefox, WebKit via Playwright)
 
 ## Why No Polyfills?
 
