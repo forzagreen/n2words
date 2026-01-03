@@ -1,10 +1,10 @@
 import test from 'ava'
 import { readdirSync } from 'node:fs'
+import { isPlainObject } from '../../lib/utils/is-plain-object.js'
+import { isValidNumericValue, parseNumericValue } from '../../lib/utils/parse-numeric.js'
 import { isValidLanguageCode } from '../utils/language-naming.js'
-import { parseNumericValue } from '../../lib/utils/parse-numeric.js'
 import { BASE_CLASSES, getBaseClassName, getClassNameFromModule } from '../utils/language-helpers.js'
 import { safeStringify } from '../utils/stringify.js'
-import { validateFixture } from '../utils/validate-fixture.js'
 
 /**
  * Language Implementation Tests
@@ -22,6 +22,86 @@ import { validateFixture } from '../utils/validate-fixture.js'
  *
  * Note: Module structure validation (imports, exports, typedefs) is in api.test.js.
  */
+
+// ============================================================================
+// Fixture Validation
+// ============================================================================
+
+/**
+ * Validates a test fixture file format.
+ *
+ * Fixtures must be arrays of test cases where each test case is:
+ * - [input, expected] or [input, expected, options]
+ * - input: valid numeric value (number, string, or bigint)
+ * - expected: string (the expected word output)
+ * - options: plain object (optional)
+ *
+ * @param {Array} testFile The imported fixture file (default export)
+ * @param {string} languageCode Language code for error messages
+ * @returns {{valid: boolean, error?: string}} Validation result
+ */
+function validateFixture (testFile, languageCode) {
+  if (!Array.isArray(testFile)) {
+    return {
+      valid: false,
+      error: `Invalid fixture format for ${languageCode}: expected array, got ${typeof testFile}`
+    }
+  }
+
+  if (testFile.length === 0) {
+    return {
+      valid: false,
+      error: `Empty fixture file for ${languageCode}: must contain at least one test case`
+    }
+  }
+
+  for (let i = 0; i < testFile.length; i++) {
+    const testCase = testFile[i]
+
+    if (!Array.isArray(testCase)) {
+      return {
+        valid: false,
+        error: `Invalid test case at index ${i} in ${languageCode}: expected array [input, expected, options?], got ${typeof testCase}`
+      }
+    }
+
+    if (testCase.length < 2 || testCase.length > 3) {
+      return {
+        valid: false,
+        error: `Invalid test case at index ${i} in ${languageCode}: expected 2-3 elements [input, expected, options?], got ${testCase.length}`
+      }
+    }
+
+    const [input, expected, options] = testCase
+
+    if (!isValidNumericValue(input)) {
+      return {
+        valid: false,
+        error: `Invalid input at index ${i} in ${languageCode}: expected valid numeric value (number|string|bigint), got ${typeof input}`
+      }
+    }
+
+    if (typeof expected !== 'string') {
+      return {
+        valid: false,
+        error: `Invalid expected output at index ${i} in ${languageCode}: expected string, got ${typeof expected}`
+      }
+    }
+
+    if (options !== undefined && !isPlainObject(options)) {
+      return {
+        valid: false,
+        error: `Invalid options at index ${i} in ${languageCode}: expected plain object or undefined, got ${typeof options}`
+      }
+    }
+  }
+
+  return { valid: true }
+}
+
+// ============================================================================
+// Language Tests
+// ============================================================================
 
 const files = readdirSync('./test/fixtures/languages')
 

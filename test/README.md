@@ -31,8 +31,9 @@ test/
 ├── umd/               # UMD bundle validation
 ├── types/             # TypeScript declaration tests (tsd)
 ├── browsers/          # Browser tests (Playwright)
-└── fixtures/
-    └── languages/     # Test data per language
+├── fixtures/
+│   └── languages/     # Test data per language
+└── utils/             # Shared test utilities
 ```
 
 ### Unit Tests (`test/unit/`)
@@ -69,6 +70,14 @@ test/
 ### Browser Tests (`test/browsers/`)
 
 - `browsers.test.js` - Multi-browser testing (Chromium, Firefox, WebKit)
+
+### Test Utilities (`test/utils/`)
+
+Shared utilities used by tests and scripts:
+
+- `language-helpers.js` - Language file/module inspection utilities
+- `language-naming.js` - CLDR/BCP 47 naming conventions
+- `stringify.js` - Safe stringification for test output
 
 ## Running Tests
 
