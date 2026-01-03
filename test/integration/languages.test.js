@@ -1,7 +1,9 @@
 import test from 'ava'
 import { readdirSync } from 'node:fs'
-import { isPlainObject } from '../../lib/utils/is-plain-object.js'
-import { isValidNumericValue, parseNumericValue } from '../../lib/utils/parse-numeric.js'
+import { parseNumericValue } from '../../lib/utils/parse-numeric.js'
+import { getBaseClassName, getClassNameFromModule, VALID_BASE_CLASSES } from '../utils/language-helpers.js'
+import { safeStringify } from '../utils/stringify.js'
+import { validateFixture } from '../utils/validate-fixture.js'
 
 /**
  * Language Implementation Tests
@@ -18,149 +20,7 @@ import { isValidNumericValue, parseNumericValue } from '../../lib/utils/parse-nu
  * - Basic sanity checks (handles zero, returns strings)
  *
  * Note: Module structure validation (imports, exports, typedefs) is in api.test.js.
- *
- * Test fixtures: test/fixtures/languages/*.js
- * Language files: lib/languages/*.js
  */
-
-// ============================================================================
-// Constants
-// ============================================================================
-
-const VALID_BASE_CLASSES = [
-  'AbstractLanguage',
-  'GreedyScaleLanguage',
-  'HebrewLanguage',
-  'SlavicLanguage',
-  'SouthAsianLanguage',
-  'TurkicLanguage'
-]
-
-// ============================================================================
-// Helper Functions
-// ============================================================================
-
-/**
- * Extracts the class name from a language module's exports.
- * Language files export a single named class (e.g., `export class English`).
- *
- * @param {Object} languageModule The imported language module
- * @returns {string|null} The class name, or null if not found
- */
-function getClassNameFromModule (languageModule) {
-  const exportNames = Object.keys(languageModule)
-  // Language files export exactly one class
-  return exportNames.length === 1 ? exportNames[0] : null
-}
-
-/**
- * Get the effective base class name (handles regional variants).
- * @param {Function} LanguageClass Language class constructor
- * @returns {string|null} Base class name
- */
-function getBaseClassName (LanguageClass) {
-  const proto = Object.getPrototypeOf(LanguageClass)
-  const baseClassName = proto?.name
-
-  if (VALID_BASE_CLASSES.includes(baseClassName)) {
-    return baseClassName
-  }
-
-  // Check grandparent for regional variants (e.g., FrenchBelgium → French → GreedyScaleLanguage)
-  const grandProto = Object.getPrototypeOf(proto)
-  const grandParentClassName = grandProto?.name
-  if (VALID_BASE_CLASSES.includes(grandParentClassName)) {
-    return grandParentClassName
-  }
-
-  return baseClassName
-}
-
-/**
- * Safely stringify a value for error messages (handles BigInt)
- * @param {*} value Value to stringify
- * @returns {string} String representation
- */
-function safeStringify (value) {
-  if (typeof value === 'bigint') {
-    return value.toString() + 'n'
-  }
-  if (typeof value === 'object' && value !== null) {
-    return JSON.stringify(value, (_key, val) =>
-      typeof val === 'bigint' ? val.toString() + 'n' : val
-    )
-  }
-  return JSON.stringify(value)
-}
-
-/**
- * Validates a test fixture file format
- * @param {Array} testFile The imported fixture file
- * @param {string} languageCode Language code for error messages
- * @returns {{valid: boolean, error?: string}} Validation result
- */
-function validateFixture (testFile, languageCode) {
-  if (!Array.isArray(testFile)) {
-    return {
-      valid: false,
-      error: `Invalid fixture format for ${languageCode}: expected array, got ${typeof testFile}`
-    }
-  }
-
-  if (testFile.length === 0) {
-    return {
-      valid: false,
-      error: `Empty fixture file for ${languageCode}: must contain at least one test case`
-    }
-  }
-
-  // Validate each test case
-  for (let i = 0; i < testFile.length; i++) {
-    const testCase = testFile[i]
-
-    if (!Array.isArray(testCase)) {
-      return {
-        valid: false,
-        error: `Invalid test case at index ${i} in ${languageCode}: expected array [input, expected, options?], got ${typeof testCase}`
-      }
-    }
-
-    if (testCase.length < 2 || testCase.length > 3) {
-      return {
-        valid: false,
-        error: `Invalid test case at index ${i} in ${languageCode}: expected 2-3 elements [input, expected, options?], got ${testCase.length}`
-      }
-    }
-
-    const [input, expected, options] = testCase
-
-    // Validate input (must be valid numeric value, same as runtime API)
-    if (!isValidNumericValue(input)) {
-      return {
-        valid: false,
-        error: `Invalid input at index ${i} in ${languageCode}: expected valid numeric value (number|string|bigint), got ${typeof input}`
-      }
-    }
-
-    // Validate expected output
-    if (typeof expected !== 'string') {
-      return {
-        valid: false,
-        error: `Invalid expected output at index ${i} in ${languageCode}: expected string, got ${typeof expected}`
-      }
-    }
-
-    // Validate options if present (must be plain object, same as runtime API)
-    if (options !== undefined && !isPlainObject(options)) {
-      return {
-        valid: false,
-        error: `Invalid options at index ${i} in ${languageCode}: expected plain object or undefined, got ${typeof options}`
-      }
-    }
-  }
-
-  return { valid: true }
-}
 
 const files = readdirSync('./test/fixtures/languages')
 
