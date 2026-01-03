@@ -4,6 +4,7 @@ const PROJECT_SCOPES = [
   'lang', // lib/languages/* (general language work)
   'scripts', // scripts/*
   'types', // TypeScript definitions
+  'utils', // lib/utils/*
   'docs', // Documentation
   'test', // Test files and fixtures
   'build', // Build configuration
