@@ -346,9 +346,17 @@ function validateBaseClassRequirements (instance, LanguageClass, result) {
       )
 
       if (hasCustomIntegerToWords) {
-        // Custom implementation bypasses base class greedy algorithm
-        // This is used by Hungarian which has unique number patterns
-        result.warnings.push('Overrides integerToWords() - consider AbstractLanguage instead')
+        // Check if it's an enhancement (calls super) vs full replacement
+        const methodSource = LanguageClass.prototype.integerToWords.toString()
+        const callsSuper = methodSource.includes('super.integerToWords')
+
+        if (callsSuper) {
+          // Enhancement pattern - adds pre/post processing but uses parent algorithm
+          result.info.push('✓ Enhances integerToWords() (calls super)')
+        } else {
+          // Full replacement - doesn't use parent algorithm at all
+          result.warnings.push('Overrides integerToWords() - consider AbstractLanguage instead')
+        }
         result.info.push('✓ Has custom integerToWords() (combineWordSets validation skipped)')
       } else {
         // Must have combineWordSets method (inherited is ok)
