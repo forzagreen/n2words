@@ -177,7 +177,7 @@ Simplified Chinese, Traditional Chinese - Toggle between formal/financial and co
 - Danish: `ordFlag` (ordinal numbers)
 - Arabic: `negativeWord` (custom negative word)
 
-[See complete options reference →](CLAUDE.md#3-language-specific-options)
+[See complete options reference →](docs/ARCHITECTURE.md#language-specific-options)
 
 ## Browser Compatibility
 
@@ -326,10 +326,10 @@ EnglishConverter(999999999999999999999999n)  // Accurate conversion
 
 ## Documentation
 
-- **[Compatibility Guide](COMPATIBILITY.md)** - Browser and Node.js compatibility requirements, verification tools
-- **[Contributing Guide](CONTRIBUTING.md)** - How to contribute, add languages, and development workflow
-- **[Code of Conduct](CODE_OF_CONDUCT.md)** - Community standards and expectations
-- **[Project Context (CLAUDE.md)](CLAUDE.md)** - Comprehensive project architecture and patterns
+- **[Compatibility Guide](COMPATIBILITY.md)** - Browser and Node.js compatibility
+- **[Contributing Guide](CONTRIBUTING.md)** - How to contribute and add languages
+- **[Architecture Guide](docs/ARCHITECTURE.md)** - Implementation patterns and options reference
+- **[Code of Conduct](CODE_OF_CONDUCT.md)** - Community standards
 
 ## Contributing
 
