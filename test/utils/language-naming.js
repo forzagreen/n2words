@@ -17,40 +17,39 @@
 // ============================================================================
 
 /**
- * Validates an IETF BCP 47 language code.
- *
- * Uses the Intl API to check if the code is valid and returns its canonical form.
+ * Checks if a string is a valid BCP 47 language code.
  *
  * @param {string} code Language code to validate
- * @returns {{ valid: boolean, canonical: string|null, error: string|null }}
+ * @returns {boolean} True if valid
  * @example
- * validateLanguageCode('en')        // { valid: true, canonical: 'en', error: null }
- * validateLanguageCode('zh-hans')   // { valid: true, canonical: 'zh-Hans', error: null }
- * validateLanguageCode('invalid')   // { valid: false, canonical: null, error: '...' }
+ * isValidLanguageCode('en')       // true
+ * isValidLanguageCode('zh-Hans')  // true
+ * isValidLanguageCode('invalid')  // false
  */
-export function validateLanguageCode (code) {
+export function isValidLanguageCode (code) {
+  try {
+    return Intl.getCanonicalLocales(code).length > 0
+  } catch {
+    return false
+  }
+}
+
+/**
+ * Gets the canonical form of a BCP 47 language code.
+ *
+ * @param {string} code Language code (may be non-canonical)
+ * @returns {string|null} Canonical form, or null if invalid
+ * @example
+ * getCanonicalCode('en')       // 'en'
+ * getCanonicalCode('zh-hans')  // 'zh-Hans' (case-corrected)
+ * getCanonicalCode('invalid')  // null
+ */
+export function getCanonicalCode (code) {
   try {
     const canonical = Intl.getCanonicalLocales(code)
-
-    if (canonical.length === 0) {
-      return {
-        valid: false,
-        canonical: null,
-        error: `Invalid BCP 47 language tag: ${code}`
-      }
-    }
-
-    return {
-      valid: true,
-      canonical: canonical[0],
-      error: null
-    }
-  } catch (error) {
-    return {
-      valid: false,
-      canonical: null,
-      error: `Invalid BCP 47 language tag: ${code} (${error.message})`
-    }
+    return canonical.length > 0 ? canonical[0] : null
+  } catch {
+    return null
   }
 }
 

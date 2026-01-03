@@ -29,7 +29,7 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { createInterface } from 'node:readline'
 import chalk from 'chalk'
-import { getClassName, validateLanguageCode } from '../test/utils/language-naming.js'
+import { getCanonicalCode, getClassName, isValidLanguageCode } from '../test/utils/language-naming.js'
 
 // ============================================================================
 // Base Class Configurations
@@ -702,10 +702,9 @@ async function main () {
     baseType = await promptForBaseClass()
   }
 
-  // Validate language code using Intl API (same as validator)
-  const validation = validateLanguageCode(code)
-  if (!validation.valid) {
-    console.error(chalk.red(`Error: ${validation.error}`))
+  // Validate language code using Intl API
+  if (!isValidLanguageCode(code)) {
+    console.error(chalk.red(`Error: Invalid BCP 47 language tag: ${code}`))
     console.log(chalk.gray('\nLanguage codes must follow IETF BCP 47 format:'))
     console.log(chalk.gray('  - 2-3 lowercase letters (language)'))
     console.log(chalk.gray('  - Optional: -Script (e.g., -Hans, -Latn)'))
@@ -716,8 +715,9 @@ async function main () {
   }
 
   // Warn if using non-canonical form
-  if (validation.canonical && validation.canonical !== code) {
-    console.log(chalk.yellow(`\nWarning: Language code "${code}" will be canonicalized to "${validation.canonical}"`))
+  const canonical = getCanonicalCode(code)
+  if (canonical && canonical !== code) {
+    console.log(chalk.yellow(`\nWarning: Language code "${code}" will be canonicalized to "${canonical}"`))
     console.log(chalk.gray('Consider using the canonical form for consistency.\n'))
   }
 
