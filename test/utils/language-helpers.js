@@ -98,6 +98,27 @@ export function getClassNameFromModule (languageModule) {
 }
 
 /**
+ * Gets all converter functions from an n2words module.
+ *
+ * @param {Object} n2wordsModule The imported n2words module (import * as n2words)
+ * @returns {Object<string, Function>} Map of converter names to functions
+ *
+ * @example
+ * import * as n2words from '../../lib/n2words.js'
+ * const converters = getConverters(n2words)
+ * // { EnglishConverter: fn, FrenchConverter: fn, ... }
+ */
+export function getConverters (n2wordsModule) {
+  const converters = {}
+  for (const [key, value] of Object.entries(n2wordsModule)) {
+    if (key.endsWith('Converter')) {
+      converters[key] = value
+    }
+  }
+  return converters
+}
+
+/**
  * Gets the effective base class name for a language class.
  * Handles regional variants by checking grandparent class.
  *

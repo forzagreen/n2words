@@ -13,21 +13,17 @@
  *   npm run bench:perf -- --lang en --history     # Show performance history for English
  */
 import Benchmark from 'benchmark'
-import { existsSync, readdirSync, writeFileSync, readFileSync } from 'node:fs'
+import { existsSync, writeFileSync, readFileSync } from 'node:fs'
 import chalk from 'chalk'
 import { join } from 'node:path'
 import * as n2words from '../lib/n2words.js'
+import { getClassNameFromModule, getConverters, getLanguageMetadata } from '../test/utils/language-helpers.js'
 
 const suite = new Benchmark.Suite()
 const resultsFile = join(import.meta.dirname, 'perf-results.json')
 
 // Build converter map from n2words exports
-const converters = {}
-for (const [key, value] of Object.entries(n2words)) {
-  if (key.endsWith('Converter')) {
-    converters[key] = value
-  }
-}
+const converters = getConverters(n2words)
 
 const arguments_ = process.argv.slice(2)
 
@@ -167,12 +163,12 @@ if (languages.length > 0) {
   }
 } else {
   // Benchmark all languages
-  const files = readdirSync('./lib/languages').filter(f => f.endsWith('.js') && !f.endsWith('.d.ts'))
-  console.log(chalk.gray(`Testing ${files.length} languages`))
+  const allLanguages = getLanguageMetadata()
+  console.log(chalk.gray(`Testing ${allLanguages.length} languages`))
   console.log(chalk.gray(`Test value: ${value.toLocaleString()}\n`))
 
-  for (const file of files) {
-    await benchConverter(file.replace('.js', ''))
+  for (const lang of allLanguages) {
+    await benchConverter(lang.code)
   }
 }
 
@@ -313,14 +309,13 @@ suite
 async function benchConverter (languageCode, options) {
   // Import the language module to get the class name
   const languageModule = await import(`../lib/languages/${languageCode}.js`)
-  const LanguageClass = Object.values(languageModule)[0]
+  const className = getClassNameFromModule(languageModule)
 
-  if (!LanguageClass || typeof LanguageClass !== 'function') {
+  if (!className) {
     throw new Error(`Language class not found for: ${languageCode}`)
   }
 
   // Find the matching converter by class name
-  const className = LanguageClass.name
   const converterName = `${className}Converter`
   const converter = converters[converterName]
 
