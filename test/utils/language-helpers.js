@@ -1,8 +1,9 @@
 /**
- * Language File Helpers
+ * Language Helpers
  *
- * Utilities for working with language files in tests and scripts.
- * Provides methods for extracting metadata from language files and modules.
+ * Utilities for working with language files and modules in tests and scripts.
+ *
+ * @module language-helpers
  */
 
 import { readFileSync, readdirSync } from 'node:fs'
@@ -28,7 +29,7 @@ export const BASE_CLASSES = {
 }
 
 // ============================================================================
-// File-based Helpers
+// Language Code Helpers
 // ============================================================================
 
 /**
@@ -43,7 +44,20 @@ export function getLanguageCodes () {
 }
 
 /**
- * Gets the class name for a language file by reading its export.
+ * Gets language codes that support options.
+ *
+ * @returns {string[]} Language codes that accept options
+ */
+export function getLanguagesWithOptions () {
+  return getLanguageCodes().filter(languageHasOptions)
+}
+
+// ============================================================================
+// File Content Helpers
+// ============================================================================
+
+/**
+ * Gets the class name by reading a language file.
  *
  * @param {string} code Language code
  * @returns {string|null} Class name, or null if not found
@@ -73,23 +87,12 @@ export function languageHasOptions (code) {
   }
 }
 
-/**
- * Gets languages that support options.
- *
- * @returns {string[]} Language codes that accept options
- */
-export function getLanguagesWithOptions () {
-  return getLanguageCodes().filter(languageHasOptions)
-}
-
 // ============================================================================
-// Module-based Helpers
+// Module Helpers
 // ============================================================================
 
 /**
  * Gets the class name from a language module's exports.
- *
- * Language files export exactly one named class.
  *
  * @param {Object} languageModule The imported language module
  * @returns {string|null} The class name, or null if not found
@@ -100,9 +103,7 @@ export function getClassNameFromModule (languageModule) {
 }
 
 /**
- * Gets converter functions from an n2words module, keyed by language code.
- *
- * Uses CLDR to derive class names from language codes, avoiding file reads.
+ * Gets converter functions from n2words module, keyed by language code.
  *
  * @param {Object} n2wordsModule The imported n2words module
  * @returns {Object<string, Function>} Map of language codes to converter functions
@@ -110,7 +111,6 @@ export function getClassNameFromModule (languageModule) {
 export function getConvertersByCode (n2wordsModule) {
   const converters = {}
   for (const code of getLanguageCodes()) {
-    // Use CLDR to get class name, fall back to file if not in CLDR
     const className = getClassName(code) || getClassNameFromFile(code)
     if (className) {
       const converterName = getConverterName(className)
