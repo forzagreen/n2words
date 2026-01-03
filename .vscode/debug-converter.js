@@ -16,8 +16,11 @@
  *   node .vscode/debug-converter.js EnglishConverter   # Also accepts converter names
  */
 
-import { pathToFileURL } from 'node:url'
 import * as n2words from '../lib/n2words.js'
+import { getConvertersByCode, getLanguageCodes } from '../test/utils/language-helpers.js'
+
+// Build converter map keyed by language code
+const converters = getConvertersByCode(n2words)
 
 const input = process.argv[2] || 'en'
 // Handle both command-line args and VSCode input (which may be a single space-separated string)
@@ -33,31 +36,17 @@ let converterName = input
 let converter = n2words[converterName]
 
 // If not found directly, try to resolve from language code
-if (!converter) {
-  try {
-    // Import the language file to get the class name
-    const languageModule = await import(pathToFileURL(`./lib/languages/${input}.js`).href)
-    const LanguageClass = Object.values(languageModule)[0]
-
-    if (LanguageClass && typeof LanguageClass === 'function') {
-      converterName = `${LanguageClass.name}Converter`
-      converter = n2words[converterName]
-    }
-  } catch (error) {
-    // File doesn't exist or other error
-  }
+if (!converter && converters[input]) {
+  converter = converters[input]
+  // Find the converter name for display
+  converterName = Object.keys(n2words).find(key => n2words[key] === converter) || input
 }
 
 if (!converter) {
   console.error(`Converter not found: ${input}`)
   console.log('\nAvailable language codes:')
-  const fs = await import('node:fs')
-  const files = fs.readdirSync('./lib/languages')
-    .filter(f => f.endsWith('.js') && !f.endsWith('.d.ts'))
-    .map(f => f.replace('.js', ''))
-    .sort()
-
-  files.forEach(code => console.log(`  - ${code}`))
+  const codes = getLanguageCodes().sort()
+  codes.forEach(code => console.log(`  - ${code}`))
 
   console.log('\nOr use converter names directly:')
   Object.keys(n2words)

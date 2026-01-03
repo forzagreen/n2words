@@ -6,7 +6,7 @@
  */
 
 import { readFileSync, readdirSync } from 'node:fs'
-import { getConverterName } from './language-naming.js'
+import { getClassName, getConverterName } from './language-naming.js'
 
 // ============================================================================
 // Constants
@@ -31,32 +31,54 @@ export const VALID_BASE_CLASSES = [
 // ============================================================================
 
 /**
- * Gets metadata for all language files.
+ * Gets all language codes from language files.
  *
- * Reads each language file once and extracts:
- * - code: Language code from filename (e.g., 'en', 'zh-Hans')
- * - className: Exported class name (e.g., 'English', 'SimplifiedChinese')
- * - hasOptions: Whether the language accepts options
- *
- * @returns {Array<{code: string, className: string, hasOptions: boolean}>}
+ * @returns {string[]} Language codes (e.g., ['en', 'fr', 'zh-Hans'])
  */
-export function getLanguageMetadata () {
+export function getLanguageCodes () {
   return readdirSync(LANGUAGE_DIR)
     .filter(file => file.endsWith('.js'))
-    .map(file => {
-      const code = file.replace('.js', '')
-      const content = readFileSync(`${LANGUAGE_DIR}/${file}`, 'utf8')
+    .map(file => file.replace('.js', ''))
+}
 
-      // Extract class name from export statement
-      const classMatch = content.match(/export\s+class\s+(\w+)/)
-      const className = classMatch ? classMatch[1] : null
+/**
+ * Gets the class name for a language file by reading its export.
+ *
+ * @param {string} code Language code
+ * @returns {string|null} Class name, or null if not found
+ */
+export function getClassNameFromFile (code) {
+  try {
+    const content = readFileSync(`${LANGUAGE_DIR}/${code}.js`, 'utf8')
+    const match = content.match(/export\s+class\s+(\w+)/)
+    return match ? match[1] : null
+  } catch {
+    return null
+  }
+}
 
-      // Check for options support
-      const hasOptions = content.includes('this.setOptions(')
+/**
+ * Checks if a language supports options by reading its file.
+ *
+ * @param {string} code Language code
+ * @returns {boolean} True if language accepts options
+ */
+export function languageHasOptions (code) {
+  try {
+    const content = readFileSync(`${LANGUAGE_DIR}/${code}.js`, 'utf8')
+    return content.includes('this.setOptions(')
+  } catch {
+    return false
+  }
+}
 
-      return { code, className, hasOptions }
-    })
-    .filter(lang => lang.className !== null)
+/**
+ * Gets languages that support options.
+ *
+ * @returns {string[]} Language codes that accept options
+ */
+export function getLanguagesWithOptions () {
+  return getLanguageCodes().filter(languageHasOptions)
 }
 
 // ============================================================================
@@ -79,18 +101,21 @@ export function getClassNameFromModule (languageModule) {
 /**
  * Gets converter functions from an n2words module, keyed by language code.
  *
- * Combines file-based metadata (language codes) with module exports (converters)
- * to create a convenient code → converter mapping.
+ * Uses CLDR to derive class names from language codes, avoiding file reads.
  *
  * @param {Object} n2wordsModule The imported n2words module
  * @returns {Object<string, Function>} Map of language codes to converter functions
  */
 export function getConvertersByCode (n2wordsModule) {
   const converters = {}
-  for (const { code, className } of getLanguageMetadata()) {
-    const converterName = getConverterName(className)
-    if (n2wordsModule[converterName]) {
-      converters[code] = n2wordsModule[converterName]
+  for (const code of getLanguageCodes()) {
+    // Use CLDR to get class name, fall back to file if not in CLDR
+    const className = getClassName(code) || getClassNameFromFile(code)
+    if (className) {
+      const converterName = getConverterName(className)
+      if (n2wordsModule[converterName]) {
+        converters[code] = n2wordsModule[converterName]
+      }
     }
   }
   return converters
