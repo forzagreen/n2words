@@ -1,6 +1,8 @@
 import test from 'ava'
-import { readFileSync, readdirSync } from 'node:fs'
+import { readFileSync } from 'node:fs'
 import * as n2words from '../../lib/n2words.js'
+import { getClassName, getConverterName } from '../utils/language-naming.js'
+import { getClassNameFromFile, getLanguageCodes, getLanguagesWithOptions } from '../utils/language-helpers.js'
 
 /**
  * Unit Tests for n2words.js (Public API Module Structure)
@@ -20,43 +22,6 @@ import * as n2words from '../../lib/n2words.js'
 const n2wordsContent = readFileSync('./lib/n2words.js', 'utf8')
 
 // ============================================================================
-// Helpers
-// ============================================================================
-
-/**
- * Gets the exported class name from a language file.
- */
-function getClassNameFromFile (filePath) {
-  const content = readFileSync(filePath, 'utf8')
-  const match = content.match(/export\s+class\s+(\w+)/)
-  return match ? match[1] : null
-}
-
-/**
- * Checks if a language file uses options (has setOptions call in constructor).
- */
-function languageHasOptions (filePath) {
-  const content = readFileSync(filePath, 'utf8')
-  return content.includes('this.setOptions(')
-}
-
-/**
- * Gets all language files and their metadata.
- */
-function getLanguageClasses () {
-  const languageDir = './lib/languages'
-  const files = readdirSync(languageDir).filter(f => f.endsWith('.js'))
-
-  return files.map(file => {
-    const filePath = `${languageDir}/${file}`
-    const className = getClassNameFromFile(filePath)
-    const hasOptions = languageHasOptions(filePath)
-    const code = file.replace('.js', '')
-    return { file, filePath, className, hasOptions, code }
-  }).filter(lang => lang.className !== null)
-}
-
-// ============================================================================
 // Module Structure
 // ============================================================================
 
@@ -72,20 +37,21 @@ test('all exports are converter functions', t => {
 })
 
 test('converter count matches language file count', t => {
-  const languageCount = getLanguageClasses().length
+  const languageCount = getLanguageCodes().length
   const exportCount = Object.keys(n2words).length
 
   t.is(exportCount, languageCount, `Should have ${languageCount} converters for ${languageCount} languages`)
 })
 
 test('all language classes are imported', t => {
-  const languages = getLanguageClasses()
+  const codes = getLanguageCodes()
 
   const missingImports = []
-  for (const lang of languages) {
-    const importPattern = new RegExp(`import\\s*\\{\\s*${lang.className}\\s*\\}\\s*from\\s*['"]\\./languages/${lang.code}\\.js['"]`)
+  for (const code of codes) {
+    const className = getClassName(code) || getClassNameFromFile(code)
+    const importPattern = new RegExp(`import\\s*\\{\\s*${className}\\s*\\}\\s*from\\s*['"]\\./languages/${code}\\.js['"]`)
     if (!importPattern.test(n2wordsContent)) {
-      missingImports.push(`${lang.className} (${lang.file})`)
+      missingImports.push(`${className} (${code})`)
     }
   }
 
@@ -105,14 +71,15 @@ test('language imports are alphabetically ordered', t => {
 })
 
 test('all language converters are exported', t => {
-  const languages = getLanguageClasses()
+  const codes = getLanguageCodes()
   const exportSection = n2wordsContent.match(/export\s*{([\s\S]*?)}/)?.[1] || ''
 
   const missingExports = []
-  for (const lang of languages) {
-    const converterName = `${lang.className}Converter`
+  for (const code of codes) {
+    const className = getClassName(code) || getClassNameFromFile(code)
+    const converterName = getConverterName(className)
     if (!exportSection.includes(converterName)) {
-      missingExports.push(`${converterName} (${lang.file})`)
+      missingExports.push(`${converterName} (${code})`)
     }
   }
 
@@ -136,14 +103,15 @@ test('exports are alphabetically ordered', t => {
 })
 
 test('all converters have type annotations', t => {
-  const languages = getLanguageClasses()
+  const codes = getLanguageCodes()
 
   const missingAnnotations = []
-  for (const lang of languages) {
-    const converterName = `${lang.className}Converter`
+  for (const code of codes) {
+    const className = getClassName(code) || getClassNameFromFile(code)
+    const converterName = getConverterName(className)
     const typePattern = new RegExp(`const\\s+${converterName}\\s*=\\s*/\\*\\*\\s*@type\\s*\\{\\(value:\\s*NumericValue`)
     if (!typePattern.test(n2wordsContent)) {
-      missingAnnotations.push(`${converterName} (${lang.file})`)
+      missingAnnotations.push(`${converterName} (${code})`)
     }
   }
 
@@ -151,21 +119,22 @@ test('all converters have type annotations', t => {
 })
 
 test('languages with options have Options typedef and typed converter', t => {
-  const languages = getLanguageClasses().filter(lang => lang.hasOptions)
+  const codesWithOptions = getLanguagesWithOptions()
 
   const missingTypedefs = []
   const missingOptionsInConverter = []
 
-  for (const lang of languages) {
-    const typedefPattern = new RegExp(`@typedef\\s*\\{Object\\}\\s*${lang.className}Options`)
+  for (const code of codesWithOptions) {
+    const className = getClassName(code) || getClassNameFromFile(code)
+    const typedefPattern = new RegExp(`@typedef\\s*\\{Object\\}\\s*${className}Options`)
     if (!typedefPattern.test(n2wordsContent)) {
-      missingTypedefs.push(`${lang.className}Options (${lang.file})`)
+      missingTypedefs.push(`${className}Options (${code})`)
     }
 
-    const converterName = `${lang.className}Converter`
-    const optionsPattern = new RegExp(`const\\s+${converterName}\\s*=.*options\\?:\\s*${lang.className}Options`)
+    const converterName = getConverterName(className)
+    const optionsPattern = new RegExp(`const\\s+${converterName}\\s*=.*options\\?:\\s*${className}Options`)
     if (!optionsPattern.test(n2wordsContent)) {
-      missingOptionsInConverter.push(`${converterName} (${lang.file})`)
+      missingOptionsInConverter.push(`${converterName} (${code})`)
     }
   }
 

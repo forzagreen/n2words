@@ -1,6 +1,10 @@
 import test from 'ava'
 import { readdirSync } from 'node:fs'
-import { parseNumericValue } from '../../lib/utils/parse-numeric.js'
+import { isPlainObject } from '../../lib/utils/is-plain-object.js'
+import { isValidNumericValue, parseNumericValue } from '../../lib/utils/parse-numeric.js'
+import { isValidLanguageCode } from '../utils/language-naming.js'
+import { BASE_CLASSES, getBaseClassName, getClassNameFromModule } from '../utils/language-helpers.js'
+import { safeStringify } from '../utils/stringify.js'
 
 /**
  * Language Implementation Tests
@@ -17,84 +21,22 @@ import { parseNumericValue } from '../../lib/utils/parse-numeric.js'
  * - Basic sanity checks (handles zero, returns strings)
  *
  * Note: Module structure validation (imports, exports, typedefs) is in api.test.js.
+ */
+
+// ============================================================================
+// Fixture Validation
+// ============================================================================
+
+/**
+ * Validates a test fixture file format.
  *
- * Test fixtures: test/fixtures/languages/*.js
- * Language files: lib/languages/*.js
- */
-
-// ============================================================================
-// Constants
-// ============================================================================
-
-const VALID_BASE_CLASSES = [
-  'AbstractLanguage',
-  'GreedyScaleLanguage',
-  'HebrewLanguage',
-  'SlavicLanguage',
-  'SouthAsianLanguage',
-  'TurkicLanguage'
-]
-
-// ============================================================================
-// Helper Functions
-// ============================================================================
-
-/**
- * Extracts the class name from a language module's exports.
- * Language files export a single named class (e.g., `export class English`).
+ * Fixtures must be arrays of test cases where each test case is:
+ * - [input, expected] or [input, expected, options]
+ * - input: valid numeric value (number, string, or bigint)
+ * - expected: string (the expected word output)
+ * - options: plain object (optional)
  *
- * @param {Object} languageModule The imported language module
- * @returns {string|null} The class name, or null if not found
- */
-function getClassNameFromModule (languageModule) {
-  const exportNames = Object.keys(languageModule)
-  // Language files export exactly one class
-  return exportNames.length === 1 ? exportNames[0] : null
-}
-
-/**
- * Get the effective base class name (handles regional variants).
- * @param {Function} LanguageClass Language class constructor
- * @returns {string|null} Base class name
- */
-function getBaseClassName (LanguageClass) {
-  const proto = Object.getPrototypeOf(LanguageClass)
-  const baseClassName = proto?.name
-
-  if (VALID_BASE_CLASSES.includes(baseClassName)) {
-    return baseClassName
-  }
-
-  // Check grandparent for regional variants (e.g., FrenchBelgium → French → GreedyScaleLanguage)
-  const grandProto = Object.getPrototypeOf(proto)
-  const grandParentClassName = grandProto?.name
-  if (VALID_BASE_CLASSES.includes(grandParentClassName)) {
-    return grandParentClassName
-  }
-
-  return baseClassName
-}
-
-/**
- * Safely stringify a value for error messages (handles BigInt)
- * @param {*} value Value to stringify
- * @returns {string} String representation
- */
-function safeStringify (value) {
-  if (typeof value === 'bigint') {
-    return value.toString() + 'n'
-  }
-  if (typeof value === 'object' && value !== null) {
-    return JSON.stringify(value, (_key, val) =>
-      typeof val === 'bigint' ? val.toString() + 'n' : val
-    )
-  }
-  return JSON.stringify(value)
-}
-
-/**
- * Validates a test fixture file format
- * @param {Array} testFile The imported fixture file
+ * @param {Array} testFile The imported fixture file (default export)
  * @param {string} languageCode Language code for error messages
  * @returns {{valid: boolean, error?: string}} Validation result
  */
@@ -113,7 +55,6 @@ function validateFixture (testFile, languageCode) {
     }
   }
 
-  // Validate each test case
   for (let i = 0; i < testFile.length; i++) {
     const testCase = testFile[i]
 
@@ -133,16 +74,13 @@ function validateFixture (testFile, languageCode) {
 
     const [input, expected, options] = testCase
 
-    // Validate input type
-    const inputType = typeof input
-    if (inputType !== 'number' && inputType !== 'string' && inputType !== 'bigint') {
+    if (!isValidNumericValue(input)) {
       return {
         valid: false,
-        error: `Invalid input at index ${i} in ${languageCode}: expected number|string|bigint, got ${inputType}`
+        error: `Invalid input at index ${i} in ${languageCode}: expected valid numeric value (number|string|bigint), got ${typeof input}`
       }
     }
 
-    // Validate expected output
     if (typeof expected !== 'string') {
       return {
         valid: false,
@@ -150,17 +88,20 @@ function validateFixture (testFile, languageCode) {
       }
     }
 
-    // Validate options if present
-    if (options !== undefined && (typeof options !== 'object' || options === null || Array.isArray(options))) {
+    if (options !== undefined && !isPlainObject(options)) {
       return {
         valid: false,
-        error: `Invalid options at index ${i} in ${languageCode}: expected object or undefined, got ${typeof options}`
+        error: `Invalid options at index ${i} in ${languageCode}: expected plain object or undefined, got ${typeof options}`
       }
     }
   }
 
   return { valid: true }
 }
+
+// ============================================================================
+// Language Tests
+// ============================================================================
 
 const files = readdirSync('./test/fixtures/languages')
 
@@ -230,17 +171,15 @@ for (const file of files) {
     const instance = new LanguageClass()
 
     // Valid BCP 47 language code
-    try {
-      const canonical = Intl.getCanonicalLocales(languageCode)
-      t.true(canonical.length > 0, `${languageCode} should be a valid BCP 47 tag`)
-    } catch (error) {
-      t.fail(`Invalid BCP 47 language tag: ${languageCode} (${error.message})`)
-    }
+    t.true(
+      isValidLanguageCode(languageCode),
+      `${languageCode} should be a valid BCP 47 tag`
+    )
 
     // Extends valid base class
     const baseClass = getBaseClassName(LanguageClass)
     t.true(
-      VALID_BASE_CLASSES.includes(baseClass),
+      baseClass in BASE_CLASSES,
       `${className} should extend a valid base class, got: ${baseClass}`
     )
 

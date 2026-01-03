@@ -13,119 +13,72 @@
  *   npm run lang:add <language-code> [--base=<base-class>]
  *
  * Base Classes:
- *   --base=greedy         GreedyScaleLanguage (default) - Scale-based decomposition
+ *   --base=greedy-scale   GreedyScaleLanguage (default) - Scale-based decomposition
  *   --base=slavic         SlavicLanguage - Three-form pluralization (Slavic languages)
  *   --base=south-asian    SouthAsianLanguage - Indian numbering system
  *   --base=turkic         TurkicLanguage - Turkish-style implicit "bir" rules
  *   --base=abstract       AbstractLanguage - Direct implementation (advanced)
  *
  * Examples:
- *   npm run lang:add ko                      # Korean (GreedyScaleLanguage)
- *   npm run lang:add sr-Cyrl --base=slavic  # Serbian Cyrillic (SlavicLanguage)
- *   npm run lang:add ta --base=south-asian  # Tamil (SouthAsianLanguage)
- *   npm run lang:add az --base=turkic       # Azerbaijani (TurkicLanguage)
+ *   npm run lang:add ko                           # Korean (GreedyScaleLanguage)
+ *   npm run lang:add sr-Cyrl --base=slavic       # Serbian Cyrillic (SlavicLanguage)
+ *   npm run lang:add ta --base=south-asian       # Tamil (SouthAsianLanguage)
+ *   npm run lang:add az --base=turkic            # Azerbaijani (TurkicLanguage)
  */
 
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { createInterface } from 'node:readline'
 import chalk from 'chalk'
+import { getCanonicalCode, getClassName, isValidLanguageCode } from '../test/utils/language-naming.js'
+import { BASE_CLASSES } from '../test/utils/language-helpers.js'
 
 // ============================================================================
-// BCP 47 Language Code Utilities
+// Base Class Utilities
 // ============================================================================
 
 /**
- * Get expected class name from BCP 47 code using CLDR
- * @param {string} languageCode BCP 47 language code
- * @returns {string|null} Expected PascalCase class name
+ * Converts a PascalCase class name to kebab-case.
+ *
+ * @param {string} className Class name (e.g., 'GreedyScaleLanguage')
+ * @returns {string} Kebab-case (e.g., 'greedy-scale-language')
  */
-function getExpectedClassName (languageCode) {
-  try {
-    const displayNames = new Intl.DisplayNames(['en'], { type: 'language' })
-    const cldrName = displayNames.of(languageCode)
-
-    // CLDR doesn't recognize this code
-    if (!cldrName || cldrName === languageCode) {
-      return null
-    }
-
-    // Convert "Norwegian Bokmål" -> "NorwegianBokmal"
-    return cldrName
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '') // Remove diacritics
-      .replace(/[^A-Za-z0-9\s]/g, '') // Remove non-alphanumeric except spaces
-      .split(/\s+/)
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-      .join('')
-  } catch {
-    return null
-  }
+function toKebabCase (className) {
+  return className.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase()
 }
 
 /**
- * Validate IETF BCP 47 language code
- * @param {string} languageCode Language code to validate
- * @returns {{ valid: boolean, canonical: string|null, error: string|null }}
+ * Gets the CLI key for a base class name.
+ *
+ * @param {string} className Base class name (e.g., 'GreedyScaleLanguage')
+ * @returns {string} CLI key (e.g., 'greedy-scale')
  */
-function validateLanguageCode (languageCode) {
-  try {
-    const canonical = Intl.getCanonicalLocales(languageCode)
-
-    if (canonical.length === 0) {
-      return {
-        valid: false,
-        canonical: null,
-        error: `Invalid BCP 47 language tag: ${languageCode}`
-      }
-    }
-
-    return {
-      valid: true,
-      canonical: canonical[0],
-      error: null
-    }
-  } catch (error) {
-    return {
-      valid: false,
-      canonical: null,
-      error: `Invalid BCP 47 language tag: ${languageCode} (${error.message})`
-    }
-  }
+function getCliKey (className) {
+  return toKebabCase(className.replace(/Language$/, ''))
 }
 
-// ============================================================================
-// Base Class Configurations
-// ============================================================================
+/**
+ * Gets the import path for a base class.
+ *
+ * @param {string} className Base class name (e.g., 'GreedyScaleLanguage')
+ * @returns {string} Import path (e.g., '../classes/greedy-scale-language.js')
+ */
+function getImportPath (className) {
+  return `../classes/${toKebabCase(className)}.js`
+}
 
 /**
- * Base class configurations
+ * Finds a base class by its CLI key.
+ *
+ * @param {string} cliKey CLI key (e.g., 'greedy-scale')
+ * @returns {{name: string, description: string}|undefined} Base class info or undefined
  */
-const BASE_CLASSES = {
-  greedy: {
-    name: 'GreedyScaleLanguage',
-    import: '../classes/greedy-scale-language.js',
-    description: 'Scale-based decomposition (most common)'
-  },
-  slavic: {
-    name: 'SlavicLanguage',
-    import: '../classes/slavic-language.js',
-    description: 'Three-form pluralization (Slavic languages)'
-  },
-  'south-asian': {
-    name: 'SouthAsianLanguage',
-    import: '../classes/south-asian-language.js',
-    description: 'Indian numbering system (lakh, crore)'
-  },
-  turkic: {
-    name: 'TurkicLanguage',
-    import: '../classes/turkic-language.js',
-    description: 'Turkish-style implicit "bir" rules'
-  },
-  abstract: {
-    name: 'AbstractLanguage',
-    import: '../classes/abstract-language.js',
-    description: 'Direct implementation (advanced)'
+function findBaseClassByCliKey (cliKey) {
+  for (const [name, description] of Object.entries(BASE_CLASSES)) {
+    if (getCliKey(name) === cliKey) {
+      return { name, description }
+    }
   }
+  return undefined
 }
 
 /**
@@ -134,10 +87,14 @@ const BASE_CLASSES = {
  * @param {string} baseType Base class type ('greedy', 'slavic', 'south-asian', 'turkic', 'abstract')
  * @returns {string}
  */
-function generateLanguageFile (className, baseType = 'greedy') {
-  const base = BASE_CLASSES[baseType]
+function generateLanguageFile (className, baseType = 'greedy-scale') {
+  const baseInfo = findBaseClassByCliKey(baseType)
+  const base = {
+    name: baseInfo.name,
+    import: getImportPath(baseInfo.name)
+  }
 
-  if (baseType === 'greedy') {
+  if (baseType === 'greedy-scale') {
     return generateGreedyLanguageFile(className, base)
   } else if (baseType === 'slavic') {
     return generateSlavicLanguageFile(className, base)
@@ -676,15 +633,16 @@ async function promptForBaseClass () {
 
   console.log(chalk.cyan('\nSelect a base class for your language:\n'))
 
-  const options = Object.entries(BASE_CLASSES).map(([key, config], index) => ({
-    key,
-    index: index + 1,
-    ...config
+  const options = Object.entries(BASE_CLASSES).map(([name, description], index) => ({
+    key: getCliKey(name),
+    name,
+    description,
+    index: index + 1
   }))
 
   // Display options
   options.forEach(option => {
-    const isDefault = option.key === 'greedy' ? chalk.yellow(' (default)') : ''
+    const isDefault = option.key === 'greedy-scale' ? chalk.yellow(' (default)') : ''
     console.log(`  ${chalk.white(option.index)}. ${chalk.bold(option.name)}${isDefault}`)
     console.log(`     ${chalk.gray(option.description)}`)
     console.log()
@@ -729,8 +687,8 @@ async function main () {
     console.error(chalk.red('Error: Language code required'))
     console.log(chalk.gray('\nUsage: npm run lang:add <language-code> [--base=<base-class>]'))
     console.log(chalk.gray('\nBase Classes:'))
-    for (const [key, config] of Object.entries(BASE_CLASSES)) {
-      console.log(chalk.gray(`  --base=${key.padEnd(12)} ${config.description}`))
+    for (const [name, description] of Object.entries(BASE_CLASSES)) {
+      console.log(chalk.gray(`  --base=${getCliKey(name).padEnd(12)} ${description}`))
     }
     console.log(chalk.gray('\nExamples:'))
     console.log(chalk.gray('  npm run lang:add ko                      # Korean (GreedyScaleLanguage)'))
@@ -750,11 +708,11 @@ async function main () {
   }
 
   // Validate base class type if provided via argument
-  if (baseType && !BASE_CLASSES[baseType]) {
+  if (baseType && !findBaseClassByCliKey(baseType)) {
     console.error(chalk.red(`Error: Invalid base class "${baseType}"`))
     console.log(chalk.gray('\nValid base classes:'))
-    for (const [key, config] of Object.entries(BASE_CLASSES)) {
-      console.log(chalk.gray(`  ${key.padEnd(12)} - ${config.description}`))
+    for (const [name, description] of Object.entries(BASE_CLASSES)) {
+      console.log(chalk.gray(`  ${getCliKey(name).padEnd(12)} - ${description}`))
     }
     process.exit(1)
   }
@@ -764,10 +722,9 @@ async function main () {
     baseType = await promptForBaseClass()
   }
 
-  // Validate language code using Intl API (same as validator)
-  const validation = validateLanguageCode(code)
-  if (!validation.valid) {
-    console.error(chalk.red(`Error: ${validation.error}`))
+  // Validate language code using Intl API
+  if (!isValidLanguageCode(code)) {
+    console.error(chalk.red(`Error: Invalid BCP 47 language tag: ${code}`))
     console.log(chalk.gray('\nLanguage codes must follow IETF BCP 47 format:'))
     console.log(chalk.gray('  - 2-3 lowercase letters (language)'))
     console.log(chalk.gray('  - Optional: -Script (e.g., -Hans, -Latn)'))
@@ -778,12 +735,13 @@ async function main () {
   }
 
   // Warn if using non-canonical form
-  if (validation.canonical && validation.canonical !== code) {
-    console.log(chalk.yellow(`\nWarning: Language code "${code}" will be canonicalized to "${validation.canonical}"`))
+  const canonical = getCanonicalCode(code)
+  if (canonical && canonical !== code) {
+    console.log(chalk.yellow(`\nWarning: Language code "${code}" will be canonicalized to "${canonical}"`))
     console.log(chalk.gray('Consider using the canonical form for consistency.\n'))
   }
 
-  const className = getExpectedClassName(code)
+  const className = getClassName(code)
 
   // If CLDR doesn't provide a name (rare/historical languages), ask user or use code
   if (!className) {
@@ -797,7 +755,7 @@ async function main () {
 
   const langFilePath = `./lib/languages/${code}.js`
   const fixtureFilePath = `./test/fixtures/languages/${code}.js`
-  const baseClass = BASE_CLASSES[baseType]
+  const baseClass = findBaseClassByCliKey(baseType)
 
   console.log(chalk.cyan(`\nAdding new language: ${code}`))
   console.log(chalk.gray(`Class name: ${className}`))
@@ -840,7 +798,7 @@ async function main () {
   console.log(chalk.gray('   - Replace placeholder values with actual ' + code + ' words'))
 
   // Base-class specific instructions
-  if (baseType === 'greedy' || baseType === 'turkic') {
+  if (baseType === 'greedy-scale' || baseType === 'turkic') {
     console.log(chalk.gray('   - Add complete scaleWords array'))
     console.log(chalk.gray('   - Implement combineWordSets() logic (if needed)'))
   } else if (baseType === 'slavic') {

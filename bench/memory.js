@@ -13,20 +13,16 @@
  *   npm run bench:memory -- --lang en --history            # Show memory history for English
  *   npm run bench:memory -- --iterations 10000 --value 42  # Custom test
  */
-import { existsSync, readdirSync, writeFileSync, readFileSync } from 'node:fs'
+import { existsSync, writeFileSync, readFileSync } from 'node:fs'
 import chalk from 'chalk'
 import { join } from 'node:path'
 import * as n2words from '../lib/n2words.js'
+import { getConvertersByCode } from '../test/utils/language-helpers.js'
 
 const resultsFile = join(import.meta.dirname, 'memory-results.json')
 
-// Build converter map from n2words exports
-const converters = {}
-for (const [key, value] of Object.entries(n2words)) {
-  if (key.endsWith('Converter')) {
-    converters[key] = value
-  }
-}
+// Build converter map keyed by language code
+const converters = getConvertersByCode(n2words)
 
 const arguments_ = process.argv.slice(2)
 
@@ -159,31 +155,27 @@ if (showHistory) {
   process.exit(0)
 }
 
-if (languages.length > 0) {
-  // Benchmark specific languages
-  console.log(chalk.gray(`Benchmarking: ${languages.join(', ')}`))
-  console.log(chalk.gray(`Test value: ${value.toLocaleString()}`))
-  console.log(chalk.gray(`Iterations: ${iterations.toLocaleString()}\n`))
+// Get language codes to benchmark
+const allCodes = Object.keys(converters)
+const codesToBenchmark = languages.length > 0 ? languages : allCodes
 
-  for (const lang of languages) {
-    if (existsSync('./lib/languages/' + lang + '.js')) {
-      await benchMemory(lang, lang)
-    } else {
-      console.error(chalk.red(`✗ Language file does not exist: ${lang}.js`))
+if (languages.length > 0) {
+  // Validate requested languages exist
+  for (const code of languages) {
+    if (!converters[code]) {
+      console.error(chalk.red(`✗ Language not found: ${code}`))
       process.exit(1)
     }
   }
+  console.log(chalk.gray(`Benchmarking: ${languages.join(', ')}`))
 } else {
-  // Benchmark all languages
-  const files = readdirSync('./lib/languages').filter(f => f.endsWith('.js') && !f.endsWith('.d.ts'))
-  console.log(chalk.gray(`Testing ${files.length} languages`))
-  console.log(chalk.gray(`Test value: ${value.toLocaleString()}`))
-  console.log(chalk.gray(`Iterations: ${iterations.toLocaleString()} per language\n`))
+  console.log(chalk.gray(`Testing ${allCodes.length} languages`))
+}
+console.log(chalk.gray(`Test value: ${value.toLocaleString()}`))
+console.log(chalk.gray(`Iterations: ${iterations.toLocaleString()}${languages.length === 0 ? ' per language' : ''}\n`))
 
-  for (const file of files) {
-    const code = file.replace('.js', '')
-    await benchMemory(code, code)
-  }
+for (const code of codesToBenchmark) {
+  await benchMemory(code)
 }
 
 displayResults()
@@ -236,27 +228,10 @@ console.log() // Final newline
  * 3. Running N iterations of converter function
  * 4. Measuring memory delta
  *
- * @param {string} languageCode Language code (e.g., 'en', 'es', 'zh-Hans').
- * @param {string} name Display name for the language.
- * @throws {Error} If converter cannot be found for the language code.
+ * @param {string} code Language code (e.g., 'en', 'es', 'zh-Hans').
  */
-async function benchMemory (languageCode, name) {
-  // Import the language module to get the class name
-  const languageModule = await import(`../lib/languages/${languageCode}.js`)
-  const LanguageClass = Object.values(languageModule)[0]
-
-  if (!LanguageClass || typeof LanguageClass !== 'function') {
-    throw new Error(`Language class not found for: ${languageCode}`)
-  }
-
-  // Find the matching converter by class name
-  const className = LanguageClass.name
-  const converterName = `${className}Converter`
-  const converter = converters[converterName]
-
-  if (!converter) {
-    throw new Error(`Converter not found for: ${className} (expected ${converterName})`)
-  }
+async function benchMemory (code) {
+  const converter = converters[code]
 
   // Force garbage collection for more accurate baseline
   if (global.gc) {
@@ -284,7 +259,7 @@ async function benchMemory (languageCode, name) {
   const perIteration = totalAllocated / iterations
 
   results.push({
-    name,
+    name: code,
     heapUsed,
     external,
     arrayBuffers,
@@ -295,7 +270,7 @@ async function benchMemory (languageCode, name) {
 
   // Sanity check
   if (outputs.length !== iterations) {
-    console.error(chalk.red(`✗ Warning: Unexpected output count for ${name}`))
+    console.error(chalk.red(`✗ Warning: Unexpected output count for ${code}`))
   }
 }
 

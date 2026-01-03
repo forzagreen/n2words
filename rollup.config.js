@@ -2,6 +2,7 @@ import { babel } from '@rollup/plugin-babel'
 import { nodeResolve } from '@rollup/plugin-node-resolve'
 import terser from '@rollup/plugin-terser'
 import { readFileSync } from 'node:fs'
+import * as n2words from './lib/n2words.js'
 
 // Read package.json for version
 const pkg = JSON.parse(readFileSync('./package.json', 'utf8'))
@@ -77,17 +78,8 @@ const mainConfig = {
   plugins: sharedPlugins
 }
 
-// Extract converter names from n2words.js exports
-const n2wordsContent = readFileSync('./lib/n2words.js', 'utf8')
-const exportMatches = n2wordsContent.matchAll(/export\s*{\s*([^}]+)\s*}/g)
-const allExports = []
-for (const match of exportMatches) {
-  const exports = match[1].split(',').map(e => e.trim())
-  allExports.push(...exports)
-}
-
-// Filter to only converter functions (end with "Converter")
-const converters = allExports.filter(name => name.endsWith('Converter'))
+// Get converter names from n2words exports
+const converters = Object.keys(n2words).filter(name => name.endsWith('Converter'))
 
 // Generate individual converter bundle configurations
 const converterConfigs = converters.map(converterName => {

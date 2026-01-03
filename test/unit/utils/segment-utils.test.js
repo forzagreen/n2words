@@ -2,14 +2,13 @@ import test from 'ava'
 import {
   groupByThrees,
   groupByThreeThenTwos,
-  placeValues,
-  slavicPlural
+  placeValues
 } from '../../../lib/utils/segment-utils.js'
 
 /**
  * Unit Tests for segment-utils.js
  *
- * Tests all utility functions for number segmentation and pluralization.
+ * Tests all utility functions for number segmentation.
  */
 
 // ============================================================================
@@ -150,128 +149,4 @@ test('placeValues extracts from 100', t => {
 
 test('placeValues extracts from 010 (10)', t => {
   t.deepEqual(placeValues(10n), [0n, 1n, 0n])
-})
-
-// ============================================================================
-// slavicPlural Tests
-// ============================================================================
-
-test('slavicPlural returns singular for 1', t => {
-  const forms = ['рубль', 'рубля', 'рублей']
-  t.is(slavicPlural(1n, forms), 'рубль')
-})
-
-test('slavicPlural returns singular for 21', t => {
-  const forms = ['рубль', 'рубля', 'рублей']
-  t.is(slavicPlural(21n, forms), 'рубль')
-})
-
-test('slavicPlural returns singular for 31', t => {
-  const forms = ['рубль', 'рубля', 'рублей']
-  t.is(slavicPlural(31n, forms), 'рубль')
-})
-
-test('slavicPlural returns singular for 101', t => {
-  const forms = ['рубль', 'рубля', 'рублей']
-  t.is(slavicPlural(101n, forms), 'рубль')
-})
-
-test('slavicPlural returns few for 2', t => {
-  const forms = ['рубль', 'рубля', 'рублей']
-  t.is(slavicPlural(2n, forms), 'рубля')
-})
-
-test('slavicPlural returns few for 3', t => {
-  const forms = ['рубль', 'рубля', 'рублей']
-  t.is(slavicPlural(3n, forms), 'рубля')
-})
-
-test('slavicPlural returns few for 4', t => {
-  const forms = ['рубль', 'рубля', 'рублей']
-  t.is(slavicPlural(4n, forms), 'рубля')
-})
-
-test('slavicPlural returns few for 22', t => {
-  const forms = ['рубль', 'рубля', 'рублей']
-  t.is(slavicPlural(22n, forms), 'рубля')
-})
-
-test('slavicPlural returns few for 34', t => {
-  const forms = ['рубль', 'рубля', 'рублей']
-  t.is(slavicPlural(34n, forms), 'рубля')
-})
-
-test('slavicPlural returns many for 0', t => {
-  const forms = ['рубль', 'рубля', 'рублей']
-  t.is(slavicPlural(0n, forms), 'рублей')
-})
-
-test('slavicPlural returns many for 5', t => {
-  const forms = ['рубль', 'рубля', 'рублей']
-  t.is(slavicPlural(5n, forms), 'рублей')
-})
-
-test('slavicPlural returns many for 10', t => {
-  const forms = ['рубль', 'рубля', 'рублей']
-  t.is(slavicPlural(10n, forms), 'рублей')
-})
-
-test('slavicPlural returns many for 11', t => {
-  const forms = ['рубль', 'рубля', 'рублей']
-  t.is(slavicPlural(11n, forms), 'рублей')
-})
-
-test('slavicPlural returns many for 12', t => {
-  const forms = ['рубль', 'рубля', 'рублей']
-  t.is(slavicPlural(12n, forms), 'рублей')
-})
-
-test('slavicPlural returns many for 13', t => {
-  const forms = ['рубль', 'рубля', 'рублей']
-  t.is(slavicPlural(13n, forms), 'рублей')
-})
-
-test('slavicPlural returns many for 14', t => {
-  const forms = ['рубль', 'рубля', 'рублей']
-  t.is(slavicPlural(14n, forms), 'рублей')
-})
-
-test('slavicPlural returns many for 19', t => {
-  const forms = ['рубль', 'рубля', 'рублей']
-  t.is(slavicPlural(19n, forms), 'рублей')
-})
-
-test('slavicPlural returns many for 20', t => {
-  const forms = ['рубль', 'рубля', 'рублей']
-  t.is(slavicPlural(20n, forms), 'рублей')
-})
-
-test('slavicPlural returns many for 25', t => {
-  const forms = ['рубль', 'рубля', 'рублей']
-  t.is(slavicPlural(25n, forms), 'рублей')
-})
-
-test('slavicPlural returns many for 111', t => {
-  const forms = ['рубль', 'рубля', 'рублей']
-  t.is(slavicPlural(111n, forms), 'рублей')
-})
-
-test('slavicPlural returns many for 112', t => {
-  const forms = ['рубль', 'рубля', 'рублей']
-  t.is(slavicPlural(112n, forms), 'рублей')
-})
-
-test('slavicPlural handles very large numbers ending in 1', t => {
-  const forms = ['тысяча', 'тысячи', 'тысяч']
-  t.is(slavicPlural(1000001n, forms), 'тысяча')
-})
-
-test('slavicPlural handles very large numbers ending in 2-4', t => {
-  const forms = ['тысяча', 'тысячи', 'тысяч']
-  t.is(slavicPlural(1000003n, forms), 'тысячи')
-})
-
-test('slavicPlural handles very large numbers ending in 11-19', t => {
-  const forms = ['тысяча', 'тысячи', 'тысяч']
-  t.is(slavicPlural(1000011n, forms), 'тысяч')
 })

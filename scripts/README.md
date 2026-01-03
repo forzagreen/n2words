@@ -76,7 +76,7 @@ If you already know which base class you need, you can skip the prompt:
 npm run lang:add -- <code> --base=<base-class>
 
 # Examples
-npm run lang:add -- ko                          # Uses default (greedy)
+npm run lang:add -- ko                          # Uses default (greedy-scale)
 npm run lang:add -- sr-Cyrl --base=slavic      # Serbian Cyrillic (SlavicLanguage)
 npm run lang:add -- hi --base=south-asian      # Hindi (SouthAsianLanguage)
 npm run lang:add -- az --base=turkic           # Azerbaijani (TurkicLanguage)
@@ -85,7 +85,7 @@ npm run lang:add -- custom-lang --base=abstract # Advanced: Direct implementatio
 
 **Base Classes:**
 
-- `greedy` - GreedyScaleLanguage (default): Most common pattern, scale-based decomposition
+- `greedy-scale` - GreedyScaleLanguage (default): Most common pattern, scale-based decomposition
 - `slavic` - SlavicLanguage: Three-form pluralization (singular/few/many)
 - `south-asian` - SouthAsianLanguage: Indian numbering system (lakh, crore)
 - `turkic` - TurkicLanguage: Turkish-style implicit "bir" rules
