@@ -395,7 +395,7 @@ The project provides comprehensive npm scripts for all development tasks:
 - `npm run test:umd:run` - UMD bundle tests only (no build step)
 - `npm run test:types` - TypeScript declaration tests (includes build:types)
 - `npm run test:types:run` - Declaration tests only (no build step)
-- `npm run test:exports` - Package exports validation (includes full build)
+- `npm run test:exports` - Package exports validation (builds types only)
 - `npm run test:exports:run` - Exports validation only (no build step)
 - `npm run test:browsers` - Browser tests (includes build:umd)
 - `npm run test:browsers:run` - Browser tests only (no build step)
@@ -432,8 +432,8 @@ The project provides comprehensive npm scripts for all development tasks:
 
 **Compatibility:**
 
-- `npm run browsers` - Show targeted browser versions
-- `npm run browsers:coverage` - Show global browser coverage
+- `npm run browserslist` - Show targeted browser versions
+- `npm run browserslist:coverage` - Show global browser coverage
 - `npm run compat:node` - Verify lib/ is ES2022 compatible
 - `npm run compat:umd` - Verify dist/ bundles ES version
 
@@ -535,8 +535,8 @@ npm run test:all         # All tests (core + types + exports + umd + browsers)
 
 ```bash
 # Browser compatibility
-npm run browsers            # Show targeted browser versions
-npm run browsers:coverage   # Show global browser coverage (~85.9%)
+npm run browserslist            # Show targeted browser versions
+npm run browserslist:coverage   # Show global browser coverage (~85.9%)
 npm run compat:umd          # Verify dist/ bundle compatibility (ES version check)
 npm run test:browsers       # Test in real browsers (Chromium, Firefox, WebKit)
 
@@ -1049,7 +1049,7 @@ expectError(ArabicConverter(42, { gender: 'invalid' }))
 - Checks module resolution for node10, node16 (CJS/ESM), and bundlers
 - Ensures TypeScript declarations resolve correctly across all module systems
 - Configured to ignore `cjs-resolves-to-esm` (intentional ESM-only design)
-- Run with: `npm run test:exports` (includes build) or `npm run test:exports:run` (no build)
+- Run with: `npm run test:exports` (builds types) or `npm run test:exports:run` (no build)
 
 **Why this approach?**
 
@@ -1067,7 +1067,7 @@ Together they guarantee:
 
 ```bash
 npm run test:types    # Type declaration tests (builds types first)
-npm run test:exports  # Package exports validation (builds all first)
+npm run test:exports  # Package exports validation (builds types first)
 ```
 
 ## TypeScript Support

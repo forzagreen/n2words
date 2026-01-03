@@ -84,7 +84,7 @@
     "test:umd:run": "ava --verbose test/umd/*.test.js",
     "test:types": "npm run build:types && npm run test:types:run",
     "test:types:run": "tsd --files test/types/*.test-d.ts",
-    "test:exports": "npm run build && npm run test:exports:run",
+    "test:exports": "npm run build:types && npm run test:exports:run",
     "test:exports:run": "attw --pack .",
     "test:browsers": "npm run build:umd && npm run test:browsers:run",
     "test:browsers:run": "playwright test",
@@ -99,8 +99,8 @@
     "bench:memory": "node --expose-gc bench/memory.js",
     "compat:node": "es-check es2022 lib/**/*.js --module",
     "compat:umd": "es-check checkBrowser dist/**/*.js",
-    "browsers": "browserslist",
-    "browsers:coverage": "browserslist --coverage",
+    "browserslist": "browserslist",
+    "browserslist:coverage": "browserslist --coverage",
     "playwright:install": "playwright install --with-deps"
   },
   "ava": {

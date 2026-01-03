@@ -80,7 +80,7 @@ npm run test:unit           # Unit tests only
 npm run test:integration    # Integration tests only
 npm run test:umd            # UMD bundle tests (builds dist/ automatically)
 npm run test:types          # TypeScript declaration tests (builds types automatically)
-npm run test:exports        # Package exports validation (builds all automatically)
+npm run test:exports        # Package exports validation (builds types automatically)
 npm run test:browsers       # Browser tests (builds dist/ automatically)
 ```
 
