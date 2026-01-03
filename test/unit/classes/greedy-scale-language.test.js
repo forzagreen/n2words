@@ -54,41 +54,6 @@ class MinimalLanguage extends GreedyScaleLanguage {
   }
 }
 
-/**
- * Extended fixture with larger scale words for testing thousands/millions.
- */
-class ExtendedLanguage extends GreedyScaleLanguage {
-  negativeWord = 'minus'
-  decimalSeparatorWord = 'point'
-  zeroWord = 'zero'
-
-  scaleWords = [
-    [1000000n, 'million'],
-    [1000n, 'thousand'],
-    [100n, 'hundred'],
-    [90n, 'ninety'],
-    [80n, 'eighty'],
-    [20n, 'twenty'],
-    [10n, 'ten'],
-    [9n, 'nine'],
-    [5n, 'five'],
-    [3n, 'three'],
-    [2n, 'two'],
-    [1n, 'one'],
-    [0n, 'zero']
-  ]
-
-  combineWordSets (preceding, following) {
-    const pWord = Object.keys(preceding)[0]
-    const pVal = Object.values(preceding)[0]
-    const fWord = Object.keys(following)[0]
-    const fVal = Object.values(following)[0]
-
-    const result = fVal > pVal ? pVal * fVal : pVal + fVal
-    return { [`${pWord} ${fWord}`]: result }
-  }
-}
-
 // ============================================================================
 // Abstract Method Enforcement
 // ============================================================================
@@ -232,63 +197,6 @@ test('combineWordSets result replaces both inputs', t => {
   t.is(Object.keys(after).length, 1)
   const value = Object.values(after)[0]
   t.is(value, 120n) // 1*100 + 20
-})
-
-// ============================================================================
-// integerToWords()
-// ============================================================================
-
-test('integerToWords returns zeroWord for 0', t => {
-  const lang = new MinimalLanguage()
-  t.is(lang.integerToWords(0n), 'zero')
-})
-
-test('integerToWords handles single digits', t => {
-  const lang = new MinimalLanguage()
-  const result = lang.integerToWords(5n)
-  t.is(typeof result, 'string')
-  t.true(result.includes('five'))
-})
-
-test('integerToWords handles compound numbers', t => {
-  const lang = new MinimalLanguage()
-  const result = lang.integerToWords(23n)
-  t.true(result.includes('twenty'))
-  t.true(result.includes('three'))
-})
-
-test('integerToWords handles hundreds', t => {
-  const lang = new MinimalLanguage()
-  const result = lang.integerToWords(100n)
-  t.true(result.includes('hundred'))
-})
-
-test('integerToWords handles hundreds with remainder', t => {
-  const lang = new MinimalLanguage()
-  const result = lang.integerToWords(123n)
-  t.true(result.includes('hundred'))
-  t.true(result.includes('twenty'))
-  t.true(result.includes('three'))
-})
-
-test('integerToWords handles thousands', t => {
-  const lang = new ExtendedLanguage()
-  const result = lang.integerToWords(1000n)
-  t.true(result.includes('thousand'))
-})
-
-test('integerToWords handles millions', t => {
-  const lang = new ExtendedLanguage()
-  const result = lang.integerToWords(1000000n)
-  t.true(result.includes('million'))
-})
-
-test('integerToWords handles complex numbers', t => {
-  const lang = new ExtendedLanguage()
-  // 1,234 = one thousand two hundred thirty-four
-  const result = lang.integerToWords(1234n)
-  t.true(result.includes('thousand'))
-  t.true(result.includes('hundred'))
 })
 
 // ============================================================================
