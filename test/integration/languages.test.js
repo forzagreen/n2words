@@ -2,7 +2,7 @@ import test from 'ava'
 import { readdirSync } from 'node:fs'
 import { isValidLanguageCode } from '../utils/language-naming.js'
 import { parseNumericValue } from '../../lib/utils/parse-numeric.js'
-import { getBaseClassName, getClassNameFromModule, VALID_BASE_CLASSES } from '../utils/language-helpers.js'
+import { BASE_CLASSES, getBaseClassName, getClassNameFromModule } from '../utils/language-helpers.js'
 import { safeStringify } from '../utils/stringify.js'
 import { validateFixture } from '../utils/validate-fixture.js'
 
@@ -99,7 +99,7 @@ for (const file of files) {
     // Extends valid base class
     const baseClass = getBaseClassName(LanguageClass)
     t.true(
-      VALID_BASE_CLASSES.includes(baseClass),
+      baseClass in BASE_CLASSES,
       `${className} should extend a valid base class, got: ${baseClass}`
     )
 

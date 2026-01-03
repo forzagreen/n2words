@@ -15,16 +15,17 @@ import { getClassName, getConverterName } from './language-naming.js'
 const LANGUAGE_DIR = './lib/languages'
 
 /**
- * Valid base classes that language implementations can extend.
+ * Base classes that language implementations can extend.
+ * Maps class name to description for CLI/documentation use.
  */
-export const VALID_BASE_CLASSES = [
-  'AbstractLanguage',
-  'GreedyScaleLanguage',
-  'HebrewLanguage',
-  'SlavicLanguage',
-  'SouthAsianLanguage',
-  'TurkicLanguage'
-]
+export const BASE_CLASSES = {
+  AbstractLanguage: 'Direct implementation (advanced)',
+  GreedyScaleLanguage: 'Scale-based decomposition (most common)',
+  HebrewLanguage: 'Hebrew-specific patterns',
+  SlavicLanguage: 'Three-form pluralization (Slavic languages)',
+  SouthAsianLanguage: 'Indian numbering system (lakh, crore)',
+  TurkicLanguage: 'Turkish-style implicit "bir" rules'
+}
 
 // ============================================================================
 // File-based Helpers
@@ -133,7 +134,7 @@ export function getBaseClassName (LanguageClass) {
   const proto = Object.getPrototypeOf(LanguageClass)
   const parentName = proto?.name
 
-  if (VALID_BASE_CLASSES.includes(parentName)) {
+  if (parentName in BASE_CLASSES) {
     return parentName
   }
 
@@ -141,7 +142,7 @@ export function getBaseClassName (LanguageClass) {
   const grandProto = Object.getPrototypeOf(proto)
   const grandParentName = grandProto?.name
 
-  if (VALID_BASE_CLASSES.includes(grandParentName)) {
+  if (grandParentName in BASE_CLASSES) {
     return grandParentName
   }
 

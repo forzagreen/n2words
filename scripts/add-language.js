@@ -13,57 +13,72 @@
  *   npm run lang:add <language-code> [--base=<base-class>]
  *
  * Base Classes:
- *   --base=greedy         GreedyScaleLanguage (default) - Scale-based decomposition
+ *   --base=greedy-scale   GreedyScaleLanguage (default) - Scale-based decomposition
  *   --base=slavic         SlavicLanguage - Three-form pluralization (Slavic languages)
  *   --base=south-asian    SouthAsianLanguage - Indian numbering system
  *   --base=turkic         TurkicLanguage - Turkish-style implicit "bir" rules
  *   --base=abstract       AbstractLanguage - Direct implementation (advanced)
  *
  * Examples:
- *   npm run lang:add ko                      # Korean (GreedyScaleLanguage)
- *   npm run lang:add sr-Cyrl --base=slavic  # Serbian Cyrillic (SlavicLanguage)
- *   npm run lang:add ta --base=south-asian  # Tamil (SouthAsianLanguage)
- *   npm run lang:add az --base=turkic       # Azerbaijani (TurkicLanguage)
+ *   npm run lang:add ko                           # Korean (GreedyScaleLanguage)
+ *   npm run lang:add sr-Cyrl --base=slavic       # Serbian Cyrillic (SlavicLanguage)
+ *   npm run lang:add ta --base=south-asian       # Tamil (SouthAsianLanguage)
+ *   npm run lang:add az --base=turkic            # Azerbaijani (TurkicLanguage)
  */
 
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { createInterface } from 'node:readline'
 import chalk from 'chalk'
 import { getCanonicalCode, getClassName, isValidLanguageCode } from '../test/utils/language-naming.js'
+import { BASE_CLASSES } from '../test/utils/language-helpers.js'
 
 // ============================================================================
-// Base Class Configurations
+// Base Class Utilities
 // ============================================================================
 
 /**
- * Base class configurations
+ * Converts a PascalCase class name to kebab-case.
+ *
+ * @param {string} className Class name (e.g., 'GreedyScaleLanguage')
+ * @returns {string} Kebab-case (e.g., 'greedy-scale-language')
  */
-const BASE_CLASSES = {
-  greedy: {
-    name: 'GreedyScaleLanguage',
-    import: '../classes/greedy-scale-language.js',
-    description: 'Scale-based decomposition (most common)'
-  },
-  slavic: {
-    name: 'SlavicLanguage',
-    import: '../classes/slavic-language.js',
-    description: 'Three-form pluralization (Slavic languages)'
-  },
-  'south-asian': {
-    name: 'SouthAsianLanguage',
-    import: '../classes/south-asian-language.js',
-    description: 'Indian numbering system (lakh, crore)'
-  },
-  turkic: {
-    name: 'TurkicLanguage',
-    import: '../classes/turkic-language.js',
-    description: 'Turkish-style implicit "bir" rules'
-  },
-  abstract: {
-    name: 'AbstractLanguage',
-    import: '../classes/abstract-language.js',
-    description: 'Direct implementation (advanced)'
+function toKebabCase (className) {
+  return className.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase()
+}
+
+/**
+ * Gets the CLI key for a base class name.
+ *
+ * @param {string} className Base class name (e.g., 'GreedyScaleLanguage')
+ * @returns {string} CLI key (e.g., 'greedy-scale')
+ */
+function getCliKey (className) {
+  return toKebabCase(className.replace(/Language$/, ''))
+}
+
+/**
+ * Gets the import path for a base class.
+ *
+ * @param {string} className Base class name (e.g., 'GreedyScaleLanguage')
+ * @returns {string} Import path (e.g., '../classes/greedy-scale-language.js')
+ */
+function getImportPath (className) {
+  return `../classes/${toKebabCase(className)}.js`
+}
+
+/**
+ * Finds a base class by its CLI key.
+ *
+ * @param {string} cliKey CLI key (e.g., 'greedy-scale')
+ * @returns {{name: string, description: string}|undefined} Base class info or undefined
+ */
+function findBaseClassByCliKey (cliKey) {
+  for (const [name, description] of Object.entries(BASE_CLASSES)) {
+    if (getCliKey(name) === cliKey) {
+      return { name, description }
+    }
   }
+  return undefined
 }
 
 /**
@@ -72,10 +87,14 @@ const BASE_CLASSES = {
  * @param {string} baseType Base class type ('greedy', 'slavic', 'south-asian', 'turkic', 'abstract')
  * @returns {string}
  */
-function generateLanguageFile (className, baseType = 'greedy') {
-  const base = BASE_CLASSES[baseType]
+function generateLanguageFile (className, baseType = 'greedy-scale') {
+  const baseInfo = findBaseClassByCliKey(baseType)
+  const base = {
+    name: baseInfo.name,
+    import: getImportPath(baseInfo.name)
+  }
 
-  if (baseType === 'greedy') {
+  if (baseType === 'greedy-scale') {
     return generateGreedyLanguageFile(className, base)
   } else if (baseType === 'slavic') {
     return generateSlavicLanguageFile(className, base)
@@ -614,15 +633,16 @@ async function promptForBaseClass () {
 
   console.log(chalk.cyan('\nSelect a base class for your language:\n'))
 
-  const options = Object.entries(BASE_CLASSES).map(([key, config], index) => ({
-    key,
-    index: index + 1,
-    ...config
+  const options = Object.entries(BASE_CLASSES).map(([name, description], index) => ({
+    key: getCliKey(name),
+    name,
+    description,
+    index: index + 1
   }))
 
   // Display options
   options.forEach(option => {
-    const isDefault = option.key === 'greedy' ? chalk.yellow(' (default)') : ''
+    const isDefault = option.key === 'greedy-scale' ? chalk.yellow(' (default)') : ''
     console.log(`  ${chalk.white(option.index)}. ${chalk.bold(option.name)}${isDefault}`)
     console.log(`     ${chalk.gray(option.description)}`)
     console.log()
@@ -667,8 +687,8 @@ async function main () {
     console.error(chalk.red('Error: Language code required'))
     console.log(chalk.gray('\nUsage: npm run lang:add <language-code> [--base=<base-class>]'))
     console.log(chalk.gray('\nBase Classes:'))
-    for (const [key, config] of Object.entries(BASE_CLASSES)) {
-      console.log(chalk.gray(`  --base=${key.padEnd(12)} ${config.description}`))
+    for (const [name, description] of Object.entries(BASE_CLASSES)) {
+      console.log(chalk.gray(`  --base=${getCliKey(name).padEnd(12)} ${description}`))
     }
     console.log(chalk.gray('\nExamples:'))
     console.log(chalk.gray('  npm run lang:add ko                      # Korean (GreedyScaleLanguage)'))
@@ -688,11 +708,11 @@ async function main () {
   }
 
   // Validate base class type if provided via argument
-  if (baseType && !BASE_CLASSES[baseType]) {
+  if (baseType && !findBaseClassByCliKey(baseType)) {
     console.error(chalk.red(`Error: Invalid base class "${baseType}"`))
     console.log(chalk.gray('\nValid base classes:'))
-    for (const [key, config] of Object.entries(BASE_CLASSES)) {
-      console.log(chalk.gray(`  ${key.padEnd(12)} - ${config.description}`))
+    for (const [name, description] of Object.entries(BASE_CLASSES)) {
+      console.log(chalk.gray(`  ${getCliKey(name).padEnd(12)} - ${description}`))
     }
     process.exit(1)
   }
@@ -735,7 +755,7 @@ async function main () {
 
   const langFilePath = `./lib/languages/${code}.js`
   const fixtureFilePath = `./test/fixtures/languages/${code}.js`
-  const baseClass = BASE_CLASSES[baseType]
+  const baseClass = findBaseClassByCliKey(baseType)
 
   console.log(chalk.cyan(`\nAdding new language: ${code}`))
   console.log(chalk.gray(`Class name: ${className}`))
