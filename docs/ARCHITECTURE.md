@@ -21,13 +21,13 @@ AbstractLanguage (base)
 
 **HebrewLanguage** (2): Hebrew, Biblical Hebrew
 
-**SlavicLanguage** (10): Croatian, Czech, Latvian, Lithuanian, Polish, Russian, Serbian (Cyrillic & Latin), Ukrainian
+**SlavicLanguage** (8): Croatian, Czech, Polish, Russian, Serbian (Cyrillic & Latin), Ukrainian
 
 **SouthAsianLanguage** (7): Bangla/Bengali, Gujarati, Hindi, Kannada, Marathi, Punjabi, Urdu
 
 **TurkicLanguage** (2): Turkish, Azerbaijani
 
-**AbstractLanguage directly** (12): Arabic, Indonesian, Italian, Japanese, Malay, Persian, Romanian, Swahili, Tamil, Telugu, Thai, Vietnamese
+**AbstractLanguage directly** (14): Arabic, Indonesian, Italian, Japanese, Latvian, Lithuanian, Malay, Persian, Romanian, Swahili, Tamil, Telugu, Thai, Vietnamese
 
 **Note**: French Belgium extends French (not GreedyScaleLanguage directly).
 

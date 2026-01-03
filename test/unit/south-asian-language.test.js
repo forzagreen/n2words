@@ -1,5 +1,6 @@
 import test from 'ava'
 import { SouthAsianLanguage } from '../../lib/classes/south-asian-language.js'
+import { groupByThreeThenTwos } from '../../lib/utils/segment-utils.js'
 
 /**
  * Unit Tests for SouthAsianLanguage
@@ -44,42 +45,36 @@ class TestSouthAsianLanguage extends SouthAsianLanguage {
 // Segmentation Tests
 // ============================================================================
 
-test('splitToSegments handles numbers under 1000', t => {
-  const lang = new TestSouthAsianLanguage()
-  t.deepEqual(lang.splitToSegments(0n), [0])
-  t.deepEqual(lang.splitToSegments(5n), [5])
-  t.deepEqual(lang.splitToSegments(99n), [99])
-  t.deepEqual(lang.splitToSegments(999n), [999])
+test('groupByThreeThenTwos handles numbers under 1000', t => {
+  t.deepEqual(groupByThreeThenTwos(0n), [0])
+  t.deepEqual(groupByThreeThenTwos(5n), [5])
+  t.deepEqual(groupByThreeThenTwos(99n), [99])
+  t.deepEqual(groupByThreeThenTwos(999n), [999])
 })
 
-test('splitToSegments handles thousands (4 digits)', t => {
-  const lang = new TestSouthAsianLanguage()
+test('groupByThreeThenTwos handles thousands (4 digits)', t => {
   // 1,234 → segments: [1, 234] (last 3, then remaining)
-  t.deepEqual(lang.splitToSegments(1234n), [1, 234])
+  t.deepEqual(groupByThreeThenTwos(1234n), [1, 234])
 })
 
-test('splitToSegments handles lakhs (6 digits)', t => {
-  const lang = new TestSouthAsianLanguage()
+test('groupByThreeThenTwos handles lakhs (6 digits)', t => {
   // 1,23,456 → segments: [1, 23, 456]
-  t.deepEqual(lang.splitToSegments(123456n), [1, 23, 456])
+  t.deepEqual(groupByThreeThenTwos(123456n), [1, 23, 456])
 })
 
-test('splitToSegments handles crores (8 digits)', t => {
-  const lang = new TestSouthAsianLanguage()
+test('groupByThreeThenTwos handles crores (8 digits)', t => {
   // 1,23,45,678 → segments: [1, 23, 45, 678]
-  t.deepEqual(lang.splitToSegments(12345678n), [1, 23, 45, 678])
+  t.deepEqual(groupByThreeThenTwos(12345678n), [1, 23, 45, 678])
 })
 
-test('splitToSegments handles arabs (10 digits)', t => {
-  const lang = new TestSouthAsianLanguage()
+test('groupByThreeThenTwos handles arabs (10 digits)', t => {
   // 1,23,45,67,890 → segments: [1, 23, 45, 67, 890]
-  t.deepEqual(lang.splitToSegments(1234567890n), [1, 23, 45, 67, 890])
+  t.deepEqual(groupByThreeThenTwos(1234567890n), [1, 23, 45, 67, 890])
 })
 
-test('splitToSegments segments correctly (last 3, then 2s)', t => {
-  const lang = new TestSouthAsianLanguage()
+test('groupByThreeThenTwos segments correctly (last 3, then 2s)', t => {
   // 9,87,65,43,210 → segments: [9, 87, 65, 43, 210] (last 3, then segments of 2)
-  t.deepEqual(lang.splitToSegments(9876543210n), [9, 87, 65, 43, 210])
+  t.deepEqual(groupByThreeThenTwos(9876543210n), [9, 87, 65, 43, 210])
 })
 
 // ============================================================================

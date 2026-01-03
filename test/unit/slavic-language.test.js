@@ -1,5 +1,6 @@
 import test from 'ava'
 import { SlavicLanguage } from '../../lib/classes/slavic-language.js'
+import { groupByThrees, placeValues } from '../../lib/utils/segment-utils.js'
 
 /**
  * Unit Tests for SlavicLanguage
@@ -189,30 +190,26 @@ test('thousands segment always uses feminine forms regardless of gender option',
 // Segmentation Tests
 // ============================================================================
 
-test('splitToSegments handles numbers less than segment size', t => {
-  const lang = new TestSlavicLanguage()
-  t.deepEqual(lang.splitToSegments('123', 3), [123n])
-  t.deepEqual(lang.splitToSegments('1', 3), [1n])
+test('groupByThrees handles numbers less than segment size', t => {
+  t.deepEqual(groupByThrees('123'), [123n])
+  t.deepEqual(groupByThrees('1'), [1n])
 })
 
-test('splitToSegments handles exact segment multiples', t => {
-  const lang = new TestSlavicLanguage()
-  t.deepEqual(lang.splitToSegments('123456', 3), [123n, 456n])
+test('groupByThrees handles exact segment multiples', t => {
+  t.deepEqual(groupByThrees('123456'), [123n, 456n])
 })
 
-test('splitToSegments handles numbers with remainder', t => {
-  const lang = new TestSlavicLanguage()
-  t.deepEqual(lang.splitToSegments('1234567', 3), [1n, 234n, 567n])
-  t.deepEqual(lang.splitToSegments('12345678', 3), [12n, 345n, 678n])
+test('groupByThrees handles numbers with remainder', t => {
+  t.deepEqual(groupByThrees('1234567'), [1n, 234n, 567n])
+  t.deepEqual(groupByThrees('12345678'), [12n, 345n, 678n])
 })
 
-test('extractDigits extracts ones, tens, hundreds correctly', t => {
-  const lang = new TestSlavicLanguage()
-  t.deepEqual(lang.extractDigits(0n), [0n, 0n, 0n])
-  t.deepEqual(lang.extractDigits(5n), [5n, 0n, 0n])
-  t.deepEqual(lang.extractDigits(23n), [3n, 2n, 0n])
-  t.deepEqual(lang.extractDigits(456n), [6n, 5n, 4n])
-  t.deepEqual(lang.extractDigits(999n), [9n, 9n, 9n])
+test('placeValues extracts ones, tens, hundreds correctly', t => {
+  t.deepEqual(placeValues(0n), [0n, 0n, 0n])
+  t.deepEqual(placeValues(5n), [5n, 0n, 0n])
+  t.deepEqual(placeValues(23n), [3n, 2n, 0n])
+  t.deepEqual(placeValues(456n), [6n, 5n, 4n])
+  t.deepEqual(placeValues(999n), [9n, 9n, 9n])
 })
 
 // ============================================================================
