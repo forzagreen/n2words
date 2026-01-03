@@ -29,6 +29,7 @@ import {
   GermanConverter,
   GreekConverter,
   GujaratiConverter,
+  HausaConverter,
   HebrewConverter,
   HindiConverter,
   HungarianConverter,
@@ -84,6 +85,7 @@ expectType<string>(FinnishConverter(42))
 expectType<string>(GermanConverter(42))
 expectType<string>(GreekConverter(42))
 expectType<string>(GujaratiConverter(42))
+expectType<string>(HausaConverter(42))
 expectType<string>(HindiConverter(42))
 expectType<string>(HungarianConverter(42))
 expectType<string>(IndonesianConverter(42))

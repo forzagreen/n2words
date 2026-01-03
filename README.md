@@ -8,11 +8,11 @@
 [![npm downloads](https://img.shields.io/npm/dw/n2words)](https://npmjs.com/package/n2words)
 [![jsDelivr](https://img.shields.io/jsdelivr/npm/hm/n2words)](https://www.jsdelivr.com/package/npm/n2words)
 
-**Convert numbers to words in 51 languages with zero dependencies.**
+**Convert numbers to words in 52 languages with zero dependencies.**
 
 ## Why n2words?
 
-- **Maximum Language Coverage** — 51 languages including European, Asian, Middle Eastern, and regional variants
+- **Maximum Language Coverage** — 52 languages including European, Asian, Middle Eastern, and regional variants
 - **Zero Dependencies** — Pure JavaScript with no external runtime dependencies
 - **Universal Compatibility** — Works in Node.js, browsers (via CDN), and all modern bundlers
 - **Type-Safe** — Full TypeScript support with generated `.d.ts` declarations
@@ -27,7 +27,7 @@
 - [Quick Start](#quick-start)
 - [Usage](#usage) — ESM, CommonJS, Browser (UMD)
 - [Type Safety](#type-safety) — TypeScript support
-- [Supported Languages](#supported-languages-51) — 51 languages with options
+- [Supported Languages](#supported-languages-52) — 52 languages with options
 - [Browser Compatibility](#browser-compatibility) — Chrome 67+, Firefox 68+, Safari 14+, Edge 79+
 - [Performance & Bundle Size](#performance--bundle-size) — Tree-shaking and benchmarks
 - [Examples](#examples) — Basic, gender agreement, language-specific features
@@ -127,7 +127,7 @@ n2words includes TypeScript declaration files (`.d.ts`) generated from JSDoc ann
 - `NumericValue` - Accepted input types: `number | bigint | string`
 - Language-specific option types (e.g., `ArabicOptions`, `SimplifiedChineseOptions`, `DutchOptions`, etc.)
 
-## Supported Languages (51)
+## Supported Languages (52)
 
 Language codes follow [IETF BCP 47](https://tools.ietf.org/html/bcp47) standards.
 
@@ -141,24 +141,24 @@ Language codes follow [IETF BCP 47](https://tools.ietf.org/html/bcp47) standards
 | `es`      | Spanish             | ✓       | `fa`      | Persian             |         |
 | `fi`      | Finnish             |         | `fil`     | Filipino            |         |
 | `fr`      | French              | ✓       | `fr-BE`   | Belgian French      | ✓       |
-| `gu`      | Gujarati            |         | `hbo`     | Biblical Hebrew     | ✓       |
-| `he`      | Modern Hebrew       | ✓       | `hi`      | Hindi               |         |
-| `hr`      | Croatian            | ✓       | `hu`      | Hungarian           |         |
-| `id`      | Indonesian          |         | `it`      | Italian             |         |
-| `ja`      | Japanese            |         | `kn`      | Kannada             |         |
-| `ko`      | Korean              |         | `lt`      | Lithuanian          | ✓       |
-| `lv`      | Latvian             | ✓       | `mr`      | Marathi             |         |
-| `ms`      | Malay               |         | `nb`      | Norwegian Bokmål    |         |
-| `nl`      | Dutch               | ✓       | `pa`      | Punjabi             |         |
-| `pl`      | Polish              | ✓       | `pt`      | Portuguese          |         |
-| `ro`      | Romanian            | ✓       | `ru`      | Russian             | ✓       |
-| `sr-Cyrl` | Serbian Cyrillic    | ✓       | `sr-Latn` | Serbian Latin       | ✓       |
-| `sv`      | Swedish             |         | `sw`      | Swahili             |         |
-| `ta`      | Tamil               |         | `te`      | Telugu              |         |
-| `th`      | Thai                |         | `tr`      | Turkish             | ✓       |
-| `uk`      | Ukrainian           | ✓       | `ur`      | Urdu                |         |
-| `vi`      | Vietnamese          |         | `zh-Hans` | Chinese Simplified  | ✓       |
-| `zh-Hant` | Chinese Traditional | ✓       |           |                     |         |
+| `gu`      | Gujarati            |         | `ha`      | Hausa               |         |
+| `hbo`     | Biblical Hebrew     | ✓       | `he`      | Modern Hebrew       | ✓       |
+| `hi`      | Hindi               |         | `hr`      | Croatian            | ✓       |
+| `hu`      | Hungarian           |         | `id`      | Indonesian          |         |
+| `it`      | Italian             |         | `ja`      | Japanese            |         |
+| `kn`      | Kannada             |         | `ko`      | Korean              |         |
+| `lt`      | Lithuanian          | ✓       | `lv`      | Latvian             | ✓       |
+| `mr`      | Marathi             |         | `ms`      | Malay               |         |
+| `nb`      | Norwegian Bokmål    |         | `nl`      | Dutch               | ✓       |
+| `pa`      | Punjabi             |         | `pl`      | Polish              | ✓       |
+| `pt`      | Portuguese          |         | `ro`      | Romanian            | ✓       |
+| `ru`      | Russian             | ✓       | `sr-Cyrl` | Serbian Cyrillic    | ✓       |
+| `sr-Latn` | Serbian Latin       | ✓       | `sv`      | Swedish             |         |
+| `sw`      | Swahili             |         | `ta`      | Tamil               |         |
+| `te`      | Telugu              |         | `th`      | Thai                |         |
+| `tr`      | Turkish             | ✓       | `uk`      | Ukrainian           | ✓       |
+| `ur`      | Urdu                |         | `vi`      | Vietnamese          |         |
+| `zh-Hans` | Chinese Simplified  | ✓       | `zh-Hant` | Chinese Traditional | ✓       |
 
 ### Language Options
 
