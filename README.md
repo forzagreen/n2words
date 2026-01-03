@@ -339,7 +339,6 @@ We welcome contributions! Add a new language or improve existing ones:
 
 ```bash
 npm run lang:add <code>         # Scaffold a new language (BCP 47 code)
-npm run lang:validate -- <code> # Validate implementation
 npm test                        # Run full test suite
 ```
 
