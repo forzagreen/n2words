@@ -17,7 +17,7 @@ import { existsSync, writeFileSync, readFileSync } from 'node:fs'
 import chalk from 'chalk'
 import { join } from 'node:path'
 import * as n2words from '../lib/n2words.js'
-import { getClassNameFromModule, getConverters, getLanguageMetadata } from '../test/utils/language-helpers.js'
+import { getConverters, getLanguageMetadata } from '../test/utils/language-helpers.js'
 
 const suite = new Benchmark.Suite()
 const resultsFile = join(import.meta.dirname, 'perf-results.json')
@@ -148,27 +148,30 @@ if (showHistory) {
   process.exit(0)
 }
 
+// Get all language metadata (code → className mapping)
+const allLanguages = getLanguageMetadata()
+const languageMap = Object.fromEntries(allLanguages.map(l => [l.code, l.className]))
+
 if (languages.length > 0) {
   // Benchmark specific languages
   console.log(chalk.gray(`Benchmarking: ${languages.join(', ')}`))
   console.log(chalk.gray(`Test value: ${value.toLocaleString()}\n`))
 
-  for (const lang of languages) {
-    if (existsSync('./lib/languages/' + lang + '.js')) {
-      await benchConverter(lang)
-    } else {
-      console.error(chalk.red(`✗ Language file does not exist: ${lang}.js`))
+  for (const code of languages) {
+    const className = languageMap[code]
+    if (!className) {
+      console.error(chalk.red(`✗ Language not found: ${code}`))
       process.exit(1)
     }
+    addBenchmark(code, className)
   }
 } else {
   // Benchmark all languages
-  const allLanguages = getLanguageMetadata()
   console.log(chalk.gray(`Testing ${allLanguages.length} languages`))
   console.log(chalk.gray(`Test value: ${value.toLocaleString()}\n`))
 
   for (const lang of allLanguages) {
-    await benchConverter(lang.code)
+    addBenchmark(lang.code, lang.className)
   }
 }
 
@@ -297,33 +300,21 @@ suite
   .run()
 
 /**
- * Queue a language converter for benchmarking.
+ * Add a language converter to the benchmark suite.
  *
- * Finds the appropriate converter from n2words exports and adds it to the benchmark suite.
- * Each benchmark measures the time to call the converter function.
- *
- * @param {string} languageCode Language code (e.g., 'en', 'es', 'zh-Hans').
- * @param {Object} [options] Options to pass to the converter function.
- * @throws {Error} If converter cannot be found for the language code.
+ * @param {string} code Language code (e.g., 'en', 'zh-Hans')
+ * @param {string} className Class name (e.g., 'English', 'SimplifiedChinese')
+ * @param {Object} [options] Options to pass to the converter
  */
-async function benchConverter (languageCode, options) {
-  // Import the language module to get the class name
-  const languageModule = await import(`../lib/languages/${languageCode}.js`)
-  const className = getClassNameFromModule(languageModule)
-
-  if (!className) {
-    throw new Error(`Language class not found for: ${languageCode}`)
-  }
-
-  // Find the matching converter by class name
+function addBenchmark (code, className, options) {
   const converterName = `${className}Converter`
   const converter = converters[converterName]
 
   if (!converter) {
-    throw new Error(`Converter not found for: ${className} (expected ${converterName})`)
+    throw new Error(`Converter not found: ${converterName}`)
   }
 
-  suite.add(languageCode, () => {
+  suite.add(code, () => {
     converter(value, options)
   })
 }
