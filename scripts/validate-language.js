@@ -210,6 +210,7 @@ function validateInheritance (LanguageClass, result) {
   const validBaseClasses = [
     'AbstractLanguage',
     'GreedyScaleLanguage',
+    'HebrewLanguage',
     'SlavicLanguage',
     'SouthAsianLanguage',
     'TurkicLanguage'
@@ -306,7 +307,7 @@ function getBaseClassName (LanguageClass) {
   const baseClassName = proto?.name
 
   // Check for regional variants (e.g., fr-BE extends French which extends GreedyScaleLanguage)
-  const validBaseClasses = ['AbstractLanguage', 'GreedyScaleLanguage', 'SlavicLanguage', 'SouthAsianLanguage', 'TurkicLanguage']
+  const validBaseClasses = ['AbstractLanguage', 'GreedyScaleLanguage', 'HebrewLanguage', 'SlavicLanguage', 'SouthAsianLanguage', 'TurkicLanguage']
   if (validBaseClasses.includes(baseClassName)) {
     return baseClassName
   }
@@ -508,6 +509,21 @@ function validateBaseClassRequirements (instance, LanguageClass, result) {
         result.errors.push('scaleWords must have at least 2 entries (empty + thousands)')
       } else {
         result.info.push(`✓ Has scaleWords (${instance.scaleWords.length} scale levels)`)
+      }
+      break
+    }
+
+    case 'HebrewLanguage': {
+      // Validate Hebrew-specific properties
+      const requiredDicts = ['onesWords', 'teensWords', 'twentiesWords', 'hundredsWords', 'pluralForms', 'scale', 'scalePlural']
+      for (const prop of requiredDicts) {
+        if (!(prop in instance)) {
+          result.errors.push(`HebrewLanguage requires ${prop} property`)
+        } else if (typeof instance[prop] !== 'object') {
+          result.errors.push(`${prop} must be an object`)
+        } else {
+          result.info.push(`✓ Has ${prop} (${Object.keys(instance[prop]).length} entries)`)
+        }
       }
       break
     }

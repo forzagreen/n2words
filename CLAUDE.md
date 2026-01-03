@@ -23,11 +23,12 @@ npm run lint:fix                  # Fix linting issues
 
 ## Architecture
 
-**5 base classes** in `lib/classes/`:
+**6 base classes** in `lib/classes/`:
 
 | Class                  | Use For                      | Key Feature                 |
 | ---------------------- | ---------------------------- | --------------------------- |
 | `GreedyScaleLanguage`  | Most Western languages       | Scale-based decomposition   |
+| `HebrewLanguage`       | Hebrew, Biblical Hebrew      | Dual forms, construct state |
 | `SlavicLanguage`       | Russian, Polish, Czech, etc. | Three-form pluralization    |
 | `SouthAsianLanguage`   | Hindi, Bengali, etc.         | Lakh/crore system           |
 | `TurkicLanguage`       | Turkish, Azerbaijani         | Implicit "bir" rules        |
@@ -51,6 +52,7 @@ npm run lint:fix                  # Fix linting issues
 **Base class requirements**:
 
 - **GreedyScaleLanguage**: `scaleWords` array + `combineWordSets()` method
+- **HebrewLanguage**: `onesWords`, `teensWords`, `twentiesWords`, `hundredsWords`, `pluralForms`, `scale`, `scalePlural`
 - **SlavicLanguage**: `onesWords`, `teensWords`, `twentiesWords`, `hundredsWords`, `pluralForms`
 - **SouthAsianLanguage**: `belowHundredWords` (100 entries) + `scaleWords`
 - **AbstractLanguage**: Implement `integerToWords()` from scratch
