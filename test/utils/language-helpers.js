@@ -6,6 +6,7 @@
  */
 
 import { readFileSync, readdirSync } from 'node:fs'
+import { getConverterName } from './language-naming.js'
 
 // ============================================================================
 // Constants
@@ -76,16 +77,20 @@ export function getClassNameFromModule (languageModule) {
 }
 
 /**
- * Gets converter functions from an n2words module.
+ * Gets converter functions from an n2words module, keyed by language code.
+ *
+ * Combines file-based metadata (language codes) with module exports (converters)
+ * to create a convenient code → converter mapping.
  *
  * @param {Object} n2wordsModule The imported n2words module
- * @returns {Object<string, Function>} Map of converter names to functions
+ * @returns {Object<string, Function>} Map of language codes to converter functions
  */
-export function getConverters (n2wordsModule) {
+export function getConvertersByCode (n2wordsModule) {
   const converters = {}
-  for (const [key, value] of Object.entries(n2wordsModule)) {
-    if (key.endsWith('Converter')) {
-      converters[key] = value
+  for (const { code, className } of getLanguageMetadata()) {
+    const converterName = getConverterName(className)
+    if (n2wordsModule[converterName]) {
+      converters[code] = n2wordsModule[converterName]
     }
   }
   return converters

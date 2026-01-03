@@ -17,12 +17,12 @@ import { existsSync, writeFileSync, readFileSync } from 'node:fs'
 import chalk from 'chalk'
 import { join } from 'node:path'
 import * as n2words from '../lib/n2words.js'
-import { getConverters, getLanguageMetadata } from '../test/utils/language-helpers.js'
+import { getConvertersByCode } from '../test/utils/language-helpers.js'
 
 const resultsFile = join(import.meta.dirname, 'memory-results.json')
 
-// Build converter map from n2words exports
-const converters = getConverters(n2words)
+// Build converter map keyed by language code
+const converters = getConvertersByCode(n2words)
 
 const arguments_ = process.argv.slice(2)
 
@@ -155,33 +155,27 @@ if (showHistory) {
   process.exit(0)
 }
 
-// Get all language metadata (code → className mapping)
-const allLanguages = getLanguageMetadata()
-const languageMap = Object.fromEntries(allLanguages.map(l => [l.code, l.className]))
+// Get language codes to benchmark
+const allCodes = Object.keys(converters)
+const codesToBenchmark = languages.length > 0 ? languages : allCodes
 
 if (languages.length > 0) {
-  // Benchmark specific languages
-  console.log(chalk.gray(`Benchmarking: ${languages.join(', ')}`))
-  console.log(chalk.gray(`Test value: ${value.toLocaleString()}`))
-  console.log(chalk.gray(`Iterations: ${iterations.toLocaleString()}\n`))
-
+  // Validate requested languages exist
   for (const code of languages) {
-    const className = languageMap[code]
-    if (!className) {
+    if (!converters[code]) {
       console.error(chalk.red(`✗ Language not found: ${code}`))
       process.exit(1)
     }
-    await benchMemory(code, className)
   }
+  console.log(chalk.gray(`Benchmarking: ${languages.join(', ')}`))
 } else {
-  // Benchmark all languages
-  console.log(chalk.gray(`Testing ${allLanguages.length} languages`))
-  console.log(chalk.gray(`Test value: ${value.toLocaleString()}`))
-  console.log(chalk.gray(`Iterations: ${iterations.toLocaleString()} per language\n`))
+  console.log(chalk.gray(`Testing ${allCodes.length} languages`))
+}
+console.log(chalk.gray(`Test value: ${value.toLocaleString()}`))
+console.log(chalk.gray(`Iterations: ${iterations.toLocaleString()}${languages.length === 0 ? ' per language' : ''}\n`))
 
-  for (const lang of allLanguages) {
-    await benchMemory(lang.code, lang.className)
-  }
+for (const code of codesToBenchmark) {
+  await benchMemory(code)
 }
 
 displayResults()
@@ -235,16 +229,9 @@ console.log() // Final newline
  * 4. Measuring memory delta
  *
  * @param {string} code Language code (e.g., 'en', 'es', 'zh-Hans').
- * @param {string} className Class name (e.g., 'English', 'SimplifiedChinese').
- * @throws {Error} If converter cannot be found for the class name.
  */
-async function benchMemory (code, className) {
-  const converterName = `${className}Converter`
-  const converter = converters[converterName]
-
-  if (!converter) {
-    throw new Error(`Converter not found: ${converterName}`)
-  }
+async function benchMemory (code) {
+  const converter = converters[code]
 
   // Force garbage collection for more accurate baseline
   if (global.gc) {

@@ -1,6 +1,6 @@
 import test from 'ava'
 import { readdirSync } from 'node:fs'
-import { validateLanguageCode } from '../utils/bcp47.js'
+import { validateLanguageCode } from '../utils/language-naming.js'
 import { parseNumericValue } from '../../lib/utils/parse-numeric.js'
 import { getBaseClassName, getClassNameFromModule, VALID_BASE_CLASSES } from '../utils/language-helpers.js'
 import { safeStringify } from '../utils/stringify.js'

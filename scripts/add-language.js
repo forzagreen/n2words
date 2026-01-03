@@ -29,7 +29,7 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { createInterface } from 'node:readline'
 import chalk from 'chalk'
-import { getExpectedClassName, validateLanguageCode } from '../test/utils/bcp47.js'
+import { getClassName, validateLanguageCode } from '../test/utils/language-naming.js'
 
 // ============================================================================
 // Base Class Configurations
@@ -721,7 +721,7 @@ async function main () {
     console.log(chalk.gray('Consider using the canonical form for consistency.\n'))
   }
 
-  const className = getExpectedClassName(code)
+  const className = getClassName(code)
 
   // If CLDR doesn't provide a name (rare/historical languages), ask user or use code
   if (!className) {
