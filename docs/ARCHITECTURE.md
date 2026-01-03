@@ -9,6 +9,7 @@ All language implementations follow an inheritance pattern:
 ```text
 AbstractLanguage (base)
 ├── GreedyScaleLanguage    # Most common: English, Spanish, French, etc.
+├── HebrewLanguage         # Hebrew (Modern & Biblical)
 ├── SlavicLanguage         # Russian, Polish, Czech, etc.
 ├── SouthAsianLanguage     # Hindi, Bengali, Gujarati, Kannada, Marathi, Punjabi, Urdu
 └── TurkicLanguage         # Turkish, Azerbaijani
@@ -16,15 +17,17 @@ AbstractLanguage (base)
 
 ### Languages by Base Class
 
-**GreedyScaleLanguage** (15): Danish, Dutch, English, Filipino, French, German, Greek, Hungarian, Korean, Norwegian Bokmål, Portuguese, Spanish, Swedish, Simplified Chinese, Traditional Chinese
+**GreedyScaleLanguage** (14): Danish, Dutch, English, Filipino, French, German, Greek, Korean, Norwegian Bokmål, Portuguese, Spanish, Swedish, Simplified Chinese, Traditional Chinese
 
-**SlavicLanguage** (12): Croatian, Czech, Hebrew (Modern & Biblical), Latvian, Lithuanian, Polish, Russian, Serbian (Cyrillic & Latin), Ukrainian
+**HebrewLanguage** (2): Hebrew, Biblical Hebrew
+
+**SlavicLanguage** (8): Croatian, Czech, Polish, Russian, Serbian (Cyrillic & Latin), Ukrainian
 
 **SouthAsianLanguage** (7): Bangla/Bengali, Gujarati, Hindi, Kannada, Marathi, Punjabi, Urdu
 
 **TurkicLanguage** (2): Turkish, Azerbaijani
 
-**AbstractLanguage directly** (12): Arabic, Indonesian, Italian, Japanese, Malay, Persian, Romanian, Swahili, Tamil, Telugu, Thai, Vietnamese
+**AbstractLanguage directly** (15): Arabic, Hungarian, Indonesian, Italian, Japanese, Latvian, Lithuanian, Malay, Persian, Romanian, Swahili, Tamil, Telugu, Thai, Vietnamese
 
 **Note**: French Belgium extends French (not GreedyScaleLanguage directly).
 

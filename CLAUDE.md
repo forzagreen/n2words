@@ -15,7 +15,6 @@ n2words: Number to words converter. ESM + UMD, Node >=20, zero dependencies.
 
 ```bash
 npm run lang:add <code>           # Scaffold new language
-npm run lang:validate -- <code>   # Validate implementation
 npm test                          # Run test suite
 npm run build                     # Build UMD bundles
 npm run lint:fix                  # Fix linting issues
@@ -28,6 +27,7 @@ npm run lint:fix                  # Fix linting issues
 | Class                  | Use For                      | Key Feature                 |
 | ---------------------- | ---------------------------- | --------------------------- |
 | `GreedyScaleLanguage`  | Most Western languages       | Scale-based decomposition   |
+| `HebrewLanguage`       | Hebrew, Biblical Hebrew      | Dual forms, construct state |
 | `SlavicLanguage`       | Russian, Polish, Czech, etc. | Three-form pluralization    |
 | `SouthAsianLanguage`   | Hindi, Bengali, etc.         | Lakh/crore system           |
 | `TurkicLanguage`       | Turkish, Azerbaijani         | Implicit "bir" rules        |
@@ -45,12 +45,12 @@ npm run lint:fix                  # Fix linting issues
 1. Run `npm run lang:add <code>` - scaffolds files and updates n2words.js
 2. Edit `lib/languages/{code}.js` - implement required properties/methods
 3. Edit `test/fixtures/languages/{code}.js` - add test cases
-4. Run `npm run lang:validate -- <code> --verbose` - check implementation
-5. Run `npm test` - verify all tests pass
+4. Run `npm test` - verify all tests pass
 
 **Base class requirements**:
 
 - **GreedyScaleLanguage**: `scaleWords` array + `combineWordSets()` method
+- **HebrewLanguage**: `onesWords`, `teensWords`, `twentiesWords`, `hundredsWords`, `pluralForms`, `scale`, `scalePlural`
 - **SlavicLanguage**: `onesWords`, `teensWords`, `twentiesWords`, `hundredsWords`, `pluralForms`
 - **SouthAsianLanguage**: `belowHundredWords` (100 entries) + `scaleWords`
 - **AbstractLanguage**: Implement `integerToWords()` from scratch
@@ -66,7 +66,7 @@ Languages with options need:
 
 ## Validation Checklist
 
-The validator (`npm run lang:validate`) checks:
+The test suite (`npm test`) validates:
 
 - IETF BCP 47 naming
 - Class structure and inheritance
@@ -74,7 +74,7 @@ The validator (`npm run lang:validate`) checks:
 - Scale word ordering
 - Registration in n2words.js (import, converter, export)
 - Test fixture exists
-- JSDoc documentation
+- Alphabetical ordering in n2words.js
 
 ## Reference Documentation
 

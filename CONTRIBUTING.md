@@ -55,7 +55,7 @@ npm run prepare:husky  # Installs commit-msg, pre-commit, pre-push hooks
 - One feature per PR
 - Include tests for new features
 - Update docs for API changes
-- Ensure `npm run lang:validate` passes for language changes
+- Ensure `npm test` passes for language changes
 
 ### Keeping Fork in Sync
 
@@ -121,8 +121,7 @@ This creates:
 
 1. Edit language file - replace placeholders, implement base-class requirements
 2. Edit test fixture - add comprehensive test cases
-3. Validate: `npm run lang:validate -- <code> --verbose`
-4. Test: `npm test`
+3. Test: `npm test`
 
 For detailed implementation patterns and base class selection, see [scripts/README.md](scripts/README.md).
 
@@ -206,8 +205,7 @@ export class FrenchBelgium extends French {
 Before modifying:
 
 1. Run full test suite: `npm test`
-2. Run validation: `npm run lang:validate`
-3. Check performance: `npm run bench:perf -- --compare`
+2. Check performance: `npm run bench:perf -- --compare`
 
 For architecture details, see [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 

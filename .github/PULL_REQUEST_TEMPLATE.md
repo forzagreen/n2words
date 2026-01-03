@@ -32,7 +32,7 @@ npm run lang:add -- <code>
 - [ ] Test fixture in `test/fixtures/languages/<code>.js` (include options if language has them)
 - [ ] In `lib/n2words.js` (alphabetically sorted): import, typedef, converter, export
 - [ ] Type test in `test/types/n2words.test-d.ts` (include options if language has them)
-- [ ] Validation passes (`npm run lang:validate -- <code>`)
+- [ ] Tests pass (`npm test`)
 
 </details>
 

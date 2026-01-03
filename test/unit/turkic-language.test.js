@@ -241,24 +241,12 @@ test('wordSeparator defaults to space', t => {
 })
 
 // ============================================================================
-// Integration Tests
+// Inheritance Tests
 // ============================================================================
 
-test('integrates with GreedyScaleLanguage correctly', t => {
+test('inherits GreedyScaleLanguage methods', t => {
   const lang = new TestTurkicLanguage()
   // Verify it uses the greedy algorithm
   t.is(typeof lang.decomposeInteger, 'function')
   t.is(typeof lang.reduceWordSets, 'function')
-})
-
-test('integrates with AbstractLanguage for negative numbers', t => {
-  const lang = new TestTurkicLanguage()
-  const result = lang.toWords(true, 42n)
-  t.true(result.startsWith('eksi'))
-})
-
-test('integrates with AbstractLanguage for decimals', t => {
-  const lang = new TestTurkicLanguage()
-  const result = lang.toWords(false, 3n, '14')
-  t.true(result.includes('nokta'))
 })

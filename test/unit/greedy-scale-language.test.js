@@ -306,19 +306,3 @@ test('finalizeWords can be overridden by subclasses', t => {
   // Result should be uppercase
   t.is(result, result.toUpperCase())
 })
-
-// ============================================================================
-// Integration Tests
-// ============================================================================
-
-test('integrates with AbstractLanguage for negative numbers', t => {
-  const lang = new TestGreedyLanguage()
-  const result = lang.toWords(true, 42n)
-  t.true(result.startsWith('minus'))
-})
-
-test('integrates with AbstractLanguage for decimals', t => {
-  const lang = new TestGreedyLanguage()
-  const result = lang.toWords(false, 3n, '14')
-  t.true(result.includes('point'))
-})

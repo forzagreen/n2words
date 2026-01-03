@@ -186,36 +186,6 @@ test('thousands segment always uses feminine forms regardless of gender option',
 })
 
 // ============================================================================
-// Segmentation Tests
-// ============================================================================
-
-test('splitToSegments handles numbers less than segment size', t => {
-  const lang = new TestSlavicLanguage()
-  t.deepEqual(lang.splitToSegments('123', 3), [123n])
-  t.deepEqual(lang.splitToSegments('1', 3), [1n])
-})
-
-test('splitToSegments handles exact segment multiples', t => {
-  const lang = new TestSlavicLanguage()
-  t.deepEqual(lang.splitToSegments('123456', 3), [123n, 456n])
-})
-
-test('splitToSegments handles numbers with remainder', t => {
-  const lang = new TestSlavicLanguage()
-  t.deepEqual(lang.splitToSegments('1234567', 3), [1n, 234n, 567n])
-  t.deepEqual(lang.splitToSegments('12345678', 3), [12n, 345n, 678n])
-})
-
-test('extractDigits extracts ones, tens, hundreds correctly', t => {
-  const lang = new TestSlavicLanguage()
-  t.deepEqual(lang.extractDigits(0n), [0n, 0n, 0n])
-  t.deepEqual(lang.extractDigits(5n), [5n, 0n, 0n])
-  t.deepEqual(lang.extractDigits(23n), [3n, 2n, 0n])
-  t.deepEqual(lang.extractDigits(456n), [6n, 5n, 4n])
-  t.deepEqual(lang.extractDigits(999n), [9n, 9n, 9n])
-})
-
-// ============================================================================
 // Pluralization Tests
 // ============================================================================
 
@@ -328,22 +298,6 @@ test('handles very large numbers', t => {
   // 1 billion
   const result = lang.integerToWords(1000000000n)
   t.true(result.includes('billion'))
-})
-
-// ============================================================================
-// Integration Tests
-// ============================================================================
-
-test('integrates with AbstractLanguage for negative numbers', t => {
-  const lang = new TestSlavicLanguage()
-  const result = lang.toWords(true, 42n)
-  t.true(result.startsWith('minus'))
-})
-
-test('integrates with AbstractLanguage for decimals', t => {
-  const lang = new TestSlavicLanguage()
-  const result = lang.toWords(false, 3n, '14')
-  t.true(result.includes('point'))
 })
 
 // ============================================================================

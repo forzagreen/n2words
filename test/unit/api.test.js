@@ -1,4 +1,5 @@
 import test from 'ava'
+import { readFileSync } from 'node:fs'
 import * as n2words from '../../lib/n2words.js'
 
 /**
@@ -9,7 +10,10 @@ import * as n2words from '../../lib/n2words.js'
  * 2. Input validation (early rejection of invalid inputs at API boundary)
  * 3. Options support (gender, formal, custom separators, etc.)
  * 4. Basic conversion functionality across all languages
+ * 5. Module structure (alphabetical ordering of imports/exports)
  */
+
+const n2wordsContent = readFileSync('./lib/n2words.js', 'utf8')
 
 // ============================================================================
 // Expected Converters (dynamically loaded from n2words entry point)
@@ -104,88 +108,15 @@ test('options affect converter output', t => {
 // Cross-Language Smoke Tests
 // ============================================================================
 
-test('each converter can convert zero', t => {
+test('each converter handles basic values (0, 1, 10, 100, 1000)', t => {
+  const testValues = [0, 1, 10, 100, 1000]
   for (const converterName of expectedConverters) {
     const converter = n2words[converterName]
-    const result = converter(0)
-
-    t.is(
-      typeof result,
-      'string',
-      `${converterName}(0) should return a string`
-    )
-    t.true(
-      result.length > 0,
-      `${converterName}(0) should return a non-empty string`
-    )
-  }
-})
-
-test('each converter can convert one', t => {
-  for (const converterName of expectedConverters) {
-    const converter = n2words[converterName]
-    const result = converter(1)
-
-    t.is(
-      typeof result,
-      'string',
-      `${converterName}(1) should return a string`
-    )
-    t.true(
-      result.length > 0,
-      `${converterName}(1) should return a non-empty string`
-    )
-  }
-})
-
-test('each converter can convert ten', t => {
-  for (const converterName of expectedConverters) {
-    const converter = n2words[converterName]
-    const result = converter(10)
-
-    t.is(
-      typeof result,
-      'string',
-      `${converterName}(10) should return a string`
-    )
-    t.true(
-      result.length > 0,
-      `${converterName}(10) should return a non-empty string`
-    )
-  }
-})
-
-test('each converter can convert one hundred', t => {
-  for (const converterName of expectedConverters) {
-    const converter = n2words[converterName]
-    const result = converter(100)
-
-    t.is(
-      typeof result,
-      'string',
-      `${converterName}(100) should return a string`
-    )
-    t.true(
-      result.length > 0,
-      `${converterName}(100) should return a non-empty string`
-    )
-  }
-})
-
-test('each converter can convert one thousand', t => {
-  for (const converterName of expectedConverters) {
-    const converter = n2words[converterName]
-    const result = converter(1000)
-
-    t.is(
-      typeof result,
-      'string',
-      `${converterName}(1000) should return a string`
-    )
-    t.true(
-      result.length > 0,
-      `${converterName}(1000) should return a non-empty string`
-    )
+    for (const value of testValues) {
+      const result = converter(value)
+      t.is(typeof result, 'string', `${converterName}(${value}) should return a string`)
+      t.true(result.length > 0, `${converterName}(${value}) should return a non-empty string`)
+    }
   }
 })
 
@@ -476,4 +407,36 @@ test('handles numbers beyond MAX_SAFE_INTEGER using BigInt', t => {
   const result = EnglishConverter(beyondSafe)
   t.is(typeof result, 'string')
   t.true(result.length > 0)
+})
+
+// ============================================================================
+// Module Structure Tests
+// ============================================================================
+
+test('imports are alphabetically ordered', t => {
+  const importSection = n2wordsContent.match(/\/\/ Language Imports[\s\S]*?(?=\/\/ ===)/)?.[0]
+  if (!importSection) {
+    t.pass('No import section marker found')
+    return
+  }
+
+  const imports = [...importSection.matchAll(/import\s+{\s*(\w+)\s*}/g)].map(m => m[1])
+  const sorted = [...imports].sort((a, b) => a.localeCompare(b))
+  t.deepEqual(imports, sorted, 'Language imports should be alphabetically ordered')
+})
+
+test('exports are alphabetically ordered', t => {
+  const exportSection = n2wordsContent.match(/export\s*{([\s\S]*?)}/)?.[1]
+  if (!exportSection) {
+    t.fail('No export section found')
+    return
+  }
+
+  const exports = exportSection
+    .split(',')
+    .map(e => e.trim())
+    .filter(e => e.length > 0)
+
+  const sorted = [...exports].sort((a, b) => a.localeCompare(b))
+  t.deepEqual(exports, sorted, 'Exports should be alphabetically ordered')
 })
