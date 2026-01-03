@@ -798,7 +798,7 @@ async function main () {
   console.log(chalk.gray('   - Replace placeholder values with actual ' + code + ' words'))
 
   // Base-class specific instructions
-  if (baseType === 'greedy' || baseType === 'turkic') {
+  if (baseType === 'greedy-scale' || baseType === 'turkic') {
     console.log(chalk.gray('   - Add complete scaleWords array'))
     console.log(chalk.gray('   - Implement combineWordSets() logic (if needed)'))
   } else if (baseType === 'slavic') {

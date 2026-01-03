@@ -77,7 +77,7 @@ git fetch upstream && git checkout main && git merge upstream/main
 
 **Scopes** (optional):
 
-- Project areas: `core`, `lang`, `scripts`, `types`, `docs`, `test`, `build`, `ci`, `deps`, `release`
+- Project areas: `bench`, `build`, `ci`, `core`, `deps`, `docs`, `lang`, `release`, `scripts`, `test`, `types`, `utils`
 - Language codes: Any valid BCP 47 code (e.g., `en`, `fr-BE`, `zh-Hans`)
 
 **Examples**:
@@ -106,10 +106,10 @@ Use the scaffolding tool:
 
 ```bash
 npm run lang:add -- <code>              # Interactive mode (recommended)
-npm run lang:add -- ko --base=greedy    # Command-line mode
+npm run lang:add -- ko --base=greedy-scale    # Command-line mode
 ```
 
-**Base class options**: `greedy` (default), `slavic`, `south-asian`, `turkic`, `abstract`
+**Base class options**: `greedy-scale` (default), `slavic`, `south-asian`, `turkic`, `abstract`
 
 This creates:
 
