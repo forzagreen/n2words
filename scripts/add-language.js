@@ -235,8 +235,22 @@ export class ${className} extends ${base.name} {
     9: 'ninety'
   }
 
-  // TODO: Replace with ${className} word for hundred
-  hundredWord = 'hundred'
+  // For simple "N hundred" pattern (like English):
+  // hundredWord = 'hundred'
+
+  // For irregular hundreds (like Slavic, French), use hundredsWords instead:
+  // TODO: Replace with ${className} words for hundreds
+  hundredsWords = {
+    1: 'hundred',
+    2: 'two hundred',
+    3: 'three hundred',
+    4: 'four hundred',
+    5: 'five hundred',
+    6: 'six hundred',
+    7: 'seven hundred',
+    8: 'eight hundred',
+    9: 'nine hundred'
+  }
 
   // TODO: Define scale words (index 0 = thousand, 1 = million, etc.)
   scaleWords = [
@@ -253,7 +267,8 @@ export class ${className} extends ${base.name} {
 
   // Override these methods for language-specific rules:
   // - combineSegmentParts(parts, segment, scaleIndex) - hyphenation, connectors
-  // - hundredsToWords(hundreds, scaleIndex) - hundreds formatting
+  // - hundredsToWords(hundreds, scaleIndex) - custom hundreds formatting
+  // - onesToWords(ones, scaleIndex, tens) - gender-specific ones
   // - joinSegments(parts, integerPart) - final joining with "and" etc.
 }
 `
