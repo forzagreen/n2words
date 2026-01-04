@@ -18,7 +18,7 @@ AbstractLanguage (base)
 
 ### Languages by Base Class
 
-**ScaleLanguage** (12): Azerbaijani, Danish, Dutch, English, Filipino, Finnish, German, Greek, Norwegian Bokmål, Swedish, Turkish
+**ScaleLanguage** (14): Azerbaijani, Danish, Dutch, English, Filipino, Finnish, German, Greek, Indonesian, Malay, Norwegian Bokmål, Swedish, Turkish
 
 **CompoundScaleLanguage** (3): French, Portuguese, Spanish
 
@@ -30,7 +30,7 @@ AbstractLanguage (base)
 
 **SouthAsianLanguage** (7): Bangla/Bengali, Gujarati, Hindi, Kannada, Marathi, Punjabi, Urdu
 
-**AbstractLanguage directly** (13): Arabic, Hungarian, Indonesian, Italian, Latvian, Lithuanian, Malay, Persian, Romanian, Swahili, Tamil, Telugu, Thai, Vietnamese
+**AbstractLanguage directly** (11): Arabic, Hungarian, Italian, Latvian, Lithuanian, Persian, Romanian, Swahili, Tamil, Telugu, Thai, Vietnamese
 
 **Note**: French Belgium extends French (not CompoundScaleLanguage directly).
 
