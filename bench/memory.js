@@ -42,9 +42,10 @@ let previousResults = null
 
 for (let index = 0; index < arguments_.length; index++) {
   if (arguments_[index] === '--lang' || arguments_[index] === '--language') {
-    const lang = arguments_[index + 1]?.toLowerCase()
+    const lang = arguments_[index + 1]
     if (lang) {
       // Support comma-separated languages: --lang en,es,fr
+      // Note: Don't lowercase - BCP 47 codes are case-sensitive (e.g., sr-Cyrl)
       const langs = lang.split(',').map(l => l.trim()).filter(Boolean)
       languages.push(...langs)
     }
