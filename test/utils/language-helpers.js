@@ -23,8 +23,7 @@ export const BASE_CLASSES = {
   AbstractLanguage: 'Direct implementation (advanced)',
   GreedyScaleLanguage: 'Scale-based decomposition (legacy, slower)',
   HebrewLanguage: 'Hebrew-specific patterns',
-  LongScaleLanguage: 'Long scale European numbering (10^12 = billion)',
-  ShortScaleLanguage: 'Short scale numbering (10^9 = billion)',
+  ScaleLanguage: 'Segment-based scale decomposition (fast)',
   SlavicLanguage: 'Three-form pluralization (Slavic languages)',
   SouthAsianLanguage: 'Indian numbering system (lakh, crore)',
   TurkicLanguage: 'Turkish-style implicit "bir" rules'

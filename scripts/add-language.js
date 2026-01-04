@@ -96,10 +96,10 @@ function generateLanguageFile (className, baseType = 'greedy-scale') {
 
   if (baseType === 'greedy-scale') {
     return generateGreedyLanguageFile(className, base)
-  } else if (baseType === 'short-scale') {
-    return generateShortScaleLanguageFile(className, base)
-  } else if (baseType === 'long-scale') {
-    return generateLongScaleLanguageFile(className, base)
+  } else if (baseType === 'scale') {
+    return generateScaleLanguageFile(className, base)
+  } else if (baseType === 'scale-compound') {
+    return generateScaleCompoundLanguageFile(className, base)
   } else if (baseType === 'slavic') {
     return generateSlavicLanguageFile(className, base)
   } else if (baseType === 'south-asian') {
@@ -174,12 +174,12 @@ export class ${className} extends ${base.name} {
 }
 
 /**
- * Generate ShortScaleLanguage template
+ * Generate ScaleLanguage template (simple mode)
  * @param {string} className Class name
  * @param {Object} base Base class config
  * @returns {string}
  */
-function generateShortScaleLanguageFile (className, base) {
+function generateScaleLanguageFile (className, base) {
   return `import { ${base.name} } from '${base.import}'
 
 /**
@@ -277,19 +277,19 @@ export class ${className} extends ${base.name} {
 }
 
 /**
- * Generate LongScaleLanguage template
+ * Generate ScaleLanguage template with compound mode
  * @param {string} className Class name
  * @param {Object} base Base class config
  * @returns {string}
  */
-function generateLongScaleLanguageFile (className, base) {
+function generateScaleCompoundLanguageFile (className, base) {
   return `import { ${base.name} } from '${base.import}'
 
 /**
  * ${className} language converter.
  *
- * Uses long scale numbering (European system):
- * - million (10^6), thousand million (10^9), billion (10^12), thousand billion (10^15), trillion (10^18)
+ * Uses compound scale pattern (European long scale):
+ * - million (10^6), thousand million (10^9), billion (10^12), thousand billion (10^15)
  *
  * TODO: Document language-specific behavior
  */
@@ -297,6 +297,9 @@ export class ${className} extends ${base.name} {
   negativeWord = 'minus' // TODO: Replace with ${className} word for negative
   decimalSeparatorWord = 'point' // TODO: Replace with ${className} decimal separator
   zeroWord = 'zero' // TODO: Replace with ${className} word for zero
+
+  // Enable compound scale mode for "thousand million" pattern
+  scaleMode = 'compound'
 
   // TODO: Define words for digits 1-9
   onesWords = {
@@ -1006,11 +1009,11 @@ async function main () {
   if (baseType === 'greedy-scale' || baseType === 'turkic') {
     console.log(chalk.gray('   - Add complete scaleWords array'))
     console.log(chalk.gray('   - Implement combineWordSets() logic (if needed)'))
-  } else if (baseType === 'short-scale') {
+  } else if (baseType === 'scale') {
     console.log(chalk.gray('   - Define onesWords, teensWords, tensWords dictionaries'))
     console.log(chalk.gray('   - Override combineSegmentParts() for hyphenation/connectors'))
     console.log(chalk.gray('   - Override joinSegments() if "and" rules needed'))
-  } else if (baseType === 'long-scale') {
+  } else if (baseType === 'scale-compound') {
     console.log(chalk.gray('   - Define onesWords, teensWords, tensWords dictionaries'))
     console.log(chalk.gray('   - Set thousandWord and scaleWords array'))
     console.log(chalk.gray('   - Override pluralizeScaleWord() for pluralization'))
