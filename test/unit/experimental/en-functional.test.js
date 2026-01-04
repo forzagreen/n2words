@@ -1,5 +1,5 @@
 /**
- * Tests for functional English converter (en-Test.js)
+ * Tests for functional English converter (en-functional.js)
  *
  * Tests both the public API (toWords) and individual pure functions.
  */
@@ -8,20 +8,17 @@ import test from 'ava'
 import {
   toWords,
   // Pure functions
-  hundredsToWords,
-  combineSegmentParts,
   segmentToWords,
-  scaleWordForIndex,
-  joinSegments,
   integerToWords,
+  decimalPartToWords,
   // Vocabulary
   ONES,
   TEENS,
   TENS,
   SCALES,
+  HUNDRED,
   ZERO
 } from '../../../lib/experimental/en-functional.js'
-import { decimalToWords } from '../../../lib/utils/scale-utils.js'
 
 // ============================================================================
 // Comparison with Class-Based Implementation
@@ -33,20 +30,23 @@ import { English } from '../../../lib/languages/en.js'
 // Vocabulary Tests
 // ============================================================================
 
-test('vocabulary › ONES has digits 1-9', t => {
-  t.is(Object.keys(ONES).length, 9)
+test('vocabulary › ONES is array with indices 0-9', t => {
+  t.is(ONES.length, 10)
+  t.is(ONES[0], '') // unused
   t.is(ONES[1], 'one')
   t.is(ONES[9], 'nine')
 })
 
-test('vocabulary › TEENS has digits 0-9 for 10-19', t => {
-  t.is(Object.keys(TEENS).length, 10)
+test('vocabulary › TEENS is array with indices 0-9 for 10-19', t => {
+  t.is(TEENS.length, 10)
   t.is(TEENS[0], 'ten')
   t.is(TEENS[9], 'nineteen')
 })
 
-test('vocabulary › TENS has digits 2-9 for 20-90', t => {
-  t.is(Object.keys(TENS).length, 8)
+test('vocabulary › TENS is array with indices 0-9 (0-1 unused)', t => {
+  t.is(TENS.length, 10)
+  t.is(TENS[0], '') // unused
+  t.is(TENS[1], '') // unused
   t.is(TENS[2], 'twenty')
   t.is(TENS[9], 'ninety')
 })
@@ -57,36 +57,14 @@ test('vocabulary › SCALES has scale words in order', t => {
   t.is(SCALES[2], 'billion')
 })
 
+test('vocabulary › HUNDRED and ZERO are strings', t => {
+  t.is(HUNDRED, 'hundred')
+  t.is(ZERO, 'zero')
+})
+
 // ============================================================================
 // Pure Function Tests
 // ============================================================================
-
-test('hundredsToWords › converts hundreds digit', t => {
-  t.is(hundredsToWords(1n), 'one hundred')
-  t.is(hundredsToWords(5n), 'five hundred')
-  t.is(hundredsToWords(9n), 'nine hundred')
-})
-
-test('combineSegmentParts › hyphenates twenty-one through ninety-nine', t => {
-  t.is(combineSegmentParts(['twenty', 'one'], 21n), 'twenty-one')
-  t.is(combineSegmentParts(['forty', 'two'], 42n), 'forty-two')
-  t.is(combineSegmentParts(['ninety', 'nine'], 99n), 'ninety-nine')
-})
-
-test('combineSegmentParts › does not hyphenate teens', t => {
-  t.is(combineSegmentParts(['eleven'], 11n), 'eleven')
-  t.is(combineSegmentParts(['nineteen'], 19n), 'nineteen')
-})
-
-test('combineSegmentParts › adds "and" after hundreds', t => {
-  t.is(combineSegmentParts(['one hundred', 'one'], 101n), 'one hundred and one')
-  t.is(combineSegmentParts(['five hundred', 'forty', 'two'], 542n), 'five hundred and forty-two')
-})
-
-test('combineSegmentParts › no "and" for exact hundreds', t => {
-  t.is(combineSegmentParts(['one hundred'], 100n), 'one hundred')
-  t.is(combineSegmentParts(['nine hundred'], 900n), 'nine hundred')
-})
 
 test('segmentToWords › converts 0-999', t => {
   t.is(segmentToWords(0n), '')
@@ -100,22 +78,25 @@ test('segmentToWords › converts 0-999', t => {
   t.is(segmentToWords(999n), 'nine hundred and ninety-nine')
 })
 
-test('scaleWordForIndex › returns correct scale words', t => {
-  t.is(scaleWordForIndex(1), 'thousand')
-  t.is(scaleWordForIndex(2), 'million')
-  t.is(scaleWordForIndex(3), 'billion')
-  t.is(scaleWordForIndex(0), '')
-  t.is(scaleWordForIndex(100), '')
+test('segmentToWords › hyphenates twenty-one through ninety-nine', t => {
+  t.is(segmentToWords(21n), 'twenty-one')
+  t.is(segmentToWords(42n), 'forty-two')
+  t.is(segmentToWords(99n), 'ninety-nine')
 })
 
-test('joinSegments › inserts "and" before final small segment', t => {
-  t.is(joinSegments(['one', 'thousand', 'one']), 'one thousand and one')
-  t.is(joinSegments(['one', 'million', 'fifty']), 'one million and fifty')
+test('segmentToWords › does not hyphenate teens', t => {
+  t.is(segmentToWords(11n), 'eleven')
+  t.is(segmentToWords(19n), 'nineteen')
 })
 
-test('joinSegments › no "and" when final segment has hundred', t => {
-  t.is(joinSegments(['one', 'thousand', 'one hundred']), 'one thousand one hundred')
-  t.is(joinSegments(['one', 'million', 'one hundred and one']), 'one million one hundred and one')
+test('segmentToWords › adds "and" after hundreds', t => {
+  t.is(segmentToWords(101n), 'one hundred and one')
+  t.is(segmentToWords(542n), 'five hundred and forty-two')
+})
+
+test('segmentToWords › no "and" for exact hundreds', t => {
+  t.is(segmentToWords(100n), 'one hundred')
+  t.is(segmentToWords(900n), 'nine hundred')
 })
 
 test('integerToWords › converts integers', t => {
@@ -129,16 +110,26 @@ test('integerToWords › converts integers', t => {
   t.is(integerToWords(1234567n), 'one million two hundred and thirty-four thousand five hundred and sixty-seven')
 })
 
-test('decimalToWords › preserves leading zeros', t => {
-  t.deepEqual(decimalToWords('05', ZERO, integerToWords), ['zero', 'five'])
-  t.deepEqual(decimalToWords('005', ZERO, integerToWords), ['zero', 'zero', 'five'])
-  t.deepEqual(decimalToWords('500', ZERO, integerToWords), ['five hundred'])
+test('integerToWords › inserts "and" before final small segment', t => {
+  t.is(integerToWords(1001n), 'one thousand and one')
+  t.is(integerToWords(1000050n), 'one million and fifty')
 })
 
-test('decimalToWords › groups non-zero remainder', t => {
-  t.deepEqual(decimalToWords('14', ZERO, integerToWords), ['fourteen'])
-  t.deepEqual(decimalToWords('25', ZERO, integerToWords), ['twenty-five'])
-  t.deepEqual(decimalToWords('123', ZERO, integerToWords), ['one hundred and twenty-three'])
+test('integerToWords › no "and" when final segment has hundred', t => {
+  t.is(integerToWords(1100n), 'one thousand one hundred')
+  t.is(integerToWords(1000101n), 'one million one hundred and one')
+})
+
+test('decimalPartToWords › preserves leading zeros', t => {
+  t.is(decimalPartToWords('05'), 'zero five')
+  t.is(decimalPartToWords('005'), 'zero zero five')
+  t.is(decimalPartToWords('500'), 'five hundred')
+})
+
+test('decimalPartToWords › converts remainder as number', t => {
+  t.is(decimalPartToWords('14'), 'fourteen')
+  t.is(decimalPartToWords('25'), 'twenty-five')
+  t.is(decimalPartToWords('123'), 'one hundred and twenty-three')
 })
 
 // ============================================================================

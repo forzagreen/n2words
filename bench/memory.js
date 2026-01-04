@@ -1,24 +1,25 @@
 /**
  * Memory usage benchmark script for n2words library.
  *
- * Measures memory allocation across all languages or specific languages.
+ * Measures memory allocation across all converters or specific ones.
  * Tracks heap usage, external memory, and per-iteration overhead.
  * Requires --expose-gc flag for accurate garbage collection measurements.
  *
+ * Converters can be:
+ * - Stable language codes (e.g., 'en', 'fr', 'zh-Hans')
+ * - Experimental converters (e.g., 'en-functional' from lib/experimental/)
+ *
  * Usage:
- *   npm run bench:memory                                   # Benchmark all languages
- *   npm run bench:memory -- --lang en                      # Benchmark English only
- *   npm run bench:memory -- --lang en,es,fr                # Multiple languages (comma-separated)
+ *   npm run bench:memory                                   # All stable languages
+ *   npm run bench:memory -- --lang en                      # English only
+ *   npm run bench:memory -- --lang en --exp en-functional  # Compare stable vs experimental
  *   npm run bench:memory -- --save --compare               # Track memory changes
- *   npm run bench:memory -- --lang en --history            # Show memory history for English
- *   npm run bench:memory -- --iterations 10000 --value 42  # Custom test
+ *   npm run bench:memory -- --lang en --history            # Show memory history
  */
-import { existsSync, writeFileSync, readFileSync, mkdirSync } from 'node:fs'
+import { existsSync, writeFileSync, readFileSync, mkdirSync, readdirSync } from 'node:fs'
 import chalk from 'chalk'
 import { join } from 'node:path'
 import { homedir } from 'node:os'
-import * as n2words from '../lib/n2words.js'
-import { getConvertersByCode } from '../test/utils/language-helpers.js'
 
 // Store results in persistent location outside project
 const benchDir = join(homedir(), '.n2words-bench')
@@ -27,27 +28,110 @@ if (!existsSync(benchDir)) {
 }
 const resultsFile = join(benchDir, 'memory-results.json')
 
-// Build converter map keyed by language code
-const converters = getConvertersByCode(n2words)
+// ============================================================================
+// Converter Loading
+// ============================================================================
+
+/**
+ * Loads a converter by name.
+ *
+ * Checks experimental directory first, then falls back to stable languages.
+ * Returns a unified interface: { name, toWords(isNegative, integerPart, decimalPart) }
+ *
+ * @param {string} name Converter name (e.g., 'en', 'en-functional')
+ * @returns {Promise<{name: string, toWords: Function, type: string}>}
+ */
+async function loadConverter (name) {
+  // Try experimental first
+  try {
+    const module = await import(`../lib/experimental/${name}.js`)
+    if (module.toWords) {
+      return { name, toWords: module.toWords, type: 'experimental' }
+    }
+  } catch {
+    // Not an experimental converter, try stable
+  }
+
+  // Try stable language
+  try {
+    const module = await import(`../lib/languages/${name}.js`)
+    const className = Object.keys(module)[0]
+    const LanguageClass = module[className]
+    const instance = new LanguageClass()
+    return {
+      name,
+      toWords: (isNegative, integerPart, decimalPart) =>
+        instance.toWords(isNegative, integerPart, decimalPart),
+      type: 'stable'
+    }
+  } catch {
+    return null
+  }
+}
+
+/**
+ * Gets all available stable language codes.
+ *
+ * @returns {string[]} Language codes
+ */
+function getStableLanguageCodes () {
+  try {
+    return readdirSync('./lib/languages')
+      .filter(file => file.endsWith('.js'))
+      .map(file => file.replace('.js', ''))
+  } catch {
+    return []
+  }
+}
+
+/**
+ * Gets all available experimental converter names.
+ *
+ * @returns {string[]} Experimental converter names
+ */
+function getExperimentalConverterNames () {
+  try {
+    return readdirSync('./lib/experimental')
+      .filter(file => file.endsWith('.js'))
+      .map(file => file.replace('.js', ''))
+  } catch {
+    return []
+  }
+}
+
+// ============================================================================
+// Argument Parsing
+// ============================================================================
 
 const arguments_ = process.argv.slice(2)
 
-const languages = []
+const requestedConverters = []
+const requestedExperimental = []
 let value = Number.MAX_SAFE_INTEGER
 let iterations = 1000
 let saveResults = false
 let compareResults = false
 let showHistory = false
+let addAllExperimental = false
 let previousResults = null
 
 for (let index = 0; index < arguments_.length; index++) {
   if (arguments_[index] === '--lang' || arguments_[index] === '--language') {
     const lang = arguments_[index + 1]
     if (lang) {
-      // Support comma-separated languages: --lang en,es,fr
-      // Note: Don't lowercase - BCP 47 codes are case-sensitive (e.g., sr-Cyrl)
-      const langs = lang.split(',').map(l => l.trim()).filter(Boolean)
-      languages.push(...langs)
+      // Support comma-separated: --lang en,es,fr
+      const names = lang.split(',').map(l => l.trim()).filter(Boolean)
+      requestedConverters.push(...names)
+    }
+  } else if (arguments_[index] === '--exp' || arguments_[index] === '--experimental') {
+    const exp = arguments_[index + 1]
+    if (exp && !exp.startsWith('--')) {
+      // Specific experimental converters: --exp en-functional,fr-functional
+      const names = exp.split(',').map(e => e.trim()).filter(Boolean)
+      requestedExperimental.push(...names)
+    } else {
+      // No argument: add all experimental converters
+      addAllExperimental = true
     }
   } else if (arguments_[index] === '--value') {
     value = arguments_[index + 1]
@@ -93,10 +177,12 @@ console.log(chalk.cyan.bold('\nMemory Benchmark\n'))
 
 // Show history only (skip benchmarking)
 if (showHistory) {
-  if (languages.length !== 1) {
-    console.error(chalk.red('✗ --history requires exactly one language (use --lang <code>)\n'))
+  if (requestedConverters.length + requestedExperimental.length !== 1) {
+    console.error(chalk.red('✗ --history requires exactly one converter (use --lang or --exp)\n'))
     process.exit(1)
   }
+
+  const historyName = requestedConverters[0] || requestedExperimental[0]
 
   if (!existsSync(resultsFile)) {
     console.error(chalk.red('✗ No history found. Run with --save to start tracking history.\n'))
@@ -107,22 +193,22 @@ if (showHistory) {
     const historyData = JSON.parse(readFileSync(resultsFile, 'utf8'))
     const history = historyData.history || []
     const langHistory = history.filter(run => {
-      const langResult = run.results.find(r => r.name === languages[0])
+      const langResult = run.results.find(r => r.name === historyName)
       return langResult !== undefined
     }).slice(-10) // Last 10 runs
 
     if (langHistory.length === 0) {
-      console.error(chalk.red(`✗ No history found for language: ${languages[0]}\n`))
+      console.error(chalk.red(`✗ No history found for: ${historyName}\n`))
       process.exit(1)
     }
 
-    console.log(chalk.cyan.bold(`📈 Memory History for ${languages[0]} (last 10 runs):\n`))
+    console.log(chalk.cyan.bold(`📈 Memory History for ${historyName} (last 10 runs):\n`))
     console.log(chalk.gray('Date'.padEnd(20)) + ' │ ' + chalk.gray('Total'.padStart(12)) + ' │ ' + chalk.gray('Per Iteration'.padStart(12)) + ' │ ' + chalk.gray('Change'.padStart(10)))
     console.log(chalk.gray('─'.repeat(70)))
 
     for (let i = 0; i < langHistory.length; i++) {
       const run = langHistory[i]
-      const langResult = run.results.find(r => r.name === languages[0])
+      const langResult = run.results.find(r => r.name === historyName)
       const date = new Date(run.timestamp).toLocaleString('en-US', {
         month: 'short',
         day: 'numeric',
@@ -134,7 +220,7 @@ if (showHistory) {
 
       let changePart = ''
       if (i > 0) {
-        const prevResult = langHistory[i - 1].results.find(r => r.name === languages[0])
+        const prevResult = langHistory[i - 1].results.find(r => r.name === historyName)
         const diff = ((langResult.totalAllocated - prevResult.totalAllocated) / prevResult.totalAllocated) * 100
         const symbol = diff < 0 ? '↓' : diff > 0 ? '↑' : '='
         const diffColor = diff < 0 ? chalk.green : diff > 0 ? chalk.red : chalk.gray
@@ -162,27 +248,58 @@ if (showHistory) {
   process.exit(0)
 }
 
-// Get language codes to benchmark
-const allCodes = Object.keys(converters)
-const codesToBenchmark = languages.length > 0 ? languages : allCodes
+// ============================================================================
+// Load Converters
+// ============================================================================
 
-if (languages.length > 0) {
-  // Validate requested languages exist
-  for (const code of languages) {
-    if (!converters[code]) {
-      console.error(chalk.red(`✗ Language not found: ${code}`))
-      process.exit(1)
-    }
+// Determine which converters to benchmark
+let converterNames = [...requestedConverters]
+
+// Add experimental converters
+if (addAllExperimental) {
+  converterNames.push(...getExperimentalConverterNames())
+} else if (requestedExperimental.length > 0) {
+  converterNames.push(...requestedExperimental)
+}
+
+// Default: all stable languages if nothing specified
+if (converterNames.length === 0) {
+  converterNames = getStableLanguageCodes()
+}
+
+// Load all requested converters
+const converters = []
+for (const name of converterNames) {
+  const converter = await loadConverter(name)
+  if (converter) {
+    converters.push(converter)
+  } else {
+    console.error(chalk.red(`✗ Converter not found: ${name}`))
+    console.error(chalk.gray(`  Checked: lib/languages/${name}.js and lib/experimental/${name}.js`))
+    process.exit(1)
   }
-  console.log(chalk.gray(`Benchmarking: ${languages.join(', ')}`))
+}
+
+// Display what we're benchmarking
+if (requestedConverters.length > 0 || requestedExperimental.length > 0 || addAllExperimental) {
+  const stableCount = converters.filter(c => c.type === 'stable').length
+  const expCount = converters.filter(c => c.type === 'experimental').length
+  const parts = []
+  if (stableCount > 0) parts.push(`${stableCount} stable`)
+  if (expCount > 0) parts.push(`${expCount} experimental`)
+  console.log(chalk.gray(`Benchmarking: ${converters.map(c => c.name).join(', ')} (${parts.join(', ')})`))
 } else {
-  console.log(chalk.gray(`Testing ${allCodes.length} languages`))
+  console.log(chalk.gray(`Testing ${converters.length} converters`))
 }
 console.log(chalk.gray(`Test value: ${value.toLocaleString()}`))
-console.log(chalk.gray(`Iterations: ${iterations.toLocaleString()}${languages.length === 0 ? ' per language' : ''}\n`))
+console.log(chalk.gray(`Iterations: ${iterations.toLocaleString()}${converters.length > 1 ? ' per converter' : ''}\n`))
 
-for (const code of codesToBenchmark) {
-  await benchMemory(code)
+// Prepare test value
+const isNegative = value < 0
+const integerPart = BigInt(Math.abs(value))
+
+for (const converter of converters) {
+  await benchMemory(converter)
 }
 
 displayResults()
@@ -227,7 +344,7 @@ if (saveResults) {
 console.log() // Final newline
 
 /**
- * Benchmark memory usage for a specific language converter.
+ * Benchmark memory usage for a specific converter.
  *
  * Measures memory allocation by:
  * 1. Running garbage collection (if available)
@@ -235,11 +352,9 @@ console.log() // Final newline
  * 3. Running N iterations of converter function
  * 4. Measuring memory delta
  *
- * @param {string} code Language code (e.g., 'en', 'es', 'zh-Hans').
+ * @param {Object} converter Loaded converter object
  */
-async function benchMemory (code) {
-  const converter = converters[code]
-
+async function benchMemory (converter) {
   // Force garbage collection for more accurate baseline
   if (global.gc) {
     global.gc()
@@ -253,7 +368,7 @@ async function benchMemory (code) {
   // Run conversions and collect outputs (prevents optimization)
   const outputs = []
   for (let index = 0; index < iterations; index++) {
-    outputs.push(converter(value))
+    outputs.push(converter.toWords(isNegative, integerPart, undefined))
   }
 
   const afterTest = process.memoryUsage()
@@ -266,7 +381,7 @@ async function benchMemory (code) {
   const perIteration = totalAllocated / iterations
 
   results.push({
-    name: code,
+    name: converter.name,
     heapUsed,
     external,
     arrayBuffers,
@@ -277,7 +392,7 @@ async function benchMemory (code) {
 
   // Sanity check
   if (outputs.length !== iterations) {
-    console.error(chalk.red(`✗ Warning: Unexpected output count for ${code}`))
+    console.error(chalk.red(`✗ Warning: Unexpected output count for ${converter.name}`))
   }
 }
 
@@ -292,7 +407,7 @@ function displayResults () {
   // Print table header
   if (compareResults && previousResults) {
     console.log(
-      chalk.cyan.bold('Language'.padEnd(15)) +
+      chalk.cyan.bold('Converter'.padEnd(20)) +
       ' │ ' +
       chalk.cyan.bold('Total'.padStart(12)) +
       ' │ ' +
@@ -303,13 +418,13 @@ function displayResults () {
     console.log(chalk.gray('─'.repeat(70)))
   } else {
     console.log(
-      chalk.cyan.bold('Language'.padEnd(15)) +
+      chalk.cyan.bold('Converter'.padEnd(20)) +
       ' │ ' +
       chalk.cyan.bold('Total'.padStart(12)) +
       ' │ ' +
       chalk.cyan.bold('Per Iteration'.padStart(12))
     )
-    console.log(chalk.gray('─'.repeat(60)))
+    console.log(chalk.gray('─'.repeat(55)))
   }
 
   for (const result of results) {
@@ -332,7 +447,7 @@ function displayResults () {
     }
 
     console.log(
-      nameColor(result.name.padEnd(15)) +
+      nameColor(result.name.padEnd(20)) +
       ' │ ' +
       sizeColor(formatBytes(result.totalAllocated).padStart(12)) +
       ' │ ' +
@@ -341,10 +456,10 @@ function displayResults () {
     )
   }
 
-  const separatorLength = compareResults && previousResults ? 70 : 60
+  const separatorLength = compareResults && previousResults ? 70 : 55
   console.log(chalk.gray('─'.repeat(separatorLength)))
 
-  // Only show lowest memory and range when testing multiple languages
+  // Only show lowest memory and range when testing multiple converters
   if (results.length > 1) {
     console.log(chalk.green('Lowest memory: ' + best.name))
 
@@ -381,21 +496,21 @@ function displayHelp () {
   console.log(chalk.cyan.bold('\nMemory Benchmark Usage\n'))
   console.log('  ' + chalk.yellow('npm run bench:memory') + ' [options]\n')
   console.log(chalk.cyan('Options:'))
-  console.log('  ' + chalk.yellow('--lang, --language') + ' <code>    Benchmark specific language (e.g., en, fr)')
-  console.log('  ' + chalk.yellow('--value') + ' <number>             Test value to convert (default: Number.MAX_SAFE_INTEGER)')
-  console.log('  ' + chalk.yellow('--iterations') + ' <number>        Number of iterations (default: 1000)')
-  console.log('  ' + chalk.yellow('--save') + '                       Save results to ~/.n2words-bench/memory-results.json')
-  console.log('  ' + chalk.yellow('--compare') + '                    Compare with previous results')
-  console.log('  ' + chalk.yellow('--history') + '                    Show memory history (single language only)')
-  console.log('  ' + chalk.yellow('--help') + '                       Display this help message\n')
+  console.log('  ' + chalk.yellow('--lang') + ' <name>         Benchmark stable language(s) (e.g., en, fr, zh-Hans)')
+  console.log('  ' + chalk.yellow('--exp') + ' [name]          Add experimental converter(s), or all if no name given')
+  console.log('  ' + chalk.yellow('--value') + ' <number>      Test value to convert (default: Number.MAX_SAFE_INTEGER)')
+  console.log('  ' + chalk.yellow('--iterations') + ' <number> Number of iterations (default: 1000)')
+  console.log('  ' + chalk.yellow('--save') + '                Save results to ~/.n2words-bench/memory-results.json')
+  console.log('  ' + chalk.yellow('--compare') + '             Compare with previous saved results')
+  console.log('  ' + chalk.yellow('--history') + '             Show memory history (single converter only)')
+  console.log('  ' + chalk.yellow('--help') + '                Display this help message\n')
   console.log(chalk.cyan('Examples:'))
-  console.log('  ' + chalk.gray('npm run bench:memory                                   # Benchmark all languages'))
-  console.log('  ' + chalk.gray('npm run bench:memory -- --lang en                      # Benchmark English only'))
-  console.log('  ' + chalk.gray('npm run bench:memory -- --lang en --history            # Show memory history for English'))
-  console.log('  ' + chalk.gray('npm run bench:memory -- --lang en,es,fr                # Multiple languages (comma-separated)'))
-  console.log('  ' + chalk.gray('npm run bench:memory -- --lang en --lang es --lang fr  # Multiple languages (repeated flag)'))
-  console.log('  ' + chalk.gray('npm run bench:memory -- --value 42 --iterations 10000  # Custom test'))
-  console.log('  ' + chalk.gray('npm run bench:memory -- --save --compare               # Track changes over time\n'))
+  console.log('  ' + chalk.gray('npm run bench:memory                                  # All stable languages'))
+  console.log('  ' + chalk.gray('npm run bench:memory -- --lang en                     # English only'))
+  console.log('  ' + chalk.gray('npm run bench:memory -- --lang en --exp en-functional # Compare stable vs experimental'))
+  console.log('  ' + chalk.gray('npm run bench:memory -- --exp                         # All experimental converters'))
+  console.log('  ' + chalk.gray('npm run bench:memory -- --iterations 10000            # Custom iteration count'))
+  console.log('  ' + chalk.gray('npm run bench:memory -- --save --compare              # Track memory changes\n'))
   console.log(chalk.yellow.bold('Note: ') + chalk.gray('Requires --expose-gc flag (automatically set via npm script)'))
   console.log()
 }

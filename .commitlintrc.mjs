@@ -6,6 +6,7 @@ const PROJECT_SCOPES = [
   'core', // lib/n2words.js, lib/classes/*
   'deps', // Dependencies
   'docs', // Documentation
+  'experimental', // lib/experimental/*
   'lang', // lib/languages/* (general language work)
   'release', // Release-related changes
   'scripts', // scripts/*
