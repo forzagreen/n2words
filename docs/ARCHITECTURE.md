@@ -9,10 +9,10 @@ All language implementations follow an inheritance pattern:
 ```text
 AbstractLanguage (base)
 ├── ScaleLanguage           # Most common: English, German, Dutch, Greek, etc.
-│   └── CompoundScaleLanguage  # Long scale compound: French, Portuguese, Spanish
+│   ├── CompoundScaleLanguage  # Long scale compound: French, Portuguese, Spanish
+│   └── SlavicLanguage         # Three-form pluralization: Russian, Polish, Czech, etc.
 ├── HebrewLanguage          # Hebrew (Modern & Biblical)
 ├── MyriadLanguage          # East Asian: Japanese, Chinese, Korean
-├── SlavicLanguage          # Russian, Polish, Czech, etc.
 └── SouthAsianLanguage      # Hindi, Bengali, Gujarati, Kannada, Marathi, Punjabi, Urdu
 ```
 
@@ -109,21 +109,16 @@ Long scale with compound pattern (thousand + previous scale word).
 
 ### SlavicLanguage
 
-Three-form pluralization based on number endings, with optional gender and per-scale gender control.
+Extends ScaleLanguage with three-form pluralization and per-scale gender control.
 
-**Required properties:**
+**Additional required properties:**
 
-- `onesWords` - Object mapping 1-9 to masculine forms
 - `onesFeminineWords` - Object mapping 1-9 to feminine forms
-- `teensWords` - Object mapping 0-9 to teen numbers (10-19)
-- `twentiesWords` - Object mapping 2-9 to tens (20-90)
-- `hundredsWords` - Object mapping 1-9 to hundreds
 - `pluralForms` - Object mapping segment indices to [singular, few, many] forms
 
-**Optional properties:**
+**Additional optional properties:**
 
 - `scaleGenders` - Object mapping segment indices to boolean (true = feminine)
-- `omitOneBeforeScale` - Boolean, omits "one" before scale words (Polish, Czech)
 
 ### SouthAsianLanguage
 
