@@ -23,15 +23,15 @@ npm run lint:fix                  # Fix linting issues
 
 **7 base classes** in `lib/classes/`:
 
-| Class                  | Use For                      | Key Feature                 |
-| ---------------------- | ---------------------------- | --------------------------- |
-| `ScaleLanguage`        | Most Western languages       | Segment-based decomposition |
-| `CompoundScaleLanguage`| French, Portuguese, Spanish  | Long scale compound pattern |
-| `HebrewLanguage`       | Hebrew, Biblical Hebrew      | Dual forms, construct state |
-| `MyriadLanguage`       | East Asian languages         | Myriad-based grouping       |
-| `SlavicLanguage`       | Russian, Polish, Czech, etc. | Three-form pluralization    |
-| `SouthAsianLanguage`   | Hindi, Bengali, etc.         | Lakh/crore system           |
-| `AbstractLanguage`     | Unique patterns              | Custom implementation       |
+| Class                     | Use For                         | Key Feature                 |
+| ------------------------- | ------------------------------- | --------------------------- |
+| `ScaleLanguage`           | Most Western languages          | Segment-based decomposition |
+| `CompoundScaleLanguage`   | French, Portuguese, Spanish     | Long scale compound pattern |
+| `HebrewLanguage`          | Hebrew, Biblical Hebrew         | Dual forms, construct state |
+| `InflectedScaleLanguage`  | Slavic & Baltic languages       | Multi-form pluralization    |
+| `MyriadLanguage`          | East Asian languages            | Myriad-based grouping       |
+| `SouthAsianLanguage`      | Hindi, Bengali, etc.            | Lakh/crore system           |
+| `AbstractLanguage`        | Unique patterns                 | Custom implementation       |
 
 **Entry point**: `lib/n2words.js` - imports, type definitions, converter factory, exports (all alphabetically sorted)
 
@@ -52,7 +52,7 @@ npm run lint:fix                  # Fix linting issues
 - **ScaleLanguage**: `onesWords`, `teensWords`, `tensWords`, `hundredWord`/`hundredsWords`, `scaleWords`
 - **CompoundScaleLanguage**: Same as ScaleLanguage + `thousandWord`, `pluralizeScaleWord()`
 - **HebrewLanguage**: `onesWords`, `teensWords`, `twentiesWords`, `hundredsWords`, `pluralForms`, `scale`, `scalePlural`
-- **SlavicLanguage**: `onesWords`, `teensWords`, `twentiesWords`, `hundredsWords`, `pluralForms`
+- **InflectedScaleLanguage**: `onesWords`, `teensWords`, `tensWords`, `hundredsWords`, `pluralForms`
 - **SouthAsianLanguage**: `belowHundredWords` (100 entries) + `scaleWords`
 - **AbstractLanguage**: Implement `integerToWords()` from scratch
 

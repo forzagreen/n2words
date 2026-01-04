@@ -1,18 +1,20 @@
 import test from 'ava'
-import { SlavicLanguage } from '../../../lib/classes/slavic-language.js'
+import { InflectedScaleLanguage } from '../../../lib/classes/inflected-scale-language.js'
 
 /**
- * Unit Tests for SlavicLanguage
+ * Unit Tests for InflectedScaleLanguage
  *
- * Tests the Slavic number construction algorithm:
+ * Tests the inflected scale language algorithm:
  * - Segment-based decomposition (hundreds, tens, ones)
  * - Gender-aware number forms (masculine/feminine for 1-4)
  * - Scale word gender (thousands feminine in Russian-style languages)
- * - Three-form pluralization via pluralize() method
+ * - Multi-form pluralization via pluralize() method
  * - omitOneBeforeScale behavior (Polish-style)
  *
+ * Used by: Slavic languages (Russian, Polish, etc.), Baltic languages (Latvian, Lithuanian)
+ *
  * Subclasses must define:
- * - onesWords, onesFeminineWords, teensWords, twentiesWords, hundredsWords
+ * - onesWords, onesFeminineWords, teensWords, tensWords, hundredsWords
  * - pluralForms: mapping segment indices to [singular, few, many]
  */
 
@@ -24,7 +26,7 @@ import { SlavicLanguage } from '../../../lib/classes/slavic-language.js'
  * Minimal fixture with gender support and feminine thousands.
  * Only includes digits 1-5 since higher digits don't affect gender.
  */
-class TestSlavicLanguage extends SlavicLanguage {
+class TestInflectedLanguage extends InflectedScaleLanguage {
   negativeWord = 'minus'
   decimalSeparatorWord = 'point'
   zeroWord = 'zero'
@@ -83,7 +85,7 @@ class TestSlavicLanguage extends SlavicLanguage {
  * Fixture with omitOneBeforeScale enabled (Polish-style).
  * Says "tysiąc" instead of "jeden tysiąc" for 1000.
  */
-class TestOmitOneLanguage extends TestSlavicLanguage {
+class TestOmitOneLanguage extends TestInflectedLanguage {
   omitOneBeforeScale = true
 }
 
@@ -92,21 +94,21 @@ class TestOmitOneLanguage extends TestSlavicLanguage {
 // ============================================================================
 
 test('ones segment uses masculine forms by default', t => {
-  const lang = new TestSlavicLanguage()
+  const lang = new TestInflectedLanguage()
   t.is(lang.integerToWords(1n), 'one-m')
   t.is(lang.integerToWords(2n), 'two-m')
   t.is(lang.integerToWords(4n), 'four-m')
 })
 
 test('ones segment uses feminine forms with gender option', t => {
-  const lang = new TestSlavicLanguage({ gender: 'feminine' })
+  const lang = new TestInflectedLanguage({ gender: 'feminine' })
   t.is(lang.integerToWords(1n), 'one-f')
   t.is(lang.integerToWords(2n), 'two-f')
   t.is(lang.integerToWords(4n), 'four-f')
 })
 
 test('thousands segment uses scaleGenders setting', t => {
-  const lang = new TestSlavicLanguage()
+  const lang = new TestInflectedLanguage()
   // 1000 should use feminine form for "1" because scaleGenders[1] = true
   const result = lang.integerToWords(1000n)
   t.true(result.includes('one-f'))
@@ -114,8 +116,8 @@ test('thousands segment uses scaleGenders setting', t => {
 
 test('thousands segment ignores gender option', t => {
   // Even with masculine gender option, thousands use scaleGenders
-  const langMasc = new TestSlavicLanguage({ gender: 'masculine' })
-  const langFem = new TestSlavicLanguage({ gender: 'feminine' })
+  const langMasc = new TestInflectedLanguage({ gender: 'masculine' })
+  const langFem = new TestInflectedLanguage({ gender: 'feminine' })
 
   const resultMasc = langMasc.integerToWords(2001n)
   const resultFem = langFem.integerToWords(2001n)
@@ -130,7 +132,7 @@ test('thousands segment ignores gender option', t => {
 })
 
 test('millions segment uses masculine forms (not in scaleGenders)', t => {
-  const lang = new TestSlavicLanguage()
+  const lang = new TestInflectedLanguage()
   // scaleGenders only has { 1: true }, so millions (index 2) are masculine
   const result = lang.integerToWords(2000000n)
   t.true(result.includes('two-m'))
@@ -176,7 +178,7 @@ test('omitOneBeforeScale does not affect ones segment', t => {
 })
 
 test('omitOneBeforeScale disabled by default', t => {
-  const lang = new TestSlavicLanguage()
+  const lang = new TestInflectedLanguage()
   const result = lang.integerToWords(1000n)
   // Should have "one-f" before "thousand-sing"
   t.true(result.includes('one-f'))
@@ -187,8 +189,8 @@ test('omitOneBeforeScale disabled by default', t => {
 // pluralize() Hook
 // ============================================================================
 
-test('pluralize uses Slavic pluralization rules', t => {
-  const lang = new TestSlavicLanguage()
+test('pluralize uses default inflection rules', t => {
+  const lang = new TestInflectedLanguage()
   const forms = ['sing', 'few', 'many']
 
   // Singular: 1, 21, 31, etc. (ends in 1, except 11)
@@ -218,17 +220,17 @@ test('pluralize uses Slavic pluralization rules', t => {
 // ============================================================================
 
 test('constructor defaults to masculine gender', t => {
-  const lang = new TestSlavicLanguage()
+  const lang = new TestInflectedLanguage()
   t.is(lang.options.gender, 'masculine')
 })
 
 test('constructor accepts gender option', t => {
-  const lang = new TestSlavicLanguage({ gender: 'feminine' })
+  const lang = new TestInflectedLanguage({ gender: 'feminine' })
   t.is(lang.options.gender, 'feminine')
 })
 
 test('constructor merges user options with defaults', t => {
-  const lang = new TestSlavicLanguage({ gender: 'feminine', custom: true })
+  const lang = new TestInflectedLanguage({ gender: 'feminine', custom: true })
   t.is(lang.options.gender, 'feminine')
   t.is(lang.options.custom, true)
 })
@@ -238,7 +240,7 @@ test('constructor merges user options with defaults', t => {
 // ============================================================================
 
 test('inherits AbstractLanguage properties', t => {
-  const lang = new TestSlavicLanguage()
+  const lang = new TestInflectedLanguage()
   t.is(lang.negativeWord, 'minus')
   t.is(lang.decimalSeparatorWord, 'point')
   t.is(lang.zeroWord, 'zero')
@@ -246,7 +248,7 @@ test('inherits AbstractLanguage properties', t => {
 })
 
 test('inherits toWords from AbstractLanguage', t => {
-  const lang = new TestSlavicLanguage()
+  const lang = new TestInflectedLanguage()
   t.is(typeof lang.toWords, 'function')
 
   // Handles negatives

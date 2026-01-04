@@ -8,12 +8,12 @@ All language implementations follow an inheritance pattern:
 
 ```text
 AbstractLanguage (base)
-├── ScaleLanguage           # Most common: English, German, Dutch, Greek, etc.
-│   ├── CompoundScaleLanguage  # Long scale compound: French, Portuguese, Spanish
-│   └── SlavicLanguage         # Three-form pluralization: Russian, Polish, Czech, etc.
-├── HebrewLanguage          # Hebrew (Modern & Biblical)
-├── MyriadLanguage          # East Asian: Japanese, Chinese, Korean
-└── SouthAsianLanguage      # Hindi, Bengali, Gujarati, Kannada, Marathi, Punjabi, Urdu
+├── ScaleLanguage                # Most common: English, German, Dutch, Greek, etc.
+│   ├── CompoundScaleLanguage    # Long scale compound: French, Portuguese, Spanish
+│   └── InflectedScaleLanguage   # Multi-form pluralization: Slavic, Baltic languages
+├── HebrewLanguage               # Hebrew (Modern & Biblical)
+├── MyriadLanguage               # East Asian: Japanese, Chinese, Korean
+└── SouthAsianLanguage           # Hindi, Bengali, Gujarati, Kannada, Marathi, Punjabi, Urdu
 ```
 
 ### Languages by Base Class
@@ -26,11 +26,11 @@ AbstractLanguage (base)
 
 **MyriadLanguage** (4): Japanese, Korean, Simplified Chinese, Traditional Chinese
 
-**SlavicLanguage** (8): Croatian, Czech, Polish, Russian, Serbian (Cyrillic & Latin), Ukrainian
+**InflectedScaleLanguage** (10): Croatian, Czech, Latvian, Lithuanian, Polish, Russian, Serbian (Cyrillic & Latin), Ukrainian
 
 **SouthAsianLanguage** (7): Bangla/Bengali, Gujarati, Hindi, Kannada, Marathi, Punjabi, Urdu
 
-**AbstractLanguage directly** (11): Arabic, Hungarian, Italian, Latvian, Lithuanian, Persian, Romanian, Swahili, Tamil, Telugu, Thai, Vietnamese
+**AbstractLanguage directly** (9): Arabic, Hungarian, Italian, Persian, Romanian, Swahili, Tamil, Telugu, Thai, Vietnamese
 
 **Note**: French Belgium extends French (not CompoundScaleLanguage directly).
 
@@ -107,9 +107,11 @@ Long scale with compound pattern (thousand + previous scale word).
 
 - `pluralizeScaleWord(word)` - Pluralization (e.g., million → millions)
 
-### SlavicLanguage
+### InflectedScaleLanguage
 
-Extends ScaleLanguage with three-form pluralization and per-scale gender control.
+Extends ScaleLanguage for languages with grammatical inflection (multi-form pluralization, gender agreement).
+
+Used by Slavic languages (Russian, Polish, Czech, Ukrainian, Serbian, Croatian) and Baltic languages (Latvian, Lithuanian).
 
 **Additional required properties:**
 
@@ -203,7 +205,7 @@ export class FrenchBelgium extends French {
 ### Pattern 4: Dynamic Properties Using Getters
 
 ```javascript
-export class Czech extends SlavicLanguage {
+export class Czech extends InflectedScaleLanguage {
   #integerPart = 0n
 
   constructor(options = {}) {

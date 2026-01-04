@@ -23,9 +23,9 @@ export const BASE_CLASSES = {
   AbstractLanguage: 'Direct implementation (advanced)',
   CompoundScaleLanguage: 'Long scale compound pattern (French, Portuguese, Spanish)',
   HebrewLanguage: 'Hebrew-specific patterns',
+  InflectedScaleLanguage: 'Multi-form pluralization (Slavic, Baltic languages)',
   MyriadLanguage: 'Myriad-based grouping (East Asian languages)',
   ScaleLanguage: 'Segment-based scale decomposition (fast)',
-  SlavicLanguage: 'Three-form pluralization (Slavic languages)',
   SouthAsianLanguage: 'Indian numbering system (lakh, crore)'
 }
 
