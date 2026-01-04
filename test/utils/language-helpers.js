@@ -21,11 +21,9 @@ const LANGUAGE_DIR = './lib/languages'
  */
 export const BASE_CLASSES = {
   AbstractLanguage: 'Direct implementation (advanced)',
-  CompoundScaleLanguage: 'Long scale compound pattern (French, Portuguese, Spanish)',
   HebrewLanguage: 'Hebrew-specific patterns',
-  InflectedScaleLanguage: 'Multi-form pluralization (Slavic, Baltic languages)',
   MyriadLanguage: 'Myriad-based grouping (East Asian languages)',
-  ScaleLanguage: 'Segment-based scale decomposition (fast)',
+  ScaleLanguage: 'Segment-based scale decomposition (supports compound scale, inflection)',
   SouthAsianLanguage: 'Indian numbering system (lakh, crore)'
 }
 
@@ -139,7 +137,7 @@ export function getBaseClassName (LanguageClass) {
     return parentName
   }
 
-  // Check grandparent for regional variants (e.g., FrenchBelgium → French → CompoundScaleLanguage)
+  // Check grandparent for regional variants (e.g., FrenchBelgium → French → ScaleLanguage)
   const grandProto = Object.getPrototypeOf(proto)
   const grandParentName = grandProto?.name
 

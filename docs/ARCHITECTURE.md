@@ -8,9 +8,7 @@ All language implementations follow an inheritance pattern:
 
 ```text
 AbstractLanguage (base)
-├── ScaleLanguage                # Most common: English, German, Dutch, Greek, etc.
-│   ├── CompoundScaleLanguage    # Long scale compound: French, Portuguese, Spanish
-│   └── InflectedScaleLanguage   # Multi-form pluralization: Slavic, Baltic languages
+├── ScaleLanguage                # Most common: Western, Romance, Slavic, Baltic
 ├── HebrewLanguage               # Hebrew (Modern & Biblical)
 ├── MyriadLanguage               # East Asian: Japanese, Chinese, Korean
 └── SouthAsianLanguage           # Hindi, Bengali, Gujarati, Kannada, Marathi, Punjabi, Urdu
@@ -18,21 +16,17 @@ AbstractLanguage (base)
 
 ### Languages by Base Class
 
-**ScaleLanguage** (14): Azerbaijani, Danish, Dutch, English, Filipino, Finnish, German, Greek, Indonesian, Malay, Norwegian Bokmål, Swedish, Turkish
-
-**CompoundScaleLanguage** (3): French, Portuguese, Spanish
+**ScaleLanguage** (27): Azerbaijani, Croatian, Czech, Danish, Dutch, English, Filipino, Finnish, French, German, Greek, Indonesian, Latvian, Lithuanian, Malay, Norwegian Bokmål, Polish, Portuguese, Russian, Serbian (Cyrillic & Latin), Spanish, Swedish, Turkish, Ukrainian
 
 **HebrewLanguage** (2): Hebrew, Biblical Hebrew
 
 **MyriadLanguage** (4): Japanese, Korean, Simplified Chinese, Traditional Chinese
 
-**InflectedScaleLanguage** (10): Croatian, Czech, Latvian, Lithuanian, Polish, Russian, Serbian (Cyrillic & Latin), Ukrainian
-
 **SouthAsianLanguage** (7): Bangla/Bengali, Gujarati, Hindi, Kannada, Marathi, Punjabi, Urdu
 
 **AbstractLanguage directly** (9): Arabic, Hungarian, Italian, Persian, Romanian, Swahili, Tamil, Telugu, Thai, Vietnamese
 
-**Note**: French Belgium extends French (not CompoundScaleLanguage directly).
+**Note**: French Belgium extends French (not ScaleLanguage directly).
 
 ## Base Classes
 
@@ -86,41 +80,29 @@ Segment-based decomposition for high performance. Most common base class.
 - `omitOneBeforeHundred` - Omit "one" before hundred (Turkish, Finnish)
 - `omitOneBeforeThousand` - Omit "one" before thousand (Turkish, Greek, Finnish)
 - `omitOneBeforeScale` - Omit "one" before scale words (Greek)
+- `useCompoundScale` - Enable compound scale pattern for long scale languages (Portuguese, Spanish)
+
+**Compound scale pattern** (`useCompoundScale = true`):
+
+Pattern: million (10^6), thousand million (10^9), billion (10^12), thousand billion (10^15)
+
+Requires `thousandWord` and `pluralizeScaleWord()` override.
 
 **Override methods:**
 
 - `segmentToWords(segment, scaleIndex)` - Custom segment handling
 - `combineSegmentParts(parts, segment, scaleIndex)` - Hyphenation, connectors
 - `joinSegments(parts, integerPart)` - Custom joining rules
+- `pluralizeScaleWord(word)` - Scale word pluralization (e.g., million → millions)
+- `pluralize(n, forms)` - Multi-form pluralization (override for language-specific rules)
 
-### CompoundScaleLanguage
-
-Long scale with compound pattern (thousand + previous scale word).
-
-**Pattern:** million (10^6), thousand million (10^9), billion (10^12), thousand billion (10^15)
-
-**Additional properties:**
-
-- `thousandWord` - Word for thousand (used in compounds)
-
-**Override methods:**
-
-- `pluralizeScaleWord(word)` - Pluralization (e.g., million → millions)
-
-### InflectedScaleLanguage
-
-Extends ScaleLanguage for languages with grammatical inflection (multi-form pluralization, gender agreement).
-
-Used by Slavic languages (Russian, Polish, Czech, Ukrainian, Serbian, Croatian) and Baltic languages (Latvian, Lithuanian).
-
-**Additional required properties:**
+**Inflection support** (for Slavic/Baltic languages):
 
 - `onesFeminineWords` - Object mapping 1-9 to feminine forms
 - `pluralForms` - Object mapping segment indices to [singular, few, many] forms
-
-**Additional optional properties:**
-
 - `scaleGenders` - Object mapping segment indices to boolean (true = feminine)
+
+When `pluralForms` is defined, ScaleLanguage automatically uses `pluralize()` to select scale words.
 
 ### SouthAsianLanguage
 

@@ -1,8 +1,8 @@
 import test from 'ava'
-import { InflectedScaleLanguage } from '../../../lib/classes/inflected-scale-language.js'
+import { ScaleLanguage } from '../../../lib/classes/scale-language.js'
 
 /**
- * Unit Tests for InflectedScaleLanguage
+ * Unit Tests for ScaleLanguage Inflection Features
  *
  * Tests the inflected scale language algorithm:
  * - Segment-based decomposition (hundreds, tens, ones)
@@ -13,7 +13,7 @@ import { InflectedScaleLanguage } from '../../../lib/classes/inflected-scale-lan
  *
  * Used by: Slavic languages (Russian, Polish, etc.), Baltic languages (Latvian, Lithuanian)
  *
- * Subclasses must define:
+ * For inflection, subclasses define:
  * - onesWords, onesFeminineWords, teensWords, tensWords, hundredsWords
  * - pluralForms: mapping segment indices to [singular, few, many]
  */
@@ -26,7 +26,7 @@ import { InflectedScaleLanguage } from '../../../lib/classes/inflected-scale-lan
  * Minimal fixture with gender support and feminine thousands.
  * Only includes digits 1-5 since higher digits don't affect gender.
  */
-class TestInflectedLanguage extends InflectedScaleLanguage {
+class TestInflectedLanguage extends ScaleLanguage {
   negativeWord = 'minus'
   decimalSeparatorWord = 'point'
   zeroWord = 'zero'
@@ -56,7 +56,7 @@ class TestInflectedLanguage extends InflectedScaleLanguage {
     5: 'fifteen'
   }
 
-  twentiesWords = {
+  tensWords = {
     2: 'twenty',
     3: 'thirty',
     4: 'forty',
