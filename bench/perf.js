@@ -1,20 +1,16 @@
 /**
  * Performance benchmark script for n2words library.
  *
- * Benchmarks conversion speed across all languages or specific converters.
+ * Benchmarks conversion speed across all languages or specific ones.
  * Measures operations per second (ops/sec) for toWords() calls.
  * Supports saving results, comparing with previous runs, and viewing history.
  *
- * Converters can be:
- * - Stable language codes (e.g., 'en', 'fr', 'zh-Hans')
- * - Experimental converters (e.g., 'en-functional' from lib/experimental/)
- *
  * Usage:
- *   npm run bench:perf                            # Benchmark all stable languages
- *   npm run bench:perf -- --lang en               # Benchmark English only
- *   npm run bench:perf -- --lang en,en-functional # Compare stable vs experimental
- *   npm run bench:perf -- --save --compare        # Track performance changes
- *   npm run bench:perf -- --lang en --history     # Show performance history for English
+ *   npm run bench:perf                     # Benchmark all languages
+ *   npm run bench:perf -- --lang en        # Benchmark English only
+ *   npm run bench:perf -- --lang en,fr,de  # Benchmark multiple languages
+ *   npm run bench:perf -- --save --compare # Track performance changes
+ *   npm run bench:perf -- --lang en --history # Show performance history
  */
 import Benchmark from 'benchmark'
 import { existsSync, writeFileSync, readFileSync, mkdirSync, readdirSync, renameSync } from 'node:fs'
@@ -36,35 +32,18 @@ const resultsFile = join(benchDir, 'perf-results.json')
 // ============================================================================
 
 /**
- * Loads a converter by name.
+ * Loads a converter by language code.
  *
- * Checks experimental directory first, then falls back to stable languages
- * via n2words.js exports (includes gating logic for fair comparison).
+ * Imports the toWords function directly from the language module.
  *
- * @param {string} name Converter name (e.g., 'en', 'en-functional')
- * @returns {Promise<{name: string, toWords: Function, type: string}>}
+ * @param {string} langCode Language code (e.g., 'en', 'fr', 'zh-Hans')
+ * @returns {Promise<{name: string, toWords: Function} | null>}
  */
-async function loadConverter (name) {
-  // Try experimental first - uses raw value input (number/string/bigint)
+async function loadConverter (langCode) {
   try {
-    const module = await import(`../lib/experimental/${name}.js`)
+    const module = await import(`../lib/languages/${langCode}.js`)
     if (module.toWords) {
-      return { name, toWords: module.toWords, type: 'experimental' }
-    }
-  } catch {
-    // Not an experimental converter, try stable
-  }
-
-  // Try stable language via n2words.js exports (includes gating logic)
-  try {
-    const n2words = await import('../lib/n2words.js')
-    // Get class name from language file to build converter name
-    const langModule = await import(`../lib/languages/${name}.js`)
-    const className = Object.keys(langModule)[0]
-    const converterName = `${className}Converter`
-    const converter = n2words[converterName]
-    if (converter) {
-      return { name, toWords: converter, type: 'stable' }
+      return { name: langCode, toWords: module.toWords }
     }
   } catch {
     // Not found
@@ -74,28 +53,13 @@ async function loadConverter (name) {
 }
 
 /**
- * Gets all available stable language codes.
+ * Gets all available language codes.
  *
  * @returns {string[]} Language codes
  */
-function getStableLanguageCodes () {
+function getLanguageCodes () {
   try {
     return readdirSync('./lib/languages')
-      .filter(file => file.endsWith('.js'))
-      .map(file => file.replace('.js', ''))
-  } catch {
-    return []
-  }
-}
-
-/**
- * Gets all available experimental converter names.
- *
- * @returns {string[]} Experimental converter names
- */
-function getExperimentalConverterNames () {
-  try {
-    return readdirSync('./lib/experimental')
       .filter(file => file.endsWith('.js'))
       .map(file => file.replace('.js', ''))
   } catch {
@@ -109,13 +73,11 @@ function getExperimentalConverterNames () {
 
 const arguments_ = process.argv.slice(2)
 
-const requestedConverters = []
-const requestedExperimental = []
+const requestedLanguages = []
 let value = Number.MAX_SAFE_INTEGER
 let saveResults = false
 let compareResults = false
 let showHistory = false
-let addAllExperimental = false
 let previousResults = null
 
 for (let index = 0; index < arguments_.length; index++) {
@@ -123,18 +85,8 @@ for (let index = 0; index < arguments_.length; index++) {
     const lang = arguments_[index + 1]
     if (lang) {
       // Support comma-separated: --lang en,es,fr
-      const names = lang.split(',').map(l => l.trim()).filter(Boolean)
-      requestedConverters.push(...names)
-    }
-  } else if (arguments_[index] === '--exp' || arguments_[index] === '--experimental') {
-    const exp = arguments_[index + 1]
-    if (exp && !exp.startsWith('--')) {
-      // Specific experimental converters: --exp en-functional,fr-functional
-      const names = exp.split(',').map(e => e.trim()).filter(Boolean)
-      requestedExperimental.push(...names)
-    } else {
-      // No argument: add all experimental converters
-      addAllExperimental = true
+      const codes = lang.split(',').map(l => l.trim()).filter(Boolean)
+      requestedLanguages.push(...codes)
     }
   } else if (arguments_[index] === '--value') {
     value = arguments_[index + 1]
@@ -176,8 +128,8 @@ console.log(chalk.cyan.bold('\nPerformance Benchmark\n'))
 
 // Show history only (skip benchmarking)
 if (showHistory) {
-  if (requestedConverters.length !== 1) {
-    console.error(chalk.red('✗ --history requires exactly one converter (use --lang <name>)\n'))
+  if (requestedLanguages.length !== 1) {
+    console.error(chalk.red('✗ --history requires exactly one language (use --lang <code>)\n'))
     process.exit(1)
   }
 
@@ -190,22 +142,22 @@ if (showHistory) {
     const historyData = JSON.parse(readFileSync(resultsFile, 'utf8'))
     const history = historyData.history || []
     const langHistory = history.filter(run => {
-      const langBench = run.benchmarks.find(b => b.name === requestedConverters[0])
+      const langBench = run.benchmarks.find(b => b.name === requestedLanguages[0])
       return langBench !== undefined
     }).slice(-10) // Last 10 runs
 
     if (langHistory.length === 0) {
-      console.error(chalk.red(`✗ No history found for: ${requestedConverters[0]}\n`))
+      console.error(chalk.red(`✗ No history found for: ${requestedLanguages[0]}\n`))
       process.exit(1)
     }
 
-    console.log(chalk.cyan.bold(`📈 Performance History for ${requestedConverters[0]} (last 10 runs):\n`))
+    console.log(chalk.cyan.bold(`📈 Performance History for ${requestedLanguages[0]} (last 10 runs):\n`))
     console.log(chalk.gray('Date'.padEnd(20)) + ' │ ' + chalk.gray('ops/sec'.padStart(12)) + ' │ ' + chalk.gray('Change'.padStart(10)))
     console.log(chalk.gray('─'.repeat(50)))
 
     for (let i = 0; i < langHistory.length; i++) {
       const run = langHistory[i]
-      const langBench = run.benchmarks.find(b => b.name === requestedConverters[0])
+      const langBench = run.benchmarks.find(b => b.name === requestedLanguages[0])
       const date = new Date(run.timestamp).toLocaleString('en-US', {
         month: 'short',
         day: 'numeric',
@@ -216,7 +168,7 @@ if (showHistory) {
 
       let changePart = ''
       if (i > 0) {
-        const prevBench = langHistory[i - 1].benchmarks.find(b => b.name === requestedConverters[0])
+        const prevBench = langHistory[i - 1].benchmarks.find(b => b.name === requestedLanguages[0])
         const diff = ((langBench.hz - prevBench.hz) / prevBench.hz) * 100
         const symbol = diff > 0 ? '↑' : diff < 0 ? '↓' : '='
         const diffColor = diff > 0 ? chalk.green : diff < 0 ? chalk.red : chalk.gray
@@ -246,44 +198,29 @@ if (showHistory) {
 // Load Converters
 // ============================================================================
 
-// Determine which converters to benchmark
-let converterNames = [...requestedConverters]
-
-// Add experimental converters
-if (addAllExperimental) {
-  converterNames.push(...getExperimentalConverterNames())
-} else if (requestedExperimental.length > 0) {
-  converterNames.push(...requestedExperimental)
-}
-
-// Default: all stable languages if nothing specified
-if (converterNames.length === 0) {
-  converterNames = getStableLanguageCodes()
-}
+// Determine which languages to benchmark (default: all)
+const languageCodes = requestedLanguages.length > 0
+  ? requestedLanguages
+  : getLanguageCodes()
 
 // Load all requested converters
 const converters = []
-for (const name of converterNames) {
-  const converter = await loadConverter(name)
+for (const code of languageCodes) {
+  const converter = await loadConverter(code)
   if (converter) {
     converters.push(converter)
   } else {
-    console.error(chalk.red(`✗ Converter not found: ${name}`))
-    console.error(chalk.gray(`  Checked: lib/languages/${name}.js and lib/experimental/${name}.js`))
+    console.error(chalk.red(`✗ Language not found: ${code}`))
+    console.error(chalk.gray(`  Checked: lib/languages/${code}.js`))
     process.exit(1)
   }
 }
 
 // Display what we're benchmarking
-if (requestedConverters.length > 0 || requestedExperimental.length > 0 || addAllExperimental) {
-  const stableCount = converters.filter(c => c.type === 'stable').length
-  const expCount = converters.filter(c => c.type === 'experimental').length
-  const parts = []
-  if (stableCount > 0) parts.push(`${stableCount} stable`)
-  if (expCount > 0) parts.push(`${expCount} experimental`)
-  console.log(chalk.gray(`Benchmarking: ${converters.map(c => c.name).join(', ')} (${parts.join(', ')})`))
+if (requestedLanguages.length > 0) {
+  console.log(chalk.gray(`Benchmarking: ${converters.map(c => c.name).join(', ')}`))
 } else {
-  console.log(chalk.gray(`Testing ${converters.length} converters`))
+  console.log(chalk.gray(`Testing ${converters.length} languages`))
 }
 console.log(chalk.gray(`Test value: ${value.toLocaleString()}\n`))
 
@@ -436,18 +373,16 @@ function displayHelp () {
   console.log(chalk.cyan.bold('\nPerformance Benchmark Usage\n'))
   console.log('  ' + chalk.yellow('npm run bench:perf') + ' [options]\n')
   console.log(chalk.cyan('Options:'))
-  console.log('  ' + chalk.yellow('--lang') + ' <name>       Benchmark stable language(s) (e.g., en, fr, zh-Hans)')
-  console.log('  ' + chalk.yellow('--exp') + ' [name]        Add experimental converter(s), or all if no name given')
+  console.log('  ' + chalk.yellow('--lang') + ' <code>       Benchmark language(s) (e.g., en, fr, zh-Hans)')
   console.log('  ' + chalk.yellow('--value') + ' <number>    Test value to convert (default: Number.MAX_SAFE_INTEGER)')
   console.log('  ' + chalk.yellow('--save') + '              Save results to ~/.n2words-bench/perf-results.json')
   console.log('  ' + chalk.yellow('--compare') + '           Compare with previous saved results')
-  console.log('  ' + chalk.yellow('--history') + '           Show performance history (single converter only)')
+  console.log('  ' + chalk.yellow('--history') + '           Show performance history (single language only)')
   console.log('  ' + chalk.yellow('--help') + '              Display this help message\n')
   console.log(chalk.cyan('Examples:'))
-  console.log('  ' + chalk.gray('npm run bench:perf                                  # All stable languages'))
-  console.log('  ' + chalk.gray('npm run bench:perf -- --lang en                     # English only'))
-  console.log('  ' + chalk.gray('npm run bench:perf -- --lang en --exp en-functional # Compare en vs en-functional'))
-  console.log('  ' + chalk.gray('npm run bench:perf -- --exp                         # All experimental converters'))
-  console.log('  ' + chalk.gray('npm run bench:perf -- --lang en --exp               # English + all experimental'))
-  console.log('  ' + chalk.gray('npm run bench:perf -- --save --compare              # Track performance changes\n'))
+  console.log('  ' + chalk.gray('npm run bench:perf                     # All languages'))
+  console.log('  ' + chalk.gray('npm run bench:perf -- --lang en        # English only'))
+  console.log('  ' + chalk.gray('npm run bench:perf -- --lang en,fr,de  # Multiple languages'))
+  console.log('  ' + chalk.gray('npm run bench:perf -- --save --compare # Track performance changes'))
+  console.log('  ' + chalk.gray('npm run bench:perf -- --lang en --history # Show history\n'))
 }
