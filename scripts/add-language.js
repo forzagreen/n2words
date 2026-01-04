@@ -13,17 +13,16 @@
  *   npm run lang:add <language-code> [--base=<base-class>]
  *
  * Base Classes:
- *   --base=greedy-scale   GreedyScaleLanguage (default) - Scale-based decomposition
+ *   --base=scale          ScaleLanguage (default) - Segment-based scale decomposition
+ *   --base=compound-scale CompoundScaleLanguage - Long scale with compound pattern
  *   --base=slavic         SlavicLanguage - Three-form pluralization (Slavic languages)
  *   --base=south-asian    SouthAsianLanguage - Indian numbering system
- *   --base=turkic         TurkicLanguage - Turkish-style implicit "bir" rules
  *   --base=abstract       AbstractLanguage - Direct implementation (advanced)
  *
  * Examples:
- *   npm run lang:add ko                           # Korean (GreedyScaleLanguage)
+ *   npm run lang:add ko                           # Korean (ScaleLanguage)
  *   npm run lang:add sr-Cyrl --base=slavic       # Serbian Cyrillic (SlavicLanguage)
  *   npm run lang:add ta --base=south-asian       # Tamil (SouthAsianLanguage)
- *   npm run lang:add az --base=turkic            # Azerbaijani (TurkicLanguage)
  */
 
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
@@ -39,8 +38,8 @@ import { BASE_CLASSES } from '../test/utils/language-helpers.js'
 /**
  * Converts a PascalCase class name to kebab-case.
  *
- * @param {string} className Class name (e.g., 'GreedyScaleLanguage')
- * @returns {string} Kebab-case (e.g., 'greedy-scale-language')
+ * @param {string} className Class name (e.g., 'ScaleLanguage')
+ * @returns {string} Kebab-case (e.g., 'scale-language')
  */
 function toKebabCase (className) {
   return className.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase()
@@ -49,8 +48,8 @@ function toKebabCase (className) {
 /**
  * Gets the CLI key for a base class name.
  *
- * @param {string} className Base class name (e.g., 'GreedyScaleLanguage')
- * @returns {string} CLI key (e.g., 'greedy-scale')
+ * @param {string} className Base class name (e.g., 'ScaleLanguage')
+ * @returns {string} CLI key (e.g., 'scale')
  */
 function getCliKey (className) {
   return toKebabCase(className.replace(/Language$/, ''))
@@ -59,8 +58,8 @@ function getCliKey (className) {
 /**
  * Gets the import path for a base class.
  *
- * @param {string} className Base class name (e.g., 'GreedyScaleLanguage')
- * @returns {string} Import path (e.g., '../classes/greedy-scale-language.js')
+ * @param {string} className Base class name (e.g., 'ScaleLanguage')
+ * @returns {string} Import path (e.g., '../classes/scale-language.js')
  */
 function getImportPath (className) {
   return `../classes/${toKebabCase(className)}.js`
@@ -84,87 +83,226 @@ function findBaseClassByCliKey (cliKey) {
 /**
  * Generate language implementation file
  * @param {string} className Class name (e.g., 'English')
- * @param {string} baseType Base class type ('greedy', 'slavic', 'south-asian', 'turkic', 'abstract')
+ * @param {string} baseType Base class type ('scale', 'slavic', 'south-asian', 'abstract')
  * @returns {string}
  */
-function generateLanguageFile (className, baseType = 'greedy-scale') {
+function generateLanguageFile (className, baseType = 'scale') {
   const baseInfo = findBaseClassByCliKey(baseType)
   const base = {
     name: baseInfo.name,
     import: getImportPath(baseInfo.name)
   }
 
-  if (baseType === 'greedy-scale') {
-    return generateGreedyLanguageFile(className, base)
+  if (baseType === 'scale') {
+    return generateScaleLanguageFile(className, base)
+  } else if (baseType === 'compound-scale') {
+    return generateScaleCompoundLanguageFile(className, base)
   } else if (baseType === 'slavic') {
     return generateSlavicLanguageFile(className, base)
   } else if (baseType === 'south-asian') {
     return generateSouthAsianLanguageFile(className, base)
-  } else if (baseType === 'turkic') {
-    return generateTurkicLanguageFile(className, base)
   } else if (baseType === 'abstract') {
     return generateAbstractLanguageFile(className, base)
   }
 }
 
 /**
- * Generate GreedyScaleLanguage template
+ * Generate ScaleLanguage template (simple mode)
  * @param {string} className Class name
  * @param {Object} base Base class config
  * @returns {string}
  */
-function generateGreedyLanguageFile (className, base) {
+function generateScaleLanguageFile (className, base) {
   return `import { ${base.name} } from '${base.import}'
 
 /**
  * ${className} language converter.
  *
+ * Uses segment-based decomposition for high performance.
  * Converts numbers to ${className} words, supporting:
  * - Negative numbers (prepended with negative word)
  * - Decimal numbers (separator word between whole and fractional parts)
- * - Large numbers
+ * - Large numbers up to octillions
  *
- * TODO: Document combine rules and language-specific behavior
+ * TODO: Document language-specific behavior
  */
 export class ${className} extends ${base.name} {
   negativeWord = 'minus' // TODO: Replace with ${className} word for negative
   decimalSeparatorWord = 'point' // TODO: Replace with ${className} decimal separator
   zeroWord = 'zero' // TODO: Replace with ${className} word for zero
 
+  // TODO: Define words for digits 1-9
+  onesWords = {
+    1: 'one',
+    2: 'two',
+    3: 'three',
+    4: 'four',
+    5: 'five',
+    6: 'six',
+    7: 'seven',
+    8: 'eight',
+    9: 'nine'
+  }
+
+  // TODO: Define words for teen numbers (10-19)
+  teensWords = {
+    0: 'ten',
+    1: 'eleven',
+    2: 'twelve',
+    3: 'thirteen',
+    4: 'fourteen',
+    5: 'fifteen',
+    6: 'sixteen',
+    7: 'seventeen',
+    8: 'eighteen',
+    9: 'nineteen'
+  }
+
+  // TODO: Define words for multiples of ten (20-90)
+  tensWords = {
+    2: 'twenty',
+    3: 'thirty',
+    4: 'forty',
+    5: 'fifty',
+    6: 'sixty',
+    7: 'seventy',
+    8: 'eighty',
+    9: 'ninety'
+  }
+
+  // For simple "N hundred" pattern (like English):
+  // hundredWord = 'hundred'
+
+  // For irregular hundreds (like Slavic, French), use hundredsWords instead:
+  // TODO: Replace with ${className} words for hundreds
+  hundredsWords = {
+    1: 'hundred',
+    2: 'two hundred',
+    3: 'three hundred',
+    4: 'four hundred',
+    5: 'five hundred',
+    6: 'six hundred',
+    7: 'seven hundred',
+    8: 'eight hundred',
+    9: 'nine hundred'
+  }
+
+  // TODO: Define scale words (index 0 = thousand, 1 = million, etc.)
   scaleWords = [
-    // TODO: Add scale words in descending order
-    // Format: [value as bigint, word as string]
-    // Example:
-    // [1000000n, 'million'],
-    // [1000n, 'thousand'],
-    // [100n, 'hundred'],
-    // [90n, 'ninety'],
-    // ... down to 1n
-    [1n, 'one'] // Placeholder - replace with complete list
+    'thousand',
+    'million',
+    'billion',
+    'trillion',
+    'quadrillion',
+    'quintillion',
+    'sextillion',
+    'septillion',
+    'octillion'
   ]
 
-  /**
-   * Combines two adjacent word-sets according to language grammar.
-   *
-   * @param {Object} preceding Preceding word-set as { word: bigint }.
-   * @param {Object} following Following word-set as { word: bigint }.
-   * @returns {Object} Combined word-set with merged text and resulting value.
-   *
-   * TODO: Implement language-specific combine rules
-   * Common patterns:
-   * - Space-separated: "twenty three" → combine with space
-   * - Hyphenated: "twenty-three" → combine with hyphen
-   * - With connector: "twenty and three" → combine with " and "
-   */
-  combineWordSets (preceding, following) {
-    const precedingWord = Object.keys(preceding)[0]
-    const followingWord = Object.keys(following)[0]
-    const precedingValue = Object.values(preceding)[0]
-    const followingValue = Object.values(following)[0]
-    // Multiply when crossing magnitude boundary, add otherwise
-    const resultNumber = followingValue > precedingValue ? precedingValue * followingValue : precedingValue + followingValue
-    return { [\`\${precedingWord} \${followingWord}\`]: resultNumber }
+  // Override these methods for language-specific rules:
+  // - combineSegmentParts(parts, segment, scaleIndex) - hyphenation, connectors
+  // - hundredsToWords(hundreds, scaleIndex) - custom hundreds formatting
+  // - onesToWords(ones, scaleIndex, tens) - gender-specific ones
+  // - joinSegments(parts, integerPart) - final joining with "and" etc.
+}
+`
+}
+
+/**
+ * Generate ScaleLanguage template with compound mode
+ * @param {string} className Class name
+ * @param {Object} base Base class config
+ * @returns {string}
+ */
+function generateScaleCompoundLanguageFile (className, base) {
+  return `import { ${base.name} } from '${base.import}'
+
+/**
+ * ${className} language converter.
+ *
+ * Uses compound scale pattern (European long scale):
+ * - million (10^6), thousand million (10^9), billion (10^12), thousand billion (10^15)
+ *
+ * TODO: Document language-specific behavior
+ */
+export class ${className} extends ${base.name} {
+  negativeWord = 'minus' // TODO: Replace with ${className} word for negative
+  decimalSeparatorWord = 'point' // TODO: Replace with ${className} decimal separator
+  zeroWord = 'zero' // TODO: Replace with ${className} word for zero
+
+  // TODO: Define words for digits 1-9
+  onesWords = {
+    1: 'one',
+    2: 'two',
+    3: 'three',
+    4: 'four',
+    5: 'five',
+    6: 'six',
+    7: 'seven',
+    8: 'eight',
+    9: 'nine'
   }
+
+  // TODO: Define words for teen numbers (10-19)
+  teensWords = {
+    0: 'ten',
+    1: 'eleven',
+    2: 'twelve',
+    3: 'thirteen',
+    4: 'fourteen',
+    5: 'fifteen',
+    6: 'sixteen',
+    7: 'seventeen',
+    8: 'eighteen',
+    9: 'nineteen'
+  }
+
+  // TODO: Define words for multiples of ten (20-90)
+  tensWords = {
+    2: 'twenty',
+    3: 'thirty',
+    4: 'forty',
+    5: 'fifty',
+    6: 'sixty',
+    7: 'seventy',
+    8: 'eighty',
+    9: 'ninety'
+  }
+
+  // TODO: Define hundreds words (for irregular hundreds like Portuguese)
+  hundredsWords = {
+    1: 'hundred',
+    2: 'two hundred',
+    3: 'three hundred',
+    4: 'four hundred',
+    5: 'five hundred',
+    6: 'six hundred',
+    7: 'seven hundred',
+    8: 'eight hundred',
+    9: 'nine hundred'
+  }
+
+  // Word for "thousand" - used alone and in compounds (e.g., "mil milhões")
+  thousandWord = 'thousand' // TODO: Replace with ${className} word
+
+  // Scale words starting at million: index 0 = million (10^6), 1 = billion (10^12), etc.
+  scaleWords = ['million', 'billion', 'trillion', 'quadrillion']
+
+  /**
+   * Pluralizes a scale word.
+   * TODO: Implement language-specific pluralization (e.g., million → millions)
+   */
+  pluralizeScaleWord (word) {
+    return word + 's' // Simple English-style pluralization
+  }
+
+  // Override these methods for language-specific rules:
+  // - combineSegmentParts(parts, segment, scaleIndex) - hyphenation, connectors
+  // - hundredsToWords(hundreds, scaleIndex) - custom hundreds formatting
+  // - onesToWords(ones, scaleIndex, tens) - gender-specific ones
+  // - joinSegments(parts, integerPart) - final joining with "and" etc.
+  // - segmentToWords(segment, scaleIndex) - omit "um" before thousands, etc.
 }
 `
 }
@@ -296,46 +434,6 @@ export class ${className} extends ${base.name} {
     'crore',    // TODO: Replace with ${className} word for 10,000,000
     'arab'      // TODO: Replace with ${className} word for 1,000,000,000
   ]
-}
-`
-}
-
-/**
- * Generate TurkicLanguage template
- * @param {string} className Class name
- * @param {Object} base Base class config
- * @returns {string}
- */
-function generateTurkicLanguageFile (className, base) {
-  return `import { ${base.name} } from '${base.import}'
-
-/**
- * ${className} language converter.
- *
- * Turkic languages typically omit "bir" (one) before hundreds and thousands.
- * Inherits from GreedyScaleLanguage with Turkic-specific combine logic.
- *
- * TODO: Document language-specific grammar rules
- */
-export class ${className} extends ${base.name} {
-  negativeWord = 'minus' // TODO: Replace with ${className} word
-  decimalSeparatorWord = 'point' // TODO: Replace with ${className} word
-  zeroWord = 'zero' // TODO: Replace with ${className} word
-
-  scaleWords = [
-    // TODO: Add scale words in descending order
-    // Format: [value as bigint, word as string]
-    // Example for Turkish:
-    // [1000000n, 'milyon'],
-    // [1000n, 'bin'],
-    // [100n, 'yüz'],
-    // [90n, 'doksan'],
-    // ... down to 1n
-    [1n, 'one'] // Placeholder - replace with complete list
-  ]
-
-  // Note: TurkicLanguage provides default combineWordSets() implementation
-  // that handles implicit "bir" rules. Override only if needed.
 }
 `
 }
@@ -642,22 +740,22 @@ async function promptForBaseClass () {
 
   // Display options
   options.forEach(option => {
-    const isDefault = option.key === 'greedy-scale' ? chalk.yellow(' (default)') : ''
+    const isDefault = option.key === 'scale' ? chalk.yellow(' (default)') : ''
     console.log(`  ${chalk.white(option.index)}. ${chalk.bold(option.name)}${isDefault}`)
     console.log(`     ${chalk.gray(option.description)}`)
     console.log()
   })
 
   return new Promise((resolve) => {
-    rl.question(chalk.cyan('Enter your choice (1-5) [1]: '), (answer) => {
+    rl.question(chalk.cyan('Enter your choice (1-7) [1]: '), (answer) => {
       rl.close()
 
       const trimmed = answer.trim()
 
-      // Default to greedy if empty
+      // Default to scale if empty
       if (trimmed === '') {
-        console.log(chalk.gray('Using default: GreedyScaleLanguage\n'))
-        resolve('greedy')
+        console.log(chalk.gray('Using default: ScaleLanguage\n'))
+        resolve('scale')
         return
       }
 
@@ -691,7 +789,7 @@ async function main () {
       console.log(chalk.gray(`  --base=${getCliKey(name).padEnd(12)} ${description}`))
     }
     console.log(chalk.gray('\nExamples:'))
-    console.log(chalk.gray('  npm run lang:add ko                      # Korean (GreedyScaleLanguage)'))
+    console.log(chalk.gray('  npm run lang:add ko                      # Korean (ScaleLanguage)'))
     console.log(chalk.gray('  npm run lang:add sr-Cyrl --base=slavic  # Serbian Cyrillic (SlavicLanguage)'))
     console.log(chalk.gray('  npm run lang:add ta --base=south-asian  # Tamil (SouthAsianLanguage)'))
     process.exit(1)
@@ -798,9 +896,14 @@ async function main () {
   console.log(chalk.gray('   - Replace placeholder values with actual ' + code + ' words'))
 
   // Base-class specific instructions
-  if (baseType === 'greedy-scale' || baseType === 'turkic') {
-    console.log(chalk.gray('   - Add complete scaleWords array'))
-    console.log(chalk.gray('   - Implement combineWordSets() logic (if needed)'))
+  if (baseType === 'scale') {
+    console.log(chalk.gray('   - Define onesWords, teensWords, tensWords dictionaries'))
+    console.log(chalk.gray('   - Override combineSegmentParts() for hyphenation/connectors'))
+    console.log(chalk.gray('   - Override joinSegments() if "and" rules needed'))
+  } else if (baseType === 'scale-compound') {
+    console.log(chalk.gray('   - Define onesWords, teensWords, tensWords dictionaries'))
+    console.log(chalk.gray('   - Set thousandWord and scaleWords array'))
+    console.log(chalk.gray('   - Override pluralizeScaleWord() for pluralization'))
   } else if (baseType === 'slavic') {
     console.log(chalk.gray('   - Define ones, tens, twenties, hundreds dictionaries'))
     console.log(chalk.gray('   - Add pluralForms for scale words [singular, few, many]'))

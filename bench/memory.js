@@ -13,13 +13,19 @@
  *   npm run bench:memory -- --lang en --history            # Show memory history for English
  *   npm run bench:memory -- --iterations 10000 --value 42  # Custom test
  */
-import { existsSync, writeFileSync, readFileSync } from 'node:fs'
+import { existsSync, writeFileSync, readFileSync, mkdirSync } from 'node:fs'
 import chalk from 'chalk'
 import { join } from 'node:path'
+import { homedir } from 'node:os'
 import * as n2words from '../lib/n2words.js'
 import { getConvertersByCode } from '../test/utils/language-helpers.js'
 
-const resultsFile = join(import.meta.dirname, 'memory-results.json')
+// Store results in persistent location outside project
+const benchDir = join(homedir(), '.n2words-bench')
+if (!existsSync(benchDir)) {
+  mkdirSync(benchDir, { recursive: true })
+}
+const resultsFile = join(benchDir, 'memory-results.json')
 
 // Build converter map keyed by language code
 const converters = getConvertersByCode(n2words)
@@ -214,7 +220,7 @@ if (saveResults) {
   }
 
   writeFileSync(resultsFile, JSON.stringify(historyData, null, 2))
-  console.log(chalk.blue('\n✓ Results saved to bench/memory-results.json'))
+  console.log(chalk.blue('\n✓ Results saved to ~/.n2words-bench/memory-results.json'))
 }
 
 console.log() // Final newline
@@ -377,7 +383,7 @@ function displayHelp () {
   console.log('  ' + chalk.yellow('--lang, --language') + ' <code>    Benchmark specific language (e.g., en, fr)')
   console.log('  ' + chalk.yellow('--value') + ' <number>             Test value to convert (default: Number.MAX_SAFE_INTEGER)')
   console.log('  ' + chalk.yellow('--iterations') + ' <number>        Number of iterations (default: 1000)')
-  console.log('  ' + chalk.yellow('--save') + '                       Save results to bench/memory-results.json')
+  console.log('  ' + chalk.yellow('--save') + '                       Save results to ~/.n2words-bench/memory-results.json')
   console.log('  ' + chalk.yellow('--compare') + '                    Compare with previous results')
   console.log('  ' + chalk.yellow('--history') + '                    Show memory history (single language only)')
   console.log('  ' + chalk.yellow('--help') + '                       Display this help message\n')

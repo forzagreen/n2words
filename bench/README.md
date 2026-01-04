@@ -47,7 +47,7 @@ npm run bench:perf [options]
 | ------ | ----------- | ------- |
 | `--lang <code>` | Benchmark specific language(s) | `--lang en` or `--lang en,es,fr` |
 | `--value <number>` | Custom test value (default: `Number.MAX_SAFE_INTEGER`) | `--value 42` |
-| `--save` | Save results to `bench/perf-results.json` | `--save` |
+| `--save` | Save results to `~/.n2words-bench/perf-results.json` | `--save` |
 | `--compare` | Compare with previous saved results (inline) | `--compare` |
 | `--history` | Show performance history (single language only) | `--history` |
 | `--help` | Display help message | `--help` |

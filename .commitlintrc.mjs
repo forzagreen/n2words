@@ -17,6 +17,26 @@ const PROJECT_SCOPES = [
 // BCP 47 language code pattern (e.g., "en", "fr-BE", "zh-Hans", "sr-Latn")
 const LANGUAGE_CODE_PATTERN = /^[a-z]{2,3}(-[A-Z][a-z]{3,4})?(-[A-Z]{2})?$/
 
+/**
+ * Validates a scope value.
+ * Supports: project scopes, single language codes, or comma-separated language codes.
+ */
+function isValidScope (scope) {
+  // Check if it's a known project scope
+  if (PROJECT_SCOPES.includes(scope)) return true
+
+  // Check if it's a valid BCP 47 language code
+  if (LANGUAGE_CODE_PATTERN.test(scope)) return true
+
+  // Check if it's comma-separated language codes (e.g., "zh-Hans, zh-Hant")
+  if (scope.includes(',')) {
+    const codes = scope.split(',').map(s => s.trim())
+    return codes.every(code => LANGUAGE_CODE_PATTERN.test(code))
+  }
+
+  return false
+}
+
 export default {
   extends: ['@commitlint/config-conventional'],
   helpUrl: 'https://github.com/forzagreen/n2words/blob/master/CONTRIBUTING.md#commit-message-format',
@@ -29,11 +49,7 @@ export default {
           // No scope is always valid (scope is optional)
           if (!scope) return [true]
 
-          // Check if it's a known project scope
-          if (PROJECT_SCOPES.includes(scope)) return [true]
-
-          // Check if it's a valid BCP 47 language code
-          if (LANGUAGE_CODE_PATTERN.test(scope)) return [true]
+          if (isValidScope(scope)) return [true]
 
           return [
             false,

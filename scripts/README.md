@@ -9,9 +9,9 @@ Scaffolding tool for quickly setting up a new language implementation with all r
 ### What it creates
 
 - **Language implementation file** (`lib/languages/{code}.js`)
-  - Class extending the selected base class (GreedyScaleLanguage by default)
+  - Class extending the selected base class (ScaleLanguage by default)
   - Placeholder properties (negativeWord, zeroWord, decimalSeparatorWord)
-  - Base-class-specific structure (scaleWords, pluralForms, belowHundredWords, etc.)
+  - Base-class-specific structure (onesWords, teensWords, tensWords, scaleWords, etc.)
   - Skeleton methods with TODO comments
   - Comprehensive JSDoc documentation
 
@@ -48,25 +48,31 @@ You'll see an interactive prompt:
 ```text
 Select a base class for your language:
 
-  1. GreedyScaleLanguage (default)
-     Scale-based decomposition (most common)
-
-  2. SlavicLanguage
-     Three-form pluralization (Slavic languages)
-
-  3. SouthAsianLanguage
-     Indian numbering system (lakh, crore)
-
-  4. TurkicLanguage
-     Turkish-style implicit "bir" rules
-
-  5. AbstractLanguage
+  1. AbstractLanguage
      Direct implementation (advanced)
 
-Enter your choice (1-5) [1]:
+  2. CompoundScaleLanguage
+     Long scale compound pattern (French, Portuguese, Spanish)
+
+  3. HebrewLanguage
+     Hebrew-specific patterns
+
+  4. MyriadLanguage
+     Myriad-based grouping (East Asian languages)
+
+  5. ScaleLanguage (default)
+     Segment-based scale decomposition (fast)
+
+  6. SlavicLanguage
+     Three-form pluralization (Slavic languages)
+
+  7. SouthAsianLanguage
+     Indian numbering system (lakh, crore)
+
+Enter your choice (1-7) [5]:
 ```
 
-Press Enter for the default (GreedyScaleLanguage) or enter 1-5 to select a specific base class.
+Press Enter for the default (ScaleLanguage) or enter 1-7 to select a specific base class.
 
 #### Command-Line Mode
 
@@ -76,19 +82,18 @@ If you already know which base class you need, you can skip the prompt:
 npm run lang:add -- <code> --base=<base-class>
 
 # Examples
-npm run lang:add -- ko                          # Uses default (greedy-scale)
+npm run lang:add -- ko                          # Uses default (scale)
 npm run lang:add -- sr-Cyrl --base=slavic      # Serbian Cyrillic (SlavicLanguage)
 npm run lang:add -- hi --base=south-asian      # Hindi (SouthAsianLanguage)
-npm run lang:add -- az --base=turkic           # Azerbaijani (TurkicLanguage)
 npm run lang:add -- custom-lang --base=abstract # Advanced: Direct implementation
 ```
 
 **Base Classes:**
 
-- `greedy-scale` - GreedyScaleLanguage (default): Most common pattern, scale-based decomposition
+- `scale` - ScaleLanguage (default): Segment-based decomposition, most common pattern
+- `compound-scale` - CompoundScaleLanguage: Long scale with compound pattern (French, Portuguese, Spanish)
 - `slavic` - SlavicLanguage: Three-form pluralization (singular/few/many)
 - `south-asian` - SouthAsianLanguage: Indian numbering system (lakh, crore)
-- `turkic` - TurkicLanguage: Turkish-style implicit "bir" rules
 - `abstract` - AbstractLanguage: Direct implementation (advanced, requires implementing integerToWords from scratch)
 
 ### Validation
@@ -104,8 +109,9 @@ The script validates that:
 1. Edit `lib/languages/{code}.js`:
    - Replace placeholder words (`negativeWord`, `zeroWord`, `decimalSeparatorWord`)
    - Complete base-class-specific requirements:
-     - **GreedyScaleLanguage/TurkicLanguage**: Add `scaleWords` array, implement `combineWordSets()`
-     - **SlavicLanguage**: Define `onesWords`, `onesFeminineWords`, `teensWords`, `twentiesWords`, `hundredsWords`, `pluralForms` (optionally `scaleGenders = { 1: true }` for feminine thousands, `omitOneBeforeScale` to skip "one" before scale words)
+     - **ScaleLanguage**: Define `onesWords`, `teensWords`, `tensWords`, `hundredWord`/`hundredsWords`, `scaleWords`
+     - **CompoundScaleLanguage**: Same as ScaleLanguage + `thousandWord`, `pluralizeScaleWord()`
+     - **SlavicLanguage**: Define `onesWords`, `onesFeminineWords`, `teensWords`, `twentiesWords`, `hundredsWords`, `pluralForms`
      - **SouthAsianLanguage**: Complete `belowHundredWords` array (0-99), define `scaleWords`
      - **AbstractLanguage**: Implement `integerToWords()` from scratch
 
@@ -130,5 +136,4 @@ Language implementations are validated through the test suite (`npm test`). The 
 - `integerToWords()` method functionality
 - Registration in `n2words.js` (import, converter, export)
 - Test fixture existence
-- Scale words ordering (for GreedyScaleLanguage/TurkicLanguage)
 - Alphabetical ordering of imports and exports in `n2words.js`
