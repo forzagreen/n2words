@@ -193,22 +193,6 @@ for (const file of files) {
     const zeroResult = instance.integerToWords(0n)
     t.is(typeof zeroResult, 'string', 'integerToWords(0n) should return a string')
     t.true(zeroResult.length > 0, 'integerToWords(0n) should return a non-empty string')
-
-    // Scale words ordering (GreedyScaleLanguage/TurkicLanguage only)
-    if ((baseClass === 'GreedyScaleLanguage' || baseClass === 'TurkicLanguage') &&
-        'scaleWords' in instance && Array.isArray(instance.scaleWords)) {
-      let previousValue = Infinity
-      let orderError = null
-      for (let i = 0; i < instance.scaleWords.length; i++) {
-        const [value] = instance.scaleWords[i]
-        if (typeof value === 'bigint' && Number(value) >= previousValue) {
-          orderError = `scaleWords not in descending order at index ${i}`
-          break
-        }
-        previousValue = Number(value)
-      }
-      t.is(orderError, null, orderError || 'scaleWords should be in descending order')
-    }
   })
 }
 

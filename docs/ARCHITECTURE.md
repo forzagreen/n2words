@@ -8,28 +8,31 @@ All language implementations follow an inheritance pattern:
 
 ```text
 AbstractLanguage (base)
-├── GreedyScaleLanguage    # Most common: English, Spanish, French, etc.
-├── HebrewLanguage         # Hebrew (Modern & Biblical)
-├── SlavicLanguage         # Russian, Polish, Czech, etc.
-├── SouthAsianLanguage     # Hindi, Bengali, Gujarati, Kannada, Marathi, Punjabi, Urdu
-└── TurkicLanguage         # Turkish, Azerbaijani
+├── ScaleLanguage           # Most common: English, German, Dutch, Greek, etc.
+│   └── CompoundScaleLanguage  # Long scale compound: French, Portuguese, Spanish
+├── HebrewLanguage          # Hebrew (Modern & Biblical)
+├── MyriadLanguage          # East Asian: Japanese, Chinese, Korean
+├── SlavicLanguage          # Russian, Polish, Czech, etc.
+└── SouthAsianLanguage      # Hindi, Bengali, Gujarati, Kannada, Marathi, Punjabi, Urdu
 ```
 
 ### Languages by Base Class
 
-**GreedyScaleLanguage** (14): Danish, Dutch, English, Filipino, French, German, Greek, Korean, Norwegian Bokmål, Portuguese, Spanish, Swedish, Simplified Chinese, Traditional Chinese
+**ScaleLanguage** (12): Azerbaijani, Danish, Dutch, English, Filipino, Finnish, German, Greek, Norwegian Bokmål, Swedish, Turkish
+
+**CompoundScaleLanguage** (3): French, Portuguese, Spanish
 
 **HebrewLanguage** (2): Hebrew, Biblical Hebrew
+
+**MyriadLanguage** (4): Japanese, Korean, Simplified Chinese, Traditional Chinese
 
 **SlavicLanguage** (8): Croatian, Czech, Polish, Russian, Serbian (Cyrillic & Latin), Ukrainian
 
 **SouthAsianLanguage** (7): Bangla/Bengali, Gujarati, Hindi, Kannada, Marathi, Punjabi, Urdu
 
-**TurkicLanguage** (2): Turkish, Azerbaijani
+**AbstractLanguage directly** (13): Arabic, Hungarian, Indonesian, Italian, Latvian, Lithuanian, Malay, Persian, Romanian, Swahili, Tamil, Telugu, Thai, Vietnamese
 
-**AbstractLanguage directly** (15): Arabic, Hungarian, Indonesian, Italian, Japanese, Latvian, Lithuanian, Malay, Persian, Romanian, Swahili, Tamil, Telugu, Thai, Vietnamese
-
-**Note**: French Belgium extends French (not GreedyScaleLanguage directly).
+**Note**: French Belgium extends French (not CompoundScaleLanguage directly).
 
 ## Base Classes
 
@@ -58,19 +61,51 @@ wordSeparator = ' '        // Separator between words
 
 **Note:** Input validation and normalization happen in `makeConverter()` (lib/n2words.js), not in language classes.
 
-### GreedyScaleLanguage
+### ScaleLanguage
 
-Scale-based decomposition using greedy algorithm. Most common base class.
+Segment-based decomposition for high performance. Most common base class.
 
 **How it works:**
 
-1. Defines `scaleWords` array: `[[value, word], ...]` in descending order
-2. Greedily decomposes numbers using largest scale first
-3. Calls `combineWordSets(preceding, following)` to combine adjacent word-sets
+1. Splits number into 3-digit segments from right to left
+2. Converts each segment to words using O(1) property lookups
+3. Appends scale words (thousand, million, etc.)
+4. Joins with language-specific rules
 
-**Required:** `scaleWords` array, `combineWordSets()` method
+**Required properties:**
 
-**Helper methods:** `wordForScale(scaleValue)`, `decomposeInteger(integer)`, `reduceWordSets(wordSets)`
+- `onesWords` - Object mapping 1-9 to words
+- `teensWords` - Object mapping 0-9 to teen words (10-19)
+- `tensWords` - Object mapping 2-9 to tens words (20-90)
+- `hundredWord` OR `hundredsWords` - String for "N hundred" or object for irregular hundreds
+- `scaleWords` - Array of scale words [thousand, million, billion, ...]
+
+**Optional properties:**
+
+- `thousandWord` - Separate thousand from scaleWords (for languages that need it)
+- `omitOneBeforeHundred` - Omit "one" before hundred (Turkish, Finnish)
+- `omitOneBeforeThousand` - Omit "one" before thousand (Turkish, Greek, Finnish)
+- `omitOneBeforeScale` - Omit "one" before scale words (Greek)
+
+**Override methods:**
+
+- `segmentToWords(segment, scaleIndex)` - Custom segment handling
+- `combineSegmentParts(parts, segment, scaleIndex)` - Hyphenation, connectors
+- `joinSegments(parts, integerPart)` - Custom joining rules
+
+### CompoundScaleLanguage
+
+Long scale with compound pattern (thousand + previous scale word).
+
+**Pattern:** million (10^6), thousand million (10^9), billion (10^12), thousand billion (10^15)
+
+**Additional properties:**
+
+- `thousandWord` - Word for thousand (used in compounds)
+
+**Override methods:**
+
+- `pluralizeScaleWord(word)` - Pluralization (e.g., million → millions)
 
 ### SlavicLanguage
 
@@ -99,57 +134,58 @@ Indian numbering system with lakh/crore support.
 - `belowHundredWords` - Array of 100 entries (0-99)
 - `scaleWords` - Scale words including lakh (100,000) and crore (10,000,000)
 
-### TurkicLanguage
-
-Turkish-style implicit "bir" (one) omission rules.
-
-**Required:** `scaleWords` array (uses inherited `combineWordSets()`)
-
 ## Implementation Patterns
 
 ### Pattern 1: Basic Scale-Based Language
 
 ```javascript
-import { GreedyScaleLanguage } from '../classes/greedy-scale-language.js'
+import { ScaleLanguage } from '../classes/scale-language.js'
 
-export class MyLanguage extends GreedyScaleLanguage {
+export class MyLanguage extends ScaleLanguage {
   negativeWord = 'minus'
   zeroWord = 'zero'
   decimalSeparatorWord = 'point'
 
-  scaleWords = [
-    [1000000n, 'million'],
-    [1000n, 'thousand'],
-    [100n, 'hundred'],
-    // ... down to 1n
-  ]
-
-  combineWordSets(preceding, following) {
-    const precedingWord = Object.keys(preceding)[0]
-    const followingWord = Object.keys(following)[0]
-    const precedingValue = Object.values(preceding)[0]
-    const followingValue = Object.values(following)[0]
-    const resultNumber = followingValue > precedingValue
-      ? precedingValue * followingValue
-      : precedingValue + followingValue
-    return { [`${precedingWord} ${followingWord}`]: resultNumber }
+  onesWords = {
+    1: 'one', 2: 'two', 3: 'three', 4: 'four', 5: 'five',
+    6: 'six', 7: 'seven', 8: 'eight', 9: 'nine'
   }
+
+  teensWords = {
+    0: 'ten', 1: 'eleven', 2: 'twelve', 3: 'thirteen', 4: 'fourteen',
+    5: 'fifteen', 6: 'sixteen', 7: 'seventeen', 8: 'eighteen', 9: 'nineteen'
+  }
+
+  tensWords = {
+    2: 'twenty', 3: 'thirty', 4: 'forty', 5: 'fifty',
+    6: 'sixty', 7: 'seventy', 8: 'eighty', 9: 'ninety'
+  }
+
+  hundredWord = 'hundred'
+
+  scaleWords = ['thousand', 'million', 'billion', 'trillion']
+
+  // For languages that omit "one" before scale words:
+  // omitOneBeforeHundred = true
+  // omitOneBeforeThousand = true
 }
 ```
 
 ### Pattern 2: Language with Gender Options
 
 ```javascript
-export class MyLanguage extends GreedyScaleLanguage {
+export class MyLanguage extends ScaleLanguage {
   constructor(options = {}) {
     super()
     this.setOptions({ gender: 'masculine' }, options)
   }
 
-  get scaleWords() {
-    return this.options.gender === 'feminine'
-      ? this.feminineScales
-      : this.masculineScales
+  // Override to use gender-specific words
+  onesToWords(ones, scaleIndex, tens) {
+    const words = this.options.gender === 'feminine'
+      ? this.onesFeminineWords
+      : this.onesWords
+    return words[ones] || ''
   }
 }
 ```
@@ -160,13 +196,11 @@ export class MyLanguage extends GreedyScaleLanguage {
 import { French } from './fr.js'
 
 export class FrenchBelgium extends French {
-  constructor(options = {}) {
-    super(options)
-    // Modify parent's scaleWords for regional differences
-    const tuples = [...this.scaleWords]
-    const idx80 = tuples.findIndex(tuple => tuple[0] === 80n)
-    if (idx80 !== -1) tuples.splice(idx80, 0, [90n, 'nonante'])
-    this.scaleWords = tuples
+  // Override specific words for regional differences
+  tensWords = {
+    ...French.prototype.tensWords,
+    7: 'septante',
+    9: 'nonante'
   }
 }
 ```

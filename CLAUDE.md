@@ -9,7 +9,6 @@ n2words: Number to words converter. ESM + UMD, Node >=20, zero dependencies.
 1. **Alphabetical ordering** - All imports, converters, and exports in `lib/n2words.js` MUST be alphabetically sorted
 2. **IETF BCP 47 codes** - Language codes: `en`, `zh-Hans`, `fr-BE`
 3. **CLDR class naming** - Use `Intl.DisplayNames` for class names: `SimplifiedChinese`, `FrenchBelgium`
-4. **Descending scale order** - `scaleWords` arrays: largest to smallest (1000000n before 1000n)
 
 ## Essential Commands
 
@@ -22,15 +21,16 @@ npm run lint:fix                  # Fix linting issues
 
 ## Architecture
 
-**5 base classes** in `lib/classes/`:
+**7 base classes** in `lib/classes/`:
 
 | Class                  | Use For                      | Key Feature                 |
 | ---------------------- | ---------------------------- | --------------------------- |
-| `GreedyScaleLanguage`  | Most Western languages       | Scale-based decomposition   |
+| `ScaleLanguage`        | Most Western languages       | Segment-based decomposition |
+| `CompoundScaleLanguage`| French, Portuguese, Spanish  | Long scale compound pattern |
 | `HebrewLanguage`       | Hebrew, Biblical Hebrew      | Dual forms, construct state |
+| `MyriadLanguage`       | East Asian languages         | Myriad-based grouping       |
 | `SlavicLanguage`       | Russian, Polish, Czech, etc. | Three-form pluralization    |
 | `SouthAsianLanguage`   | Hindi, Bengali, etc.         | Lakh/crore system           |
-| `TurkicLanguage`       | Turkish, Azerbaijani         | Implicit "bir" rules        |
 | `AbstractLanguage`     | Unique patterns              | Custom implementation       |
 
 **Entry point**: `lib/n2words.js` - imports, type definitions, converter factory, exports (all alphabetically sorted)
@@ -49,7 +49,8 @@ npm run lint:fix                  # Fix linting issues
 
 **Base class requirements**:
 
-- **GreedyScaleLanguage**: `scaleWords` array + `combineWordSets()` method
+- **ScaleLanguage**: `onesWords`, `teensWords`, `tensWords`, `hundredWord`/`hundredsWords`, `scaleWords`
+- **CompoundScaleLanguage**: Same as ScaleLanguage + `thousandWord`, `pluralizeScaleWord()`
 - **HebrewLanguage**: `onesWords`, `teensWords`, `twentiesWords`, `hundredsWords`, `pluralForms`, `scale`, `scalePlural`
 - **SlavicLanguage**: `onesWords`, `teensWords`, `twentiesWords`, `hundredsWords`, `pluralForms`
 - **SouthAsianLanguage**: `belowHundredWords` (100 entries) + `scaleWords`
@@ -71,7 +72,6 @@ The test suite (`npm test`) validates:
 - IETF BCP 47 naming
 - Class structure and inheritance
 - Required properties/methods
-- Scale word ordering
 - Registration in n2words.js (import, converter, export)
 - Test fixture exists
 - Alphabetical ordering in n2words.js
