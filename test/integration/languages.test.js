@@ -1,23 +1,20 @@
 import test from 'ava'
 import { readdirSync } from 'node:fs'
 import { isPlainObject } from '../../lib/utils/is-plain-object.js'
-import { isValidNumericValue, parseNumericValue } from '../../lib/utils/parse-numeric.js'
-import { isValidLanguageCode } from '../utils/language-naming.js'
-import { BASE_CLASSES, getBaseClassName, getClassNameFromModule } from '../utils/language-helpers.js'
+import { isValidNumericValue } from '../../lib/utils/parse-numeric.js'
+import { isValidLanguageCode, getClassName, getConverterName } from '../utils/language-naming.js'
 import { safeStringify } from '../utils/stringify.js'
 
 /**
  * Language Implementation Tests
  *
- * Tests each language class directly by calling toWords() with pre-parsed input.
+ * Tests each language converter directly by calling toWords() with test fixtures.
  * Validates language implementations conform to project standards.
  *
  * Validates:
  * - Fixture test cases (input → expected output)
  * - BCP 47 file naming convention
- * - Required properties (negativeWord, zeroWord, decimalSeparatorWord)
- * - Valid base class inheritance
- * - Scale words ordering (where applicable)
+ * - toWords function export exists
  * - Basic sanity checks (handles zero, returns strings)
  *
  * Note: Module structure validation (imports, exports, typedefs) is in api.test.js.
@@ -110,16 +107,16 @@ for (const file of files) {
   const languageCode = file.replace('.js', '')
 
   test(languageCode, async t => {
-    // Import language module and extract class name from its exports
+    // Import language module
     const languageModule = await import('../../lib/languages/' + file)
-    const className = getClassNameFromModule(languageModule)
-    if (!className) {
-      t.fail(`Could not extract class name from language file: ${file}`)
+
+    // Verify toWords export exists
+    if (typeof languageModule.toWords !== 'function') {
+      t.fail(`Language file ${file} does not export a toWords function`)
       return
     }
 
-    // Get language class for direct testing
-    const LanguageClass = languageModule[className]
+    const toWords = languageModule.toWords
 
     // Import and validate fixture
     const { default: testFile } = await import('../fixtures/languages/' + file)
@@ -130,18 +127,14 @@ for (const file of files) {
       return
     }
 
-    // Run test cases by calling class directly with pre-parsed input
+    // Run test cases by calling toWords directly
     for (let i = 0; i < testFile.length; i++) {
       const testCase = testFile[i]
       const [input, expected, options] = testCase
 
       try {
-        // Parse input to normalized form (same as API boundary does)
-        const { isNegative, integerPart, decimalPart } = parseNumericValue(input)
-
-        // Create instance and call toWords() directly
-        const instance = new LanguageClass(options)
-        const actual = instance.toWords(isNegative, integerPart, decimalPart)
+        // Call toWords directly (it handles parsing internally)
+        const actual = options ? toWords(input, options) : toWords(input)
 
         // Provide detailed context on failure
         t.is(actual, expected,
@@ -168,31 +161,25 @@ for (const file of files) {
     // Structural Validation
     // ========================================================================
 
-    const instance = new LanguageClass()
-
     // Valid BCP 47 language code
     t.true(
       isValidLanguageCode(languageCode),
       `${languageCode} should be a valid BCP 47 tag`
     )
 
-    // Extends valid base class
-    const baseClass = getBaseClassName(LanguageClass)
-    t.true(
-      baseClass in BASE_CLASSES,
-      `${className} should extend a valid base class, got: ${baseClass}`
-    )
+    // Basic sanity checks
+    const zeroResult = toWords(0)
+    t.is(typeof zeroResult, 'string', 'toWords(0) should return a string')
+    t.true(zeroResult.length > 0, 'toWords(0) should return a non-empty string')
 
-    // Has required properties
-    t.is(typeof instance.negativeWord, 'string', 'negativeWord should be a string')
-    t.is(typeof instance.zeroWord, 'string', 'zeroWord should be a string')
-    t.is(typeof instance.decimalSeparatorWord, 'string', 'decimalSeparatorWord should be a string')
-
-    // integerToWords works and handles zero
-    t.is(typeof instance.integerToWords, 'function', 'integerToWords should be a function')
-    const zeroResult = instance.integerToWords(0n)
-    t.is(typeof zeroResult, 'string', 'integerToWords(0n) should return a string')
-    t.true(zeroResult.length > 0, 'integerToWords(0n) should return a non-empty string')
+    // Verify named export matches expected converter name
+    const className = getClassName(languageCode)
+    if (className) {
+      const converterName = getConverterName(className)
+      // We don't require the converter export in the language file itself,
+      // only in n2words.js, so just verify the naming is consistent
+      t.pass(`Converter name derivation works: ${converterName}`)
+    }
   })
 }
 

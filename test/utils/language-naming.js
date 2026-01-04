@@ -85,6 +85,18 @@ export function getCldrName (code) {
 }
 
 // ============================================================================
+// Fallback Class Names (for codes CLDR doesn't recognize)
+// ============================================================================
+
+/**
+ * Manual class name mappings for language codes that CLDR doesn't recognize.
+ * These are typically ancient/historical languages or special codes.
+ */
+const FALLBACK_CLASS_NAMES = {
+  hbo: 'BiblicalHebrew'
+}
+
+// ============================================================================
 // Class Name Derivation
 // ============================================================================
 
@@ -115,16 +127,21 @@ export function cldrNameToClassName (cldrName) {
  * Gets the expected class name for a BCP 47 language code.
  *
  * Combines CLDR lookup with PascalCase conversion.
+ * Falls back to manual mappings for codes CLDR doesn't recognize.
  *
  * @param {string} code BCP 47 language code
- * @returns {string|null} Expected class name, or null if CLDR doesn't recognize the code
+ * @returns {string|null} Expected class name, or null if not recognized
  * @example
  * getClassName('en')       // 'English'
  * getClassName('zh-Hans')  // 'SimplifiedChinese'
  * getClassName('fr-BE')    // 'FrenchBelgium'
- * getClassName('hbo')      // null (not in CLDR)
+ * getClassName('hbo')      // 'BiblicalHebrew' (from fallback)
  */
 export function getClassName (code) {
+  // Check fallback map first for codes CLDR doesn't recognize
+  if (FALLBACK_CLASS_NAMES[code]) {
+    return FALLBACK_CLASS_NAMES[code]
+  }
   const cldrName = getCldrName(code)
   return cldrName ? cldrNameToClassName(cldrName) : null
 }
@@ -147,11 +164,11 @@ export function getConverterName (className) {
  * Gets the expected converter name for a BCP 47 language code.
  *
  * @param {string} code BCP 47 language code
- * @returns {string|null} Expected converter name, or null if CLDR doesn't recognize the code
+ * @returns {string|null} Expected converter name, or null if not recognized
  * @example
  * getConverterNameFromCode('en')       // 'EnglishConverter'
  * getConverterNameFromCode('zh-Hans')  // 'SimplifiedChineseConverter'
- * getConverterNameFromCode('hbo')      // null (not in CLDR)
+ * getConverterNameFromCode('hbo')      // 'BiblicalHebrewConverter' (from fallback)
  */
 export function getConverterNameFromCode (code) {
   const className = getClassName(code)

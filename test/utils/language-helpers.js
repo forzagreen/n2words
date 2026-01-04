@@ -15,18 +15,6 @@ import { getClassName, getConverterName } from './language-naming.js'
 
 const LANGUAGE_DIR = './lib/languages'
 
-/**
- * Base classes that language implementations can extend.
- * Maps class name to description for CLI/documentation use.
- */
-export const BASE_CLASSES = {
-  AbstractLanguage: 'Direct implementation (advanced)',
-  HebrewLanguage: 'Hebrew-specific patterns',
-  MyriadLanguage: 'Myriad-based grouping (East Asian languages)',
-  ScaleLanguage: 'Segment-based scale decomposition (supports compound scale, inflection)',
-  SouthAsianLanguage: 'Indian numbering system (lakh, crore)'
-}
-
 // ============================================================================
 // Language Code Helpers
 // ============================================================================
@@ -56,19 +44,15 @@ export function getLanguagesWithOptions () {
 // ============================================================================
 
 /**
- * Gets the class name by reading a language file.
+ * Gets the class name by reading a language file and looking at file structure.
+ * For functional implementations, we derive from the language code.
  *
  * @param {string} code Language code
  * @returns {string|null} Class name, or null if not found
  */
 export function getClassNameFromFile (code) {
-  try {
-    const content = readFileSync(`${LANGUAGE_DIR}/${code}.js`, 'utf8')
-    const match = content.match(/export\s+class\s+(\w+)/)
-    return match ? match[1] : null
-  } catch {
-    return null
-  }
+  // For functional implementations, derive from language-naming.js
+  return getClassName(code)
 }
 
 /**
@@ -80,7 +64,8 @@ export function getClassNameFromFile (code) {
 export function languageHasOptions (code) {
   try {
     const content = readFileSync(`${LANGUAGE_DIR}/${code}.js`, 'utf8')
-    return content.includes('this.setOptions(')
+    // Functional implementations accept options as second parameter to toWords
+    return content.includes('function toWords (value, options')
   } catch {
     return false
   }
@@ -89,17 +74,6 @@ export function languageHasOptions (code) {
 // ============================================================================
 // Module Helpers
 // ============================================================================
-
-/**
- * Gets the class name from a language module's exports.
- *
- * @param {Object} languageModule The imported language module
- * @returns {string|null} The class name, or null if not found
- */
-export function getClassNameFromModule (languageModule) {
-  const exportNames = Object.keys(languageModule)
-  return exportNames.length === 1 ? exportNames[0] : null
-}
 
 /**
  * Gets converter functions from n2words module, keyed by language code.
@@ -119,31 +93,4 @@ export function getConvertersByCode (n2wordsModule) {
     }
   }
   return converters
-}
-
-/**
- * Gets the base class name for a language class.
- *
- * Handles regional variants by checking up to grandparent class.
- *
- * @param {Function} LanguageClass Language class constructor
- * @returns {string|null} Base class name
- */
-export function getBaseClassName (LanguageClass) {
-  const proto = Object.getPrototypeOf(LanguageClass)
-  const parentName = proto?.name
-
-  if (parentName in BASE_CLASSES) {
-    return parentName
-  }
-
-  // Check grandparent for regional variants (e.g., FrenchBelgium → French → ScaleLanguage)
-  const grandProto = Object.getPrototypeOf(proto)
-  const grandParentName = grandProto?.name
-
-  if (grandParentName in BASE_CLASSES) {
-    return grandParentName
-  }
-
-  return parentName
 }
