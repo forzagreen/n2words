@@ -21,8 +21,10 @@ const LANGUAGE_DIR = './lib/languages'
  */
 export const BASE_CLASSES = {
   AbstractLanguage: 'Direct implementation (advanced)',
+  CompoundScaleLanguage: 'Long scale compound pattern (French, Portuguese, Spanish)',
   GreedyScaleLanguage: 'Scale-based decomposition (legacy, slower)',
   HebrewLanguage: 'Hebrew-specific patterns',
+  MyriadLanguage: 'Myriad-based grouping (East Asian languages)',
   ScaleLanguage: 'Segment-based scale decomposition (fast)',
   SlavicLanguage: 'Three-form pluralization (Slavic languages)',
   SouthAsianLanguage: 'Indian numbering system (lakh, crore)',
