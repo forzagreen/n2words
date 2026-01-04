@@ -133,37 +133,63 @@ test('decimalPartToWords › converts remainder as number', t => {
 })
 
 // ============================================================================
-// toWords Tests (Public API)
+// toWords Tests (Public API - accepts NumericValue)
 // ============================================================================
 
-test('toWords › assembles complete output', t => {
-  t.is(toWords(false, 42n, undefined), 'forty-two')
-  t.is(toWords(true, 42n, undefined), 'minus forty-two')
-  t.is(toWords(false, 3n, '14'), 'three point fourteen')
-  t.is(toWords(true, 0n, '5'), 'minus zero point five')
+test('toWords › accepts number input', t => {
+  t.is(toWords(42), 'forty-two')
+  t.is(toWords(-42), 'minus forty-two')
+  t.is(toWords(3.14), 'three point fourteen')
+  t.is(toWords(-0.5), 'minus zero point five')
+})
+
+test('toWords › accepts string input', t => {
+  t.is(toWords('42'), 'forty-two')
+  t.is(toWords('-1000'), 'minus one thousand')
+  t.is(toWords('3.14'), 'three point fourteen')
+})
+
+test('toWords › accepts bigint input', t => {
+  t.is(toWords(42n), 'forty-two')
+  t.is(toWords(-1000000n), 'minus one million')
+  t.is(toWords(9007199254740991n), 'nine quadrillion seven trillion one hundred and ninety-nine billion two hundred and fifty-four million seven hundred and forty thousand nine hundred and ninety-one')
 })
 
 test('toWords › handles zero', t => {
-  t.is(toWords(false, 0n, undefined), 'zero')
-  t.is(toWords(true, 0n, undefined), 'minus zero')
+  t.is(toWords(0), 'zero')
+  t.is(toWords('0'), 'zero')
+  t.is(toWords(0n), 'zero')
 })
 
 test('toWords › handles large numbers', t => {
-  t.is(toWords(false, 1000000000000n, undefined), 'one trillion')
-  t.is(toWords(false, 1000000000000000000n, undefined), 'one quintillion')
+  t.is(toWords(1000000000000), 'one trillion')
+  t.is(toWords('1000000000000000000'), 'one quintillion')
 })
 
 test('toWords › handles decimals with leading zeros', t => {
-  t.is(toWords(false, 0n, '001'), 'zero point zero zero one')
-  t.is(toWords(false, 1n, '05'), 'one point zero five')
+  t.is(toWords(0.001), 'zero point zero zero one')
+  t.is(toWords('1.05'), 'one point zero five')
 })
+
+test('toWords › throws on invalid input', t => {
+  t.throws(() => toWords(null), { instanceOf: TypeError })
+  t.throws(() => toWords(undefined), { instanceOf: TypeError })
+  t.throws(() => toWords({}), { instanceOf: TypeError })
+  t.throws(() => toWords('hello'), { instanceOf: Error })
+  t.throws(() => toWords(NaN), { instanceOf: Error })
+  t.throws(() => toWords(Infinity), { instanceOf: Error })
+})
+
+// ============================================================================
+// Comparison Tests (functional matches class-based)
+// ============================================================================
 
 test('functional matches class-based › basic numbers', t => {
   const classConverter = new English()
   const testCases = [0, 1, 10, 11, 20, 21, 100, 101, 111, 999, 1000, 1001, 1234567]
 
   for (const n of testCases) {
-    const functional = toWords(false, BigInt(n), undefined)
+    const functional = toWords(n)
     const classBased = classConverter.toWords(false, BigInt(n), undefined)
     t.is(functional, classBased, `Mismatch for ${n}`)
   }
@@ -174,7 +200,7 @@ test('functional matches class-based › negative numbers', t => {
   const testCases = [1, 42, 1000]
 
   for (const n of testCases) {
-    const functional = toWords(true, BigInt(n), undefined)
+    const functional = toWords(-n)
     const classBased = classConverter.toWords(true, BigInt(n), undefined)
     t.is(functional, classBased, `Mismatch for -${n}`)
   }
@@ -184,14 +210,14 @@ test('functional matches class-based › decimals', t => {
   const classConverter = new English()
 
   const testCases = [
-    { isNeg: false, int: 3n, dec: '14' },
-    { isNeg: false, int: 0n, dec: '05' },
-    { isNeg: true, int: 1n, dec: '5' }
+    { value: 3.14, isNeg: false, int: 3n, dec: '14' },
+    { value: 0.05, isNeg: false, int: 0n, dec: '05' },
+    { value: -1.5, isNeg: true, int: 1n, dec: '5' }
   ]
 
-  for (const { isNeg, int, dec } of testCases) {
-    const functional = toWords(isNeg, int, dec)
+  for (const { value, isNeg, int, dec } of testCases) {
+    const functional = toWords(value)
     const classBased = classConverter.toWords(isNeg, int, dec)
-    t.is(functional, classBased, `Mismatch for ${isNeg ? '-' : ''}${int}.${dec}`)
+    t.is(functional, classBased, `Mismatch for ${value}`)
   }
 })

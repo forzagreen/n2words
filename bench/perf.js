@@ -17,7 +17,7 @@
  *   npm run bench:perf -- --lang en --history     # Show performance history for English
  */
 import Benchmark from 'benchmark'
-import { existsSync, writeFileSync, readFileSync, mkdirSync, readdirSync } from 'node:fs'
+import { existsSync, writeFileSync, readFileSync, mkdirSync, readdirSync, renameSync } from 'node:fs'
 import chalk from 'chalk'
 import { join } from 'node:path'
 import { homedir } from 'node:os'
@@ -38,14 +38,14 @@ const resultsFile = join(benchDir, 'perf-results.json')
 /**
  * Loads a converter by name.
  *
- * Checks experimental directory first, then falls back to stable languages.
- * Returns a unified interface: { name, toWords(isNegative, integerPart, decimalPart) }
+ * Checks experimental directory first, then falls back to stable languages
+ * via n2words.js exports (includes gating logic for fair comparison).
  *
  * @param {string} name Converter name (e.g., 'en', 'en-functional')
  * @returns {Promise<{name: string, toWords: Function, type: string}>}
  */
 async function loadConverter (name) {
-  // Try experimental first
+  // Try experimental first - uses raw value input (number/string/bigint)
   try {
     const module = await import(`../lib/experimental/${name}.js`)
     if (module.toWords) {
@@ -55,21 +55,22 @@ async function loadConverter (name) {
     // Not an experimental converter, try stable
   }
 
-  // Try stable language
+  // Try stable language via n2words.js exports (includes gating logic)
   try {
-    const module = await import(`../lib/languages/${name}.js`)
-    const className = Object.keys(module)[0]
-    const LanguageClass = module[className]
-    const instance = new LanguageClass()
-    return {
-      name,
-      toWords: (isNegative, integerPart, decimalPart) =>
-        instance.toWords(isNegative, integerPart, decimalPart),
-      type: 'stable'
+    const n2words = await import('../lib/n2words.js')
+    // Get class name from language file to build converter name
+    const langModule = await import(`../lib/languages/${name}.js`)
+    const className = Object.keys(langModule)[0]
+    const converterName = `${className}Converter`
+    const converter = n2words[converterName]
+    if (converter) {
+      return { name, toWords: converter, type: 'stable' }
     }
   } catch {
-    return null
+    // Not found
   }
+
+  return null
 }
 
 /**
@@ -286,14 +287,10 @@ if (requestedConverters.length > 0 || requestedExperimental.length > 0 || addAll
 }
 console.log(chalk.gray(`Test value: ${value.toLocaleString()}\n`))
 
-// Prepare test value
-const isNegative = value < 0
-const integerPart = BigInt(Math.abs(value))
-
-// Add benchmarks
+// Add benchmarks - all converters now accept raw value input
 for (const converter of converters) {
   suite.add(converter.name, () => {
-    converter.toWords(isNegative, integerPart, undefined)
+    converter.toWords(value)
   })
 }
 
@@ -400,8 +397,16 @@ suite
       if (existsSync(resultsFile)) {
         try {
           historyData = JSON.parse(readFileSync(resultsFile, 'utf8'))
-        } catch {
-          // Start fresh if file is corrupted
+        } catch (error) {
+          // Backup corrupted file before overwriting
+          const backupFile = resultsFile.replace('.json', `-corrupted-${Date.now()}.json`)
+          try {
+            const corruptedContent = readFileSync(resultsFile, 'utf8')
+            writeFileSync(backupFile, corruptedContent)
+            console.log(chalk.yellow(`⚠ Results file corrupted, backed up to ${backupFile}`))
+          } catch {
+            console.log(chalk.yellow(`⚠ Results file corrupted and could not be backed up: ${error.message}`))
+          }
         }
       }
 
@@ -413,7 +418,10 @@ suite
         historyData.history = historyData.history.slice(-100)
       }
 
-      writeFileSync(resultsFile, JSON.stringify(historyData, null, 2))
+      // Write to temp file first, then rename (atomic on most systems)
+      const tempFile = resultsFile + '.tmp'
+      writeFileSync(tempFile, JSON.stringify(historyData, null, 2))
+      renameSync(tempFile, resultsFile)
       console.log(chalk.blue('\n✓ Results saved to ~/.n2words-bench/perf-results.json'))
     }
 
