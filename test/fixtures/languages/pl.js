@@ -67,5 +67,17 @@ export default [
   [4_000_000, 'cztery miliony'],
   [10_000_000_000_000, 'dziesięć bilionów'],
   [100_000_000_000_000, 'sto bilionów'],
-  [1_000_000_000_000_000_000n, 'trylion']
+  [1_000_000_000_000_000_000n, 'trylion'],
+
+  // Feminine gender tests
+  [1, 'jedna', { gender: 'feminine' }],
+  [2, 'dwie', { gender: 'feminine' }],
+  [4, 'cztery', { gender: 'feminine' }],
+  [5, 'pięć', { gender: 'feminine' }],
+  [21, 'dwadzieścia jedna', { gender: 'feminine' }],
+  [22, 'dwadzieścia dwie', { gender: 'feminine' }],
+  [101, 'sto jedna', { gender: 'feminine' }],
+  [102, 'sto dwie', { gender: 'feminine' }],
+  [1001, 'tysiąc jeden', { gender: 'feminine' }],
+  [1002, 'tysiąc dwa', { gender: 'feminine' }]
 ]
