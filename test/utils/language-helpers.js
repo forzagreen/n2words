@@ -21,8 +21,9 @@ const LANGUAGE_DIR = './lib/languages'
  */
 export const BASE_CLASSES = {
   AbstractLanguage: 'Direct implementation (advanced)',
-  GreedyScaleLanguage: 'Scale-based decomposition (most common)',
+  GreedyScaleLanguage: 'Scale-based decomposition (legacy, slower)',
   HebrewLanguage: 'Hebrew-specific patterns',
+  SegmentScaleLanguage: 'Segment-based decomposition (fast, recommended)',
   SlavicLanguage: 'Three-form pluralization (Slavic languages)',
   SouthAsianLanguage: 'Indian numbering system (lakh, crore)',
   TurkicLanguage: 'Turkish-style implicit "bir" rules'

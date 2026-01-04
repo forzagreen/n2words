@@ -96,6 +96,8 @@ function generateLanguageFile (className, baseType = 'greedy-scale') {
 
   if (baseType === 'greedy-scale') {
     return generateGreedyLanguageFile(className, base)
+  } else if (baseType === 'segment-scale') {
+    return generateSegmentScaleLanguageFile(className, base)
   } else if (baseType === 'slavic') {
     return generateSlavicLanguageFile(className, base)
   } else if (baseType === 'south-asian') {
@@ -165,6 +167,94 @@ export class ${className} extends ${base.name} {
     const resultNumber = followingValue > precedingValue ? precedingValue * followingValue : precedingValue + followingValue
     return { [\`\${precedingWord} \${followingWord}\`]: resultNumber }
   }
+}
+`
+}
+
+/**
+ * Generate SegmentScaleLanguage template
+ * @param {string} className Class name
+ * @param {Object} base Base class config
+ * @returns {string}
+ */
+function generateSegmentScaleLanguageFile (className, base) {
+  return `import { ${base.name} } from '${base.import}'
+
+/**
+ * ${className} language converter.
+ *
+ * Uses segment-based decomposition for high performance.
+ * Converts numbers to ${className} words, supporting:
+ * - Negative numbers (prepended with negative word)
+ * - Decimal numbers (separator word between whole and fractional parts)
+ * - Large numbers up to octillions
+ *
+ * TODO: Document language-specific behavior
+ */
+export class ${className} extends ${base.name} {
+  negativeWord = 'minus' // TODO: Replace with ${className} word for negative
+  decimalSeparatorWord = 'point' // TODO: Replace with ${className} decimal separator
+  zeroWord = 'zero' // TODO: Replace with ${className} word for zero
+
+  // TODO: Define words for digits 1-9
+  onesWords = {
+    1: 'one',
+    2: 'two',
+    3: 'three',
+    4: 'four',
+    5: 'five',
+    6: 'six',
+    7: 'seven',
+    8: 'eight',
+    9: 'nine'
+  }
+
+  // TODO: Define words for teen numbers (10-19)
+  teensWords = {
+    0: 'ten',
+    1: 'eleven',
+    2: 'twelve',
+    3: 'thirteen',
+    4: 'fourteen',
+    5: 'fifteen',
+    6: 'sixteen',
+    7: 'seventeen',
+    8: 'eighteen',
+    9: 'nineteen'
+  }
+
+  // TODO: Define words for multiples of ten (20-90)
+  tensWords = {
+    2: 'twenty',
+    3: 'thirty',
+    4: 'forty',
+    5: 'fifty',
+    6: 'sixty',
+    7: 'seventy',
+    8: 'eighty',
+    9: 'ninety'
+  }
+
+  // TODO: Replace with ${className} word for hundred
+  hundredWord = 'hundred'
+
+  // TODO: Define scale words (index 0 = thousand, 1 = million, etc.)
+  scaleWords = [
+    'thousand',
+    'million',
+    'billion',
+    'trillion',
+    'quadrillion',
+    'quintillion',
+    'sextillion',
+    'septillion',
+    'octillion'
+  ]
+
+  // Override these methods for language-specific rules:
+  // - combineSegmentParts(parts, segment, scaleIndex) - hyphenation, connectors
+  // - hundredsToWords(hundreds, scaleIndex) - hundreds formatting
+  // - joinSegments(parts, integerPart) - final joining with "and" etc.
 }
 `
 }
@@ -801,6 +891,10 @@ async function main () {
   if (baseType === 'greedy-scale' || baseType === 'turkic') {
     console.log(chalk.gray('   - Add complete scaleWords array'))
     console.log(chalk.gray('   - Implement combineWordSets() logic (if needed)'))
+  } else if (baseType === 'segment-scale') {
+    console.log(chalk.gray('   - Define onesWords, teensWords, tensWords dictionaries'))
+    console.log(chalk.gray('   - Override combineSegmentParts() for hyphenation/connectors'))
+    console.log(chalk.gray('   - Override joinSegments() if "and" rules needed'))
   } else if (baseType === 'slavic') {
     console.log(chalk.gray('   - Define ones, tens, twenties, hundreds dictionaries'))
     console.log(chalk.gray('   - Add pluralForms for scale words [singular, few, many]'))
