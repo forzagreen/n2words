@@ -96,8 +96,10 @@ function generateLanguageFile (className, baseType = 'greedy-scale') {
 
   if (baseType === 'greedy-scale') {
     return generateGreedyLanguageFile(className, base)
-  } else if (baseType === 'segment-scale') {
-    return generateSegmentScaleLanguageFile(className, base)
+  } else if (baseType === 'short-scale') {
+    return generateShortScaleLanguageFile(className, base)
+  } else if (baseType === 'long-scale') {
+    return generateLongScaleLanguageFile(className, base)
   } else if (baseType === 'slavic') {
     return generateSlavicLanguageFile(className, base)
   } else if (baseType === 'south-asian') {
@@ -172,12 +174,12 @@ export class ${className} extends ${base.name} {
 }
 
 /**
- * Generate SegmentScaleLanguage template
+ * Generate ShortScaleLanguage template
  * @param {string} className Class name
  * @param {Object} base Base class config
  * @returns {string}
  */
-function generateSegmentScaleLanguageFile (className, base) {
+function generateShortScaleLanguageFile (className, base) {
   return `import { ${base.name} } from '${base.import}'
 
 /**
@@ -270,6 +272,104 @@ export class ${className} extends ${base.name} {
   // - hundredsToWords(hundreds, scaleIndex) - custom hundreds formatting
   // - onesToWords(ones, scaleIndex, tens) - gender-specific ones
   // - joinSegments(parts, integerPart) - final joining with "and" etc.
+}
+`
+}
+
+/**
+ * Generate LongScaleLanguage template
+ * @param {string} className Class name
+ * @param {Object} base Base class config
+ * @returns {string}
+ */
+function generateLongScaleLanguageFile (className, base) {
+  return `import { ${base.name} } from '${base.import}'
+
+/**
+ * ${className} language converter.
+ *
+ * Uses long scale numbering (European system):
+ * - million (10^6), thousand million (10^9), billion (10^12), thousand billion (10^15), trillion (10^18)
+ *
+ * TODO: Document language-specific behavior
+ */
+export class ${className} extends ${base.name} {
+  negativeWord = 'minus' // TODO: Replace with ${className} word for negative
+  decimalSeparatorWord = 'point' // TODO: Replace with ${className} decimal separator
+  zeroWord = 'zero' // TODO: Replace with ${className} word for zero
+
+  // TODO: Define words for digits 1-9
+  onesWords = {
+    1: 'one',
+    2: 'two',
+    3: 'three',
+    4: 'four',
+    5: 'five',
+    6: 'six',
+    7: 'seven',
+    8: 'eight',
+    9: 'nine'
+  }
+
+  // TODO: Define words for teen numbers (10-19)
+  teensWords = {
+    0: 'ten',
+    1: 'eleven',
+    2: 'twelve',
+    3: 'thirteen',
+    4: 'fourteen',
+    5: 'fifteen',
+    6: 'sixteen',
+    7: 'seventeen',
+    8: 'eighteen',
+    9: 'nineteen'
+  }
+
+  // TODO: Define words for multiples of ten (20-90)
+  tensWords = {
+    2: 'twenty',
+    3: 'thirty',
+    4: 'forty',
+    5: 'fifty',
+    6: 'sixty',
+    7: 'seventy',
+    8: 'eighty',
+    9: 'ninety'
+  }
+
+  // TODO: Define hundreds words (for irregular hundreds like Portuguese)
+  hundredsWords = {
+    1: 'hundred',
+    2: 'two hundred',
+    3: 'three hundred',
+    4: 'four hundred',
+    5: 'five hundred',
+    6: 'six hundred',
+    7: 'seven hundred',
+    8: 'eight hundred',
+    9: 'nine hundred'
+  }
+
+  // Word for "thousand" - used alone and in compounds (e.g., "mil milhões")
+  thousandWord = 'thousand' // TODO: Replace with ${className} word
+
+  // Scale words starting at million: index 0 = million (10^6), 1 = billion (10^12), etc.
+  scaleWords = ['million', 'billion', 'trillion', 'quadrillion']
+
+  /**
+   * Pluralizes a scale word.
+   * TODO: Implement language-specific pluralization (e.g., million → millions)
+   */
+  pluralizeScaleWord (word) {
+    return word + 's' // Simple English-style pluralization
+  }
+
+  // Override these methods for language-specific rules:
+  // - combineSegmentParts(parts, segment, scaleIndex) - hyphenation, connectors
+  // - hundredsToWords(hundreds, scaleIndex) - custom hundreds formatting
+  // - onesToWords(ones, scaleIndex, tens) - gender-specific ones
+  // - joinSegments(parts, integerPart) - final joining with "and" etc.
+  // - segmentToWords(segment, scaleIndex) - omit "um" before thousands, etc.
 }
 `
 }
@@ -906,10 +1006,14 @@ async function main () {
   if (baseType === 'greedy-scale' || baseType === 'turkic') {
     console.log(chalk.gray('   - Add complete scaleWords array'))
     console.log(chalk.gray('   - Implement combineWordSets() logic (if needed)'))
-  } else if (baseType === 'segment-scale') {
+  } else if (baseType === 'short-scale') {
     console.log(chalk.gray('   - Define onesWords, teensWords, tensWords dictionaries'))
     console.log(chalk.gray('   - Override combineSegmentParts() for hyphenation/connectors'))
     console.log(chalk.gray('   - Override joinSegments() if "and" rules needed'))
+  } else if (baseType === 'long-scale') {
+    console.log(chalk.gray('   - Define onesWords, teensWords, tensWords dictionaries'))
+    console.log(chalk.gray('   - Set thousandWord and scaleWords array'))
+    console.log(chalk.gray('   - Override pluralizeScaleWord() for pluralization'))
   } else if (baseType === 'slavic') {
     console.log(chalk.gray('   - Define ones, tens, twenties, hundreds dictionaries'))
     console.log(chalk.gray('   - Add pluralForms for scale words [singular, few, many]'))
