@@ -49,6 +49,11 @@
       "import": "./lib/n2words.js",
       "default": "./lib/n2words.js"
     },
+    "./*": {
+      "types": "./lib/languages/*.d.ts",
+      "import": "./lib/languages/*.js",
+      "default": "./lib/languages/*.js"
+    },
     "./package.json": "./package.json"
   },
   "main": "./lib/n2words.js",
