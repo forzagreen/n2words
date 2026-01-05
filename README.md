@@ -42,11 +42,11 @@ npm install n2words
 ```
 
 ```js
-import { EnglishConverter, SpanishConverter, ArabicConverter } from 'n2words'
+import { en, es, ar } from 'n2words'
 
-EnglishConverter(123)                       // 'one hundred and twenty-three'
-SpanishConverter(123)                       // 'ciento veintitrés'
-ArabicConverter(1, { gender: 'feminine' })  // 'واحدة' (with options)
+en(123)                       // 'one hundred and twenty-three'
+es(123)                       // 'ciento veintitrés'
+ar(1, { gender: 'feminine' }) // 'واحدة' (with options)
 ```
 
 ## Usage
@@ -54,41 +54,33 @@ ArabicConverter(1, { gender: 'feminine' })  // 'واحدة' (with options)
 **ESM (Node.js, modern bundlers):**
 
 ```js
-import { EnglishConverter } from 'n2words'
+import { en } from 'n2words'
 ```
 
 **CommonJS (Node.js):**
 
-n2words is an ES module. For CommonJS environments, use dynamic import with Promises:
+n2words is an ES module. For CommonJS environments, use dynamic import:
 
 ```js
 // Promise-based
-import('n2words').then(({ EnglishConverter }) => {
-  console.log(EnglishConverter(42))  // 'forty-two'
+import('n2words').then(({ en }) => {
+  console.log(en(42))  // 'forty-two'
 })
 
 // Or use async function
 async function convertNumber(num) {
-  const { EnglishConverter } = await import('n2words')
-  return EnglishConverter(num)
+  const { en } = await import('n2words')
+  return en(num)
 }
 ```
 
 **Browser (UMD via CDN):**
 
 ```html
-<!-- All languages (~23KB gzipped) -->
 <script src="https://cdn.jsdelivr.net/npm/n2words/dist/n2words.js"></script>
 <script>
-  n2words.EnglishConverter(42)  // 'forty-two'
-</script>
-
-<!-- Individual languages (~2KB gzipped each) - load only what you need -->
-<script src="https://cdn.jsdelivr.net/npm/n2words/dist/EnglishConverter.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/n2words/dist/SpanishConverter.js"></script>
-<script>
-  n2words.EnglishConverter(42)   // 'forty-two'
-  n2words.SpanishConverter(123)  // 'ciento veintitrés'
+  n2words.en(42)  // 'forty-two'
+  n2words.es(123) // 'ciento veintitrés'
 </script>
 ```
 
@@ -97,35 +89,21 @@ async function convertNumber(num) {
 Full TypeScript support via JSDoc annotations and generated type definitions - works in both JavaScript and TypeScript projects with IntelliSense and type checking:
 
 ```typescript
-import { EnglishConverter, ArabicConverter, SimplifiedChineseConverter } from 'n2words'
-import type { NumericValue, ArabicOptions } from 'n2words'
+import { en, ar, zhHans } from 'n2words'
 
 // All converters accept: number | bigint | string
-EnglishConverter(42)       // ✓ number → 'forty-two'
-EnglishConverter('123')    // ✓ string → 'one hundred and twenty-three'
-EnglishConverter(100n)     // ✓ BigInt → 'one hundred'
+en(42)       // ✓ number → 'forty-two'
+en('123')    // ✓ string → 'one hundred and twenty-three'
+en(100n)     // ✓ BigInt → 'one hundred'
 
 // Language-specific options with type checking
-ArabicConverter(1, { gender: 'feminine' })  // ✓ 'واحدة' (feminine form)
-ArabicConverter(1, { invalid: true })       // ✗ TypeScript error: invalid property
-
-SimplifiedChineseConverter(123, { formal: false })  // ✓ '一百二十三' (common style)
-SimplifiedChineseConverter(123, { formal: 'yes' })  // ✗ TypeScript error: wrong type
+ar(1, { gender: 'feminine' })  // ✓ 'واحدة' (feminine form)
+zhHans(123, { formal: false }) // ✓ '一百二十三' (common style)
 ```
 
 **Type Definitions:**
 
-n2words includes TypeScript declaration files (`.d.ts`) generated from JSDoc annotations:
-
-- **Source**: JSDoc annotations in JavaScript source files
-- **Generated**: TypeScript declarations built via `tsc` during package preparation
-- **Included**: Published to npm with the package (no separate `@types` package needed)
-- **Validated**: Comprehensive type tests ensure correctness
-
-**Exported Types:**
-
-- `NumericValue` - Accepted input types: `number | bigint | string`
-- Language-specific option types (e.g., `ArabicOptions`, `SimplifiedChineseOptions`, `DutchOptions`, etc.)
+n2words includes TypeScript declaration files (`.d.ts`) generated from JSDoc annotations. No separate `@types` package needed.
 
 ## Supported Languages (52)
 
@@ -179,8 +157,6 @@ Simplified Chinese, Traditional Chinese - Toggle between formal/financial and co
 - Danish: `ordFlag` (ordinal numbers)
 - Arabic: `negativeWord` (custom negative word)
 
-[See complete options reference →](docs/ARCHITECTURE.md#language-specific-options)
-
 ## Browser Compatibility
 
 **Minimum Requirements** (due to BigInt):
@@ -204,7 +180,7 @@ Simplified Chinese, Traditional Chinese - Toggle between formal/financial and co
 
 | Import Strategy              | Bundle Size (Minified) | Gzipped  | Languages Included |
 | ---------------------------- | ---------------------- | -------- | ------------------ |
-| All languages (UMD)          | ~92 KB                 | ~23 KB   | All 51             |
+| All languages (UMD)          | ~92 KB                 | ~23 KB   | All 52             |
 | Single language (UMD)        | ~4-6 KB                | ~2 KB    | 1                  |
 | Tree-shaken (ESM, 1 lang)    | ~4-5 KB                | ~2 KB    | 1                  |
 | Tree-shaken (ESM, 3 langs)   | ~12-15 KB              | ~4-5 KB  | 3                  |
@@ -221,7 +197,7 @@ Simplified Chinese, Traditional Chinese - Toggle between formal/financial and co
 
 ```js
 // Import only what you need - bundler only includes used languages
-import { EnglishConverter, SpanishConverter } from 'n2words'
+import { en, es } from 'n2words'
 // Final bundle: ~4-5 KB gzipped (only English + Spanish + core)
 ```
 
@@ -237,100 +213,89 @@ npm run bench:memory  # Memory usage benchmarks
 ### Basic Conversions
 
 ```js
-import { EnglishConverter } from 'n2words'
+import { en } from 'n2words'
 
 // Basic numbers
-EnglishConverter(0)        // 'zero'
-EnglishConverter(42)       // 'forty-two'
-EnglishConverter(1000000)  // 'one million'
+en(0)        // 'zero'
+en(42)       // 'forty-two'
+en(1000000)  // 'one million'
 
 // Decimals & negatives
-EnglishConverter(3.14)     // 'three point one four'
-EnglishConverter(-42)      // 'minus forty-two'
+en(3.14)     // 'three point one four'
+en(-42)      // 'minus forty-two'
 
 // Large numbers & BigInt
-EnglishConverter(1234567890)        // 'one billion two hundred and thirty-four million five hundred and sixty-seven thousand eight hundred and ninety'
-EnglishConverter(123456789012345n)  // Works with arbitrarily large integers
+en(1234567890)        // 'one billion...'
+en(123456789012345n)  // Works with arbitrarily large integers
 ```
 
 ### Gender Agreement
 
 ```js
-import { SpanishConverter, ArabicConverter, RussianConverter } from 'n2words'
+import { es, ar, ru } from 'n2words'
 
 // Spanish: masculine vs feminine
-SpanishConverter(1)                       // 'uno' (masculine, default)
-SpanishConverter(1, { gender: 'feminine' })  // 'una'
-SpanishConverter(21)                      // 'veintiuno' (masculine)
-SpanishConverter(21, { gender: 'feminine' }) // 'veintiuna'
+es(1)                       // 'uno' (masculine, default)
+es(1, { gender: 'feminine' })  // 'una'
+es(21)                      // 'veintiuno'
+es(21, { gender: 'feminine' }) // 'veintiuna'
 
 // Arabic: rich gender system
-ArabicConverter(1)                       // 'واحد' (masculine, default)
-ArabicConverter(1, { gender: 'feminine' })  // 'واحدة'
+ar(1)                       // 'واحد' (masculine, default)
+ar(1, { gender: 'feminine' })  // 'واحدة'
 
 // Russian: gender for numerals
-RussianConverter(1)                       // 'один' (masculine, default)
-RussianConverter(1, { gender: 'feminine' })  // 'одна'
+ru(1)                       // 'один' (masculine, default)
+ru(1, { gender: 'feminine' })  // 'одна'
 ```
 
 ### Language-Specific Features
 
 ```js
-import {
-  SimplifiedChineseConverter,
-  TraditionalChineseConverter,
-  JapaneseConverter,
-  DutchConverter,
-  FrenchConverter
-} from 'n2words'
+import { zhHans, zhHant, ja, nl, fr } from 'n2words'
 
 // Chinese: formal (financial) vs common numerals
-SimplifiedChineseConverter(123)                  // '壹佰贰拾叁' (formal, default)
-SimplifiedChineseConverter(123, { formal: false }) // '一百二十三' (common)
+zhHans(123)                  // '壹佰贰拾叁' (formal, default)
+zhHans(123, { formal: false }) // '一百二十三' (common)
 
-TraditionalChineseConverter(456)                  // '肆佰伍拾陸' (formal, default)
-TraditionalChineseConverter(456, { formal: false }) // '四百五十六' (common)
+zhHant(456)                  // '肆佰伍拾陸' (formal, default)
+zhHant(456, { formal: false }) // '四百五十六' (common)
 
 // Japanese: digit-by-digit decimals
-JapaneseConverter(3.14)  // '三点一四'
+ja(3.14)  // '三点一四'
 
 // Dutch: flexible formatting
-DutchConverter(123)                              // 'honderddrieëntwintig' (default compound)
-DutchConverter(101, { includeOptionalAnd: true })  // 'honderdeneen' (with optional "en")
-DutchConverter(1)                                // 'één' (accented, default)
-DutchConverter(1, { accentOne: false })           // 'een' (unaccented)
+nl(123)                              // 'honderddrieëntwintig'
+nl(101, { includeOptionalAnd: true }) // 'honderdeneen'
+nl(1, { accentOne: false })          // 'een' (unaccented)
 
-// French: selective hyphens vs all hyphens
-FrenchConverter(123)                              // 'cent vingt-trois' (default)
-FrenchConverter(123, { withHyphenSeparator: true }) // 'cent-vingt-trois' (all hyphens)
+// French: hyphen options
+fr(123)                              // 'cent vingt-trois'
+fr(123, { withHyphenSeparator: true }) // 'cent-vingt-trois'
 ```
 
 ### Input Flexibility
 
 ```js
-import { EnglishConverter } from 'n2words'
+import { en } from 'n2words'
 
 // Multiple input types
-EnglishConverter(42)      // number → 'forty-two'
-EnglishConverter('42')    // string → 'forty-two'
-EnglishConverter(42n)     // BigInt → 'forty-two'
+en(42)      // number → 'forty-two'
+en('42')    // string → 'forty-two'
+en(42n)     // BigInt → 'forty-two'
 
-// Decimal strings
-EnglishConverter('3.14')  // 'three point one four'
-EnglishConverter('.5')    // 'zero point five'
-
-// Negative strings
-EnglishConverter('-42')   // 'minus forty-two'
+// Decimal and negative strings
+en('3.14')  // 'three point one four'
+en('-42')   // 'minus forty-two'
 
 // Large BigInts (no precision loss)
-EnglishConverter(999999999999999999999999n)  // Accurate conversion
+en(999999999999999999999999n)  // Accurate conversion
 ```
 
 ## Documentation
 
 - **[Compatibility Guide](COMPATIBILITY.md)** - Browser and Node.js compatibility
 - **[Contributing Guide](CONTRIBUTING.md)** - How to contribute and add languages
-- **[Architecture Guide](docs/ARCHITECTURE.md)** - Implementation patterns and options reference
 - **[Code of Conduct](CODE_OF_CONDUCT.md)** - Community standards
 
 ## Contributing
