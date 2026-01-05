@@ -71,8 +71,6 @@ function toWords (value, options = {}) {
 }
 ```
 
-Type definitions go in `lib/n2words.d.ts`.
-
 ---
 
 **Version**: 2.0.0 | **52 languages** | [GitHub](https://github.com/forzagreen/n2words)

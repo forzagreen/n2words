@@ -1,9 +1,21 @@
 import test from 'ava'
 import { readdirSync } from 'node:fs'
 import { isPlainObject } from '../../lib/utils/is-plain-object.js'
-import { isValidNumericValue } from '../../lib/utils/parse-numeric.js'
+import { parseNumericValue } from '../../lib/utils/parse-numeric.js'
 import { isValidLanguageCode } from '../utils/language-naming.js'
 import { safeStringify } from '../utils/stringify.js'
+
+/**
+ * Checks if a value is valid input for parseNumericValue.
+ */
+function isValidNumericInput (value) {
+  try {
+    parseNumericValue(value)
+    return true
+  } catch {
+    return false
+  }
+}
 
 /**
  * Language Implementation Tests
@@ -71,7 +83,7 @@ function validateFixture (testFile, languageCode) {
 
     const [input, expected, options] = testCase
 
-    if (!isValidNumericValue(input)) {
+    if (!isValidNumericInput(input)) {
       return {
         valid: false,
         error: `Invalid input at index ${i} in ${languageCode}: expected valid numeric value (number|string|bigint), got ${typeof input}`
