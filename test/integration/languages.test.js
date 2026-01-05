@@ -1,5 +1,5 @@
 import test from 'ava'
-import { readdirSync } from 'node:fs'
+import { readdirSync, readFileSync } from 'node:fs'
 import { isPlainObject } from '../../lib/utils/is-plain-object.js'
 import { parseNumericValue } from '../../lib/utils/parse-numeric.js'
 import { isValidLanguageCode } from '../utils/language-naming.js'
@@ -28,6 +28,7 @@ function isValidNumericInput (value) {
  * - BCP 47 file naming convention
  * - toWords function export exists
  * - Basic sanity checks (handles zero, returns strings)
+ * - JSDoc annotations for TypeScript declaration generation
  *
  * Note: Module structure validation (imports, exports) is in api.test.js.
  */
@@ -183,6 +184,33 @@ for (const file of files) {
     const zeroResult = toWords(0)
     t.is(typeof zeroResult, 'string', 'toWords(0) should return a string')
     t.true(zeroResult.length > 0, 'toWords(0) should return a non-empty string')
+
+    // JSDoc validation - check toWords has proper type annotations
+    const fileContent = readFileSync(`./lib/languages/${file}`, 'utf8')
+
+    // Check for @param with value type
+    t.regex(
+      fileContent,
+      /@param\s+\{number\s*\|\s*string\s*\|\s*bigint\}\s+value/,
+      'toWords should have @param {number | string | bigint} value JSDoc'
+    )
+
+    // Check for @returns with string type
+    t.regex(
+      fileContent,
+      /@returns\s+\{string\}/,
+      'toWords should have @returns {string} JSDoc'
+    )
+
+    // For languages with options, verify options param is documented
+    const hasOptions = toWords.length > 1
+    if (hasOptions) {
+      t.regex(
+        fileContent,
+        /@param\s+\{Object\}\s+\[options\]/,
+        'toWords with options should have @param {Object} [options] JSDoc'
+      )
+    }
   })
 }
 
