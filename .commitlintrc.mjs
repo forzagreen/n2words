@@ -1,4 +1,4 @@
-// Project scopes for commit messages
+// Project scopes for commit messages (keep in sync with CONTRIBUTING.md)
 const PROJECT_SCOPES = [
   'bench', // bench/* (benchmarking)
   'build', // Build configuration

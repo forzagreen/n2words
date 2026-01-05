@@ -75,9 +75,9 @@ git fetch upstream && git checkout main && git merge upstream/main
 
 **Types**: `feat`, `fix`, `docs`, `refactor`, `test`, `chore`, `perf`, `style`, `build`, `ci`, `revert`, `lang`
 
-**Scopes** (optional):
+**Scopes** (optional, see `.commitlintrc.mjs` for authoritative list):
 
-- Project areas: `bench`, `build`, `ci`, `core`, `deps`, `docs`, `lang`, `release`, `scripts`, `test`, `types`, `utils`
+- Project areas: `bench`, `build`, `ci`, `core`, `deps`, `docs`, `lang`, `release`, `scripts`, `test`, `utils`
 - Language codes: Any valid BCP 47 code (e.g., `en`, `fr-BE`, `zh-Hans`)
 
 **Examples**:
