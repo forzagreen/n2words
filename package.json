@@ -96,7 +96,6 @@
     "lang:add": "node scripts/add-language.js",
     "bench:perf": "node bench/perf.js",
     "bench:memory": "node --expose-gc bench/memory.js",
-    "compat:node": "es-check es2022 lib/**/*.js --module",
     "compat:umd": "es-check checkBrowser dist/**/*.js",
     "browserslist": "browserslist",
     "browserslist:coverage": "browserslist --coverage",
