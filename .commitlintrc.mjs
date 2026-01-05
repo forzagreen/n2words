@@ -3,14 +3,13 @@ const PROJECT_SCOPES = [
   'bench', // bench/* (benchmarking)
   'build', // Build configuration
   'ci', // CI/CD workflows
-  'core', // lib/n2words.js, lib/utils/*
+  'core', // lib/n2words.js
   'deps', // Dependencies
   'docs', // Documentation
   'lang', // lib/languages/* (general language work)
   'release', // Release-related changes
   'scripts', // scripts/*
   'test', // Test files and fixtures
-  'types', // TypeScript definitions
   'utils' // lib/utils/*
 ]
 
