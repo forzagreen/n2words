@@ -37,14 +37,8 @@ test('all language files are imported', t => {
 })
 
 test('imports are alphabetically ordered by normalized name', t => {
-  const importSection = n2wordsContent.match(/\/\/ Language Imports[\s\S]*?(?=\/\/ ===)/)?.[0]
-  if (!importSection) {
-    t.fail('No Language Imports section found')
-    return
-  }
-
   // Extract normalized import names (e.g., 'as zhHans')
-  const imports = [...importSection.matchAll(/as\s+(\w+)\s*\}/g)].map(m => m[1])
+  const imports = [...n2wordsContent.matchAll(/as\s+(\w+)\s*\}\s*from\s*['"]\.\/languages\//g)].map(m => m[1])
   const sorted = [...imports].sort((a, b) => a.localeCompare(b))
   t.deepEqual(imports, sorted, 'Imports should be alphabetically ordered by normalized name')
 })
