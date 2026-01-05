@@ -86,7 +86,7 @@ git fetch upstream && git checkout main && git merge upstream/main
 feat(lang): add Korean language support
 fix(lang): correct French plural forms for numbers ending in 1
 docs: update CONTRIBUTING.md
-refactor(core): improve BigInt handling in AbstractLanguage
+refactor(core): improve BigInt handling
 ```
 
 **Rules**: Present tense, imperative mood, no capital first letter, no period at end.
@@ -105,25 +105,26 @@ refactor(core): improve BigInt handling in AbstractLanguage
 Use the scaffolding tool:
 
 ```bash
-npm run lang:add -- <code>              # Interactive mode (recommended)
-npm run lang:add -- ko --base=greedy-scale    # Command-line mode
-```
+npm run lang:add <code>
 
-**Base class options**: `greedy-scale` (default), `slavic`, `south-asian`, `turkic`, `abstract`
+# Examples
+npm run lang:add ko        # Korean
+npm run lang:add sr-Cyrl   # Serbian Cyrillic
+```
 
 This creates:
 
-- `lib/languages/<code>.js` - Language implementation
+- `lib/languages/<code>.js` - Language implementation stub
 - `test/fixtures/languages/<code>.js` - Test fixture
-- Updates to `lib/n2words.js` - Registration
+- Updates to `lib/n2words.js` - Import and export
 
 **After scaffolding**:
 
-1. Edit language file - replace placeholders, implement base-class requirements
-2. Edit test fixture - add comprehensive test cases
+1. Implement `toWords(value)` in the language file
+2. Add test cases to the fixture file
 3. Test: `npm test`
 
-For detailed implementation patterns and base class selection, see [scripts/README.md](scripts/README.md).
+For implementation patterns and reference files, see [scripts/README.md](scripts/README.md).
 
 ### Language Naming
 
@@ -155,7 +156,7 @@ npm run lint:md -- --fix # Fix
 
 ### JSDoc
 
-All classes and public methods require JSDoc comments with `@example` tags.
+JSDoc comments are recommended for public functions - they enable TypeScript type inference.
 
 ## Testing
 
@@ -181,35 +182,7 @@ export default [
 
 For detailed testing patterns, see [test/README.md](test/README.md).
 
-## Advanced Topics
-
-### Regional Variants
-
-Extend the base language and modify specific scale words:
-
-```javascript
-import { French } from './fr.js'
-
-export class FrenchBelgium extends French {
-  constructor(options = {}) {
-    super(options)
-    // Modify scaleWords for regional differences
-  }
-}
-```
-
-### Modifying Base Classes
-
-**Warning**: Changes affect ALL inheriting languages.
-
-Before modifying:
-
-1. Run full test suite: `npm test`
-2. Check performance: `npm run bench:perf -- --compare`
-
-For architecture details, see [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
-
-### Building UMD Bundles
+## Building UMD Bundles
 
 ```bash
 npm run build         # Generate dist/ bundles
@@ -219,7 +192,7 @@ npm run test:browsers # Test in real browsers
 
 For browser compatibility details, see [COMPATIBILITY.md](COMPATIBILITY.md).
 
-### Performance
+## Performance
 
 ```bash
 npm run bench:perf              # Performance benchmarks
@@ -267,15 +240,14 @@ See [SECURITY.md](SECURITY.md) for full policy.
 
 ## Reference Documentation
 
-| Topic                             | Document                                     |
-| --------------------------------- | -------------------------------------------- |
-| Architecture & patterns           | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) |
-| Language scaffolding & validation | [scripts/README.md](scripts/README.md)       |
-| Testing infrastructure            | [test/README.md](test/README.md)             |
-| Browser compatibility             | [COMPATIBILITY.md](COMPATIBILITY.md)         |
-| Benchmarking                      | [bench/README.md](bench/README.md)           |
-| Security policy                   | [SECURITY.md](SECURITY.md)                   |
-| Code of conduct                   | [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)     |
+| Topic                  | Document                                 |
+| ---------------------- | ---------------------------------------- |
+| Language scaffolding   | [scripts/README.md](scripts/README.md)   |
+| Testing infrastructure | [test/README.md](test/README.md)         |
+| Browser compatibility  | [COMPATIBILITY.md](COMPATIBILITY.md)     |
+| Benchmarking           | [bench/README.md](bench/README.md)       |
+| Security policy        | [SECURITY.md](SECURITY.md)               |
+| Code of conduct        | [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) |
 
 ## License
 
