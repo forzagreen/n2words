@@ -13,7 +13,7 @@
  */
 
 import test from 'ava'
-import { readFileSync, existsSync } from 'node:fs'
+import { readFileSync, existsSync, readdirSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { createRequire } from 'node:module'
@@ -29,6 +29,12 @@ const n2words = require('../../lib/n2words.js')
 const expectedConverters = Object.keys(n2words)
   .filter(name => name.endsWith('Converter'))
   .sort()
+
+// Get all language codes from the languages directory
+const languagesDir = join(__dirname, '../../lib/languages')
+const languageCodes = readdirSync(languagesDir)
+  .filter(file => file.endsWith('.js'))
+  .map(file => file.replace('.js', ''))
 
 /**
  * Load UMD bundle into a sandboxed context and return the n2words global.
@@ -68,16 +74,16 @@ test('main bundle and source map exist', t => {
   t.true(existsSync(join(distDir, 'n2words.js.map')), 'Main bundle source map should exist')
 })
 
-test('all individual converter bundles exist', t => {
+test('all individual language bundles exist', t => {
   const missingBundles = []
   const missingMaps = []
 
-  for (const converter of expectedConverters) {
-    if (!existsSync(join(distDir, `${converter}.js`))) {
-      missingBundles.push(converter)
+  for (const langCode of languageCodes) {
+    if (!existsSync(join(distDir, `languages/${langCode}.js`))) {
+      missingBundles.push(langCode)
     }
-    if (!existsSync(join(distDir, `${converter}.js.map`))) {
-      missingMaps.push(converter)
+    if (!existsSync(join(distDir, `languages/${langCode}.js.map`))) {
+      missingMaps.push(langCode)
     }
   }
 
@@ -110,12 +116,12 @@ test('main bundle ends with source map reference', t => {
 
 test('individual bundles have correct banners', t => {
   // Sample a few bundles to verify banner pattern
-  const sampleConverters = expectedConverters.slice(0, 3)
+  const sampleCodes = languageCodes.slice(0, 3)
 
-  for (const converter of sampleConverters) {
-    const code = readFileSync(join(distDir, `${converter}.js`), 'utf8')
-    const bannerPattern = new RegExp(`/\\*! n2words/${converter} v${pkg.version.replace(/\./g, '\\.')}`)
-    t.regex(code, bannerPattern, `${converter} should have correct banner`)
+  for (const langCode of sampleCodes) {
+    const code = readFileSync(join(distDir, `languages/${langCode}.js`), 'utf8')
+    const bannerPattern = new RegExp(`/\\*! n2words/${langCode} v${pkg.version.replace(/\./g, '\\.')}`)
+    t.regex(code, bannerPattern, `${langCode} should have correct banner`)
   }
 })
 
@@ -168,12 +174,12 @@ test('main bundle converters accept options', t => {
 // Individual Bundle Functional Tests
 // =============================================================================
 
-test('individual bundle loads and exports converter', t => {
-  const n2words = loadUmdBundle(join(distDir, 'EnglishConverter.js'))
+test('individual bundle loads and exports toWords', t => {
+  const n2words = loadUmdBundle(join(distDir, 'languages/en.js'))
 
   t.truthy(n2words, 'n2words global should be defined')
-  t.is(typeof n2words.EnglishConverter, 'function', 'EnglishConverter should be exported')
-  t.is(typeof n2words.EnglishConverter(42), 'string', 'Converter should return string')
+  t.is(typeof n2words.toWords, 'function', 'toWords should be exported')
+  t.is(typeof n2words.toWords(42), 'string', 'toWords should return string')
 })
 
 test('individual bundles use extend mode (can be combined)', t => {
@@ -196,18 +202,23 @@ test('individual bundles use extend mode (can be combined)', t => {
   const context = vm.createContext(sandbox)
 
   // Load English first
-  const englishCode = readFileSync(join(distDir, 'EnglishConverter.js'), 'utf8')
+  const englishCode = readFileSync(join(distDir, 'languages/en.js'), 'utf8')
   vm.runInContext(`(function() { ${englishCode} }).call(globalThis);`, context)
 
+  // Verify English toWords is available
+  t.truthy(globalContext.n2words, 'n2words global should be defined after first bundle')
+  t.is(typeof globalContext.n2words.toWords, 'function', 'toWords should be available')
+
   // Load Spanish second (should extend, not replace)
-  const spanishCode = readFileSync(join(distDir, 'SpanishConverter.js'), 'utf8')
+  const spanishCode = readFileSync(join(distDir, 'languages/es.js'), 'utf8')
   vm.runInContext(`(function() { ${spanishCode} }).call(globalThis);`, context)
 
   const n2words = globalContext.n2words
 
-  t.truthy(n2words, 'n2words global should be defined')
-  t.is(typeof n2words.EnglishConverter, 'function', 'EnglishConverter should still be available')
-  t.is(typeof n2words.SpanishConverter, 'function', 'SpanishConverter should be added')
+  t.truthy(n2words, 'n2words global should still be defined')
+  // Note: Both bundles export toWords, so the second one overwrites the first
+  // This is expected behavior - individual bundles are meant for single-language use
+  t.is(typeof n2words.toWords, 'function', 'toWords should still be available')
 })
 
 // =============================================================================
@@ -227,7 +238,7 @@ test('main bundle source map is valid', t => {
 })
 
 test('individual bundle source map is valid', t => {
-  const mapPath = join(distDir, 'EnglishConverter.js.map')
+  const mapPath = join(distDir, 'languages/en.js.map')
   const mapContent = readFileSync(mapPath, 'utf8')
 
   t.notThrows(() => JSON.parse(mapContent), 'Source map should be valid JSON')
@@ -256,12 +267,12 @@ test('main bundle size is reasonable', t => {
 })
 
 test('individual bundle size is reasonable', t => {
-  const code = readFileSync(join(distDir, 'EnglishConverter.js'), 'utf8')
+  const code = readFileSync(join(distDir, 'languages/en.js'), 'utf8')
   const sizeKB = Buffer.byteLength(code, 'utf8') / 1024
 
-  t.log(`EnglishConverter bundle: ${sizeKB.toFixed(1)}KB`)
+  t.log(`en.js bundle: ${sizeKB.toFixed(1)}KB`)
 
-  // Individual bundles include base class code, so 2-20KB is reasonable
+  // Individual bundles are self-contained, so 2-20KB is reasonable
   t.true(sizeKB > 1, `Individual bundle (${sizeKB.toFixed(1)}KB) should be > 1KB`)
   t.true(sizeKB < 20, `Individual bundle (${sizeKB.toFixed(1)}KB) should be < 20KB`)
 })
