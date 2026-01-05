@@ -2,7 +2,7 @@ import test from 'ava'
 import { readdirSync } from 'node:fs'
 import { isPlainObject } from '../../lib/utils/is-plain-object.js'
 import { isValidNumericValue } from '../../lib/utils/parse-numeric.js'
-import { isValidLanguageCode, getClassName, getConverterName } from '../utils/language-naming.js'
+import { isValidLanguageCode } from '../utils/language-naming.js'
 import { safeStringify } from '../utils/stringify.js'
 
 /**
@@ -17,7 +17,7 @@ import { safeStringify } from '../utils/stringify.js'
  * - toWords function export exists
  * - Basic sanity checks (handles zero, returns strings)
  *
- * Note: Module structure validation (imports, exports, typedefs) is in api.test.js.
+ * Note: Module structure validation (imports, exports) is in api.test.js.
  */
 
 // ============================================================================
@@ -171,15 +171,6 @@ for (const file of files) {
     const zeroResult = toWords(0)
     t.is(typeof zeroResult, 'string', 'toWords(0) should return a string')
     t.true(zeroResult.length > 0, 'toWords(0) should return a non-empty string')
-
-    // Verify named export matches expected converter name
-    const className = getClassName(languageCode)
-    if (className) {
-      const converterName = getConverterName(className)
-      // We don't require the converter export in the language file itself,
-      // only in n2words.js, so just verify the naming is consistent
-      t.pass(`Converter name derivation works: ${converterName}`)
-    }
   })
 }
 

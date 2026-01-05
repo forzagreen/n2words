@@ -91,7 +91,7 @@ const mainConfig = {
     format: 'umd',
     name: 'n2words',
     sourcemap: true,
-    exports: 'named',
+    exports: 'named', // Named exports - window.n2words.en, window.n2words.zhHans, etc.
     banner: `/*! n2words v${pkg.version} | MIT License | github.com/forzagreen/n2words */`
   },
   plugins: [...basePlugins, mainTerserConfig]

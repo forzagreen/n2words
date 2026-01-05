@@ -7,7 +7,6 @@
  */
 
 import { readFileSync, readdirSync } from 'node:fs'
-import { getClassName, getConverterName } from './language-naming.js'
 
 // ============================================================================
 // Constants
@@ -31,28 +30,27 @@ export function getLanguageCodes () {
 }
 
 /**
+ * Normalizes a BCP 47 language code to a valid JS identifier.
+ * Removes hyphens and capitalizes the following letter (camelCase).
+ *
+ * @param {string} code BCP 47 language code (e.g., 'zh-Hans', 'fr-BE')
+ * @returns {string} Normalized identifier (e.g., 'zhHans', 'frBE')
+ * @example
+ * normalizeCode('en')       // 'en'
+ * normalizeCode('zh-Hans')  // 'zhHans'
+ * normalizeCode('fr-BE')    // 'frBE'
+ */
+export function normalizeCode (code) {
+  return code.replace(/-([a-zA-Z])/g, (_, letter) => letter.toUpperCase())
+}
+
+/**
  * Gets language codes that support options.
  *
  * @returns {string[]} Language codes that accept options
  */
 export function getLanguagesWithOptions () {
   return getLanguageCodes().filter(languageHasOptions)
-}
-
-// ============================================================================
-// File Content Helpers
-// ============================================================================
-
-/**
- * Gets the class name by reading a language file and looking at file structure.
- * For functional implementations, we derive from the language code.
- *
- * @param {string} code Language code
- * @returns {string|null} Class name, or null if not found
- */
-export function getClassNameFromFile (code) {
-  // For functional implementations, derive from language-naming.js
-  return getClassName(code)
 }
 
 /**
@@ -69,28 +67,4 @@ export function languageHasOptions (code) {
   } catch {
     return false
   }
-}
-
-// ============================================================================
-// Module Helpers
-// ============================================================================
-
-/**
- * Gets converter functions from n2words module, keyed by language code.
- *
- * @param {Object} n2wordsModule The imported n2words module
- * @returns {Object<string, Function>} Map of language codes to converter functions
- */
-export function getConvertersByCode (n2wordsModule) {
-  const converters = {}
-  for (const code of getLanguageCodes()) {
-    const className = getClassName(code) || getClassNameFromFile(code)
-    if (className) {
-      const converterName = getConverterName(className)
-      if (n2wordsModule[converterName]) {
-        converters[code] = n2wordsModule[converterName]
-      }
-    }
-  }
-  return converters
 }

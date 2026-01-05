@@ -1,14 +1,14 @@
 import test from 'ava'
 import { readFileSync } from 'node:fs'
-import * as n2words from '../../lib/n2words.js'
-import { getClassName, getConverterName } from '../utils/language-naming.js'
-import { getClassNameFromFile, getLanguageCodes, getLanguagesWithOptions } from '../utils/language-helpers.js'
+import n2words, * as namedExports from '../../lib/n2words.js'
+import { getLanguageCodes, getLanguagesWithOptions, normalizeCode } from '../utils/language-helpers.js'
 
 /**
  * Unit Tests for n2words.js (Public API)
  *
  * Tests the lib/n2words.js module:
- * - Module structure (imports, exports, alphabetical ordering)
+ * - Module structure (named exports with normalized BCP 47 codes)
+ * - Default export for UMD builds
  * - Converter function behavior
  * - Type rejection (invalid inputs)
  *
@@ -23,82 +23,86 @@ const n2wordsContent = readFileSync('./lib/n2words.js', 'utf8')
 // Module Structure
 // ============================================================================
 
-test('all exports are converter functions', t => {
-  const exports = Object.keys(n2words)
+test('default export is object with all converters', t => {
+  t.is(typeof n2words, 'object')
+  t.true(n2words !== null)
+})
 
-  t.true(exports.length > 0, 'Should have exports')
+test('named exports exist for all languages', t => {
+  const languageCodes = getLanguageCodes()
 
-  for (const name of exports) {
-    t.true(name.endsWith('Converter'), `Export "${name}" should end with "Converter"`)
-    t.is(typeof n2words[name], 'function', `${name} should be a function`)
+  for (const code of languageCodes) {
+    const normalizedName = normalizeCode(code)
+    t.is(typeof namedExports[normalizedName], 'function', `Missing named export for ${code} (as ${normalizedName})`)
+  }
+})
+
+test('default export has all normalized language codes', t => {
+  const languageCodes = getLanguageCodes()
+
+  for (const code of languageCodes) {
+    const normalizedName = normalizeCode(code)
+    t.true(normalizedName in n2words, `Missing converter for ${code} (as ${normalizedName})`)
+    t.is(typeof n2words[normalizedName], 'function', `${normalizedName} should be a function`)
   }
 })
 
 test('converter count matches language file count', t => {
   const languageCount = getLanguageCodes().length
-  const exportCount = Object.keys(n2words).length
+  const converterCount = Object.keys(n2words).length
 
-  t.is(exportCount, languageCount, `Should have ${languageCount} converters for ${languageCount} languages`)
+  t.is(converterCount, languageCount, `Should have ${languageCount} converters`)
 })
 
-test('all language converters are imported from language files', t => {
+test('all language files are imported', t => {
   const codes = getLanguageCodes()
 
   const missingImports = []
   for (const code of codes) {
-    const className = getClassName(code) || getClassNameFromFile(code)
-    const converterName = getConverterName(className)
-    const importPattern = new RegExp(`import\\s*\\{\\s*toWords\\s+as\\s+${converterName}\\s*\\}\\s*from\\s*['"]\\./languages/${code}\\.js['"]`)
+    const importPattern = new RegExp(`from\\s*['"]\\./languages/${code}\\.js['"]`)
     if (!importPattern.test(n2wordsContent)) {
-      missingImports.push(`${converterName} (${code})`)
+      missingImports.push(code)
     }
   }
 
   t.deepEqual(missingImports, [], `Missing imports: ${missingImports.join(', ')}`)
 })
 
-test('language imports are alphabetically ordered by converter name', t => {
+test('imports are alphabetically ordered by normalized name', t => {
   const importSection = n2wordsContent.match(/\/\/ Language Imports[\s\S]*?(?=\/\/ ===)/)?.[0]
   if (!importSection) {
     t.fail('No Language Imports section found')
     return
   }
 
-  const imports = [...importSection.matchAll(/import\s+\{\s*toWords\s+as\s+(\w+)\s*\}/g)].map(m => m[1])
+  // Extract normalized import names (e.g., 'as zhHans')
+  const imports = [...importSection.matchAll(/as\s+(\w+)\s*\}/g)].map(m => m[1])
   const sorted = [...imports].sort((a, b) => a.localeCompare(b))
-  t.deepEqual(imports, sorted, 'Language imports should be alphabetically ordered by converter name')
+  t.deepEqual(imports, sorted, 'Imports should be alphabetically ordered by normalized name')
 })
 
-test('all language converters are exported', t => {
-  const codes = getLanguageCodes()
-  const exportSection = n2wordsContent.match(/export\s*{([\s\S]*?)}/)?.[1] || ''
-
-  const missingExports = []
-  for (const code of codes) {
-    const className = getClassName(code) || getClassNameFromFile(code)
-    const converterName = getConverterName(className)
-    if (!exportSection.includes(converterName)) {
-      missingExports.push(`${converterName} (${code})`)
-    }
-  }
-
-  t.deepEqual(missingExports, [], `Missing exports: ${missingExports.join(', ')}`)
-})
-
-test('exports are alphabetically ordered', t => {
-  const exportSection = n2wordsContent.match(/export\s*{([\s\S]*?)}/)?.[1]
-  if (!exportSection) {
-    t.fail('No export section found')
+test('named exports are alphabetically ordered', t => {
+  const exportsSection = n2wordsContent.match(/export \{\s*([\s\S]*?)\s*\}/)?.[1]
+  if (!exportsSection) {
+    t.fail('No named exports block found')
     return
   }
 
-  const exports = exportSection
-    .split(',')
-    .map(e => e.trim())
-    .filter(e => e.length > 0)
-
+  const exports = exportsSection.split(',').map(s => s.trim()).filter(Boolean)
   const sorted = [...exports].sort((a, b) => a.localeCompare(b))
-  t.deepEqual(exports, sorted, 'Exports should be alphabetically ordered')
+  t.deepEqual(exports, sorted, 'Named exports should be alphabetically ordered')
+})
+
+test('default export keys are alphabetically ordered', t => {
+  const defaultExportSection = n2wordsContent.match(/export default \{\s*([\s\S]*?)\s*\}/)?.[1]
+  if (!defaultExportSection) {
+    t.fail('No default export block found')
+    return
+  }
+
+  const keys = defaultExportSection.split(',').map(s => s.trim()).filter(Boolean)
+  const sorted = [...keys].sort((a, b) => a.localeCompare(b))
+  t.deepEqual(keys, sorted, 'Default export keys should be alphabetically ordered')
 })
 
 // ============================================================================
@@ -106,33 +110,29 @@ test('exports are alphabetically ordered', t => {
 // ============================================================================
 
 test('accepts number input', t => {
-  const { EnglishConverter } = n2words
-  t.is(typeof EnglishConverter(42), 'string')
-  t.is(typeof EnglishConverter(0), 'string')
-  t.is(typeof EnglishConverter(-42), 'string')
-  t.is(typeof EnglishConverter(3.14), 'string')
+  t.is(typeof n2words.en(42), 'string')
+  t.is(typeof n2words.en(0), 'string')
+  t.is(typeof n2words.en(-42), 'string')
+  t.is(typeof n2words.en(3.14), 'string')
 })
 
 test('accepts string input', t => {
-  const { EnglishConverter } = n2words
-  t.is(typeof EnglishConverter('42'), 'string')
-  t.is(typeof EnglishConverter('0'), 'string')
-  t.is(typeof EnglishConverter('-42'), 'string')
-  t.is(typeof EnglishConverter('3.14'), 'string')
+  t.is(typeof n2words.en('42'), 'string')
+  t.is(typeof n2words.en('0'), 'string')
+  t.is(typeof n2words.en('-42'), 'string')
+  t.is(typeof n2words.en('3.14'), 'string')
 })
 
 test('accepts bigint input', t => {
-  const { EnglishConverter } = n2words
-  t.is(typeof EnglishConverter(42n), 'string')
-  t.is(typeof EnglishConverter(0n), 'string')
-  t.is(typeof EnglishConverter(-42n), 'string')
+  t.is(typeof n2words.en(42n), 'string')
+  t.is(typeof n2words.en(0n), 'string')
+  t.is(typeof n2words.en(-42n), 'string')
 })
 
 test('accepts large bigint input', t => {
-  const { EnglishConverter } = n2words
   const large = BigInt('9'.repeat(50))
-  t.is(typeof EnglishConverter(large), 'string')
-  t.is(typeof EnglishConverter(-large), 'string')
+  t.is(typeof n2words.en(large), 'string')
+  t.is(typeof n2words.en(-large), 'string')
 })
 
 // ============================================================================
@@ -140,59 +140,49 @@ test('accepts large bigint input', t => {
 // ============================================================================
 
 test('rejects null', t => {
-  const { EnglishConverter } = n2words
-  t.throws(() => EnglishConverter(null), { instanceOf: TypeError })
+  t.throws(() => n2words.en(null), { instanceOf: TypeError })
 })
 
 test('rejects undefined', t => {
-  const { EnglishConverter } = n2words
-  t.throws(() => EnglishConverter(undefined), { instanceOf: TypeError })
+  t.throws(() => n2words.en(undefined), { instanceOf: TypeError })
 })
 
 test('rejects boolean', t => {
-  const { EnglishConverter } = n2words
-  t.throws(() => EnglishConverter(true), { instanceOf: TypeError })
-  t.throws(() => EnglishConverter(false), { instanceOf: TypeError })
+  t.throws(() => n2words.en(true), { instanceOf: TypeError })
+  t.throws(() => n2words.en(false), { instanceOf: TypeError })
 })
 
 test('rejects object', t => {
-  const { EnglishConverter } = n2words
-  t.throws(() => EnglishConverter({}), { instanceOf: TypeError })
-  t.throws(() => EnglishConverter({ valueOf: () => 42 }), { instanceOf: TypeError })
+  t.throws(() => n2words.en({}), { instanceOf: TypeError })
+  t.throws(() => n2words.en({ valueOf: () => 42 }), { instanceOf: TypeError })
 })
 
 test('rejects array', t => {
-  const { EnglishConverter } = n2words
-  t.throws(() => EnglishConverter([]), { instanceOf: TypeError })
-  t.throws(() => EnglishConverter([42]), { instanceOf: TypeError })
+  t.throws(() => n2words.en([]), { instanceOf: TypeError })
+  t.throws(() => n2words.en([42]), { instanceOf: TypeError })
 })
 
 test('rejects function', t => {
-  const { EnglishConverter } = n2words
-  t.throws(() => EnglishConverter(() => 42), { instanceOf: TypeError })
+  t.throws(() => n2words.en(() => 42), { instanceOf: TypeError })
 })
 
 test('rejects symbol', t => {
-  const { EnglishConverter } = n2words
-  t.throws(() => EnglishConverter(Symbol('test')), { instanceOf: TypeError })
+  t.throws(() => n2words.en(Symbol('test')), { instanceOf: TypeError })
 })
 
 test('rejects NaN', t => {
-  const { EnglishConverter } = n2words
-  t.throws(() => EnglishConverter(NaN), { instanceOf: Error })
+  t.throws(() => n2words.en(NaN), { instanceOf: Error })
 })
 
 test('rejects Infinity', t => {
-  const { EnglishConverter } = n2words
-  t.throws(() => EnglishConverter(Infinity), { instanceOf: Error })
-  t.throws(() => EnglishConverter(-Infinity), { instanceOf: Error })
+  t.throws(() => n2words.en(Infinity), { instanceOf: Error })
+  t.throws(() => n2words.en(-Infinity), { instanceOf: Error })
 })
 
 test('rejects invalid string', t => {
-  const { EnglishConverter } = n2words
-  t.throws(() => EnglishConverter(''), { instanceOf: Error })
-  t.throws(() => EnglishConverter('abc'), { instanceOf: Error })
-  t.throws(() => EnglishConverter('12abc34'), { instanceOf: Error })
+  t.throws(() => n2words.en(''), { instanceOf: Error })
+  t.throws(() => n2words.en('abc'), { instanceOf: Error })
+  t.throws(() => n2words.en('12abc34'), { instanceOf: Error })
 })
 
 // ============================================================================
@@ -200,28 +190,24 @@ test('rejects invalid string', t => {
 // ============================================================================
 
 test('accepts options parameter', t => {
-  const { EnglishConverter } = n2words
-  t.notThrows(() => EnglishConverter(42, {}))
-  t.notThrows(() => EnglishConverter(42, { unknownOption: true }))
+  t.notThrows(() => n2words.en(42, {}))
+  t.notThrows(() => n2words.en(42, { unknownOption: true }))
 })
 
 test('options are used by languages that support them', t => {
-  const { ArabicConverter, TurkishConverter, SimplifiedChineseConverter } = n2words
-
-  t.notThrows(() => ArabicConverter(1, { gender: 'feminine' }))
-  t.notThrows(() => TurkishConverter(123, { dropSpaces: true }))
-  t.notThrows(() => SimplifiedChineseConverter(1, { formal: true }))
+  t.notThrows(() => n2words.ar(1, { gender: 'feminine' }))
+  t.notThrows(() => n2words.tr(123, { dropSpaces: true }))
+  t.notThrows(() => n2words.zhHans(1, { formal: true }))
 })
 
 test('all languages with options accept options parameter', t => {
   const languagesWithOptions = getLanguagesWithOptions()
 
   for (const code of languagesWithOptions) {
-    const className = getClassName(code) || getClassNameFromFile(code)
-    const converterName = getConverterName(className)
-    const converter = n2words[converterName]
-
-    t.notThrows(() => converter(42, {}), `${converterName} should accept options`)
+    const normalizedName = normalizeCode(code)
+    const converter = n2words[normalizedName]
+    t.truthy(converter, `Missing converter for ${code} (as ${normalizedName})`)
+    t.notThrows(() => converter(42, {}), `${normalizedName} should accept options`)
   }
 })
 
@@ -230,25 +216,21 @@ test('all languages with options accept options parameter', t => {
 // ============================================================================
 
 test('converters are stateless - multiple calls return consistent results', t => {
-  const { EnglishConverter, SpanishConverter, FrenchConverter } = n2words
-
   // Same input always produces same output
-  t.is(EnglishConverter(42), EnglishConverter(42))
-  t.is(SpanishConverter(42), SpanishConverter(42))
-  t.is(FrenchConverter(42), FrenchConverter(42))
+  t.is(n2words.en(42), n2words.en(42))
+  t.is(n2words.es(42), n2words.es(42))
+  t.is(n2words.fr(42), n2words.fr(42))
 
   // Different inputs don't affect each other
-  const before = EnglishConverter(42)
-  EnglishConverter(999)
-  EnglishConverter(-100)
-  const after = EnglishConverter(42)
+  const before = n2words.en(42)
+  n2words.en(999)
+  n2words.en(-100)
+  const after = n2words.en(42)
   t.is(before, after)
 })
 
 test('converters return non-empty strings', t => {
-  const { EnglishConverter, SpanishConverter, GermanConverter } = n2words
-
-  for (const converter of [EnglishConverter, SpanishConverter, GermanConverter]) {
+  for (const converter of [n2words.en, n2words.es, n2words.de]) {
     t.true(converter(0).length > 0)
     t.true(converter(1).length > 0)
     t.true(converter(42).length > 0)

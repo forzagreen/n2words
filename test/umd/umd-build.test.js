@@ -18,23 +18,21 @@ import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { createRequire } from 'node:module'
 import vm from 'node:vm'
+import { normalizeCode } from '../utils/language-helpers.js'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const distDir = join(__dirname, '../../dist')
 const require = createRequire(import.meta.url)
 const pkg = require('../../package.json')
 
-// Dynamically get all converters from the n2words entry point
-const n2words = require('../../lib/n2words.js')
-const expectedConverters = Object.keys(n2words)
-  .filter(name => name.endsWith('Converter'))
-  .sort()
-
 // Get all language codes from the languages directory
 const languagesDir = join(__dirname, '../../lib/languages')
 const languageCodes = readdirSync(languagesDir)
   .filter(file => file.endsWith('.js'))
   .map(file => file.replace('.js', ''))
+
+// Expected exports are normalized BCP 47 codes (e.g., 'en', 'zhHans', 'frBE')
+const expectedExports = languageCodes.map(normalizeCode).sort()
 
 /**
  * Load UMD bundle into a sandboxed context and return the n2words global.
@@ -134,18 +132,18 @@ test('main bundle exports all converters as functions', t => {
 
   t.truthy(n2words, 'n2words global should be defined')
 
-  const missingConverters = []
+  const missingExports = []
   const nonFunctions = []
 
-  for (const converter of expectedConverters) {
-    if (!(converter in n2words)) {
-      missingConverters.push(converter)
-    } else if (typeof n2words[converter] !== 'function') {
-      nonFunctions.push(converter)
+  for (const name of expectedExports) {
+    if (!(name in n2words)) {
+      missingExports.push(name)
+    } else if (typeof n2words[name] !== 'function') {
+      nonFunctions.push(name)
     }
   }
 
-  t.deepEqual(missingConverters, [], `Missing converters: ${missingConverters.join(', ')}`)
+  t.deepEqual(missingExports, [], `Missing exports: ${missingExports.join(', ')}`)
   t.deepEqual(nonFunctions, [], `Non-function exports: ${nonFunctions.join(', ')}`)
 })
 
@@ -153,20 +151,23 @@ test('main bundle converters return strings', t => {
   const n2words = loadUmdBundle(join(distDir, 'n2words.js'))
 
   // Test a few converters to verify they work
-  const result1 = n2words.EnglishConverter(42)
-  t.is(typeof result1, 'string', 'EnglishConverter should return string')
+  const result1 = n2words.en(42)
+  t.is(typeof result1, 'string', 'en should return string')
   t.true(result1.length > 0, 'Result should not be empty')
 
-  const result2 = n2words.SpanishConverter(100)
-  t.is(typeof result2, 'string', 'SpanishConverter should return string')
+  const result2 = n2words.es(100)
+  t.is(typeof result2, 'string', 'es should return string')
+
+  const result3 = n2words.zhHans(42)
+  t.is(typeof result3, 'string', 'zhHans should return string')
 })
 
 test('main bundle converters accept options', t => {
   const n2words = loadUmdBundle(join(distDir, 'n2words.js'))
 
   // Verify options work by checking gender produces different results
-  const masculine = n2words.ArabicConverter(1, { gender: 'masculine' })
-  const feminine = n2words.ArabicConverter(1, { gender: 'feminine' })
+  const masculine = n2words.ar(1, { gender: 'masculine' })
+  const feminine = n2words.ar(1, { gender: 'feminine' })
   t.not(masculine, feminine, 'Gender option should produce different results')
 })
 
@@ -254,13 +255,13 @@ test('individual bundle source map is valid', t => {
 test('main bundle size is reasonable', t => {
   const code = readFileSync(join(distDir, 'n2words.js'), 'utf8')
   const sizeKB = Buffer.byteLength(code, 'utf8') / 1024
-  const converterCount = expectedConverters.length
+  const exportCount = expectedExports.length
 
-  // Dynamic range: ~1.5-3.5KB per converter
-  const minExpectedKB = converterCount * 1.5
-  const maxExpectedKB = converterCount * 3.5
+  // Dynamic range: ~1.5-3.5KB per language
+  const minExpectedKB = exportCount * 1.5
+  const maxExpectedKB = exportCount * 3.5
 
-  t.log(`Main bundle: ${sizeKB.toFixed(1)}KB (${converterCount} converters, ~${(sizeKB / converterCount).toFixed(1)}KB each)`)
+  t.log(`Main bundle: ${sizeKB.toFixed(1)}KB (${exportCount} languages, ~${(sizeKB / exportCount).toFixed(1)}KB each)`)
 
   t.true(sizeKB > minExpectedKB, `Main bundle (${sizeKB.toFixed(1)}KB) should be > ${minExpectedKB.toFixed(0)}KB`)
   t.true(sizeKB < maxExpectedKB, `Main bundle (${sizeKB.toFixed(1)}KB) should be < ${maxExpectedKB.toFixed(0)}KB`)
