@@ -13,7 +13,7 @@
  *   node .vscode/debug-converter.js en 42 -100 3.14    # Test multiple numbers
  *   node .vscode/debug-converter.js en "42 -100 3.14"  # Space-separated string also works
  *   node .vscode/debug-converter.js zh-Hans
- *   node .vscode/debug-converter.js EnglishConverter   # Also accepts converter names
+ *   node .vscode/debug-converter.js zhHans             # Normalized exports work too
  */
 
 import * as n2words from '../lib/n2words.js'
@@ -48,13 +48,7 @@ if (!converter) {
   const codes = getLanguageCodes().sort()
   codes.forEach(code => console.log(`  - ${code}`))
 
-  console.log('\nOr use converter names directly:')
-  Object.keys(n2words)
-    .filter(key => key.endsWith('Converter'))
-    .sort()
-    .slice(0, 5)
-    .forEach(name => console.log(`  - ${name}`))
-  console.log(`  ... and ${Object.keys(n2words).filter(key => key.endsWith('Converter')).length - 5} more`)
+  console.log('\nOr use normalized export names directly (e.g., en, es, zhHans, frBE)')
 
   process.exit(1)
 }
