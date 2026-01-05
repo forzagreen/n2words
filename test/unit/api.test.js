@@ -1,6 +1,6 @@
 import test from 'ava'
 import { readFileSync } from 'node:fs'
-import n2words, * as namedExports from '../../lib/n2words.js'
+import * as n2words from '../../lib/n2words.js'
 import { getLanguageCodes, getLanguagesWithOptions, normalizeCode } from '../utils/language-helpers.js'
 
 /**
@@ -8,7 +8,6 @@ import { getLanguageCodes, getLanguagesWithOptions, normalizeCode } from '../uti
  *
  * Tests the lib/n2words.js module:
  * - Module structure (named exports with normalized BCP 47 codes)
- * - Default export for UMD builds
  * - Converter function behavior
  * - Type rejection (invalid inputs)
  *
@@ -23,27 +22,12 @@ const n2wordsContent = readFileSync('./lib/n2words.js', 'utf8')
 // Module Structure
 // ============================================================================
 
-test('default export is object with all converters', t => {
-  t.is(typeof n2words, 'object')
-  t.true(n2words !== null)
-})
-
 test('named exports exist for all languages', t => {
   const languageCodes = getLanguageCodes()
 
   for (const code of languageCodes) {
     const normalizedName = normalizeCode(code)
-    t.is(typeof namedExports[normalizedName], 'function', `Missing named export for ${code} (as ${normalizedName})`)
-  }
-})
-
-test('default export has all normalized language codes', t => {
-  const languageCodes = getLanguageCodes()
-
-  for (const code of languageCodes) {
-    const normalizedName = normalizeCode(code)
-    t.true(normalizedName in n2words, `Missing converter for ${code} (as ${normalizedName})`)
-    t.is(typeof n2words[normalizedName], 'function', `${normalizedName} should be a function`)
+    t.is(typeof n2words[normalizedName], 'function', `Missing named export for ${code} (as ${normalizedName})`)
   }
 })
 
@@ -91,18 +75,6 @@ test('named exports are alphabetically ordered', t => {
   const exports = exportsSection.split(',').map(s => s.trim()).filter(Boolean)
   const sorted = [...exports].sort((a, b) => a.localeCompare(b))
   t.deepEqual(exports, sorted, 'Named exports should be alphabetically ordered')
-})
-
-test('default export keys are alphabetically ordered', t => {
-  const defaultExportSection = n2wordsContent.match(/export default \{\s*([\s\S]*?)\s*\}/)?.[1]
-  if (!defaultExportSection) {
-    t.fail('No default export block found')
-    return
-  }
-
-  const keys = defaultExportSection.split(',').map(s => s.trim()).filter(Boolean)
-  const sorted = [...keys].sort((a, b) => a.localeCompare(b))
-  t.deepEqual(keys, sorted, 'Default export keys should be alphabetically ordered')
 })
 
 // ============================================================================
