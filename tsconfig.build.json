@@ -13,6 +13,6 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true
   },
-  "include": ["lib/n2words.js"],
+  "include": ["lib/n2words.js", "lib/languages/*.js"],
   "exclude": ["node_modules", "dist", "test", "bench", "scripts"]
 }

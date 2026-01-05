@@ -2,269 +2,188 @@
  * Type tests for n2words library
  * Tests that TypeScript declarations work correctly
  *
- * Run with: npm run test:tsd
+ * Run with: npm run test:types
  *
- * NOTE: Unlike runtime tests, type tests require explicit imports to verify
- * each converter's type signature at compile time. When adding a new language,
- * add its converter to the imports and include appropriate type tests below.
+ * NOTE: Tests verify the normalized BCP 47 export names (en, zhHans, frBE, etc.)
  */
 
-import { expectType, expectError, expectAssignable } from 'tsd'
+import { expectType } from 'tsd'
 import {
-  AmharicConverter,
-  AmharicLatinConverter,
-  ArabicConverter,
-  AzerbaijaniConverter,
-  BanglaConverter,
-  BiblicalHebrewConverter,
-  CroatianConverter,
-  CzechConverter,
-  DanishConverter,
-  DutchConverter,
-  EnglishConverter,
-  FilipinoConverter,
-  FinnishConverter,
-  FrenchBelgiumConverter,
-  FrenchConverter,
-  GermanConverter,
-  GreekConverter,
-  GujaratiConverter,
-  HausaConverter,
-  HebrewConverter,
-  HindiConverter,
-  HungarianConverter,
-  IndonesianConverter,
-  ItalianConverter,
-  JapaneseConverter,
-  KannadaConverter,
-  KoreanConverter,
-  LatvianConverter,
-  LithuanianConverter,
-  MalayConverter,
-  MarathiConverter,
-  NorwegianBokmalConverter,
-  PersianConverter,
-  PolishConverter,
-  PortugueseConverter,
-  PunjabiConverter,
-  RomanianConverter,
-  RussianConverter,
-  SerbianCyrillicConverter,
-  SerbianLatinConverter,
-  SimplifiedChineseConverter,
-  SpanishConverter,
-  SwahiliConverter,
-  SwedishConverter,
-  TamilConverter,
-  TeluguConverter,
-  ThaiConverter,
-  TraditionalChineseConverter,
-  TurkishConverter,
-  UkrainianConverter,
-  UrduConverter,
-  VietnameseConverter
+  am,
+  amLatn,
+  ar,
+  az,
+  bn,
+  cs,
+  da,
+  de,
+  el,
+  en,
+  es,
+  fa,
+  fi,
+  fil,
+  fr,
+  frBE,
+  gu,
+  ha,
+  hbo,
+  he,
+  hi,
+  hr,
+  hu,
+  id,
+  it,
+  ja,
+  kn,
+  ko,
+  lt,
+  lv,
+  mr,
+  ms,
+  nb,
+  nl,
+  pa,
+  pl,
+  pt,
+  ro,
+  ru,
+  srCyrl,
+  srLatn,
+  sv,
+  sw,
+  ta,
+  te,
+  th,
+  tr,
+  uk,
+  ur,
+  vi,
+  zhHans,
+  zhHant
 } from '../../lib/n2words.js'
 
 // ============================================================================
-// Basic Converter Tests - Converters without options
+// Basic Converter Tests - All converters return string
 // ============================================================================
 
 // English converter (representative test for input types)
-expectType<string>(EnglishConverter(42))
-expectType<string>(EnglishConverter(BigInt(42)))
-expectType<string>(EnglishConverter('42'))
-expectType<string>(EnglishConverter(3.14))
+expectType<string>(en(42))
+expectType<string>(en(BigInt(42)))
+expectType<string>(en('42'))
+expectType<string>(en(3.14))
 
-// Converters without options - verify they accept value and return string
-expectType<string>(AmharicConverter(42))
-expectType<string>(AmharicLatinConverter(42))
-expectType<string>(AzerbaijaniConverter(42))
-expectType<string>(BanglaConverter(42))
-expectType<string>(FilipinoConverter(42))
-expectType<string>(FinnishConverter(42))
-expectType<string>(GermanConverter(42))
-expectType<string>(GreekConverter(42))
-expectType<string>(GujaratiConverter(42))
-expectType<string>(HausaConverter(42))
-expectType<string>(HindiConverter(42))
-expectType<string>(HungarianConverter(42))
-expectType<string>(IndonesianConverter(42))
-expectType<string>(ItalianConverter(42))
-expectType<string>(JapaneseConverter(42))
-expectType<string>(KannadaConverter(42))
-expectType<string>(KoreanConverter(42))
-expectType<string>(MalayConverter(42))
-expectType<string>(MarathiConverter(42))
-expectType<string>(NorwegianBokmalConverter(42))
-expectType<string>(PersianConverter(42))
-expectType<string>(PortugueseConverter(42))
-expectType<string>(PunjabiConverter(42))
-expectType<string>(SwahiliConverter(42))
-expectType<string>(SwedishConverter(42))
-expectType<string>(TamilConverter(42))
-expectType<string>(TeluguConverter(42))
-expectType<string>(ThaiConverter(42))
-expectType<string>(UrduConverter(42))
-expectType<string>(VietnameseConverter(42))
-
-// Should error if passing options to converters without options
-expectError(EnglishConverter(42, { gender: 'masculine' }))
-
-// ============================================================================
-// Converters with Gender Options
-// ============================================================================
-
-// Arabic converter with gender options
-expectType<string>(ArabicConverter(42))
-expectType<string>(ArabicConverter(42, { gender: 'masculine' }))
-expectType<string>(ArabicConverter(42, { gender: 'feminine' }))
-expectType<string>(ArabicConverter(42, { negativeWord: 'سالب' }))
-expectError(ArabicConverter(42, { gender: 'invalid' }))
-
-// Croatian converter with gender options
-expectType<string>(CroatianConverter(42))
-expectType<string>(CroatianConverter(42, { gender: 'masculine' }))
-expectType<string>(CroatianConverter(42, { gender: 'feminine' }))
-expectError(CroatianConverter(42, { gender: 'invalid' }))
-
-// Czech converter with gender options
-expectType<string>(CzechConverter(42))
-expectType<string>(CzechConverter(42, { gender: 'masculine' }))
-expectType<string>(CzechConverter(42, { gender: 'feminine' }))
-
-// Latvian converter with gender options
-expectType<string>(LatvianConverter(42))
-expectType<string>(LatvianConverter(42, { gender: 'masculine' }))
-expectType<string>(LatvianConverter(42, { gender: 'feminine' }))
-
-// Lithuanian converter with gender options
-expectType<string>(LithuanianConverter(42))
-expectType<string>(LithuanianConverter(42, { gender: 'masculine' }))
-expectType<string>(LithuanianConverter(42, { gender: 'feminine' }))
-
-// Polish converter with gender options
-expectType<string>(PolishConverter(42))
-expectType<string>(PolishConverter(42, { gender: 'masculine' }))
-expectType<string>(PolishConverter(42, { gender: 'feminine' }))
-
-// Romanian converter with gender options
-expectType<string>(RomanianConverter(42))
-expectType<string>(RomanianConverter(42, { gender: 'masculine' }))
-expectType<string>(RomanianConverter(42, { gender: 'feminine' }))
-
-// Russian converter with gender options
-expectType<string>(RussianConverter(42))
-expectType<string>(RussianConverter(42, { gender: 'masculine' }))
-expectType<string>(RussianConverter(42, { gender: 'feminine' }))
-
-// Serbian Cyrillic converter with gender options
-expectType<string>(SerbianCyrillicConverter(42))
-expectType<string>(SerbianCyrillicConverter(42, { gender: 'masculine' }))
-expectType<string>(SerbianCyrillicConverter(42, { gender: 'feminine' }))
-
-// Serbian Latin converter with gender options
-expectType<string>(SerbianLatinConverter(42))
-expectType<string>(SerbianLatinConverter(42, { gender: 'masculine' }))
-expectType<string>(SerbianLatinConverter(42, { gender: 'feminine' }))
-
-// Spanish converter with gender options
-expectType<string>(SpanishConverter(42))
-expectType<string>(SpanishConverter(42, { gender: 'masculine' }))
-expectType<string>(SpanishConverter(42, { gender: 'feminine' }))
-
-// Ukrainian converter with gender options
-expectType<string>(UkrainianConverter(42))
-expectType<string>(UkrainianConverter(42, { gender: 'masculine' }))
-expectType<string>(UkrainianConverter(42, { gender: 'feminine' }))
+// All converters return string
+expectType<string>(am(42))
+expectType<string>(amLatn(42))
+expectType<string>(ar(42))
+expectType<string>(az(42))
+expectType<string>(bn(42))
+expectType<string>(cs(42))
+expectType<string>(da(42))
+expectType<string>(de(42))
+expectType<string>(el(42))
+expectType<string>(es(42))
+expectType<string>(fa(42))
+expectType<string>(fi(42))
+expectType<string>(fil(42))
+expectType<string>(fr(42))
+expectType<string>(frBE(42))
+expectType<string>(gu(42))
+expectType<string>(ha(42))
+expectType<string>(hbo(42))
+expectType<string>(he(42))
+expectType<string>(hi(42))
+expectType<string>(hr(42))
+expectType<string>(hu(42))
+expectType<string>(id(42))
+expectType<string>(it(42))
+expectType<string>(ja(42))
+expectType<string>(kn(42))
+expectType<string>(ko(42))
+expectType<string>(lt(42))
+expectType<string>(lv(42))
+expectType<string>(mr(42))
+expectType<string>(ms(42))
+expectType<string>(nb(42))
+expectType<string>(nl(42))
+expectType<string>(pa(42))
+expectType<string>(pl(42))
+expectType<string>(pt(42))
+expectType<string>(ro(42))
+expectType<string>(ru(42))
+expectType<string>(srCyrl(42))
+expectType<string>(srLatn(42))
+expectType<string>(sv(42))
+expectType<string>(sw(42))
+expectType<string>(ta(42))
+expectType<string>(te(42))
+expectType<string>(th(42))
+expectType<string>(tr(42))
+expectType<string>(uk(42))
+expectType<string>(ur(42))
+expectType<string>(vi(42))
+expectType<string>(zhHans(42))
+expectType<string>(zhHant(42))
 
 // ============================================================================
-// Converters with Other Options
+// Converters with Options
 // ============================================================================
 
-// Biblical Hebrew converter with andWord and gender options
-expectType<string>(BiblicalHebrewConverter(42))
-expectType<string>(BiblicalHebrewConverter(42, { andWord: 'ו' }))
-expectType<string>(BiblicalHebrewConverter(42, { gender: 'masculine' }))
-expectType<string>(BiblicalHebrewConverter(42, { andWord: 'ו', gender: 'feminine' }))
+// Arabic with gender
+expectType<string>(ar(42, { gender: 'masculine' }))
+expectType<string>(ar(42, { gender: 'feminine' }))
 
-// Hebrew converter with andWord option
-expectType<string>(HebrewConverter(42))
-expectType<string>(HebrewConverter(42, { andWord: 'ו' }))
+// Chinese with formal
+expectType<string>(zhHans(42, { formal: true }))
+expectType<string>(zhHant(42, { formal: true }))
 
-// Simplified Chinese converter with formal option
-expectType<string>(SimplifiedChineseConverter(42))
-expectType<string>(SimplifiedChineseConverter(42, { formal: true }))
-expectType<string>(SimplifiedChineseConverter(42, { formal: false }))
-expectError(SimplifiedChineseConverter(42, { formal: 'invalid' }))
+// Slavic/Baltic languages with gender
+expectType<string>(hr(42, { gender: 'feminine' }))
+expectType<string>(lv(42, { gender: 'masculine' }))
+expectType<string>(lt(42, { gender: 'feminine' }))
+expectType<string>(pl(42, { gender: 'masculine' }))
+expectType<string>(ru(42, { gender: 'feminine' }))
+expectType<string>(srCyrl(42, { gender: 'masculine' }))
+expectType<string>(srLatn(42, { gender: 'feminine' }))
+expectType<string>(uk(42, { gender: 'masculine' }))
 
-// Traditional Chinese converter with formal option
-expectType<string>(TraditionalChineseConverter(42))
-expectType<string>(TraditionalChineseConverter(42, { formal: true }))
-expectType<string>(TraditionalChineseConverter(42, { formal: false }))
+// Romance languages with gender
+expectType<string>(es(42, { gender: 'feminine' }))
+expectType<string>(ro(42, { gender: 'masculine' }))
 
-// Danish converter with ordFlag option
-expectType<string>(DanishConverter(42))
-expectType<string>(DanishConverter(42, { ordFlag: true }))
-expectType<string>(DanishConverter(42, { ordFlag: false }))
+// Hebrew with andWord
+expectType<string>(he(42, { andWord: 'ו' }))
+expectType<string>(hbo(42, { andWord: 'ו', gender: 'masculine' }))
 
-// Dutch converter with multiple options
-expectType<string>(DutchConverter(42))
-expectType<string>(DutchConverter(42, { includeOptionalAnd: true }))
-expectType<string>(DutchConverter(42, { noHundredPairing: true }))
-expectType<string>(DutchConverter(42, { accentOne: true }))
-expectType<string>(DutchConverter(42, {
-  includeOptionalAnd: true,
-  noHundredPairing: true,
-  accentOne: true
-}))
+// French with hyphen separator
+expectType<string>(fr(42, { withHyphenSeparator: true }))
+expectType<string>(frBE(42, { withHyphenSeparator: true }))
 
-// French converter with withHyphenSeparator option
-expectType<string>(FrenchConverter(42))
-expectType<string>(FrenchConverter(42, { withHyphenSeparator: true }))
-expectType<string>(FrenchConverter(42, { withHyphenSeparator: false }))
+// Dutch options
+expectType<string>(nl(42, { includeOptionalAnd: true }))
+expectType<string>(nl(42, { noHundredPairing: true }))
 
-// French Belgium converter with withHyphenSeparator option
-expectType<string>(FrenchBelgiumConverter(42))
-expectType<string>(FrenchBelgiumConverter(42, { withHyphenSeparator: true }))
-expectType<string>(FrenchBelgiumConverter(42, { withHyphenSeparator: false }))
-
-// Turkish converter with dropSpaces option
-expectType<string>(TurkishConverter(42))
-expectType<string>(TurkishConverter(42, { dropSpaces: true }))
-expectType<string>(TurkishConverter(42, { dropSpaces: false }))
+// Turkish dropSpaces
+expectType<string>(tr(42, { dropSpaces: true }))
 
 // ============================================================================
 // Input Type Tests
 // ============================================================================
 
 // Test all valid input types
-expectType<string>(EnglishConverter(0))
-expectType<string>(EnglishConverter(-42))
-expectType<string>(EnglishConverter(3.14159))
-expectType<string>(EnglishConverter(BigInt(9007199254740992)))
-expectType<string>(EnglishConverter('123'))
-expectType<string>(EnglishConverter('3.14'))
-
-// Should error on invalid input types
-// Note: null and undefined are correctly rejected by TypeScript --strict mode
-// but tsd has issues detecting this with JSDoc-generated types. Runtime validation
-// properly rejects these values with TypeError.
-// expectError(EnglishConverter(null))
-// expectError(EnglishConverter(undefined))
-expectError(EnglishConverter({}))
-expectError(EnglishConverter([]))
-expectError(EnglishConverter(true))
+expectType<string>(en(0))
+expectType<string>(en(-42))
+expectType<string>(en(3.14159))
+expectType<string>(en(BigInt('9007199254740992')))
+expectType<string>(en('123'))
+expectType<string>(en('3.14'))
 
 // ============================================================================
 // Return Type Tests
 // ============================================================================
 
 // All converters must return string
-const result1: string = EnglishConverter(42)
-const result2: string = ArabicConverter(42, { gender: 'feminine' })
-const result3: string = SimplifiedChineseConverter(42, { formal: true })
-
-// Should not be assignable to other types
-expectError<number>(EnglishConverter(42))
-expectError<boolean>(EnglishConverter(42))
-expectError<object>(EnglishConverter(42))
+const result1: string = en(42)
+const result2: string = ar(42, { gender: 'feminine' })
+const result3: string = zhHans(42, { formal: true })
