@@ -75,9 +75,7 @@ git fetch upstream && git checkout main && git merge upstream/main
 
 **Types**: `feat`, `fix`, `docs`, `refactor`, `test`, `chore`, `perf`, `style`, `build`, `ci`, `revert`, `lang`
 
-**Scopes** (optional): Project areas (`bench`, `build`, `ci`, `core`, `deps`, `docs`, `lang`, `release`, `scripts`, `test`, `utils`) or language codes (`en`, `fr-BE`, `zh-Hans`)
-
-See `.commitlintrc.mjs` for validation rules.
+**Scopes** (optional): Project areas (`lang`, `core`, `test`, `types`, `build`, etc.) or language codes (`en`, `fr-BE`). See `.commitlintrc.mjs` for full list.
 
 **Examples**:
 
@@ -116,6 +114,7 @@ This creates:
 - `lib/languages/<code>.js` - Language implementation stub
 - `test/fixtures/languages/<code>.js` - Test fixture
 - Updates to `lib/n2words.js` - Import and export
+- Updates to `test/types/languages.test-d.ts` - Type test
 
 **After scaffolding**:
 
