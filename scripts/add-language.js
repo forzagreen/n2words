@@ -8,7 +8,7 @@
  * - Language implementation file in lib/languages/
  * - Test fixture file in test/fixtures/languages/
  * - Updates lib/n2words.js with import and export
- * - Updates test/types/n2words.test-d.ts with type test
+ * - Updates test/types/languages.test-d.ts with import and type test
  *
  * Usage:
  *   npm run lang:add <language-code>
@@ -155,64 +155,97 @@ function updateN2wordsFile (code, normalized) {
 }
 
 /**
- * Update test/types/n2words.test-d.ts with new language.
+ * Update test/types/languages.test-d.ts with new language.
  *
+ * Adds:
+ * - Import statement in the imports section
+ * - expectType<string> test in the return type section
+ *
+ * @param {string} code Language code (e.g., 'sr-Cyrl')
  * @param {string} normalized Normalized code (e.g., 'srCyrl')
  */
-function updateTypeTestFile (normalized) {
-  const filePath = './test/types/n2words.test-d.ts'
-  let content = readFileSync(filePath, 'utf-8')
+function updateLanguagesTypeTest (code, normalized) {
+  const filePath = './test/types/languages.test-d.ts'
+  const lines = readFileSync(filePath, 'utf-8').split('\n')
 
-  // 1. Add to import block
-  const importMatch = content.match(/import \{([^}]+)\} from '\.\.\/\.\.\/lib\/n2words\.js'/)
-  if (importMatch) {
-    const imports = importMatch[1].split(',').map(s => s.trim()).filter(s => s)
-    if (!imports.includes(normalized)) {
-      imports.push(normalized)
-      imports.sort()
-      const newImportBlock = `import {\n  ${imports.join(',\n  ')}\n} from '../../lib/n2words.js'`
-      content = content.replace(importMatch[0], newImportBlock)
+  const importLine = `import { toWords as ${normalized} } from '../../lib/languages/${code}.js'`
+  const testLine = `expectType<string>(${normalized}(1))`
+
+  // Check if already exists
+  const hasImport = lines.some(line => line.includes(`as ${normalized} }`))
+  const hasTest = lines.some(line => line.includes(`${normalized}(1))`))
+
+  if (hasImport) {
+    console.log(chalk.yellow(`  Import for ${normalized} already exists`))
+  }
+  if (hasTest) {
+    console.log(chalk.yellow(`  Type test for ${normalized} already exists`))
+  }
+  if (hasImport && hasTest) {
+    return
+  }
+
+  const result = []
+  let importInserted = hasImport
+  let testInserted = hasTest
+  let inImportSection = false
+  let inTestSection = false
+  let passedTestHeader = false
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i]
+
+    // Track import section (starts with first language import, ends at blank line)
+    if (line.startsWith('import { toWords as ')) {
+      inImportSection = true
+    } else if (inImportSection && line.trim() === '') {
+      inImportSection = false
+    }
+
+    // Track test section (starts after "Basic return type" header block)
+    if (line.includes('// Basic return type')) {
+      inTestSection = true
+      passedTestHeader = false
+    } else if (inTestSection && !passedTestHeader && line.startsWith('// ===')) {
+      // Skip the closing line of the header block
+      passedTestHeader = true
+    } else if (inTestSection && passedTestHeader && line.startsWith('// ===')) {
+      // This is the start of the next section
+      inTestSection = false
+    }
+
+    // Insert import in sorted position
+    if (!importInserted && inImportSection) {
+      const currentName = line.match(/as (\w+)/)?.[1] || ''
+      if (currentName > normalized) {
+        result.push(importLine)
+        importInserted = true
+      }
+    }
+
+    // Insert test in sorted position
+    if (!testInserted && inTestSection && line.startsWith('expectType<string>(')) {
+      const currentName = line.match(/\((\w+)\(/)?.[1] || ''
+      if (currentName > normalized) {
+        result.push(testLine)
+        testInserted = true
+      }
+    }
+
+    result.push(line)
+
+    // If we've passed the last import/test in section, insert at end
+    if (!importInserted && inImportSection && !lines[i + 1]?.startsWith('import { toWords as ')) {
+      result.push(importLine)
+      importInserted = true
+    }
+    if (!testInserted && inTestSection && line.startsWith('expectType<string>(') && !lines[i + 1]?.startsWith('expectType<string>(')) {
+      result.push(testLine)
+      testInserted = true
     }
   }
 
-  // 2. Add basic type test (find the "All converters return string" section)
-  const testMarker = '// All converters return string'
-  const testMarkerIndex = content.indexOf(testMarker)
-  if (testMarkerIndex !== -1) {
-    // Find the next section or end of tests
-    const nextSectionMatch = content.slice(testMarkerIndex).match(/\n\n\/\/ ===/)
-    const insertPos = nextSectionMatch
-      ? testMarkerIndex + nextSectionMatch.index
-      : content.length
-
-    // Check if test already exists
-    if (!content.includes(`expectType<string>(${normalized}(42))`)) {
-      // Find existing tests and insert alphabetically
-      const testSection = content.slice(testMarkerIndex, insertPos)
-      const testLines = testSection.split('\n').filter(l => l.startsWith('expectType<string>('))
-
-      const newTest = `expectType<string>(${normalized}(42))`
-      let inserted = false
-
-      for (let i = 0; i < testLines.length; i++) {
-        const existingConverter = testLines[i].match(/expectType<string>\((\w+)\(/)?.[1]
-        if (existingConverter && existingConverter > normalized) {
-          const linePos = content.indexOf(testLines[i], testMarkerIndex)
-          content = content.slice(0, linePos) + newTest + '\n' + content.slice(linePos)
-          inserted = true
-          break
-        }
-      }
-
-      if (!inserted && testLines.length > 0) {
-        const lastTest = testLines[testLines.length - 1]
-        const lastTestEnd = content.indexOf(lastTest, testMarkerIndex) + lastTest.length
-        content = content.slice(0, lastTestEnd) + '\n' + newTest + content.slice(lastTestEnd)
-      }
-    }
-  }
-
-  writeFileSync(filePath, content)
+  writeFileSync(filePath, result.join('\n'))
 }
 
 // ============================================================================
@@ -280,8 +313,8 @@ function main () {
   console.log(chalk.green('✓ Updated n2words.js'))
 
   // Update type tests
-  console.log(chalk.gray('Updating test/types/n2words.test-d.ts...'))
-  updateTypeTestFile(normalized)
+  console.log(chalk.gray('Updating test/types/languages.test-d.ts...'))
+  updateLanguagesTypeTest(code, normalized)
   console.log(chalk.green('✓ Updated type tests'))
 
   // Success message
@@ -290,6 +323,7 @@ function main () {
   console.log(chalk.gray(`1. Implement ${langFilePath}`))
   console.log(chalk.gray(`2. Add test cases to ${fixtureFilePath}`))
   console.log(chalk.gray('3. Run: npm test'))
+  console.log(chalk.gray('4. Run: npm run build:types && npm run test:types'))
 }
 
 main()
