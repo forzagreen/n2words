@@ -10,7 +10,7 @@ Each test file has a focused responsibility. This prevents overlap and ensures c
 | `unit/api.test.js`                            | Module structure, exports, alphabetical order | Conversion correctness |
 | `integration/languages.test.js`               | Language implementations via fixtures         | API-layer validation   |
 | `integration/commonjs-compatibility.test.cjs` | CJS require() pattern works                   | Conversion correctness |
-| `types/n2words.test-d.ts`                     | TypeScript type declarations                  | Runtime behavior       |
+| `types/languages.test-d.ts`                   | TypeScript type declarations                  | Runtime behavior       |
 | `umd/umd-build.test.js`                       | Bundle structure, exports, source maps        | Conversion correctness |
 | `browsers/browsers.test.js`                   | UMD bundle loads in browsers                  | Conversion correctness |
 
@@ -40,6 +40,7 @@ test/
 
 - `parse-numeric.test.js` - Input parsing, validation, scientific notation
 - `is-plain-object.test.js` - Plain object detection utility
+- `validate-options.test.js` - Options parameter validation
 
 **API** (`test/unit/`):
 
@@ -55,7 +56,7 @@ test/
 
 ### Type Tests (`test/types/`)
 
-- `n2words.test-d.ts` - Type declaration tests using tsd
+- `languages.test-d.ts` - Type declaration tests using tsd (subpath imports)
 
 ### Browser Tests (`test/browsers/`)
 
@@ -119,12 +120,18 @@ test('throws on invalid input', t => {
 ### Type Test Pattern
 
 ```typescript
-import { expectType } from 'tsd'
-import { en, ar, zhHans } from '../../lib/n2words.js'
+import { expectType, expectError } from 'tsd'
+import { toWords as en } from '../../lib/languages/en.js'
+import { toWords as ar } from '../../lib/languages/ar.js'
 
+// Return type
 expectType<string>(en(42))
+
+// Options
 expectType<string>(ar(42, { gender: 'feminine' }))
-expectType<string>(zhHans(42, { formal: true }))
+
+// Invalid inputs
+expectError(en(null))
 ```
 
 ## Test Coverage
