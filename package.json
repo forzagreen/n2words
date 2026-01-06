@@ -112,9 +112,9 @@
       "cjs"
     ],
     "files": [
-      "test/unit/**/*",
-      "test/integration/*",
-      "test/umd/*"
+      "test/unit/**/*.test.js",
+      "test/integration/*.test.js",
+      "test/umd/*.test.js"
     ],
     "timeout": "30s",
     "concurrency": 8,
@@ -129,6 +129,9 @@
     "all": true,
     "include": [
       "lib/"
+    ],
+    "exclude": [
+      "lib/**/*.d.ts"
     ],
     "reporter": [
       "lcov",

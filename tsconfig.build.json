@@ -1,18 +1,12 @@
 {
+  "extends": "./tsconfig.json",
   "compilerOptions": {
-    "target": "es2022",
-    "module": "nodenext",
-    "moduleResolution": "nodenext",
+    "noEmit": false,
     "declaration": true,
     "emitDeclarationOnly": true,
-    "allowJs": true,
-    "checkJs": false,
     "outDir": "lib",
-    "rootDir": "lib",
-    "strict": true,
-    "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true
+    "rootDir": "lib"
   },
-  "include": ["lib/n2words.js", "lib/languages/*.js"],
+  "include": ["lib/n2words.js", "lib/languages/*.js", "lib/utils/*.js"],
   "exclude": ["node_modules", "dist", "test", "bench", "scripts"]
 }
