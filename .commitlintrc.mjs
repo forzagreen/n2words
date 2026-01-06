@@ -10,6 +10,7 @@ const PROJECT_SCOPES = [
   'release', // Release-related changes
   'scripts', // scripts/*
   'test', // Test files and fixtures
+  'types', // Type definitions and type tests
   'utils' // lib/utils/*
 ]
 
