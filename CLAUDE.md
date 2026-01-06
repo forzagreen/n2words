@@ -17,7 +17,9 @@ lib/
 ├── n2words.js           # Re-exports all languages (alphabetically)
 ├── languages/*.js       # One file per language
 └── utils/
-    └── parse-numeric.js # Shared input parsing
+    ├── parse-numeric.js    # Shared input parsing
+    ├── is-plain-object.js  # Object type checking
+    └── validate-options.js # Options validation
 ```
 
 **Language file pattern**:
@@ -46,7 +48,7 @@ npm run lint:fix          # Fix linting issues
 
 ## Adding a Language
 
-1. `npm run lang:add <code>` - creates stub + fixture, updates n2words.js
+1. `npm run lang:add <code>` - creates stub + fixture, updates n2words.js + type tests
 2. Implement `toWords()` in `lib/languages/{code}.js`
 3. Add test cases to `test/fixtures/languages/{code}.js`
 4. `npm test`
