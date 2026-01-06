@@ -19,7 +19,8 @@
 - **Production Ready** — Comprehensive test coverage (unit, integration, browser, type checking)
 - **BigInt Support** — Handle arbitrarily large numbers without precision loss
 - **Flexible Input** — Accepts `number`, `bigint`, or `string` inputs
-- **Tree-Shakable** — Import only the languages you need (~2-5 KB gzipped per language)
+- **High Performance** — 1M+ ops/sec with sub-microsecond latency via precomputed lookup tables
+- **Minimal Footprint** — ~1.4 KB gzipped per language via subpath exports
 - **Browser Tested** — Verified in Chromium, Firefox, and WebKit via automated tests
 
 ## Contents
@@ -54,7 +55,12 @@ ar(1, { gender: 'feminine' }) // 'واحدة' (with options)
 **ESM (Node.js, modern bundlers):**
 
 ```js
-import { en } from 'n2words'
+// Named imports (tree-shakable)
+import { en, es } from 'n2words'
+
+// Subpath imports (smallest bundle, recommended for single language)
+import { toWords } from 'n2words/en'
+import { toWords as esWords } from 'n2words/es'
 ```
 
 **CommonJS (Node.js):**
@@ -67,20 +73,34 @@ import('n2words').then(({ en }) => {
   console.log(en(42))  // 'forty-two'
 })
 
-// Or use async function
-async function convertNumber(num) {
-  const { en } = await import('n2words')
-  return en(num)
-}
+// Subpath import (smallest bundle)
+import('n2words/en').then(({ toWords }) => {
+  console.log(toWords(42))  // 'forty-two'
+})
 ```
 
 **Browser (UMD via CDN):**
 
 ```html
+<!-- All languages -->
 <script src="https://cdn.jsdelivr.net/npm/n2words/dist/n2words.js"></script>
 <script>
   n2words.en(42)  // 'forty-two'
   n2words.es(123) // 'ciento veintitrés'
+</script>
+
+<!-- Single language (smallest, ~1.4 KB gzipped) -->
+<script src="https://cdn.jsdelivr.net/npm/n2words/dist/languages/en.js"></script>
+<script>
+  n2words.en(42)  // 'forty-two'
+</script>
+
+<!-- Multiple single-language bundles (no conflicts) -->
+<script src="https://cdn.jsdelivr.net/npm/n2words/dist/languages/en.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/n2words/dist/languages/es.js"></script>
+<script>
+  n2words.en(42)   // 'forty-two'
+  n2words.es(42)   // 'cuarenta y dos'
 </script>
 ```
 
@@ -177,27 +197,38 @@ Simplified Chinese, Traditional Chinese - Toggle between formal/financial and co
 
 ### Bundle Size Comparison
 
-| Import Strategy              | Bundle Size (Minified) | Gzipped  | Languages Included |
-| ---------------------------- | ---------------------- | -------- | ------------------ |
-| All languages (UMD)          | ~92 KB                 | ~23 KB   | All 52             |
-| Single language (UMD)        | ~4-6 KB                | ~2 KB    | 1                  |
-| Tree-shaken (ESM, 1 lang)    | ~4-5 KB                | ~2 KB    | 1                  |
-| Tree-shaken (ESM, 3 langs)   | ~12-15 KB              | ~4-5 KB  | 3                  |
-| Tree-shaken (ESM, 10 langs)  | ~40-50 KB              | ~12-15 KB| 10                 |
+| Import Strategy                | Bundle Size | Gzipped   | Languages |
+| ------------------------------ | ----------- | --------- | --------- |
+| All languages (UMD)            | ~116 KB     | ~28 KB    | All 52    |
+| Single language (UMD)          | ~3-5 KB     | ~1.4-2 KB | 1         |
+| **Subpath import (ESM)** ⭐    | ~3 KB       | ~1.4 KB   | 1         |
+| Named imports (ESM, 1 lang)    | ~3-5 KB     | ~1.4-2 KB | 1         |
+| Named imports (ESM, 3 langs)   | ~9-15 KB    | ~4-6 KB   | 3         |
+| Named imports (ESM, 10 langs)  | ~30-50 KB   | ~10-15 KB | 10        |
 
 ### Performance Characteristics
 
-- **Fast**: Sub-millisecond conversion for most numbers
-- **Efficient**: Zero dependencies, minimal memory footprint
-- **BigInt support**: Handles arbitrarily large numbers without precision loss
-- **Memory-efficient**: ~2 KB overhead per language when tree-shaken
+- **1M+ ops/sec**: Most languages exceed 1 million conversions per second
+- **Sub-millisecond**: Typical conversion takes < 1 microsecond
+- **Low memory**: ~500-800 bytes per conversion (no allocations for small numbers)
+- **BigInt optimized**: Uses BigInt modulo instead of string manipulation
+- **Precomputed tables**: Common segments (0-999) precomputed at module load
 
-**Tree-shaking example:**
+**Subpath imports (recommended for single language):**
 
 ```js
-// Import only what you need - bundler only includes used languages
+// Smallest possible bundle - no barrel file overhead
+import { toWords } from 'n2words/en'
+toWords(42)  // 'forty-two'
+// Final bundle: ~1.4 KB gzipped
+```
+
+**Named imports (for multiple languages):**
+
+```js
+// Bundler tree-shakes unused languages
 import { en, es } from 'n2words'
-// Final bundle: ~4-5 KB gzipped (only English + Spanish + core)
+// Final bundle: ~3-4 KB gzipped (English + Spanish)
 ```
 
 **Run benchmarks:**

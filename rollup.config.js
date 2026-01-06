@@ -1,6 +1,7 @@
 import { babel } from '@rollup/plugin-babel'
 import { nodeResolve } from '@rollup/plugin-node-resolve'
 import terser from '@rollup/plugin-terser'
+import virtual from '@rollup/plugin-virtual'
 import { readFileSync, readdirSync } from 'node:fs'
 
 // Read package.json for version
@@ -10,6 +11,14 @@ const pkg = JSON.parse(readFileSync('./package.json', 'utf8'))
 const languageCodes = readdirSync('./lib/languages')
   .filter(file => file.endsWith('.js'))
   .map(file => file.replace('.js', ''))
+
+/**
+ * Normalizes BCP 47 language code to camelCase identifier.
+ * Examples: 'en' → 'en', 'zh-Hans' → 'zhHans', 'fr-BE' → 'frBE'
+ */
+function normalizeCode (code) {
+  return code.replace(/-([a-zA-Z])/g, (_, char) => char.toUpperCase())
+}
 
 /**
  * Rollup configuration for n2words UMD bundles.
@@ -24,8 +33,9 @@ const languageCodes = readdirSync('./lib/languages')
  * - Main bundle (dist/n2words.js): All language converters
  * - Individual bundles (dist/languages/{langCode}.js): One per language
  *
- * Individual bundles extend the n2words global, allowing multiple languages
- * to be loaded together without conflicts.
+ * Individual bundles use virtual entry points to re-export toWords as the
+ * normalized language code (e.g., n2words.en, n2words.zhHans), allowing
+ * multiple languages to be loaded together without conflicts.
  */
 
 // Common babel configuration
@@ -59,7 +69,7 @@ const mainTerserConfig = terser({
   }
 })
 
-// Individual bundle terser config - more aggressive since only toWords is exported
+// Individual bundle terser config - more aggressive since only one function is exported
 const individualTerserConfig = terser({
   compress: {
     passes: 3, // Extra pass for better compression
@@ -98,9 +108,13 @@ const mainConfig = {
 }
 
 // Generate individual language bundle configurations
+// Each bundle uses a virtual entry point that re-exports toWords as the normalized name
 const languageConfigs = languageCodes.map(langCode => {
+  const normalizedName = normalizeCode(langCode)
+  const virtualEntryId = `\0virtual:${langCode}`
+
   return {
-    input: `./lib/languages/${langCode}.js`,
+    input: virtualEntryId,
     output: {
       file: `dist/languages/${langCode}.js`,
       format: 'umd',
@@ -110,7 +124,14 @@ const languageConfigs = languageCodes.map(langCode => {
       extend: true,
       banner: `/*! n2words/${langCode} v${pkg.version} | MIT License | github.com/forzagreen/n2words */`
     },
-    plugins: [...basePlugins, individualTerserConfig]
+    plugins: [
+      // Virtual entry point that re-exports toWords as the normalized language name
+      virtual({
+        [virtualEntryId]: `export { toWords as ${normalizedName} } from './lib/languages/${langCode}.js'`
+      }),
+      ...basePlugins,
+      individualTerserConfig
+    ]
   }
 })
 

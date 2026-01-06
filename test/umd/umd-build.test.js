@@ -175,12 +175,12 @@ test('main bundle converters accept options', t => {
 // Individual Bundle Functional Tests
 // =============================================================================
 
-test('individual bundle loads and exports toWords', t => {
+test('individual bundle loads and exports language-specific function', t => {
   const n2words = loadUmdBundle(join(distDir, 'languages/en.js'))
 
   t.truthy(n2words, 'n2words global should be defined')
-  t.is(typeof n2words.toWords, 'function', 'toWords should be exported')
-  t.is(typeof n2words.toWords(42), 'string', 'toWords should return string')
+  t.is(typeof n2words.en, 'function', 'en should be exported')
+  t.is(typeof n2words.en(42), 'string', 'en should return string')
 })
 
 test('individual bundles use extend mode (can be combined)', t => {
@@ -206,9 +206,9 @@ test('individual bundles use extend mode (can be combined)', t => {
   const englishCode = readFileSync(join(distDir, 'languages/en.js'), 'utf8')
   vm.runInContext(`(function() { ${englishCode} }).call(globalThis);`, context)
 
-  // Verify English toWords is available
+  // Verify English is available
   t.truthy(globalContext.n2words, 'n2words global should be defined after first bundle')
-  t.is(typeof globalContext.n2words.toWords, 'function', 'toWords should be available')
+  t.is(typeof globalContext.n2words.en, 'function', 'en should be available')
 
   // Load Spanish second (should extend, not replace)
   const spanishCode = readFileSync(join(distDir, 'languages/es.js'), 'utf8')
@@ -217,9 +217,13 @@ test('individual bundles use extend mode (can be combined)', t => {
   const n2words = globalContext.n2words
 
   t.truthy(n2words, 'n2words global should still be defined')
-  // Note: Both bundles export toWords, so the second one overwrites the first
-  // This is expected behavior - individual bundles are meant for single-language use
-  t.is(typeof n2words.toWords, 'function', 'toWords should still be available')
+  // Both languages should be available - they export different functions (en, es)
+  t.is(typeof n2words.en, 'function', 'en should still be available after loading es')
+  t.is(typeof n2words.es, 'function', 'es should be available')
+
+  // Verify both work correctly
+  t.is(n2words.en(42), 'forty-two', 'en should convert correctly')
+  t.is(n2words.es(42), 'cuarenta y dos', 'es should convert correctly')
 })
 
 // =============================================================================
