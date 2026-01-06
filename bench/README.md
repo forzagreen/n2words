@@ -31,7 +31,7 @@ npm run bench:perf -- --compare
 
 - **Accurate Measurements**: Uses [benchmark.js](https://benchmarkjs.com/) for statistically rigorous performance testing
 - **Operations/Second**: Reports ops/sec with confidence intervals
-- **Historical Tracking**: Save results to `bench/perf-results.json` and compare over time
+- **Historical Tracking**: Save results to `bench/.results/perf-results.json` and compare over time
 - **Custom Test Values**: Test with different numbers using `--value`
 - **Per-Language Testing**: Focus on specific languages for targeted optimization
 
@@ -47,7 +47,7 @@ npm run bench:perf [options]
 | ------ | ----------- | ------- |
 | `--lang <code>` | Benchmark specific language(s) | `--lang en` or `--lang en,es,fr` |
 | `--value <number>` | Custom test value (default: `Number.MAX_SAFE_INTEGER`) | `--value 42` |
-| `--save` | Save results to `~/.n2words-bench/perf-results.json` | `--save` |
+| `--save` | Save results to `bench/.results/perf-results.json` | `--save` |
 | `--compare` | Compare with previous saved results (inline) | `--compare` |
 | `--history` | Show performance history (single language only) | `--history` |
 | `--help` | Display help message | `--help` |
@@ -111,7 +111,7 @@ es              │       24,165 │   ±2.40% │  (72 runs) │  ↑ +11.31%
 Fastest: es, en
 Range: 23,338 to 24,165 ops/sec (+3.5%)
 
-✓ Results saved to bench/perf-results.json
+✓ Results saved to bench/.results/perf-results.json
 ```
 
 **With --history:**
@@ -168,7 +168,7 @@ npm run bench:memory [options]
 | `--lang <code>` | Benchmark specific language(s) | `--lang en` or `--lang en,es,fr` |
 | `--value <number>` | Custom test value (default: `Number.MAX_SAFE_INTEGER`) | `--value 42` |
 | `--iterations <n>` | Number of iterations (default: 1000) | `--iterations 5000` |
-| `--save` | Save results to `bench/memory-results.json` | `--save` |
+| `--save` | Save results to `bench/.results/memory-results.json` | `--save` |
 | `--compare` | Compare with previous saved results (inline) | `--compare` |
 | `--history` | Show memory history (single language only) | `--history` |
 | `--help` | Display help message | `--help` |
@@ -233,7 +233,7 @@ es              │    451.66 KB │     462.50 B │        new
 Lowest memory: es
 Range: 451.66 KB to 707.91 KB (+56.7%)
 
-✓ Results saved to bench/memory-results.json
+✓ Results saved to bench/.results/memory-results.json
 ```
 
 **With --history:**
@@ -327,7 +327,7 @@ The memory benchmark prevents V8 optimizations that would make measurements inac
 
 ## Result Files
 
-### `bench/perf-results.json` (Performance)
+### `bench/.results/perf-results.json` (Performance)
 
 ```json
 {
@@ -348,7 +348,7 @@ The memory benchmark prevents V8 optimizations that would make measurements inac
 }
 ```
 
-### `bench/memory-results.json` (Memory)
+### `bench/.results/memory-results.json` (Memory)
 
 ```json
 {
@@ -446,4 +446,4 @@ To add new metrics to benchmarks:
 
 ---
 
-**Last Updated**: 2026-01-01
+**Last Updated**: 2026-01-05
