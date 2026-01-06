@@ -15,7 +15,7 @@ test-results/
 .playwright/
 
 # Benchmark results
-bench/*-results.json
+bench/.results/
 
 # Logs
 *.log

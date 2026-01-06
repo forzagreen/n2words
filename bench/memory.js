@@ -14,11 +14,12 @@
  */
 import { existsSync, writeFileSync, readFileSync, mkdirSync, readdirSync, renameSync } from 'node:fs'
 import chalk from 'chalk'
-import { join } from 'node:path'
-import { homedir } from 'node:os'
+import { join, dirname } from 'node:path'
+import { fileURLToPath } from 'node:url'
 
-// Store results in persistent location outside project
-const benchDir = join(homedir(), '.n2words-bench')
+// Store results in project directory (gitignored)
+const __dirname = dirname(fileURLToPath(import.meta.url))
+const benchDir = join(__dirname, '.results')
 if (!existsSync(benchDir)) {
   mkdirSync(benchDir, { recursive: true })
 }
@@ -283,7 +284,7 @@ if (saveResults) {
   const tempFile = resultsFile + '.tmp'
   writeFileSync(tempFile, JSON.stringify(historyData, null, 2))
   renameSync(tempFile, resultsFile)
-  console.log(chalk.blue('\n✓ Results saved to ~/.n2words-bench/memory-results.json'))
+  console.log(chalk.blue('\n✓ Results saved to bench/.results/memory-results.json'))
 }
 
 console.log() // Final newline
@@ -444,7 +445,7 @@ function displayHelp () {
   console.log('  ' + chalk.yellow('--lang') + ' <code>         Benchmark language(s) (e.g., en, fr, zh-Hans)')
   console.log('  ' + chalk.yellow('--value') + ' <number>      Test value to convert (default: Number.MAX_SAFE_INTEGER)')
   console.log('  ' + chalk.yellow('--iterations') + ' <number> Number of iterations (default: 1000)')
-  console.log('  ' + chalk.yellow('--save') + '                Save results to ~/.n2words-bench/memory-results.json')
+  console.log('  ' + chalk.yellow('--save') + '                Save results to bench/.results/memory-results.json')
   console.log('  ' + chalk.yellow('--compare') + '             Compare with previous saved results')
   console.log('  ' + chalk.yellow('--history') + '             Show memory history (single language only)')
   console.log('  ' + chalk.yellow('--help') + '                Display this help message\n')
