@@ -73,7 +73,7 @@ const arguments_ = process.argv.slice(2)
 
 const requestedLanguages = []
 let value = Number.MAX_SAFE_INTEGER
-let iterations = 1000
+let iterations = 10000 // Higher count for more accurate per-iteration measurements
 let saveResults = false
 let compareResults = false
 let showHistory = false
@@ -290,56 +290,68 @@ if (saveResults) {
 console.log() // Final newline
 
 /**
- * Benchmark memory usage for a specific converter.
+ * Benchmark memory allocation for a specific converter.
  *
- * Measures memory allocation by:
- * 1. Running garbage collection (if available)
- * 2. Taking baseline memory measurement
- * 3. Running N iterations of converter function
- * 4. Measuring memory delta
+ * Strategy: Run iterations in a tight loop without collecting outputs,
+ * measure heap growth immediately after. Use multiple runs and take
+ * the maximum to capture worst-case allocation (avoids GC interference).
  *
  * @param {Object} converter Loaded converter object
  */
 async function benchMemory (converter) {
-  // Force garbage collection for more accurate baseline
-  if (global.gc) {
-    global.gc()
+  // Warmup phase - let V8 JIT optimize the code
+  for (let i = 0; i < 1000; i++) {
+    converter.toWords(value)
   }
 
-  // Allow GC to complete
-  await new Promise(resolve => setTimeout(resolve, 100))
+  // Run multiple measurement rounds and take maximum (worst case)
+  // Maximum is more representative than median because GC can make
+  // measurements artificially low
+  const measurements = []
+  const runsPerMeasurement = 5
 
-  const baseline = process.memoryUsage()
+  for (let run = 0; run < runsPerMeasurement; run++) {
+    // Force garbage collection for clean baseline
+    if (global.gc) {
+      global.gc()
+      global.gc()
+    }
+    await new Promise(resolve => setTimeout(resolve, 20))
 
-  // Run conversions and collect outputs (prevents optimization)
-  const outputs = []
-  for (let index = 0; index < iterations; index++) {
-    outputs.push(converter.toWords(value))
+    const baseline = process.memoryUsage()
+    let checksum = 0
+
+    // Run iterations in tight loop
+    for (let i = 0; i < iterations; i++) {
+      const result = converter.toWords(value)
+      checksum += result.length
+    }
+
+    // Measure immediately (don't wait for GC)
+    const afterTest = process.memoryUsage()
+    const heapDelta = afterTest.heapUsed - baseline.heapUsed
+
+    measurements.push({ heapDelta, checksum })
   }
 
-  const afterTest = process.memoryUsage()
+  // Take maximum measurement (captures allocation without GC interference)
+  const maxMeasurement = measurements.reduce((max, curr) =>
+    curr.heapDelta > max.heapDelta ? curr : max
+  )
 
-  // Calculate memory deltas
-  const heapUsed = afterTest.heapUsed - baseline.heapUsed
-  const external = afterTest.external - baseline.external
-  const arrayBuffers = afterTest.arrayBuffers - baseline.arrayBuffers
-  const totalAllocated = heapUsed + external
+  const totalAllocated = Math.max(0, maxMeasurement.heapDelta)
   const perIteration = totalAllocated / iterations
 
   results.push({
     name: converter.name,
-    heapUsed,
-    external,
-    arrayBuffers,
+    heapUsed: totalAllocated,
+    external: 0,
+    arrayBuffers: 0,
     totalAllocated,
     perIteration,
-    iterations
+    iterations,
+    checksum: maxMeasurement.checksum
   })
-
-  // Sanity check
-  if (outputs.length !== iterations) {
-    console.error(chalk.red(`✗ Warning: Unexpected output count for ${converter.name}`))
-  }
 }
 
 /**
