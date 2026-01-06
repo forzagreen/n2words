@@ -113,8 +113,8 @@ Language codes follow [IETF BCP 47](https://tools.ietf.org/html/bcp47) standards
 | --------- | ------------------- | ------- | --------- | ------------------- | ------- |
 | `am`      | Amharic             |         | `am-Latn` | Amharic Latin       |         |
 | `ar`      | Arabic              | ✓       | `az`      | Azerbaijani         |         |
-| `bn`      | Bengali             |         | `cs`      | Czech               | ✓       |
-| `da`      | Danish              | ✓       | `de`      | German              |         |
+| `bn`      | Bengali             |         | `cs`      | Czech               |         |
+| `da`      | Danish              |         | `de`      | German              |         |
 | `el`      | Greek               |         | `en`      | English             |         |
 | `es`      | Spanish             | ✓       | `fa`      | Persian             |         |
 | `fi`      | Finnish             |         | `fil`     | Filipino            |         |
@@ -140,10 +140,10 @@ Language codes follow [IETF BCP 47](https://tools.ietf.org/html/bcp47) standards
 
 ### Language Options
 
-22 languages support additional options. Common options include:
+19 languages support additional options. Common options include:
 
-**`gender`** (`'masculine'` | `'feminine'`) - 13 languages
-Arabic, Biblical Hebrew, Croatian, Czech, Latvian, Lithuanian, Polish, Romanian, Russian, Serbian (both scripts), Spanish, Ukrainian
+**`gender`** (`'masculine'` | `'feminine'`) - 12 languages
+Arabic, Biblical Hebrew, Croatian, Latvian, Lithuanian, Polish, Romanian, Russian, Serbian (both scripts), Spanish, Ukrainian
 
 **`formal`** (`boolean`) - 2 languages
 Simplified Chinese, Traditional Chinese - Toggle between formal/financial and common numerals
@@ -151,10 +151,9 @@ Simplified Chinese, Traditional Chinese - Toggle between formal/financial and co
 **Other options:**
 
 - Dutch: `includeOptionalAnd`, `accentOne`, `noHundredPairing`
-- French/French Belgium: `withHyphenSeparator`
+- French/Belgian French: `withHyphenSeparator`
 - Hebrew (Modern & Biblical): `andWord`
 - Turkish: `dropSpaces`
-- Danish: `ordFlag` (ordinal numbers)
 - Arabic: `negativeWord` (custom negative word)
 
 ## Browser Compatibility
