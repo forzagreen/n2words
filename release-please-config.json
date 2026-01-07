@@ -22,6 +22,5 @@
       "changelog-path": "CHANGELOG.md",
       "package-name": "n2words"
     }
-  },
-  "bootstrap-sha": "2dc13a8"
+  }
 }
