@@ -1,6 +1,6 @@
 version: 2
 updates:
-  # Enable version updates for npm
+  # npm dependencies (all dev deps - zero-dependency library)
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
@@ -12,34 +12,18 @@ updates:
       - "dependencies"
       - "automated"
     commit-message:
+      # chore(deps-dev): bump X from Y to Z
       prefix: "chore"
       prefix-development: "chore"
       include: "scope"
     groups:
-      babel:
-        patterns:
-          - "@babel/*"
-      rollup:
-        patterns:
-          - "@rollup/*"
-          - "rollup"
-      playwright:
-        patterns:
-          - "@playwright/*"
-          - "playwright"
-      commitlint:
-        patterns:
-          - "@commitlint/*"
-      testing:
-        patterns:
-          - "ava"
-          - "c8"
-      linting:
-        patterns:
-          - "standard"
-          - "markdownlint*"
+      dev-dependencies:
+        dependency-type: "development"
+        update-types:
+          - "minor"
+          - "patch"
 
-  # Enable version updates for GitHub Actions
+  # GitHub Actions
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
@@ -52,5 +36,13 @@ updates:
       - "github-actions"
       - "automated"
     commit-message:
+      # ci(deps): bump actions/X from Y to Z
       prefix: "ci"
       include: "scope"
+    groups:
+      github-actions:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"

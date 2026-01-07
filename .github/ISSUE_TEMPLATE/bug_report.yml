@@ -33,7 +33,7 @@ body:
     id: version
     attributes:
       label: Version (optional)
-      placeholder: "e.g., 2.0.0 or 'latest'"
+      placeholder: "e.g., 'latest' or run: npm list n2words"
 
   - type: textarea
     id: additional

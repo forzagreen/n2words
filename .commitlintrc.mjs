@@ -1,34 +1,91 @@
-// Project scopes for commit messages
+/**
+ * Commitlint Configuration for n2words
+ *
+ * Optimized for semantic versioning and automated changelog generation.
+ * Compatible with conventional-changelog-angular preset.
+ *
+ * CHANGELOG-VISIBLE TYPES (appear in release notes):
+ *   feat     → "Features" section (MINOR version bump)
+ *   fix      → "Bug Fixes" section (PATCH version bump)
+ *   perf     → "Performance Improvements" section (PATCH version bump)
+ *
+ * INTERNAL TYPES (hidden from changelog):
+ *   build    → Build system, bundling, compilation
+ *   chore    → Maintenance, config, version bumps
+ *   ci       → CI/CD workflows and automation
+ *   docs     → Documentation only
+ *   refactor → Code restructuring without behavior change
+ *   revert   → Reverts a previous commit
+ *   style    → Formatting, whitespace, linting
+ *   test     → Adding or updating tests
+ *
+ * BREAKING CHANGES:
+ *   Append ! after type/scope: feat!: or feat(en)!:
+ *   Always triggers MAJOR version bump and appears in changelog
+ *
+ * SCOPE USAGE EXAMPLES:
+ *   feat(en): add ordinal support           # Single language feature
+ *   fix(fr-BE): correct septante handling   # Language-specific fix
+ *   perf(ja): optimize with BigInt modulo   # Language optimization
+ *   feat(lang): add 3 new languages         # Multiple languages
+ *   refactor(core): simplify exports        # Main entry point
+ *   build: update Rollup config             # Build system
+ *   chore(deps-dev): bump dev dependencies  # Dependabot
+ *   ci: add Node 22 to test matrix          # CI/CD changes
+ *   feat!: breaking API change              # Breaking without scope
+ *
+ * @see https://www.conventionalcommits.org/
+ * @see https://github.com/conventional-changelog/conventional-changelog
+ */
+
+// =============================================================================
+// Scope Configuration
+// =============================================================================
+
+/**
+ * Project area scopes - organized by category
+ */
 const PROJECT_SCOPES = [
-  'bench', // bench/* (benchmarking)
-  'build', // Build configuration
-  'ci', // CI/CD workflows
-  'core', // lib/n2words.js
-  'deps', // Dependencies
-  'docs', // Documentation
-  'lang', // lib/languages/* (general language work)
-  'release', // Release-related changes
-  'scripts', // scripts/*
-  'test', // Test files and fixtures
-  'types', // Type definitions and type tests
-  'utils' // lib/utils/*
+  // Code Areas
+  'core', // lib/n2words.js - main entry point
+  'lang', // lib/languages/* - general multi-language work
+  'utils', // lib/utils/* - shared utilities
+
+  // Build & Distribution
+  'build', // Rollup, Babel, UMD bundles, bundling pipeline
+  'types', // TypeScript declarations, JSDoc → .d.ts
+
+  // Dependencies (Dependabot scopes)
+  'deps', // Production dependencies (unused - zero-dep library)
+  'deps-dev', // Development dependencies
+
+  // Quality & Testing
+  'test', // Test infrastructure, AVA config
+  'bench', // Benchmarking (perf.js, memory.js)
+  'browser', // Playwright browser tests
+
+  // Infrastructure
+  'ci', // GitHub Actions workflows
+  'docs', // README, CONTRIBUTING, etc.
+  'release', // Version bumps, release preparation
+  'scripts' // scripts/* - contributor tooling
 ]
 
-// BCP 47 language code pattern (e.g., "en", "fr-BE", "zh-Hans", "sr-Latn")
+/**
+ * BCP 47 language code pattern
+ * Examples: en, fr-BE, zh-Hans, sr-Latn, pa-Guru
+ */
 const LANGUAGE_CODE_PATTERN = /^[a-z]{2,3}(-[A-Z][a-z]{3,4})?(-[A-Z]{2})?$/
 
 /**
  * Validates a scope value.
- * Supports: project scopes, single language codes, or comma-separated language codes.
+ * Accepts: project scopes, language codes, or comma-separated language codes.
  */
 function isValidScope (scope) {
-  // Check if it's a known project scope
   if (PROJECT_SCOPES.includes(scope)) return true
-
-  // Check if it's a valid BCP 47 language code
   if (LANGUAGE_CODE_PATTERN.test(scope)) return true
 
-  // Check if it's comma-separated language codes (e.g., "zh-Hans, zh-Hant")
+  // Support comma-separated language codes: "zh-Hans, zh-Hant"
   if (scope.includes(',')) {
     const codes = scope.split(',').map(s => s.trim())
     return codes.every(code => LANGUAGE_CODE_PATTERN.test(code))
@@ -37,23 +94,25 @@ function isValidScope (scope) {
   return false
 }
 
+// =============================================================================
+// Commitlint Configuration
+// =============================================================================
+
 export default {
   extends: ['@commitlint/config-conventional'],
-  helpUrl: 'https://github.com/forzagreen/n2words/blob/master/CONTRIBUTING.md#commit-message-format',
+  helpUrl: 'https://github.com/forzagreen/n2words/blob/main/CONTRIBUTING.md#commit-message-format',
 
   plugins: [
     {
       rules: {
-        // Custom scope validation: allows project scopes OR valid language codes
         'scope-pattern': ({ scope }) => {
-          // No scope is always valid (scope is optional)
-          if (!scope) return [true]
+          if (!scope) return [true] // Scope is optional
 
           if (isValidScope(scope)) return [true]
 
           return [
             false,
-            `scope must be a project area (${PROJECT_SCOPES.join(', ')}) or a valid language code (e.g., en, fr-BE)`
+            `Invalid scope "${scope}". Use a project area (${PROJECT_SCOPES.slice(0, 5).join(', ')}, ...) or language code (en, fr-BE, zh-Hans)`
           ]
         }
       }
@@ -61,33 +120,42 @@ export default {
   ],
 
   rules: {
-    // Type validation
+    // -------------------------------------------------------------------------
+    // Type Rules
+    // -------------------------------------------------------------------------
     'type-enum': [
       2,
       'always',
       [
-        'build',
-        'chore',
-        'ci',
-        'docs',
-        'feat',
-        'fix',
-        'perf',
-        'refactor',
-        'revert',
-        'style',
-        'test',
-        'lang'
+        // Changelog-visible (semantic version impact)
+        'feat', // New feature (MINOR)
+        'fix', // Bug fix (PATCH)
+        'perf', // Performance improvement (PATCH)
+
+        // Internal (no version impact, hidden from changelog)
+        'build', // Build system changes
+        'chore', // Maintenance tasks
+        'ci', // CI/CD changes
+        'docs', // Documentation
+        'refactor', // Code restructuring
+        'revert', // Revert previous commit
+        'style', // Formatting/whitespace
+        'test' // Test changes
       ]
     ],
     'type-case': [2, 'always', 'lower-case'],
     'type-empty': [2, 'never'],
 
-    // Custom scope validation (replaces scope-enum)
+    // -------------------------------------------------------------------------
+    // Scope Rules
+    // -------------------------------------------------------------------------
     'scope-pattern': [2, 'always'],
-    'scope-enum': [0], // Disable built-in scope-enum
+    'scope-enum': [0], // Disabled - using custom validation
+    'scope-case': [2, 'always', 'lower-case'],
 
-    // Subject validation
+    // -------------------------------------------------------------------------
+    // Subject Rules
+    // -------------------------------------------------------------------------
     'subject-empty': [2, 'never'],
     'subject-case': [
       2,
@@ -96,15 +164,17 @@ export default {
     ],
     'subject-full-stop': [2, 'never', '.'],
 
-    // Header validation
+    // -------------------------------------------------------------------------
+    // Header Rules
+    // -------------------------------------------------------------------------
     'header-max-length': [2, 'always', 100],
 
-    // Body validation
-    'body-leading-blank': [1, 'always'],
-    'body-max-line-length': [0], // Disabled - body can have long lines (URLs, etc.)
-
-    // Footer validation
-    'footer-leading-blank': [1, 'always'],
-    'footer-max-line-length': [0] // Disabled - footers often contain long URLs
+    // -------------------------------------------------------------------------
+    // Body & Footer Rules
+    // -------------------------------------------------------------------------
+    'body-leading-blank': [2, 'always'],
+    'body-max-line-length': [0], // Disabled - URLs can be long
+    'footer-leading-blank': [2, 'always'],
+    'footer-max-line-length': [0] // Disabled - URLs can be long
   }
 }

@@ -6,7 +6,8 @@ We actively support the following versions of n2words with security updates:
 
 | Version | Supported          | End of Life    |
 | ------- | ------------------ | -------------- |
-| 2.x     | :white_check_mark: | -              |
+| 3.x     | :white_check_mark: | -              |
+| 2.x     | :x:                | January 2026   |
 | < 2.0   | :x:                | January 2025   |
 
 ## Reporting a Vulnerability

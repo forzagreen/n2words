@@ -5,9 +5,8 @@ env:
   CI: true
 
 on:
-  push:
-    tags:
-      - v[0-9]*.[0-9]*.[0-9]*
+  release:
+    types: [published]
 
 concurrency:
   group: publish-${{ github.ref }}
@@ -17,161 +16,8 @@ permissions:
   contents: read
 
 jobs:
-  check-ci:
-    name: Check CI Status
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
-    permissions:
-      contents: read
-      actions: read
-    outputs:
-      ci-success: ${{ steps.check.outputs.success }}
-
-    steps:
-      - name: Wait for CI workflow to pass
-        uses: actions/github-script@v8
-        id: check
-        with:
-          script: |
-            const tagName = context.ref.replace('refs/tags/', '');
-            console.log(`Waiting for CI workflow to pass for tag: ${tagName}`);
-
-            // Resolve tag -> commit SHA (handles annotated and lightweight tags)
-            let tagRef;
-            try {
-              const response = await github.rest.git.getRef({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                ref: `tags/${tagName}`
-              });
-              tagRef = response.data;
-            } catch (error) {
-              core.setFailed(`Failed to resolve tag reference: ${error.message}`);
-              return;
-            }
-
-            let commitSha = tagRef.object.sha;
-            if (tagRef.object.type === 'tag') {
-              try {
-                const { data: annotatedTag } = await github.rest.git.getTag({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  tag_sha: tagRef.object.sha
-                });
-                commitSha = annotatedTag.object.sha;
-              } catch (error) {
-                core.setFailed(`Failed to resolve annotated tag: ${error.message}`);
-                return;
-              }
-            }
-
-            console.log(`Resolved commit SHA: ${commitSha}`);
-
-            // Get commit timestamp for time-window filtering
-            let commitInfo;
-            try {
-              const response = await github.rest.repos.getCommit({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                ref: commitSha
-              });
-              commitInfo = response.data;
-            } catch (error) {
-              core.setFailed(`Failed to get commit info: ${error.message}`);
-              return;
-            }
-            const dateStr = commitInfo.commit.author?.date || commitInfo.commit.committer?.date;
-            if (!dateStr) {
-              core.setFailed('Could not determine commit date');
-              return;
-            }
-            const commitDate = new Date(dateStr);
-            const windowHours = 24;
-            const fromTs = new Date(commitDate.getTime() - windowHours * 3600 * 1000);
-            const toTs = new Date(commitDate.getTime() + windowHours * 3600 * 1000);
-            console.log(`Commit date: ${commitDate.toISOString()}`);
-            console.log(`Accepting runs between ${fromTs.toISOString()} and ${toTs.toISOString()}`);
-
-            // Poll for CI workflow run (max 30 minutes)
-            const maxAttempts = 60;
-            const delayMs = 30000; // 30s
-            const allowedEvents = new Set(['push', 'workflow_dispatch']);
-
-            for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-              console.log(`\nAttempt ${attempt}/${maxAttempts}: checking for CI workflow run...`);
-
-              let runs;
-              try {
-                const response = await github.rest.actions.listWorkflowRuns({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  workflow_id: 'ci.yml',
-                  head_sha: commitSha,
-                  per_page: 10
-                });
-                runs = response.data;
-              } catch (error) {
-                console.log(`Warning: API call failed (${error.message}), retrying...`);
-                if (attempt < maxAttempts) {
-                  await new Promise(resolve => setTimeout(resolve, delayMs));
-                }
-                continue;
-              }
-
-              if (runs.total_count > 0) {
-                console.log(`Found ${runs.total_count} CI workflow run(s) for commit ${commitSha.slice(0, 7)}`);
-
-                // Filter by event type and time window
-                const validRuns = runs.workflow_runs.filter(r => {
-                  if (!allowedEvents.has(r.event)) {
-                    console.log(`  Run ${r.id}: skipping (event=${r.event})`);
-                    return false;
-                  }
-                  const created = new Date(r.created_at);
-                  if (created < fromTs || created > toTs) {
-                    console.log(`  Run ${r.id}: skipping (outside time window)`);
-                    return false;
-                  }
-                  return true;
-                });
-
-                if (validRuns.length === 0) {
-                  console.log('No valid CI runs found (filtered by event/time window)');
-                } else {
-                  // Sort by creation date (newest first) and check the most recent valid run
-                  validRuns.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-                  const run = validRuns[0];
-                  console.log(`  Run ${run.id}: status=${run.status}, conclusion=${run.conclusion}, event=${run.event}`);
-                  console.log(`  URL: ${run.html_url}`);
-
-                  if (run.status === 'completed') {
-                    if (run.conclusion === 'success') {
-                      console.log('✅ CI workflow passed. Proceeding with publish.');
-                      core.setOutput('success', 'true');
-                      return;
-                    }
-                    core.setFailed(`❌ CI workflow failed (conclusion=${run.conclusion}). See: ${run.html_url}`);
-                    return;
-                  }
-
-                  console.log(`  Workflow still ${run.status}...`);
-                }
-              } else {
-                console.log(`No CI workflow runs found for commit ${commitSha.slice(0, 7)} yet.`);
-              }
-
-              if (attempt < maxAttempts) {
-                console.log(`Waiting ${delayMs/1000}s before next check...`);
-                await new Promise(resolve => setTimeout(resolve, delayMs));
-              }
-            }
-
-            core.setFailed('⏱️ Timeout: CI workflow did not complete within 30 minutes');
-
   publish:
     name: Publish to npm
-    needs: check-ci
-    if: needs.check-ci.outputs.ci-success == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
@@ -190,27 +36,6 @@ jobs:
           registry-url: 'https://registry.npmjs.org'
           cache: 'npm'
 
-      - name: Validate version matches tag
-        id: version
-        run: |
-          PKG_VERSION="v$(node -p "require('./package.json').version")"
-          TAG_VERSION="${GITHUB_REF#refs/tags/}"
-          if [ "$PKG_VERSION" != "$TAG_VERSION" ]; then
-            echo "❌ Error: package.json version ($PKG_VERSION) does not match tag ($TAG_VERSION)"
-            exit 1
-          fi
-          echo "✅ Version validated: $PKG_VERSION"
-          echo "version=$PKG_VERSION" >> $GITHUB_OUTPUT
-
-      - name: Verify git tag signature
-        run: |
-          if git tag -v "${GITHUB_REF#refs/tags/}" 2>/dev/null; then
-            echo "✅ Tag is signed"
-          else
-            echo "⚠️ Warning: Tag is not signed (consider signing release tags)"
-          fi
-        continue-on-error: true
-
       - name: Install dependencies
         run: npm ci --prefer-offline
 
@@ -222,28 +47,19 @@ jobs:
 
       - name: Verify build artifacts
         run: |
-          echo "📦 Checking build artifacts..."
+          echo "Checking build artifacts..."
           ls -lh dist/
           echo ""
-          echo "📋 Type declarations:"
+          echo "Type declarations:"
           find lib -name "*.d.ts" -type f
 
       - name: Dry-run publish
         run: npm publish --dry-run
 
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v6
-        with:
-          name: dist-${{ github.ref_name }}
-          path: |
-            dist/
-            lib/**/*.d.ts
-          retention-days: 90
-
       - name: Publish to npm with provenance
         id: publish
         run: |
-          echo "📤 Publishing to npm with trusted publishing (OIDC)..."
+          echo "Publishing to npm with trusted publishing (OIDC)..."
           echo "npm version: $(npm --version)"
           npm publish --provenance
           echo "published=true" >> $GITHUB_OUTPUT
@@ -253,16 +69,15 @@ jobs:
         run: |
           PKG_NAME=$(node -p "require('./package.json').name")
           PKG_VERSION=$(node -p "require('./package.json').version")
-          echo "🔍 Verifying publication..."
-          sleep 5  # Wait for npm registry to update
-          npm view "$PKG_NAME@$PKG_VERSION" version || echo "⚠️ Package not yet available (may take a few minutes)"
+          echo "Verifying publication..."
+          sleep 5
+          npm view "$PKG_NAME@$PKG_VERSION" version || echo "Package not yet available (may take a few minutes)"
 
-      - name: Create GitHub Release
-        id: release
+      - name: Upload build artifacts to release
         uses: softprops/action-gh-release@v2
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          generate_release_notes: true
+          tag_name: ${{ github.event.release.tag_name }}
           files: |
             dist/*.js
             dist/*.js.map
@@ -270,22 +85,22 @@ jobs:
       - name: Generate job summary
         if: always()
         run: |
-          echo "## 📦 Publish Summary" >> $GITHUB_STEP_SUMMARY
+          PKG_VERSION=$(node -p "require('./package.json').version")
+          echo "## Publish Summary" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "| Item | Value |" >> $GITHUB_STEP_SUMMARY
           echo "|------|-------|" >> $GITHUB_STEP_SUMMARY
-          echo "| **Version** | ${{ steps.version.outputs.version }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| **Tag** | \`${GITHUB_REF#refs/tags/}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Version** | v${PKG_VERSION} |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Tag** | \`${{ github.event.release.tag_name }}\` |" >> $GITHUB_STEP_SUMMARY
           echo "| **Commit** | \`${GITHUB_SHA::7}\` |" >> $GITHUB_STEP_SUMMARY
-          echo "| **Published** | ${{ steps.publish.outputs.published == 'true' && '✅ Yes' || '❌ No' }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| **Release** | ${{ steps.release.outputs.url || 'N/A' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Published** | ${{ steps.publish.outputs.published == 'true' && 'Yes' || 'No' }} |" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
 
           if [ "${{ steps.publish.outputs.published }}" == "true" ]; then
             PKG_NAME=$(node -p "require('./package.json').name")
-            echo "### 📋 Package Links" >> $GITHUB_STEP_SUMMARY
+            echo "### Package Links" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
-            echo "- **npm**: https://www.npmjs.com/package/$PKG_NAME/v/${{ steps.version.outputs.version }}" >> $GITHUB_STEP_SUMMARY
-            echo "- **unpkg**: https://unpkg.com/$PKG_NAME@${{ steps.version.outputs.version }}/" >> $GITHUB_STEP_SUMMARY
-            echo "- **jsDelivr**: https://cdn.jsdelivr.net/npm/$PKG_NAME@${{ steps.version.outputs.version }}/" >> $GITHUB_STEP_SUMMARY
+            echo "- **npm**: https://www.npmjs.com/package/$PKG_NAME/v/${PKG_VERSION}" >> $GITHUB_STEP_SUMMARY
+            echo "- **unpkg**: https://unpkg.com/$PKG_NAME@${PKG_VERSION}/" >> $GITHUB_STEP_SUMMARY
+            echo "- **jsDelivr**: https://cdn.jsdelivr.net/npm/$PKG_NAME@${PKG_VERSION}/" >> $GITHUB_STEP_SUMMARY
           fi
