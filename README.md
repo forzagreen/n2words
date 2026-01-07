@@ -12,29 +12,11 @@
 
 ## Why n2words?
 
-- **Maximum Language Coverage** — 52 languages including European, Asian, Middle Eastern, and regional variants
-- **Zero Dependencies** — Pure JavaScript with no external runtime dependencies
-- **Universal Compatibility** — Works in Node.js, browsers (via CDN), and all modern bundlers
+- **52 Languages** — European, Asian, Middle Eastern, and regional variants
+- **Zero Dependencies** — Pure JavaScript, works everywhere (Node.js, browsers, bundlers)
 - **Type-Safe** — Full TypeScript support with generated `.d.ts` declarations
-- **Production Ready** — Comprehensive test coverage (unit, integration, browser, type checking)
 - **BigInt Support** — Handle arbitrarily large numbers without precision loss
-- **Flexible Input** — Accepts `number`, `bigint`, or `string` inputs
-- **High Performance** — 1M+ ops/sec with sub-microsecond latency via precomputed lookup tables
-- **Minimal Footprint** — ~1.4 KB gzipped per language via subpath exports
-- **Browser Tested** — Verified in Chromium, Firefox, and WebKit via automated tests
-
-## Contents
-
-- [Quick Start](#quick-start)
-- [Usage](#usage) — ESM, CommonJS, Browser (UMD)
-- [Type Safety](#type-safety) — TypeScript support
-- [Supported Languages](#supported-languages-52) — 52 languages with options
-- [Browser Compatibility](#browser-compatibility) — Chrome 67+, Firefox 68+, Safari 14+, Edge 79+
-- [Performance & Bundle Size](#performance--bundle-size) — Tree-shaking and benchmarks
-- [Examples](#examples) — Basic, gender agreement, language-specific features
-- [Documentation](#documentation) — Guides and API reference
-- [Contributing](#contributing) — How to contribute
-- [License](#license)
+- **High Performance** — 1M+ ops/sec, ~1.4 KB gzipped per language
 
 ## Quick Start
 
@@ -103,27 +85,6 @@ import('n2words/en').then(({ toWords }) => {
   n2words.es(42)   // 'cuarenta y dos'
 </script>
 ```
-
-## Type Safety
-
-Full TypeScript support via JSDoc annotations and generated type definitions - works in both JavaScript and TypeScript projects with IntelliSense and type checking:
-
-```typescript
-import { en, ar, zhHans } from 'n2words'
-
-// All converters accept: number | bigint | string
-en(42)       // ✓ number → 'forty-two'
-en('123')    // ✓ string → 'one hundred and twenty-three'
-en(100n)     // ✓ BigInt → 'one hundred'
-
-// Language-specific options with type checking
-ar(1, { gender: 'feminine' })  // ✓ 'واحدة' (feminine form)
-zhHans(123, { formal: false }) // ✓ '一百二十三' (common style)
-```
-
-**Type Definitions:**
-
-n2words includes TypeScript declaration files (`.d.ts`) generated from JSDoc annotations. No separate `@types` package needed.
 
 ## Supported Languages (52)
 
@@ -240,86 +201,27 @@ npm run bench:memory  # Memory usage benchmarks
 
 ## Examples
 
-### Basic Conversions
-
 ```js
-import { en } from 'n2words'
+import { en, es, ar, zhHans } from 'n2words'
 
-// Basic numbers
-en(0)        // 'zero'
-en(42)       // 'forty-two'
-en(1000000)  // 'one million'
+// Basic conversions
+en(42)           // 'forty-two'
+en(3.14)         // 'three point one four'
+en(-1000000)     // 'minus one million'
 
-// Decimals & negatives
-en(3.14)     // 'three point one four'
-en(-42)      // 'minus forty-two'
+// Input types: number, string, or BigInt
+en('42')         // 'forty-two'
+en(42n)          // 'forty-two'
+en(999999999999999999999999n)  // Works with arbitrarily large integers
 
-// Large numbers & BigInt
-en(1234567890)        // 'one billion...'
-en(123456789012345n)  // Works with arbitrarily large integers
-```
-
-### Gender Agreement
-
-```js
-import { es, ar, ru } from 'n2words'
-
-// Spanish: masculine vs feminine
-es(1)                       // 'uno' (masculine, default)
+// Gender agreement (12 languages)
+es(1)                          // 'uno' (masculine, default)
 es(1, { gender: 'feminine' })  // 'una'
-es(21)                      // 'veintiuno'
-es(21, { gender: 'feminine' }) // 'veintiuna'
-
-// Arabic: rich gender system
-ar(1)                       // 'واحد' (masculine, default)
 ar(1, { gender: 'feminine' })  // 'واحدة'
 
-// Russian: gender for numerals
-ru(1)                       // 'один' (masculine, default)
-ru(1, { gender: 'feminine' })  // 'одна'
-```
-
-### Language-Specific Features
-
-```js
-import { zhHans, zhHant, ja, nl, fr } from 'n2words'
-
 // Chinese: formal (financial) vs common numerals
-zhHans(123)                  // '壹佰贰拾叁' (formal, default)
+zhHans(123)                    // '壹佰贰拾叁' (formal, default)
 zhHans(123, { formal: false }) // '一百二十三' (common)
-
-zhHant(456)                  // '肆佰伍拾陸' (formal, default)
-zhHant(456, { formal: false }) // '四百五十六' (common)
-
-// Japanese: digit-by-digit decimals
-ja(3.14)  // '三点一四'
-
-// Dutch: flexible formatting
-nl(123)                              // 'honderddrieëntwintig'
-nl(101, { includeOptionalAnd: true }) // 'honderdeneen'
-nl(1, { accentOne: false })          // 'een' (unaccented)
-
-// French: hyphen options
-fr(123)                              // 'cent vingt-trois'
-fr(123, { withHyphenSeparator: true }) // 'cent-vingt-trois'
-```
-
-### Input Flexibility
-
-```js
-import { en } from 'n2words'
-
-// Multiple input types
-en(42)      // number → 'forty-two'
-en('42')    // string → 'forty-two'
-en(42n)     // BigInt → 'forty-two'
-
-// Decimal and negative strings
-en('3.14')  // 'three point one four'
-en('-42')   // 'minus forty-two'
-
-// Large BigInts (no precision loss)
-en(999999999999999999999999n)  // Accurate conversion
 ```
 
 ## Documentation

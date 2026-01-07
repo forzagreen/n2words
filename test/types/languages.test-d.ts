@@ -1,7 +1,7 @@
 /**
  * Type tests for n2words subpath imports
  *
- * Comprehensive tests for all 52 language imports including:
+ * Comprehensive tests for all language imports including:
  * - Basic return types for all languages
  * - Input type acceptance (number, string, bigint)
  * - Invalid input rejection
@@ -14,7 +14,7 @@
 import { expectType, expectError } from 'tsd'
 
 // ============================================================================
-// All 52 subpath imports (alphabetical order)
+// All subpath imports (alphabetical order)
 // ============================================================================
 
 import { toWords as am } from '../../lib/languages/am.js'
@@ -71,7 +71,7 @@ import { toWords as zhHans } from '../../lib/languages/zh-Hans.js'
 import { toWords as zhHant } from '../../lib/languages/zh-Hant.js'
 
 // ============================================================================
-// Basic return type - all 52 languages return string
+// Basic return type - all languages return string
 // ============================================================================
 
 expectType<string>(am(1))
