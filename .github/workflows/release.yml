@@ -43,6 +43,7 @@ jobs:
     timeout-minutes: 10
     needs: [release-please]
     if: ${{ needs.release-please.outputs.release_created == 'true' }}
+    environment: npm
     permissions:
       contents: write
       id-token: write
