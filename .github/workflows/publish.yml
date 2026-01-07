@@ -80,20 +80,20 @@ jobs:
           sleep 5
           npm view "$PKG_NAME@$PKG_VERSION" version || echo "Package not yet available (may take a few minutes)"
 
-      - name: Create language bundles archive
+      - name: Create release archive
         run: |
-          cd dist
-          zip -r languages.zip languages/
+          PKG_VERSION=$(node -p "require('./package.json').version")
+          mkdir -p n2words-${PKG_VERSION}
+          cp dist/n2words.js dist/n2words.js.map n2words-${PKG_VERSION}/
+          cp -r dist/languages n2words-${PKG_VERSION}/
+          zip -r n2words-${PKG_VERSION}.zip n2words-${PKG_VERSION}/
 
       - name: Upload build artifacts to release
         uses: softprops/action-gh-release@v2
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           tag_name: ${{ inputs.tag || github.event.release.tag_name }}
-          files: |
-            dist/n2words.js
-            dist/n2words.js.map
-            dist/languages.zip
+          files: n2words-*.zip
 
       - name: Generate job summary
         if: always()
