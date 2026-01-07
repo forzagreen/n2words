@@ -1,31 +1,48 @@
-name: Publish
+name: Release
 
 env:
   HUSKY: 0
   CI: true
 
 on:
-  release:
-    types: [published]
-  workflow_dispatch:
-    inputs:
-      tag:
-        description: 'Release tag to publish (e.g., v3.0.0)'
-        required: true
-        type: string
+  push:
+    branches:
+      - main
 
 concurrency:
-  group: publish-${{ github.ref }}
+  group: release-${{ github.ref }}
   cancel-in-progress: false
 
 permissions:
   contents: read
 
 jobs:
+  release-please:
+    name: Release Please
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+      pull-requests: write
+    outputs:
+      release_created: ${{ steps.release.outputs.release_created }}
+      tag_name: ${{ steps.release.outputs.tag_name }}
+
+    steps:
+      - name: Run Release Please
+        id: release
+        uses: googleapis/release-please-action@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
+
   publish:
     name: Publish to npm
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    needs: [release-please]
+    if: ${{ needs.release-please.outputs.release_created == 'true' }}
     permissions:
       contents: write
       id-token: write
@@ -33,7 +50,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
         with:
-          ref: ${{ inputs.tag || github.ref }}
+          ref: ${{ needs.release-please.outputs.tag_name }}
           persist-credentials: false
 
       - name: Setup Node.js
@@ -65,6 +82,8 @@ jobs:
 
       - name: Publish to npm with provenance
         id: publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
           echo "Publishing to npm with trusted publishing (OIDC)..."
           echo "npm version: $(npm --version)"
@@ -92,19 +111,20 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          tag_name: ${{ inputs.tag || github.event.release.tag_name }}
+          tag_name: ${{ needs.release-please.outputs.tag_name }}
           files: n2words-*.zip
 
       - name: Generate job summary
         if: always()
         run: |
           PKG_VERSION=$(node -p "require('./package.json').version")
+          TAG="${{ needs.release-please.outputs.tag_name }}"
           echo "## Publish Summary" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "| Item | Value |" >> $GITHUB_STEP_SUMMARY
           echo "|------|-------|" >> $GITHUB_STEP_SUMMARY
           echo "| **Version** | v${PKG_VERSION} |" >> $GITHUB_STEP_SUMMARY
-          echo "| **Tag** | \`${{ inputs.tag || github.event.release.tag_name }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Tag** | \`${TAG}\` |" >> $GITHUB_STEP_SUMMARY
           echo "| **Commit** | \`${GITHUB_SHA::7}\` |" >> $GITHUB_STEP_SUMMARY
           echo "| **Published** | ${{ steps.publish.outputs.published == 'true' && 'Yes' || 'No' }} |" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
