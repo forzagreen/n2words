@@ -1,60 +1,32 @@
 name: PR Title
 
 on:
-  pull_request_target:
-    types: [opened, edited, reopened, synchronize]
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
   cancel-in-progress: true
 
 permissions:
+  contents: read
   pull-requests: read
 
 jobs:
-  validate-title:
+  validate:
     name: Validate PR Title
     runs-on: ubuntu-latest
     timeout-minutes: 5
 
     steps:
-      - uses: amannn/action-semantic-pull-request@v6
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/checkout@v6
         with:
-          types: |
-            feat
-            fix
-            docs
-            style
-            refactor
-            perf
-            test
-            build
-            ci
-            chore
-            revert
-            lang
-          scopes: |
-            deps
-            ci
-            docs
-            test
-            build
-            lang
-            core
-            types
-          requireScope: false
-          subjectPattern: ^[a-z].+$
-          subjectPatternError: |
-            The subject "{subject}" found in the pull request title "{title}"
-            didn't match the configured pattern. Please ensure that the subject
-            starts with a lowercase letter.
+          persist-credentials: false
 
-            Examples:
-              ✓ feat: add new language support
-              ✓ fix(core): handle edge case in AbstractLanguage
-              ✓ docs: update README with examples
-
-              ✗ feat: Add new language (subject should start with lowercase)
-              ✗ added feature (missing type prefix)
+      - uses: wagoid/commitlint-github-action@v6
+        with:
+          configFile: .commitlintrc.mjs
+          failOnErrors: true
+          # Only validate PR title, skip commit validation
+          commitDepth: 0
+          helpURL: https://github.com/forzagreen/n2words/blob/main/CONTRIBUTING.md#commit-message-format

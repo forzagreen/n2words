@@ -2,7 +2,7 @@ name: Commitlint
 
 on:
   pull_request:
-    types: [opened, synchronize, reopened, edited]
+    types: [opened, synchronize, reopened]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
@@ -14,7 +14,7 @@ permissions:
 
 jobs:
   commitlint:
-    name: Validate Commit Messages
+    name: Validate Commits
     runs-on: ubuntu-latest
     timeout-minutes: 5
 
@@ -29,3 +29,4 @@ jobs:
           configFile: .commitlintrc.mjs
           failOnWarnings: false
           failOnErrors: true
+          helpURL: https://github.com/forzagreen/n2words/blob/main/CONTRIBUTING.md#commit-message-format
