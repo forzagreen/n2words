@@ -10,6 +10,6 @@ export default {
   // Lint all markdown files in the project
   globs: ['**/*.md'],
 
-  // Ignore dependencies
-  ignores: ['node_modules']
+  // Ignore dependencies and auto-generated files
+  ignores: ['node_modules', 'CHANGELOG.md']
 }
