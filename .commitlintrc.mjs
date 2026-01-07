@@ -55,8 +55,9 @@ const PROJECT_SCOPES = [
   'build', // Rollup, Babel, UMD bundles, bundling pipeline
   'types', // TypeScript declarations, JSDoc → .d.ts
 
-  // Dependencies (zero-dependency library, only dev deps)
-  'deps-dev', // Development dependencies (Dependabot)
+  // Dependencies (Dependabot scopes)
+  'deps', // Production dependencies (unused - zero-dep library)
+  'deps-dev', // Development dependencies
 
   // Quality & Testing
   'test', // Test infrastructure, AVA config
