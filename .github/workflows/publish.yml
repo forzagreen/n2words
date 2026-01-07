@@ -73,14 +73,20 @@ jobs:
           sleep 5
           npm view "$PKG_NAME@$PKG_VERSION" version || echo "Package not yet available (may take a few minutes)"
 
+      - name: Create language bundles archive
+        run: |
+          cd dist
+          zip -r languages.zip languages/
+
       - name: Upload build artifacts to release
         uses: softprops/action-gh-release@v2
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           tag_name: ${{ github.event.release.tag_name }}
           files: |
-            dist/*.js
-            dist/*.js.map
+            dist/n2words.js
+            dist/n2words.js.map
+            dist/languages.zip
 
       - name: Generate job summary
         if: always()
