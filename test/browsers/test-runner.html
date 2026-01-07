@@ -155,13 +155,13 @@
         return typeof window.n2words === 'object' && window.n2words !== null
       })
 
-      test('All converters are exported as functions', () => {
-        const exports = Object.keys(window.n2words)
-        if (exports.length === 0) return false
+      test('All converters are functions keyed by normalized BCP 47 code', () => {
+        const n2words = window.n2words
+        const keys = Object.keys(n2words)
+        if (keys.length === 0) return false
 
-        for (const name of exports) {
-          if (!name.endsWith('Converter')) return false
-          if (typeof window.n2words[name] !== 'function') return false
+        for (const name of keys) {
+          if (typeof n2words[name] !== 'function') return false
         }
         return true
       })
@@ -171,8 +171,18 @@
         return count >= 40 // Sanity check: at least 40 languages
       })
 
-      test('Sample converter returns string', () => {
-        const result = window.n2words.EnglishConverter(42)
+      test('Sample converter (en) returns string', () => {
+        const result = window.n2words.en(42)
+        return typeof result === 'string' && result.length > 0
+      })
+
+      test('Normalized code (zhHans) works', () => {
+        const result = window.n2words.zhHans(42)
+        return typeof result === 'string' && result.length > 0
+      })
+
+      test('Normalized code (frBE) works', () => {
+        const result = window.n2words.frBE(42)
         return typeof result === 'string' && result.length > 0
       })
 
@@ -211,10 +221,10 @@
 
       // Update status
       if (failCount === 0) {
-        status.textContent = `✅ Complete: All tests passed (${passCount}/${totalTests})`
+        status.textContent = `Complete: All tests passed (${passCount}/${totalTests})`
         status.className = 'pass'
       } else {
-        status.textContent = `❌ Complete: ${failCount} test(s) failed (${passCount}/${totalTests} passed)`
+        status.textContent = `Complete: ${failCount} test(s) failed (${passCount}/${totalTests} passed)`
         status.className = 'fail'
       }
     }

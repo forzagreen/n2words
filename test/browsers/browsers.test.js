@@ -33,7 +33,7 @@ test.describe('Browser Compatibility', () => {
 })
 
 /**
- * Test that UMD bundle loads and exports converters in browser
+ * Test that UMD bundle loads and exports converters directly (e.g., n2words.en)
  * @param {import('@playwright/test').Page} page Playwright page object
  */
 async function testBrowserLoadsBundle (page) {
@@ -58,9 +58,12 @@ async function testBrowserLoadsBundle (page) {
   expect(statusText).toContain('All tests passed')
   expect(failCount).toBe(0)
 
-  // Verify n2words global exists
-  const n2wordsLoaded = await page.evaluate(() => {
-    return typeof window.n2words === 'object' && window.n2words !== null
+  // Verify n2words exports converters directly (e.g., n2words.en)
+  const convertersLoaded = await page.evaluate(() => {
+    return typeof window.n2words === 'object' &&
+           window.n2words !== null &&
+           typeof window.n2words.en === 'function' &&
+           typeof window.n2words.zhHans === 'function'
   })
-  expect(n2wordsLoaded).toBe(true)
+  expect(convertersLoaded).toBe(true)
 }

@@ -1,6 +1,6 @@
 {
   "name": "n2words",
-  "version": "2.0.0",
+  "version": "3.0.0",
   "description": "Convert numbers to words in 52 languages with zero dependencies. Supports BigInt, decimals, and browser/Node.js environments.",
   "keywords": [
     "number-to-words",
@@ -15,7 +15,7 @@
     "internationalization",
     "localization",
     "multilingual",
-    "51-languages",
+    "52-languages",
     "bigint",
     "esm",
     "typescript",
@@ -48,6 +48,11 @@
       "types": "./lib/n2words.d.ts",
       "import": "./lib/n2words.js",
       "default": "./lib/n2words.js"
+    },
+    "./*": {
+      "types": "./lib/languages/*.d.ts",
+      "import": "./lib/languages/*.js",
+      "default": "./lib/languages/*.js"
     },
     "./package.json": "./package.json"
   },
@@ -96,7 +101,6 @@
     "lang:add": "node scripts/add-language.js",
     "bench:perf": "node bench/perf.js",
     "bench:memory": "node --expose-gc bench/memory.js",
-    "compat:node": "es-check es2022 lib/**/*.js --module",
     "compat:umd": "es-check checkBrowser dist/**/*.js",
     "browserslist": "browserslist",
     "browserslist:coverage": "browserslist --coverage",
@@ -108,9 +112,9 @@
       "cjs"
     ],
     "files": [
-      "test/unit/**/*",
-      "test/integration/*",
-      "test/umd/*"
+      "test/unit/**/*.test.js",
+      "test/integration/*.test.js",
+      "test/umd/*.test.js"
     ],
     "timeout": "30s",
     "concurrency": 8,
@@ -125,6 +129,9 @@
     "all": true,
     "include": [
       "lib/"
+    ],
+    "exclude": [
+      "lib/**/*.d.ts"
     ],
     "reporter": [
       "lcov",
@@ -151,6 +158,7 @@
     "@rollup/plugin-babel": "^6.1.0",
     "@rollup/plugin-node-resolve": "^16.0.3",
     "@rollup/plugin-terser": "^0.4.4",
+    "@rollup/plugin-virtual": "3.0.2",
     "ava": "^6.4.1",
     "benchmark": "^2.1.4",
     "browserslist": "^4.28.1",

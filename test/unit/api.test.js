@@ -1,22 +1,11 @@
 import test from 'ava'
 import { readFileSync } from 'node:fs'
 import * as n2words from '../../lib/n2words.js'
-import { getClassName, getConverterName } from '../utils/language-naming.js'
-import { getClassNameFromFile, getLanguageCodes, getLanguagesWithOptions } from '../utils/language-helpers.js'
+import { getLanguageCodes, normalizeCode } from '../utils/language-helpers.js'
 
 /**
- * Unit Tests for n2words.js (Public API Module Structure)
- *
- * Tests the lib/n2words.js module structure and makeConverter() behavior:
- * - Module structure (imports, exports, alphabetical ordering)
- * - Type annotations (typedefs, converter type hints)
- * - Options validation (plain object or undefined only)
- * - Converter behavior (stateless)
- *
- * Note: These tests focus on API module structure only.
- * - Input parsing/validation → utils/parse-numeric.test.js
- * - Base class behavior → classes/*.test.js
- * - Language implementation validation → integration/languages.test.js
+ * Unit Tests for n2words.js module structure.
+ * Converter behavior is tested in integration/languages.test.js.
  */
 
 const n2wordsContent = readFileSync('./lib/n2words.js', 'utf8')
@@ -25,198 +14,43 @@ const n2wordsContent = readFileSync('./lib/n2words.js', 'utf8')
 // Module Structure
 // ============================================================================
 
-test('all exports are converter functions', t => {
-  const exports = Object.keys(n2words)
+test('exports match language files exactly', t => {
+  const languageCodes = getLanguageCodes()
+  const exportedNames = Object.keys(n2words)
+  const expectedNames = languageCodes.map(normalizeCode).sort()
 
-  t.true(exports.length > 0, 'Should have exports')
-
-  for (const name of exports) {
-    t.true(name.endsWith('Converter'), `Export "${name}" should end with "Converter"`)
-    t.is(typeof n2words[name], 'function', `${name} should be a function`)
-  }
+  t.deepEqual(exportedNames.sort(), expectedNames, 'Exports should match language files exactly')
 })
 
-test('converter count matches language file count', t => {
-  const languageCount = getLanguageCodes().length
-  const exportCount = Object.keys(n2words).length
-
-  t.is(exportCount, languageCount, `Should have ${languageCount} converters for ${languageCount} languages`)
-})
-
-test('all language classes are imported', t => {
+test('all language files are imported', t => {
   const codes = getLanguageCodes()
 
   const missingImports = []
   for (const code of codes) {
-    const className = getClassName(code) || getClassNameFromFile(code)
-    const importPattern = new RegExp(`import\\s*\\{\\s*${className}\\s*\\}\\s*from\\s*['"]\\./languages/${code}\\.js['"]`)
+    const importPattern = new RegExp(`from\\s*['"]\\./languages/${code}\\.js['"]`)
     if (!importPattern.test(n2wordsContent)) {
-      missingImports.push(`${className} (${code})`)
+      missingImports.push(code)
     }
   }
 
   t.deepEqual(missingImports, [], `Missing imports: ${missingImports.join(', ')}`)
 })
 
-test('language imports are alphabetically ordered', t => {
-  const importSection = n2wordsContent.match(/\/\/ Language Imports[\s\S]*?(?=\/\/ ===)/)?.[0]
-  if (!importSection) {
-    t.fail('No Language Imports section found')
-    return
-  }
-
-  const imports = [...importSection.matchAll(/import\s+{\s*(\w+)\s*}/g)].map(m => m[1])
+test('imports are alphabetically ordered by normalized name', t => {
+  // Extract normalized import names (e.g., 'as zhHans')
+  const imports = [...n2wordsContent.matchAll(/as\s+(\w+)\s*\}\s*from\s*['"]\.\/languages\//g)].map(m => m[1])
   const sorted = [...imports].sort((a, b) => a.localeCompare(b))
-  t.deepEqual(imports, sorted, 'Language imports should be alphabetically ordered')
+  t.deepEqual(imports, sorted, 'Imports should be alphabetically ordered by normalized name')
 })
 
-test('all language converters are exported', t => {
-  const codes = getLanguageCodes()
-  const exportSection = n2wordsContent.match(/export\s*{([\s\S]*?)}/)?.[1] || ''
-
-  const missingExports = []
-  for (const code of codes) {
-    const className = getClassName(code) || getClassNameFromFile(code)
-    const converterName = getConverterName(className)
-    if (!exportSection.includes(converterName)) {
-      missingExports.push(`${converterName} (${code})`)
-    }
-  }
-
-  t.deepEqual(missingExports, [], `Missing exports: ${missingExports.join(', ')}`)
-})
-
-test('exports are alphabetically ordered', t => {
-  const exportSection = n2wordsContent.match(/export\s*{([\s\S]*?)}/)?.[1]
-  if (!exportSection) {
-    t.fail('No export section found')
+test('named exports are alphabetically ordered', t => {
+  const exportsSection = n2wordsContent.match(/export \{\s*([\s\S]*?)\s*\}/)?.[1]
+  if (!exportsSection) {
+    t.fail('No named exports block found')
     return
   }
 
-  const exports = exportSection
-    .split(',')
-    .map(e => e.trim())
-    .filter(e => e.length > 0)
-
+  const exports = exportsSection.split(',').map(s => s.trim()).filter(Boolean)
   const sorted = [...exports].sort((a, b) => a.localeCompare(b))
-  t.deepEqual(exports, sorted, 'Exports should be alphabetically ordered')
-})
-
-test('all converters have type annotations', t => {
-  const codes = getLanguageCodes()
-
-  const missingAnnotations = []
-  for (const code of codes) {
-    const className = getClassName(code) || getClassNameFromFile(code)
-    const converterName = getConverterName(className)
-    const typePattern = new RegExp(`const\\s+${converterName}\\s*=\\s*/\\*\\*\\s*@type\\s*\\{\\(value:\\s*NumericValue`)
-    if (!typePattern.test(n2wordsContent)) {
-      missingAnnotations.push(`${converterName} (${code})`)
-    }
-  }
-
-  t.deepEqual(missingAnnotations, [], `Missing type annotations: ${missingAnnotations.join(', ')}`)
-})
-
-test('languages with options have Options typedef and typed converter', t => {
-  const codesWithOptions = getLanguagesWithOptions()
-
-  const missingTypedefs = []
-  const missingOptionsInConverter = []
-
-  for (const code of codesWithOptions) {
-    const className = getClassName(code) || getClassNameFromFile(code)
-    const typedefPattern = new RegExp(`@typedef\\s*\\{Object\\}\\s*${className}Options`)
-    if (!typedefPattern.test(n2wordsContent)) {
-      missingTypedefs.push(`${className}Options (${code})`)
-    }
-
-    const converterName = getConverterName(className)
-    const optionsPattern = new RegExp(`const\\s+${converterName}\\s*=.*options\\?:\\s*${className}Options`)
-    if (!optionsPattern.test(n2wordsContent)) {
-      missingOptionsInConverter.push(`${converterName} (${code})`)
-    }
-  }
-
-  t.deepEqual(missingTypedefs, [], `Missing Options typedefs: ${missingTypedefs.join(', ')}`)
-  t.deepEqual(missingOptionsInConverter, [], `Converters missing options type: ${missingOptionsInConverter.join(', ')}`)
-})
-
-// ============================================================================
-// Options Handling
-// ============================================================================
-
-test('accepts undefined options', t => {
-  const { EnglishConverter } = n2words
-  t.notThrows(() => EnglishConverter(42))
-  t.notThrows(() => EnglishConverter(42, undefined))
-})
-
-test('accepts plain object options', t => {
-  const { EnglishConverter } = n2words
-  t.notThrows(() => EnglishConverter(42, {}))
-  t.notThrows(() => EnglishConverter(42, { someOption: true }))
-})
-
-test('accepts Object.create(null) options', t => {
-  const { EnglishConverter } = n2words
-  const nullProtoOptions = Object.create(null)
-  nullProtoOptions.test = true
-  t.notThrows(() => EnglishConverter(42, nullProtoOptions))
-})
-
-test('rejects non-plain-object options', t => {
-  const { EnglishConverter } = n2words
-
-  // Array
-  t.throws(() => EnglishConverter(42, []), { message: 'options must be a plain object if provided' })
-
-  // Function
-  t.throws(() => EnglishConverter(42, () => {}), { message: 'options must be a plain object if provided' })
-
-  // Class instance
-  class MyClass {}
-  t.throws(() => EnglishConverter(42, new MyClass()), { message: 'options must be a plain object if provided' })
-
-  // Primitives
-  t.throws(() => EnglishConverter(42, 'string'), { message: 'options must be a plain object if provided' })
-  t.throws(() => EnglishConverter(42, 123), { message: 'options must be a plain object if provided' })
-  t.throws(() => EnglishConverter(42, true), { message: 'options must be a plain object if provided' })
-
-  // Null
-  t.throws(() => EnglishConverter(42, null), { message: 'options must be a plain object if provided' })
-})
-
-test('options are passed through to language class', t => {
-  const { ArabicConverter, TurkishConverter, SimplifiedChineseConverter } = n2words
-
-  t.notThrows(() => ArabicConverter(1, { gender: 'feminine' }))
-  t.notThrows(() => TurkishConverter(123, { dropSpaces: true }))
-  t.notThrows(() => SimplifiedChineseConverter(1, { formal: true }))
-})
-
-test('options do not persist between calls', t => {
-  const { ArabicConverter } = n2words
-
-  const withOption = ArabicConverter(1, { gender: 'feminine' })
-  const withoutOption = ArabicConverter(1)
-  const withDefault = ArabicConverter(1, { gender: 'masculine' })
-
-  t.is(withoutOption, withDefault, 'Default call should match explicit default option')
-  t.not(withOption, withoutOption, 'Options should not persist between calls')
-})
-
-// ============================================================================
-// Converter Behavior
-// ============================================================================
-
-test('converters are stateless between calls', t => {
-  const { EnglishConverter } = n2words
-
-  const result1 = EnglishConverter(42)
-  const result2 = EnglishConverter(42)
-  const result3 = EnglishConverter(42)
-
-  t.is(result1, result2)
-  t.is(result2, result3)
+  t.deepEqual(exports, sorted, 'Named exports should be alphabetically ordered')
 })

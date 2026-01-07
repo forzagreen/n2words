@@ -4,16 +4,15 @@
 
 Each test file has a focused responsibility. This prevents overlap and ensures clear coverage.
 
-| Test File                                      | Tests                                           | Does NOT Test          |
-| ---------------------------------------------- | ----------------------------------------------- | ---------------------- |
-| `unit/classes/*.test.js`                       | Base class algorithms with test fixtures        | Real language behavior |
-| `unit/utils/*.test.js`                         | Utility functions in isolation                  | Conversion logic       |
-| `unit/api.test.js`                             | Module structure, exports, alphabetical order   | Conversion correctness |
-| `integration/languages.test.js`                | Language implementations via fixtures           | API-layer validation   |
-| `integration/commonjs-compatibility.test.cjs`  | CJS require() pattern works                     | Conversion correctness |
-| `types/n2words.test-d.ts`                      | TypeScript type declarations                    | Runtime behavior       |
-| `umd/umd-build.test.js`                        | Bundle structure, exports, source maps          | Conversion correctness |
-| `browsers/browsers.test.js`                    | UMD bundle loads in browsers                    | Conversion correctness |
+| Test File                                     | Tests                                         | Does NOT Test          |
+| --------------------------------------------- | --------------------------------------------- | ---------------------- |
+| `unit/utils/*.test.js`                        | Utility functions in isolation                | Conversion logic       |
+| `unit/api.test.js`                            | Module structure, exports, alphabetical order | Conversion correctness |
+| `integration/languages.test.js`               | Language implementations via fixtures         | API-layer validation   |
+| `integration/commonjs-compatibility.test.cjs` | CJS require() pattern works                   | Conversion correctness |
+| `types/languages.test-d.ts`                   | TypeScript type declarations                  | Runtime behavior       |
+| `umd/umd-build.test.js`                       | Bundle structure, exports, source maps        | Conversion correctness |
+| `browsers/browsers.test.js`                   | UMD bundle loads in browsers                  | Conversion correctness |
 
 ### Conversion Correctness
 
@@ -24,7 +23,6 @@ All conversion correctness testing is centralized in `integration/languages.test
 ```text
 test/
 ├── unit/
-│   ├── classes/       # Base class unit tests
 │   ├── utils/         # Utility unit tests
 │   └── api.test.js    # Public API tests
 ├── integration/       # Integration tests using language fixtures
@@ -38,18 +36,11 @@ test/
 
 ### Unit Tests (`test/unit/`)
 
-**Classes** (`test/unit/classes/`):
-
-- `abstract-language.test.js` - Base class functionality, sign/decimal handling
-- `greedy-scale-language.test.js` - Scale-based decomposition algorithm
-- `slavic-language.test.js` - Slavic pluralization patterns
-- `south-asian-language.test.js` - Indian numbering system (lakh/crore)
-- `turkic-language.test.js` - Turkish-style implicit "bir" rules
-
 **Utilities** (`test/unit/utils/`):
 
 - `parse-numeric.test.js` - Input parsing, validation, scientific notation
-- `segment-utils.test.js` - Number segmentation utilities
+- `is-plain-object.test.js` - Plain object detection utility
+- `validate-options.test.js` - Options parameter validation
 
 **API** (`test/unit/`):
 
@@ -65,7 +56,7 @@ test/
 
 ### Type Tests (`test/types/`)
 
-- `n2words.test-d.ts` - Type declaration tests using tsd
+- `languages.test-d.ts` - Type declaration tests using tsd (subpath imports)
 
 ### Browser Tests (`test/browsers/`)
 
@@ -113,20 +104,16 @@ export default [
 ### Unit Test Pattern
 
 ```javascript
-// test/unit/classes/example.test.js
+// test/unit/utils/example.test.js
 import test from 'ava'
-import { AbstractLanguage } from '../../../lib/classes/abstract-language.js'
+import { someUtility } from '../../../lib/utils/some-utility.js'
 
-class TestLanguage extends AbstractLanguage {
-  negativeWord = 'minus'
-  zeroWord = 'zero'
-  decimalSeparatorWord = 'point'
-  integerToWords(n) { return n === 0n ? this.zeroWord : String(n) }
-}
+test('handles expected input', t => {
+  t.is(someUtility(42), 'expected result')
+})
 
-test('handles negative numbers', t => {
-  const lang = new TestLanguage()
-  t.is(lang.toWords(true, 42n), 'minus 42')
+test('throws on invalid input', t => {
+  t.throws(() => someUtility(null), { instanceOf: TypeError })
 })
 ```
 
@@ -134,11 +121,17 @@ test('handles negative numbers', t => {
 
 ```typescript
 import { expectType, expectError } from 'tsd'
-import { EnglishConverter, ArabicConverter } from '../../lib/n2words.js'
+import { toWords as en } from '../../lib/languages/en.js'
+import { toWords as ar } from '../../lib/languages/ar.js'
 
-expectType<string>(EnglishConverter(42))
-expectType<string>(ArabicConverter(42, { gender: 'feminine' }))
-expectError(EnglishConverter(null))
+// Return type
+expectType<string>(en(42))
+
+// Options
+expectType<string>(ar(42, { gender: 'feminine' }))
+
+// Invalid inputs
+expectError(en(null))
 ```
 
 ## Test Coverage

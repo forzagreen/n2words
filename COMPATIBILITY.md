@@ -25,7 +25,6 @@ n2words requires **BigInt** which cannot be polyfilled. This sets our minimum ba
 | Browser coverage        | `npm run browserslist:coverage` |
 | Browser compatibility   | `npm run compat:umd`            |
 | Browser tests           | `npm run test:browsers`         |
-| Node.js compatibility   | `npm run compat:node`           |
 
 ## Build Targets
 

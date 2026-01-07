@@ -67,5 +67,17 @@ export default [
   [4_000_000, 'četri miljoni'],
   [10_000_000_000_000, 'desmit triljoni'],
   [100_000_000_000_000, 'simts triljoni'],
-  [1_000_000_000_000_000_000n, 'kvintiljons']
+  [1_000_000_000_000_000_000n, 'kvintiljons'],
+
+  // Feminine gender tests
+  [1, 'viena', { gender: 'feminine' }],
+  [2, 'divas', { gender: 'feminine' }],
+  [4, 'četras', { gender: 'feminine' }],
+  [5, 'piecas', { gender: 'feminine' }],
+  [21, 'divdesmit viena', { gender: 'feminine' }],
+  [22, 'divdesmit divas', { gender: 'feminine' }],
+  [101, 'simtu viena', { gender: 'feminine' }],
+  [102, 'simtu divas', { gender: 'feminine' }],
+  [1001, 'tūkstotis viens', { gender: 'feminine' }],
+  [1002, 'tūkstotis divi', { gender: 'feminine' }]
 ]

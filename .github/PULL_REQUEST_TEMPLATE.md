@@ -28,10 +28,9 @@ npm run lang:add -- <code>
 
 **Manual setup:** If not using the scaffolding tool, ensure you have:
 
-- [ ] Language class in `lib/languages/<code>.js`
-- [ ] Test fixture in `test/fixtures/languages/<code>.js` (include options if language has them)
-- [ ] In `lib/n2words.js` (alphabetically sorted): import, typedef, converter, export
-- [ ] Type test in `test/types/n2words.test-d.ts` (include options if language has them)
+- [ ] Language module in `lib/languages/<code>.js` exporting `toWords()`
+- [ ] Test fixture in `test/fixtures/languages/<code>.js`
+- [ ] Import and export in `lib/n2words.js` (alphabetically sorted)
 - [ ] Tests pass (`npm test`)
 
 </details>

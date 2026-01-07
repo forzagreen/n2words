@@ -115,15 +115,6 @@
       ],
       "console": "integratedTerminal",
       "cwd": "${workspaceFolder}"
-    },
-    {
-      "type": "node",
-      "request": "launch",
-      "name": "Debug Base Class (Prompt)",
-      "skipFiles": ["<node_internals>/**"],
-      "program": "${workspaceFolder}/lib/classes/${input:baseClass}.js",
-      "console": "integratedTerminal",
-      "cwd": "${workspaceFolder}"
     }
   ],
   "inputs": [
@@ -144,19 +135,6 @@
       "type": "promptString",
       "description": "New language code to add (e.g., ko, pt-BR)",
       "default": ""
-    },
-    {
-      "id": "baseClass",
-      "type": "pickString",
-      "description": "Base class to debug",
-      "options": [
-        "abstract-language",
-        "greedy-scale-language",
-        "slavic-language",
-        "south-asian-language",
-        "turkic-language"
-      ],
-      "default": "abstract-language"
     }
   ]
 }

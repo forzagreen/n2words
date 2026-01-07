@@ -13,22 +13,26 @@
  */
 
 import test from 'ava'
-import { readFileSync, existsSync } from 'node:fs'
+import { readFileSync, existsSync, readdirSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { createRequire } from 'node:module'
 import vm from 'node:vm'
+import { normalizeCode } from '../utils/language-helpers.js'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const distDir = join(__dirname, '../../dist')
 const require = createRequire(import.meta.url)
 const pkg = require('../../package.json')
 
-// Dynamically get all converters from the n2words entry point
-const n2words = require('../../lib/n2words.js')
-const expectedConverters = Object.keys(n2words)
-  .filter(name => name.endsWith('Converter'))
-  .sort()
+// Get all language codes from the languages directory
+const languagesDir = join(__dirname, '../../lib/languages')
+const languageCodes = readdirSync(languagesDir)
+  .filter(file => file.endsWith('.js'))
+  .map(file => file.replace('.js', ''))
+
+// Expected exports are normalized BCP 47 codes (e.g., 'en', 'zhHans', 'frBE')
+const expectedExports = languageCodes.map(normalizeCode).sort()
 
 /**
  * Load UMD bundle into a sandboxed context and return the n2words global.
@@ -68,16 +72,16 @@ test('main bundle and source map exist', t => {
   t.true(existsSync(join(distDir, 'n2words.js.map')), 'Main bundle source map should exist')
 })
 
-test('all individual converter bundles exist', t => {
+test('all individual language bundles exist', t => {
   const missingBundles = []
   const missingMaps = []
 
-  for (const converter of expectedConverters) {
-    if (!existsSync(join(distDir, `${converter}.js`))) {
-      missingBundles.push(converter)
+  for (const langCode of languageCodes) {
+    if (!existsSync(join(distDir, `languages/${langCode}.js`))) {
+      missingBundles.push(langCode)
     }
-    if (!existsSync(join(distDir, `${converter}.js.map`))) {
-      missingMaps.push(converter)
+    if (!existsSync(join(distDir, `languages/${langCode}.js.map`))) {
+      missingMaps.push(langCode)
     }
   }
 
@@ -110,12 +114,12 @@ test('main bundle ends with source map reference', t => {
 
 test('individual bundles have correct banners', t => {
   // Sample a few bundles to verify banner pattern
-  const sampleConverters = expectedConverters.slice(0, 3)
+  const sampleCodes = languageCodes.slice(0, 3)
 
-  for (const converter of sampleConverters) {
-    const code = readFileSync(join(distDir, `${converter}.js`), 'utf8')
-    const bannerPattern = new RegExp(`/\\*! n2words/${converter} v${pkg.version.replace(/\./g, '\\.')}`)
-    t.regex(code, bannerPattern, `${converter} should have correct banner`)
+  for (const langCode of sampleCodes) {
+    const code = readFileSync(join(distDir, `languages/${langCode}.js`), 'utf8')
+    const bannerPattern = new RegExp(`/\\*! n2words/${langCode} v${pkg.version.replace(/\./g, '\\.')}`)
+    t.regex(code, bannerPattern, `${langCode} should have correct banner`)
   }
 })
 
@@ -128,18 +132,18 @@ test('main bundle exports all converters as functions', t => {
 
   t.truthy(n2words, 'n2words global should be defined')
 
-  const missingConverters = []
+  const missingExports = []
   const nonFunctions = []
 
-  for (const converter of expectedConverters) {
-    if (!(converter in n2words)) {
-      missingConverters.push(converter)
-    } else if (typeof n2words[converter] !== 'function') {
-      nonFunctions.push(converter)
+  for (const name of expectedExports) {
+    if (!(name in n2words)) {
+      missingExports.push(name)
+    } else if (typeof n2words[name] !== 'function') {
+      nonFunctions.push(name)
     }
   }
 
-  t.deepEqual(missingConverters, [], `Missing converters: ${missingConverters.join(', ')}`)
+  t.deepEqual(missingExports, [], `Missing exports: ${missingExports.join(', ')}`)
   t.deepEqual(nonFunctions, [], `Non-function exports: ${nonFunctions.join(', ')}`)
 })
 
@@ -147,20 +151,23 @@ test('main bundle converters return strings', t => {
   const n2words = loadUmdBundle(join(distDir, 'n2words.js'))
 
   // Test a few converters to verify they work
-  const result1 = n2words.EnglishConverter(42)
-  t.is(typeof result1, 'string', 'EnglishConverter should return string')
+  const result1 = n2words.en(42)
+  t.is(typeof result1, 'string', 'en should return string')
   t.true(result1.length > 0, 'Result should not be empty')
 
-  const result2 = n2words.SpanishConverter(100)
-  t.is(typeof result2, 'string', 'SpanishConverter should return string')
+  const result2 = n2words.es(100)
+  t.is(typeof result2, 'string', 'es should return string')
+
+  const result3 = n2words.zhHans(42)
+  t.is(typeof result3, 'string', 'zhHans should return string')
 })
 
 test('main bundle converters accept options', t => {
   const n2words = loadUmdBundle(join(distDir, 'n2words.js'))
 
   // Verify options work by checking gender produces different results
-  const masculine = n2words.ArabicConverter(1, { gender: 'masculine' })
-  const feminine = n2words.ArabicConverter(1, { gender: 'feminine' })
+  const masculine = n2words.ar(1, { gender: 'masculine' })
+  const feminine = n2words.ar(1, { gender: 'feminine' })
   t.not(masculine, feminine, 'Gender option should produce different results')
 })
 
@@ -168,12 +175,12 @@ test('main bundle converters accept options', t => {
 // Individual Bundle Functional Tests
 // =============================================================================
 
-test('individual bundle loads and exports converter', t => {
-  const n2words = loadUmdBundle(join(distDir, 'EnglishConverter.js'))
+test('individual bundle loads and exports language-specific function', t => {
+  const n2words = loadUmdBundle(join(distDir, 'languages/en.js'))
 
   t.truthy(n2words, 'n2words global should be defined')
-  t.is(typeof n2words.EnglishConverter, 'function', 'EnglishConverter should be exported')
-  t.is(typeof n2words.EnglishConverter(42), 'string', 'Converter should return string')
+  t.is(typeof n2words.en, 'function', 'en should be exported')
+  t.is(typeof n2words.en(42), 'string', 'en should return string')
 })
 
 test('individual bundles use extend mode (can be combined)', t => {
@@ -196,18 +203,27 @@ test('individual bundles use extend mode (can be combined)', t => {
   const context = vm.createContext(sandbox)
 
   // Load English first
-  const englishCode = readFileSync(join(distDir, 'EnglishConverter.js'), 'utf8')
+  const englishCode = readFileSync(join(distDir, 'languages/en.js'), 'utf8')
   vm.runInContext(`(function() { ${englishCode} }).call(globalThis);`, context)
 
+  // Verify English is available
+  t.truthy(globalContext.n2words, 'n2words global should be defined after first bundle')
+  t.is(typeof globalContext.n2words.en, 'function', 'en should be available')
+
   // Load Spanish second (should extend, not replace)
-  const spanishCode = readFileSync(join(distDir, 'SpanishConverter.js'), 'utf8')
+  const spanishCode = readFileSync(join(distDir, 'languages/es.js'), 'utf8')
   vm.runInContext(`(function() { ${spanishCode} }).call(globalThis);`, context)
 
   const n2words = globalContext.n2words
 
-  t.truthy(n2words, 'n2words global should be defined')
-  t.is(typeof n2words.EnglishConverter, 'function', 'EnglishConverter should still be available')
-  t.is(typeof n2words.SpanishConverter, 'function', 'SpanishConverter should be added')
+  t.truthy(n2words, 'n2words global should still be defined')
+  // Both languages should be available - they export different functions (en, es)
+  t.is(typeof n2words.en, 'function', 'en should still be available after loading es')
+  t.is(typeof n2words.es, 'function', 'es should be available')
+
+  // Verify both work correctly
+  t.is(n2words.en(42), 'forty-two', 'en should convert correctly')
+  t.is(n2words.es(42), 'cuarenta y dos', 'es should convert correctly')
 })
 
 // =============================================================================
@@ -227,7 +243,7 @@ test('main bundle source map is valid', t => {
 })
 
 test('individual bundle source map is valid', t => {
-  const mapPath = join(distDir, 'EnglishConverter.js.map')
+  const mapPath = join(distDir, 'languages/en.js.map')
   const mapContent = readFileSync(mapPath, 'utf8')
 
   t.notThrows(() => JSON.parse(mapContent), 'Source map should be valid JSON')
@@ -243,25 +259,25 @@ test('individual bundle source map is valid', t => {
 test('main bundle size is reasonable', t => {
   const code = readFileSync(join(distDir, 'n2words.js'), 'utf8')
   const sizeKB = Buffer.byteLength(code, 'utf8') / 1024
-  const converterCount = expectedConverters.length
+  const exportCount = expectedExports.length
 
-  // Dynamic range: ~1.5-3.5KB per converter
-  const minExpectedKB = converterCount * 1.5
-  const maxExpectedKB = converterCount * 3.5
+  // Dynamic range: ~1.5-3.5KB per language
+  const minExpectedKB = exportCount * 1.5
+  const maxExpectedKB = exportCount * 3.5
 
-  t.log(`Main bundle: ${sizeKB.toFixed(1)}KB (${converterCount} converters, ~${(sizeKB / converterCount).toFixed(1)}KB each)`)
+  t.log(`Main bundle: ${sizeKB.toFixed(1)}KB (${exportCount} languages, ~${(sizeKB / exportCount).toFixed(1)}KB each)`)
 
   t.true(sizeKB > minExpectedKB, `Main bundle (${sizeKB.toFixed(1)}KB) should be > ${minExpectedKB.toFixed(0)}KB`)
   t.true(sizeKB < maxExpectedKB, `Main bundle (${sizeKB.toFixed(1)}KB) should be < ${maxExpectedKB.toFixed(0)}KB`)
 })
 
 test('individual bundle size is reasonable', t => {
-  const code = readFileSync(join(distDir, 'EnglishConverter.js'), 'utf8')
+  const code = readFileSync(join(distDir, 'languages/en.js'), 'utf8')
   const sizeKB = Buffer.byteLength(code, 'utf8') / 1024
 
-  t.log(`EnglishConverter bundle: ${sizeKB.toFixed(1)}KB`)
+  t.log(`en.js bundle: ${sizeKB.toFixed(1)}KB`)
 
-  // Individual bundles include base class code, so 2-20KB is reasonable
+  // Individual bundles are self-contained, so 2-20KB is reasonable
   t.true(sizeKB > 1, `Individual bundle (${sizeKB.toFixed(1)}KB) should be > 1KB`)
   t.true(sizeKB < 20, `Individual bundle (${sizeKB.toFixed(1)}KB) should be < 20KB`)
 })

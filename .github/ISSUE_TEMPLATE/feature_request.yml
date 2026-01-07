@@ -23,7 +23,7 @@ body:
       label: Example (optional)
       description: How would it work?
       placeholder: |
-        EnglishConverter(1, { ordinal: true })
+        en(1, { ordinal: true })
         // "first"
       render: javascript
 
