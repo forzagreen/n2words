@@ -79,6 +79,7 @@ let value = Number.MAX_SAFE_INTEGER
 let saveResults = false
 let compareResults = false
 let showHistory = false
+let fullMode = false
 let previousResults = null
 
 for (let index = 0; index < arguments_.length; index++) {
@@ -97,6 +98,8 @@ for (let index = 0; index < arguments_.length; index++) {
     compareResults = true
   } else if (arguments_[index] === '--history') {
     showHistory = true
+  } else if (arguments_[index] === '--full') {
+    fullMode = true
   } else if (arguments_[index] === '--help') {
     displayHelp()
     process.exit(0)
@@ -223,13 +226,22 @@ if (requestedLanguages.length > 0) {
 } else {
   console.log(chalk.gray(`Testing ${converters.length} languages`))
 }
-console.log(chalk.gray(`Test value: ${value.toLocaleString()}\n`))
+console.log(chalk.gray(`Test value: ${value.toLocaleString()}`))
+if (fullMode) {
+  console.log(chalk.cyan('Full mode: maximum iterations for highest accuracy'))
+}
+console.log()
+
+// Benchmark options - default uses fast mode, --full for thorough benchmarks
+const benchOptions = fullMode
+  ? {} // Benchmark.js defaults: minSamples=5, maxTime=5
+  : { minSamples: 10, maxTime: 0.5 } // Fast mode: ~4x faster, ±3% accuracy
 
 // Add benchmarks - all converters now accept raw value input
 for (const converter of converters) {
   suite.add(converter.name, () => {
     converter.toWords(value)
-  })
+  }, benchOptions)
 }
 
 // Print table header
@@ -379,6 +391,7 @@ function displayHelp () {
   console.log('  ' + chalk.yellow('--save') + '              Save results to bench/.results/perf-results.json')
   console.log('  ' + chalk.yellow('--compare') + '           Compare with previous saved results')
   console.log('  ' + chalk.yellow('--history') + '           Show performance history (single language only)')
+  console.log('  ' + chalk.yellow('--full') + '              Full mode with maximum iterations (slower, more accurate)')
   console.log('  ' + chalk.yellow('--help') + '              Display this help message\n')
   console.log(chalk.cyan('Examples:'))
   console.log('  ' + chalk.gray('npm run bench:perf                     # All languages'))
