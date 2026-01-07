@@ -37,15 +37,6 @@ function toWords (value, options = {}) {
 export { toWords }
 ```
 
-## Essential Commands
-
-```bash
-npm run lang:add <code>   # Scaffold new language
-npm test                  # Run test suite
-npm run build             # Build UMD bundles
-npm run lint:fix          # Fix linting issues
-```
-
 ## Adding a Language
 
 1. `npm run lang:add <code>` - creates stub + fixture, updates n2words.js + type tests
@@ -71,4 +62,21 @@ function toWords (value, options = {}) {
   const { gender = 'masculine' } = options
   // Use option in conversion
 }
+```
+
+## Commits & Testing
+
+Conventional Commits required. See `.commitlintrc.mjs` for types and scopes.
+
+Before PR:
+
+```bash
+npm run lint:fix && npm test
+```
+
+Before/after `lib/` changes (check for regressions):
+
+```bash
+npm run bench:perf
+npm run bench:memory
 ```
