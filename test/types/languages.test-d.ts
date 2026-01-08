@@ -43,6 +43,7 @@ import { toWords as hu } from '../../lib/languages/hu.js'
 import { toWords as id } from '../../lib/languages/id.js'
 import { toWords as it } from '../../lib/languages/it.js'
 import { toWords as ja } from '../../lib/languages/ja.js'
+import { toWords as ka } from '../../lib/languages/ka.js'
 import { toWords as kn } from '../../lib/languages/kn.js'
 import { toWords as ko } from '../../lib/languages/ko.js'
 import { toWords as lt } from '../../lib/languages/lt.js'
@@ -100,6 +101,7 @@ expectType<string>(hu(1))
 expectType<string>(id(1))
 expectType<string>(it(1))
 expectType<string>(ja(1))
+expectType<string>(ka(1))
 expectType<string>(kn(1))
 expectType<string>(ko(1))
 expectType<string>(lt(1))
