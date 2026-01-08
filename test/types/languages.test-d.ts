@@ -68,6 +68,7 @@ import { toWords as tr } from '../../lib/languages/tr.js'
 import { toWords as uk } from '../../lib/languages/uk.js'
 import { toWords as ur } from '../../lib/languages/ur.js'
 import { toWords as vi } from '../../lib/languages/vi.js'
+import { toWords as yo } from '../../lib/languages/yo.js'
 import { toWords as zhHans } from '../../lib/languages/zh-Hans.js'
 import { toWords as zhHant } from '../../lib/languages/zh-Hant.js'
 
@@ -126,6 +127,7 @@ expectType<string>(tr(1))
 expectType<string>(uk(1))
 expectType<string>(ur(1))
 expectType<string>(vi(1))
+expectType<string>(yo(1))
 expectType<string>(zhHans(1))
 expectType<string>(zhHant(1))
 
