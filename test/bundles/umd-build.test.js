@@ -2,7 +2,7 @@
  * UMD Build Output Validation Tests
  *
  * Tests the UMD bundles in dist/ to ensure:
- * - All expected files are generated (bundles + source maps)
+ * - All expected files are generated
  * - Bundles have correct UMD structure (banner, wrapper pattern)
  * - Bundles load and export working converters
  * - Individual bundles can be combined (extend mode)
@@ -67,26 +67,20 @@ function loadUmdBundle (bundlePath) {
 // File Existence Tests
 // =============================================================================
 
-test('main UMD bundle and source map exist', t => {
+test('main UMD bundle exists', t => {
   t.true(existsSync(join(distDir, 'n2words.umd.cjs')), 'Main UMD bundle should exist')
-  t.true(existsSync(join(distDir, 'n2words.umd.cjs.map')), 'Main UMD bundle source map should exist')
 })
 
 test('all individual UMD language bundles exist', t => {
   const missingBundles = []
-  const missingMaps = []
 
   for (const langCode of languageCodes) {
     if (!existsSync(join(distDir, `languages/${langCode}.umd.cjs`))) {
       missingBundles.push(langCode)
     }
-    if (!existsSync(join(distDir, `languages/${langCode}.umd.cjs.map`))) {
-      missingMaps.push(langCode)
-    }
   }
 
   t.deepEqual(missingBundles, [], `Missing bundles: ${missingBundles.join(', ')}`)
-  t.deepEqual(missingMaps, [], `Missing source maps: ${missingMaps.join(', ')}`)
 })
 
 // =============================================================================
@@ -105,11 +99,6 @@ test('main UMD bundle has UMD wrapper pattern', t => {
   t.regex(code, /typeof exports/, 'Should check for CommonJS exports')
   t.regex(code, /typeof define/, 'Should check for AMD define')
   t.regex(code, /globalThis/, 'Should reference globalThis for browser global')
-})
-
-test('main UMD bundle ends with source map reference', t => {
-  const code = readFileSync(join(distDir, 'n2words.umd.cjs'), 'utf8')
-  t.regex(code, /\/\/# sourceMappingURL=n2words\.umd\.cjs\.map\s*$/, 'Should end with source map reference')
 })
 
 test('individual UMD bundles have correct banners', t => {
@@ -224,32 +213,6 @@ test('individual UMD bundles use extend mode (can be combined)', t => {
   // Verify both work correctly
   t.is(n2words.en(42), 'forty-two', 'en should convert correctly')
   t.is(n2words.es(42), 'cuarenta y dos', 'es should convert correctly')
-})
-
-// =============================================================================
-// Source Map Validation
-// =============================================================================
-
-test('main UMD bundle source map is valid', t => {
-  const mapPath = join(distDir, 'n2words.umd.cjs.map')
-  const mapContent = readFileSync(mapPath, 'utf8')
-
-  t.notThrows(() => JSON.parse(mapContent), 'Source map should be valid JSON')
-
-  const sourceMap = JSON.parse(mapContent)
-  t.is(sourceMap.version, 3, 'Source map version should be 3')
-  t.truthy(sourceMap.sources, 'Source map should have sources array')
-  t.truthy(sourceMap.mappings, 'Source map should have mappings')
-})
-
-test('individual UMD bundle source map is valid', t => {
-  const mapPath = join(distDir, 'languages/en.umd.cjs.map')
-  const mapContent = readFileSync(mapPath, 'utf8')
-
-  t.notThrows(() => JSON.parse(mapContent), 'Source map should be valid JSON')
-
-  const sourceMap = JSON.parse(mapContent)
-  t.is(sourceMap.version, 3, 'Source map version should be 3')
 })
 
 // =============================================================================

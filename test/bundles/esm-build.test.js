@@ -2,7 +2,7 @@
  * ESM Build Output Validation Tests
  *
  * Tests the ESM bundles in dist/ to ensure:
- * - All expected files are generated (bundles + source maps)
+ * - All expected files are generated
  * - Bundles have correct ESM structure (export statements)
  * - Bundles can be dynamically imported and export working converters
  * - Bundle sizes are reasonable
@@ -36,26 +36,20 @@ const expectedExports = languageCodes.map(normalizeCode).sort()
 // File Existence Tests
 // =============================================================================
 
-test('main ESM bundle and source map exist', t => {
+test('main ESM bundle exists', t => {
   t.true(existsSync(join(distDir, 'n2words.js')), 'Main ESM bundle should exist')
-  t.true(existsSync(join(distDir, 'n2words.js.map')), 'Main ESM bundle source map should exist')
 })
 
 test('all individual ESM language bundles exist', t => {
   const missingBundles = []
-  const missingMaps = []
 
   for (const langCode of languageCodes) {
     if (!existsSync(join(distDir, `languages/${langCode}.js`))) {
       missingBundles.push(langCode)
     }
-    if (!existsSync(join(distDir, `languages/${langCode}.js.map`))) {
-      missingMaps.push(langCode)
-    }
   }
 
   t.deepEqual(missingBundles, [], `Missing bundles: ${missingBundles.join(', ')}`)
-  t.deepEqual(missingMaps, [], `Missing source maps: ${missingMaps.join(', ')}`)
 })
 
 // =============================================================================
@@ -74,11 +68,6 @@ test('main ESM bundle has ES module structure', t => {
   // ESM uses export statements, not UMD wrapper
   t.regex(code, /export\s*\{/, 'Should have ES module export statement')
   t.notRegex(code, /typeof exports.*===.*"object"/, 'Should NOT have CommonJS check (UMD pattern)')
-})
-
-test('main ESM bundle ends with source map reference', t => {
-  const code = readFileSync(join(distDir, 'n2words.js'), 'utf8')
-  t.regex(code, /\/\/# sourceMappingURL=n2words\.js\.map\s*$/, 'Should end with source map reference')
 })
 
 test('individual ESM bundles have correct banners', t => {
@@ -180,32 +169,6 @@ test('individual ESM bundles export correct language function', async t => {
 
     t.is(typeof langModule[normalizedName], 'function', `${langCode} should export ${normalizedName}`)
   }
-})
-
-// =============================================================================
-// Source Map Validation
-// =============================================================================
-
-test('main ESM bundle source map is valid', t => {
-  const mapPath = join(distDir, 'n2words.js.map')
-  const mapContent = readFileSync(mapPath, 'utf8')
-
-  t.notThrows(() => JSON.parse(mapContent), 'Source map should be valid JSON')
-
-  const sourceMap = JSON.parse(mapContent)
-  t.is(sourceMap.version, 3, 'Source map version should be 3')
-  t.truthy(sourceMap.sources, 'Source map should have sources array')
-  t.truthy(sourceMap.mappings, 'Source map should have mappings')
-})
-
-test('individual ESM bundle source map is valid', t => {
-  const mapPath = join(distDir, 'languages/en.js.map')
-  const mapContent = readFileSync(mapPath, 'utf8')
-
-  t.notThrows(() => JSON.parse(mapContent), 'Source map should be valid JSON')
-
-  const sourceMap = JSON.parse(mapContent)
-  t.is(sourceMap.version, 3, 'Source map version should be 3')
 })
 
 // =============================================================================

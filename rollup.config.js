@@ -105,7 +105,6 @@ const mainEsmConfig = {
   output: {
     file: 'dist/n2words.js',
     format: 'es',
-    sourcemap: true,
     banner: `/*! n2words v${pkg.version} | MIT License | github.com/forzagreen/n2words */`
   },
   plugins: [...basePlugins, mainTerserConfig]
@@ -118,7 +117,6 @@ const mainUmdConfig = {
     file: 'dist/n2words.umd.cjs',
     format: 'umd',
     name: 'n2words',
-    sourcemap: true,
     exports: 'named', // Named exports - window.n2words.en, window.n2words.zhHans, etc.
     banner: `/*! n2words v${pkg.version} | MIT License | github.com/forzagreen/n2words */`
   },
@@ -139,7 +137,6 @@ const languageEsmConfigs = languageCodes.map(langCode => {
     output: {
       file: `dist/languages/${langCode}.js`,
       format: 'es',
-      sourcemap: true,
       banner: `/*! n2words/${langCode} v${pkg.version} | MIT License | github.com/forzagreen/n2words */`
     },
     plugins: [
@@ -164,7 +161,6 @@ const languageUmdConfigs = languageCodes.map(langCode => {
       file: `dist/languages/${langCode}.umd.cjs`,
       format: 'umd',
       name: 'n2words',
-      sourcemap: true,
       exports: 'named',
       extend: true,
       banner: `/*! n2words/${langCode} v${pkg.version} | MIT License | github.com/forzagreen/n2words */`
