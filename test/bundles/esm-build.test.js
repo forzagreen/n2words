@@ -1,11 +1,10 @@
 /**
- * UMD Build Output Validation Tests
+ * ESM Build Output Validation Tests
  *
- * Tests the UMD bundles in dist/ to ensure:
+ * Tests the ESM bundles in dist/ to ensure:
  * - All expected files are generated (bundles + source maps)
- * - Bundles have correct UMD structure (banner, wrapper pattern)
- * - Bundles load and export working converters
- * - Individual bundles can be combined (extend mode)
+ * - Bundles have correct ESM structure (export statements)
+ * - Bundles can be dynamically imported and export working converters
  * - Bundle sizes are reasonable
  *
  * Note: These tests verify build output structure and loadability.
@@ -15,9 +14,8 @@
 import test from 'ava'
 import { readFileSync, existsSync, readdirSync } from 'node:fs'
 import { dirname, join } from 'node:path'
-import { fileURLToPath } from 'node:url'
+import { fileURLToPath, pathToFileURL } from 'node:url'
 import { createRequire } from 'node:module'
-import vm from 'node:vm'
 import { normalizeCode } from '../utils/language-helpers.js'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
@@ -34,45 +32,16 @@ const languageCodes = readdirSync(languagesDir)
 // Expected exports are normalized BCP 47 codes (e.g., 'en', 'zhHans', 'frBE')
 const expectedExports = languageCodes.map(normalizeCode).sort()
 
-/**
- * Load UMD bundle into a sandboxed context and return the n2words global.
- * Simulates browser environment (no CommonJS exports, no AMD define).
- */
-function loadUmdBundle (bundlePath) {
-  const code = readFileSync(bundlePath, 'utf8')
-  const globalContext = {}
-
-  const sandbox = {
-    globalThis: globalContext,
-    self: globalContext,
-    Object,
-    Array,
-    Number,
-    String,
-    Boolean,
-    BigInt,
-    Error,
-    TypeError,
-    console
-  }
-
-  const context = vm.createContext(sandbox)
-  const wrappedCode = `(function() { ${code} }).call(globalThis);`
-  vm.runInContext(wrappedCode, context)
-
-  return globalContext.n2words
-}
-
 // =============================================================================
 // File Existence Tests
 // =============================================================================
 
-test('main bundle and source map exist', t => {
-  t.true(existsSync(join(distDir, 'n2words.js')), 'Main bundle should exist')
-  t.true(existsSync(join(distDir, 'n2words.js.map')), 'Main bundle source map should exist')
+test('main ESM bundle and source map exist', t => {
+  t.true(existsSync(join(distDir, 'n2words.js')), 'Main ESM bundle should exist')
+  t.true(existsSync(join(distDir, 'n2words.js.map')), 'Main ESM bundle source map should exist')
 })
 
-test('all individual language bundles exist', t => {
+test('all individual ESM language bundles exist', t => {
   const missingBundles = []
   const missingMaps = []
 
@@ -93,26 +62,26 @@ test('all individual language bundles exist', t => {
 // Bundle Structure Tests
 // =============================================================================
 
-test('main bundle has correct banner with version', t => {
+test('main ESM bundle has correct banner with version', t => {
   const code = readFileSync(join(distDir, 'n2words.js'), 'utf8')
   const bannerPattern = new RegExp(`/\\*! n2words v${pkg.version.replace(/\./g, '\\.')} \\| MIT License`)
   t.regex(code, bannerPattern, 'Banner should contain correct version')
 })
 
-test('main bundle has UMD wrapper pattern', t => {
+test('main ESM bundle has ES module structure', t => {
   const code = readFileSync(join(distDir, 'n2words.js'), 'utf8')
 
-  t.regex(code, /typeof exports/, 'Should check for CommonJS exports')
-  t.regex(code, /typeof define/, 'Should check for AMD define')
-  t.regex(code, /globalThis/, 'Should reference globalThis for browser global')
+  // ESM uses export statements, not UMD wrapper
+  t.regex(code, /export\s*\{/, 'Should have ES module export statement')
+  t.notRegex(code, /typeof exports.*===.*"object"/, 'Should NOT have CommonJS check (UMD pattern)')
 })
 
-test('main bundle ends with source map reference', t => {
+test('main ESM bundle ends with source map reference', t => {
   const code = readFileSync(join(distDir, 'n2words.js'), 'utf8')
   t.regex(code, /\/\/# sourceMappingURL=n2words\.js\.map\s*$/, 'Should end with source map reference')
 })
 
-test('individual bundles have correct banners', t => {
+test('individual ESM bundles have correct banners', t => {
   // Sample a few bundles to verify banner pattern
   const sampleCodes = languageCodes.slice(0, 3)
 
@@ -123,14 +92,22 @@ test('individual bundles have correct banners', t => {
   }
 })
 
+test('individual ESM bundles have ES module structure', t => {
+  const code = readFileSync(join(distDir, 'languages/en.js'), 'utf8')
+
+  t.regex(code, /export\s*\{/, 'Should have ES module export statement')
+  t.notRegex(code, /typeof exports.*===.*"object"/, 'Should NOT have CommonJS check')
+})
+
 // =============================================================================
 // Main Bundle Functional Tests
 // =============================================================================
 
-test('main bundle exports all converters as functions', t => {
-  const n2words = loadUmdBundle(join(distDir, 'n2words.js'))
+test('main ESM bundle can be dynamically imported', async t => {
+  const bundlePath = pathToFileURL(join(distDir, 'n2words.js')).href
+  const n2words = await import(bundlePath)
 
-  t.truthy(n2words, 'n2words global should be defined')
+  t.truthy(n2words, 'n2words module should be importable')
 
   const missingExports = []
   const nonFunctions = []
@@ -147,8 +124,9 @@ test('main bundle exports all converters as functions', t => {
   t.deepEqual(nonFunctions, [], `Non-function exports: ${nonFunctions.join(', ')}`)
 })
 
-test('main bundle converters return strings', t => {
-  const n2words = loadUmdBundle(join(distDir, 'n2words.js'))
+test('main ESM bundle converters return strings', async t => {
+  const bundlePath = pathToFileURL(join(distDir, 'n2words.js')).href
+  const n2words = await import(bundlePath)
 
   // Test a few converters to verify they work
   const result1 = n2words.en(42)
@@ -162,8 +140,9 @@ test('main bundle converters return strings', t => {
   t.is(typeof result3, 'string', 'zhHans should return string')
 })
 
-test('main bundle converters accept options', t => {
-  const n2words = loadUmdBundle(join(distDir, 'n2words.js'))
+test('main ESM bundle converters accept options', async t => {
+  const bundlePath = pathToFileURL(join(distDir, 'n2words.js')).href
+  const n2words = await import(bundlePath)
 
   // Verify options work by checking gender produces different results
   const masculine = n2words.ar(1, { gender: 'masculine' })
@@ -175,62 +154,39 @@ test('main bundle converters accept options', t => {
 // Individual Bundle Functional Tests
 // =============================================================================
 
-test('individual bundle loads and exports language-specific function', t => {
-  const n2words = loadUmdBundle(join(distDir, 'languages/en.js'))
+test('individual ESM bundle can be dynamically imported', async t => {
+  const bundlePath = pathToFileURL(join(distDir, 'languages/en.js')).href
+  const enModule = await import(bundlePath)
 
-  t.truthy(n2words, 'n2words global should be defined')
-  t.is(typeof n2words.en, 'function', 'en should be exported')
-  t.is(typeof n2words.en(42), 'string', 'en should return string')
+  t.truthy(enModule, 'en module should be importable')
+  t.is(typeof enModule.en, 'function', 'en should be exported')
+  t.is(typeof enModule.en(42), 'string', 'en should return string')
 })
 
-test('individual bundles use extend mode (can be combined)', t => {
-  const globalContext = {}
+test('individual ESM bundles export correct language function', async t => {
+  // Test a few languages
+  const testCases = [
+    { langCode: 'en', normalizedName: 'en' },
+    { langCode: 'es', normalizedName: 'es' },
+    { langCode: 'zh-Hans', normalizedName: 'zhHans' },
+    { langCode: 'fr-BE', normalizedName: 'frBE' }
+  ]
 
-  const sandbox = {
-    globalThis: globalContext,
-    self: globalContext,
-    Object,
-    Array,
-    Number,
-    String,
-    Boolean,
-    BigInt,
-    Error,
-    TypeError,
-    console
+  for (const { langCode, normalizedName } of testCases) {
+    if (!languageCodes.includes(langCode)) continue
+
+    const bundlePath = pathToFileURL(join(distDir, `languages/${langCode}.js`)).href
+    const langModule = await import(bundlePath)
+
+    t.is(typeof langModule[normalizedName], 'function', `${langCode} should export ${normalizedName}`)
   }
-
-  const context = vm.createContext(sandbox)
-
-  // Load English first
-  const englishCode = readFileSync(join(distDir, 'languages/en.js'), 'utf8')
-  vm.runInContext(`(function() { ${englishCode} }).call(globalThis);`, context)
-
-  // Verify English is available
-  t.truthy(globalContext.n2words, 'n2words global should be defined after first bundle')
-  t.is(typeof globalContext.n2words.en, 'function', 'en should be available')
-
-  // Load Spanish second (should extend, not replace)
-  const spanishCode = readFileSync(join(distDir, 'languages/es.js'), 'utf8')
-  vm.runInContext(`(function() { ${spanishCode} }).call(globalThis);`, context)
-
-  const n2words = globalContext.n2words
-
-  t.truthy(n2words, 'n2words global should still be defined')
-  // Both languages should be available - they export different functions (en, es)
-  t.is(typeof n2words.en, 'function', 'en should still be available after loading es')
-  t.is(typeof n2words.es, 'function', 'es should be available')
-
-  // Verify both work correctly
-  t.is(n2words.en(42), 'forty-two', 'en should convert correctly')
-  t.is(n2words.es(42), 'cuarenta y dos', 'es should convert correctly')
 })
 
 // =============================================================================
 // Source Map Validation
 // =============================================================================
 
-test('main bundle source map is valid', t => {
+test('main ESM bundle source map is valid', t => {
   const mapPath = join(distDir, 'n2words.js.map')
   const mapContent = readFileSync(mapPath, 'utf8')
 
@@ -242,7 +198,7 @@ test('main bundle source map is valid', t => {
   t.truthy(sourceMap.mappings, 'Source map should have mappings')
 })
 
-test('individual bundle source map is valid', t => {
+test('individual ESM bundle source map is valid', t => {
   const mapPath = join(distDir, 'languages/en.js.map')
   const mapContent = readFileSync(mapPath, 'utf8')
 
@@ -256,7 +212,7 @@ test('individual bundle source map is valid', t => {
 // Bundle Size Sanity Checks
 // =============================================================================
 
-test('main bundle size is reasonable', t => {
+test('main ESM bundle size is reasonable', t => {
   const code = readFileSync(join(distDir, 'n2words.js'), 'utf8')
   const sizeKB = Buffer.byteLength(code, 'utf8') / 1024
   const exportCount = expectedExports.length
@@ -265,17 +221,17 @@ test('main bundle size is reasonable', t => {
   const minExpectedKB = exportCount * 1.5
   const maxExpectedKB = exportCount * 3.5
 
-  t.log(`Main bundle: ${sizeKB.toFixed(1)}KB (${exportCount} languages, ~${(sizeKB / exportCount).toFixed(1)}KB each)`)
+  t.log(`Main ESM bundle: ${sizeKB.toFixed(1)}KB (${exportCount} languages, ~${(sizeKB / exportCount).toFixed(1)}KB each)`)
 
   t.true(sizeKB > minExpectedKB, `Main bundle (${sizeKB.toFixed(1)}KB) should be > ${minExpectedKB.toFixed(0)}KB`)
   t.true(sizeKB < maxExpectedKB, `Main bundle (${sizeKB.toFixed(1)}KB) should be < ${maxExpectedKB.toFixed(0)}KB`)
 })
 
-test('individual bundle size is reasonable', t => {
+test('individual ESM bundle size is reasonable', t => {
   const code = readFileSync(join(distDir, 'languages/en.js'), 'utf8')
   const sizeKB = Buffer.byteLength(code, 'utf8') / 1024
 
-  t.log(`en.js bundle: ${sizeKB.toFixed(1)}KB`)
+  t.log(`en.js ESM bundle: ${sizeKB.toFixed(1)}KB`)
 
   // Individual bundles are self-contained, so 2-20KB is reasonable
   t.true(sizeKB > 1, `Individual bundle (${sizeKB.toFixed(1)}KB) should be > 1KB`)

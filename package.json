@@ -46,11 +46,13 @@
   "exports": {
     ".": {
       "types": "./lib/n2words.d.ts",
+      "require": "./dist/n2words.umd.cjs",
       "import": "./lib/n2words.js",
       "default": "./lib/n2words.js"
     },
     "./*": {
       "types": "./lib/languages/*.d.ts",
+      "require": "./dist/languages/*.umd.cjs",
       "import": "./lib/languages/*.js",
       "default": "./lib/languages/*.js"
     },
@@ -64,7 +66,9 @@
     "lib/**/*.js",
     "lib/**/*.d.ts",
     "dist/**/*.js",
+    "dist/**/*.cjs",
     "dist/**/*.js.map",
+    "dist/**/*.cjs.map",
     "README.md",
     "LICENSE",
     "CHANGELOG.md"
@@ -82,11 +86,11 @@
     "clean:artifacts": "rimraf coverage playwright-report test-results .nyc_output",
     "clean:all": "npm run clean && npm run clean:artifacts",
     "test": "npm run test:unit && npm run test:integration",
-    "test:all": "npm test && npm run build && npm run test:types:run && npm run test:exports:run && npm run test:umd:run && npm run test:browsers:run",
+    "test:all": "npm test && npm run build && npm run test:types:run && npm run test:exports:run && npm run test:bundles:run && npm run test:browsers:run",
     "test:unit": "ava --verbose \"test/unit/**/*.test.js\"",
     "test:integration": "ava --verbose test/integration/*.test.js",
-    "test:umd": "npm run build:umd && npm run test:umd:run",
-    "test:umd:run": "ava --verbose test/umd/*.test.js",
+    "test:bundles": "npm run build:umd && npm run test:bundles:run",
+    "test:bundles:run": "ava --verbose test/bundles/*.test.js",
     "test:types": "npm run build:types && npm run test:types:run",
     "test:types:run": "tsd --files test/types/*.test-d.ts",
     "test:exports": "npm run build:types && npm run test:exports:run",
@@ -101,7 +105,7 @@
     "lang:add": "node scripts/add-language.js",
     "bench:perf": "node bench/perf.js",
     "bench:memory": "node --expose-gc bench/memory.js",
-    "compat:umd": "es-check checkBrowser dist/**/*.js",
+    "compat:bundles": "es-check checkBrowser dist/**/*.js dist/**/*.cjs",
     "browserslist": "browserslist",
     "browserslist:coverage": "browserslist --coverage",
     "playwright:install": "playwright install --with-deps"
@@ -114,7 +118,7 @@
     "files": [
       "test/unit/**/*.test.js",
       "test/integration/*.test.js",
-      "test/umd/*.test.js"
+      "test/bundles/*.test.js"
     ],
     "timeout": "30s",
     "concurrency": 8,

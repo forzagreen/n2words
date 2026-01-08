@@ -67,7 +67,7 @@ jobs:
       - name: Build type declarations
         run: npm run build:types
 
-      - name: Build UMD bundles
+      - name: Build bundles (ESM + UMD)
         run: npm run build:umd
 
       - name: Verify build artifacts
@@ -105,6 +105,7 @@ jobs:
           PKG_VERSION=$(node -p "require('./package.json').version")
           mkdir -p n2words-${PKG_VERSION}
           cp dist/n2words.js dist/n2words.js.map n2words-${PKG_VERSION}/
+          cp dist/n2words.umd.cjs dist/n2words.umd.cjs.map n2words-${PKG_VERSION}/
           cp -r dist/languages n2words-${PKG_VERSION}/
           zip -r n2words-${PKG_VERSION}.zip n2words-${PKG_VERSION}/
 

@@ -47,44 +47,57 @@ import { toWords as esWords } from 'n2words/es'
 
 **CommonJS (Node.js):**
 
-n2words is an ES module. For CommonJS environments, use dynamic import:
+n2words supports CommonJS via `require()`:
 
 ```js
-// Promise-based
-import('n2words').then(({ en }) => {
-  console.log(en(42))  // 'forty-two'
-})
+// Direct require (uses UMD bundle)
+const { en, es } = require('n2words')
+console.log(en(42))  // 'forty-two'
 
-// Subpath import (smallest bundle)
-import('n2words/en').then(({ toWords }) => {
-  console.log(toWords(42))  // 'forty-two'
-})
+// Individual language
+const { toWords } = require('n2words/en')
+console.log(toWords(42))  // 'forty-two'
 ```
 
-**Browser (UMD via CDN):**
+**Browser (CDN):**
 
 ```html
-<!-- All languages -->
-<script src="https://cdn.jsdelivr.net/npm/n2words/dist/n2words.js"></script>
+<!-- ESM (recommended for modern browsers) -->
+<script type="module">
+  import { en, es } from 'https://cdn.jsdelivr.net/npm/n2words/dist/n2words.js'
+  console.log(en(42))  // 'forty-two'
+</script>
+
+<!-- UMD (for legacy script tags) -->
+<script src="https://cdn.jsdelivr.net/npm/n2words/dist/n2words.umd.cjs"></script>
 <script>
   n2words.en(42)  // 'forty-two'
   n2words.es(123) // 'ciento veintitrés'
 </script>
 
-<!-- Single language (smallest, ~1.4 KB gzipped) -->
-<script src="https://cdn.jsdelivr.net/npm/n2words/dist/languages/en.js"></script>
+<!-- Single language ESM (~1.4 KB gzipped) -->
+<script type="module">
+  import { en } from 'https://cdn.jsdelivr.net/npm/n2words/dist/languages/en.js'
+  console.log(en(42))  // 'forty-two'
+</script>
+
+<!-- Single language UMD (legacy) -->
+<script src="https://cdn.jsdelivr.net/npm/n2words/dist/languages/en.umd.cjs"></script>
 <script>
   n2words.en(42)  // 'forty-two'
 </script>
 
-<!-- Multiple single-language bundles (no conflicts) -->
-<script src="https://cdn.jsdelivr.net/npm/n2words/dist/languages/en.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/n2words/dist/languages/es.js"></script>
+<!-- Multiple UMD bundles (no conflicts) -->
+<script src="https://cdn.jsdelivr.net/npm/n2words/dist/languages/en.umd.cjs"></script>
+<script src="https://cdn.jsdelivr.net/npm/n2words/dist/languages/es.umd.cjs"></script>
 <script>
   n2words.en(42)   // 'forty-two'
   n2words.es(42)   // 'cuarenta y dos'
 </script>
 ```
+
+> **Note:** Installing from GitHub requires running `npm run build` after install.
+> For production use, install from npm: `npm install n2words`
 
 ## Supported Languages (52)
 
@@ -149,7 +162,8 @@ Simplified Chinese, Traditional Chinese - Toggle between formal/financial and co
 
 **Build options:**
 
-- **Browser CDN**: Use `dist/n2words.js` (pre-built UMD, tested in real browsers)
+- **Browser CDN (ESM)**: Use `dist/n2words.js` (pre-built ES module, recommended)
+- **Browser CDN (UMD)**: Use `dist/n2words.umd.cjs` (for legacy `<script>` tags)
 - **Node.js/Bundlers**: Use `lib/` source (ES modules, tree-shakable)
 
 [See detailed compatibility guide →](COMPATIBILITY.md)

@@ -21,7 +21,7 @@ function normalizeCode (code) {
 }
 
 /**
- * Rollup configuration for n2words UMD bundles.
+ * Rollup configuration for n2words bundles.
  *
  * Build Strategy:
  * 1. Source (lib/): Modern ES2022+ code with BigInt, optional chaining
@@ -30,10 +30,12 @@ function normalizeCode (code) {
  * 4. Target: ~85.9% global coverage via .browserslistrc ("defaults and supports bigint")
  *
  * Generates:
- * - Main bundle (dist/n2words.js): All language converters
- * - Individual bundles (dist/languages/{langCode}.js): One per language
+ * - Main ESM bundle (dist/n2words.js): All language converters, ES modules
+ * - Main UMD bundle (dist/n2words.umd.cjs): All language converters, UMD format
+ * - Individual ESM bundles (dist/languages/{langCode}.js): One per language
+ * - Individual UMD bundles (dist/languages/{langCode}.umd.cjs): One per language
  *
- * Individual bundles use virtual entry points to re-export toWords as the
+ * UMD bundles use virtual entry points to re-export toWords as the
  * normalized language code (e.g., n2words.en, n2words.zhHans), allowing
  * multiple languages to be loaded together without conflicts.
  */
@@ -93,11 +95,27 @@ const basePlugins = [
   babel(babelConfig)
 ]
 
-// Main bundle configuration (all languages)
-const mainConfig = {
+// ============================================================================
+// Main Bundle Configurations
+// ============================================================================
+
+// Main ESM bundle (all languages) - for <script type="module"> and CDN default
+const mainEsmConfig = {
   input: './lib/n2words.js',
   output: {
     file: 'dist/n2words.js',
+    format: 'es',
+    sourcemap: true,
+    banner: `/*! n2words v${pkg.version} | MIT License | github.com/forzagreen/n2words */`
+  },
+  plugins: [...basePlugins, mainTerserConfig]
+}
+
+// Main UMD bundle (all languages) - for legacy <script> tags and CJS require()
+const mainUmdConfig = {
+  input: './lib/n2words.js',
+  output: {
+    file: 'dist/n2words.umd.cjs',
     format: 'umd',
     name: 'n2words',
     sourcemap: true,
@@ -107,16 +125,43 @@ const mainConfig = {
   plugins: [...basePlugins, mainTerserConfig]
 }
 
-// Generate individual language bundle configurations
-// Each bundle uses a virtual entry point that re-exports toWords as the normalized name
-const languageConfigs = languageCodes.map(langCode => {
+// ============================================================================
+// Individual Language Bundle Configurations
+// ============================================================================
+
+// Generate individual ESM language bundle configurations
+const languageEsmConfigs = languageCodes.map(langCode => {
   const normalizedName = normalizeCode(langCode)
-  const virtualEntryId = `\0virtual:${langCode}`
+  const virtualEntryId = `\0virtual:esm:${langCode}`
 
   return {
     input: virtualEntryId,
     output: {
       file: `dist/languages/${langCode}.js`,
+      format: 'es',
+      sourcemap: true,
+      banner: `/*! n2words/${langCode} v${pkg.version} | MIT License | github.com/forzagreen/n2words */`
+    },
+    plugins: [
+      // Virtual entry point that re-exports toWords as the normalized language name
+      virtual({
+        [virtualEntryId]: `export { toWords as ${normalizedName} } from './lib/languages/${langCode}.js'`
+      }),
+      ...basePlugins,
+      individualTerserConfig
+    ]
+  }
+})
+
+// Generate individual UMD language bundle configurations
+const languageUmdConfigs = languageCodes.map(langCode => {
+  const normalizedName = normalizeCode(langCode)
+  const virtualEntryId = `\0virtual:umd:${langCode}`
+
+  return {
+    input: virtualEntryId,
+    output: {
+      file: `dist/languages/${langCode}.umd.cjs`,
       format: 'umd',
       name: 'n2words',
       sourcemap: true,
@@ -137,6 +182,8 @@ const languageConfigs = languageCodes.map(langCode => {
 
 // Export all configurations as an array
 export default [
-  mainConfig,
-  ...languageConfigs
+  mainEsmConfig,
+  mainUmdConfig,
+  ...languageEsmConfigs,
+  ...languageUmdConfigs
 ]
