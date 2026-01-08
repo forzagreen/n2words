@@ -1,3 +1,23 @@
+# Changelog
+
+## [3.1.0](https://github.com/forzagreen/n2words/compare/v3.0.0...v3.1.0) (2026-01-08)
+
+
+### Features
+
+* **ka:** add Georgian language support ([#218](https://github.com/forzagreen/n2words/issues/218)) ([a7c5142](https://github.com/forzagreen/n2words/commit/a7c5142f6cc08a237e6e3f803f1b8298621c70f1))
+* **yo:** add Yoruba language support ([#221](https://github.com/forzagreen/n2words/issues/221)) ([60680b0](https://github.com/forzagreen/n2words/commit/60680b09aebe8a04cb841eff9a874a08bc955c67))
+
+
+### Bug Fixes
+
+* **lang:** remove precomputed lookup tables from all languages ([#224](https://github.com/forzagreen/n2words/issues/224)) ([fbe0c7b](https://github.com/forzagreen/n2words/commit/fbe0c7b7115e5a3e63a92945e865b75ff919ebb0))
+
+
+### Performance Improvements
+
+* **bn,hi:** optimize South Asian languages with precomputed lookup tables ([#223](https://github.com/forzagreen/n2words/issues/223)) ([304c558](https://github.com/forzagreen/n2words/commit/304c558aba930b96092d4e6a9a088694d223402d))
+
 ## 3.0.0 - Functional Architecture
 
 Complete rewrite from class-based to functional architecture with major performance improvements.
