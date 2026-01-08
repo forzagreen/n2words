@@ -308,12 +308,13 @@ suite
     const separatorLength = compareResults && previousResults ? 75 : 60
     console.log(chalk.gray('─'.repeat(separatorLength)))
 
-    // Only show fastest/range when testing multiple converters
+    // Only show fastest/slowest/range when testing multiple converters
     if (this.length > 1) {
       const fastest = this.filter('fastest')
       const slowest = this.filter('slowest')
 
       console.log(chalk.green('Fastest: ' + fastest.map('name').join(', ')))
+      console.log(chalk.red('Slowest: ' + slowest.map('name').join(', ')))
 
       if (fastest.length > 0 && slowest.length > 0) {
         const fastestHz = fastest[0].hz

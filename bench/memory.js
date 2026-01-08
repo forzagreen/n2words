@@ -417,9 +417,10 @@ function displayResults () {
   const separatorLength = compareResults && previousResults ? 70 : 55
   console.log(chalk.gray('─'.repeat(separatorLength)))
 
-  // Only show lowest memory and range when testing multiple converters
+  // Only show lowest/highest memory and range when testing multiple converters
   if (results.length > 1) {
     console.log(chalk.green('Lowest memory: ' + best.name))
+    console.log(chalk.red('Highest memory: ' + worst.name))
 
     const increase = ((worst.totalAllocated - best.totalAllocated) / best.totalAllocated) * 100
     console.log(chalk.gray(`Range: ${formatBytes(best.totalAllocated)} to ${formatBytes(worst.totalAllocated)} (+${increase.toFixed(1)}%)`))
