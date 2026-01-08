@@ -13,11 +13,6 @@
 
 * **lang:** remove precomputed lookup tables from all languages ([#224](https://github.com/forzagreen/n2words/issues/224)) ([fbe0c7b](https://github.com/forzagreen/n2words/commit/fbe0c7b7115e5a3e63a92945e865b75ff919ebb0))
 
-
-### Performance Improvements
-
-* **bn,hi:** optimize South Asian languages with precomputed lookup tables ([#223](https://github.com/forzagreen/n2words/issues/223)) ([304c558](https://github.com/forzagreen/n2words/commit/304c558aba930b96092d4e6a9a088694d223402d))
-
 ## 3.0.0 - Functional Architecture
 
 Complete rewrite from class-based to functional architecture with major performance improvements.
