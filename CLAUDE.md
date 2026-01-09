@@ -79,6 +79,9 @@ npm run lint:fix && npm test
 Before/after `src/` changes (check for regressions):
 
 ```bash
-npm run bench:perf
-npm run bench:memory
+npm run bench                          # All languages
+npm run bench -- --lang en             # Single language
+npm run bench -- --lang en,fr,de       # Multiple languages
+npm run bench -- --save --compare      # Track changes over time
+npm run bench -- --full                # Full mode (slower, more accurate)
 ```

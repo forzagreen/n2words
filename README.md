@@ -52,27 +52,27 @@ Individual language bundles are recommended for browsers (~1.4 KB gzipped each).
 ```html
 <!-- ESM (recommended for modern browsers) -->
 <script type="module">
-  import { toWords } from 'https://cdn.jsdelivr.net/npm/n2words/dist/languages/en.js'
+  import { toWords } from 'https://cdn.jsdelivr.net/npm/n2words/dist/en.js'
   console.log(toWords(42))  // 'forty-two'
 </script>
 
 <!-- Multiple ESM languages -->
 <script type="module">
-  import { toWords as en } from 'https://cdn.jsdelivr.net/npm/n2words/dist/languages/en.js'
-  import { toWords as es } from 'https://cdn.jsdelivr.net/npm/n2words/dist/languages/es.js'
+  import { toWords as en } from 'https://cdn.jsdelivr.net/npm/n2words/dist/en.js'
+  import { toWords as es } from 'https://cdn.jsdelivr.net/npm/n2words/dist/es.js'
   console.log(en(42))  // 'forty-two'
   console.log(es(42))  // 'cuarenta y dos'
 </script>
 
 <!-- UMD (for legacy script tags) -->
-<script src="https://cdn.jsdelivr.net/npm/n2words/dist/languages/en.umd.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/n2words/dist/en.umd.js"></script>
 <script>
   n2words.en(42)  // 'forty-two'
 </script>
 
 <!-- Multiple UMD bundles (extend the same n2words global) -->
-<script src="https://cdn.jsdelivr.net/npm/n2words/dist/languages/en.umd.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/n2words/dist/languages/es.umd.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/n2words/dist/en.umd.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/n2words/dist/es.umd.js"></script>
 <script>
   n2words.en(42)   // 'forty-two'
   n2words.es(42)   // 'cuarenta y dos'
@@ -189,8 +189,8 @@ import { en, es } from 'n2words'
 **Run benchmarks:**
 
 ```bash
-npm run bench:perf    # Performance benchmarks (ops/sec)
-npm run bench:memory  # Memory usage benchmarks
+npm run bench              # Performance and memory benchmarks
+npm run bench -- --full    # Full mode (more iterations, slower)
 ```
 
 ## Examples

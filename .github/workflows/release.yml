@@ -76,7 +76,7 @@ jobs:
           ls -lh dist/
           echo ""
           echo "Type declarations:"
-          find lib -name "*.d.ts" -type f
+          find src -name "*.d.ts" -type f
 
       - name: Dry-run publish
         run: npm publish --dry-run
@@ -104,8 +104,7 @@ jobs:
         run: |
           PKG_VERSION=$(node -p "require('./package.json').version")
           mkdir -p n2words-${PKG_VERSION}
-          cp dist/n2words.js dist/n2words.umd.cjs n2words-${PKG_VERSION}/
-          cp -r dist/languages n2words-${PKG_VERSION}/
+          cp dist/*.js n2words-${PKG_VERSION}/
           zip -r n2words-${PKG_VERSION}.zip n2words-${PKG_VERSION}/
 
       - name: Upload build artifacts to release

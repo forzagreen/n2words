@@ -11,7 +11,7 @@
  *   npm run bench -- --save --compare      # Track changes over time
  */
 import Benchmark from 'benchmark'
-import { existsSync, writeFileSync, readFileSync, mkdirSync, renameSync } from 'node:fs'
+import { existsSync, writeFileSync, readFileSync, renameSync } from 'node:fs'
 import chalk from 'chalk'
 import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -74,11 +74,7 @@ const config = {
 
 // Store results in project directory (gitignored)
 const __dirname = dirname(fileURLToPath(import.meta.url))
-const benchDir = join(__dirname, '.results')
-if (!existsSync(benchDir)) {
-  mkdirSync(benchDir, { recursive: true })
-}
-const resultsFile = join(benchDir, 'results.json')
+const resultsFile = join(__dirname, 'results.json')
 
 // ============================================================================
 // Converter Loading
