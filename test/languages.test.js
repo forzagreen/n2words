@@ -152,8 +152,8 @@ for (const file of files) {
       }
     }
 
-    // Validate minimum test coverage (at least 10 test cases per language)
-    if (testFile.length < 10) {
+    // Validate minimum test coverage (at least 25 test cases per language)
+    if (testFile.length < 25) {
       t.log(`Warning: ${languageCode} has only ${testFile.length} test cases. Consider adding more comprehensive coverage.`)
     }
 
