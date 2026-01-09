@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>n2words Browser Test Suite</title>
+    <title>n2words UMD Bundle Test</title>
     <style>
       * {
         box-sizing: border-box;
@@ -107,10 +107,9 @@
 
   <body>
     <div class="container">
-      <h1>n2words Browser Test Suite</h1>
+      <h1>n2words UMD Bundle Test</h1>
       <div class="subtitle">
-        Tests UMD bundle loading in browser environment.
-        Conversion correctness is tested in languages.test.js.
+        Tests UMD bundle (dist/n2words.umd.cjs) loading via script tag.
       </div>
 
       <div id="status" class="running">⏳ Running tests...</div>
@@ -118,7 +117,7 @@
     </div>
   </body>
 
-  <script src="../../dist/n2words.js"></script>
+  <script src="../../dist/n2words.umd.cjs"></script>
   <script>
     window.onload = () => {
       const results = document.getElementById('results')

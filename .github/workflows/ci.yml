@@ -125,8 +125,8 @@ jobs:
           retention-days: 30
           if-no-files-found: ignore
 
-  test-browsers:
-    name: Browser Tests
+  test-e2e:
+    name: E2E Browser Tests
     runs-on: ubuntu-latest
     needs: lint
     timeout-minutes: 10
@@ -148,8 +148,8 @@ jobs:
       - name: Install Playwright browsers
         run: npx playwright install --with-deps
 
-      - name: Run browser tests
-        run: npm run test:browsers
+      - name: Run E2E tests
+        run: npm run test:e2e
 
       - name: Upload Playwright test results
         if: failure()
@@ -165,11 +165,11 @@ jobs:
   verify:
     name: Verify Package
     runs-on: ubuntu-latest
-    needs: [test, test-browsers]
+    needs: [test, test-e2e]
     if: |
       !cancelled() &&
       needs.test.result == 'success' &&
-      (needs.test-browsers.result == 'success' || needs.test-browsers.result == 'skipped')
+      (needs.test-e2e.result == 'success' || needs.test-e2e.result == 'skipped')
     timeout-minutes: 5
 
     steps:
@@ -195,8 +195,8 @@ jobs:
       - name: Run exports tests
         run: npm run test:exports:run
 
-      - name: Run UMD bundle tests
-        run: npm run test:umd:run
+      - name: Run bundle tests
+        run: npm run test:bundles:run
 
       - name: Verify package contents
         run: npm pack --dry-run

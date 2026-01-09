@@ -62,7 +62,7 @@ const PROJECT_SCOPES = [
   // Quality & Testing
   'test', // Test infrastructure, AVA config
   'bench', // Benchmarking (perf.js, memory.js)
-  'browser', // Playwright browser tests
+  'e2e', // Playwright E2E browser tests
 
   // Infrastructure
   'ci', // GitHub Actions workflows
