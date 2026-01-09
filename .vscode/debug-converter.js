@@ -17,7 +17,7 @@
  */
 
 import * as n2words from '../index.js'
-import { getConvertersByCode, getLanguageCodes } from '../test/utils/language-helpers.js'
+import { getConvertersByCode, getLanguageCodes } from '../test/helpers/language-helpers.js'
 
 // Build converter map keyed by language code
 const converters = getConvertersByCode(n2words)

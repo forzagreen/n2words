@@ -29,7 +29,7 @@ npm run lang:add <code>   # e.g., ko, sr-Cyrl, fr-BE
 This scaffolds all required files. Then:
 
 1. Implement `toWords(value)` in `src/<code>.js`
-2. Add test cases to `test/fixtures/languages/<code>.js`
+2. Add test cases to `test/fixtures/<code>.js`
 3. Run `npm test`
 
 See [scripts/README.md](scripts/README.md) for implementation patterns.

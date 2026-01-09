@@ -6,7 +6,7 @@
  * Generates boilerplate code for adding a new language to n2words.
  * Creates:
  * - Language implementation file in src/
- * - Test fixture file in test/fixtures/languages/
+ * - Test fixture file in test/fixtures/
  * - Updates index.js with import and export
  * - Updates test/types/languages.test-d.ts with import and type test
  *
@@ -21,8 +21,8 @@
 
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import chalk from 'chalk'
-import { getCanonicalCode, isValidLanguageCode } from '../test/utils/language-naming.js'
-import { normalizeCode } from '../test/utils/language-helpers.js'
+import { getCanonicalCode, isValidLanguageCode } from '../test/helpers/language-naming.js'
+import { normalizeCode } from '../test/helpers/language-helpers.js'
 
 // ============================================================================
 // Template Generators
@@ -282,7 +282,7 @@ function main () {
 
   const normalized = normalizeCode(code)
   const langFilePath = `./src/${code}.js`
-  const fixtureFilePath = `./test/fixtures/languages/${code}.js`
+  const fixtureFilePath = `./test/fixtures/${code}.js`
 
   console.log(chalk.cyan(`\nAdding language: ${code}`))
   console.log(chalk.gray(`Export name: ${normalized}`))
@@ -300,7 +300,7 @@ function main () {
 
   // Create test fixture
   console.log(chalk.gray(`Creating ${fixtureFilePath}...`))
-  const fixtureDir = './test/fixtures/languages'
+  const fixtureDir = './test/fixtures'
   if (!existsSync(fixtureDir)) {
     mkdirSync(fixtureDir, { recursive: true })
   }

@@ -13,7 +13,7 @@ Scaffolding tool for quickly setting up a new language implementation with all r
   - `parseNumericValue()` import for input handling
   - TODO comments with reference implementations by pattern
 
-- **Test fixture file** (`test/fixtures/languages/{code}.js`)
+- **Test fixture file** (`test/fixtures/{code}.js`)
   - Test case array with example format
   - TODO comments for adding test cases
 
@@ -21,7 +21,7 @@ Scaffolding tool for quickly setting up a new language implementation with all r
   - Adds import statement (alphabetically ordered)
   - Adds to named exports (alphabetically ordered)
 
-- **Updates test/types/n2words.test-d.ts**
+- **Updates test/types/languages.test-d.ts**
   - Adds the new converter to the import block (alphabetically)
   - Adds a basic type test for the converter
 
@@ -51,7 +51,7 @@ The script validates that:
    - Use `parseNumericValue(value)` to get `isNegative`, `integerPart`, and `decimalPart`
    - See reference implementations in the generated TODO comments
 
-2. Edit `test/fixtures/languages/{code}.js`:
+2. Edit `test/fixtures/{code}.js`:
    - Add comprehensive test cases `[input, expectedOutput, options?]`
    - Include edge cases: zero, negatives, decimals, large numbers
 

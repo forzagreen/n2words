@@ -43,7 +43,7 @@ export { toWords }
 
 1. `npm run lang:add <code>` - creates stub + fixture, updates index.js + type tests
 2. Implement `toWords()` in `src/{code}.js`
-3. Add test cases to `test/fixtures/languages/{code}.js`
+3. Add test cases to `test/fixtures/{code}.js`
 4. `npm test`
 
 **Reference implementations**:
