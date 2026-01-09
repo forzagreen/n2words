@@ -71,8 +71,7 @@
     "CHANGELOG.md"
   ],
   "scripts": {
-    "bench:memory": "node --expose-gc bench/memory.js",
-    "bench:perf": "node bench/perf.js",
+    "bench": "node --expose-gc bench/index.js",
     "browserslist": "browserslist",
     "browserslist:coverage": "browserslist --coverage",
     "build": "npm run clean && npm run build:types:run && npm run build:dist:run",
