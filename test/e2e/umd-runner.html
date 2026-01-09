@@ -109,7 +109,8 @@
     <div class="container">
       <h1>n2words UMD Bundle Test</h1>
       <div class="subtitle">
-        Tests UMD bundle (dist/n2words.umd.cjs) loading via script tag.
+        Tests individual UMD language bundles (dist/languages/*.umd.js) loading via script tags.
+        Multiple bundles extend the same n2words global.
       </div>
 
       <div id="status" class="running">⏳ Running tests...</div>
@@ -117,7 +118,10 @@
     </div>
   </body>
 
-  <script src="../../dist/n2words.umd.cjs"></script>
+  <!-- Load individual language UMD bundles - they extend window.n2words -->
+  <script src="../../dist/languages/en.umd.js"></script>
+  <script src="../../dist/languages/fr.umd.js"></script>
+  <script src="../../dist/languages/zh-Hans.umd.js"></script>
   <script>
     window.onload = () => {
       const results = document.getElementById('results')
@@ -147,41 +151,47 @@
       }
 
       // ========================================================================
-      // UMD Bundle Loading Tests
+      // UMD Individual Bundle Loading Tests
       // ========================================================================
 
       test('n2words global is defined', () => {
         return typeof window.n2words === 'object' && window.n2words !== null
       })
 
-      test('All converters are functions keyed by normalized BCP 47 code', () => {
-        const n2words = window.n2words
-        const keys = Object.keys(n2words)
-        if (keys.length === 0) return false
-
-        for (const name of keys) {
-          if (typeof n2words[name] !== 'function') return false
-        }
-        return true
+      test('English converter (en) is loaded', () => {
+        return typeof window.n2words.en === 'function'
       })
 
-      test('Has multiple converters exported', () => {
-        const count = Object.keys(window.n2words).length
-        return count >= 40 // Sanity check: at least 40 languages
+      test('French converter (fr) is loaded', () => {
+        return typeof window.n2words.fr === 'function'
       })
 
-      test('Sample converter (en) returns string', () => {
+      test('Chinese Simplified converter (zhHans) is loaded', () => {
+        return typeof window.n2words.zhHans === 'function'
+      })
+
+      test('Multiple bundles extend the same global', () => {
+        const keys = Object.keys(window.n2words)
+        return keys.length === 3 && keys.includes('en') && keys.includes('fr') && keys.includes('zhHans')
+      })
+
+      test('English converter returns correct result', () => {
         const result = window.n2words.en(42)
-        return typeof result === 'string' && result.length > 0
+        return result === 'forty-two'
       })
 
-      test('Normalized code (zhHans) works', () => {
+      test('French converter returns correct result', () => {
+        const result = window.n2words.fr(42)
+        return result === 'quarante-deux'
+      })
+
+      test('Chinese Simplified converter returns correct result', () => {
         const result = window.n2words.zhHans(42)
-        return typeof result === 'string' && result.length > 0
+        return result === '四十二'
       })
 
-      test('Normalized code (frBE) works', () => {
-        const result = window.n2words.frBE(42)
+      test('BigInt support works', () => {
+        const result = window.n2words.en(9007199254740993n)
         return typeof result === 'string' && result.length > 0
       })
 

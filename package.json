@@ -46,13 +46,11 @@
   "exports": {
     ".": {
       "types": "./lib/n2words.d.ts",
-      "require": "./dist/n2words.umd.cjs",
       "import": "./lib/n2words.js",
       "default": "./lib/n2words.js"
     },
     "./*": {
       "types": "./lib/languages/*.d.ts",
-      "require": "./dist/languages/*.umd.cjs",
       "import": "./lib/languages/*.js",
       "default": "./lib/languages/*.js"
     },
@@ -60,13 +58,12 @@
   },
   "main": "./lib/n2words.js",
   "types": "./lib/n2words.d.ts",
-  "jsdelivr": "./dist/n2words.js",
-  "unpkg": "./dist/n2words.js",
+  "jsdelivr": "./dist/languages/en.js",
+  "unpkg": "./dist/languages/en.js",
   "files": [
     "lib/**/*.js",
     "lib/**/*.d.ts",
     "dist/**/*.js",
-    "dist/**/*.cjs",
     "README.md",
     "LICENSE",
     "CHANGELOG.md"

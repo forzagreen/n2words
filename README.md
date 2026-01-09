@@ -45,51 +45,34 @@ import { toWords } from 'n2words/en'
 import { toWords as esWords } from 'n2words/es'
 ```
 
-**CommonJS (Node.js):**
-
-n2words supports CommonJS via `require()`:
-
-```js
-// Direct require (uses UMD bundle)
-const { en, es } = require('n2words')
-console.log(en(42))  // 'forty-two'
-
-// Individual language
-const { toWords } = require('n2words/en')
-console.log(toWords(42))  // 'forty-two'
-```
-
 **Browser (CDN):**
+
+Individual language bundles are recommended for browsers (~1.4 KB gzipped each).
 
 ```html
 <!-- ESM (recommended for modern browsers) -->
 <script type="module">
-  import { en, es } from 'https://cdn.jsdelivr.net/npm/n2words/dist/n2words.js'
+  import { toWords } from 'https://cdn.jsdelivr.net/npm/n2words/dist/languages/en.js'
+  console.log(toWords(42))  // 'forty-two'
+</script>
+
+<!-- Multiple ESM languages -->
+<script type="module">
+  import { toWords as en } from 'https://cdn.jsdelivr.net/npm/n2words/dist/languages/en.js'
+  import { toWords as es } from 'https://cdn.jsdelivr.net/npm/n2words/dist/languages/es.js'
   console.log(en(42))  // 'forty-two'
+  console.log(es(42))  // 'cuarenta y dos'
 </script>
 
 <!-- UMD (for legacy script tags) -->
-<script src="https://cdn.jsdelivr.net/npm/n2words/dist/n2words.umd.cjs"></script>
-<script>
-  n2words.en(42)  // 'forty-two'
-  n2words.es(123) // 'ciento veintitrés'
-</script>
-
-<!-- Single language ESM (~1.4 KB gzipped) -->
-<script type="module">
-  import { en } from 'https://cdn.jsdelivr.net/npm/n2words/dist/languages/en.js'
-  console.log(en(42))  // 'forty-two'
-</script>
-
-<!-- Single language UMD (legacy) -->
-<script src="https://cdn.jsdelivr.net/npm/n2words/dist/languages/en.umd.cjs"></script>
+<script src="https://cdn.jsdelivr.net/npm/n2words/dist/languages/en.umd.js"></script>
 <script>
   n2words.en(42)  // 'forty-two'
 </script>
 
-<!-- Multiple UMD bundles (no conflicts) -->
-<script src="https://cdn.jsdelivr.net/npm/n2words/dist/languages/en.umd.cjs"></script>
-<script src="https://cdn.jsdelivr.net/npm/n2words/dist/languages/es.umd.cjs"></script>
+<!-- Multiple UMD bundles (extend the same n2words global) -->
+<script src="https://cdn.jsdelivr.net/npm/n2words/dist/languages/en.umd.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/n2words/dist/languages/es.umd.js"></script>
 <script>
   n2words.en(42)   // 'forty-two'
   n2words.es(42)   // 'cuarenta y dos'
@@ -162,8 +145,8 @@ Simplified Chinese, Traditional Chinese - Toggle between formal/financial and co
 
 **Build options:**
 
-- **Browser CDN (ESM)**: Use `dist/n2words.js` (pre-built ES module, recommended)
-- **Browser CDN (UMD)**: Use `dist/n2words.umd.cjs` (for legacy `<script>` tags)
+- **Browser CDN (ESM)**: Use `dist/languages/*.js` (individual language modules, recommended)
+- **Browser CDN (UMD)**: Use `dist/languages/*.umd.js` (for legacy `<script>` tags)
 - **Node.js/Bundlers**: Use `lib/` source (ES modules, tree-shakable)
 
 [See detailed compatibility guide →](COMPATIBILITY.md)
@@ -174,9 +157,8 @@ Simplified Chinese, Traditional Chinese - Toggle between formal/financial and co
 
 | Import Strategy                | Bundle Size | Gzipped   | Languages |
 | ------------------------------ | ----------- | --------- | --------- |
-| All languages (UMD)            | ~116 KB     | ~28 KB    | All 52    |
-| Single language (UMD)          | ~3-5 KB     | ~1.4-2 KB | 1         |
 | **Subpath import (ESM)** ⭐    | ~3 KB       | ~1.4 KB   | 1         |
+| Single language (UMD)          | ~3-5 KB     | ~1.4-2 KB | 1         |
 | Named imports (ESM, 1 lang)    | ~3-5 KB     | ~1.4-2 KB | 1         |
 | Named imports (ESM, 3 langs)   | ~9-15 KB    | ~4-6 KB   | 3         |
 | Named imports (ESM, 10 langs)  | ~30-50 KB   | ~10-15 KB | 10        |

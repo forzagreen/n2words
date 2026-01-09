@@ -109,7 +109,7 @@
     <div class="container">
       <h1>n2words ESM Bundle Test</h1>
       <div class="subtitle">
-        Tests ESM bundle (dist/n2words.js) loading via script type="module".
+        Tests individual ESM language bundles (dist/languages/*.js) loading via script type="module".
       </div>
 
       <div id="status" class="running">⏳ Running tests...</div>
@@ -118,7 +118,10 @@
   </body>
 
   <script type="module">
-    import * as n2words from '../../dist/n2words.js'
+    // Import individual language ESM bundles using toWords export
+    import { toWords as en } from '../../dist/languages/en.js'
+    import { toWords as fr } from '../../dist/languages/fr.js'
+    import { toWords as zhHans } from '../../dist/languages/zh-Hans.js'
 
     const results = document.getElementById('results')
     const status = document.getElementById('status')
@@ -147,41 +150,44 @@
     }
 
     // ========================================================================
-    // ESM Bundle Loading Tests
+    // ESM Individual Bundle Loading Tests
     // ========================================================================
 
-    test('ESM module imports successfully', () => {
-      return typeof n2words === 'object' && n2words !== null
+    test('English toWords export is a function', () => {
+      return typeof en === 'function'
     })
 
-    test('All exports are functions', () => {
-      const keys = Object.keys(n2words)
-      if (keys.length === 0) return false
-
-      for (const name of keys) {
-        if (typeof n2words[name] !== 'function') return false
-      }
-      return true
+    test('French toWords export is a function', () => {
+      return typeof fr === 'function'
     })
 
-    test('Has multiple converters exported', () => {
-      const count = Object.keys(n2words).length
-      return count >= 40 // Sanity check: at least 40 languages
+    test('Chinese Simplified toWords export is a function', () => {
+      return typeof zhHans === 'function'
     })
 
-    test('Named export (en) returns string', () => {
-      const result = n2words.en(42)
+    test('English converter returns correct result', () => {
+      const result = en(42)
+      return result === 'forty-two'
+    })
+
+    test('French converter returns correct result', () => {
+      const result = fr(42)
+      return result === 'quarante-deux'
+    })
+
+    test('Chinese Simplified converter returns correct result', () => {
+      const result = zhHans(42)
+      return result === '四十二'
+    })
+
+    test('BigInt support works', () => {
+      const result = en(9007199254740993n)
       return typeof result === 'string' && result.length > 0
     })
 
-    test('Normalized named export (zhHans) works', () => {
-      const result = n2words.zhHans(42)
-      return typeof result === 'string' && result.length > 0
-    })
-
-    test('Normalized named export (frBE) works', () => {
-      const result = n2words.frBE(42)
-      return typeof result === 'string' && result.length > 0
+    test('Negative numbers work', () => {
+      const result = en(-42)
+      return result === 'minus forty-two'
     })
 
     // ========================================================================

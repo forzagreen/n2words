@@ -3,8 +3,8 @@ import { test, expect } from '@playwright/test'
 /**
  * E2E Browser Tests using Playwright
  *
- * Tests both UMD and ESM bundles load correctly in real browsers.
- * Validates that the bundles work across browser engines (Chromium, Firefox, WebKit).
+ * Tests individual language bundles load correctly in real browsers.
+ * Validates both UMD (script tag) and ESM (module) loading patterns.
  *
  * Note: Conversion correctness is tested in integration/languages.test.js.
  * These tests focus on browser-specific bundle loading behavior.
@@ -13,7 +13,7 @@ import { test, expect } from '@playwright/test'
 test.setTimeout(30000)
 
 test.describe('UMD Bundle', () => {
-  test('loads via script tag and exposes n2words global', async ({ page }) => {
+  test('loads individual language bundles via script tags', async ({ page }) => {
     await page.goto('/test/e2e/umd-runner.html')
 
     // Wait for tests to complete
@@ -34,11 +34,12 @@ test.describe('UMD Bundle', () => {
     expect(statusText).toContain('All tests passed')
     expect(failCount).toBe(0)
 
-    // Verify n2words global exists with converters
+    // Verify n2words global has loaded converters
     const convertersLoaded = await page.evaluate(() => {
       return typeof window.n2words === 'object' &&
              window.n2words !== null &&
              typeof window.n2words.en === 'function' &&
+             typeof window.n2words.fr === 'function' &&
              typeof window.n2words.zhHans === 'function'
     })
     expect(convertersLoaded).toBe(true)
@@ -46,7 +47,7 @@ test.describe('UMD Bundle', () => {
 })
 
 test.describe('ESM Bundle', () => {
-  test('loads via script type="module" with named exports', async ({ page }) => {
+  test('loads individual language bundles via script type="module"', async ({ page }) => {
     await page.goto('/test/e2e/esm-runner.html')
 
     // Wait for tests to complete
