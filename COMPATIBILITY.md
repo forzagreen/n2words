@@ -1,46 +1,27 @@
 # Compatibility Guide
 
-n2words requires **BigInt** which cannot be polyfilled. This sets our minimum baseline.
+Technical details for contributors and maintainers. For usage instructions, see [README.md](README.md).
 
-## Quick Reference
+## Browser Support
 
-### Platform Support
+BigInt is the primary constraint and cannot be polyfilled.
 
-| Platform           | Minimum Version | Global Coverage |
-| ------------------ | --------------- | --------------- |
-| **Node.js**        | 20.0.0          | N/A             |
-| **Chrome**         | 67 (May 2018)   | ~65%            |
-| **Firefox**        | 68 (July 2019)  | ~3%             |
-| **Safari**         | 14 (Sep 2020)   | ~20%            |
-| **Edge**           | 79 (Jan 2020)   | ~5%             |
-| **Mobile Safari**  | 14.0            | Included        |
-| **Chrome Android** | 67              | Included        |
-| **Total Coverage** | -               | **~86%**        |
+| Platform           | Minimum Version | Release Date | Global Coverage |
+| ------------------ | --------------- | ------------ | --------------- |
+| **Chrome**         | 67              | May 2018     | ~65%            |
+| **Firefox**        | 68              | July 2019    | ~3%             |
+| **Safari**         | 14              | Sep 2020     | ~20%            |
+| **Edge**           | 79              | Jan 2020     | ~5%             |
+| **Mobile Safari**  | 14.0            | Sep 2020     | Included        |
+| **Chrome Android** | 67              | May 2018     | Included        |
+| **Total Coverage** | -               | -            | **~86%**        |
 
-### Verification Commands
+## Node.js Support
 
-| Check                   | Command                         |
-| ----------------------- | ------------------------------- |
-| Browser targets         | `npm run browserslist`          |
-| Browser coverage        | `npm run browserslist:coverage` |
-| Browser compatibility   | `npm run compat:umd`            |
-| Browser tests           | `npm run test:browsers`         |
+- **Supported**: Node.js 20+ (LTS versions)
+- Use `.nvmrc` with `nvm use` or `fnm use`
 
-## Build Targets
-
-### `lib/` (ESM Source)
-
-- For modern bundlers (Webpack, Vite, Rollup) and Node.js
-- ES2022+ features: class fields, BigInt, optional chaining
-- Tree-shaking supported
-
-### `dist/` (UMD Bundles)
-
-- For direct browser use via CDN or `<script>` tags
-- Transpiled to ES2020 (preserving BigInt)
-- Tested in real browsers via Playwright
-
-## Configuration
+## Build Configuration
 
 ### Browser Targets (`.browserslistrc`)
 
@@ -48,16 +29,14 @@ n2words requires **BigInt** which cannot be polyfilled. This sets our minimum ba
 defaults and supports bigint
 ```
 
-### Node.js Version
+### Verification Commands
 
-- **Required**: `>=20` (from `package.json` engines field)
-- **Recommended**: Use `.nvmrc` with `nvm use` or `fnm use`
+```bash
+npm run browserslist          # Show target browsers
+npm run browserslist:coverage # Show global coverage percentage
+npm run test:e2e              # Run Playwright browser tests
+```
 
 ## JavaScript Features
 
-| Feature                    | Source (`lib/`) | Bundle (`dist/`) |
-| -------------------------- | --------------- | ---------------- |
-| BigInt                     | Required        | Required         |
-| Class fields               | ES2022          | Transpiled       |
-| Optional chaining (`?.`)   | ES2020          | Transpiled       |
-| Nullish coalescing (`??`)  | ES2020          | Transpiled       |
+BigInt (ES2020) is the hard floor. No features newer than ES2020 are used.
