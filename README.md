@@ -145,11 +145,9 @@ Simplified Chinese, Traditional Chinese - Toggle between formal/financial and co
 
 **Build options:**
 
-- **Browser CDN (ESM)**: Use `dist/languages/*.js` (individual language modules, recommended)
-- **Browser CDN (UMD)**: Use `dist/languages/*.umd.js` (for legacy `<script>` tags)
-- **Node.js/Bundlers**: Use `lib/` source (ES modules, tree-shakable)
-
-[See detailed compatibility guide →](COMPATIBILITY.md)
+- **Browser CDN (ESM)**: Use `dist/*.js` (individual language modules, recommended)
+- **Browser CDN (UMD)**: Use `dist/*.umd.js` (for legacy `<script>` tags)
+- **Node.js/Bundlers**: Use `src/` source (ES modules, tree-shakable)
 
 ## Performance & Bundle Size
 
@@ -222,7 +220,6 @@ zhHans(123, { formal: false }) // '一百二十三' (common)
 
 ## Documentation
 
-- **[Compatibility Guide](COMPATIBILITY.md)** - Browser and Node.js compatibility
 - **[Contributing Guide](CONTRIBUTING.md)** - How to contribute and add languages
 - **[Code of Conduct](CODE_OF_CONDUCT.md)** - Community standards
 
