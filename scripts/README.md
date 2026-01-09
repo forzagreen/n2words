@@ -74,7 +74,7 @@ When implementing a new language, refer to existing implementations:
 
 ## Validation
 
-Language implementations are validated through the test suite (`npm test`). The integration tests verify:
+Language implementations are validated through the test suite (`npm test`). The tests verify:
 
 - IETF BCP 47 language code validity
 - `toWords()` function exists and returns strings

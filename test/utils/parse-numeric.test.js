@@ -1,5 +1,5 @@
 import test from 'ava'
-import { parseNumericValue } from '../../../src/utils/parse-numeric.js'
+import { parseNumericValue } from '../../src/utils/parse-numeric.js'
 
 /**
  * Unit Tests for parse-numeric.js

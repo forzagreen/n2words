@@ -1,5 +1,5 @@
 import test from 'ava'
-import { isPlainObject } from '../../../src/utils/is-plain-object.js'
+import { isPlainObject } from '../../src/utils/is-plain-object.js'
 
 /**
  * Unit Tests for is-plain-object.js

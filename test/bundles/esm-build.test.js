@@ -10,7 +10,7 @@
  * Note: Main ESM bundle is not generated - use index.js directly for
  * Node.js ESM imports (tree-shakable). Individual dist bundles are for browsers.
  *
- * Conversion correctness is tested in integration/languages.test.js.
+ * Conversion correctness is tested in languages.test.js.
  */
 
 import test from 'ava'

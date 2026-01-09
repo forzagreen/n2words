@@ -1,11 +1,11 @@
 import test from 'ava'
 import { readFileSync } from 'node:fs'
-import * as n2words from '../../index.js'
-import { getLanguageCodes, normalizeCode } from '../utils/language-helpers.js'
+import * as n2words from '../index.js'
+import { getLanguageCodes, normalizeCode } from './helpers/language-helpers.js'
 
 /**
  * Unit Tests for index.js module structure.
- * Converter behavior is tested in integration/languages.test.js.
+ * Converter behavior is tested in languages.test.js.
  */
 
 const n2wordsContent = readFileSync('./index.js', 'utf8')

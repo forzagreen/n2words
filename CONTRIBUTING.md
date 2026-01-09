@@ -42,7 +42,7 @@ See [scripts/README.md](scripts/README.md) for implementation patterns.
 ## Testing
 
 ```bash
-npm test              # Unit + integration tests
+npm test              # Run all tests
 npm run test:all      # Full suite (types, UMD, browsers)
 npm run coverage      # With coverage report
 ```

@@ -9,7 +9,7 @@
  * - Bundle sizes are reasonable
  *
  * Note: These tests verify build output structure and loadability.
- * Conversion correctness is tested in integration/languages.test.js.
+ * Conversion correctness is tested in languages.test.js.
  */
 
 import test from 'ava'

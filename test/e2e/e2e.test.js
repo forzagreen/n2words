@@ -6,7 +6,7 @@ import { test, expect } from '@playwright/test'
  * Tests individual language bundles load correctly in real browsers.
  * Validates both UMD (script tag) and ESM (module) loading patterns.
  *
- * Note: Conversion correctness is tested in integration/languages.test.js.
+ * Note: Conversion correctness is tested in languages.test.js.
  * These tests focus on browser-specific bundle loading behavior.
  */
 

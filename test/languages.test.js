@@ -1,9 +1,9 @@
 import test from 'ava'
 import { readdirSync, readFileSync } from 'node:fs'
-import { isPlainObject } from '../../src/utils/is-plain-object.js'
-import { parseNumericValue } from '../../src/utils/parse-numeric.js'
-import { isValidLanguageCode } from '../utils/language-naming.js'
-import { safeStringify } from '../utils/stringify.js'
+import { isPlainObject } from '../src/utils/is-plain-object.js'
+import { parseNumericValue } from '../src/utils/parse-numeric.js'
+import { isValidLanguageCode } from './helpers/language-naming.js'
+import { safeStringify } from './helpers/stringify.js'
 
 /**
  * Checks if a value is valid input for parseNumericValue.
@@ -113,7 +113,7 @@ function validateFixture (testFile, languageCode) {
 // Language Tests
 // ============================================================================
 
-const files = readdirSync('./test/fixtures/languages')
+const files = readdirSync('./test/fixtures')
 
 for (const file of files) {
   if (!file.endsWith('.js')) continue
@@ -121,7 +121,7 @@ for (const file of files) {
 
   test(languageCode, async t => {
     // Import language module
-    const languageModule = await import('../../src/' + file)
+    const languageModule = await import('../src/' + file)
 
     // Verify toWords export exists
     if (typeof languageModule.toWords !== 'function') {
@@ -132,7 +132,7 @@ for (const file of files) {
     const toWords = languageModule.toWords
 
     // Import and validate fixture
-    const { default: testFile } = await import('../fixtures/languages/' + file)
+    const { default: testFile } = await import('./fixtures/' + file)
     const validation = validateFixture(testFile, languageCode)
 
     if (!validation.valid) {
@@ -216,7 +216,7 @@ for (const file of files) {
 
 test('all language files have test fixtures', t => {
   const languageFiles = readdirSync('./src').filter(f => f.endsWith('.js'))
-  const fixtureFiles = readdirSync('./test/fixtures/languages').filter(f => f.endsWith('.js'))
+  const fixtureFiles = readdirSync('./test/fixtures').filter(f => f.endsWith('.js'))
 
   const missingFixtures = languageFiles.filter(f => !fixtureFiles.includes(f))
   t.deepEqual(missingFixtures, [], `Missing test fixtures for: ${missingFixtures.join(', ')}`)
