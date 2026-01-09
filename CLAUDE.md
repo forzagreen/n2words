@@ -24,12 +24,16 @@ src/
     └── validate-options.js # Options validation
 ```
 
-**Language file pattern**:
+**Language file pattern** (JSDoc required for type generation):
 
 ```javascript
 import { parseNumericValue } from './utils/parse-numeric.js'
 
-function toWords (value, options = {}) {
+/**
+ * @param {number | string | bigint} value - The numeric value to convert
+ * @returns {string} The number in words
+ */
+function toWords (value) {
   const { isNegative, integerPart, decimalPart } = parseNumericValue(value)
   // Convert integerPart (bigint) to words
   // Handle isNegative prefix and decimalPart suffix
@@ -57,9 +61,15 @@ export { toWords }
 
 ## Options Pattern
 
-Languages with options accept a second parameter:
+Languages with options accept a second parameter (JSDoc required):
 
 ```javascript
+/**
+ * @param {number | string | bigint} value - The numeric value to convert
+ * @param {Object} [options] - Optional configuration
+ * @param {('masculine'|'feminine')} [options.gender='masculine'] - Grammatical gender
+ * @returns {string} The number in words
+ */
 function toWords (value, options = {}) {
   const { gender = 'masculine' } = options
   // Use option in conversion
@@ -73,15 +83,12 @@ Conventional Commits required. See `.commitlintrc.mjs` for types and scopes.
 Before PR:
 
 ```bash
-npm run lint:fix && npm test
+npm run lint:fix && npm test:all
 ```
 
 Before/after `src/` changes (check for regressions):
 
 ```bash
-npm run bench                          # All languages
-npm run bench -- --lang en             # Single language
-npm run bench -- --lang en,fr,de       # Multiple languages
+npm run bench -- --lang en             # Quick single language check
 npm run bench -- --save --compare      # Track changes over time
-npm run bench -- --full                # Full mode (slower, more accurate)
 ```
