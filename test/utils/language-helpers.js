@@ -12,7 +12,7 @@ import { readFileSync, readdirSync } from 'node:fs'
 // Constants
 // ============================================================================
 
-const LANGUAGE_DIR = './lib/languages'
+const LANGUAGE_DIR = './src'
 
 // ============================================================================
 // Language Code Helpers

@@ -42,7 +42,7 @@ const resultsFile = join(benchDir, 'perf-results.json')
  */
 async function loadConverter (langCode) {
   try {
-    const module = await import(`../lib/languages/${langCode}.js`)
+    const module = await import(`../src/${langCode}.js`)
     if (module.toWords) {
       return { name: langCode, toWords: module.toWords }
     }
@@ -60,7 +60,7 @@ async function loadConverter (langCode) {
  */
 function getLanguageCodes () {
   try {
-    return readdirSync('./lib/languages')
+    return readdirSync('./src')
       .filter(file => file.endsWith('.js'))
       .map(file => file.replace('.js', ''))
   } catch {
@@ -215,7 +215,7 @@ for (const code of languageCodes) {
     converters.push(converter)
   } else {
     console.error(chalk.red(`✗ Language not found: ${code}`))
-    console.error(chalk.gray(`  Checked: lib/languages/${code}.js`))
+    console.error(chalk.gray(`  Checked: src/${code}.js`))
     process.exit(1)
   }
 }

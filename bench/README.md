@@ -401,7 +401,7 @@ The memory benchmark prevents V8 optimizations that would make measurements inac
 **Issue:** "Language file does not exist"
 
 - **Solution:** Check language code spelling (case-sensitive)
-- **Verify:** `ls lib/languages/<code>.js`
+- **Verify:** `ls src/<code>.js`
 
 **Issue:** Inconsistent results
 

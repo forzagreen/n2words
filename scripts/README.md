@@ -8,7 +8,7 @@ Scaffolding tool for quickly setting up a new language implementation with all r
 
 ### What it creates
 
-- **Language implementation file** (`lib/languages/{code}.js`)
+- **Language implementation file** (`src/{code}.js`)
   - Functional implementation stub with `toWords()` export
   - `parseNumericValue()` import for input handling
   - TODO comments with reference implementations by pattern
@@ -17,7 +17,7 @@ Scaffolding tool for quickly setting up a new language implementation with all r
   - Test case array with example format
   - TODO comments for adding test cases
 
-- **Updates lib/n2words.js**
+- **Updates index.js**
   - Adds import statement (alphabetically ordered)
   - Adds to named exports (alphabetically ordered)
 
@@ -46,7 +46,7 @@ The script validates that:
 
 ### Next steps after scaffolding
 
-1. Edit `lib/languages/{code}.js`:
+1. Edit `src/{code}.js`:
    - Implement the `toWords(value)` function
    - Use `parseNumericValue(value)` to get `isNegative`, `integerPart`, and `decimalPart`
    - See reference implementations in the generated TODO comments

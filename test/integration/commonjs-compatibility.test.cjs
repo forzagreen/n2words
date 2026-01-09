@@ -14,7 +14,7 @@ const test = require('ava')
 const path = require('path')
 const { pathToFileURL } = require('url')
 
-const modulePath = path.resolve(__dirname, '../../lib/n2words.js')
+const modulePath = path.resolve(__dirname, '../../index.js')
 
 // =============================================================================
 // require() Interop (Node 20+)

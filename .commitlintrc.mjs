@@ -47,8 +47,8 @@
  */
 const PROJECT_SCOPES = [
   // Code Areas
-  'core', // lib/n2words.js - main entry point
-  'lang', // lib/languages/* - general multi-language work
+  'core', // index.js - main entry point
+  'lang', // src/* - general multi-language work
   'utils', // lib/utils/* - shared utilities
 
   // Build & Distribution

@@ -1,13 +1,13 @@
 /**
  * ESM Build Output Validation Tests
  *
- * Tests the individual ESM bundles in dist/languages/ to ensure:
+ * Tests the individual ESM bundles in dist/ to ensure:
  * - All expected files are generated
  * - Bundles have correct ESM structure (export statements)
  * - Bundles can be dynamically imported and export toWords function
  * - Bundle sizes are reasonable
  *
- * Note: Main ESM bundle is not generated - use lib/n2words.js directly for
+ * Note: Main ESM bundle is not generated - use index.js directly for
  * Node.js ESM imports (tree-shakable). Individual dist bundles are for browsers.
  *
  * Conversion correctness is tested in integration/languages.test.js.
@@ -24,9 +24,9 @@ const distDir = join(__dirname, '../../dist')
 const require = createRequire(import.meta.url)
 const pkg = require('../../package.json')
 
-// Get all language codes from the languages directory
-const languagesDir = join(__dirname, '../../lib/languages')
-const languageCodes = readdirSync(languagesDir)
+// Get all language codes from the src directory (exclude utils/)
+const srcDir = join(__dirname, '../../src')
+const languageCodes = readdirSync(srcDir)
   .filter(file => file.endsWith('.js'))
   .map(file => file.replace('.js', ''))
 
@@ -38,7 +38,7 @@ test('all individual ESM language bundles exist', t => {
   const missingBundles = []
 
   for (const langCode of languageCodes) {
-    if (!existsSync(join(distDir, `languages/${langCode}.js`))) {
+    if (!existsSync(join(distDir, `${langCode}.js`))) {
       missingBundles.push(langCode)
     }
   }
@@ -55,14 +55,14 @@ test('individual ESM bundles have correct banners', t => {
   const sampleCodes = languageCodes.slice(0, 3)
 
   for (const langCode of sampleCodes) {
-    const code = readFileSync(join(distDir, `languages/${langCode}.js`), 'utf8')
+    const code = readFileSync(join(distDir, `${langCode}.js`), 'utf8')
     const bannerPattern = new RegExp(`/\\*! n2words/${langCode} v${pkg.version.replace(/\./g, '\\.')}`)
     t.regex(code, bannerPattern, `${langCode} should have correct banner`)
   }
 })
 
 test('individual ESM bundles have ES module structure', t => {
-  const code = readFileSync(join(distDir, 'languages/en.js'), 'utf8')
+  const code = readFileSync(join(distDir, 'en.js'), 'utf8')
 
   t.regex(code, /export\s*\{/, 'Should have ES module export statement')
   t.notRegex(code, /typeof exports.*===.*"object"/, 'Should NOT have CommonJS check')
@@ -73,7 +73,7 @@ test('individual ESM bundles have ES module structure', t => {
 // =============================================================================
 
 test('individual ESM bundle exports toWords function', async t => {
-  const bundlePath = pathToFileURL(join(distDir, 'languages/en.js')).href
+  const bundlePath = pathToFileURL(join(distDir, 'en.js')).href
   const enModule = await import(bundlePath)
 
   t.truthy(enModule, 'en module should be importable')
@@ -89,7 +89,7 @@ test('individual ESM bundles all export toWords', async t => {
   for (const langCode of testCases) {
     if (!languageCodes.includes(langCode)) continue
 
-    const bundlePath = pathToFileURL(join(distDir, `languages/${langCode}.js`)).href
+    const bundlePath = pathToFileURL(join(distDir, `${langCode}.js`)).href
     const langModule = await import(bundlePath)
 
     t.is(typeof langModule.toWords, 'function', `${langCode} should export toWords`)
@@ -97,7 +97,7 @@ test('individual ESM bundles all export toWords', async t => {
 })
 
 test('individual ESM bundle toWords accepts options', async t => {
-  const bundlePath = pathToFileURL(join(distDir, 'languages/ar.js')).href
+  const bundlePath = pathToFileURL(join(distDir, 'ar.js')).href
   const arModule = await import(bundlePath)
 
   // Verify options work by checking gender produces different results
@@ -111,7 +111,7 @@ test('individual ESM bundle toWords accepts options', async t => {
 // =============================================================================
 
 test('individual ESM bundle size is reasonable', t => {
-  const code = readFileSync(join(distDir, 'languages/en.js'), 'utf8')
+  const code = readFileSync(join(distDir, 'en.js'), 'utf8')
   const sizeKB = Buffer.byteLength(code, 'utf8') / 1024
 
   t.log(`en.js ESM bundle: ${sizeKB.toFixed(1)}KB`)

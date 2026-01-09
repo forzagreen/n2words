@@ -5,9 +5,9 @@
  *
  * Generates boilerplate code for adding a new language to n2words.
  * Creates:
- * - Language implementation file in lib/languages/
+ * - Language implementation file in src/
  * - Test fixture file in test/fixtures/languages/
- * - Updates lib/n2words.js with import and export
+ * - Updates index.js with import and export
  * - Updates test/types/languages.test-d.ts with import and type test
  *
  * Usage:
@@ -35,15 +35,15 @@ import { normalizeCode } from '../test/utils/language-helpers.js'
  * @returns {string} File content
  */
 function generateLanguageFile (code) {
-  return `import { parseNumericValue } from '../utils/parse-numeric.js'
+  return `import { parseNumericValue } from './utils/parse-numeric.js'
 
 // TODO: Implement number-to-words conversion for ${code}
 //
 // Reference implementations by pattern:
-//   Western scale: lib/languages/en.js, de.js, fr.js
-//   South Asian:   lib/languages/hi.js, bn.js
-//   East Asian:    lib/languages/ja.js, ko.js, zh-Hans.js
-//   Slavic:        lib/languages/ru.js, pl.js, uk.js
+//   Western scale: src/en.js, de.js, fr.js
+//   South Asian:   src/hi.js, bn.js
+//   East Asian:    src/ja.js, ko.js, zh-Hans.js
+//   Slavic:        src/ru.js, pl.js, uk.js
 
 /**
  * Converts a numeric value to words.
@@ -112,18 +112,18 @@ function insertSorted (lines, newLine, getSortKey) {
 }
 
 /**
- * Update lib/n2words.js with new language.
+ * Update index.js with new language.
  *
  * @param {string} code Language code (e.g., 'sr-Cyrl')
  * @param {string} normalized Normalized code (e.g., 'srCyrl')
  */
-function updateN2wordsFile (code, normalized) {
-  const filePath = './lib/n2words.js'
+function updateIndexFile (code, normalized) {
+  const filePath = './index.js'
   let content = readFileSync(filePath, 'utf-8')
 
   // 1. Add import line
-  const importLine = `import { toWords as ${normalized} } from './languages/${code}.js'`
-  const importMatch = content.match(/^import \{ toWords as \w+ \} from '\.\/languages\/[\w-]+\.js'$/gm)
+  const importLine = `import { toWords as ${normalized} } from './src/${code}.js'`
+  const importMatch = content.match(/^import \{ toWords as \w+ \} from '\.\/src\/[\w-]+\.js'$/gm)
   if (importMatch) {
     const imports = insertSorted(
       [...importMatch],
@@ -168,7 +168,7 @@ function updateLanguagesTypeTest (code, normalized) {
   const filePath = './test/types/languages.test-d.ts'
   const lines = readFileSync(filePath, 'utf-8').split('\n')
 
-  const importLine = `import { toWords as ${normalized} } from '../../lib/languages/${code}.js'`
+  const importLine = `import { toWords as ${normalized} } from '../../src/${code}.js'`
   const testLine = `expectType<string>(${normalized}(1))`
 
   // Check if already exists
@@ -281,7 +281,7 @@ function main () {
   }
 
   const normalized = normalizeCode(code)
-  const langFilePath = `./lib/languages/${code}.js`
+  const langFilePath = `./src/${code}.js`
   const fixtureFilePath = `./test/fixtures/languages/${code}.js`
 
   console.log(chalk.cyan(`\nAdding language: ${code}`))
@@ -307,10 +307,10 @@ function main () {
   writeFileSync(fixtureFilePath, generateTestFixture(code))
   console.log(chalk.green('✓ Created test fixture'))
 
-  // Update n2words.js
-  console.log(chalk.gray('Updating lib/n2words.js...'))
-  updateN2wordsFile(code, normalized)
-  console.log(chalk.green('✓ Updated n2words.js'))
+  // Update index.js
+  console.log(chalk.gray('Updating index.js...'))
+  updateIndexFile(code, normalized)
+  console.log(chalk.green('✓ Updated index.js'))
 
   // Update type tests
   console.log(chalk.gray('Updating test/types/languages.test-d.ts...'))

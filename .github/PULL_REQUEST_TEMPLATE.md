@@ -28,9 +28,9 @@ npm run lang:add -- <code>
 
 **Manual setup:** If not using the scaffolding tool, ensure you have:
 
-- [ ] Language module in `lib/languages/<code>.js` exporting `toWords()`
+- [ ] Language module in `src/<code>.js` exporting `toWords()`
 - [ ] Test fixture in `test/fixtures/languages/<code>.js`
-- [ ] Import and export in `lib/n2words.js` (alphabetically sorted)
+- [ ] Import and export in `index.js` (alphabetically sorted)
 - [ ] Tests pass (`npm test`)
 
 </details>

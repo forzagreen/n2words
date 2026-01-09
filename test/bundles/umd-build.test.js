@@ -1,7 +1,7 @@
 /**
  * UMD Build Output Validation Tests
  *
- * Tests the UMD bundles in dist/languages/ to ensure:
+ * Tests the UMD bundles in dist/ to ensure:
  * - All expected files are generated
  * - Bundles have correct UMD structure (banner, wrapper pattern)
  * - Bundles load and export working converters
@@ -24,9 +24,9 @@ const distDir = join(__dirname, '../../dist')
 const require = createRequire(import.meta.url)
 const pkg = require('../../package.json')
 
-// Get all language codes from the languages directory
-const languagesDir = join(__dirname, '../../lib/languages')
-const languageCodes = readdirSync(languagesDir)
+// Get all language codes from the src directory (exclude utils/)
+const srcDir = join(__dirname, '../../src')
+const languageCodes = readdirSync(srcDir)
   .filter(file => file.endsWith('.js'))
   .map(file => file.replace('.js', ''))
 
@@ -67,7 +67,7 @@ test('all individual UMD language bundles exist', t => {
   const missingBundles = []
 
   for (const langCode of languageCodes) {
-    if (!existsSync(join(distDir, `languages/${langCode}.umd.js`))) {
+    if (!existsSync(join(distDir, `${langCode}.umd.js`))) {
       missingBundles.push(langCode)
     }
   }
@@ -84,7 +84,7 @@ test('individual UMD bundles have correct banners', t => {
   const sampleCodes = languageCodes.slice(0, 3)
 
   for (const langCode of sampleCodes) {
-    const code = readFileSync(join(distDir, `languages/${langCode}.umd.js`), 'utf8')
+    const code = readFileSync(join(distDir, `${langCode}.umd.js`), 'utf8')
     const bannerPattern = new RegExp(`/\\*! n2words/${langCode} v${pkg.version.replace(/\./g, '\\.')}`)
     t.regex(code, bannerPattern, `${langCode} should have correct banner`)
   }
@@ -95,7 +95,7 @@ test('individual UMD bundles have correct banners', t => {
 // =============================================================================
 
 test('individual UMD bundle loads and exports language-specific function', t => {
-  const n2words = loadUmdBundle(join(distDir, 'languages/en.umd.js'))
+  const n2words = loadUmdBundle(join(distDir, 'en.umd.js'))
 
   t.truthy(n2words, 'n2words global should be defined')
   t.is(typeof n2words.en, 'function', 'en should be exported')
@@ -122,7 +122,7 @@ test('individual UMD bundles use extend mode (can be combined)', t => {
   const context = vm.createContext(sandbox)
 
   // Load English first
-  const englishCode = readFileSync(join(distDir, 'languages/en.umd.js'), 'utf8')
+  const englishCode = readFileSync(join(distDir, 'en.umd.js'), 'utf8')
   vm.runInContext(`(function() { ${englishCode} }).call(globalThis);`, context)
 
   // Verify English is available
@@ -130,7 +130,7 @@ test('individual UMD bundles use extend mode (can be combined)', t => {
   t.is(typeof globalContext.n2words.en, 'function', 'en should be available')
 
   // Load Spanish second (should extend, not replace)
-  const spanishCode = readFileSync(join(distDir, 'languages/es.umd.js'), 'utf8')
+  const spanishCode = readFileSync(join(distDir, 'es.umd.js'), 'utf8')
   vm.runInContext(`(function() { ${spanishCode} }).call(globalThis);`, context)
 
   const n2words = globalContext.n2words
@@ -150,7 +150,7 @@ test('individual UMD bundles use extend mode (can be combined)', t => {
 // =============================================================================
 
 test('individual UMD bundle size is reasonable', t => {
-  const code = readFileSync(join(distDir, 'languages/en.umd.js'), 'utf8')
+  const code = readFileSync(join(distDir, 'en.umd.js'), 'utf8')
   const sizeKB = Buffer.byteLength(code, 'utf8') / 1024
 
   t.log(`en.umd.js bundle: ${sizeKB.toFixed(1)}KB`)

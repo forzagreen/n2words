@@ -7,8 +7,8 @@ import { readFileSync, readdirSync } from 'node:fs'
 // Read package.json for version
 const pkg = JSON.parse(readFileSync('./package.json', 'utf8'))
 
-// Get all language codes from the languages directory
-const languageCodes = readdirSync('./lib/languages')
+// Get all language codes from the src directory (exclude utils/)
+const languageCodes = readdirSync('./src')
   .filter(file => file.endsWith('.js'))
   .map(file => file.replace('.js', ''))
 
@@ -24,17 +24,17 @@ function normalizeCode (code) {
  * Rollup configuration for n2words bundles.
  *
  * Build Strategy:
- * 1. Source (lib/): Modern ES2022+ code with BigInt, optional chaining
+ * 1. Source (src/): Modern ES2022+ code with BigInt, optional chaining
  * 2. Babel: Transpiles ES2022+ features down while preserving BigInt support
  * 3. Terser: Minifies using ES2020 syntax (safe for BigInt-supporting browsers)
  * 4. Target: ~85.9% global coverage via .browserslistrc ("defaults and supports bigint")
  *
  * Generates:
- * - Individual ESM bundles (dist/languages/{langCode}.js): One per language, for browsers
- * - Individual UMD bundles (dist/languages/{langCode}.umd.cjs): One per language, for
+ * - Individual ESM bundles (dist/{langCode}.js): One per language, for browsers
+ * - Individual UMD bundles (dist/{langCode}.umd.js): One per language, for
  *   browser <script> tags
  *
- * Node.js users import directly from lib/ (ESM source). No CJS bundle is generated -
+ * Node.js users import directly from src/ (ESM source). No CJS bundle is generated -
  * Node.js 22.12+/20.19+ can require() ESM modules directly.
  *
  * UMD bundles use virtual entry points to re-export toWords as the
@@ -87,9 +87,9 @@ const basePlugins = [
 // Generate individual ESM language bundle configurations
 // ESM bundles directly use source files - they already export toWords
 const languageEsmConfigs = languageCodes.map(langCode => ({
-  input: `./lib/languages/${langCode}.js`,
+  input: `./src/${langCode}.js`,
   output: {
-    file: `dist/languages/${langCode}.js`,
+    file: `dist/${langCode}.js`,
     format: 'es',
     banner: `/*! n2words/${langCode} v${pkg.version} | MIT License | github.com/forzagreen/n2words */`
   },
@@ -104,7 +104,7 @@ const languageUmdConfigs = languageCodes.map(langCode => {
   return {
     input: virtualEntryId,
     output: {
-      file: `dist/languages/${langCode}.umd.js`,
+      file: `dist/${langCode}.umd.js`,
       format: 'umd',
       name: 'n2words',
       exports: 'named',
@@ -114,7 +114,7 @@ const languageUmdConfigs = languageCodes.map(langCode => {
     plugins: [
       // Virtual entry point that re-exports toWords as the normalized language name
       virtual({
-        [virtualEntryId]: `export { toWords as ${normalizedName} } from './lib/languages/${langCode}.js'`
+        [virtualEntryId]: `export { toWords as ${normalizedName} } from './src/${langCode}.js'`
       }),
       ...basePlugins,
       individualTerserConfig

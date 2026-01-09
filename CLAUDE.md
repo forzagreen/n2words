@@ -4,7 +4,7 @@ n2words: Number to words converter. ESM + UMD, Node >=20, zero dependencies.
 
 ## Critical Patterns
 
-1. **Alphabetical ordering** - Imports and exports in `lib/n2words.js` MUST be alphabetically sorted
+1. **Alphabetical ordering** - Imports and exports in `index.js` MUST be alphabetically sorted
 2. **IETF BCP 47 codes** - Language codes: `en`, `zh-Hans`, `fr-BE`
 3. **Normalized exports** - Codes become camelCase identifiers: `zhHans`, `frBE`
 
@@ -13,9 +13,11 @@ n2words: Number to words converter. ESM + UMD, Node >=20, zero dependencies.
 **Functional, self-contained modules** - Each language is a standalone file exporting `toWords(value, options?)`.
 
 ```text
-lib/
-├── n2words.js           # Re-exports all languages (alphabetically)
-├── languages/*.js       # One file per language
+index.js                 # Re-exports all languages (alphabetically)
+src/
+├── en.js                # One file per language (flat structure)
+├── fr.js
+├── zh-Hans.js
 └── utils/
     ├── parse-numeric.js    # Shared input parsing
     ├── is-plain-object.js  # Object type checking
@@ -25,7 +27,7 @@ lib/
 **Language file pattern**:
 
 ```javascript
-import { parseNumericValue } from '../utils/parse-numeric.js'
+import { parseNumericValue } from './utils/parse-numeric.js'
 
 function toWords (value, options = {}) {
   const { isNegative, integerPart, decimalPart } = parseNumericValue(value)
@@ -39,8 +41,8 @@ export { toWords }
 
 ## Adding a Language
 
-1. `npm run lang:add <code>` - creates stub + fixture, updates n2words.js + type tests
-2. Implement `toWords()` in `lib/languages/{code}.js`
+1. `npm run lang:add <code>` - creates stub + fixture, updates index.js + type tests
+2. Implement `toWords()` in `src/{code}.js`
 3. Add test cases to `test/fixtures/languages/{code}.js`
 4. `npm test`
 
@@ -74,7 +76,7 @@ Before PR:
 npm run lint:fix && npm test
 ```
 
-Before/after `lib/` changes (check for regressions):
+Before/after `src/` changes (check for regressions):
 
 ```bash
 npm run bench:perf

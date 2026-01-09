@@ -1,7 +1,7 @@
 import test from 'ava'
 import { readdirSync, readFileSync } from 'node:fs'
-import { isPlainObject } from '../../lib/utils/is-plain-object.js'
-import { parseNumericValue } from '../../lib/utils/parse-numeric.js'
+import { isPlainObject } from '../../src/utils/is-plain-object.js'
+import { parseNumericValue } from '../../src/utils/parse-numeric.js'
 import { isValidLanguageCode } from '../utils/language-naming.js'
 import { safeStringify } from '../utils/stringify.js'
 
@@ -121,7 +121,7 @@ for (const file of files) {
 
   test(languageCode, async t => {
     // Import language module
-    const languageModule = await import('../../lib/languages/' + file)
+    const languageModule = await import('../../src/' + file)
 
     // Verify toWords export exists
     if (typeof languageModule.toWords !== 'function') {
@@ -186,7 +186,7 @@ for (const file of files) {
     t.true(zeroResult.length > 0, 'toWords(0) should return a non-empty string')
 
     // JSDoc validation - check toWords has proper type annotations
-    const fileContent = readFileSync(`./lib/languages/${file}`, 'utf8')
+    const fileContent = readFileSync(`./src/${file}`, 'utf8')
 
     // Check for @param with value type
     t.regex(
@@ -215,7 +215,7 @@ for (const file of files) {
 }
 
 test('all language files have test fixtures', t => {
-  const languageFiles = readdirSync('./lib/languages').filter(f => f.endsWith('.js'))
+  const languageFiles = readdirSync('./src').filter(f => f.endsWith('.js'))
   const fixtureFiles = readdirSync('./test/fixtures/languages').filter(f => f.endsWith('.js'))
 
   const missingFixtures = languageFiles.filter(f => !fixtureFiles.includes(f))

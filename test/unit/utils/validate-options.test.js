@@ -1,5 +1,5 @@
 import test from 'ava'
-import { validateOptions } from '../../../lib/utils/validate-options.js'
+import { validateOptions } from '../../../src/utils/validate-options.js'
 
 test('returns empty object for undefined', t => {
   t.deepEqual(validateOptions(undefined), {})

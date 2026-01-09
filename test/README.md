@@ -121,8 +121,8 @@ test('throws on invalid input', t => {
 
 ```typescript
 import { expectType, expectError } from 'tsd'
-import { toWords as en } from '../../lib/languages/en.js'
-import { toWords as ar } from '../../lib/languages/ar.js'
+import { toWords as en } from '../../src/en.js'
+import { toWords as ar } from '../../src/ar.js'
 
 // Return type
 expectType<string>(en(42))
