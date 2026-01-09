@@ -1,0 +1,6 @@
+# All PRs require 1 approval (branch protection)
+# Release PRs require BOTH maintainers
+
+# Release-please always modifies these files
+CHANGELOG.md @forzagreen @tylervigario
+.release-please-manifest.json @forzagreen @tylervigario
