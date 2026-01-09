@@ -46,3 +46,18 @@ export function getCanonicalCode (code) {
     return null
   }
 }
+
+/**
+ * Normalizes a BCP 47 language code to a valid JS identifier.
+ * Removes hyphens and capitalizes the following letter (camelCase).
+ *
+ * @param {string} code BCP 47 language code (e.g., 'zh-Hans', 'fr-BE')
+ * @returns {string} Normalized identifier (e.g., 'zhHans', 'frBE')
+ * @example
+ * normalizeCode('en')       // 'en'
+ * normalizeCode('zh-Hans')  // 'zhHans'
+ * normalizeCode('fr-BE')    // 'frBE'
+ */
+export function normalizeCode (code) {
+  return code.replace(/-([a-zA-Z])/g, (_, letter) => letter.toUpperCase())
+}

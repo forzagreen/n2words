@@ -1,7 +1,8 @@
 import test from 'ava'
 import { readFileSync } from 'node:fs'
 import * as n2words from '../index.js'
-import { getLanguageCodes, normalizeCode } from './helpers/language-helpers.js'
+import { getLanguageCodes } from './helpers/language-helpers.js'
+import { normalizeCode } from './helpers/language-naming.js'
 
 /**
  * Unit Tests for index.js module structure.

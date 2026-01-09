@@ -1,21 +1,8 @@
 import test from 'ava'
 import { readdirSync, readFileSync } from 'node:fs'
 import { isPlainObject } from '../src/utils/is-plain-object.js'
-import { parseNumericValue } from '../src/utils/parse-numeric.js'
 import { isValidLanguageCode } from './helpers/language-naming.js'
-import { safeStringify } from './helpers/stringify.js'
-
-/**
- * Checks if a value is valid input for parseNumericValue.
- */
-function isValidNumericInput (value) {
-  try {
-    parseNumericValue(value)
-    return true
-  } catch {
-    return false
-  }
-}
+import { isValidNumericInput, safeStringify } from './helpers/value-utils.js'
 
 /**
  * Language Implementation Tests

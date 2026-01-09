@@ -21,8 +21,7 @@
 
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import chalk from 'chalk'
-import { getCanonicalCode, isValidLanguageCode } from '../test/helpers/language-naming.js'
-import { normalizeCode } from '../test/helpers/language-helpers.js'
+import { getCanonicalCode, isValidLanguageCode, normalizeCode } from '../test/helpers/language-naming.js'
 
 // ============================================================================
 // Template Generators

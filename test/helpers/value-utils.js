@@ -1,9 +1,12 @@
 /**
- * Safe Serialization Utilities
+ * Value Utilities
  *
- * Provides safe stringification for values that JSON.stringify cannot handle,
- * particularly BigInt values which are common in n2words test cases.
+ * General-purpose utilities for handling values in tests:
+ * - Safe stringification (handles BigInt)
+ * - Input validation
  */
+
+import { parseNumericValue } from '../../src/utils/parse-numeric.js'
 
 /**
  * Safely stringify a value for error messages.
@@ -28,4 +31,19 @@ export function safeStringify (value) {
     )
   }
   return JSON.stringify(value)
+}
+
+/**
+ * Checks if a value is valid input for parseNumericValue.
+ *
+ * @param {*} value Value to check
+ * @returns {boolean} True if value is valid numeric input
+ */
+export function isValidNumericInput (value) {
+  try {
+    parseNumericValue(value)
+    return true
+  } catch {
+    return false
+  }
 }
