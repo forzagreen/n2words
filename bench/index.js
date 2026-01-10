@@ -103,6 +103,15 @@ async function loadConverter (langCode) {
 // Argument Parsing
 // ============================================================================
 
+/**
+ * Parse comma-separated language codes.
+ * @param {string} input - Comma-separated codes (e.g., 'en,fr,de')
+ * @returns {string[]} Array of trimmed, non-empty codes
+ */
+function parseLanguageCodes (input) {
+  return input.split(',').map(l => l.trim()).filter(Boolean)
+}
+
 const arguments_ = process.argv.slice(2)
 
 const requestedLanguages = []
@@ -128,8 +137,7 @@ for (let index = 0; index < arguments_.length; index++) {
   if (arg === '--lang' || arg === '--language') {
     const lang = arguments_[index + 1]
     if (lang) {
-      const codes = lang.split(',').map(l => l.trim()).filter(Boolean)
-      requestedLanguages.push(...codes)
+      requestedLanguages.push(...parseLanguageCodes(lang))
     }
   } else if (arg === '--value') {
     value = arguments_[index + 1]
@@ -148,36 +156,29 @@ for (let index = 0; index < arguments_.length; index++) {
     process.exit(0)
   } else if (!arg.startsWith('-')) {
     // Positional argument: treat as language code(s)
-    const codes = arg.split(',').map(l => l.trim()).filter(Boolean)
-    requestedLanguages.push(...codes)
+    requestedLanguages.push(...parseLanguageCodes(arg))
   }
 }
 
 // Load previous results if comparing
-// Format: { nextId: N, languages: { en: [...], fr: [...] } }
 if (compareResults) {
-  if (!existsSync(resultsFile)) {
+  const data = loadResultsData()
+  if (!data) {
     console.log(chalk.yellow('⚠ No previous results found. Run with --save first.\n'))
     compareResults = false
   } else {
-    try {
-      const data = JSON.parse(readFileSync(resultsFile, 'utf8'))
-      // Build previousResults map: { langName: latestEntry }
-      previousResults = {}
-      const languages = data.languages || {}
-      for (const [lang, entries] of Object.entries(languages)) {
-        // Find most recent entry with matching test value
-        const matching = entries.filter(e => e.value === value)
-        if (matching.length > 0) {
-          previousResults[lang] = matching[matching.length - 1]
-        }
+    // Build previousResults map: { langName: latestEntry }
+    previousResults = {}
+    const languages = data.languages || {}
+    for (const [lang, entries] of Object.entries(languages)) {
+      // Find most recent entry with matching test value
+      const matching = entries.filter(e => e.value === value)
+      if (matching.length > 0) {
+        previousResults[lang] = matching[matching.length - 1]
       }
-      if (Object.keys(previousResults).length === 0) {
-        console.log(chalk.yellow(`⚠ No previous results found for value ${value.toLocaleString()}.\n`))
-        compareResults = false
-      }
-    } catch {
-      console.log(chalk.yellow('⚠ Could not read previous results.\n'))
+    }
+    if (Object.keys(previousResults).length === 0) {
+      console.log(chalk.yellow(`⚠ No previous results found for value ${value.toLocaleString()}.\n`))
       compareResults = false
     }
   }
@@ -338,13 +339,13 @@ if (showHistory) {
       process.exit(1)
     }
 
-    // Get latest entry for each language
+    // Get latest entry for each language (with entry count)
     const summaries = []
     for (const lang of langCodes) {
       const entries = languages[lang]
       if (entries && entries.length > 0) {
         const latest = entries[entries.length - 1]
-        summaries.push({ name: lang, ...latest })
+        summaries.push({ name: lang, count: entries.length, ...latest })
       }
     }
 
@@ -352,11 +353,12 @@ if (showHistory) {
     console.log(
       chalk.gray('Language'.padEnd(12)) + ' | ' +
       chalk.gray('ID'.padStart(4)) + ' | ' +
+      chalk.gray('Runs'.padStart(4)) + ' | ' +
       chalk.gray('ops/sec'.padStart(10)) + ' | ' +
       chalk.gray('Memory/iter'.padStart(12)) + ' | ' +
       chalk.gray('Last Run'.padStart(18))
     )
-    console.log(chalk.gray('-'.repeat(66)))
+    console.log(chalk.gray('-'.repeat(73)))
 
     for (const entry of summaries) {
       const hz = entry.hz ? formatOps(entry.hz) : '-'
@@ -365,6 +367,7 @@ if (showHistory) {
       console.log(
         chalk.gray(entry.name.padEnd(12)) + ' | ' +
         chalk.yellow(String(entry.id).padStart(4)) + ' | ' +
+        chalk.gray(String(entry.count).padStart(4)) + ' | ' +
         chalk.white(hz.padStart(10)) + ' | ' +
         chalk.gray(mem.padStart(12)) + ' | ' +
         chalk.gray(formatDateTime(entry.timestamp).padStart(18))
@@ -372,7 +375,7 @@ if (showHistory) {
     }
 
     // Summary stats
-    console.log(chalk.gray('-'.repeat(66)))
+    console.log(chalk.gray('-'.repeat(73)))
     const withHz = summaries.filter(e => e.hz)
     const withMem = summaries.filter(e => e.bytes)
 
@@ -416,6 +419,12 @@ for (const code of languageCodes) {
 // ============================================================================
 // Display Header
 // ============================================================================
+
+// Warn if GC is not exposed (memory measurements will be unreliable)
+if (!global.gc) {
+  console.log(chalk.yellow('⚠ Memory measurements require --expose-gc flag'))
+  console.log(chalk.gray('  Run: node --expose-gc bench/index.js\n'))
+}
 
 console.log(chalk.cyan.bold('\nBenchmark\n'))
 
