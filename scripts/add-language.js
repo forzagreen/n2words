@@ -20,8 +20,41 @@
  */
 
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
+import * as readline from 'node:readline/promises'
 import chalk from 'chalk'
-import { getCanonicalCode, isValidLanguageCode, normalizeCode } from '../test/helpers/language-naming.js'
+import { getCanonicalCode, getLanguageName, isInCLDR, isValidLanguageCode, normalizeCode } from '../test/helpers/language-naming.js'
+
+// ============================================================================
+// Interactive Prompts
+// ============================================================================
+
+/**
+ * Prompt user for language name when code is not in CLDR.
+ *
+ * @param {string} code Language code
+ * @returns {Promise<string|null>} Language name from user, or null if cancelled
+ */
+async function promptForLanguageName (code) {
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout
+  })
+
+  try {
+    console.log(chalk.yellow(`\nNote: "${code}" is not in CLDR (language name unknown)`))
+    console.log(chalk.gray('Valid BCP 47 codes may not be in Unicode CLDR (e.g., hbo = Biblical Hebrew)'))
+
+    const name = await rl.question(chalk.cyan('\nEnter the language name: '))
+    if (!name.trim()) {
+      console.log(chalk.red('\nNo name provided. Aborting.'))
+      return null
+    }
+
+    return name.trim()
+  } finally {
+    rl.close()
+  }
+}
 
 // ============================================================================
 // Template Generators
@@ -31,12 +64,13 @@ import { getCanonicalCode, isValidLanguageCode, normalizeCode } from '../test/he
  * Generate language implementation file.
  *
  * @param {string} code Language code (e.g., 'ko', 'sr-Cyrl')
+ * @param {string} name Language name (e.g., 'Korean')
  * @returns {string} File content
  */
-function generateLanguageFile (code) {
+function generateLanguageFile (code, name) {
   return `import { parseNumericValue } from './utils/parse-numeric.js'
 
-// TODO: Implement number-to-words conversion for ${code}
+// TODO: Implement number-to-words conversion for ${name} (${code})
 //
 // Reference implementations by pattern:
 //   Western scale: src/en.js, de.js, fr.js
@@ -65,11 +99,12 @@ export { toWords }
  * Generate test fixture file.
  *
  * @param {string} code Language code
+ * @param {string} name Language name
  * @returns {string} File content
  */
-function generateTestFixture (code) {
+function generateTestFixture (code, name) {
   return `/**
- * Test fixtures for ${code} language
+ * Test fixtures for ${name} (${code})
  *
  * Format: [input, expected_output, options?]
  */
@@ -251,7 +286,7 @@ function updateLanguagesTypeTest (code, normalized) {
 // Main
 // ============================================================================
 
-function main () {
+async function main () {
   const args = process.argv.slice(2)
 
   if (args.length === 0 || args[0] === '--help' || args[0] === '-h') {
@@ -283,18 +318,29 @@ function main () {
   const langFilePath = `./src/${code}.js`
   const fixtureFilePath = `./test/fixtures/${code}.js`
 
-  console.log(chalk.cyan(`\nAdding language: ${code}`))
-  console.log(chalk.gray(`Export name: ${normalized}`))
-
-  // Check if language already exists
+  // Check if language already exists (before prompting for name)
   if (existsSync(langFilePath)) {
     console.error(chalk.red(`\nError: Language file already exists: ${langFilePath}`))
     process.exit(1)
   }
 
+  // Get language name from CLDR, or prompt user if not found
+  let languageName = getLanguageName(code)
+
+  if (!isInCLDR(code)) {
+    const userProvidedName = await promptForLanguageName(code)
+    if (userProvidedName === null) {
+      process.exit(1)
+    }
+    languageName = userProvidedName
+  }
+
+  console.log(chalk.cyan(`\nAdding language: ${languageName} (${code})`))
+  console.log(chalk.gray(`Export name: ${normalized}`))
+
   // Create language file
   console.log(chalk.gray(`\nCreating ${langFilePath}...`))
-  writeFileSync(langFilePath, generateLanguageFile(code))
+  writeFileSync(langFilePath, generateLanguageFile(code, languageName))
   console.log(chalk.green('✓ Created language file'))
 
   // Create test fixture
@@ -303,7 +349,7 @@ function main () {
   if (!existsSync(fixtureDir)) {
     mkdirSync(fixtureDir, { recursive: true })
   }
-  writeFileSync(fixtureFilePath, generateTestFixture(code))
+  writeFileSync(fixtureFilePath, generateTestFixture(code, languageName))
   console.log(chalk.green('✓ Created test fixture'))
 
   // Update index.js
@@ -325,4 +371,7 @@ function main () {
   console.log(chalk.gray('4. Run: npm run build:types && npm run test:types'))
 }
 
-main()
+main().catch(err => {
+  console.error(chalk.red(err.message))
+  process.exit(1)
+})
