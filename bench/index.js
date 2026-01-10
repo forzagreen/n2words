@@ -6,8 +6,8 @@
  *
  * Usage:
  *   npm run bench                          # All languages
- *   npm run bench -- --lang en             # Single language
- *   npm run bench -- --lang en,fr,de       # Multiple languages
+ *   npm run bench -- en                    # Single language
+ *   npm run bench -- en,fr,de              # Multiple languages
  *   npm run bench -- --save --compare      # Track changes over time
  */
 import Benchmark from 'benchmark'
@@ -64,8 +64,8 @@ const config = {
     warmupIterations: 5000 // More initial warmup
   },
 
-  // History (per language, filtered by test value)
-  maxHistoryPerLanguage: 10
+  // History per language
+  maxHistoryPerLang: 10
 }
 
 // ============================================================================
@@ -111,44 +111,68 @@ let saveResults = false
 let compareResults = false
 let showHistory = false
 let fullMode = false
+let removeId = null
 let previousResults = null
 
 for (let index = 0; index < arguments_.length; index++) {
-  if (arguments_[index] === '--lang' || arguments_[index] === '--language') {
+  const arg = arguments_[index]
+
+  // Skip values that follow flags
+  if (index > 0) {
+    const prevArg = arguments_[index - 1]
+    if (prevArg === '--lang' || prevArg === '--language' || prevArg === '--value' || prevArg === '--remove') {
+      continue
+    }
+  }
+
+  if (arg === '--lang' || arg === '--language') {
     const lang = arguments_[index + 1]
     if (lang) {
       const codes = lang.split(',').map(l => l.trim()).filter(Boolean)
       requestedLanguages.push(...codes)
     }
-  } else if (arguments_[index] === '--value') {
+  } else if (arg === '--value') {
     value = arguments_[index + 1]
-  } else if (arguments_[index] === '--save') {
+  } else if (arg === '--save') {
     saveResults = true
-  } else if (arguments_[index] === '--compare') {
+  } else if (arg === '--compare') {
     compareResults = true
-  } else if (arguments_[index] === '--history') {
+  } else if (arg === '--history') {
     showHistory = true
-  } else if (arguments_[index] === '--full') {
+  } else if (arg === '--full') {
     fullMode = true
-  } else if (arguments_[index] === '--help') {
+  } else if (arg === '--remove') {
+    removeId = arguments_[index + 1]
+  } else if (arg === '--help') {
     displayHelp()
     process.exit(0)
+  } else if (!arg.startsWith('-')) {
+    // Positional argument: treat as language code(s)
+    const codes = arg.split(',').map(l => l.trim()).filter(Boolean)
+    requestedLanguages.push(...codes)
   }
 }
 
-// Load previous results if comparing (filtered by same test value)
+// Load previous results if comparing
+// Format: { nextId: N, languages: { en: [...], fr: [...] } }
 if (compareResults) {
   if (!existsSync(resultsFile)) {
     console.log(chalk.yellow('⚠ No previous results found. Run with --save first.\n'))
     compareResults = false
   } else {
     try {
-      const historyData = JSON.parse(readFileSync(resultsFile, 'utf8'))
-      // Filter to runs with same test value
-      const matchingRuns = (historyData.history || []).filter(run => run.value === value)
-      if (matchingRuns.length > 0) {
-        previousResults = matchingRuns[matchingRuns.length - 1]
-      } else {
+      const data = JSON.parse(readFileSync(resultsFile, 'utf8'))
+      // Build previousResults map: { langName: latestEntry }
+      previousResults = {}
+      const languages = data.languages || {}
+      for (const [lang, entries] of Object.entries(languages)) {
+        // Find most recent entry with matching test value
+        const matching = entries.filter(e => e.value === value)
+        if (matching.length > 0) {
+          previousResults[lang] = matching[matching.length - 1]
+        }
+      }
+      if (Object.keys(previousResults).length === 0) {
         console.log(chalk.yellow(`⚠ No previous results found for value ${value.toLocaleString()}.\n`))
         compareResults = false
       }
@@ -160,76 +184,211 @@ if (compareResults) {
 }
 
 // ============================================================================
-// History Display
+// History Display & Remove
 // ============================================================================
 
-if (showHistory) {
-  if (requestedLanguages.length !== 1) {
-    console.error(chalk.red('--history requires exactly one language (use --lang <code>)\n'))
+/**
+ * Load results data from file.
+ * Format: { nextId: N, languages: { en: [...], fr: [...] } }
+ */
+function loadResultsData () {
+  if (!existsSync(resultsFile)) return null
+  try {
+    return JSON.parse(readFileSync(resultsFile, 'utf8'))
+  } catch {
+    return null
+  }
+}
+
+/**
+ * Format test value for display.
+ */
+function formatTestValue (val) {
+  if (val === config.defaultValue) return 'MAX_SAFE'
+  if (val >= 1_000_000_000) return (val / 1_000_000_000).toFixed(0) + 'B'
+  if (val >= 1_000_000) return (val / 1_000_000).toFixed(0) + 'M'
+  if (val >= 1_000) return (val / 1_000).toFixed(0) + 'K'
+  return String(val)
+}
+
+/**
+ * Format timestamp for display.
+ */
+function formatDateTime (timestamp) {
+  return new Date(timestamp).toLocaleString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  })
+}
+
+// Handle --remove (accepts single ID or comma-separated IDs)
+if (removeId) {
+  const data = loadResultsData()
+  if (!data) {
+    console.error(chalk.red('No history found.\n'))
     process.exit(1)
   }
 
-  if (!existsSync(resultsFile)) {
+  const idsToRemove = removeId.split(',').map(id => parseInt(id.trim(), 10)).filter(id => !isNaN(id))
+
+  if (idsToRemove.length === 0) {
+    console.error(chalk.red('Invalid ID format. Use numeric IDs (e.g., --remove 5 or --remove 1,2,3)\n'))
+    process.exit(1)
+  }
+
+  let totalRemoved = 0
+  const notFound = []
+  const languages = data.languages || {}
+
+  for (const id of idsToRemove) {
+    let found = false
+
+    for (const [lang, entries] of Object.entries(languages)) {
+      const before = entries.length
+      languages[lang] = entries.filter(e => e.id !== id)
+      if (languages[lang].length < before) {
+        found = true
+        totalRemoved++
+      }
+
+      // Remove language if empty
+      if (languages[lang].length === 0) {
+        delete languages[lang]
+      }
+    }
+
+    if (!found) notFound.push(id)
+  }
+
+  if (totalRemoved === 0) {
+    console.error(chalk.red(`No entries found matching IDs: ${idsToRemove.join(', ')}\n`))
+    process.exit(1)
+  }
+
+  // Save
+  const tempFile = resultsFile + '.tmp'
+  writeFileSync(tempFile, JSON.stringify(data, null, 2))
+  renameSync(tempFile, resultsFile)
+
+  if (totalRemoved === 1) {
+    console.log(chalk.green('✓ Removed 1 entry'))
+  } else {
+    console.log(chalk.green(`✓ Removed ${totalRemoved} entries`))
+  }
+
+  if (notFound.length > 0) {
+    console.log(chalk.yellow(`⚠ Not found: ${notFound.join(', ')}`))
+  }
+  console.log()
+  process.exit(0)
+}
+
+if (showHistory) {
+  const data = loadResultsData()
+  if (!data) {
     console.error(chalk.red('No history found. Run with --save first.\n'))
     process.exit(1)
   }
 
-  try {
-    const historyData = JSON.parse(readFileSync(resultsFile, 'utf8'))
-    const history = historyData.history || []
-    // Filter by language only (show all values)
-    const langHistory = history.filter(run => {
-      const result = run.results.find(r => r.name === requestedLanguages[0])
-      return result !== undefined
-    }).slice(-config.maxHistoryPerLanguage)
+  const languages = data.languages || {}
 
-    if (langHistory.length === 0) {
-      console.error(chalk.red(`No history found for: ${requestedLanguages[0]}\n`))
+  // Single language history
+  if (requestedLanguages.length === 1) {
+    const langCode = requestedLanguages[0]
+    const entries = languages[langCode] || []
+
+    if (entries.length === 0) {
+      console.error(chalk.red(`No history found for: ${langCode}\n`))
       process.exit(1)
     }
 
-    console.log(chalk.cyan.bold(`\n📈 History for ${requestedLanguages[0]}:\n`))
+    console.log(chalk.cyan.bold(`\n History for ${langCode}:\n`))
     console.log(
-      chalk.gray('Date'.padEnd(18)) + ' │ ' +
-      chalk.gray('Value'.padStart(10)) + ' │ ' +
-      chalk.gray('ops/sec'.padStart(10)) + ' │ ' +
+      chalk.gray('ID'.padStart(4)) + ' | ' +
+      chalk.gray('Date & Time'.padEnd(18)) + ' | ' +
+      chalk.gray('Value'.padStart(10)) + ' | ' +
+      chalk.gray('ops/sec'.padStart(10)) + ' | ' +
       chalk.gray('Memory/iter'.padStart(12))
     )
-    console.log(chalk.gray('─'.repeat(60)))
+    console.log(chalk.gray('-'.repeat(66)))
 
-    for (let i = 0; i < langHistory.length; i++) {
-      const run = langHistory[i]
-      const result = run.results.find(r => r.name === requestedLanguages[0])
-      const date = new Date(run.timestamp).toLocaleString('en-US', {
-        month: 'short',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-      })
-
-      const testValue = run.value === config.defaultValue
-        ? 'MAX_SAFE'
-        : run.value >= 1_000_000_000
-          ? (run.value / 1_000_000_000).toFixed(0) + 'B'
-          : run.value >= 1_000_000
-            ? (run.value / 1_000_000).toFixed(0) + 'M'
-            : run.value >= 1_000
-              ? (run.value / 1_000).toFixed(0) + 'K'
-              : String(run.value)
-      const hz = result.hz ? formatOps(result.hz) : '-'
-      const mem = result.memoryPerIter ? formatBytes(result.memoryPerIter) : '-'
+    for (const entry of entries) {
+      const hz = entry.hz ? formatOps(entry.hz) : '-'
+      const mem = entry.bytes ? formatBytes(entry.bytes) : '-'
 
       console.log(
-        chalk.gray(date.padEnd(18)) + ' │ ' +
-        chalk.gray(testValue.padStart(10)) + ' │ ' +
-        chalk.white(hz.padStart(10)) + ' │ ' +
+        chalk.yellow(String(entry.id).padStart(4)) + ' | ' +
+        chalk.gray(formatDateTime(entry.timestamp).padEnd(18)) + ' | ' +
+        chalk.gray(formatTestValue(entry.value).padStart(10)) + ' | ' +
+        chalk.white(hz.padStart(10)) + ' | ' +
         chalk.gray(mem.padStart(12))
       )
     }
     console.log()
-  } catch {
-    console.error(chalk.red('Error reading history file\n'))
-    process.exit(1)
+  } else {
+    // Multi-language or all languages summary - show latest for each
+    const langCodes = requestedLanguages.length > 0
+      ? requestedLanguages.filter(lang => languages[lang])
+      : Object.keys(languages).sort()
+
+    if (langCodes.length === 0) {
+      console.error(chalk.red('No history found.\n'))
+      process.exit(1)
+    }
+
+    // Get latest entry for each language
+    const summaries = []
+    for (const lang of langCodes) {
+      const entries = languages[lang]
+      if (entries && entries.length > 0) {
+        const latest = entries[entries.length - 1]
+        summaries.push({ name: lang, ...latest })
+      }
+    }
+
+    console.log(chalk.cyan.bold('\n Saved Results Summary\n'))
+    console.log(
+      chalk.gray('Language'.padEnd(12)) + ' | ' +
+      chalk.gray('ID'.padStart(4)) + ' | ' +
+      chalk.gray('ops/sec'.padStart(10)) + ' | ' +
+      chalk.gray('Memory/iter'.padStart(12)) + ' | ' +
+      chalk.gray('Last Run'.padStart(18))
+    )
+    console.log(chalk.gray('-'.repeat(66)))
+
+    for (const entry of summaries) {
+      const hz = entry.hz ? formatOps(entry.hz) : '-'
+      const mem = entry.bytes ? formatBytes(entry.bytes) : '-'
+
+      console.log(
+        chalk.gray(entry.name.padEnd(12)) + ' | ' +
+        chalk.yellow(String(entry.id).padStart(4)) + ' | ' +
+        chalk.white(hz.padStart(10)) + ' | ' +
+        chalk.gray(mem.padStart(12)) + ' | ' +
+        chalk.gray(formatDateTime(entry.timestamp).padStart(18))
+      )
+    }
+
+    // Summary stats
+    console.log(chalk.gray('-'.repeat(66)))
+    const withHz = summaries.filter(e => e.hz)
+    const withMem = summaries.filter(e => e.bytes)
+
+    if (withHz.length > 0) {
+      const fastest = withHz.reduce((max, e) => e.hz > max.hz ? e : max)
+      const slowest = withHz.reduce((min, e) => e.hz < min.hz ? e : min)
+      console.log(chalk.green(`Fastest: ${fastest.name} (${formatOps(fastest.hz)})`))
+      console.log(chalk.yellow(`Slowest: ${slowest.name} (${formatOps(slowest.hz)})`))
+    }
+    if (withMem.length > 0) {
+      const lowestMem = withMem.reduce((min, e) => e.bytes < min.bytes ? e : min)
+      const highestMem = withMem.reduce((max, e) => e.bytes > max.bytes ? e : max)
+      console.log(chalk.green(`Lowest memory: ${lowestMem.name} (${formatBytes(lowestMem.bytes)})`))
+      console.log(chalk.yellow(`Highest memory: ${highestMem.name} (${formatBytes(highestMem.bytes)})`))
+    }
+    console.log()
   }
   process.exit(0)
 }
@@ -272,20 +431,19 @@ if (fullMode) {
 console.log()
 
 // Print table header
-let header = chalk.cyan.bold('Converter'.padEnd(12))
-header += ' │ ' + chalk.cyan.bold('ops/sec'.padStart(compareResults ? 25 : 14))
-header += ' │ ' + chalk.cyan.bold('Memory/iter'.padStart(compareResults ? 21 : 12))
+const header = chalk.cyan.bold('Converter'.padEnd(12)) +
+  ' │ ' + chalk.cyan.bold('ops/sec'.padStart(compareResults ? 25 : 14)) +
+  ' │ ' + chalk.cyan.bold('Memory/iter'.padStart(compareResults ? 21 : 12))
 
 console.log(header)
-const separatorLength = compareResults ? 66 : 46
+const separatorLength = 12 + (compareResults ? 28 : 17) + (compareResults ? 24 : 15)
 console.log(chalk.gray('─'.repeat(separatorLength)))
 
 // ============================================================================
 // Benchmark Execution
 // ============================================================================
 
-// Track current run for incremental saves
-let currentRunData = null
+// Track timestamp for incremental saves
 const runTimestamp = new Date().toISOString()
 
 const results = []
@@ -305,8 +463,8 @@ console.log(chalk.gray('─'.repeat(separatorLength)))
 // Summary
 if (results.length > 1) {
   const fastest = results.reduce((max, r) => r.hz > max.hz ? r : max)
-  const lowestMem = results.reduce((min, r) => r.memoryPerIter < min.memoryPerIter ? r : min)
   console.log(chalk.green('Fastest: ' + fastest.name))
+  const lowestMem = results.reduce((min, r) => r.memoryPerIter < min.memoryPerIter ? r : min)
   console.log(chalk.green('Lowest memory: ' + lowestMem.name))
 }
 
@@ -318,7 +476,7 @@ console.log()
 // ============================================================================
 
 /**
- * Benchmark a single language (perf + memory).
+ * Benchmark a single language (perf and memory).
  *
  * @param {Object} converter Converter object with name and toWords
  * @returns {Promise<Object>} Result with hz, rme, memoryPerIter
@@ -430,15 +588,15 @@ function measureMemory (converter) {
  * Print a single result line.
  */
 function printResultLine (result) {
-  const hz = formatOps(result.hz)
-  const rme = `(±${result.rme.toFixed(1)}%)`
-  const mem = formatBytes(result.memoryPerIter)
-
   let line = chalk.gray(result.name.padEnd(12))
 
+  const prev = previousResults?.[result.name]
+
   // ops/sec column (with optional change)
+  const hz = formatOps(result.hz)
+  const rme = `(±${result.rme.toFixed(1)}%)`
+
   if (compareResults && previousResults) {
-    const prev = previousResults.results.find(r => r.name === result.name)
     const hzBase = `${hz} ${rme}`
     if (prev && prev.hz) {
       const hzDiff = ((result.hz - prev.hz) / prev.hz) * 100
@@ -452,10 +610,11 @@ function printResultLine (result) {
   }
 
   // Memory column (with optional change)
+  const mem = formatBytes(result.memoryPerIter)
+
   if (compareResults && previousResults) {
-    const prev = previousResults.results.find(r => r.name === result.name)
-    if (prev && prev.memoryPerIter) {
-      const memDiff = ((result.memoryPerIter - prev.memoryPerIter) / prev.memoryPerIter) * 100
+    if (prev && prev.bytes) {
+      const memDiff = ((result.memoryPerIter - prev.bytes) / prev.bytes) * 100
       const memChange = formatChange(memDiff, true) // inverted: negative is good for memory
       line += ' │ ' + mem.padStart(12) + ' ' + memChange
     } else {
@@ -488,64 +647,46 @@ function formatChange (diff, inverted = false, width = 8) {
 
 /**
  * Save a single result incrementally (allows killing script early).
+ * Format: { nextId: N, languages: { en: [...], fr: [...] } }
  */
 function saveResultIncremental (result) {
-  // Load or initialize history
-  let historyData = { history: [] }
+  // Load or initialize data
+  let data = { nextId: 1, languages: {} }
   if (existsSync(resultsFile)) {
     try {
-      historyData = JSON.parse(readFileSync(resultsFile, 'utf8'))
+      data = JSON.parse(readFileSync(resultsFile, 'utf8'))
+      if (!data.languages) data.languages = {}
+      if (!data.nextId) data.nextId = 1
     } catch {
       // Corrupted file, start fresh
     }
   }
 
-  // Find or create current run
-  if (!currentRunData) {
-    currentRunData = {
-      timestamp: runTimestamp,
-      value,
-      results: []
-    }
-    historyData.history.push(currentRunData)
-  } else {
-    // Update reference in history
-    const runIndex = historyData.history.findIndex(r => r.timestamp === runTimestamp)
-    if (runIndex >= 0) {
-      currentRunData = historyData.history[runIndex]
-    }
+  const langName = result.name
+
+  // Initialize language array if needed
+  if (!data.languages[langName]) {
+    data.languages[langName] = []
   }
 
-  // Add result
-  currentRunData.results.push({
-    name: result.name,
+  // Add new entry with both perf and memory
+  data.languages[langName].push({
+    id: data.nextId++,
+    timestamp: runTimestamp,
+    value,
     hz: result.hz,
     rme: result.rme,
-    memoryPerIter: result.memoryPerIter
+    bytes: result.memoryPerIter
   })
 
-  // Prune old runs per language (keep maxHistoryPerLanguage per language+value combo)
-  const langName = result.name
-  const runsWithLang = historyData.history.filter(run =>
-    run.value === value && run.results.some(r => r.name === langName)
-  )
-  if (runsWithLang.length > config.maxHistoryPerLanguage) {
-    // Find oldest runs with this language to remove
-    const toRemove = runsWithLang.slice(0, runsWithLang.length - config.maxHistoryPerLanguage)
-    for (const run of toRemove) {
-      // Remove language result from run, or entire run if it only has this language
-      if (run.results.length === 1) {
-        const idx = historyData.history.indexOf(run)
-        if (idx >= 0) historyData.history.splice(idx, 1)
-      } else {
-        run.results = run.results.filter(r => r.name !== langName)
-      }
-    }
+  // Prune old entries
+  if (data.languages[langName].length > config.maxHistoryPerLang) {
+    data.languages[langName] = data.languages[langName].slice(-config.maxHistoryPerLang)
   }
 
   // Write atomically
   const tempFile = resultsFile + '.tmp'
-  writeFileSync(tempFile, JSON.stringify(historyData, null, 2))
+  writeFileSync(tempFile, JSON.stringify(data, null, 2))
   renameSync(tempFile, resultsFile)
 }
 
@@ -576,18 +717,25 @@ function formatBytes (bytes) {
 
 function displayHelp () {
   console.log(chalk.cyan.bold('\nBenchmark Usage\n'))
-  console.log('  ' + chalk.yellow('npm run bench') + ' [options]\n')
+  console.log('  ' + chalk.yellow('npm run bench') + ' [languages] [options]\n')
   console.log(chalk.cyan('Options:'))
-  console.log('  ' + chalk.yellow('--lang') + ' <code>       Language(s) to benchmark (e.g., en, fr, zh-Hans)')
+  console.log('  ' + chalk.yellow('<lang>') + '              Language code(s) as positional args (e.g., en fr,de)')
+  console.log('  ' + chalk.yellow('--lang') + ' <code>       Language(s) to benchmark (alternative syntax)')
   console.log('  ' + chalk.yellow('--value') + ' <number>    Test value (default: Number.MAX_SAFE_INTEGER)')
   console.log('  ' + chalk.yellow('--full') + '              Full mode with max iterations (slower, more accurate)')
   console.log('  ' + chalk.yellow('--save') + '              Save results to history')
   console.log('  ' + chalk.yellow('--compare') + '           Compare with previous run')
-  console.log('  ' + chalk.yellow('--history') + '           Show history (single language)')
+  console.log('  ' + chalk.yellow('--history') + '           Show saved results (all or single language)')
+  console.log('  ' + chalk.yellow('--remove') + ' <id>       Remove history entry by ID (comma-separated for multiple)')
   console.log('  ' + chalk.yellow('--help') + '              Display this help\n')
   console.log(chalk.cyan('Examples:'))
   console.log('  ' + chalk.gray('npm run bench                     # All languages'))
-  console.log('  ' + chalk.gray('npm run bench -- --lang en        # English only'))
-  console.log('  ' + chalk.gray('npm run bench -- --lang en,fr,de  # Multiple languages'))
-  console.log('  ' + chalk.gray('npm run bench -- --save --compare # Track changes\n'))
+  console.log('  ' + chalk.gray('npm run bench -- en               # English only'))
+  console.log('  ' + chalk.gray('npm run bench -- en,fr,de         # Multiple languages'))
+  console.log('  ' + chalk.gray('npm run bench -- --full           # Full accuracy mode'))
+  console.log('  ' + chalk.gray('npm run bench -- --save --compare # Track changes'))
+  console.log('  ' + chalk.gray('npm run bench -- --history        # Summary of all saved'))
+  console.log('  ' + chalk.gray('npm run bench -- en --history     # History for one lang'))
+  console.log('  ' + chalk.gray('npm run bench -- --remove 5       # Remove entry by ID'))
+  console.log('  ' + chalk.gray('npm run bench -- --remove 1,2,3   # Remove multiple\n'))
 }
