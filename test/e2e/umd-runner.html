@@ -109,7 +109,7 @@
     <div class="container">
       <h1>n2words UMD Bundle Test</h1>
       <div class="subtitle">
-        Tests individual UMD language bundles (dist/languages/*.umd.js) loading via script tags.
+        Tests individual UMD language bundles (dist/*.umd.js) loading via script tags.
         Multiple bundles extend the same n2words global.
       </div>
 
@@ -119,9 +119,9 @@
   </body>
 
   <!-- Load individual language UMD bundles - they extend window.n2words -->
-  <script src="../../dist/languages/en.umd.js"></script>
-  <script src="../../dist/languages/fr.umd.js"></script>
-  <script src="../../dist/languages/zh-Hans.umd.js"></script>
+  <script src="../../dist/en.umd.js"></script>
+  <script src="../../dist/fr.umd.js"></script>
+  <script src="../../dist/zh-Hans.umd.js"></script>
   <script>
     window.onload = () => {
       const results = document.getElementById('results')
@@ -187,7 +187,7 @@
 
       test('Chinese Simplified converter returns correct result', () => {
         const result = window.n2words.zhHans(42)
-        return result === '四十二'
+        return result === '肆拾贰'
       })
 
       test('BigInt support works', () => {

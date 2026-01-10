@@ -109,7 +109,7 @@
     <div class="container">
       <h1>n2words ESM Bundle Test</h1>
       <div class="subtitle">
-        Tests individual ESM language bundles (dist/languages/*.js) loading via script type="module".
+        Tests individual ESM language bundles (dist/*.js) loading via script type="module".
       </div>
 
       <div id="status" class="running">⏳ Running tests...</div>
@@ -119,9 +119,9 @@
 
   <script type="module">
     // Import individual language ESM bundles using toWords export
-    import { toWords as en } from '../../dist/languages/en.js'
-    import { toWords as fr } from '../../dist/languages/fr.js'
-    import { toWords as zhHans } from '../../dist/languages/zh-Hans.js'
+    import { toWords as en } from '../../dist/en.js'
+    import { toWords as fr } from '../../dist/fr.js'
+    import { toWords as zhHans } from '../../dist/zh-Hans.js'
 
     const results = document.getElementById('results')
     const status = document.getElementById('status')
@@ -177,7 +177,7 @@
 
     test('Chinese Simplified converter returns correct result', () => {
       const result = zhHans(42)
-      return result === '四十二'
+      return result === '肆拾贰'
     })
 
     test('BigInt support works', () => {

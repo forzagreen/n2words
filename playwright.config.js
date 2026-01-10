@@ -31,7 +31,7 @@ export default defineConfig({
 
   // Start local server to serve files (required for ESM imports)
   webServer: {
-    command: 'npx serve -l 3000 --no-clipboard',
+    command: 'npx http-server . -p 3000 -c-1 --silent',
     port: 3000,
     reuseExistingServer: !process.env.CI
   },
