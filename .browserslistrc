@@ -3,8 +3,7 @@
 #
 # Strategy: Target all in-use browsers (defaults) that support BigInt (hard requirement).
 #
-# The source code (lib/) uses modern ES2022+ features (optional chaining,
-# nullish coalescing, class fields), but Babel transpiles these down to
+# The source code (src/) uses modern ES2022+ features but Babel transpiles these down to
 # be compatible with BigInt-supporting browsers.
 #
 # "defaults" = > 0.5% usage, last 2 versions, Firefox ESR, not dead

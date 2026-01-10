@@ -45,76 +45,72 @@
   "sideEffects": false,
   "exports": {
     ".": {
-      "types": "./lib/n2words.d.ts",
-      "import": "./lib/n2words.js",
-      "default": "./lib/n2words.js"
+      "types": "./index.d.ts",
+      "import": "./index.js",
+      "default": "./index.js"
     },
     "./*": {
-      "types": "./lib/languages/*.d.ts",
-      "import": "./lib/languages/*.js",
-      "default": "./lib/languages/*.js"
+      "types": "./src/*.d.ts",
+      "import": "./src/*.js",
+      "default": "./src/*.js"
     },
     "./package.json": "./package.json"
   },
-  "main": "./lib/n2words.js",
-  "types": "./lib/n2words.d.ts",
-  "jsdelivr": "./dist/n2words.js",
-  "unpkg": "./dist/n2words.js",
+  "main": "./index.js",
+  "types": "./index.d.ts",
+  "jsdelivr": "./dist/en.js",
+  "unpkg": "./dist/en.umd.js",
   "files": [
-    "lib/**/*.js",
-    "lib/**/*.d.ts",
+    "index.js",
+    "index.d.ts",
+    "src/**/*.js",
+    "src/**/*.d.ts",
     "dist/**/*.js",
-    "dist/**/*.js.map",
     "README.md",
     "LICENSE",
     "CHANGELOG.md"
   ],
   "scripts": {
-    "prepare:husky": "husky",
-    "build": "npm run clean && npm run build:types:run && npm run build:umd:run",
+    "bench": "node --expose-gc bench/index.js",
+    "browserslist": "browserslist",
+    "browserslist:coverage": "browserslist --coverage",
+    "build": "npm run clean && npm run build:types:run && npm run build:dist:run",
+    "build:dist": "npm run clean:dist && npm run build:dist:run",
+    "build:dist:run": "rollup -c",
     "build:types": "npm run clean:types && npm run build:types:run",
     "build:types:run": "tsc --project tsconfig.build.json",
-    "build:umd": "npm run clean:dist && npm run build:umd:run",
-    "build:umd:run": "rollup -c",
     "clean": "npm run clean:dist && npm run clean:types",
-    "clean:dist": "rimraf dist",
-    "clean:types": "rimraf \"lib/**/*.d.ts\" --glob",
-    "clean:artifacts": "rimraf coverage playwright-report test-results .nyc_output",
     "clean:all": "npm run clean && npm run clean:artifacts",
-    "test": "npm run test:unit && npm run test:integration",
-    "test:all": "npm test && npm run build && npm run test:types:run && npm run test:exports:run && npm run test:umd:run && npm run test:browsers:run",
-    "test:unit": "ava --verbose \"test/unit/**/*.test.js\"",
-    "test:integration": "ava --verbose test/integration/*.test.js",
-    "test:umd": "npm run build:umd && npm run test:umd:run",
-    "test:umd:run": "ava --verbose test/umd/*.test.js",
-    "test:types": "npm run build:types && npm run test:types:run",
-    "test:types:run": "tsd --files test/types/*.test-d.ts",
-    "test:exports": "npm run build:types && npm run test:exports:run",
-    "test:exports:run": "attw --pack .",
-    "test:browsers": "npm run build:umd && npm run test:browsers:run",
-    "test:browsers:run": "playwright test",
+    "clean:artifacts": "rimraf coverage playwright-report test-results .nyc_output",
+    "clean:dist": "rimraf dist",
+    "clean:types": "rimraf \"src/**/*.d.ts\" \"index.d.ts\" --glob",
     "coverage": "c8 npm test",
+    "lang:add": "node scripts/add-language.js",
     "lint": "npm run lint:js && npm run lint:md",
     "lint:fix": "npm run lint:js -- --fix && npm run lint:md -- --fix",
     "lint:js": "standard",
     "lint:md": "markdownlint-cli2",
-    "lang:add": "node scripts/add-language.js",
-    "bench:perf": "node bench/perf.js",
-    "bench:memory": "node --expose-gc bench/memory.js",
-    "compat:umd": "es-check checkBrowser dist/**/*.js",
-    "browserslist": "browserslist",
-    "browserslist:coverage": "browserslist --coverage",
-    "playwright:install": "playwright install --with-deps"
+    "playwright:install": "playwright install --with-deps",
+    "prepare:husky": "husky",
+    "test": "ava \"test/*.test.js\" \"test/utils/*.test.js\"",
+    "test:all": "npm test && npm run build && npm run test:types:run && npm run test:exports:run && npm run test:bundles:run && npm run test:e2e:run",
+    "test:bundles": "npm run build:dist && npm run test:bundles:run",
+    "test:bundles:run": "ava test/bundles/*.test.js",
+    "test:e2e": "npm run build:dist && npm run test:e2e:run",
+    "test:e2e:run": "playwright test",
+    "test:exports": "npm run build:types && npm run test:exports:run",
+    "test:exports:run": "attw --pack .",
+    "test:types": "npm run build:types && npm run test:types:run",
+    "test:types:run": "tsd --files test/types/*.test-d.ts"
   },
   "ava": {
     "extensions": [
-      "js",
-      "cjs"
+      "js"
     ],
     "files": [
-      "test/unit/**/*.test.js",
-      "test/integration/*.test.js",
-      "test/umd/*.test.js"
+      "test/*.test.js",
+      "test/utils/*.test.js",
+      "test/bundles/*.test.js"
     ],
     "timeout": "30s",
     "concurrency": 8,
@@ -128,10 +124,11 @@
   "c8": {
     "all": true,
     "include": [
-      "lib/"
+      "index.js",
+      "src/"
     ],
     "exclude": [
-      "lib/**/*.d.ts"
+      "src/**/*.d.ts"
     ],
     "reporter": [
       "lcov",
@@ -158,13 +155,13 @@
     "@rollup/plugin-babel": "^6.1.0",
     "@rollup/plugin-node-resolve": "^16.0.3",
     "@rollup/plugin-terser": "^0.4.4",
-    "@rollup/plugin-virtual": "3.0.2",
+    "@rollup/plugin-virtual": "^3.0.2",
     "ava": "^6.4.1",
     "benchmark": "^2.1.4",
     "browserslist": "^4.28.1",
     "c8": "^10.1.3",
     "chalk": "^5.6.2",
-    "es-check": "^9.5.3",
+    "http-server": "^14.1.1",
     "husky": "^9.1.7",
     "lint-staged": "^16.2.7",
     "markdownlint-cli2": "^0.20.0",

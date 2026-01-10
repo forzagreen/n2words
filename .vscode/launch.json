@@ -45,24 +45,7 @@
       "skipFiles": ["<node_internals>/**"],
       "runtimeExecutable": "npm",
       "runtimeArgs": [
-        "run",
-        "test:unit"
-      ],
-      "console": "integratedTerminal",
-      "cwd": "${workspaceFolder}",
-      "env": {
-        "NODE_ENV": "test"
-      }
-    },
-    {
-      "type": "node",
-      "request": "launch",
-      "name": "Debug Integration Tests",
-      "skipFiles": ["<node_internals>/**"],
-      "runtimeExecutable": "npm",
-      "runtimeArgs": [
-        "run",
-        "test:integration"
+        "test"
       ],
       "console": "integratedTerminal",
       "cwd": "${workspaceFolder}",

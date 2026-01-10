@@ -5,9 +5,9 @@
  *
  * Generates boilerplate code for adding a new language to n2words.
  * Creates:
- * - Language implementation file in lib/languages/
- * - Test fixture file in test/fixtures/languages/
- * - Updates lib/n2words.js with import and export
+ * - Language implementation file in src/
+ * - Test fixture file in test/fixtures/
+ * - Updates index.js with import and export
  * - Updates test/types/languages.test-d.ts with import and type test
  *
  * Usage:
@@ -20,9 +20,41 @@
  */
 
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
+import * as readline from 'node:readline/promises'
 import chalk from 'chalk'
-import { getCanonicalCode, isValidLanguageCode } from '../test/utils/language-naming.js'
-import { normalizeCode } from '../test/utils/language-helpers.js'
+import { getCanonicalCode, getLanguageName, isInCLDR, isValidLanguageCode, normalizeCode } from '../test/helpers/language-naming.js'
+
+// ============================================================================
+// Interactive Prompts
+// ============================================================================
+
+/**
+ * Prompt user for language name when code is not in CLDR.
+ *
+ * @param {string} code Language code
+ * @returns {Promise<string|null>} Language name from user, or null if cancelled
+ */
+async function promptForLanguageName (code) {
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout
+  })
+
+  try {
+    console.log(chalk.yellow(`\nNote: "${code}" is not in CLDR (language name unknown)`))
+    console.log(chalk.gray('Valid BCP 47 codes may not be in Unicode CLDR (e.g., hbo = Biblical Hebrew)'))
+
+    const name = await rl.question(chalk.cyan('\nEnter the language name: '))
+    if (!name.trim()) {
+      console.log(chalk.red('\nNo name provided. Aborting.'))
+      return null
+    }
+
+    return name.trim()
+  } finally {
+    rl.close()
+  }
+}
 
 // ============================================================================
 // Template Generators
@@ -32,18 +64,19 @@ import { normalizeCode } from '../test/utils/language-helpers.js'
  * Generate language implementation file.
  *
  * @param {string} code Language code (e.g., 'ko', 'sr-Cyrl')
+ * @param {string} name Language name (e.g., 'Korean')
  * @returns {string} File content
  */
-function generateLanguageFile (code) {
-  return `import { parseNumericValue } from '../utils/parse-numeric.js'
+function generateLanguageFile (code, name) {
+  return `import { parseNumericValue } from './utils/parse-numeric.js'
 
-// TODO: Implement number-to-words conversion for ${code}
+// TODO: Implement number-to-words conversion for ${name} (${code})
 //
 // Reference implementations by pattern:
-//   Western scale: lib/languages/en.js, de.js, fr.js
-//   South Asian:   lib/languages/hi.js, bn.js
-//   East Asian:    lib/languages/ja.js, ko.js, zh-Hans.js
-//   Slavic:        lib/languages/ru.js, pl.js, uk.js
+//   Western scale: src/en.js, de.js, fr.js
+//   South Asian:   src/hi.js, bn.js
+//   East Asian:    src/ja.js, ko.js, zh-Hans.js
+//   Slavic:        src/ru.js, pl.js, uk.js
 
 /**
  * Converts a numeric value to words.
@@ -66,11 +99,12 @@ export { toWords }
  * Generate test fixture file.
  *
  * @param {string} code Language code
+ * @param {string} name Language name
  * @returns {string} File content
  */
-function generateTestFixture (code) {
+function generateTestFixture (code, name) {
   return `/**
- * Test fixtures for ${code} language
+ * Test fixtures for ${name} (${code})
  *
  * Format: [input, expected_output, options?]
  */
@@ -112,18 +146,18 @@ function insertSorted (lines, newLine, getSortKey) {
 }
 
 /**
- * Update lib/n2words.js with new language.
+ * Update index.js with new language.
  *
  * @param {string} code Language code (e.g., 'sr-Cyrl')
  * @param {string} normalized Normalized code (e.g., 'srCyrl')
  */
-function updateN2wordsFile (code, normalized) {
-  const filePath = './lib/n2words.js'
+function updateIndexFile (code, normalized) {
+  const filePath = './index.js'
   let content = readFileSync(filePath, 'utf-8')
 
   // 1. Add import line
-  const importLine = `import { toWords as ${normalized} } from './languages/${code}.js'`
-  const importMatch = content.match(/^import \{ toWords as \w+ \} from '\.\/languages\/[\w-]+\.js'$/gm)
+  const importLine = `import { toWords as ${normalized} } from './src/${code}.js'`
+  const importMatch = content.match(/^import \{ toWords as \w+ \} from '\.\/src\/[\w-]+\.js'$/gm)
   if (importMatch) {
     const imports = insertSorted(
       [...importMatch],
@@ -168,7 +202,7 @@ function updateLanguagesTypeTest (code, normalized) {
   const filePath = './test/types/languages.test-d.ts'
   const lines = readFileSync(filePath, 'utf-8').split('\n')
 
-  const importLine = `import { toWords as ${normalized} } from '../../lib/languages/${code}.js'`
+  const importLine = `import { toWords as ${normalized} } from '../../src/${code}.js'`
   const testLine = `expectType<string>(${normalized}(1))`
 
   // Check if already exists
@@ -252,7 +286,7 @@ function updateLanguagesTypeTest (code, normalized) {
 // Main
 // ============================================================================
 
-function main () {
+async function main () {
   const args = process.argv.slice(2)
 
   if (args.length === 0 || args[0] === '--help' || args[0] === '-h') {
@@ -281,36 +315,47 @@ function main () {
   }
 
   const normalized = normalizeCode(code)
-  const langFilePath = `./lib/languages/${code}.js`
-  const fixtureFilePath = `./test/fixtures/languages/${code}.js`
+  const langFilePath = `./src/${code}.js`
+  const fixtureFilePath = `./test/fixtures/${code}.js`
 
-  console.log(chalk.cyan(`\nAdding language: ${code}`))
-  console.log(chalk.gray(`Export name: ${normalized}`))
-
-  // Check if language already exists
+  // Check if language already exists (before prompting for name)
   if (existsSync(langFilePath)) {
     console.error(chalk.red(`\nError: Language file already exists: ${langFilePath}`))
     process.exit(1)
   }
 
+  // Get language name from CLDR, or prompt user if not found
+  let languageName = getLanguageName(code)
+
+  if (!isInCLDR(code)) {
+    const userProvidedName = await promptForLanguageName(code)
+    if (userProvidedName === null) {
+      process.exit(1)
+    }
+    languageName = userProvidedName
+  }
+
+  console.log(chalk.cyan(`\nAdding language: ${languageName} (${code})`))
+  console.log(chalk.gray(`Export name: ${normalized}`))
+
   // Create language file
   console.log(chalk.gray(`\nCreating ${langFilePath}...`))
-  writeFileSync(langFilePath, generateLanguageFile(code))
+  writeFileSync(langFilePath, generateLanguageFile(code, languageName))
   console.log(chalk.green('✓ Created language file'))
 
   // Create test fixture
   console.log(chalk.gray(`Creating ${fixtureFilePath}...`))
-  const fixtureDir = './test/fixtures/languages'
+  const fixtureDir = './test/fixtures'
   if (!existsSync(fixtureDir)) {
     mkdirSync(fixtureDir, { recursive: true })
   }
-  writeFileSync(fixtureFilePath, generateTestFixture(code))
+  writeFileSync(fixtureFilePath, generateTestFixture(code, languageName))
   console.log(chalk.green('✓ Created test fixture'))
 
-  // Update n2words.js
-  console.log(chalk.gray('Updating lib/n2words.js...'))
-  updateN2wordsFile(code, normalized)
-  console.log(chalk.green('✓ Updated n2words.js'))
+  // Update index.js
+  console.log(chalk.gray('Updating index.js...'))
+  updateIndexFile(code, normalized)
+  console.log(chalk.green('✓ Updated index.js'))
 
   // Update type tests
   console.log(chalk.gray('Updating test/types/languages.test-d.ts...'))
@@ -326,4 +371,7 @@ function main () {
   console.log(chalk.gray('4. Run: npm run build:types && npm run test:types'))
 }
 
-main()
+main().catch(err => {
+  console.error(chalk.red(err.message))
+  process.exit(1)
+})

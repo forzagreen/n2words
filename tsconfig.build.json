@@ -4,9 +4,9 @@
     "noEmit": false,
     "declaration": true,
     "emitDeclarationOnly": true,
-    "outDir": "lib",
-    "rootDir": "lib"
+    "outDir": ".",
+    "rootDir": "."
   },
-  "include": ["lib/n2words.js", "lib/languages/*.js", "lib/utils/*.js"],
+  "include": ["index.js", "src/*.js", "src/utils/*.js"],
   "exclude": ["node_modules", "dist", "test", "bench", "scripts"]
 }

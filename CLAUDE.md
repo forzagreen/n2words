@@ -4,7 +4,7 @@ n2words: Number to words converter. ESM + UMD, Node >=20, zero dependencies.
 
 ## Critical Patterns
 
-1. **Alphabetical ordering** - Imports and exports in `lib/n2words.js` MUST be alphabetically sorted
+1. **Alphabetical ordering** - Imports and exports in `index.js` MUST be alphabetically sorted
 2. **IETF BCP 47 codes** - Language codes: `en`, `zh-Hans`, `fr-BE`
 3. **Normalized exports** - Codes become camelCase identifiers: `zhHans`, `frBE`
 
@@ -13,21 +13,27 @@ n2words: Number to words converter. ESM + UMD, Node >=20, zero dependencies.
 **Functional, self-contained modules** - Each language is a standalone file exporting `toWords(value, options?)`.
 
 ```text
-lib/
-├── n2words.js           # Re-exports all languages (alphabetically)
-├── languages/*.js       # One file per language
+index.js                 # Re-exports all languages (alphabetically)
+src/
+├── en.js                # One file per language (flat structure)
+├── fr.js
+├── zh-Hans.js
 └── utils/
     ├── parse-numeric.js    # Shared input parsing
     ├── is-plain-object.js  # Object type checking
     └── validate-options.js # Options validation
 ```
 
-**Language file pattern**:
+**Language file pattern** (JSDoc required for type generation):
 
 ```javascript
-import { parseNumericValue } from '../utils/parse-numeric.js'
+import { parseNumericValue } from './utils/parse-numeric.js'
 
-function toWords (value, options = {}) {
+/**
+ * @param {number | string | bigint} value - The numeric value to convert
+ * @returns {string} The number in words
+ */
+function toWords (value) {
   const { isNegative, integerPart, decimalPart } = parseNumericValue(value)
   // Convert integerPart (bigint) to words
   // Handle isNegative prefix and decimalPart suffix
@@ -39,9 +45,9 @@ export { toWords }
 
 ## Adding a Language
 
-1. `npm run lang:add <code>` - creates stub + fixture, updates n2words.js + type tests
-2. Implement `toWords()` in `lib/languages/{code}.js`
-3. Add test cases to `test/fixtures/languages/{code}.js`
+1. `npm run lang:add <code>` - creates stub + fixture, updates index.js + type tests
+2. Implement `toWords()` in `src/{code}.js`
+3. Add test cases to `test/fixtures/{code}.js`
 4. `npm test`
 
 **Reference implementations**:
@@ -55,9 +61,15 @@ export { toWords }
 
 ## Options Pattern
 
-Languages with options accept a second parameter:
+Languages with options accept a second parameter (JSDoc required):
 
 ```javascript
+/**
+ * @param {number | string | bigint} value - The numeric value to convert
+ * @param {Object} [options] - Optional configuration
+ * @param {('masculine'|'feminine')} [options.gender='masculine'] - Grammatical gender
+ * @returns {string} The number in words
+ */
 function toWords (value, options = {}) {
   const { gender = 'masculine' } = options
   // Use option in conversion
@@ -71,12 +83,12 @@ Conventional Commits required. See `.commitlintrc.mjs` for types and scopes.
 Before PR:
 
 ```bash
-npm run lint:fix && npm test
+npm run lint:fix && npm test:all
 ```
 
-Before/after `lib/` changes (check for regressions):
+Before/after `src/` changes (check for regressions):
 
 ```bash
-npm run bench:perf
-npm run bench:memory
+npm run bench -- --lang en             # Quick single language check
+npm run bench -- --save --compare      # Track changes over time
 ```

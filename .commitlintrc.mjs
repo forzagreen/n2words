@@ -29,9 +29,12 @@
  *   perf(ja): optimize with BigInt modulo   # Language optimization
  *   feat(lang): add 3 new languages         # Multiple languages
  *   refactor(core): simplify exports        # Main entry point
- *   build: update Rollup config             # Build system
+ *   build: update Rollup config             # Build system (no scope needed)
+ *   build(umd): fix browser global name     # UMD-specific build change
+ *   build(esm): add tree-shaking hints      # ESM-specific build change
  *   chore(deps-dev): bump dev dependencies  # Dependabot
- *   ci: add Node 22 to test matrix          # CI/CD changes
+ *   ci: add Node 22 to test matrix          # CI/CD (type, not scope)
+ *   docs: update README                     # Documentation (type, not scope)
  *   feat!: breaking API change              # Breaking without scope
  *
  * @see https://www.conventionalcommits.org/
@@ -47,12 +50,13 @@
  */
 const PROJECT_SCOPES = [
   // Code Areas
-  'core', // lib/n2words.js - main entry point
-  'lang', // lib/languages/* - general multi-language work
-  'utils', // lib/utils/* - shared utilities
+  'core', // index.js - main entry point
+  'lang', // src/* - general multi-language work
+  'utils', // src/utils/* - shared utilities
 
   // Build & Distribution
-  'build', // Rollup, Babel, UMD bundles, bundling pipeline
+  'esm', // ESM bundle output (dist/*.js)
+  'umd', // UMD bundle output (dist/*.umd.js)
   'types', // TypeScript declarations, JSDoc → .d.ts
 
   // Dependencies (Dependabot scopes)
@@ -61,12 +65,10 @@ const PROJECT_SCOPES = [
 
   // Quality & Testing
   'test', // Test infrastructure, AVA config
-  'bench', // Benchmarking (perf.js, memory.js)
-  'browser', // Playwright browser tests
+  'bench', // Benchmarking (bench/index.js)
+  'e2e', // Playwright E2E browser tests
 
   // Infrastructure
-  'ci', // GitHub Actions workflows
-  'docs', // README, CONTRIBUTING, etc.
   'release', // Version bumps, release preparation
   'scripts' // scripts/* - contributor tooling
 ]
