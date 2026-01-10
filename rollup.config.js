@@ -2,23 +2,15 @@ import { babel } from '@rollup/plugin-babel'
 import { nodeResolve } from '@rollup/plugin-node-resolve'
 import terser from '@rollup/plugin-terser'
 import virtual from '@rollup/plugin-virtual'
-import { readFileSync, readdirSync } from 'node:fs'
+import { readFileSync } from 'node:fs'
+import { getLanguageCodes } from './test/helpers/language-helpers.js'
+import { normalizeCode } from './test/helpers/language-naming.js'
 
 // Read package.json for version
 const pkg = JSON.parse(readFileSync('./package.json', 'utf8'))
 
-// Get all language codes from the src directory (exclude utils/)
-const languageCodes = readdirSync('./src')
-  .filter(file => file.endsWith('.js'))
-  .map(file => file.replace('.js', ''))
-
-/**
- * Normalizes BCP 47 language code to camelCase identifier.
- * Examples: 'en' → 'en', 'zh-Hans' → 'zhHans', 'fr-BE' → 'frBE'
- */
-function normalizeCode (code) {
-  return code.replace(/-([a-zA-Z])/g, (_, char) => char.toUpperCase())
-}
+// Get all language codes from the src directory
+const languageCodes = getLanguageCodes()
 
 /**
  * Rollup configuration for n2words bundles.
