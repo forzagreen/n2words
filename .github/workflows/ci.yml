@@ -125,52 +125,11 @@ jobs:
           retention-days: 30
           if-no-files-found: ignore
 
-  test-e2e:
-    name: E2E Browser Tests
-    runs-on: ubuntu-latest
-    needs: lint
-    timeout-minutes: 10
-
-    steps:
-      - uses: actions/checkout@v6
-        with:
-          persist-credentials: false
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v6
-        with:
-          node-version: '24'
-          cache: 'npm'
-
-      - name: Install dependencies
-        run: npm ci --prefer-offline
-
-      - name: Install Playwright browsers
-        run: npx playwright install --with-deps
-
-      - name: Run E2E tests
-        run: npm run test:e2e
-
-      - name: Upload Playwright test results
-        if: failure()
-        uses: actions/upload-artifact@v6
-        with:
-          name: playwright-report
-          path: |
-            playwright-report/
-            test-results/
-          retention-days: 30
-          if-no-files-found: ignore
-
   verify:
     name: Verify Package
     runs-on: ubuntu-latest
-    needs: [test, test-e2e]
-    if: |
-      !cancelled() &&
-      needs.test.result == 'success' &&
-      (needs.test-e2e.result == 'success' || needs.test-e2e.result == 'skipped')
-    timeout-minutes: 5
+    needs: [lint, test]
+    timeout-minutes: 15
 
     steps:
       - uses: actions/checkout@v6
@@ -197,6 +156,23 @@ jobs:
 
       - name: Run bundle tests
         run: npm run test:bundles:run
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps
+
+      - name: Run E2E browser tests
+        run: npm run test:e2e:run
+
+      - name: Upload Playwright test results
+        if: failure()
+        uses: actions/upload-artifact@v6
+        with:
+          name: playwright-report
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 30
+          if-no-files-found: ignore
 
       - name: Verify package contents
         run: npm pack --dry-run
