@@ -18,7 +18,8 @@
     "types": ["node"]
   },
   "include": [
-    "lib/**/*.js",
+    "index.js",
+    "src/**/*.js",
     "test/**/*.js",
     "scripts/**/*.js",
     "bench/**/*.js"

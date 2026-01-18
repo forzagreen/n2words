@@ -28,8 +28,8 @@ npm run lang:add <code>   # e.g., ko, sr-Cyrl, fr-BE
 
 This scaffolds all required files. Then:
 
-1. Implement `toWords(value)` in `lib/languages/<code>.js`
-2. Add test cases to `test/fixtures/languages/<code>.js`
+1. Implement `toWords(value)` in `src/<code>.js`
+2. Add test cases to `test/fixtures/<code>.js`
 3. Run `npm test`
 
 See [scripts/README.md](scripts/README.md) for implementation patterns.
@@ -42,7 +42,7 @@ See [scripts/README.md](scripts/README.md) for implementation patterns.
 ## Testing
 
 ```bash
-npm test              # Unit + integration tests
+npm test              # Run all tests
 npm run test:all      # Full suite (types, UMD, browsers)
 npm run coverage      # With coverage report
 ```

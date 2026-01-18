@@ -3,6 +3,7 @@
     "."
   ],
   "ignoreRules": [
-    "cjs-resolves-to-esm"
+    "cjs-resolves-to-esm",
+    "false-esm"
   ]
 }

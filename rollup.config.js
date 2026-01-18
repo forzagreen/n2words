@@ -2,38 +2,34 @@ import { babel } from '@rollup/plugin-babel'
 import { nodeResolve } from '@rollup/plugin-node-resolve'
 import terser from '@rollup/plugin-terser'
 import virtual from '@rollup/plugin-virtual'
-import { readFileSync, readdirSync } from 'node:fs'
+import { readFileSync } from 'node:fs'
+import { getLanguageCodes } from './test/helpers/language-helpers.js'
+import { normalizeCode } from './test/helpers/language-naming.js'
 
 // Read package.json for version
 const pkg = JSON.parse(readFileSync('./package.json', 'utf8'))
 
-// Get all language codes from the languages directory
-const languageCodes = readdirSync('./lib/languages')
-  .filter(file => file.endsWith('.js'))
-  .map(file => file.replace('.js', ''))
+// Get all language codes from the src directory
+const languageCodes = getLanguageCodes()
 
 /**
- * Normalizes BCP 47 language code to camelCase identifier.
- * Examples: 'en' → 'en', 'zh-Hans' → 'zhHans', 'fr-BE' → 'frBE'
- */
-function normalizeCode (code) {
-  return code.replace(/-([a-zA-Z])/g, (_, char) => char.toUpperCase())
-}
-
-/**
- * Rollup configuration for n2words UMD bundles.
+ * Rollup configuration for n2words bundles.
  *
  * Build Strategy:
- * 1. Source (lib/): Modern ES2022+ code with BigInt, optional chaining
+ * 1. Source (src/): Modern ES2022+ code with BigInt, optional chaining
  * 2. Babel: Transpiles ES2022+ features down while preserving BigInt support
  * 3. Terser: Minifies using ES2020 syntax (safe for BigInt-supporting browsers)
  * 4. Target: ~85.9% global coverage via .browserslistrc ("defaults and supports bigint")
  *
  * Generates:
- * - Main bundle (dist/n2words.js): All language converters
- * - Individual bundles (dist/languages/{langCode}.js): One per language
+ * - Individual ESM bundles (dist/{langCode}.js): One per language, for browsers
+ * - Individual UMD bundles (dist/{langCode}.umd.js): One per language, for
+ *   browser <script> tags
  *
- * Individual bundles use virtual entry points to re-export toWords as the
+ * Node.js users import directly from src/ (ESM source). No CJS bundle is generated -
+ * Node.js 22.12+/20.19+ can require() ESM modules directly.
+ *
+ * UMD bundles use virtual entry points to re-export toWords as the
  * normalized language code (e.g., n2words.en, n2words.zhHans), allowing
  * multiple languages to be loaded together without conflicts.
  */
@@ -52,24 +48,7 @@ const babelConfig = {
   ]
 }
 
-// Main bundle terser config - preserve property names for public API
-const mainTerserConfig = terser({
-  compress: {
-    passes: 2,
-    drop_debugger: true,
-    ecma: 2020,
-    pure_getters: true
-  },
-  mangle: {
-    properties: false // Don't mangle - main bundle exports many named converters
-  },
-  format: {
-    comments: /^!/,
-    ecma: 2020
-  }
-})
-
-// Individual bundle terser config - more aggressive since only one function is exported
+// Individual bundle terser config - aggressive since only one function is exported
 const individualTerserConfig = terser({
   compress: {
     passes: 3, // Extra pass for better compression
@@ -93,33 +72,33 @@ const basePlugins = [
   babel(babelConfig)
 ]
 
-// Main bundle configuration (all languages)
-const mainConfig = {
-  input: './lib/n2words.js',
-  output: {
-    file: 'dist/n2words.js',
-    format: 'umd',
-    name: 'n2words',
-    sourcemap: true,
-    exports: 'named', // Named exports - window.n2words.en, window.n2words.zhHans, etc.
-    banner: `/*! n2words v${pkg.version} | MIT License | github.com/forzagreen/n2words */`
-  },
-  plugins: [...basePlugins, mainTerserConfig]
-}
+// ============================================================================
+// Individual Language Bundle Configurations
+// ============================================================================
 
-// Generate individual language bundle configurations
-// Each bundle uses a virtual entry point that re-exports toWords as the normalized name
-const languageConfigs = languageCodes.map(langCode => {
+// Generate individual ESM language bundle configurations
+// ESM bundles directly use source files - they already export toWords
+const languageEsmConfigs = languageCodes.map(langCode => ({
+  input: `./src/${langCode}.js`,
+  output: {
+    file: `dist/${langCode}.js`,
+    format: 'es',
+    banner: `/*! n2words/${langCode} v${pkg.version} | MIT License | github.com/forzagreen/n2words */`
+  },
+  plugins: [...basePlugins, individualTerserConfig]
+}))
+
+// Generate individual UMD language bundle configurations
+const languageUmdConfigs = languageCodes.map(langCode => {
   const normalizedName = normalizeCode(langCode)
-  const virtualEntryId = `\0virtual:${langCode}`
+  const virtualEntryId = `\0virtual:umd:${langCode}`
 
   return {
     input: virtualEntryId,
     output: {
-      file: `dist/languages/${langCode}.js`,
+      file: `dist/${langCode}.umd.js`,
       format: 'umd',
       name: 'n2words',
-      sourcemap: true,
       exports: 'named',
       extend: true,
       banner: `/*! n2words/${langCode} v${pkg.version} | MIT License | github.com/forzagreen/n2words */`
@@ -127,7 +106,7 @@ const languageConfigs = languageCodes.map(langCode => {
     plugins: [
       // Virtual entry point that re-exports toWords as the normalized language name
       virtual({
-        [virtualEntryId]: `export { toWords as ${normalizedName} } from './lib/languages/${langCode}.js'`
+        [virtualEntryId]: `export { toWords as ${normalizedName} } from './src/${langCode}.js'`
       }),
       ...basePlugins,
       individualTerserConfig
@@ -137,6 +116,6 @@ const languageConfigs = languageCodes.map(langCode => {
 
 // Export all configurations as an array
 export default [
-  mainConfig,
-  ...languageConfigs
+  ...languageEsmConfigs,
+  ...languageUmdConfigs
 ]

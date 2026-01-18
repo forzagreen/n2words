@@ -6,7 +6,7 @@ import { defineConfig, devices } from '@playwright/test'
  */
 export default defineConfig({
   // Test directory
-  testDir: './test/browsers',
+  testDir: './test/e2e',
 
   // Match only test files in web directory
   testMatch: '*.test.js',
@@ -29,10 +29,17 @@ export default defineConfig({
     ['html', { outputFolder: 'playwright-report', open: 'never' }]
   ],
 
+  // Start local server to serve files (required for ESM imports)
+  webServer: {
+    command: 'npx http-server . -p 3000 -c-1 --silent',
+    port: 3000,
+    reuseExistingServer: !process.env.CI
+  },
+
   // Shared settings for all projects
   use: {
     // Base URL for page.goto() with relative paths
-    baseURL: 'file://',
+    baseURL: 'http://localhost:3000',
 
     // Collect trace on failure for debugging
     trace: 'on-first-retry',
