@@ -7,29 +7,15 @@ node_modules/
 
 # Test coverage
 coverage/
-*.lcov
-
-# Playwright
-playwright-report/
-test-results/
-.playwright/
+.nyc_output/
 
 # Benchmark results
 bench/results.json
 
 # Logs
 *.log
-npm-debug.log*
-yarn-debug.log*
-pnpm-debug.log*
-lerna-debug.log*
 
-# Runtime data
-*.pid
-*.seed
-*.pid.lock
-
-# Caches & Build tools
+# Caches
 .cache/
 .npm/
 .rollup.cache/
@@ -39,46 +25,21 @@ lerna-debug.log*
 .env.*
 !.env.example
 
-# Package manager
-.pnpm-store/
-.yarn/
+# Package artifacts
 *.tgz
 
-# Alternative package manager lock files
-# (keep only package-lock.json for npm)
+# Alternative lock files (keep only package-lock.json)
 pnpm-lock.yaml
 yarn.lock
 bun.lockb
 
-# Yarn Berry (v2+)
-.pnp.*
-.yarnrc.yml
-
-# AI Assistant files
+# AI assistants
 .claude/
 .cursor/
-.copilot/
 
 # OS-specific
-# macOS
 .DS_Store
-.AppleDouble
-.LSOverride
-._*
-.Spotlight-V100
-.Trashes
-
-# Windows
 Thumbs.db
-Thumbs.db:encryptable
-ehthumbs.db
-Desktop.ini
-$RECYCLE.BIN/
-nul
-
-# Linux
-*~
-.directory
 
 # IDE & Editor
 .idea/
@@ -90,8 +51,6 @@ nul
 !.vscode/debug-converter.js
 *.swp
 *.swo
-*.sublime-workspace
-*.sublime-project
 
 # Temporary files
 *.tmp
@@ -99,7 +58,6 @@ nul
 .tmp/
 .temp/
 
-# Act (local CI testing)
+# Local CI testing
 .secrets
 .act/
-act-*.log
