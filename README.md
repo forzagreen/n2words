@@ -8,11 +8,11 @@
 [![npm downloads](https://img.shields.io/npm/dw/n2words)](https://npmjs.com/package/n2words)
 [![jsDelivr](https://img.shields.io/jsdelivr/npm/hm/n2words)](https://www.jsdelivr.com/package/npm/n2words)
 
-**Convert numbers to words in 54 languages with zero dependencies.**
+**Convert numbers to words in 55 languages with zero dependencies.**
 
 ## Why n2words?
 
-- **54 Languages** — European, Asian, Middle Eastern, African, and regional variants
+- **55 Languages** — European, Asian, Middle Eastern, African, and regional variants
 - **Functional API** — Each language is a standalone pure function, no classes or configuration
 - **Zero Dependencies** — Works everywhere: Node.js, browsers, Deno, Bun
 - **Type-Safe** — Full TypeScript support with generated `.d.ts` declarations
@@ -70,11 +70,11 @@ Individual language bundles are recommended for browsers (~1.4 KB gzipped each).
 </script>
 ```
 
-## Supported Languages (54)
+## Supported Languages (55)
 
 See **[LANGUAGES.md](LANGUAGES.md)** for the complete list with codes, export names, and options.
 
-Highlights: Arabic, Chinese (Simplified/Traditional), English, French, German, Hindi, Japanese, Korean, Portuguese, Russian, Spanish, and [42 more](LANGUAGES.md).
+Highlights: Arabic, Chinese (Simplified/Traditional), English, French, German, Hindi, Japanese, Korean, Portuguese, Russian, Spanish, and [44 more](LANGUAGES.md).
 
 ## Browser Compatibility
 
