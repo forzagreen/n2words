@@ -1,4 +1,8 @@
-export default [
+/**
+ * Cardinal number test cases
+ * Format: [input, expected_output, options?]
+ */
+export const cardinal = [
   [0.01, 'صفر فاصلة صفر واحد'],
   [1.7, 'واحد فاصلة سبعة'],
   [1.007, 'واحد فاصلة صفر صفر سبعة'],

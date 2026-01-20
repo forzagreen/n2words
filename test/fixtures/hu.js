@@ -1,4 +1,8 @@
-export default [
+/**
+ * Cardinal number test cases
+ * Format: [input, expected_output, options?]
+ */
+export const cardinal = [
   [0.01, 'nulla egész nulla egy'],
   [0.007, 'nulla egész nulla nulla hét'],
   [17.42, 'tizenhét egész negyvenkettő'],

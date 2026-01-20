@@ -1,11 +1,8 @@
 /**
- * Test fixtures for Finnish (fi) language
- *
- * Format: [input, expected_output]
- * - input: number, bigint, or string to convert
- * - expected_output: expected string result
+ * Cardinal number test cases
+ * Format: [input, expected_output, options?]
  */
-export default [
+export const cardinal = [
   // Basic numbers (0-10)
   [0, 'nolla'],
   [1, 'yksi'],

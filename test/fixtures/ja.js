@@ -1,4 +1,8 @@
-export default [
+/**
+ * Cardinal number test cases
+ * Format: [input, expected_output, options?]
+ */
+export const cardinal = [
   // Decimals
   [0.01, '零点零一'],
   [0.007, '零点零零七'],

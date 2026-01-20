@@ -1,14 +1,8 @@
 /**
- * Test fixtures for yo (Yoruba) language
- *
- * Yoruba uses a vigesimal (base-20) system with:
- * - Additive patterns (1-4): added to current decade with "lé"
- * - Subtractive patterns (5-9): subtracted from next decade with "dín"
- * - Odd decades (30,50,70,90): special forms or 10 subtracted from next even decade
- *
+ * Cardinal number test cases
  * Format: [input, expected_output, options?]
  */
-export default [
+export const cardinal = [
   // Zero
   [0, 'òdo'],
 

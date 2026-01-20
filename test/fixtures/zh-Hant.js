@@ -1,7 +1,8 @@
-const common = { formal: false }
-
-// Note: when no options are supplied, `formal` defaults to true (financial style).
-export default [
+/**
+ * Cardinal number test cases
+ * Format: [input, expected_output, options?]
+ */
+export const cardinal = [
   // Formal/financial numerals (default)
   [0.01, '零點零壹'],
   [0.007, '零點零零柒'],
@@ -40,39 +41,39 @@ export default [
   [101_000_000, '壹億零壹佰萬'],
 
   // Common/everyday numerals
-  [0.01, '零點零一', common],
-  [0.007, '零點零零七', common],
-  [17.42, '一十七點四二', common],
-  [-17.42, '負一十七點四二', common],
-  [-1, '負一', common],
-  [-20, '負二十', common],
-  [0, '零', common],
-  [1, '一', common],
-  [2, '二', common],
-  [3, '三', common],
-  [5.5, '五點五', common],
-  [11, '一十一', common],
-  [100, '一百', common],
-  [200, '二百', common],
-  [101, '一百零一', common],
-  [199, '一百九十九', common],
-  [999, '九百九十九', common],
-  [1000, '一千', common],
-  [2000, '二千', common],
-  [1001, '一千零一', common],
-  [1010, '一千零一十', common],
-  [1011, '一千零一十一', common],
-  [1104, '一千一百零四', common],
-  [1243, '一千二百四十三', common],
-  [10_000, '一萬', common],
-  [11_000, '一萬一千', common],
-  [21_000, '二萬一千', common],
-  [100_000, '一十萬', common],
-  [101_000, '一十萬零一千', common],
-  [111_000, '一十一萬一千', common],
-  [1_000_000, '一百萬', common],
-  [1_001_000, '一百萬零一千', common],
-  [1_111_000, '一百一十一萬一千', common],
-  [100_000_000, '一億', common],
-  [101_000_000, '一億零一百萬', common]
+  [0.01, '零點零一', { formal: false }],
+  [0.007, '零點零零七', { formal: false }],
+  [17.42, '一十七點四二', { formal: false }],
+  [-17.42, '負一十七點四二', { formal: false }],
+  [-1, '負一', { formal: false }],
+  [-20, '負二十', { formal: false }],
+  [0, '零', { formal: false }],
+  [1, '一', { formal: false }],
+  [2, '二', { formal: false }],
+  [3, '三', { formal: false }],
+  [5.5, '五點五', { formal: false }],
+  [11, '一十一', { formal: false }],
+  [100, '一百', { formal: false }],
+  [200, '二百', { formal: false }],
+  [101, '一百零一', { formal: false }],
+  [199, '一百九十九', { formal: false }],
+  [999, '九百九十九', { formal: false }],
+  [1000, '一千', { formal: false }],
+  [2000, '二千', { formal: false }],
+  [1001, '一千零一', { formal: false }],
+  [1010, '一千零一十', { formal: false }],
+  [1011, '一千零一十一', { formal: false }],
+  [1104, '一千一百零四', { formal: false }],
+  [1243, '一千二百四十三', { formal: false }],
+  [10_000, '一萬', { formal: false }],
+  [11_000, '一萬一千', { formal: false }],
+  [21_000, '二萬一千', { formal: false }],
+  [100_000, '一十萬', { formal: false }],
+  [101_000, '一十萬零一千', { formal: false }],
+  [111_000, '一十一萬一千', { formal: false }],
+  [1_000_000, '一百萬', { formal: false }],
+  [1_001_000, '一百萬零一千', { formal: false }],
+  [1_111_000, '一百一十一萬一千', { formal: false }],
+  [100_000_000, '一億', { formal: false }],
+  [101_000_000, '一億零一百萬', { formal: false }]
 ]

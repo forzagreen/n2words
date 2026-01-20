@@ -1,8 +1,8 @@
 /**
- * Test cases for Kannada (kn) number conversion.
+ * Cardinal number test cases
+ * Format: [input, expected_output, options?]
  */
-
-export default [
+export const cardinal = [
   [0, 'ಸೊನ್ನೆ'],
   [1, 'ಒಂದು'],
   [2, 'ಎರಡು'],

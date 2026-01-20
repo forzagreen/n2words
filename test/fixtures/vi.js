@@ -1,4 +1,8 @@
-export default [
+/**
+ * Cardinal number test cases
+ * Format: [input, expected_output, options?]
+ */
+export const cardinal = [
   [0.01, 'không phẩy không một'],
   [0.007, 'không phẩy không không bảy'],
   [5.5, 'năm phẩy năm'],

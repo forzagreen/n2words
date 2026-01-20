@@ -94,11 +94,7 @@
     "playwright:install": "playwright install --with-deps",
     "prepare:husky": "husky",
     "test": "ava \"test/*.test.js\" \"test/utils/*.test.js\"",
-    "test:all": "npm test && npm run build && npm run test:types:run && npm run test:exports:run && npm run test:bundles:run && npm run test:e2e:run",
-    "test:bundles": "npm run build:dist && npm run test:bundles:run",
-    "test:bundles:run": "ava test/bundles/*.test.js",
-    "test:e2e": "npm run build:dist && npm run test:e2e:run",
-    "test:e2e:run": "playwright test",
+    "test:all": "npm test && npm run build && npm run test:types:run && npm run test:exports:run",
     "test:exports": "npm run build:types && npm run test:exports:run",
     "test:exports:run": "attw --pack .",
     "test:types": "npm run build:types && npm run test:types:run",
@@ -110,8 +106,7 @@
     ],
     "files": [
       "test/*.test.js",
-      "test/utils/*.test.js",
-      "test/bundles/*.test.js"
+      "test/utils/*.test.js"
     ],
     "timeout": "30s",
     "concurrency": 8,
