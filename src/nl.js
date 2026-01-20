@@ -13,7 +13,7 @@
  * - Long scale with -ard forms
  */
 
-import { parseNumericValue } from './utils/parse-numeric.js'
+import { parseCardinalValue } from './utils/parse-cardinal.js'
 import { validateOptions } from './utils/validate-options.js'
 
 // ============================================================================
@@ -291,7 +291,7 @@ function decimalPartToWords (decimalPart, options) {
  */
 function toCardinal (value, options) {
   options = validateOptions(options)
-  const { isNegative, integerPart, decimalPart } = parseNumericValue(value)
+  const { isNegative, integerPart, decimalPart } = parseCardinalValue(value)
 
   // Apply option defaults
   const {

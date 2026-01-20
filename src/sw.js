@@ -9,7 +9,7 @@
  * - Scale words: elfu, milioni, bilioni
  */
 
-import { parseNumericValue } from './utils/parse-numeric.js'
+import { parseCardinalValue } from './utils/parse-cardinal.js'
 
 // ============================================================================
 // Vocabulary
@@ -129,7 +129,7 @@ function decimalPartToWords (decimalPart) {
  * @returns {string} The number in Swahili words
  */
 function toCardinal (value) {
-  const { isNegative, integerPart, decimalPart } = parseNumericValue(value)
+  const { isNegative, integerPart, decimalPart } = parseCardinalValue(value)
 
   let result = ''
 

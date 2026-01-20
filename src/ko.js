@@ -10,7 +10,7 @@
  * - Hangul numerals
  */
 
-import { parseNumericValue } from './utils/parse-numeric.js'
+import { parseCardinalValue } from './utils/parse-cardinal.js'
 
 // ============================================================================
 // Vocabulary (module-level constants)
@@ -231,7 +231,7 @@ function decimalPartToWords (decimalPart) {
  * toCardinal(1000000)    // '백만'
  */
 function toCardinal (value) {
-  const { isNegative, integerPart, decimalPart } = parseNumericValue(value)
+  const { isNegative, integerPart, decimalPart } = parseCardinalValue(value)
 
   const parts = []
 

@@ -19,7 +19,8 @@ src/
 ├── fr.js
 ├── zh-Hans.js
 └── utils/
-    ├── parse-numeric.js    # Shared input parsing
+    ├── parse-cardinal.js   # Cardinal value parsing (decimals, negatives)
+    ├── parse-ordinal.js    # Ordinal value parsing (positive integers only)
     ├── is-plain-object.js  # Object type checking
     └── validate-options.js # Options validation
 ```
@@ -27,14 +28,14 @@ src/
 **Language file pattern** (JSDoc required for type generation):
 
 ```javascript
-import { parseNumericValue } from './utils/parse-numeric.js'
+import { parseCardinalValue } from './utils/parse-cardinal.js'
 
 /**
  * @param {number | string | bigint} value - The numeric value to convert
  * @returns {string} The number in words
  */
 function toCardinal (value) {
-  const { isNegative, integerPart, decimalPart } = parseNumericValue(value)
+  const { isNegative, integerPart, decimalPart } = parseCardinalValue(value)
   // Convert integerPart (bigint) to words
   // Handle isNegative prefix and decimalPart suffix
   return result
@@ -74,7 +75,7 @@ import { validateOptions } from './utils/validate-options.js'
  */
 function toCardinal (value, options) {
   options = validateOptions(options)
-  const { isNegative, integerPart, decimalPart } = parseNumericValue(value)
+  const { isNegative, integerPart, decimalPart } = parseCardinalValue(value)
 
   // Extract options with defaults at entry point
   const { gender = 'masculine' } = options

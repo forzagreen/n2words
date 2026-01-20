@@ -14,7 +14,8 @@
  * - Optional "and" insertion: 101 → "one hundred and one" (informal)
  */
 
-import { parseNumericValue } from './utils/parse-numeric.js'
+import { parseCardinalValue } from './utils/parse-cardinal.js'
+import { parseOrdinalValue } from './utils/parse-ordinal.js'
 import { validateOptions } from './utils/validate-options.js'
 
 // ============================================================================
@@ -271,7 +272,7 @@ function decimalPartToWords (decimalPart, useAnd) {
  */
 function toCardinal (value, options) {
   options = validateOptions(options)
-  const { isNegative, integerPart, decimalPart } = parseNumericValue(value)
+  const { isNegative, integerPart, decimalPart } = parseCardinalValue(value)
 
   // Extract options with defaults
   const { hundredPairing = false, and: useAnd = false } = options
@@ -447,19 +448,7 @@ function buildLargeOrdinal (n) {
  * toOrdinal(1000) // 'one thousandth'
  */
 function toOrdinal (value) {
-  const { isNegative, integerPart, decimalPart } = parseNumericValue(value)
-
-  // Ordinals only make sense for positive integers
-  if (isNegative) {
-    throw new RangeError('Ordinals cannot be negative')
-  }
-  if (decimalPart) {
-    throw new RangeError('Ordinals must be whole numbers')
-  }
-  if (integerPart === 0n) {
-    throw new RangeError('Ordinals cannot be zero')
-  }
-
+  const integerPart = parseOrdinalValue(value)
   return integerToOrdinal(integerPart)
 }
 

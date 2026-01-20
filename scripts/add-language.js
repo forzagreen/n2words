@@ -164,7 +164,7 @@ function generateCardinalFunction (code) {
  * @returns {string} The number in words
  */
 function toCardinal (value) {
-  const { isNegative, integerPart, decimalPart } = parseNumericValue(value)
+  const { isNegative, integerPart, decimalPart } = parseCardinalValue(value)
 
   // TODO: Implement conversion logic
   throw new Error('${code} cardinal not yet implemented')
@@ -186,11 +186,7 @@ function generateOrdinalFunction (code) {
  * @throws {RangeError} If value is not a positive integer
  */
 function toOrdinal (value) {
-  const { isNegative, integerPart, decimalPart } = parseNumericValue(value)
-
-  if (isNegative || integerPart === 0n || decimalPart) {
-    throw new RangeError('Ordinal numbers must be positive integers')
-  }
+  const integerPart = parseOrdinalValue(value)
 
   // TODO: Implement conversion logic
   throw new Error('${code} ordinal not yet implemented')
@@ -209,7 +205,14 @@ function generateLanguageFile (code, name, forms) {
   const hasCardinal = forms.has('cardinal')
   const hasOrdinal = forms.has('ordinal')
 
-  const imports = "import { parseNumericValue } from './utils/parse-numeric.js'"
+  const importLines = []
+  if (hasCardinal) {
+    importLines.push("import { parseCardinalValue } from './utils/parse-cardinal.js'")
+  }
+  if (hasOrdinal) {
+    importLines.push("import { parseOrdinalValue } from './utils/parse-ordinal.js'")
+  }
+  const imports = importLines.join('\n')
 
   const header = `// TODO: Implement number-to-words conversion for ${name} (${code})
 //

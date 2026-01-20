@@ -2,7 +2,7 @@ import test from 'ava'
 import { readdirSync, readFileSync } from 'node:fs'
 import { isPlainObject } from '../src/utils/is-plain-object.js'
 import { isValidLanguageCode } from './helpers/language-naming.js'
-import { isValidNumericInput, safeStringify } from './helpers/value-utils.js'
+import { isValidCardinalInput, isValidOrdinalInput, safeStringify } from './helpers/value-utils.js'
 
 /**
  * Number Conversion Tests
@@ -33,11 +33,15 @@ const FORMS = {
   cardinal: {
     functionName: 'toCardinal',
     allowOptions: true,
+    inputValidator: isValidCardinalInput,
+    inputDescription: 'valid cardinal value',
     errorCases: null // No standard error cases for cardinal
   },
   ordinal: {
     functionName: 'toOrdinal',
     allowOptions: true, // Allow options for future ordinal implementations
+    inputValidator: isValidOrdinalInput,
+    inputDescription: 'positive integer',
     errorCases: [
       { input: 0, error: RangeError, desc: 'toOrdinal(0) should throw RangeError' },
       { input: -1, error: RangeError, desc: 'toOrdinal(-1) should throw RangeError' },
@@ -45,7 +49,7 @@ const FORMS = {
     ]
   }
   // Future forms can be added here:
-  // currency: { functionName: 'toCurrency', allowOptions: true, errorCases: null }
+  // currency: { functionName: 'toCurrency', allowOptions: true, inputValidator: isValidNumericInput, inputDescription: 'valid numeric value', errorCases: null }
 }
 
 // ============================================================================
@@ -53,15 +57,46 @@ const FORMS = {
 // ============================================================================
 
 /**
+ * Creates a canonical key for an input value to detect duplicates.
+ * Normalizes numeric types so 42, '42', and 42n are considered equivalent.
+ *
+ * @param {number|string|bigint} input Input value
+ * @param {Object} [options] Options object
+ * @returns {string} Canonical key
+ */
+function getInputKey (input, options) {
+  // Normalize to string representation of the number
+  const numStr = typeof input === 'bigint' ? input.toString() : String(input)
+  // Include options in key to allow same input with different options
+  const optStr = options ? JSON.stringify(options, Object.keys(options).sort()) : ''
+  return `${numStr}|${optStr}`
+}
+
+/**
  * Validates a test fixture array format.
+ *
+ * Checks:
+ * - Array structure (non-empty array of arrays)
+ * - Element count (2-3 depending on allowOptions)
+ * - Input is valid numeric (number, string, bigint - not NaN/Infinity)
+ * - Expected is non-empty string
+ * - Options is plain object with properties (if present)
+ * - No duplicate input+options combinations
+ * - No conflicting test cases (same input, different expected)
  *
  * @param {Array} testCases Array of test cases
  * @param {string} languageCode Language code for error messages
  * @param {string} form Form name (cardinal, ordinal)
- * @param {boolean} allowOptions Whether options are allowed
- * @returns {{valid: boolean, error?: string}} Validation result
+ * @param {Object} config Form configuration
+ * @param {Function} config.inputValidator Validator function for inputs
+ * @param {string} config.inputDescription Description of valid input for error messages
+ * @param {boolean} config.allowOptions Whether options are allowed
+ * @returns {{valid: boolean, error?: string, warnings?: string[]}} Validation result
  */
-function validateFixture (testCases, languageCode, form, allowOptions = true) {
+function validateFixture (testCases, languageCode, form, config) {
+  const { inputValidator, inputDescription, allowOptions = true } = config
+  const warnings = []
+
   if (!Array.isArray(testCases)) {
     return {
       valid: false,
@@ -75,6 +110,9 @@ function validateFixture (testCases, languageCode, form, allowOptions = true) {
       error: `Empty ${form} fixture for ${languageCode}: must contain at least one test case`
     }
   }
+
+  // Track seen inputs to detect duplicates and conflicts
+  const seenInputs = new Map() // key -> { index, expected }
 
   for (let i = 0; i < testCases.length; i++) {
     const testCase = testCases[i]
@@ -98,13 +136,15 @@ function validateFixture (testCases, languageCode, form, allowOptions = true) {
 
     const [input, expected, options] = testCase
 
-    if (!isValidNumericInput(input)) {
+    // Validate input using form-specific validator
+    if (!inputValidator(input)) {
       return {
         valid: false,
-        error: `Invalid input at index ${i} in ${languageCode} ${form}: expected valid numeric value, got ${typeof input}`
+        error: `Invalid input at index ${i} in ${languageCode} ${form}: expected ${inputDescription}, got ${safeStringify(input)}`
       }
     }
 
+    // Validate expected output
     if (typeof expected !== 'string') {
       return {
         valid: false,
@@ -112,15 +152,51 @@ function validateFixture (testCases, languageCode, form, allowOptions = true) {
       }
     }
 
-    if (options !== undefined && !isPlainObject(options)) {
+    if (expected.length === 0) {
       return {
         valid: false,
-        error: `Invalid options at index ${i} in ${languageCode} ${form}: expected plain object, got ${typeof options}`
+        error: `Empty expected output at index ${i} in ${languageCode} ${form}: expected non-empty string`
       }
+    }
+
+    // Validate options
+    if (options !== undefined) {
+      if (!isPlainObject(options)) {
+        return {
+          valid: false,
+          error: `Invalid options at index ${i} in ${languageCode} ${form}: expected plain object, got ${typeof options}`
+        }
+      }
+
+      if (Object.keys(options).length === 0) {
+        return {
+          valid: false,
+          error: `Empty options object at index ${i} in ${languageCode} ${form}: use undefined instead of {}`
+        }
+      }
+    }
+
+    // Check for duplicates and conflicts
+    const key = getInputKey(input, options)
+    const existing = seenInputs.get(key)
+
+    if (existing) {
+      if (existing.expected === expected) {
+        // Exact duplicate - warning (redundant but not incorrect)
+        warnings.push(`Duplicate test case at index ${i} in ${languageCode} ${form}: same as index ${existing.index}`)
+      } else {
+        // Conflict - same input, different expected output
+        return {
+          valid: false,
+          error: `Conflicting test cases in ${languageCode} ${form}: index ${existing.index} expects "${existing.expected}" but index ${i} expects "${expected}" for input ${safeStringify(input)}`
+        }
+      }
+    } else {
+      seenInputs.set(key, { index: i, expected })
     }
   }
 
-  return { valid: true }
+  return { valid: true, warnings: warnings.length > 0 ? warnings : undefined }
 }
 
 // ============================================================================
@@ -276,10 +352,17 @@ for (const file of fixtureFiles) {
       // Fixture Validation
       // ----------------------------------------------------------------------
 
-      const validation = validateFixture(fixtureData, languageCode, formName, config.allowOptions)
+      const validation = validateFixture(fixtureData, languageCode, formName, config)
       if (!validation.valid) {
         t.fail(validation.error)
         continue
+      }
+
+      // Log any warnings (e.g., duplicate test cases)
+      if (validation.warnings) {
+        for (const warning of validation.warnings) {
+          t.log(`Warning: ${warning}`)
+        }
       }
 
       // ----------------------------------------------------------------------

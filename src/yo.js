@@ -17,7 +17,7 @@
  * - 45 = àrùndínláàádọ́ta (50 - 5)
  */
 
-import { parseNumericValue } from './utils/parse-numeric.js'
+import { parseCardinalValue } from './utils/parse-cardinal.js'
 
 // ============================================================================
 // Vocabulary (module-level constants)
@@ -283,7 +283,7 @@ function decimalPartToWords (decimalPart) {
  * @returns {string} The number in Yoruba words
  */
 function toCardinal (value) {
-  const { isNegative, integerPart, decimalPart } = parseNumericValue(value)
+  const { isNegative, integerPart, decimalPart } = parseCardinalValue(value)
 
   let result = ''
 
