@@ -23,8 +23,8 @@ body:
       label: Code to reproduce
       description: Minimal code that shows the problem
       placeholder: |
-        import { en } from 'n2words'
-        en(42)  // returns "..." but expected "..."
+        import { enUS } from 'n2words'
+        enUS(42)  // returns "..." but expected "..."
       render: javascript
     validations:
       required: true

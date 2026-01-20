@@ -2,7 +2,7 @@
 
 > **Auto-generated** — Do not edit manually. Run `npm run docs:languages` to update.
 
-n2words supports **54 languages**, 19 of which have additional options.
+n2words supports **55 languages**, 20 of which have additional options.
 
 Language codes follow [IETF BCP 47](https://tools.ietf.org/html/bcp47) standards.
 
@@ -19,7 +19,8 @@ Language codes follow [IETF BCP 47](https://tools.ietf.org/html/bcp47) standards
 |`da`||Danish||
 |`de`||German||
 |`el`||Greek||
-|`en`||English||
+|`en-GB`|`enGB`|British English||
+|`en-US`|`enUS`|American English|✓|
 |`es`||Spanish|✓|
 |`fa`||Persian||
 |`fi`||Finnish||
@@ -83,7 +84,7 @@ import { toWords as zhHans } from 'n2words/zh-Hans'
 
 ## Language Options
 
-19 languages support additional options via a second parameter:
+20 languages support additional options via a second parameter:
 
 ```js
 toWords(value, options)
@@ -91,6 +92,7 @@ toWords(value, options)
 
 |Language|Option|Type|Default|Description|
 |--------|------|----|-------|-----------|
+|American English|`hundredPairing`|`boolean`|`false`|Use hundred-pairing for 1100-9900 (e.g., "fifteen hundred" instead of "one thousand five hundred")|
 |Arabic|`gender`|'masculine' \| 'feminine'|`'masculine'`|Grammatical gender|
 |Arabic|`negativeWord`|`string`||Custom word for negative numbers|
 |Biblical Hebrew|`andWord`|`string`|`'ו'`|Custom conjunction word|

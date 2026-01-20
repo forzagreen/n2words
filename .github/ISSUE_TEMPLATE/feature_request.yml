@@ -23,7 +23,7 @@ body:
       label: Example (optional)
       description: How would it work?
       placeholder: |
-        en(1, { ordinal: true })
+        enUS(1, { ordinal: true })
         // "first"
       render: javascript
 

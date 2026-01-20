@@ -26,14 +26,14 @@ npm install n2words
 ```
 
 ```js
-import { en, es, ar } from 'n2words'
+import { enUS, es, ar } from 'n2words'
 
-en(123)                       // 'one hundred and twenty-three'
+enUS(123)                     // 'one hundred twenty-three'
 es(123)                       // 'ciento veintitrés'
 ar(1, { gender: 'feminine' }) // 'واحدة' (with options)
 
 // Input types: number, string, or BigInt
-en(999999999999999999999999n) // Works with arbitrarily large integers
+enUS(999999999999999999999999n) // Works with arbitrarily large integers
 ```
 
 ## Usage
@@ -42,10 +42,10 @@ en(999999999999999999999999n) // Works with arbitrarily large integers
 
 ```js
 // Named imports (tree-shakable)
-import { en, es } from 'n2words'
+import { enUS, es } from 'n2words'
 
 // Subpath imports (smallest bundle, recommended for single language)
-import { toWords } from 'n2words/en'
+import { toWords } from 'n2words/en-US'
 import { toWords as esWords } from 'n2words/es'
 ```
 
@@ -56,17 +56,17 @@ Individual language bundles are recommended for browsers (~1.4 KB gzipped each).
 ```html
 <!-- ESM (recommended) -->
 <script type="module">
-  import { toWords } from 'https://cdn.jsdelivr.net/npm/n2words/dist/en.js'
+  import { toWords } from 'https://cdn.jsdelivr.net/npm/n2words/dist/en-US.js'
   import { toWords as es } from 'https://cdn.jsdelivr.net/npm/n2words/dist/es.js'
   console.log(toWords(42))  // 'forty-two'
 </script>
 
 <!-- UMD (legacy script tags) -->
-<script src="https://cdn.jsdelivr.net/npm/n2words/dist/en.umd.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/n2words/dist/en-US.umd.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/n2words/dist/es.umd.js"></script>
 <script>
-  n2words.en(42)  // 'forty-two'
-  n2words.es(42)  // 'cuarenta y dos'
+  n2words.enUS(42)  // 'forty-two'
+  n2words.es(42)    // 'cuarenta y dos'
 </script>
 ```
 
