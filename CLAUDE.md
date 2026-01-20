@@ -64,15 +64,23 @@ export { toWords }
 Languages with options accept a second parameter (JSDoc required):
 
 ```javascript
+import { validateOptions } from './utils/validate-options.js'
+
 /**
  * @param {number | string | bigint} value - The numeric value to convert
  * @param {Object} [options] - Optional configuration
  * @param {('masculine'|'feminine')} [options.gender='masculine'] - Grammatical gender
  * @returns {string} The number in words
  */
-function toWords (value, options = {}) {
+function toWords (value, options) {
+  options = validateOptions(options)
+  const { isNegative, integerPart, decimalPart } = parseNumericValue(value)
+
+  // Extract options with defaults at entry point
   const { gender = 'masculine' } = options
-  // Use option in conversion
+
+  // Pass explicit values to internal functions (not the options object)
+  result += integerToWords(integerPart, gender)
 }
 ```
 
