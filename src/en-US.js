@@ -8,9 +8,11 @@
  * - No "and" before final segment: "one million one"
  * - Hyphenated tens-ones: "twenty-one", "forty-two"
  * - Western numbering system (short scale: billion = 10^9)
+ * - Optional hundred-pairing: 1500 → "fifteen hundred" (colloquial)
  */
 
 import { parseNumericValue } from './utils/parse-numeric.js'
+import { validateOptions } from './utils/validate-options.js'
 
 // ============================================================================
 // Vocabulary (module-level constants)
@@ -91,14 +93,32 @@ function buildSegment (n) {
  * Converts a non-negative integer to English words.
  *
  * @param {bigint} n - Non-negative integer to convert
+ * @param {boolean} hundredPairing - Use hundred-pairing for 1100-9900
  * @returns {string} English words
  */
-function integerToWords (n) {
+function integerToWords (n, hundredPairing) {
   if (n === 0n) return ZERO
 
   // Fast path: numbers < 1000
   if (n < 1000n) {
     return buildSegment(Number(n)).word
+  }
+
+  // Hundred-pairing: 1100-9900 → "eleven hundred" to "ninety-nine hundred"
+  if (hundredPairing && n >= 1100n && n <= 9999n) {
+    const num = Number(n)
+    const highPart = Math.trunc(num / 100)
+    const lowPart = num % 100
+
+    const { word: highWord } = buildSegment(highPart)
+    let result = highWord + ' ' + HUNDRED
+
+    if (lowPart > 0) {
+      const { word: lowWord } = buildSegment(lowPart)
+      result += ' ' + lowWord
+    }
+
+    return result
   }
 
   // Fast path: numbers < 1,000,000
@@ -188,23 +208,29 @@ function decimalPartToWords (decimalPart) {
 }
 
 /**
- * Converts a numeric value to English words.
+ * Converts a numeric value to American English words.
  *
  * This is the main public API. It accepts any valid numeric input
  * (number, string, or bigint) and handles parsing internally.
  *
  * @param {number | string | bigint} value - The numeric value to convert
- * @returns {string} The number in English words
+ * @param {Object} [options] - Optional configuration
+ * @param {boolean} [options.hundredPairing=false] - Use hundred-pairing for 1100-9900 (e.g., "fifteen hundred" instead of "one thousand five hundred")
+ * @returns {string} The number in American English words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {Error} If value is not a valid number format
  *
  * @example
- * toWords(42)           // 'forty-two'
- * toWords(-3.14)        // 'minus three point one four'
- * toWords('1000000')    // 'one million'
+ * toWords(42)                            // 'forty-two'
+ * toWords(1500)                          // 'one thousand five hundred'
+ * toWords(1500, { hundredPairing: true }) // 'fifteen hundred'
  */
-function toWords (value) {
+function toWords (value, options) {
+  options = validateOptions(options)
   const { isNegative, integerPart, decimalPart } = parseNumericValue(value)
+
+  // Extract options with defaults
+  const { hundredPairing = false } = options
 
   let result = ''
 
@@ -212,7 +238,7 @@ function toWords (value) {
     result = NEGATIVE + ' '
   }
 
-  result += integerToWords(integerPart)
+  result += integerToWords(integerPart, hundredPairing)
 
   if (decimalPart) {
     result += ' ' + DECIMAL_SEP + ' ' + decimalPartToWords(decimalPart)

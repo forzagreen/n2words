@@ -92,5 +92,19 @@ export default [
     999_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000n +
     123_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000n,
     'nine hundred ninety-nine vigintillion one hundred twenty-three novemdecillion'
-  ]
+  ],
+
+  // Hundred-pairing option (colloquial American English)
+  [1100, 'eleven hundred', { hundredPairing: true }],
+  [1500, 'fifteen hundred', { hundredPairing: true }],
+  [1999, 'nineteen hundred ninety-nine', { hundredPairing: true }],
+  [2300, 'twenty-three hundred', { hundredPairing: true }],
+  [5050, 'fifty hundred fifty', { hundredPairing: true }],
+  [9900, 'ninety-nine hundred', { hundredPairing: true }],
+  [9999, 'ninety-nine hundred ninety-nine', { hundredPairing: true }],
+
+  // Hundred-pairing edge cases (should NOT apply)
+  [1000, 'one thousand', { hundredPairing: true }],
+  [1099, 'one thousand ninety-nine', { hundredPairing: true }],
+  [10000, 'ten thousand', { hundredPairing: true }]
 ]
