@@ -95,11 +95,11 @@ test('individual UMD bundles have correct banners', t => {
 // =============================================================================
 
 test('individual UMD bundle loads and exports language-specific function', t => {
-  const n2words = loadUmdBundle(join(distDir, 'en.umd.js'))
+  const n2words = loadUmdBundle(join(distDir, 'en-US.umd.js'))
 
   t.truthy(n2words, 'n2words global should be defined')
-  t.is(typeof n2words.en, 'function', 'en should be exported')
-  t.is(typeof n2words.en(42), 'string', 'en should return string')
+  t.is(typeof n2words.enUS, 'function', 'enUS should be exported')
+  t.is(typeof n2words.enUS(42), 'string', 'enUS should return string')
 })
 
 test('individual UMD bundles use extend mode (can be combined)', t => {
@@ -121,13 +121,13 @@ test('individual UMD bundles use extend mode (can be combined)', t => {
 
   const context = vm.createContext(sandbox)
 
-  // Load English first
-  const englishCode = readFileSync(join(distDir, 'en.umd.js'), 'utf8')
+  // Load English (US) first
+  const englishCode = readFileSync(join(distDir, 'en-US.umd.js'), 'utf8')
   vm.runInContext(`(function() { ${englishCode} }).call(globalThis);`, context)
 
   // Verify English is available
   t.truthy(globalContext.n2words, 'n2words global should be defined after first bundle')
-  t.is(typeof globalContext.n2words.en, 'function', 'en should be available')
+  t.is(typeof globalContext.n2words.enUS, 'function', 'enUS should be available')
 
   // Load Spanish second (should extend, not replace)
   const spanishCode = readFileSync(join(distDir, 'es.umd.js'), 'utf8')
@@ -136,12 +136,12 @@ test('individual UMD bundles use extend mode (can be combined)', t => {
   const n2words = globalContext.n2words
 
   t.truthy(n2words, 'n2words global should still be defined')
-  // Both languages should be available - they export different functions (en, es)
-  t.is(typeof n2words.en, 'function', 'en should still be available after loading es')
+  // Both languages should be available - they export different functions (enUS, es)
+  t.is(typeof n2words.enUS, 'function', 'enUS should still be available after loading es')
   t.is(typeof n2words.es, 'function', 'es should be available')
 
   // Verify both work correctly
-  t.is(n2words.en(42), 'forty-two', 'en should convert correctly')
+  t.is(n2words.enUS(42), 'forty-two', 'enUS should convert correctly')
   t.is(n2words.es(42), 'cuarenta y dos', 'es should convert correctly')
 })
 
@@ -150,10 +150,10 @@ test('individual UMD bundles use extend mode (can be combined)', t => {
 // =============================================================================
 
 test('individual UMD bundle size is reasonable', t => {
-  const code = readFileSync(join(distDir, 'en.umd.js'), 'utf8')
+  const code = readFileSync(join(distDir, 'en-US.umd.js'), 'utf8')
   const sizeKB = Buffer.byteLength(code, 'utf8') / 1024
 
-  t.log(`en.umd.js bundle: ${sizeKB.toFixed(1)}KB`)
+  t.log(`en-US.umd.js bundle: ${sizeKB.toFixed(1)}KB`)
 
   // Individual bundles are self-contained, so 1-20KB is reasonable
   t.true(sizeKB > 1, `Individual bundle (${sizeKB.toFixed(1)}KB) should be > 1KB`)

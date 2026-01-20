@@ -119,7 +119,7 @@
 
   <script type="module">
     // Import individual language ESM bundles using toWords export
-    import { toWords as en } from '../../dist/en.js'
+    import { toWords as enUS } from '../../dist/en-US.js'
     import { toWords as fr } from '../../dist/fr.js'
     import { toWords as zhHans } from '../../dist/zh-Hans.js'
 
@@ -153,8 +153,8 @@
     // ESM Individual Bundle Loading Tests
     // ========================================================================
 
-    test('English toWords export is a function', () => {
-      return typeof en === 'function'
+    test('American English toWords export is a function', () => {
+      return typeof enUS === 'function'
     })
 
     test('French toWords export is a function', () => {
@@ -165,8 +165,8 @@
       return typeof zhHans === 'function'
     })
 
-    test('English converter returns correct result', () => {
-      const result = en(42)
+    test('American English converter returns correct result', () => {
+      const result = enUS(42)
       return result === 'forty-two'
     })
 
@@ -181,12 +181,12 @@
     })
 
     test('BigInt support works', () => {
-      const result = en(9007199254740993n)
+      const result = enUS(9007199254740993n)
       return typeof result === 'string' && result.length > 0
     })
 
     test('Negative numbers work', () => {
-      const result = en(-42)
+      const result = enUS(-42)
       return result === 'minus forty-two'
     })
 

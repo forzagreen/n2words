@@ -38,7 +38,7 @@ test.describe('UMD Bundle', () => {
     const convertersLoaded = await page.evaluate(() => {
       return typeof window.n2words === 'object' &&
              window.n2words !== null &&
-             typeof window.n2words.en === 'function' &&
+             typeof window.n2words.enUS === 'function' &&
              typeof window.n2words.fr === 'function' &&
              typeof window.n2words.zhHans === 'function'
     })
