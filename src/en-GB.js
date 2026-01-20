@@ -1,14 +1,13 @@
 /**
- * English language converter - Functional Implementation
+ * British English language converter - Functional Implementation
  *
  * Self-contained module with its own input validation, ready for subpath exports.
  *
- * Key features:
- * - Western numbering system (thousand, million, billion)
+ * British English conventions:
  * - "and" after hundreds: "one hundred and twenty-three"
+ * - "and" before final segment: "one million and one"
  * - Hyphenated tens-ones: "twenty-one", "forty-two"
- * - "and" before final segment when following scale word
- * - BigInt modulo for efficient segment extraction
+ * - Western numbering system (short scale: billion = 10^9)
  */
 
 import { parseNumericValue } from './utils/parse-numeric.js'
