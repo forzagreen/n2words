@@ -10,7 +10,6 @@ concurrency:
 
 permissions:
   contents: read
-  pull-requests: read
 
 jobs:
   validate:
@@ -23,10 +22,16 @@ jobs:
         with:
           persist-credentials: false
 
-      - uses: wagoid/commitlint-github-action@v6
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
         with:
-          configFile: .commitlintrc.mjs
-          failOnErrors: true
-          # Only validate PR title, skip commit validation
-          commitDepth: 0
-          helpURL: https://github.com/forzagreen/n2words/blob/main/CONTRIBUTING.md#commit-message-format
+          node-version: '24'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci --prefer-offline
+
+      - name: Validate PR title
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+        run: echo "$PR_TITLE" | npx commitlint --config .commitlintrc.mjs
