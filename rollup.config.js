@@ -13,6 +13,24 @@ const pkg = JSON.parse(readFileSync('./package.json', 'utf8'))
 const languageCodes = getLanguageCodes()
 
 /**
+ * Get languages that have ordinal support by checking for toOrdinal export.
+ * @returns {string[]} Language codes with ordinal support
+ */
+function getOrdinalLanguages () {
+  const ordinalLangs = []
+  for (const langCode of languageCodes) {
+    const content = readFileSync(`./src/${langCode}.js`, 'utf8')
+    if (content.includes('export { toWords, toOrdinal }') ||
+        content.includes('export { toOrdinal, toWords }')) {
+      ordinalLangs.push(langCode)
+    }
+  }
+  return ordinalLangs
+}
+
+const ordinalLanguages = getOrdinalLanguages()
+
+/**
  * Rollup configuration for n2words bundles.
  *
  * Build Strategy:
@@ -92,6 +110,19 @@ const languageEsmConfigs = languageCodes.map(langCode => ({
 const languageUmdConfigs = languageCodes.map(langCode => {
   const normalizedName = normalizeCode(langCode)
   const virtualEntryId = `\0virtual:umd:${langCode}`
+  const hasOrdinal = ordinalLanguages.includes(langCode)
+
+  // Build virtual entry content
+  // Cardinal: n2words.enUS(42) → "forty-two"
+  // Ordinal:  n2words.ordinal.enUS(42) → "forty-second"
+  let virtualContent = `export { toWords as ${normalizedName} } from './src/${langCode}.js';\n`
+
+  if (hasOrdinal) {
+    // Export ordinal under nested namespace
+    // This creates: n2words.ordinal = { enUS: toOrdinal }
+    virtualContent += `import { toOrdinal } from './src/${langCode}.js';\n`
+    virtualContent += `export const ordinal = { ${normalizedName}: toOrdinal };`
+  }
 
   return {
     input: virtualEntryId,
@@ -104,9 +135,8 @@ const languageUmdConfigs = languageCodes.map(langCode => {
       banner: `/*! n2words/${langCode} v${pkg.version} | MIT License | github.com/forzagreen/n2words */`
     },
     plugins: [
-      // Virtual entry point that re-exports toWords as the normalized language name
       virtual({
-        [virtualEntryId]: `export { toWords as ${normalizedName} } from './src/${langCode}.js'`
+        [virtualEntryId]: virtualContent
       }),
       ...basePlugins,
       individualTerserConfig

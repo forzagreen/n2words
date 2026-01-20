@@ -27,7 +27,7 @@ import { toWords as da } from '../../src/da.js'
 import { toWords as de } from '../../src/de.js'
 import { toWords as el } from '../../src/el.js'
 import { toWords as enGB } from '../../src/en-GB.js'
-import { toWords as enUS } from '../../src/en-US.js'
+import { toWords as enUS, toOrdinal as enUSOrdinal } from '../../src/en-US.js'
 import { toWords as es } from '../../src/es.js'
 import { toWords as fa } from '../../src/fa.js'
 import { toWords as fi } from '../../src/fi.js'
@@ -314,3 +314,15 @@ expectType<string>(zhHans(1, { formal: false }))
 
 expectType<string>(zhHant(1, { formal: true }))
 expectType<string>(zhHant(1, { formal: false }))
+
+// ============================================================================
+// Ordinals - American English toOrdinal
+// ============================================================================
+
+expectType<string>(enUSOrdinal(1))
+expectType<string>(enUSOrdinal(42))
+expectType<string>(enUSOrdinal('100'))
+expectType<string>(enUSOrdinal(1000n))
+
+expectError(enUSOrdinal(null))
+expectError(enUSOrdinal(undefined))

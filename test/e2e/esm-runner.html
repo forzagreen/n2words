@@ -119,7 +119,7 @@
 
   <script type="module">
     // Import individual language ESM bundles using toWords export
-    import { toWords as enUS } from '../../dist/en-US.js'
+    import { toWords as enUS, toOrdinal as enUSOrdinal } from '../../dist/en-US.js'
     import { toWords as fr } from '../../dist/fr.js'
     import { toWords as zhHans } from '../../dist/zh-Hans.js'
 
@@ -188,6 +188,14 @@
     test('Negative numbers work', () => {
       const result = enUS(-42)
       return result === 'minus forty-two'
+    })
+
+    // ========================================================================
+    // Ordinal Export (en-US)
+    // ========================================================================
+
+    test('toOrdinal export is available and works', () => {
+      return typeof enUSOrdinal === 'function' && enUSOrdinal(42) === 'forty-second'
     })
 
     // ========================================================================

@@ -43,6 +43,14 @@ test.describe('UMD Bundle', () => {
              typeof window.n2words.zhHans === 'function'
     })
     expect(convertersLoaded).toBe(true)
+
+    // Verify ordinal namespace and functionality
+    const ordinalWorks = await page.evaluate(() => {
+      return typeof window.n2words.ordinal === 'object' &&
+             typeof window.n2words.ordinal.enUS === 'function' &&
+             window.n2words.ordinal.enUS(42) === 'forty-second'
+    })
+    expect(ordinalWorks).toBe(true)
   })
 })
 
@@ -67,5 +75,12 @@ test.describe('ESM Bundle', () => {
     // Verify all HTML tests passed
     expect(statusText).toContain('All tests passed')
     expect(failCount).toBe(0)
+
+    // Verify toOrdinal is exported and works
+    const ordinalWorks = await page.evaluate(async () => {
+      const { toOrdinal } = await import('../../../../../dist/en-US.js')
+      return typeof toOrdinal === 'function' && toOrdinal(42) === 'forty-second'
+    })
+    expect(ordinalWorks).toBe(true)
   })
 })
