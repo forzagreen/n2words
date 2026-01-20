@@ -102,7 +102,6 @@ toWords(value, options)
 |French|`withHyphenSeparator`|`boolean`|`false`|Use hyphens between all words|
 |French (Belgium)|`withHyphenSeparator`|`boolean`|`false`|Use hyphens between words|
 |Hebrew|`andWord`|`string`|`'ו'`|Custom conjunction word|
-|Hebrew|`gender`|'masculine' \| 'feminine'|`'masculine'`|Grammatical gender|
 |Latvian|`gender`|`string`|`'masculine'`|Gender for numbers < 1000|
 |Lithuanian|`gender`|`string`|`'masculine'`|Gender for numbers < 1000|
 |Polish|`gender`|`string`|`'masculine'`|Gender for numbers < 1000|

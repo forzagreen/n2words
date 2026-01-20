@@ -197,14 +197,10 @@ expectType<string>(hbo(1, { gender: 'feminine', andWord: 'ו' }))
 expectError(hbo(1, { gender: 'neuter' }))
 
 // ============================================================================
-// Options - Modern Hebrew (gender literal union + andWord string)
+// Options - Modern Hebrew (andWord string only)
 // ============================================================================
 
-expectType<string>(he(1, { gender: 'masculine' }))
-expectType<string>(he(1, { gender: 'feminine' }))
 expectType<string>(he(1, { andWord: 'ו' }))
-
-expectError(he(1, { gender: 'neuter' }))
 
 // ============================================================================
 // Options - Croatian (gender literal union)

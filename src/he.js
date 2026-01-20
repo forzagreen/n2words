@@ -233,7 +233,6 @@ function decimalPartToWords (decimalPart) {
  *
  * @param {number | string | bigint} value - The numeric value to convert
  * @param {Object} [options] - Optional configuration
- * @param {('masculine'|'feminine')} [options.gender='masculine'] - Grammatical gender
  * @param {string} [options.andWord='ו'] - Custom conjunction word
  * @returns {string} The number in Modern Hebrew words
  */
