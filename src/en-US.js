@@ -4,11 +4,12 @@
  * Self-contained module with its own input validation, ready for subpath exports.
  *
  * American English conventions:
- * - No "and" after hundreds: "one hundred twenty-three"
- * - No "and" before final segment: "one million one"
+ * - No "and" after hundreds: "one hundred twenty-three" (default)
+ * - No "and" before final segment: "one million one" (default)
  * - Hyphenated tens-ones: "twenty-one", "forty-two"
  * - Western numbering system (short scale: billion = 10^9)
  * - Optional hundred-pairing: 1500 → "fifteen hundred" (colloquial)
+ * - Optional "and" insertion: 101 → "one hundred and one" (informal)
  */
 
 import { parseNumericValue } from './utils/parse-numeric.js'
@@ -46,9 +47,10 @@ const segmentResult = { word: '', hasHundred: false }
  * Builds words for a 0-999 segment.
  *
  * @param {number} n - Number 0-999
+ * @param {boolean} useAnd - Whether to use "and" after hundreds
  * @returns {{ word: string, hasHundred: boolean }}
  */
-function buildSegment (n) {
+function buildSegment (n, useAnd) {
   if (n === 0) {
     segmentResult.word = ''
     segmentResult.hasHundred = false
@@ -72,7 +74,8 @@ function buildSegment (n) {
   // Hundreds place
   if (hundreds > 0) {
     if (tensOnes) {
-      segmentResult.word = ONES[hundreds] + ' ' + HUNDRED + ' ' + tensOnes
+      const connector = useAnd ? ' and ' : ' '
+      segmentResult.word = ONES[hundreds] + ' ' + HUNDRED + connector + tensOnes
     } else {
       segmentResult.word = ONES[hundreds] + ' ' + HUNDRED
     }
@@ -93,15 +96,16 @@ function buildSegment (n) {
  * Converts a non-negative integer to English words.
  *
  * @param {bigint} n - Non-negative integer to convert
- * @param {boolean} hundredPairing - Use hundred-pairing for 1100-9900
+ * @param {boolean} hundredPairing - Use hundred-pairing for 1100-9999
+ * @param {boolean} useAnd - Use "and" after hundreds and before final segment
  * @returns {string} English words
  */
-function integerToWords (n, hundredPairing) {
+function integerToWords (n, hundredPairing, useAnd) {
   if (n === 0n) return ZERO
 
   // Fast path: numbers < 1000
   if (n < 1000n) {
-    return buildSegment(Number(n)).word
+    return buildSegment(Number(n), useAnd).word
   }
 
   // Hundred-pairing: 1100-9999 → "eleven hundred" to "ninety-nine hundred ninety-nine"
@@ -110,11 +114,15 @@ function integerToWords (n, hundredPairing) {
     const highPart = Math.trunc(num / 100)
     const lowPart = num % 100
 
-    const { word: highWord } = buildSegment(highPart)
+    const { word: highWord } = buildSegment(highPart, useAnd)
     let result = highWord + ' ' + HUNDRED
 
     if (lowPart > 0) {
-      const { word: lowWord } = buildSegment(lowPart)
+      const { word: lowWord } = buildSegment(lowPart, useAnd)
+      // Add "and" before remainder if useAnd is true
+      if (useAnd) {
+        result += ' and'
+      }
       result += ' ' + lowWord
     }
 
@@ -126,11 +134,15 @@ function integerToWords (n, hundredPairing) {
     const thousands = Number(n / 1000n)
     const remainder = Number(n % 1000n)
 
-    const { word: thousandsWord } = buildSegment(thousands)
+    const { word: thousandsWord } = buildSegment(thousands, useAnd)
     let result = thousandsWord + ' ' + SCALES[0]
 
     if (remainder > 0) {
-      const { word: remainderWord } = buildSegment(remainder)
+      const { word: remainderWord, hasHundred } = buildSegment(remainder, useAnd)
+      // Add "and" before remainder if useAnd is true and remainder has no hundred
+      if (useAnd && !hasHundred) {
+        result += ' and'
+      }
       result += ' ' + remainderWord
     }
 
@@ -138,7 +150,7 @@ function integerToWords (n, hundredPairing) {
   }
 
   // For numbers >= 1,000,000, use scale decomposition
-  return buildLargeNumberWords(n)
+  return buildLargeNumberWords(n, useAnd)
 }
 
 /**
@@ -146,9 +158,10 @@ function integerToWords (n, hundredPairing) {
  * Uses BigInt division for faster segment extraction.
  *
  * @param {bigint} n - Number >= 1,000,000
+ * @param {boolean} useAnd - Use "and" after hundreds and before final segment
  * @returns {string} English words
  */
-function buildLargeNumberWords (n) {
+function buildLargeNumberWords (n, useAnd) {
   // Extract segments using BigInt division
   // Segments are stored least-significant first (index 0 = ones, 1 = thousands, etc.)
   const segments = []
@@ -158,14 +171,32 @@ function buildLargeNumberWords (n) {
     temp = temp / 1000n
   }
 
+  // Find the first (smallest index) non-zero segment - this is processed last
+  let firstNonZeroIdx = -1
+  if (useAnd) {
+    for (let i = 0; i < segments.length; i++) {
+      if (segments[i] !== 0) {
+        firstNonZeroIdx = i
+        break
+      }
+    }
+  }
+
   // Build result string (process from most-significant to least)
   let result = ''
+  let prevWasScale = false
 
   for (let i = segments.length - 1; i >= 0; i--) {
     const segment = segments[i]
     if (segment === 0) continue
 
-    const { word } = buildSegment(segment)
+    const { word, hasHundred } = buildSegment(segment, useAnd)
+    const isLastSegment = (i === firstNonZeroIdx)
+
+    // Add "and" only before FINAL segment if it follows scale and doesn't have hundred
+    if (useAnd && result && isLastSegment && prevWasScale && !hasHundred) {
+      result += ' and'
+    }
 
     // Add segment word
     if (result) result += ' '
@@ -174,6 +205,9 @@ function buildLargeNumberWords (n) {
     // Add scale word (i=0 is units, i=1 is thousands, etc.)
     if (i > 0) {
       result += ' ' + SCALES[i - 1]
+      prevWasScale = true
+    } else {
+      prevWasScale = false
     }
   }
 
@@ -184,9 +218,10 @@ function buildLargeNumberWords (n) {
  * Converts decimal digits to English words.
  *
  * @param {string} decimalPart - Decimal digits (without the point)
+ * @param {boolean} useAnd - Use "and" in number conversion
  * @returns {string} English words for decimal part
  */
-function decimalPartToWords (decimalPart) {
+function decimalPartToWords (decimalPart, useAnd) {
   let result = ''
 
   // Handle leading zeros
@@ -201,7 +236,7 @@ function decimalPartToWords (decimalPart) {
   const remainder = decimalPart.slice(i)
   if (remainder) {
     if (result) result += ' '
-    result += integerToWords(BigInt(remainder))
+    result += integerToWords(BigInt(remainder), false, useAnd)
   }
 
   return result
@@ -215,13 +250,16 @@ function decimalPartToWords (decimalPart) {
  *
  * @param {number | string | bigint} value - The numeric value to convert
  * @param {Object} [options] - Optional configuration
- * @param {boolean} [options.hundredPairing=false] - Use hundred-pairing for 1100-9900 (e.g., "fifteen hundred" instead of "one thousand five hundred")
+ * @param {boolean} [options.hundredPairing=false] - Use hundred-pairing for 1100-9999 (e.g., "fifteen hundred" instead of "one thousand five hundred")
+ * @param {boolean} [options.and=false] - Use "and" after hundreds and before final small numbers (e.g., "one hundred and one" instead of "one hundred one")
  * @returns {string} The number in American English words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {Error} If value is not a valid number format
  *
  * @example
  * toWords(42)                            // 'forty-two'
+ * toWords(101)                           // 'one hundred one'
+ * toWords(101, { and: true })            // 'one hundred and one'
  * toWords(1500)                          // 'one thousand five hundred'
  * toWords(1500, { hundredPairing: true }) // 'fifteen hundred'
  */
@@ -230,7 +268,7 @@ function toWords (value, options) {
   const { isNegative, integerPart, decimalPart } = parseNumericValue(value)
 
   // Extract options with defaults
-  const { hundredPairing = false } = options
+  const { hundredPairing = false, and: useAnd = false } = options
 
   let result = ''
 
@@ -238,10 +276,10 @@ function toWords (value, options) {
     result = NEGATIVE + ' '
   }
 
-  result += integerToWords(integerPart, hundredPairing)
+  result += integerToWords(integerPart, hundredPairing, useAnd)
 
   if (decimalPart) {
-    result += ' ' + DECIMAL_SEP + ' ' + decimalPartToWords(decimalPart)
+    result += ' ' + DECIMAL_SEP + ' ' + decimalPartToWords(decimalPart, useAnd)
   }
 
   return result

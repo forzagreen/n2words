@@ -106,5 +106,20 @@ export default [
   // Hundred-pairing edge cases (should NOT apply)
   [1000, 'one thousand', { hundredPairing: true }],
   [1099, 'one thousand ninety-nine', { hundredPairing: true }],
-  [10000, 'ten thousand', { hundredPairing: true }]
+  [10000, 'ten thousand', { hundredPairing: true }],
+
+  // "and" option (informal American English, matches British style)
+  [101, 'one hundred and one', { and: true }],
+  [123, 'one hundred and twenty-three', { and: true }],
+  [1001, 'one thousand and one', { and: true }],
+  [1100, 'one thousand one hundred', { and: true }],
+  [1101, 'one thousand one hundred and one', { and: true }],
+  [2020, 'two thousand and twenty', { and: true }],
+  [1000001, 'one million and one', { and: true }],
+  [1001001, 'one million one thousand and one', { and: true }],
+  [1000000001, 'one billion and one', { and: true }],
+
+  // Combined "and" with hundred-pairing
+  [1501, 'fifteen hundred and one', { and: true, hundredPairing: true }],
+  [1523, 'fifteen hundred and twenty-three', { and: true, hundredPairing: true }]
 ]

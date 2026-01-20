@@ -92,7 +92,8 @@ toWords(value, options)
 
 |Language|Option|Type|Default|Description|
 |--------|------|----|-------|-----------|
-|American English|`hundredPairing`|`boolean`|`false`|Use hundred-pairing for 1100-9900 (e.g., "fifteen hundred" instead of "one thousand five hundred")|
+|American English|`and`|`boolean`|`false`|Use "and" after hundreds and before final small numbers (e.g., "one hundred and one" instead of "one hundred one")|
+|American English|`hundredPairing`|`boolean`|`false`|Use hundred-pairing for 1100-9999 (e.g., "fifteen hundred" instead of "one thousand five hundred")|
 |Arabic|`gender`|'masculine' \| 'feminine'|`'masculine'`|Grammatical gender|
 |Arabic|`negativeWord`|`string`||Custom word for negative numbers|
 |Biblical Hebrew|`andWord`|`string`|`'ו'`|Custom conjunction word|
