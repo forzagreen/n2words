@@ -119,7 +119,7 @@
   </body>
 
   <!-- Load individual language UMD bundles - they extend window.n2words -->
-  <script src="../../dist/en.umd.js"></script>
+  <script src="../../dist/en-US.umd.js"></script>
   <script src="../../dist/fr.umd.js"></script>
   <script src="../../dist/zh-Hans.umd.js"></script>
   <script>
@@ -158,8 +158,8 @@
         return typeof window.n2words === 'object' && window.n2words !== null
       })
 
-      test('English converter (en) is loaded', () => {
-        return typeof window.n2words.en === 'function'
+      test('American English converter (enUS) is loaded', () => {
+        return typeof window.n2words.enUS === 'function'
       })
 
       test('French converter (fr) is loaded', () => {
@@ -172,11 +172,11 @@
 
       test('Multiple bundles extend the same global', () => {
         const keys = Object.keys(window.n2words)
-        return keys.length === 3 && keys.includes('en') && keys.includes('fr') && keys.includes('zhHans')
+        return keys.length === 3 && keys.includes('enUS') && keys.includes('fr') && keys.includes('zhHans')
       })
 
-      test('English converter returns correct result', () => {
-        const result = window.n2words.en(42)
+      test('American English converter returns correct result', () => {
+        const result = window.n2words.enUS(42)
         return result === 'forty-two'
       })
 
@@ -191,7 +191,7 @@
       })
 
       test('BigInt support works', () => {
-        const result = window.n2words.en(9007199254740993n)
+        const result = window.n2words.enUS(9007199254740993n)
         return typeof result === 'string' && result.length > 0
       })
 

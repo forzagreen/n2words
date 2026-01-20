@@ -8,11 +8,11 @@
 [![npm downloads](https://img.shields.io/npm/dw/n2words)](https://npmjs.com/package/n2words)
 [![jsDelivr](https://img.shields.io/jsdelivr/npm/hm/n2words)](https://www.jsdelivr.com/package/npm/n2words)
 
-**Convert numbers to words in 54 languages with zero dependencies.**
+**Convert numbers to words in 55 languages with zero dependencies.**
 
 ## Why n2words?
 
-- **54 Languages** — European, Asian, Middle Eastern, African, and regional variants
+- **55 Languages** — European, Asian, Middle Eastern, African, and regional variants
 - **Functional API** — Each language is a standalone pure function, no classes or configuration
 - **Zero Dependencies** — Works everywhere: Node.js, browsers, Deno, Bun
 - **Type-Safe** — Full TypeScript support with generated `.d.ts` declarations
@@ -26,14 +26,14 @@ npm install n2words
 ```
 
 ```js
-import { en, es, ar } from 'n2words'
+import { enUS, es, ar } from 'n2words'
 
-en(123)                       // 'one hundred and twenty-three'
+enUS(123)                     // 'one hundred twenty-three'
 es(123)                       // 'ciento veintitrés'
 ar(1, { gender: 'feminine' }) // 'واحدة' (with options)
 
 // Input types: number, string, or BigInt
-en(999999999999999999999999n) // Works with arbitrarily large integers
+enUS(999999999999999999999999n) // Works with arbitrarily large integers
 ```
 
 ## Usage
@@ -42,10 +42,10 @@ en(999999999999999999999999n) // Works with arbitrarily large integers
 
 ```js
 // Named imports (tree-shakable)
-import { en, es } from 'n2words'
+import { enUS, es } from 'n2words'
 
 // Subpath imports (smallest bundle, recommended for single language)
-import { toWords } from 'n2words/en'
+import { toWords } from 'n2words/en-US'
 import { toWords as esWords } from 'n2words/es'
 ```
 
@@ -56,25 +56,25 @@ Individual language bundles are recommended for browsers (~1.4 KB gzipped each).
 ```html
 <!-- ESM (recommended) -->
 <script type="module">
-  import { toWords } from 'https://cdn.jsdelivr.net/npm/n2words/dist/en.js'
+  import { toWords } from 'https://cdn.jsdelivr.net/npm/n2words/dist/en-US.js'
   import { toWords as es } from 'https://cdn.jsdelivr.net/npm/n2words/dist/es.js'
   console.log(toWords(42))  // 'forty-two'
 </script>
 
 <!-- UMD (legacy script tags) -->
-<script src="https://cdn.jsdelivr.net/npm/n2words/dist/en.umd.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/n2words/dist/en-US.umd.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/n2words/dist/es.umd.js"></script>
 <script>
-  n2words.en(42)  // 'forty-two'
-  n2words.es(42)  // 'cuarenta y dos'
+  n2words.enUS(42)  // 'forty-two'
+  n2words.es(42)    // 'cuarenta y dos'
 </script>
 ```
 
-## Supported Languages (54)
+## Supported Languages (55)
 
 See **[LANGUAGES.md](LANGUAGES.md)** for the complete list with codes, export names, and options.
 
-Highlights: Arabic, Chinese (Simplified/Traditional), English, French, German, Hindi, Japanese, Korean, Portuguese, Russian, Spanish, and [42 more](LANGUAGES.md).
+Highlights: Arabic, Chinese (Simplified/Traditional), English, French, German, Hindi, Japanese, Korean, Portuguese, Russian, Spanish, and [44 more](LANGUAGES.md).
 
 ## Browser Compatibility
 

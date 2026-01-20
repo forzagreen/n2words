@@ -22,7 +22,8 @@ import { toWords as cs } from './src/cs.js'
 import { toWords as da } from './src/da.js'
 import { toWords as de } from './src/de.js'
 import { toWords as el } from './src/el.js'
-import { toWords as en } from './src/en.js'
+import { toWords as enGB } from './src/en-GB.js'
+import { toWords as enUS } from './src/en-US.js'
 import { toWords as es } from './src/es.js'
 import { toWords as fa } from './src/fa.js'
 import { toWords as fi } from './src/fi.js'
@@ -78,7 +79,8 @@ export {
   da,
   de,
   el,
-  en,
+  enGB,
+  enUS,
   es,
   fa,
   fi,

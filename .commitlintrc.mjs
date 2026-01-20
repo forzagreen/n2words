@@ -81,19 +81,38 @@ const LANGUAGE_CODE_PATTERN = /^[a-z]{2,3}(-[A-Z][a-z]{3,4})?(-[A-Z]{2})?$/
 
 /**
  * Validates a scope value.
- * Accepts: project scopes, language codes, or comma-separated language codes.
+ * Accepts: project scopes (lowercase), language codes (BCP 47 case), or comma-separated language codes.
+ *
+ * @returns {{ valid: boolean, error?: string }}
  */
-function isValidScope (scope) {
-  if (PROJECT_SCOPES.includes(scope)) return true
-  if (LANGUAGE_CODE_PATTERN.test(scope)) return true
+function validateScope (scope) {
+  // Project scopes must be lowercase
+  if (PROJECT_SCOPES.includes(scope)) {
+    return { valid: true }
+  }
+
+  // Check if it looks like a project scope but wrong case
+  if (PROJECT_SCOPES.includes(scope.toLowerCase()) && scope !== scope.toLowerCase()) {
+    return { valid: false, error: `Project scope "${scope}" must be lowercase: "${scope.toLowerCase()}"` }
+  }
+
+  // BCP 47 language codes (with proper case: en, en-US, en-GB, zh-Hans, sr-Latn)
+  if (LANGUAGE_CODE_PATTERN.test(scope)) {
+    return { valid: true }
+  }
 
   // Support comma-separated language codes: "zh-Hans, zh-Hant"
   if (scope.includes(',')) {
     const codes = scope.split(',').map(s => s.trim())
-    return codes.every(code => LANGUAGE_CODE_PATTERN.test(code))
+    if (codes.every(code => LANGUAGE_CODE_PATTERN.test(code))) {
+      return { valid: true }
+    }
   }
 
-  return false
+  return {
+    valid: false,
+    error: `Invalid scope "${scope}". Use a project area (${PROJECT_SCOPES.slice(0, 5).join(', ')}, ...) or BCP 47 language code (en, en-US, en-GB, zh-Hans)`
+  }
 }
 
 // =============================================================================
@@ -110,12 +129,10 @@ export default {
         'scope-pattern': ({ scope }) => {
           if (!scope) return [true] // Scope is optional
 
-          if (isValidScope(scope)) return [true]
+          const result = validateScope(scope)
+          if (result.valid) return [true]
 
-          return [
-            false,
-            `Invalid scope "${scope}". Use a project area (${PROJECT_SCOPES.slice(0, 5).join(', ')}, ...) or language code (en, fr-BE, zh-Hans)`
-          ]
+          return [false, result.error]
         }
       }
     }
@@ -153,7 +170,7 @@ export default {
     // -------------------------------------------------------------------------
     'scope-pattern': [2, 'always'],
     'scope-enum': [0], // Disabled - using custom validation
-    'scope-case': [2, 'always', 'lower-case'],
+    'scope-case': [0], // Disabled - custom validation handles case (BCP 47 codes need mixed case)
 
     // -------------------------------------------------------------------------
     // Subject Rules

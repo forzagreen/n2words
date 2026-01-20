@@ -62,7 +62,7 @@ test('individual ESM bundles have correct banners', t => {
 })
 
 test('individual ESM bundles have ES module structure', t => {
-  const code = readFileSync(join(distDir, 'en.js'), 'utf8')
+  const code = readFileSync(join(distDir, 'en-US.js'), 'utf8')
 
   t.regex(code, /export\s*\{/, 'Should have ES module export statement')
   t.notRegex(code, /typeof exports.*===.*"object"/, 'Should NOT have CommonJS check')
@@ -73,10 +73,10 @@ test('individual ESM bundles have ES module structure', t => {
 // =============================================================================
 
 test('individual ESM bundle exports toWords function', async t => {
-  const bundlePath = pathToFileURL(join(distDir, 'en.js')).href
+  const bundlePath = pathToFileURL(join(distDir, 'en-US.js')).href
   const enModule = await import(bundlePath)
 
-  t.truthy(enModule, 'en module should be importable')
+  t.truthy(enModule, 'en-US module should be importable')
   t.is(typeof enModule.toWords, 'function', 'toWords should be exported')
   t.is(typeof enModule.toWords(42), 'string', 'toWords should return string')
   t.is(enModule.toWords(42), 'forty-two', 'toWords should convert correctly')
@@ -84,7 +84,7 @@ test('individual ESM bundle exports toWords function', async t => {
 
 test('individual ESM bundles all export toWords', async t => {
   // Test a few languages to verify consistent export pattern
-  const testCases = ['en', 'es', 'zh-Hans', 'fr-BE']
+  const testCases = ['en-US', 'es', 'zh-Hans', 'fr-BE']
 
   for (const langCode of testCases) {
     if (!languageCodes.includes(langCode)) continue
@@ -111,10 +111,10 @@ test('individual ESM bundle toWords accepts options', async t => {
 // =============================================================================
 
 test('individual ESM bundle size is reasonable', t => {
-  const code = readFileSync(join(distDir, 'en.js'), 'utf8')
+  const code = readFileSync(join(distDir, 'en-US.js'), 'utf8')
   const sizeKB = Buffer.byteLength(code, 'utf8') / 1024
 
-  t.log(`en.js ESM bundle: ${sizeKB.toFixed(1)}KB`)
+  t.log(`en-US.js ESM bundle: ${sizeKB.toFixed(1)}KB`)
 
   // Individual bundles are self-contained, so 1-20KB is reasonable
   t.true(sizeKB > 1, `Individual bundle (${sizeKB.toFixed(1)}KB) should be > 1KB`)

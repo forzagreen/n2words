@@ -5,7 +5,7 @@
  * - Basic return types for all languages
  * - Input type acceptance (number, string, bigint)
  * - Invalid input rejection
- * - Options for all 19 languages with options
+ * - Options for all 20 languages with options
  * - Invalid option literal rejection
  *
  * Run with: npm run test:types
@@ -26,7 +26,8 @@ import { toWords as cs } from '../../src/cs.js'
 import { toWords as da } from '../../src/da.js'
 import { toWords as de } from '../../src/de.js'
 import { toWords as el } from '../../src/el.js'
-import { toWords as en } from '../../src/en.js'
+import { toWords as enGB } from '../../src/en-GB.js'
+import { toWords as enUS } from '../../src/en-US.js'
 import { toWords as es } from '../../src/es.js'
 import { toWords as fa } from '../../src/fa.js'
 import { toWords as fi } from '../../src/fi.js'
@@ -85,7 +86,8 @@ expectType<string>(cs(1))
 expectType<string>(da(1))
 expectType<string>(de(1))
 expectType<string>(el(1))
-expectType<string>(en(1))
+expectType<string>(enGB(1))
+expectType<string>(enUS(1))
 expectType<string>(es(1))
 expectType<string>(fa(1))
 expectType<string>(fi(1))
@@ -135,21 +137,21 @@ expectType<string>(zhHant(1))
 // Input types - all accept number, string, bigint
 // ============================================================================
 
-expectType<string>(en(42))
-expectType<string>(en('42'))
-expectType<string>(en(42n))
-expectType<string>(en(3.14))
-expectType<string>(en(-42))
+expectType<string>(enUS(42))
+expectType<string>(enUS('42'))
+expectType<string>(enUS(42n))
+expectType<string>(enUS(3.14))
+expectType<string>(enUS(-42))
 
 // ============================================================================
 // Invalid inputs - should error
 // ============================================================================
 
-expectError(en(null))
-expectError(en(undefined))
-expectError(en({}))
-expectError(en([]))
-expectError(en(true))
+expectError(enUS(null))
+expectError(enUS(undefined))
+expectError(enUS({}))
+expectError(enUS([]))
+expectError(enUS(true))
 
 // ============================================================================
 // Options - Arabic (gender literal union + negativeWord string)
@@ -161,6 +163,13 @@ expectType<string>(ar(1, { negativeWord: 'سالب' }))
 expectType<string>(ar(1, { gender: 'masculine', negativeWord: 'سالب' }))
 
 expectError(ar(1, { gender: 'neuter' }))
+
+// ============================================================================
+// Options - American English (hundredPairing boolean)
+// ============================================================================
+
+expectType<string>(enUS(1, { hundredPairing: true }))
+expectType<string>(enUS(1, { hundredPairing: false }))
 
 // ============================================================================
 // Options - Spanish (gender literal union)

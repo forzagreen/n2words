@@ -1,14 +1,13 @@
 /**
- * English language converter - Functional Implementation
+ * British English language converter - Functional Implementation
  *
  * Self-contained module with its own input validation, ready for subpath exports.
  *
- * Key features:
- * - Western numbering system (thousand, million, billion)
+ * British English conventions:
  * - "and" after hundreds: "one hundred and twenty-three"
+ * - "and" before final segment: "one million and one"
  * - Hyphenated tens-ones: "twenty-one", "forty-two"
- * - "and" before final segment when following scale word
- * - BigInt modulo for efficient segment extraction
+ * - Western numbering system (short scale: billion = 10^9)
  */
 
 import { parseNumericValue } from './utils/parse-numeric.js'
@@ -21,7 +20,13 @@ const ONES = ['', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight'
 const TEENS = ['ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen']
 const TENS = ['', '', 'twenty', 'thirty', 'forty', 'fifty', 'sixty', 'seventy', 'eighty', 'ninety']
 
-const SCALES = ['thousand', 'million', 'billion', 'trillion', 'quadrillion', 'quintillion', 'sextillion', 'septillion', 'octillion']
+const SCALES = [
+  'thousand', 'million', 'billion', 'trillion', 'quadrillion',
+  'quintillion', 'sextillion', 'septillion', 'octillion', 'nonillion',
+  'decillion', 'undecillion', 'duodecillion', 'tredecillion', 'quattuordecillion',
+  'quindecillion', 'sexdecillion', 'septendecillion', 'octodecillion', 'novemdecillion',
+  'vigintillion'
+]
 
 const HUNDRED = 'hundred'
 const ZERO = 'zero'
@@ -214,7 +219,7 @@ function decimalPartToWords (decimalPart) {
  *
  * @example
  * toWords(42)           // 'forty-two'
- * toWords(-3.14)        // 'minus three point one four'
+ * toWords(-3.14)        // 'minus three point fourteen'
  * toWords('1000000')    // 'one million'
  */
 function toWords (value) {
