@@ -284,11 +284,11 @@ function decimalPartToWords (decimalPart, feminine) {
  * @throws {Error} If value is not a valid number format
  *
  * @example
- * toWords(21)                        // 'veintiuno'
- * toWords(21, {gender: 'feminine'})  // 'veintiuna'
- * toWords(1000000)                   // 'un millón'
+ * toCardinal(21)                        // 'veintiuno'
+ * toCardinal(21, {gender: 'feminine'})  // 'veintiuna'
+ * toCardinal(1000000)                   // 'un millón'
  */
-function toWords (value, options) {
+function toCardinal (value, options) {
   options = validateOptions(options)
   const { isNegative, integerPart, decimalPart } = parseNumericValue(value)
 
@@ -315,4 +315,4 @@ function toWords (value, options) {
 // Public API
 // ============================================================================
 
-export { toWords }
+export { toCardinal }

@@ -4,7 +4,7 @@
  * Tests the individual ESM bundles in dist/ to ensure:
  * - All expected files are generated
  * - Bundles have correct ESM structure (export statements)
- * - Bundles can be dynamically imported and export toWords function
+ * - Bundles can be dynamically imported and export toCardinal function
  * - Bundle sizes are reasonable
  *
  * Note: Main ESM bundle is not generated - use index.js directly for
@@ -72,17 +72,17 @@ test('individual ESM bundles have ES module structure', t => {
 // Individual Bundle Functional Tests
 // =============================================================================
 
-test('individual ESM bundle exports toWords function', async t => {
+test('individual ESM bundle exports toCardinal function', async t => {
   const bundlePath = pathToFileURL(join(distDir, 'en-US.js')).href
   const enModule = await import(bundlePath)
 
   t.truthy(enModule, 'en-US module should be importable')
-  t.is(typeof enModule.toWords, 'function', 'toWords should be exported')
-  t.is(typeof enModule.toWords(42), 'string', 'toWords should return string')
-  t.is(enModule.toWords(42), 'forty-two', 'toWords should convert correctly')
+  t.is(typeof enModule.toCardinal, 'function', 'toCardinal should be exported')
+  t.is(typeof enModule.toCardinal(42), 'string', 'toCardinal should return string')
+  t.is(enModule.toCardinal(42), 'forty-two', 'toCardinal should convert correctly')
 })
 
-test('individual ESM bundles all export toWords', async t => {
+test('individual ESM bundles all export toCardinal', async t => {
   // Test a few languages to verify consistent export pattern
   const testCases = ['en-US', 'es', 'zh-Hans', 'fr-BE']
 
@@ -92,17 +92,17 @@ test('individual ESM bundles all export toWords', async t => {
     const bundlePath = pathToFileURL(join(distDir, `${langCode}.js`)).href
     const langModule = await import(bundlePath)
 
-    t.is(typeof langModule.toWords, 'function', `${langCode} should export toWords`)
+    t.is(typeof langModule.toCardinal, 'function', `${langCode} should export toCardinal`)
   }
 })
 
-test('individual ESM bundle toWords accepts options', async t => {
+test('individual ESM bundle toCardinal accepts options', async t => {
   const bundlePath = pathToFileURL(join(distDir, 'ar.js')).href
   const arModule = await import(bundlePath)
 
   // Verify options work by checking gender produces different results
-  const masculine = arModule.toWords(1, { gender: 'masculine' })
-  const feminine = arModule.toWords(1, { gender: 'feminine' })
+  const masculine = arModule.toCardinal(1, { gender: 'masculine' })
+  const feminine = arModule.toCardinal(1, { gender: 'feminine' })
   t.not(masculine, feminine, 'Gender option should produce different results')
 })
 

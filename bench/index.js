@@ -84,13 +84,13 @@ const resultsFile = join(__dirname, 'results.json')
  * Loads a converter by language code.
  *
  * @param {string} langCode Language code (e.g., 'en', 'fr', 'zh-Hans')
- * @returns {Promise<{name: string, toWords: Function} | null>}
+ * @returns {Promise<{name: string, toCardinal: Function} | null>}
  */
 async function loadConverter (langCode) {
   try {
     const module = await import(`../src/${langCode}.js`)
-    if (module.toWords) {
-      return { name: langCode, toWords: module.toWords }
+    if (module.toCardinal) {
+      return { name: langCode, toCardinal: module.toCardinal }
     }
   } catch {
     // Not found
@@ -487,7 +487,7 @@ console.log()
 /**
  * Benchmark a single language (perf and memory).
  *
- * @param {Object} converter Converter object with name and toWords
+ * @param {Object} converter Converter object with name and toCardinal
  * @returns {Promise<Object>} Result with hz, rme, memoryPerIter
  */
 async function benchmarkLanguage (converter) {
@@ -516,7 +516,7 @@ function runPerfBenchmark (converter) {
     const benchOptions = fullMode ? config.perfFull : config.perf
 
     suite.add(converter.name, () => {
-      converter.toWords(value)
+      converter.toCardinal(value)
     }, benchOptions)
 
     suite
@@ -547,7 +547,7 @@ function measureMemory (converter) {
 
   // Warmup: stabilize JIT and heap
   for (let i = 0; i < warmupIterations; i++) {
-    converter.toWords(value)
+    converter.toCardinal(value)
   }
 
   // Warmup rounds (thrown away) - stabilizes GC behavior
@@ -557,7 +557,7 @@ function measureMemory (converter) {
       global.gc()
     }
     for (let i = 0; i < iterations; i++) {
-      converter.toWords(value)
+      converter.toCardinal(value)
     }
   }
 
@@ -575,7 +575,7 @@ function measureMemory (converter) {
     let checksum = 0
 
     for (let i = 0; i < iterations; i++) {
-      const result = converter.toWords(value)
+      const result = converter.toCardinal(value)
       checksum += result.length
     }
 

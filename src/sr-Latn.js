@@ -195,7 +195,7 @@ function decimalPartToWords (decimalPart, gender) {
  * @param {('masculine'|'feminine')} [options.gender='masculine'] - Grammatical gender
  * @returns {string} The number in Serbian Latin words
  */
-function toWords (value, options) {
+function toCardinal (value, options) {
   options = validateOptions(options)
   const { isNegative, integerPart, decimalPart } = parseNumericValue(value)
 
@@ -221,4 +221,4 @@ function toWords (value, options) {
 // Exports
 // ============================================================================
 
-export { toWords }
+export { toCardinal }

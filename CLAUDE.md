@@ -10,7 +10,7 @@ n2words: Number to words converter. ESM + UMD, Node >=20, zero dependencies.
 
 ## Architecture
 
-**Functional, self-contained modules** - Each language is a standalone file exporting `toWords(value, options?)`.
+**Functional, self-contained modules** - Each language is a standalone file exporting `toCardinal(value, options?)`. Languages with ordinal support also export `toOrdinal(value)`.
 
 ```text
 index.js                 # Re-exports all languages (alphabetically)
@@ -33,20 +33,20 @@ import { parseNumericValue } from './utils/parse-numeric.js'
  * @param {number | string | bigint} value - The numeric value to convert
  * @returns {string} The number in words
  */
-function toWords (value) {
+function toCardinal (value) {
   const { isNegative, integerPart, decimalPart } = parseNumericValue(value)
   // Convert integerPart (bigint) to words
   // Handle isNegative prefix and decimalPart suffix
   return result
 }
 
-export { toWords }
+export { toCardinal }
 ```
 
 ## Adding a Language
 
 1. `npm run lang:add <code>` - creates stub + fixture, updates index.js + type tests
-2. Implement `toWords()` in `src/{code}.js`
+2. Implement `toCardinal()` in `src/{code}.js`
 3. Add test cases to `test/fixtures/{code}.js`
 4. `npm test`
 
@@ -72,7 +72,7 @@ import { validateOptions } from './utils/validate-options.js'
  * @param {('masculine'|'feminine')} [options.gender='masculine'] - Grammatical gender
  * @returns {string} The number in words
  */
-function toWords (value, options) {
+function toCardinal (value, options) {
   options = validateOptions(options)
   const { isNegative, integerPart, decimalPart } = parseNumericValue(value)
 

@@ -45,8 +45,8 @@ enUS(999999999999999999999999n) // Works with arbitrarily large integers
 import { enUS, es } from 'n2words'
 
 // Subpath imports (smallest bundle, recommended for single language)
-import { toWords } from 'n2words/en-US'
-import { toWords as esWords } from 'n2words/es'
+import { toCardinal } from 'n2words/en-US'
+import { toCardinal as esWords } from 'n2words/es'
 ```
 
 **Browser (CDN):**
@@ -56,9 +56,9 @@ Individual language bundles are recommended for browsers (~1.4 KB gzipped each).
 ```html
 <!-- ESM (recommended) -->
 <script type="module">
-  import { toWords } from 'https://cdn.jsdelivr.net/npm/n2words/dist/en-US.js'
-  import { toWords as es } from 'https://cdn.jsdelivr.net/npm/n2words/dist/es.js'
-  console.log(toWords(42))  // 'forty-two'
+  import { toCardinal } from 'https://cdn.jsdelivr.net/npm/n2words/dist/en-US.js'
+  import { toCardinal as es } from 'https://cdn.jsdelivr.net/npm/n2words/dist/es.js'
+  console.log(toCardinal(42))  // 'forty-two'
 </script>
 
 <!-- UMD (legacy script tags) -->

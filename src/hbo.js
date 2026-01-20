@@ -253,7 +253,7 @@ function decimalPartToWords (decimalPart, gender, andWord) {
  * @param {string} [options.andWord='ו'] - Custom conjunction word
  * @returns {string} The number in Biblical Hebrew words
  */
-function toWords (value, options) {
+function toCardinal (value, options) {
   options = validateOptions(options)
   const { isNegative, integerPart, decimalPart } = parseNumericValue(value)
 
@@ -282,4 +282,4 @@ function toWords (value, options) {
 // Exports
 // ============================================================================
 
-export { toWords }
+export { toCardinal }

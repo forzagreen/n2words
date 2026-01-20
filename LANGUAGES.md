@@ -73,8 +73,8 @@ Language codes follow [IETF BCP 47](https://tools.ietf.org/html/bcp47) standards
 import { en, zhHans, frBE } from 'n2words'
 
 // Subpath imports (smallest bundle)
-import { toWords } from 'n2words/en'
-import { toWords as zhHans } from 'n2words/zh-Hans'
+import { toCardinal } from 'n2words/en'
+import { toCardinal as zhHans } from 'n2words/zh-Hans'
 ```
 
 ### Import Names
@@ -87,7 +87,7 @@ import { toWords as zhHans } from 'n2words/zh-Hans'
 20 languages support additional options via a second parameter:
 
 ```js
-toWords(value, options)
+toCardinal(value, options)
 ```
 
 |Language|Option|Type|Default|Description|

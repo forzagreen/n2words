@@ -28,7 +28,7 @@ npm run lang:add -- <code>
 
 **Manual setup:** If not using the scaffolding tool, ensure you have:
 
-- [ ] Language module in `src/<code>.js` exporting `toWords()`
+- [ ] Language module in `src/<code>.js` exporting `toCardinal()`
 - [ ] Test fixture in `test/fixtures/<code>.js`
 - [ ] Import and export in `index.js` (alphabetically sorted)
 - [ ] Tests pass (`npm test`)

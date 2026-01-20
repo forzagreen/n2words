@@ -324,11 +324,11 @@ function decimalPartToWords (decimalPart, withHyphen) {
  * @throws {Error} If value is not a valid number format
  *
  * @example
- * toWords(21)           // 'vingt et un'
- * toWords(80)           // 'quatre-vingts'
- * toWords(1000000)      // 'un million'
+ * toCardinal(21)           // 'vingt et un'
+ * toCardinal(80)           // 'quatre-vingts'
+ * toCardinal(1000000)      // 'un million'
  */
-function toWords (value, options) {
+function toCardinal (value, options) {
   options = validateOptions(options)
   const { isNegative, integerPart, decimalPart } = parseNumericValue(value)
 
@@ -355,4 +355,4 @@ function toWords (value, options) {
 // Public API
 // ============================================================================
 
-export { toWords }
+export { toCardinal }

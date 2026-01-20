@@ -109,7 +109,7 @@ function decimalPartToWords (decimalPart) {
  * @param {number | string | bigint} value - The numeric value to convert
  * @returns {string} The number in Persian words
  */
-function toWords (value) {
+function toCardinal (value) {
   const { isNegative, integerPart, decimalPart } = parseNumericValue(value)
 
   let result = ''
@@ -131,4 +131,4 @@ function toWords (value) {
 // Exports
 // ============================================================================
 
-export { toWords }
+export { toCardinal }

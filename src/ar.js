@@ -174,10 +174,10 @@ function decimalPartToWords (decimalPart, gender) {
  * @returns {string} The number in Arabic words
  *
  * @example
- * toWords(1)                        // 'واحد'
- * toWords(1, {gender: 'feminine'})  // 'واحدة'
+ * toCardinal(1)                        // 'واحد'
+ * toCardinal(1, {gender: 'feminine'})  // 'واحدة'
  */
-function toWords (value, options) {
+function toCardinal (value, options) {
   options = validateOptions(options)
   const { isNegative, integerPart, decimalPart } = parseNumericValue(value)
 
@@ -207,4 +207,4 @@ function toWords (value, options) {
 // Exports
 // ============================================================================
 
-export { toWords }
+export { toCardinal }

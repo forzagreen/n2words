@@ -263,7 +263,7 @@ function decimalPartToWords (decimalPart, withHyphen) {
  * @param {boolean} [options.withHyphenSeparator=false] - Use hyphens between words
  * @returns {string} The number in Belgian French words
  */
-function toWords (value, options) {
+function toCardinal (value, options) {
   options = validateOptions(options)
   const { isNegative, integerPart, decimalPart } = parseNumericValue(value)
 
@@ -290,4 +290,4 @@ function toWords (value, options) {
 // Exports
 // ============================================================================
 
-export { toWords }
+export { toCardinal }

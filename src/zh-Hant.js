@@ -175,7 +175,7 @@ function decimalDigitsToWords (decimalString, formal = true) {
  * @param {boolean} [options.formal=true] - Use formal/financial numerals
  * @returns {string} The number in Traditional Chinese words
  */
-function toWords (value, options) {
+function toCardinal (value, options) {
   options = validateOptions(options)
   const { isNegative, integerPart, decimalPart } = parseNumericValue(value)
 
@@ -201,4 +201,4 @@ function toWords (value, options) {
 // Exports
 // ============================================================================
 
-export { toWords }
+export { toCardinal }

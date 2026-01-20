@@ -7,13 +7,13 @@ import { isValidNumericInput, safeStringify } from './helpers/value-utils.js'
 /**
  * Language Implementation Tests
  *
- * Tests each language converter directly by calling toWords() with test fixtures.
+ * Tests each language converter directly by calling toCardinal() with test fixtures.
  * Validates language implementations conform to project standards.
  *
  * Validates:
  * - Fixture test cases (input → expected output)
  * - BCP 47 file naming convention
- * - toWords function export exists
+ * - toCardinal function export exists
  * - Basic sanity checks (handles zero, returns strings)
  * - JSDoc annotations for TypeScript declaration generation
  *
@@ -110,13 +110,13 @@ for (const file of files) {
     // Import language module
     const languageModule = await import('../src/' + file)
 
-    // Verify toWords export exists
-    if (typeof languageModule.toWords !== 'function') {
-      t.fail(`Language file ${file} does not export a toWords function`)
+    // Verify toCardinal export exists
+    if (typeof languageModule.toCardinal !== 'function') {
+      t.fail(`Language file ${file} does not export a toCardinal function`)
       return
     }
 
-    const toWords = languageModule.toWords
+    const toCardinal = languageModule.toCardinal
 
     // Import and validate fixture
     const { default: testFile } = await import('./fixtures/' + file)
@@ -127,14 +127,14 @@ for (const file of files) {
       return
     }
 
-    // Run test cases by calling toWords directly
+    // Run test cases by calling toCardinal directly
     for (let i = 0; i < testFile.length; i++) {
       const testCase = testFile[i]
       const [input, expected, options] = testCase
 
       try {
-        // Call toWords directly (it handles parsing internally)
-        const actual = options ? toWords(input, options) : toWords(input)
+        // Call toCardinal directly (it handles parsing internally)
+        const actual = options ? toCardinal(input, options) : toCardinal(input)
 
         // Provide detailed context on failure
         t.is(actual, expected,
@@ -168,34 +168,34 @@ for (const file of files) {
     )
 
     // Basic sanity checks
-    const zeroResult = toWords(0)
-    t.is(typeof zeroResult, 'string', 'toWords(0) should return a string')
-    t.true(zeroResult.length > 0, 'toWords(0) should return a non-empty string')
+    const zeroResult = toCardinal(0)
+    t.is(typeof zeroResult, 'string', 'toCardinal(0) should return a string')
+    t.true(zeroResult.length > 0, 'toCardinal(0) should return a non-empty string')
 
-    // JSDoc validation - check toWords has proper type annotations
+    // JSDoc validation - check toCardinal has proper type annotations
     const fileContent = readFileSync(`./src/${file}`, 'utf8')
 
     // Check for @param with value type
     t.regex(
       fileContent,
       /@param\s+\{number\s*\|\s*string\s*\|\s*bigint\}\s+value/,
-      'toWords should have @param {number | string | bigint} value JSDoc'
+      'toCardinal should have @param {number | string | bigint} value JSDoc'
     )
 
     // Check for @returns with string type
     t.regex(
       fileContent,
       /@returns\s+\{string\}/,
-      'toWords should have @returns {string} JSDoc'
+      'toCardinal should have @returns {string} JSDoc'
     )
 
     // For languages with options, verify options param is documented
-    const hasOptions = toWords.length > 1
+    const hasOptions = toCardinal.length > 1
     if (hasOptions) {
       t.regex(
         fileContent,
         /@param\s+\{Object\}\s+\[options\]/,
-        'toWords with options should have @param {Object} [options] JSDoc'
+        'toCardinal with options should have @param {Object} [options] JSDoc'
       )
     }
   })

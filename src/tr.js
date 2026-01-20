@@ -221,11 +221,11 @@ function decimalPartToWords (decimalPart, dropSpaces) {
  * @throws {Error} If value is not a valid number format
  *
  * @example
- * toWords(21)                        // 'yirmi bir'
- * toWords(21, { dropSpaces: true })  // 'yirmibir'
- * toWords(1000)                      // 'bin'
+ * toCardinal(21)                        // 'yirmi bir'
+ * toCardinal(21, { dropSpaces: true })  // 'yirmibir'
+ * toCardinal(1000)                      // 'bin'
  */
-function toWords (value, options) {
+function toCardinal (value, options) {
   options = validateOptions(options)
   const { isNegative, integerPart, decimalPart } = parseNumericValue(value)
 
@@ -252,4 +252,4 @@ function toWords (value, options) {
 // Public API
 // ============================================================================
 
-export { toWords }
+export { toCardinal }

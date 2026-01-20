@@ -2,7 +2,7 @@
  * American English language converter
  *
  * Exports:
- * - toWords(value, options?)  - Cardinal numbers: 42 → "forty-two"
+ * - toCardinal(value, options?)  - Cardinal numbers: 42 → "forty-two"
  * - toOrdinal(value)          - Ordinal numbers: 42 → "forty-second"
  *
  * American English conventions:
@@ -95,7 +95,7 @@ function buildSegment (n, useAnd) {
 }
 
 // ============================================================================
-// CARDINAL: toWords(value, options?)
+// CARDINAL: toCardinal(value, options?)
 // ============================================================================
 
 /**
@@ -263,13 +263,13 @@ function decimalPartToWords (decimalPart, useAnd) {
  * @throws {Error} If value is not a valid number format
  *
  * @example
- * toWords(42)                            // 'forty-two'
- * toWords(101)                           // 'one hundred one'
- * toWords(101, { and: true })            // 'one hundred and one'
- * toWords(1500)                          // 'one thousand five hundred'
- * toWords(1500, { hundredPairing: true }) // 'fifteen hundred'
+ * toCardinal(42)                            // 'forty-two'
+ * toCardinal(101)                           // 'one hundred one'
+ * toCardinal(101, { and: true })            // 'one hundred and one'
+ * toCardinal(1500)                          // 'one thousand five hundred'
+ * toCardinal(1500, { hundredPairing: true }) // 'fifteen hundred'
  */
-function toWords (value, options) {
+function toCardinal (value, options) {
   options = validateOptions(options)
   const { isNegative, integerPart, decimalPart } = parseNumericValue(value)
 
@@ -467,4 +467,4 @@ function toOrdinal (value) {
 // EXPORTS
 // ============================================================================
 
-export { toWords, toOrdinal }
+export { toCardinal, toOrdinal }

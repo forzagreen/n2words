@@ -85,14 +85,14 @@ function generateLanguageFile (code, name) {
  * @param {number | string | bigint} value - The numeric value to convert
  * @returns {string} The number in words
  */
-function toWords (value) {
+function toCardinal (value) {
   const { isNegative, integerPart, decimalPart } = parseNumericValue(value)
 
   // TODO: Implement conversion logic
   throw new Error('${code} language not yet implemented')
 }
 
-export { toWords }
+export { toCardinal }
 `
 }
 
@@ -157,8 +157,8 @@ function updateIndexFile (code, normalized) {
   let content = readFileSync(filePath, 'utf-8')
 
   // 1. Add import line
-  const importLine = `import { toWords as ${normalized} } from './src/${code}.js'`
-  const importMatch = content.match(/^import \{ toWords as \w+ \} from '\.\/src\/[\w-]+\.js'$/gm)
+  const importLine = `import { toCardinal as ${normalized} } from './src/${code}.js'`
+  const importMatch = content.match(/^import \{ toCardinal as \w+ \} from '\.\/src\/[\w-]+\.js'$/gm)
   if (importMatch) {
     const imports = insertSorted(
       [...importMatch],
@@ -203,7 +203,7 @@ function updateLanguagesTypeTest (code, normalized) {
   const filePath = './test/types/languages.test-d.ts'
   const lines = readFileSync(filePath, 'utf-8').split('\n')
 
-  const importLine = `import { toWords as ${normalized} } from '../../src/${code}.js'`
+  const importLine = `import { toCardinal as ${normalized} } from '../../src/${code}.js'`
   const testLine = `expectType<string>(${normalized}(1))`
 
   // Check if already exists
@@ -231,7 +231,7 @@ function updateLanguagesTypeTest (code, normalized) {
     const line = lines[i]
 
     // Track import section (starts with first language import, ends at blank line)
-    if (line.startsWith('import { toWords as ')) {
+    if (line.startsWith('import { toCardinal as ')) {
       inImportSection = true
     } else if (inImportSection && line.trim() === '') {
       inImportSection = false
@@ -270,7 +270,7 @@ function updateLanguagesTypeTest (code, normalized) {
     result.push(line)
 
     // If we've passed the last import/test in section, insert at end
-    if (!importInserted && inImportSection && !lines[i + 1]?.startsWith('import { toWords as ')) {
+    if (!importInserted && inImportSection && !lines[i + 1]?.startsWith('import { toCardinal as ')) {
       result.push(importLine)
       importInserted = true
     }

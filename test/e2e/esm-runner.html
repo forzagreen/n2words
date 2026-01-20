@@ -118,10 +118,10 @@
   </body>
 
   <script type="module">
-    // Import individual language ESM bundles using toWords export
-    import { toWords as enUS, toOrdinal as enUSOrdinal } from '../../dist/en-US.js'
-    import { toWords as fr } from '../../dist/fr.js'
-    import { toWords as zhHans } from '../../dist/zh-Hans.js'
+    // Import individual language ESM bundles using toCardinal export
+    import { toCardinal as enUS, toOrdinal as enUSOrdinal } from '../../dist/en-US.js'
+    import { toCardinal as fr } from '../../dist/fr.js'
+    import { toCardinal as zhHans } from '../../dist/zh-Hans.js'
 
     const results = document.getElementById('results')
     const status = document.getElementById('status')
@@ -153,15 +153,15 @@
     // ESM Individual Bundle Loading Tests
     // ========================================================================
 
-    test('American English toWords export is a function', () => {
+    test('American English toCardinal export is a function', () => {
       return typeof enUS === 'function'
     })
 
-    test('French toWords export is a function', () => {
+    test('French toCardinal export is a function', () => {
       return typeof fr === 'function'
     })
 
-    test('Chinese Simplified toWords export is a function', () => {
+    test('Chinese Simplified toCardinal export is a function', () => {
       return typeof zhHans === 'function'
     })
 
