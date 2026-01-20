@@ -291,75 +291,140 @@ function toWords (value, options) {
 }
 
 // ============================================================================
-// Ordinal Conversion
+// Ordinal Conversion (Direct Generation)
 // ============================================================================
 
 /**
- * Converts cardinal words to ordinal form.
- * Only the final word is converted (e.g., "twenty-one" → "twenty-first").
+ * Builds ordinal words for a 0-999 segment (final segment only).
+ * Returns ordinal form: "first", "twenty-third", "one hundred forty-fifth"
  *
- * @param {string} cardinal - Cardinal number words
- * @returns {string} Ordinal number words
+ * @param {number} n - Number 0-999
+ * @returns {string} Ordinal words for this segment
  */
-function cardinalToOrdinal (cardinal) {
-  // Handle hyphenated compounds (e.g., "twenty-one" → "twenty-first")
-  const lastSpaceIdx = cardinal.lastIndexOf(' ')
-  const lastHyphenIdx = cardinal.lastIndexOf('-')
-  const splitIdx = Math.max(lastSpaceIdx, lastHyphenIdx)
+function buildOrdinalSegment (n) {
+  const ones = n % 10
+  const tens = Math.trunc(n / 10) % 10
+  const hundreds = Math.trunc(n / 100)
 
-  let prefix = ''
-  let lastWord = cardinal
-  let separator = ''
-
-  if (splitIdx !== -1) {
-    prefix = cardinal.slice(0, splitIdx)
-    separator = cardinal[splitIdx]
-    lastWord = cardinal.slice(splitIdx + 1)
-  }
-
-  // Convert the last word to ordinal
-  let ordinalWord
-
-  // Check ones (one → first, two → second, etc.)
-  const onesIdx = ONES.indexOf(lastWord)
-  if (onesIdx !== -1) {
-    ordinalWord = ORDINAL_ONES[onesIdx]
-  }
-
-  // Check teens (ten → tenth, eleven → eleventh, etc.)
-  if (!ordinalWord) {
-    const teensIdx = TEENS.indexOf(lastWord)
-    if (teensIdx !== -1) {
-      ordinalWord = ORDINAL_TEENS[teensIdx]
-    }
-  }
-
-  // Check tens (twenty → twentieth, thirty → thirtieth, etc.)
-  if (!ordinalWord) {
-    const tensIdx = TENS.indexOf(lastWord)
-    if (tensIdx !== -1) {
-      ordinalWord = ORDINAL_TENS[tensIdx]
-    }
-  }
-
-  // Check scales and hundred (thousand → thousandth, million → millionth, etc.)
-  if (!ordinalWord) {
-    if (lastWord === HUNDRED) {
-      ordinalWord = 'hundredth'
+  // Build ordinal for tens-ones portion
+  let tensOnesOrdinal = ''
+  if (tens === 1) {
+    // Teens: 10-19 → "tenth" through "nineteenth"
+    tensOnesOrdinal = ORDINAL_TEENS[ones]
+  } else if (tens >= 2) {
+    if (ones > 0) {
+      // Compound: "twenty-first", "thirty-second", etc.
+      tensOnesOrdinal = TENS[tens] + '-' + ORDINAL_ONES[ones]
     } else {
-      const scaleIdx = SCALES.indexOf(lastWord)
-      if (scaleIdx !== -1) {
-        ordinalWord = lastWord + 'th'
+      // Round tens: "twentieth", "thirtieth", etc.
+      tensOnesOrdinal = ORDINAL_TENS[tens]
+    }
+  } else if (ones > 0) {
+    // Single digit: "first", "second", etc.
+    tensOnesOrdinal = ORDINAL_ONES[ones]
+  }
+
+  // Hundreds place
+  if (hundreds > 0) {
+    if (tensOnesOrdinal) {
+      // "one hundred twenty-first"
+      return ONES[hundreds] + ' ' + HUNDRED + ' ' + tensOnesOrdinal
+    } else {
+      // "one hundredth", "two hundredth", etc.
+      return ONES[hundreds] + ' hundredth'
+    }
+  }
+
+  return tensOnesOrdinal
+}
+
+/**
+ * Converts a positive integer to ordinal words.
+ * Generates ordinals directly without string manipulation.
+ *
+ * @param {bigint} n - Positive integer to convert
+ * @returns {string} Ordinal English words
+ */
+function integerToOrdinal (n) {
+  // Fast path: numbers < 1000
+  if (n < 1000n) {
+    return buildOrdinalSegment(Number(n))
+  }
+
+  // Fast path: numbers < 1,000,000
+  if (n < 1_000_000n) {
+    const thousands = Number(n / 1000n)
+    const remainder = Number(n % 1000n)
+
+    if (remainder === 0) {
+      // Exact thousands: "one thousandth", "five thousandth"
+      return buildSegment(thousands, false).word + ' ' + SCALES[0] + 'th'
+    }
+
+    // Has remainder: cardinal thousands + ordinal remainder
+    const { word: thousandsWord } = buildSegment(thousands, false)
+    return thousandsWord + ' ' + SCALES[0] + ' ' + buildOrdinalSegment(remainder)
+  }
+
+  // For numbers >= 1,000,000, use scale decomposition
+  return buildLargeOrdinal(n)
+}
+
+/**
+ * Builds ordinal words for numbers >= 1,000,000.
+ * All segments except the final one are cardinal; final segment is ordinal.
+ *
+ * @param {bigint} n - Number >= 1,000,000
+ * @returns {string} Ordinal English words
+ */
+function buildLargeOrdinal (n) {
+  // Extract segments (least-significant first)
+  const segments = []
+  let temp = n
+  while (temp > 0n) {
+    segments.push(Number(temp % 1000n))
+    temp = temp / 1000n
+  }
+
+  // Find the lowest non-zero segment (this gets ordinal treatment)
+  let lowestNonZeroIdx = 0
+  for (let i = 0; i < segments.length; i++) {
+    if (segments[i] !== 0) {
+      lowestNonZeroIdx = i
+      break
+    }
+  }
+
+  // Build result (most-significant to least)
+  let result = ''
+
+  for (let i = segments.length - 1; i >= 0; i--) {
+    const segment = segments[i]
+    if (segment === 0) continue
+
+    const isLowestSegment = (i === lowestNonZeroIdx)
+
+    if (result) result += ' '
+
+    if (isLowestSegment) {
+      // Final non-zero segment gets ordinal treatment
+      if (i === 0) {
+        // Units position: use ordinal segment
+        result += buildOrdinalSegment(segment)
+      } else {
+        // Scale position with no remainder below: "one millionth"
+        result += buildSegment(segment, false).word + ' ' + SCALES[i - 1] + 'th'
+      }
+    } else {
+      // Non-final segments are cardinal
+      result += buildSegment(segment, false).word
+      if (i > 0) {
+        result += ' ' + SCALES[i - 1]
       }
     }
   }
 
-  // Fallback: append "th" (shouldn't normally happen)
-  if (!ordinalWord) {
-    ordinalWord = lastWord + 'th'
-  }
-
-  return prefix ? prefix + separator + ordinalWord : ordinalWord
+  return result
 }
 
 /**
@@ -394,11 +459,7 @@ function toOrdinal (value) {
     throw new RangeError('Ordinals cannot be zero')
   }
 
-  // Get cardinal form first
-  const cardinal = integerToWords(integerPart, false, false)
-
-  // Convert to ordinal
-  return cardinalToOrdinal(cardinal)
+  return integerToOrdinal(integerPart)
 }
 
 // ============================================================================
