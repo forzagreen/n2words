@@ -176,14 +176,10 @@
         return keys.includes('enUS') && keys.includes('fr') && keys.includes('zhHans')
       })
 
-      test('Ordinal namespace is available for en-US', () => {
+      test('Ordinal namespace is available and works', () => {
         return typeof window.n2words.ordinal === 'object' &&
-               typeof window.n2words.ordinal.enUS === 'function'
-      })
-
-      test('Ordinal converter returns correct result', () => {
-        const result = window.n2words.ordinal.enUS(42)
-        return result === 'forty-second'
+               typeof window.n2words.ordinal.enUS === 'function' &&
+               window.n2words.ordinal.enUS(42) === 'forty-second'
       })
 
       test('American English converter returns correct result', () => {
