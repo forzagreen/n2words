@@ -7,16 +7,18 @@
  * Supports scaffolding multiple conversion forms (cardinal, ordinal).
  *
  * Usage:
- *   npm run lang:add <language-code> [options]
+ *   npm run lang:add [language-code] [options]
  *
  * Options:
  *   --cardinal    Scaffold cardinal number support
  *   --ordinal     Scaffold ordinal number support
  *
- * If no options provided, prompts interactively.
+ * If no code provided, prompts interactively.
+ * If no form options provided, prompts for form selection.
  *
  * Examples:
- *   npm run lang:add ko                      # Interactive prompts
+ *   npm run lang:add                         # Fully interactive
+ *   npm run lang:add ko                      # Prompts for forms
  *   npm run lang:add ko --cardinal           # Cardinal only
  *   npm run lang:add ko --ordinal            # Ordinal only
  *   npm run lang:add ko --cardinal --ordinal # Both forms
@@ -63,6 +65,35 @@ function parseArgs (args) {
 // ============================================================================
 // Interactive Prompts
 // ============================================================================
+
+/**
+ * Prompt user for language code.
+ *
+ * @returns {Promise<string|null>} Language code from user, or null if cancelled
+ */
+async function promptForLanguageCode () {
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout
+  })
+
+  try {
+    console.log(chalk.cyan('\nEnter a BCP 47 language code'))
+    console.log(chalk.gray('Examples: ko, zh-Hans, pt-BR, sr-Latn\n'))
+
+    const code = await rl.question(chalk.cyan('Language code: '))
+    const trimmed = code.trim()
+
+    if (!trimmed) {
+      console.log(chalk.red('\nNo code provided. Aborting.'))
+      return null
+    }
+
+    return trimmed
+  } finally {
+    rl.close()
+  }
+}
 
 /**
  * Prompt user for language name when code is not in CLDR.
@@ -525,23 +556,34 @@ export const ordinal = [
 // ============================================================================
 
 async function main () {
-  const { code, forms: cliFlags, help } = parseArgs(process.argv.slice(2))
+  const { code: cliCode, forms: cliFlags, help } = parseArgs(process.argv.slice(2))
 
-  if (help || !code) {
-    console.log(chalk.cyan('Usage: npm run lang:add <language-code> [options]'))
+  if (help) {
+    console.log(chalk.cyan('Usage: npm run lang:add [language-code] [options]'))
     console.log()
     console.log(chalk.gray('Options:'))
     console.log(chalk.gray('  --cardinal    Scaffold cardinal number support'))
     console.log(chalk.gray('  --ordinal     Scaffold ordinal number support'))
     console.log()
-    console.log(chalk.gray('If no options provided, prompts interactively.'))
+    console.log(chalk.gray('If no code provided, prompts interactively.'))
+    console.log(chalk.gray('If no form options provided, prompts for form selection.'))
     console.log()
     console.log(chalk.gray('Examples:'))
-    console.log(chalk.gray('  npm run lang:add ko                      # Interactive'))
+    console.log(chalk.gray('  npm run lang:add                         # Fully interactive'))
+    console.log(chalk.gray('  npm run lang:add ko                      # Prompts for forms'))
     console.log(chalk.gray('  npm run lang:add ko --cardinal           # Cardinal only'))
     console.log(chalk.gray('  npm run lang:add ko --ordinal            # Ordinal only'))
     console.log(chalk.gray('  npm run lang:add ko --cardinal --ordinal # Both forms'))
-    process.exit(help ? 0 : 1)
+    process.exit(0)
+  }
+
+  // Get language code (from CLI or prompt)
+  let code = cliCode
+  if (!code) {
+    code = await promptForLanguageCode()
+    if (!code) {
+      process.exit(1)
+    }
   }
 
   // Validate BCP 47 language code
