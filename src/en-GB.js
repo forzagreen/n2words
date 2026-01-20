@@ -219,7 +219,7 @@ function decimalPartToWords (decimalPart) {
  *
  * @example
  * toWords(42)           // 'forty-two'
- * toWords(-3.14)        // 'minus three point one four'
+ * toWords(-3.14)        // 'minus three point fourteen'
  * toWords('1000000')    // 'one million'
  */
 function toWords (value) {

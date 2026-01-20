@@ -104,7 +104,7 @@ function integerToWords (n, hundredPairing) {
     return buildSegment(Number(n)).word
   }
 
-  // Hundred-pairing: 1100-9900 → "eleven hundred" to "ninety-nine hundred"
+  // Hundred-pairing: 1100-9999 → "eleven hundred" to "ninety-nine hundred ninety-nine"
   if (hundredPairing && n >= 1100n && n <= 9999n) {
     const num = Number(n)
     const highPart = Math.trunc(num / 100)
