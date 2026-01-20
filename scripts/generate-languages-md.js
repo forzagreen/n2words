@@ -93,17 +93,21 @@ function hasOrdinal (code) {
 function getOptionsForFunction (code, functionName) {
   const content = readFileSync(`./src/${code}.js`, 'utf-8')
 
-  // Find JSDoc block immediately preceding the function declaration
-  // Pattern: /** ... */ followed by function name (capture the JSDoc)
-  const pattern = new RegExp(
-    `(/\\*\\*[\\s\\S]*?\\*/)\\s*function\\s+${functionName}\\s*\\(`,
-    'g'
-  )
+  // Find function position first
+  const funcPattern = new RegExp(`function\\s+${functionName}\\s*\\(`)
+  const funcMatch = funcPattern.exec(content)
+  if (!funcMatch) return []
 
-  const match = pattern.exec(content)
-  if (!match) return []
+  // Get content before function and find the LAST JSDoc (closest one)
+  const beforeFunc = content.substring(0, funcMatch.index)
+  const jsdocPattern = /\/\*\*[\s\S]*?\*\//g
+  let jsdocBlock = null
+  let match
+  while ((match = jsdocPattern.exec(beforeFunc)) !== null) {
+    jsdocBlock = match[0]
+  }
 
-  const jsdocBlock = match[1]
+  if (!jsdocBlock) return []
 
   // Match: @param {type} [options.name=default] - description
   const optionRegex = /@param\s+\{([^}]+)\}\s+\[options\.(\w+)(?:=([^\]]+))?\]\s+-\s+(.+)/g
@@ -122,18 +126,6 @@ function getOptionsForFunction (code, functionName) {
   }
 
   return options
-}
-
-/**
- * Parse all options from a language file's JSDoc.
- *
- * @param {string} code Language code
- * @returns {OptionInfo[]} Array of option info objects
- */
-function getOptions (code) {
-  const cardinalOptions = getOptionsForFunction(code, 'toCardinal')
-  const ordinalOptions = getOptionsForFunction(code, 'toOrdinal')
-  return [...cardinalOptions, ...ordinalOptions]
 }
 
 /**
@@ -156,16 +148,6 @@ function hasOrdinalOptions (code) {
   return getOptionsForFunction(code, 'toOrdinal').length > 0
 }
 
-/**
- * Check if a language has any options.
- *
- * @param {string} code Language code
- * @returns {boolean} True if language has options
- */
-function hasOptions (code) {
-  return getOptions(code).length > 0
-}
-
 // ============================================================================
 // Markdown Generation
 // ============================================================================
@@ -185,31 +167,41 @@ function formatType (type) {
 }
 
 /**
- * Collect all options with language info.
+ * Collect options grouped by language.
  *
  * @param {string[]} codes Language codes
- * @returns {Array<{language: string, code: string, option: OptionInfo}>}
+ * @returns {Array<{language: string, code: string, cardinalOptions: OptionInfo[], ordinalOptions: OptionInfo[]}>}
  */
-function collectAllOptions (codes) {
-  const allOptions = []
+function collectOptionsByLanguage (codes) {
+  const result = []
 
   for (const code of codes) {
-    const options = getOptions(code)
-    for (const option of options) {
-      allOptions.push({
+    const cardinalOptions = getOptionsForFunction(code, 'toCardinal')
+    const ordinalOptions = getOptionsForFunction(code, 'toOrdinal')
+
+    if (cardinalOptions.length > 0 || ordinalOptions.length > 0) {
+      result.push({
         language: getDisplayName(code),
         code,
-        option
+        cardinalOptions,
+        ordinalOptions
       })
     }
   }
 
-  // Sort by language name, then option name
-  return allOptions.sort((a, b) => {
-    const langCmp = a.language.localeCompare(b.language)
-    if (langCmp !== 0) return langCmp
-    return a.option.name.localeCompare(b.option.name)
-  })
+  // Sort by language name
+  return result.sort((a, b) => a.language.localeCompare(b.language))
+}
+
+/**
+ * Format an option as a markdown list item.
+ *
+ * @param {OptionInfo} opt Option info
+ * @returns {string} Markdown list item
+ */
+function formatOptionItem (opt) {
+  const defaultStr = opt.defaultValue ? `, default: \`${opt.defaultValue}\`` : ''
+  return `- \`${opt.name}\` (${formatType(opt.type)}${defaultStr}) — ${opt.description}`
 }
 
 /**
@@ -222,9 +214,8 @@ function generateMarkdown (codes) {
   const languageCount = codes.length
   const codesWithOrdinal = codes.filter(hasOrdinal)
   const ordinalCount = codesWithOrdinal.length
-  const codesWithOptions = codes.filter(hasOptions)
-  const optionsCount = codesWithOptions.length
-  const allOptions = collectAllOptions(codes)
+  const optionsByLang = collectOptionsByLanguage(codes)
+  const optionsCount = optionsByLang.length
 
   const langRows = codes.map(code => {
     const normalized = normalizeCode(code)
@@ -243,10 +234,29 @@ function generateMarkdown (codes) {
     return `|\`${code}\`|${exportCol}|${name}|${cardinalCol}|${ordinalCol}|`
   })
 
-  const optionRows = allOptions.map(o => {
-    const def = o.option.defaultValue ? `\`${o.option.defaultValue}\`` : ''
-    const formLabel = o.option.form === 'cardinal' ? 'Cardinal' : 'Ordinal'
-    return `|${o.language}|${formLabel}|\`${o.option.name}\`|${formatType(o.option.type)}|${def}|${o.option.description}|`
+  // Generate per-language options sections
+  const optionSections = optionsByLang.map(lang => {
+    const lines = [`### ${lang.language} (\`${lang.code}\`)`]
+
+    if (lang.cardinalOptions.length > 0) {
+      lines.push('')
+      lines.push('**Cardinal options:**')
+      lines.push('')
+      for (const opt of lang.cardinalOptions) {
+        lines.push(formatOptionItem(opt))
+      }
+    }
+
+    if (lang.ordinalOptions.length > 0) {
+      lines.push('')
+      lines.push('**Ordinal options:**')
+      lines.push('')
+      for (const opt of lang.ordinalOptions) {
+        lines.push(formatOptionItem(opt))
+      }
+    }
+
+    return lines.join('\n')
   })
 
   return `# Supported Languages
@@ -285,16 +295,13 @@ import { toCardinal, toOrdinal } from 'n2words/en-US'
 
 ## Language Options
 
-${optionsCount} languages support additional options via a second parameter:
+${optionsCount} languages support options via a second parameter. Options are passed as an object:
 
 \`\`\`js
-toCardinal(value, options)
-toOrdinal(value, options)
+toCardinal(value, { optionName: value })
 \`\`\`
 
-|Language|Form|Option|Type|Default|Description|
-|--------|----|----|-------|-------|-----------|
-${optionRows.join('\n')}
+${optionSections.join('\n\n')}
 `
 }
 

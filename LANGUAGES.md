@@ -20,7 +20,7 @@ Language codes follow [IETF BCP 47](https://tools.ietf.org/html/bcp47) standards
 |`de`||German|✓||
 |`el`||Greek|✓||
 |`en-GB`|`enGB`|British English|✓||
-|`en-US`|`enUS`|American English|✓¹|✓¹|
+|`en-US`|`enUS`|American English|✓¹|✓|
 |`es`||Spanish|✓¹||
 |`fa`||Persian|✓||
 |`fi`||Finnish|✓||
@@ -88,39 +88,133 @@ import { toCardinal, toOrdinal } from 'n2words/en-US'
 
 ## Language Options
 
-20 languages support additional options via a second parameter:
+20 languages support options via a second parameter. Options are passed as an object:
 
 ```js
-toCardinal(value, options)
-toOrdinal(value, options)
+toCardinal(value, { optionName: value })
 ```
 
-|Language|Form|Option|Type|Default|Description|
-|--------|----|----|-------|-------|-----------|
-|American English|Cardinal|`and`|`boolean`|`false`|Use "and" after hundreds and before final small numbers (e.g., "one hundred and one" instead of "one hundred one")|
-|American English|Ordinal|`and`|`boolean`|`false`|Use "and" after hundreds and before final small numbers (e.g., "one hundred and one" instead of "one hundred one")|
-|American English|Cardinal|`hundredPairing`|`boolean`|`false`|Use hundred-pairing for 1100-9999 (e.g., "fifteen hundred" instead of "one thousand five hundred")|
-|American English|Ordinal|`hundredPairing`|`boolean`|`false`|Use hundred-pairing for 1100-9999 (e.g., "fifteen hundred" instead of "one thousand five hundred")|
-|Arabic|Cardinal|`gender`|'masculine' \| 'feminine'|`'masculine'`|Grammatical gender|
-|Arabic|Cardinal|`negativeWord`|`string`||Custom word for negative numbers|
-|Biblical Hebrew|Cardinal|`andWord`|`string`|`'ו'`|Custom conjunction word|
-|Biblical Hebrew|Cardinal|`gender`|'masculine' \| 'feminine'|`'masculine'`|Grammatical gender|
-|Croatian|Cardinal|`gender`|'masculine' \| 'feminine'|`'masculine'`|Grammatical gender|
-|Dutch|Cardinal|`accentOne`|`boolean`|`true`|Use "één" instead of "een"|
-|Dutch|Cardinal|`includeOptionalAnd`|`boolean`|`false`|Include "en" before small numbers|
-|Dutch|Cardinal|`noHundredPairing`|`boolean`|`false`|Disable hundred pairing (1104→duizend honderdvier)|
-|French|Cardinal|`withHyphenSeparator`|`boolean`|`false`|Use hyphens between all words|
-|French (Belgium)|Cardinal|`withHyphenSeparator`|`boolean`|`false`|Use hyphens between words|
-|Hebrew|Cardinal|`andWord`|`string`|`'ו'`|Custom conjunction word|
-|Latvian|Cardinal|`gender`|`string`|`'masculine'`|Gender for numbers < 1000|
-|Lithuanian|Cardinal|`gender`|`string`|`'masculine'`|Gender for numbers < 1000|
-|Polish|Cardinal|`gender`|`string`|`'masculine'`|Gender for numbers < 1000|
-|Romanian|Cardinal|`gender`|`string`|`'masculine'`|Gender for numbers|
-|Russian|Cardinal|`gender`|'masculine' \| 'feminine'|`'masculine'`|Grammatical gender|
-|Serbian (Cyrillic)|Cardinal|`gender`|'masculine' \| 'feminine'|`'masculine'`|Grammatical gender|
-|Serbian (Latin)|Cardinal|`gender`|'masculine' \| 'feminine'|`'masculine'`|Grammatical gender|
-|Simplified Chinese|Cardinal|`formal`|`boolean`|`true`|Use formal/financial numerals|
-|Spanish|Cardinal|`gender`|'masculine' \| 'feminine'|`'masculine'`|Grammatical gender|
-|Traditional Chinese|Cardinal|`formal`|`boolean`|`true`|Use formal/financial numerals|
-|Turkish|Cardinal|`dropSpaces`|`boolean`|`false`|Remove spaces for compound form|
-|Ukrainian|Cardinal|`gender`|'masculine' \| 'feminine'|`'masculine'`|Grammatical gender|
+### American English (`en-US`)
+
+**Cardinal options:**
+
+- `hundredPairing` (`boolean`, default: `false`) — Use hundred-pairing for 1100-9999 (e.g., "fifteen hundred" instead of "one thousand five hundred")
+- `and` (`boolean`, default: `false`) — Use "and" after hundreds and before final small numbers (e.g., "one hundred and one" instead of "one hundred one")
+
+### Arabic (`ar`)
+
+**Cardinal options:**
+
+- `gender` ('masculine' \| 'feminine', default: `'masculine'`) — Grammatical gender
+- `negativeWord` (`string`) — Custom word for negative numbers
+
+### Biblical Hebrew (`hbo`)
+
+**Cardinal options:**
+
+- `gender` ('masculine' \| 'feminine', default: `'masculine'`) — Grammatical gender
+- `andWord` (`string`, default: `'ו'`) — Custom conjunction word
+
+### Croatian (`hr`)
+
+**Cardinal options:**
+
+- `gender` ('masculine' \| 'feminine', default: `'masculine'`) — Grammatical gender
+
+### Dutch (`nl`)
+
+**Cardinal options:**
+
+- `accentOne` (`boolean`, default: `true`) — Use "één" instead of "een"
+- `includeOptionalAnd` (`boolean`, default: `false`) — Include "en" before small numbers
+- `noHundredPairing` (`boolean`, default: `false`) — Disable hundred pairing (1104→duizend honderdvier)
+
+### French (`fr`)
+
+**Cardinal options:**
+
+- `withHyphenSeparator` (`boolean`, default: `false`) — Use hyphens between all words
+
+### French (Belgium) (`fr-BE`)
+
+**Cardinal options:**
+
+- `withHyphenSeparator` (`boolean`, default: `false`) — Use hyphens between words
+
+### Hebrew (`he`)
+
+**Cardinal options:**
+
+- `andWord` (`string`, default: `'ו'`) — Custom conjunction word
+
+### Latvian (`lv`)
+
+**Cardinal options:**
+
+- `gender` (`string`, default: `'masculine'`) — Gender for numbers < 1000
+
+### Lithuanian (`lt`)
+
+**Cardinal options:**
+
+- `gender` (`string`, default: `'masculine'`) — Gender for numbers < 1000
+
+### Polish (`pl`)
+
+**Cardinal options:**
+
+- `gender` (`string`, default: `'masculine'`) — Gender for numbers < 1000
+
+### Romanian (`ro`)
+
+**Cardinal options:**
+
+- `gender` (`string`, default: `'masculine'`) — Gender for numbers
+
+### Russian (`ru`)
+
+**Cardinal options:**
+
+- `gender` ('masculine' \| 'feminine', default: `'masculine'`) — Grammatical gender
+
+### Serbian (Cyrillic) (`sr-Cyrl`)
+
+**Cardinal options:**
+
+- `gender` ('masculine' \| 'feminine', default: `'masculine'`) — Grammatical gender
+
+### Serbian (Latin) (`sr-Latn`)
+
+**Cardinal options:**
+
+- `gender` ('masculine' \| 'feminine', default: `'masculine'`) — Grammatical gender
+
+### Simplified Chinese (`zh-Hans`)
+
+**Cardinal options:**
+
+- `formal` (`boolean`, default: `true`) — Use formal/financial numerals
+
+### Spanish (`es`)
+
+**Cardinal options:**
+
+- `gender` ('masculine' \| 'feminine', default: `'masculine'`) — Grammatical gender
+
+### Traditional Chinese (`zh-Hant`)
+
+**Cardinal options:**
+
+- `formal` (`boolean`, default: `true`) — Use formal/financial numerals
+
+### Turkish (`tr`)
+
+**Cardinal options:**
+
+- `dropSpaces` (`boolean`, default: `false`) — Remove spaces for compound form
+
+### Ukrainian (`uk`)
+
+**Cardinal options:**
+
+- `gender` ('masculine' \| 'feminine', default: `'masculine'`) — Grammatical gender
