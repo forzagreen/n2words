@@ -178,7 +178,9 @@ function decimalDigitsToWords (decimalString, formal = true) {
 function toWords (value, options) {
   options = validateOptions(options)
   const { isNegative, integerPart, decimalPart } = parseNumericValue(value)
-  const formal = options.formal !== false // Default to true
+
+  // Apply option defaults
+  const { formal = true } = options
 
   let result = ''
 

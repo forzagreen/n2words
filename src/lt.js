@@ -164,19 +164,19 @@ function pluralize (n, forms) {
  * @param {Object} options - Conversion options
  * @returns {string} Lithuanian words
  */
-function integerToWords (n, options = {}) {
+function integerToWords (n, gender) {
   if (n === 0n) return ZERO
 
   // Fast path: numbers < 1000
   if (n < 1000n) {
     const num = Number(n)
-    return options.gender === 'feminine' ? buildSegmentFeminine(num) : buildSegment(num)
+    return gender === 'feminine' ? buildSegmentFeminine(num) : buildSegment(num)
   }
 
   // For numbers >= 1000, feminine only applies to final segment if < 1000
   // But the fixture shows feminine NOT applying for n >= 1000
   // So we use masculine for all segments when n >= 1000
-  return buildLargeNumberWords(n, options)
+  return buildLargeNumberWords(n, gender)
 }
 
 /**
@@ -186,7 +186,7 @@ function integerToWords (n, options = {}) {
  * @param {Object} options - Conversion options
  * @returns {string} Lithuanian words
  */
-function buildLargeNumberWords (n, options) {
+function buildLargeNumberWords (n, gender) {
   const numStr = n.toString()
   const len = numStr.length
 
@@ -239,7 +239,7 @@ function buildLargeNumberWords (n, options) {
  * @param {Object} options - Conversion options
  * @returns {string} Lithuanian words for decimal part
  */
-function decimalPartToWords (decimalPart, options) {
+function decimalPartToWords (decimalPart, gender) {
   let result = ''
 
   // Handle leading zeros
@@ -254,7 +254,7 @@ function decimalPartToWords (decimalPart, options) {
   const remainder = decimalPart.slice(i)
   if (remainder) {
     if (result) result += ' '
-    result += integerToWords(BigInt(remainder), options)
+    result += integerToWords(BigInt(remainder), gender)
   }
 
   return result
@@ -279,16 +279,19 @@ function toWords (value, options) {
   options = validateOptions(options)
   const { isNegative, integerPart, decimalPart } = parseNumericValue(value)
 
+  // Apply option defaults
+  const { gender = 'masculine' } = options
+
   let result = ''
 
   if (isNegative) {
     result = NEGATIVE + ' '
   }
 
-  result += integerToWords(integerPart, options)
+  result += integerToWords(integerPart, gender)
 
   if (decimalPart) {
-    result += ' ' + DECIMAL_SEP + ' ' + decimalPartToWords(decimalPart, options)
+    result += ' ' + DECIMAL_SEP + ' ' + decimalPartToWords(decimalPart, gender)
   }
 
   return result

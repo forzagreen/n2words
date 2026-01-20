@@ -293,11 +293,14 @@ function toWords (value, options) {
   options = validateOptions(options)
   const { isNegative, integerPart, decimalPart } = parseNumericValue(value)
 
-  const opts = {
-    accentOne: options.accentOne !== false, // default true
-    includeOptionalAnd: options.includeOptionalAnd || false,
-    noHundredPairing: options.noHundredPairing || false
-  }
+  // Apply option defaults
+  const {
+    accentOne = true,
+    includeOptionalAnd = false,
+    noHundredPairing = false
+  } = options
+
+  const opts = { accentOne, includeOptionalAnd, noHundredPairing }
 
   let result = ''
 

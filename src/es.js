@@ -291,7 +291,10 @@ function decimalPartToWords (decimalPart, feminine) {
 function toWords (value, options) {
   options = validateOptions(options)
   const { isNegative, integerPart, decimalPart } = parseNumericValue(value)
-  const feminine = options.gender === 'feminine'
+
+  // Apply option defaults
+  const { gender = 'masculine' } = options
+  const feminine = gender === 'feminine'
 
   let result = ''
 

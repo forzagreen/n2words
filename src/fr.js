@@ -331,19 +331,21 @@ function decimalPartToWords (decimalPart, withHyphen) {
 function toWords (value, options) {
   options = validateOptions(options)
   const { isNegative, integerPart, decimalPart } = parseNumericValue(value)
-  const withHyphen = options.withHyphenSeparator || false
+
+  // Apply option defaults
+  const { withHyphenSeparator = false } = options
 
   let result = ''
-  const sep = withHyphen ? '-' : ' '
+  const sep = withHyphenSeparator ? '-' : ' '
 
   if (isNegative) {
     result = NEGATIVE + sep
   }
 
-  result += integerToWords(integerPart, withHyphen)
+  result += integerToWords(integerPart, withHyphenSeparator)
 
   if (decimalPart) {
-    result += sep + DECIMAL_SEP + sep + decimalPartToWords(decimalPart, withHyphen)
+    result += sep + DECIMAL_SEP + sep + decimalPartToWords(decimalPart, withHyphenSeparator)
   }
 
   return result

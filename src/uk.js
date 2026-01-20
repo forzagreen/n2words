@@ -118,17 +118,17 @@ function buildSegmentFem (n) {
 // Conversion Functions
 // ============================================================================
 
-function integerToWords (n, options = {}) {
+function integerToWords (n, gender) {
   if (n === 0n) return ZERO
 
   if (n < 1000n) {
-    return options.gender === 'feminine' ? buildSegmentFem(Number(n)) : buildSegmentMasc(Number(n))
+    return gender === 'feminine' ? buildSegmentFem(Number(n)) : buildSegmentMasc(Number(n))
   }
 
-  return buildLargeNumberWords(n, options)
+  return buildLargeNumberWords(n, gender)
 }
 
-function buildLargeNumberWords (n, options) {
+function buildLargeNumberWords (n, gender) {
   const numStr = n.toString()
   const len = numStr.length
 
@@ -154,7 +154,7 @@ function buildLargeNumberWords (n, options) {
 
     if (segment !== 0) {
       if (scaleIndex === 0) {
-        parts.push(options.gender === 'feminine' ? buildSegmentFem(segment) : buildSegmentMasc(segment))
+        parts.push(gender === 'feminine' ? buildSegmentFem(segment) : buildSegmentMasc(segment))
       } else {
         const scaleForms = SCALE_FORMS[scaleIndex - 1]
         const scaleWord = pluralize(segment, scaleForms)
@@ -171,7 +171,7 @@ function buildLargeNumberWords (n, options) {
   return parts.join(' ')
 }
 
-function decimalPartToWords (decimalPart, options) {
+function decimalPartToWords (decimalPart, gender) {
   let result = ''
   let i = 0
 
@@ -184,7 +184,7 @@ function decimalPartToWords (decimalPart, options) {
   const remainder = decimalPart.slice(i)
   if (remainder) {
     if (result) result += ' '
-    result += integerToWords(BigInt(remainder), options)
+    result += integerToWords(BigInt(remainder), gender)
   }
 
   return result
@@ -202,16 +202,19 @@ function toWords (value, options) {
   options = validateOptions(options)
   const { isNegative, integerPart, decimalPart } = parseNumericValue(value)
 
+  // Apply option defaults
+  const { gender = 'masculine' } = options
+
   let result = ''
 
   if (isNegative) {
     result = NEGATIVE + ' '
   }
 
-  result += integerToWords(integerPart, options)
+  result += integerToWords(integerPart, gender)
 
   if (decimalPart) {
-    result += ' ' + DECIMAL_SEP + ' ' + decimalPartToWords(decimalPart, options)
+    result += ' ' + DECIMAL_SEP + ' ' + decimalPartToWords(decimalPart, gender)
   }
 
   return result

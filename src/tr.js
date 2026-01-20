@@ -86,10 +86,10 @@ function buildSegment (n, separator = ' ') {
  * @param {Object} options - Conversion options
  * @returns {string} Turkish words
  */
-function integerToWords (n, options = {}) {
+function integerToWords (n, dropSpaces) {
   if (n === 0n) return ZERO
 
-  const sep = options.dropSpaces ? '' : ' '
+  const sep = dropSpaces ? '' : ' '
 
   // Fast path: numbers < 1000
   if (n < 1000n) {
@@ -117,7 +117,7 @@ function integerToWords (n, options = {}) {
   }
 
   // For numbers >= 1,000,000, use scale decomposition
-  return buildLargeNumberWords(n, options)
+  return buildLargeNumberWords(n, dropSpaces)
 }
 
 /**
@@ -127,8 +127,8 @@ function integerToWords (n, options = {}) {
  * @param {Object} options - Conversion options
  * @returns {string} Turkish words
  */
-function buildLargeNumberWords (n, options) {
-  const sep = options.dropSpaces ? '' : ' '
+function buildLargeNumberWords (n, dropSpaces) {
+  const sep = dropSpaces ? '' : ' '
 
   const numStr = n.toString()
   const len = numStr.length
@@ -188,8 +188,8 @@ function buildLargeNumberWords (n, options) {
  * @param {Object} options - Conversion options
  * @returns {string} Turkish words for decimal part
  */
-function decimalPartToWords (decimalPart, options) {
-  const sep = options.dropSpaces ? '' : ' '
+function decimalPartToWords (decimalPart, dropSpaces) {
+  const sep = dropSpaces ? '' : ' '
   let result = ''
 
   // Handle leading zeros
@@ -204,7 +204,7 @@ function decimalPartToWords (decimalPart, options) {
   const remainder = decimalPart.slice(i)
   if (remainder) {
     if (result) result += sep
-    result += integerToWords(BigInt(remainder), options)
+    result += integerToWords(BigInt(remainder), dropSpaces)
   }
 
   return result
@@ -229,17 +229,20 @@ function toWords (value, options) {
   options = validateOptions(options)
   const { isNegative, integerPart, decimalPart } = parseNumericValue(value)
 
-  const sep = options.dropSpaces ? '' : ' '
+  // Apply option defaults
+  const { dropSpaces = false } = options
+
+  const sep = dropSpaces ? '' : ' '
   let result = ''
 
   if (isNegative) {
     result = NEGATIVE + sep
   }
 
-  result += integerToWords(integerPart, options)
+  result += integerToWords(integerPart, dropSpaces)
 
   if (decimalPart) {
-    result += sep + DECIMAL_SEP + sep + decimalPartToWords(decimalPart, options)
+    result += sep + DECIMAL_SEP + sep + decimalPartToWords(decimalPart, dropSpaces)
   }
 
   return result

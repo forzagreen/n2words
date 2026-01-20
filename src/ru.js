@@ -119,10 +119,10 @@ function buildSegmentFem (n) {
 // Conversion Functions
 // ============================================================================
 
-function integerToWords (n, options = {}) {
+function integerToWords (n, gender) {
   if (n === 0n) return ZERO
 
-  const feminine = options.gender === 'feminine'
+  const feminine = gender === 'feminine'
 
   if (n < 1000n) {
     return feminine ? buildSegmentFem(Number(n)) : buildSegmentMasc(Number(n))
@@ -145,11 +145,11 @@ function integerToWords (n, options = {}) {
     return result
   }
 
-  return buildLargeNumberWords(n, options)
+  return buildLargeNumberWords(n, gender)
 }
 
-function buildLargeNumberWords (n, options) {
-  const feminine = options.gender === 'feminine'
+function buildLargeNumberWords (n, gender) {
+  const feminine = gender === 'feminine'
   const numStr = n.toString()
   const len = numStr.length
 
@@ -192,7 +192,7 @@ function buildLargeNumberWords (n, options) {
   return parts.join(' ')
 }
 
-function decimalPartToWords (decimalPart, options) {
+function decimalPartToWords (decimalPart, gender) {
   let result = ''
   let i = 0
 
@@ -205,7 +205,7 @@ function decimalPartToWords (decimalPart, options) {
   const remainder = decimalPart.slice(i)
   if (remainder) {
     if (result) result += ' '
-    result += integerToWords(BigInt(remainder), options)
+    result += integerToWords(BigInt(remainder), gender)
   }
 
   return result
@@ -223,16 +223,19 @@ function toWords (value, options) {
   options = validateOptions(options)
   const { isNegative, integerPart, decimalPart } = parseNumericValue(value)
 
+  // Apply option defaults
+  const { gender = 'masculine' } = options
+
   let result = ''
 
   if (isNegative) {
     result = NEGATIVE + ' '
   }
 
-  result += integerToWords(integerPart, options)
+  result += integerToWords(integerPart, gender)
 
   if (decimalPart) {
-    result += ' ' + DECIMAL_SEP + ' ' + decimalPartToWords(decimalPart, options)
+    result += ' ' + DECIMAL_SEP + ' ' + decimalPartToWords(decimalPart, gender)
   }
 
   return result
