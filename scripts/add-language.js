@@ -382,82 +382,6 @@ function updateIndexFile (code, normalized) {
 }
 
 /**
- * Update test/types/languages.test-d.ts with new language.
- *
- * @param {string} code Language code
- * @param {string} normalized Normalized code
- */
-function updateLanguagesTypeTest (code, normalized) {
-  const filePath = './test/types/languages.test-d.ts'
-  const lines = readFileSync(filePath, 'utf-8').split('\n')
-
-  const importLine = `import { toCardinal as ${normalized} } from '../../src/${code}.js'`
-  const testLine = `expectType<string>(${normalized}(1))`
-
-  const hasImport = lines.some(line => line.includes(`as ${normalized} }`))
-  const hasTest = lines.some(line => line.includes(`${normalized}(1))`))
-
-  if (hasImport && hasTest) {
-    return
-  }
-
-  const result = []
-  let importInserted = hasImport
-  let testInserted = hasTest
-  let inImportSection = false
-  let inTestSection = false
-  let passedTestHeader = false
-
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i]
-
-    if (line.startsWith('import { toCardinal as ')) {
-      inImportSection = true
-    } else if (inImportSection && line.trim() === '') {
-      inImportSection = false
-    }
-
-    if (line.includes('// Basic return type')) {
-      inTestSection = true
-      passedTestHeader = false
-    } else if (inTestSection && !passedTestHeader && line.startsWith('// ===')) {
-      passedTestHeader = true
-    } else if (inTestSection && passedTestHeader && line.startsWith('// ===')) {
-      inTestSection = false
-    }
-
-    if (!importInserted && inImportSection) {
-      const currentName = line.match(/as (\w+)/)?.[1] || ''
-      if (currentName > normalized) {
-        result.push(importLine)
-        importInserted = true
-      }
-    }
-
-    if (!testInserted && inTestSection && line.startsWith('expectType<string>(')) {
-      const currentName = line.match(/\((\w+)\(/)?.[1] || ''
-      if (currentName > normalized) {
-        result.push(testLine)
-        testInserted = true
-      }
-    }
-
-    result.push(line)
-
-    if (!importInserted && inImportSection && !lines[i + 1]?.startsWith('import { toCardinal as ')) {
-      result.push(importLine)
-      importInserted = true
-    }
-    if (!testInserted && inTestSection && line.startsWith('expectType<string>(') && !lines[i + 1]?.startsWith('expectType<string>(')) {
-      result.push(testLine)
-      testInserted = true
-    }
-  }
-
-  writeFileSync(filePath, result.join('\n'))
-}
-
-/**
  * Check which forms are already implemented for a language.
  *
  * @param {string} code Language code
@@ -658,11 +582,6 @@ async function main () {
     console.log(chalk.gray('Updating index.js...'))
     updateIndexFile(code, normalized)
     console.log(chalk.green('✓ Updated index.js'))
-
-    // Update type tests
-    console.log(chalk.gray('Updating test/types/languages.test-d.ts...'))
-    updateLanguagesTypeTest(code, normalized)
-    console.log(chalk.green('✓ Updated type tests'))
   } else {
     // Add forms to existing files
     console.log(chalk.gray(`\nUpdating ${langFilePath}...`))

@@ -98,7 +98,7 @@
     "test:exports": "npm run build:types && npm run test:exports:run",
     "test:exports:run": "attw --pack .",
     "test:types": "npm run build:types && npm run test:types:run",
-    "test:types:run": "tsd --files test/types/*.test-d.ts"
+    "test:types:run": "tsd --files test/types.test-d.ts"
   },
   "ava": {
     "extensions": [
