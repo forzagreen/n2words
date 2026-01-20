@@ -72,90 +72,9 @@ Individual language bundles are recommended for browsers (~1.4 KB gzipped each).
 
 ## Supported Languages (54)
 
-Language codes follow [IETF BCP 47](https://tools.ietf.org/html/bcp47) standards.
+See **[LANGUAGES.md](LANGUAGES.md)** for the complete list with codes, export names, and options.
 
-| Code      | Language            | Options | Code      | Language            | Options |
-| --------- | ------------------- | ------- | --------- | ------------------- | ------- |
-| `am`      | Amharic             |         | `am-Latn` | Amharic Latin       |         |
-| `ar`      | Arabic              | ✓       | `az`      | Azerbaijani         |         |
-| `bn`      | Bengali             |         | `cs`      | Czech               |         |
-| `da`      | Danish              |         | `de`      | German              |         |
-| `el`      | Greek               |         | `en`      | English             |         |
-| `es`      | Spanish             | ✓       | `fa`      | Persian             |         |
-| `fi`      | Finnish             |         | `fil`     | Filipino            |         |
-| `fr`      | French              | ✓       | `fr-BE`   | Belgian French      | ✓       |
-| `gu`      | Gujarati            |         | `ha`      | Hausa               |         |
-| `hbo`     | Biblical Hebrew     | ✓       | `he`      | Modern Hebrew       | ✓       |
-| `hi`      | Hindi               |         | `hr`      | Croatian            | ✓       |
-| `hu`      | Hungarian           |         | `id`      | Indonesian          |         |
-| `it`      | Italian             |         | `ja`      | Japanese            |         |
-| `ka`      | Georgian            |         | `kn`      | Kannada             |         |
-| `ko`      | Korean              |         | `lt`      | Lithuanian          | ✓       |
-| `lv`      | Latvian             | ✓       | `mr`      | Marathi             |         |
-| `ms`      | Malay               |         | `nb`      | Norwegian Bokmål    |         |
-| `nl`      | Dutch               | ✓       | `pa`      | Punjabi             |         |
-| `pl`      | Polish              | ✓       | `pt`      | Portuguese          |         |
-| `ro`      | Romanian            | ✓       | `ru`      | Russian             | ✓       |
-| `sr-Cyrl` | Serbian Cyrillic    | ✓       | `sr-Latn` | Serbian Latin       | ✓       |
-| `sv`      | Swedish             |         | `sw`      | Swahili             |         |
-| `ta`      | Tamil               |         | `te`      | Telugu              |         |
-| `th`      | Thai                |         | `tr`      | Turkish             | ✓       |
-| `uk`      | Ukrainian           | ✓       | `ur`      | Urdu                |         |
-| `vi`      | Vietnamese          |         | `yo`      | Yoruba              |         |
-| `zh-Hans` | Chinese Simplified  | ✓       | `zh-Hant` | Chinese Traditional | ✓       |
-
-### Language Options
-
-19 languages support additional options via a second parameter:
-
-```js
-toWords(value, options)
-```
-
-#### Gender (`gender: 'masculine' | 'feminine'`)
-
-12 languages support grammatical gender:
-
-| Language | Code | Example |
-| -------- | ---- | ------- |
-| Arabic | `ar` | `ar(1, { gender: 'feminine' })` → `'واحدة'` |
-| Biblical Hebrew | `hbo` | `hbo(2, { gender: 'feminine' })` → `'שְׁתַּיִם'` |
-| Croatian | `hr` | `hr(1, { gender: 'feminine' })` → `'jedna'` |
-| Latvian | `lv` | `lv(1, { gender: 'feminine' })` → `'viena'` |
-| Lithuanian | `lt` | `lt(1, { gender: 'feminine' })` → `'viena'` |
-| Polish | `pl` | `pl(1, { gender: 'feminine' })` → `'jedna'` |
-| Romanian | `ro` | `ro(1, { gender: 'feminine' })` → `'una'` |
-| Russian | `ru` | `ru(1, { gender: 'feminine' })` → `'одна'` |
-| Serbian (Cyrillic) | `sr-Cyrl` | `srCyrl(1, { gender: 'feminine' })` → `'једна'` |
-| Serbian (Latin) | `sr-Latn` | `srLatn(1, { gender: 'feminine' })` → `'jedna'` |
-| Spanish | `es` | `es(1, { gender: 'feminine' })` → `'una'` |
-| Ukrainian | `uk` | `uk(1, { gender: 'feminine' })` → `'одна'` |
-
-#### Formal/Financial (`formal: boolean`)
-
-Chinese languages toggle between formal (financial) and common numerals:
-
-```js
-zhHans(123)                    // '壹佰贰拾叁' (formal, default)
-zhHans(123, { formal: false }) // '一百二十三' (common)
-
-zhHant(123)                    // '壹佰貳拾參' (formal, default)
-zhHant(123, { formal: false }) // '一百二十三' (common)
-```
-
-#### Other Options
-
-| Language | Option | Type | Description |
-| -------- | ------ | ---- | ----------- |
-| Arabic | `negativeWord` | `string` | Custom word for negative numbers |
-| Dutch | `includeOptionalAnd` | `boolean` | Include "en" between tens and units |
-| Dutch | `accentOne` | `boolean` | Use "één" instead of "een" |
-| Dutch | `noHundredPairing` | `boolean` | Disable hundred-pairing (e.g., "twaalfhonderd") |
-| French | `withHyphenSeparator` | `boolean` | Use hyphens between all words (modern spelling) |
-| Belgian French | `withHyphenSeparator` | `boolean` | Use hyphens between all words (modern spelling) |
-| Hebrew | `andWord` | `boolean` | Include "ve" (and) between number parts |
-| Biblical Hebrew | `andWord` | `boolean` | Include "ve" (and) between number parts |
-| Turkish | `dropSpaces` | `boolean` | Remove spaces between words |
+Highlights: Arabic, Chinese (Simplified/Traditional), English, French, German, Hindi, Japanese, Korean, Portuguese, Russian, Spanish, and [42 more](LANGUAGES.md).
 
 ## Browser Compatibility
 

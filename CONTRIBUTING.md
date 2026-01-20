@@ -18,7 +18,15 @@ npm test
 3. Commit using [Conventional Commits](https://www.conventionalcommits.org/): `git commit -m "feat(lang): add Korean"`
 4. Push and open PR targeting `main`
 
-**Commit types:** `feat`, `fix`, `perf`, `docs`, `refactor`, `test`, `chore`
+**Common commit formats:**
+
+- `feat(lang): add Korean` — new language
+- `fix(en): correct thousand handling` — language-specific fix
+- `perf(ja): optimize BigInt handling` — performance improvement
+- `refactor(core): simplify exports` — code refactoring
+- `docs: update README` — documentation
+
+See [.commitlintrc.mjs](.commitlintrc.mjs) for the full list of types and scopes.
 
 ## Adding a New Language
 
@@ -31,8 +39,6 @@ This scaffolds all required files. Then:
 1. Implement `toWords(value)` in `src/<code>.js`
 2. Add test cases to `test/fixtures/<code>.js`
 3. Run `npm test`
-
-See [scripts/README.md](scripts/README.md) for implementation patterns.
 
 ## Code Style
 

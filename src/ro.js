@@ -126,16 +126,16 @@ function buildScalePhrase (segment, scaleIndex) {
  * @param {Object} options - Conversion options
  * @returns {string} Romanian words
  */
-function integerToWords (n, options = {}) {
+function integerToWords (n, gender) {
   if (n === 0n) return ZERO
 
   // Fast path: numbers < 1000
   if (n < 1000n) {
-    const feminine = options.gender === 'feminine'
+    const feminine = gender === 'feminine'
     return spellUnder1000(Number(n), feminine)
   }
 
-  return buildLargeNumberWords(n, options)
+  return buildLargeNumberWords(n, gender)
 }
 
 /**
@@ -146,7 +146,7 @@ function integerToWords (n, options = {}) {
  * @param {Object} options - Conversion options
  * @returns {string} Romanian words
  */
-function buildLargeNumberWords (n, options) {
+function buildLargeNumberWords (n, gender) {
   // Extract segments using BigInt division (faster than string slicing)
   // Segments stored least-significant first (index 0 = ones, 1 = thousands, etc.)
   const segmentValues = []
@@ -166,7 +166,7 @@ function buildLargeNumberWords (n, options) {
     let segmentWords
     if (i === 0) {
       // Units segment - use gender from options
-      const feminine = options.gender === 'feminine'
+      const feminine = gender === 'feminine'
       segmentWords = spellUnder1000(segment, feminine)
     } else {
       // Scale segment
@@ -235,13 +235,16 @@ function toWords (value, options) {
   options = validateOptions(options)
   const { isNegative, integerPart, decimalPart } = parseNumericValue(value)
 
+  // Apply option defaults
+  const { gender = 'masculine' } = options
+
   let result = ''
 
   if (isNegative) {
     result = NEGATIVE + ' '
   }
 
-  result += integerToWords(integerPart, options)
+  result += integerToWords(integerPart, gender)
 
   if (decimalPart) {
     result += ' ' + DECIMAL_SEP + ' ' + decimalPartToWords(decimalPart)

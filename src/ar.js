@@ -97,10 +97,9 @@ function segmentToWords (groupNumber, groupLevel, fullNumber, ones) {
   return result
 }
 
-function integerToWords (n, options) {
+function integerToWords (n, gender) {
   if (n === 0n) return ZERO
 
-  const gender = options.gender || 'masculine'
   const ones = gender === 'feminine' ? ONES_FEM : ONES_MASC
 
   let temp = n
@@ -148,7 +147,7 @@ function integerToWords (n, options) {
   return result
 }
 
-function decimalPartToWords (decimalPart, options) {
+function decimalPartToWords (decimalPart, gender) {
   const parts = []
   let i = 0
 
@@ -159,7 +158,7 @@ function decimalPartToWords (decimalPart, options) {
 
   const remainder = decimalPart.slice(i)
   if (remainder) {
-    parts.push(integerToWords(BigInt(remainder), options))
+    parts.push(integerToWords(BigInt(remainder), gender))
   }
 
   return parts.join(' ')
@@ -182,17 +181,23 @@ function toWords (value, options) {
   options = validateOptions(options)
   const { isNegative, integerPart, decimalPart } = parseNumericValue(value)
 
+  // Apply option defaults
+  const {
+    gender = 'masculine',
+    negativeWord = NEGATIVE
+  } = options
+
   const parts = []
 
   if (isNegative) {
-    parts.push(options.negativeWord || NEGATIVE)
+    parts.push(negativeWord)
   }
 
-  parts.push(integerToWords(integerPart, options))
+  parts.push(integerToWords(integerPart, gender))
 
   if (decimalPart) {
     parts.push(DECIMAL_SEP)
-    parts.push(decimalPartToWords(decimalPart, options))
+    parts.push(decimalPartToWords(decimalPart, gender))
   }
 
   return parts.join(' ')

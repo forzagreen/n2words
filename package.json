@@ -85,6 +85,7 @@
     "clean:dist": "rimraf dist",
     "clean:types": "rimraf \"src/**/*.d.ts\" \"index.d.ts\" --glob",
     "coverage": "c8 npm test",
+    "docs:languages": "node scripts/generate-languages-md.js",
     "lang:add": "node scripts/add-language.js",
     "lint": "npm run lint:js && npm run lint:md",
     "lint:fix": "npm run lint:js -- --fix && npm run lint:md -- --fix",

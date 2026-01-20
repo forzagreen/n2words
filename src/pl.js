@@ -159,12 +159,12 @@ function pluralize (n, forms) {
  * @param {Object} options - Conversion options
  * @returns {string} Polish words
  */
-function integerToWords (n, options = {}) {
+function integerToWords (n, gender) {
   if (n === 0n) return ZERO
 
   // Fast path: numbers < 1000
   if (n < 1000n) {
-    return options.gender === 'feminine' ? buildSegmentFeminine(Number(n)) : buildSegment(Number(n))
+    return gender === 'feminine' ? buildSegmentFeminine(Number(n)) : buildSegment(Number(n))
   }
 
   // Fast path: numbers < 1,000,000 (thousands)
@@ -190,7 +190,7 @@ function integerToWords (n, options = {}) {
   }
 
   // For numbers >= 1,000,000, use scale decomposition
-  return buildLargeNumberWords(n, options)
+  return buildLargeNumberWords(n, gender)
 }
 
 /**
@@ -201,7 +201,7 @@ function integerToWords (n, options = {}) {
  * @param {Object} options - Conversion options
  * @returns {string} Polish words
  */
-function buildLargeNumberWords (n, options) {
+function buildLargeNumberWords (n, gender) {
   // Extract segments using BigInt division (faster than string slicing)
   // Segments stored least-significant first (index 0 = ones, 1 = thousands, etc.)
   const segmentValues = []
@@ -251,7 +251,7 @@ function buildLargeNumberWords (n, options) {
  * @param {Object} options - Conversion options
  * @returns {string} Polish words for decimal part
  */
-function decimalPartToWords (decimalPart, options) {
+function decimalPartToWords (decimalPart, gender) {
   let result = ''
 
   // Handle leading zeros
@@ -266,7 +266,7 @@ function decimalPartToWords (decimalPart, options) {
   const remainder = decimalPart.slice(i)
   if (remainder) {
     if (result) result += ' '
-    result += integerToWords(BigInt(remainder), options)
+    result += integerToWords(BigInt(remainder), gender)
   }
 
   return result
@@ -295,16 +295,19 @@ function toWords (value, options) {
   options = validateOptions(options)
   const { isNegative, integerPart, decimalPart } = parseNumericValue(value)
 
+  // Apply option defaults
+  const { gender = 'masculine' } = options
+
   let result = ''
 
   if (isNegative) {
     result = NEGATIVE + ' '
   }
 
-  result += integerToWords(integerPart, options)
+  result += integerToWords(integerPart, gender)
 
   if (decimalPart) {
-    result += ' ' + DECIMAL_SEP + ' ' + decimalPartToWords(decimalPart, options)
+    result += ' ' + DECIMAL_SEP + ' ' + decimalPartToWords(decimalPart, gender)
   }
 
   return result

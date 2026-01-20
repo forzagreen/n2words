@@ -145,13 +145,11 @@ function buildUnitsSegment (n, andWord) {
  * Converts a non-negative integer to Hebrew words.
  *
  * @param {bigint} n - Non-negative integer to convert
- * @param {Object} options - Conversion options
+ * @param {string} andWord - Conjunction word
  * @returns {string} Hebrew words
  */
-function integerToWords (n, options) {
+function integerToWords (n, andWord) {
   if (n === 0n) return ZERO
-
-  const andWord = options.andWord ?? 'ו'
 
   // Fast path: numbers < 1000
   if (n < 1000n) {
@@ -236,12 +234,15 @@ function decimalPartToWords (decimalPart) {
  * @param {number | string | bigint} value - The numeric value to convert
  * @param {Object} [options] - Optional configuration
  * @param {('masculine'|'feminine')} [options.gender='masculine'] - Grammatical gender
- * @param {string} [options.andWord] - Custom conjunction word
+ * @param {string} [options.andWord='ו'] - Custom conjunction word
  * @returns {string} The number in Modern Hebrew words
  */
 function toWords (value, options) {
   options = validateOptions(options)
   const { isNegative, integerPart, decimalPart } = parseNumericValue(value)
+
+  // Apply option defaults
+  const { andWord = 'ו' } = options
 
   let result = ''
 
@@ -249,7 +250,7 @@ function toWords (value, options) {
     result = NEGATIVE + ' '
   }
 
-  result += integerToWords(integerPart, options)
+  result += integerToWords(integerPart, andWord)
 
   if (decimalPart) {
     result += ' ' + DECIMAL_SEP + ' ' + decimalPartToWords(decimalPart)

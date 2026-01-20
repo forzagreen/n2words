@@ -154,11 +154,9 @@ function buildUnitsSegment (n, andWord, ONES, TEENS, HUNDREDS_ARR) {
  * @param {Object} options - Conversion options
  * @returns {string} Biblical Hebrew words
  */
-function integerToWords (n, options) {
+function integerToWords (n, gender, andWord) {
   if (n === 0n) return ZERO
 
-  const andWord = options.andWord ?? 'ו'
-  const gender = options.gender || 'masculine'
   const isFeminine = gender === 'feminine'
 
   // Select vocabulary based on gender
@@ -233,8 +231,7 @@ function integerToWords (n, options) {
  * @param {Object} options - Conversion options
  * @returns {string} Biblical Hebrew words for decimal part
  */
-function decimalPartToWords (decimalPart, options) {
-  const gender = options.gender || 'masculine'
+function decimalPartToWords (decimalPart, gender, andWord) {
   const ONES = gender === 'feminine' ? ONES_FEM : ONES_MASC
 
   let result = ''
@@ -253,12 +250,18 @@ function decimalPartToWords (decimalPart, options) {
  * @param {number | string | bigint} value - The numeric value to convert
  * @param {Object} [options] - Optional configuration
  * @param {('masculine'|'feminine')} [options.gender='masculine'] - Grammatical gender
- * @param {string} [options.andWord] - Custom conjunction word
+ * @param {string} [options.andWord='ו'] - Custom conjunction word
  * @returns {string} The number in Biblical Hebrew words
  */
 function toWords (value, options) {
   options = validateOptions(options)
   const { isNegative, integerPart, decimalPart } = parseNumericValue(value)
+
+  // Apply option defaults
+  const {
+    gender = 'masculine',
+    andWord = 'ו'
+  } = options
 
   let result = ''
 
@@ -266,10 +269,10 @@ function toWords (value, options) {
     result = NEGATIVE + ' '
   }
 
-  result += integerToWords(integerPart, options)
+  result += integerToWords(integerPart, gender, andWord)
 
   if (decimalPart) {
-    result += ' ' + DECIMAL_SEP + ' ' + decimalPartToWords(decimalPart, options)
+    result += ' ' + DECIMAL_SEP + ' ' + decimalPartToWords(decimalPart, gender, andWord)
   }
 
   return result

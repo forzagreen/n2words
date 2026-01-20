@@ -19,6 +19,7 @@
  *   npm run lang:add ta        # Tamil
  */
 
+import { execSync } from 'node:child_process'
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import * as readline from 'node:readline/promises'
 import chalk from 'chalk'
@@ -361,6 +362,10 @@ async function main () {
   console.log(chalk.gray('Updating test/types/languages.test-d.ts...'))
   updateLanguagesTypeTest(code, normalized)
   console.log(chalk.green('✓ Updated type tests'))
+
+  // Regenerate LANGUAGES.md
+  console.log(chalk.gray('Regenerating LANGUAGES.md...'))
+  execSync('node scripts/generate-languages-md.js', { stdio: 'inherit' })
 
   // Success message
   console.log(chalk.green(`\n✓ Successfully scaffolded ${code} language`))
