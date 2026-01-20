@@ -84,7 +84,7 @@
     "clean:artifacts": "rimraf coverage .nyc_output",
     "clean:dist": "rimraf dist",
     "clean:types": "rimraf \"src/**/*.d.ts\" \"index.d.ts\" --glob",
-    "coverage": "c8 npm test",
+    "coverage": "c8 npm run test:unit",
     "docs:languages": "node scripts/generate-languages-md.js",
     "lang:add": "node scripts/add-language.js",
     "lint": "npm run lint:js && npm run lint:md",
@@ -92,12 +92,12 @@
     "lint:js": "standard",
     "lint:md": "markdownlint-cli2",
     "prepare:husky": "husky",
-    "test": "ava \"test/*.test.js\" \"test/utils/*.test.js\"",
-    "test:all": "npm test && npm run build && npm run test:types:run && npm run test:exports:run",
+    "test": "npm run test:unit && npm run build:types && npm run test:types:run && npm run test:exports:run",
     "test:exports": "npm run build:types && npm run test:exports:run",
     "test:exports:run": "attw --pack .",
     "test:types": "npm run build:types && npm run test:types:run",
-    "test:types:run": "tsd --files test/types.test-d.ts"
+    "test:types:run": "tsd --files test/types.test-d.ts",
+    "test:unit": "ava \"test/*.test.js\" \"test/utils/*.test.js\""
   },
   "ava": {
     "extensions": [
