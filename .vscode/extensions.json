@@ -3,10 +3,7 @@
     "editorconfig.editorconfig",
     "davidanson.vscode-markdownlint",
     "standard.vscode-standard",
-    "VisualStudioExptTeam.vscodeintellicode",
-    "ms-playwright.playwright",
-    "vivaxy.vscode-conventional-commits",
-    "usernamehw.errorlens"
+    "vivaxy.vscode-conventional-commits"
   ],
   "unwantedRecommendations": [
     "prettier.prettier-vscode",
