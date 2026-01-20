@@ -36,6 +36,11 @@ const ZERO = 'zero'
 const NEGATIVE = 'minus'
 const DECIMAL_SEP = 'point'
 
+// Ordinal vocabulary
+const ORDINAL_ONES = ['', 'first', 'second', 'third', 'fourth', 'fifth', 'sixth', 'seventh', 'eighth', 'ninth']
+const ORDINAL_TEENS = ['tenth', 'eleventh', 'twelfth', 'thirteenth', 'fourteenth', 'fifteenth', 'sixteenth', 'seventeenth', 'eighteenth', 'nineteenth']
+const ORDINAL_TENS = ['', '', 'twentieth', 'thirtieth', 'fortieth', 'fiftieth', 'sixtieth', 'seventieth', 'eightieth', 'ninetieth']
+
 // ============================================================================
 // Segment Building
 // ============================================================================
@@ -286,7 +291,118 @@ function toWords (value, options) {
 }
 
 // ============================================================================
+// Ordinal Conversion
+// ============================================================================
+
+/**
+ * Converts cardinal words to ordinal form.
+ * Only the final word is converted (e.g., "twenty-one" → "twenty-first").
+ *
+ * @param {string} cardinal - Cardinal number words
+ * @returns {string} Ordinal number words
+ */
+function cardinalToOrdinal (cardinal) {
+  // Handle hyphenated compounds (e.g., "twenty-one" → "twenty-first")
+  const lastSpaceIdx = cardinal.lastIndexOf(' ')
+  const lastHyphenIdx = cardinal.lastIndexOf('-')
+  const splitIdx = Math.max(lastSpaceIdx, lastHyphenIdx)
+
+  let prefix = ''
+  let lastWord = cardinal
+  let separator = ''
+
+  if (splitIdx !== -1) {
+    prefix = cardinal.slice(0, splitIdx)
+    separator = cardinal[splitIdx]
+    lastWord = cardinal.slice(splitIdx + 1)
+  }
+
+  // Convert the last word to ordinal
+  let ordinalWord
+
+  // Check ones (one → first, two → second, etc.)
+  const onesIdx = ONES.indexOf(lastWord)
+  if (onesIdx !== -1) {
+    ordinalWord = ORDINAL_ONES[onesIdx]
+  }
+
+  // Check teens (ten → tenth, eleven → eleventh, etc.)
+  if (!ordinalWord) {
+    const teensIdx = TEENS.indexOf(lastWord)
+    if (teensIdx !== -1) {
+      ordinalWord = ORDINAL_TEENS[teensIdx]
+    }
+  }
+
+  // Check tens (twenty → twentieth, thirty → thirtieth, etc.)
+  if (!ordinalWord) {
+    const tensIdx = TENS.indexOf(lastWord)
+    if (tensIdx !== -1) {
+      ordinalWord = ORDINAL_TENS[tensIdx]
+    }
+  }
+
+  // Check scales and hundred (thousand → thousandth, million → millionth, etc.)
+  if (!ordinalWord) {
+    if (lastWord === HUNDRED) {
+      ordinalWord = 'hundredth'
+    } else {
+      const scaleIdx = SCALES.indexOf(lastWord)
+      if (scaleIdx !== -1) {
+        ordinalWord = lastWord + 'th'
+      }
+    }
+  }
+
+  // Fallback: append "th" (shouldn't normally happen)
+  if (!ordinalWord) {
+    ordinalWord = lastWord + 'th'
+  }
+
+  return prefix ? prefix + separator + ordinalWord : ordinalWord
+}
+
+/**
+ * Converts a numeric value to American English ordinal words.
+ *
+ * @param {number | string | bigint} value - The numeric value to convert (must be a positive integer)
+ * @returns {string} The number as ordinal words (e.g., "first", "forty-second")
+ * @throws {TypeError} If value is not a valid numeric type
+ * @throws {RangeError} If value is negative, zero, or has a decimal part
+ *
+ * @example
+ * toOrdinal(1)    // 'first'
+ * toOrdinal(2)    // 'second'
+ * toOrdinal(3)    // 'third'
+ * toOrdinal(21)   // 'twenty-first'
+ * toOrdinal(42)   // 'forty-second'
+ * toOrdinal(100)  // 'one hundredth'
+ * toOrdinal(101)  // 'one hundred first'
+ * toOrdinal(1000) // 'one thousandth'
+ */
+function toOrdinal (value) {
+  const { isNegative, integerPart, decimalPart } = parseNumericValue(value)
+
+  // Ordinals only make sense for positive integers
+  if (isNegative) {
+    throw new RangeError('Ordinals cannot be negative')
+  }
+  if (decimalPart) {
+    throw new RangeError('Ordinals must be whole numbers')
+  }
+  if (integerPart === 0n) {
+    throw new RangeError('Ordinals cannot be zero')
+  }
+
+  // Get cardinal form first
+  const cardinal = integerToWords(integerPart, false, false)
+
+  // Convert to ordinal
+  return cardinalToOrdinal(cardinal)
+}
+
+// ============================================================================
 // Public API
 // ============================================================================
 
-export { toWords }
+export { toWords, toOrdinal }

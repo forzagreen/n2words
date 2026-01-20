@@ -172,7 +172,18 @@
 
       test('Multiple bundles extend the same global', () => {
         const keys = Object.keys(window.n2words)
-        return keys.length === 3 && keys.includes('enUS') && keys.includes('fr') && keys.includes('zhHans')
+        // Should have: enUS, fr, zhHans, and ordinal (from en-US)
+        return keys.includes('enUS') && keys.includes('fr') && keys.includes('zhHans')
+      })
+
+      test('Ordinal namespace is available for en-US', () => {
+        return typeof window.n2words.ordinal === 'object' &&
+               typeof window.n2words.ordinal.enUS === 'function'
+      })
+
+      test('Ordinal converter returns correct result', () => {
+        const result = window.n2words.ordinal.enUS(42)
+        return result === 'forty-second'
       })
 
       test('American English converter returns correct result', () => {
