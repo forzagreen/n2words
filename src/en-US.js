@@ -1,7 +1,9 @@
 /**
- * American English language converter - Functional Implementation
+ * American English language converter
  *
- * Self-contained module with its own input validation, ready for subpath exports.
+ * Exports:
+ * - toWords(value, options?)  - Cardinal numbers: 42 → "forty-two"
+ * - toOrdinal(value)          - Ordinal numbers: 42 → "forty-second"
  *
  * American English conventions:
  * - No "and" after hundreds: "one hundred twenty-three" (default)
@@ -16,13 +18,13 @@ import { parseNumericValue } from './utils/parse-numeric.js'
 import { validateOptions } from './utils/validate-options.js'
 
 // ============================================================================
-// Vocabulary (module-level constants)
+// VOCABULARY
 // ============================================================================
 
+// Cardinal vocabulary
 const ONES = ['', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine']
 const TEENS = ['ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen']
 const TENS = ['', '', 'twenty', 'thirty', 'forty', 'fifty', 'sixty', 'seventy', 'eighty', 'ninety']
-
 const SCALES = [
   'thousand', 'million', 'billion', 'trillion', 'quadrillion',
   'quintillion', 'sextillion', 'septillion', 'octillion', 'nonillion',
@@ -30,7 +32,6 @@ const SCALES = [
   'quindecillion', 'sexdecillion', 'septendecillion', 'octodecillion', 'novemdecillion',
   'vigintillion'
 ]
-
 const HUNDRED = 'hundred'
 const ZERO = 'zero'
 const NEGATIVE = 'minus'
@@ -42,7 +43,7 @@ const ORDINAL_TEENS = ['tenth', 'eleventh', 'twelfth', 'thirteenth', 'fourteenth
 const ORDINAL_TENS = ['', '', 'twentieth', 'thirtieth', 'fortieth', 'fiftieth', 'sixtieth', 'seventieth', 'eightieth', 'ninetieth']
 
 // ============================================================================
-// Segment Building
+// SHARED HELPERS
 // ============================================================================
 
 // Reusable result object to avoid allocation per call
@@ -94,7 +95,7 @@ function buildSegment (n, useAnd) {
 }
 
 // ============================================================================
-// Conversion Functions
+// CARDINAL: toWords(value, options?)
 // ============================================================================
 
 /**
@@ -291,7 +292,7 @@ function toWords (value, options) {
 }
 
 // ============================================================================
-// Ordinal Conversion (Direct Generation)
+// ORDINAL: toOrdinal(value)
 // ============================================================================
 
 /**
@@ -463,7 +464,7 @@ function toOrdinal (value) {
 }
 
 // ============================================================================
-// Public API
+// EXPORTS
 // ============================================================================
 
 export { toWords, toOrdinal }
