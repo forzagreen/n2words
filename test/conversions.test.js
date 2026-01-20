@@ -7,20 +7,46 @@ import { isValidNumericInput, safeStringify } from './helpers/value-utils.js'
 /**
  * Number Conversion Tests
  *
- * Tests all conversion forms (cardinal, ordinal) for each language.
+ * Tests all conversion forms (cardinal, ordinal, etc.) for each language.
  * Uses fixture files with named exports for each form.
  *
  * Fixture format (test/fixtures/{code}.js):
  *   export const cardinal = [[input, expected, options?], ...]
- *   export const ordinal = [[input, expected], ...]
+ *   export const ordinal = [[input, expected, options?], ...]
  *
  * Validates:
- * - Fixture test cases (input → expected output)
  * - BCP 47 file naming convention
- * - Function exports exist
- * - Basic sanity checks
- * - JSDoc annotations for TypeScript declaration generation
+ * - Fixture ↔ export cross-validation
+ * - JSDoc annotations per exported function
+ * - Fixture test cases (input → expected output)
  */
+
+// ============================================================================
+// Form Configuration
+// ============================================================================
+
+/**
+ * Supported conversion forms and their configurations.
+ * Adding a new form only requires adding an entry here.
+ */
+const FORMS = {
+  cardinal: {
+    functionName: 'toCardinal',
+    allowOptions: true,
+    errorCases: null // No standard error cases for cardinal
+  },
+  ordinal: {
+    functionName: 'toOrdinal',
+    allowOptions: true, // Allow options for future ordinal implementations
+    errorCases: [
+      { input: 0, error: RangeError, desc: 'toOrdinal(0) should throw RangeError' },
+      { input: -1, error: RangeError, desc: 'toOrdinal(-1) should throw RangeError' },
+      { input: 1.5, error: RangeError, desc: 'toOrdinal(1.5) should throw RangeError' }
+    ]
+  }
+  // Future forms can be added here:
+  // currency: { functionName: 'toCurrency', allowOptions: true, errorCases: null }
+}
 
 // ============================================================================
 // Fixture Validation
@@ -98,6 +124,61 @@ function validateFixture (testCases, languageCode, form, allowOptions = true) {
 }
 
 // ============================================================================
+// JSDoc Validation
+// ============================================================================
+
+/**
+ * Extracts the JSDoc block directly preceding a function declaration.
+ *
+ * @param {string} content File content
+ * @param {string} functionName Function name to find
+ * @returns {string|null} JSDoc block or null if not found
+ */
+function getJSDocForFunction (content, functionName) {
+  const funcPattern = new RegExp(`function\\s+${functionName}\\s*\\(`)
+  const funcMatch = funcPattern.exec(content)
+  if (!funcMatch) return null
+
+  const beforeFunc = content.substring(0, funcMatch.index)
+  const jsdocPattern = /\/\*\*[\s\S]*?\*\//g
+  let lastJsdoc = null
+  let match
+  while ((match = jsdocPattern.exec(beforeFunc)) !== null) {
+    lastJsdoc = match[0]
+  }
+
+  return lastJsdoc
+}
+
+/**
+ * Validates JSDoc structure for a conversion function.
+ *
+ * @param {string} jsdoc JSDoc content
+ * @param {string} functionName Function name for error messages
+ * @returns {{valid: boolean, errors: string[]}} Validation result
+ */
+function validateJSDoc (jsdoc, functionName) {
+  const errors = []
+
+  if (!jsdoc) {
+    errors.push(`${functionName} is missing JSDoc`)
+    return { valid: false, errors }
+  }
+
+  // Check for @param with value type
+  if (!/@param\s+\{number\s*\|\s*string\s*\|\s*bigint\}\s+value/.test(jsdoc)) {
+    errors.push(`${functionName} should have @param {number | string | bigint} value`)
+  }
+
+  // Check for @returns with string type
+  if (!/@returns\s+\{string\}/.test(jsdoc)) {
+    errors.push(`${functionName} should have @returns {string}`)
+  }
+
+  return { valid: errors.length === 0, errors }
+}
+
+// ============================================================================
 // Test Runner
 // ============================================================================
 
@@ -135,106 +216,138 @@ function runTestCases (t, fn, testCases, form) {
 // Language Tests
 // ============================================================================
 
-const files = readdirSync('./test/fixtures').filter(f => f.endsWith('.js'))
+const fixtureFiles = readdirSync('./test/fixtures').filter(f => f.endsWith('.js'))
 
-for (const file of files) {
+for (const file of fixtureFiles) {
   const languageCode = file.replace('.js', '')
 
   test(languageCode, async t => {
-    // Import language module
+    // Import modules
     const languageModule = await import('../src/' + file)
-
-    // Import fixture module
     const fixtureModule = await import('./fixtures/' + file)
+    const fileContent = readFileSync(`./src/${file}`, 'utf8')
 
     // ========================================================================
-    // Cardinal Tests
+    // BCP 47 Validation
     // ========================================================================
 
-    if (fixtureModule.cardinal) {
-      // Verify toCardinal export exists
-      if (typeof languageModule.toCardinal !== 'function') {
-        t.fail(`${file} has cardinal fixtures but does not export toCardinal`)
-        return
-      }
-
-      const validation = validateFixture(fixtureModule.cardinal, languageCode, 'cardinal')
-      if (!validation.valid) {
-        t.fail(validation.error)
-        return
-      }
-
-      runTestCases(t, languageModule.toCardinal, fixtureModule.cardinal, 'cardinal')
-
-      // Coverage warning
-      if (fixtureModule.cardinal.length < 25) {
-        t.log(`Warning: ${languageCode} has only ${fixtureModule.cardinal.length} cardinal test cases.`)
-      }
-
-      // Basic sanity check
-      const zeroResult = languageModule.toCardinal(0)
-      t.is(typeof zeroResult, 'string', 'toCardinal(0) should return a string')
-      t.true(zeroResult.length > 0, 'toCardinal(0) should return a non-empty string')
-    }
-
-    // ========================================================================
-    // Ordinal Tests
-    // ========================================================================
-
-    if (fixtureModule.ordinal) {
-      // Verify toOrdinal export exists
-      if (typeof languageModule.toOrdinal !== 'function') {
-        t.fail(`${file} has ordinal fixtures but does not export toOrdinal`)
-        return
-      }
-
-      const validation = validateFixture(fixtureModule.ordinal, languageCode, 'ordinal', false)
-      if (!validation.valid) {
-        t.fail(validation.error)
-        return
-      }
-
-      runTestCases(t, languageModule.toOrdinal, fixtureModule.ordinal, 'ordinal')
-
-      // Test ordinal error cases
-      t.throws(() => languageModule.toOrdinal(0), { instanceOf: RangeError }, 'toOrdinal(0) should throw RangeError')
-      t.throws(() => languageModule.toOrdinal(-1), { instanceOf: RangeError }, 'toOrdinal(-1) should throw RangeError')
-      t.throws(() => languageModule.toOrdinal(1.5), { instanceOf: RangeError }, 'toOrdinal(1.5) should throw RangeError')
-    }
-
-    // ========================================================================
-    // Structural Validation
-    // ========================================================================
-
-    // Valid BCP 47 language code
     t.true(
       isValidLanguageCode(languageCode),
       `${languageCode} should be a valid BCP 47 tag`
     )
 
-    // JSDoc validation - check toCardinal has proper type annotations
-    const fileContent = readFileSync(`./src/${file}`, 'utf8')
+    // ========================================================================
+    // Form Tests (driven by FORMS config)
+    // ========================================================================
 
-    // Check for @param with value type
-    t.regex(
-      fileContent,
-      /@param\s+\{number\s*\|\s*string\s*\|\s*bigint\}\s+value/,
-      'toCardinal should have @param {number | string | bigint} value JSDoc'
-    )
+    let hasAtLeastOneForm = false
 
-    // Check for @returns with string type
-    t.regex(
-      fileContent,
-      /@returns\s+\{string\}/,
-      'Should have @returns {string} JSDoc'
-    )
+    for (const [formName, config] of Object.entries(FORMS)) {
+      const fixtureData = fixtureModule[formName]
+      const fn = languageModule[config.functionName]
+
+      // Skip if no fixture for this form
+      if (!fixtureData) continue
+
+      hasAtLeastOneForm = true
+
+      // ----------------------------------------------------------------------
+      // Export Validation
+      // ----------------------------------------------------------------------
+
+      if (typeof fn !== 'function') {
+        t.fail(`${file} has ${formName} fixtures but does not export ${config.functionName}`)
+        continue
+      }
+
+      // ----------------------------------------------------------------------
+      // JSDoc Validation
+      // ----------------------------------------------------------------------
+
+      const jsdoc = getJSDocForFunction(fileContent, config.functionName)
+      const jsdocValidation = validateJSDoc(jsdoc, config.functionName)
+      if (!jsdocValidation.valid) {
+        for (const error of jsdocValidation.errors) {
+          t.fail(`${languageCode}: ${error}`)
+        }
+      }
+
+      // ----------------------------------------------------------------------
+      // Fixture Validation
+      // ----------------------------------------------------------------------
+
+      const validation = validateFixture(fixtureData, languageCode, formName, config.allowOptions)
+      if (!validation.valid) {
+        t.fail(validation.error)
+        continue
+      }
+
+      // ----------------------------------------------------------------------
+      // Conversion Tests
+      // ----------------------------------------------------------------------
+
+      runTestCases(t, fn, fixtureData, formName)
+
+      // Coverage warning
+      if (fixtureData.length < 25) {
+        t.log(`Warning: ${languageCode} has only ${fixtureData.length} ${formName} test cases.`)
+      }
+
+      // ----------------------------------------------------------------------
+      // Error Cases (form-specific)
+      // ----------------------------------------------------------------------
+
+      if (config.errorCases) {
+        for (const { input, error, desc } of config.errorCases) {
+          t.throws(() => fn(input), { instanceOf: error }, desc)
+        }
+      }
+    }
+
+    // ========================================================================
+    // Fixture ↔ Export Cross-validation
+    // ========================================================================
+
+    // Ensure at least one form is tested
+    t.true(hasAtLeastOneForm, `${languageCode} fixture must export at least one form (cardinal, ordinal, etc.)`)
+
+    // Check for exports without fixtures (potential untested code)
+    for (const [formName, config] of Object.entries(FORMS)) {
+      const fn = languageModule[config.functionName]
+      const fixtureData = fixtureModule[formName]
+
+      if (typeof fn === 'function' && !fixtureData) {
+        t.fail(`${languageCode} exports ${config.functionName} but fixture is missing ${formName} test cases`)
+      }
+    }
   })
 }
 
+// ============================================================================
+// Structural Tests
+// ============================================================================
+
 test('all language files have test fixtures', t => {
-  const languageFiles = readdirSync('./src').filter(f => f.endsWith('.js'))
-  const fixtureFiles = readdirSync('./test/fixtures').filter(f => f.endsWith('.js'))
+  const languageFiles = readdirSync('./src')
+    .filter(f => f.endsWith('.js') && !f.startsWith('utils'))
 
   const missingFixtures = languageFiles.filter(f => !fixtureFiles.includes(f))
   t.deepEqual(missingFixtures, [], `Missing test fixtures for: ${missingFixtures.join(', ')}`)
+})
+
+test('all fixture files have language modules', t => {
+  const languageFiles = readdirSync('./src')
+    .filter(f => f.endsWith('.js') && !f.startsWith('utils'))
+
+  const missingModules = fixtureFiles.filter(f => !languageFiles.includes(f))
+  t.deepEqual(missingModules, [], `Fixture files without language modules: ${missingModules.join(', ')}`)
+})
+
+test('all language files use valid BCP 47 codes', t => {
+  const languageFiles = readdirSync('./src')
+    .filter(f => f.endsWith('.js') && !f.startsWith('utils'))
+    .map(f => f.replace('.js', ''))
+
+  const invalidCodes = languageFiles.filter(code => !isValidLanguageCode(code))
+  t.deepEqual(invalidCodes, [], `Invalid BCP 47 codes: ${invalidCodes.join(', ')}`)
 })
