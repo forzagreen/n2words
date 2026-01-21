@@ -6,7 +6,8 @@
  * - Input validation
  */
 
-import { parseNumericValue } from '../../src/utils/parse-numeric.js'
+import { parseCardinalValue } from '../../src/utils/parse-cardinal.js'
+import { parseOrdinalValue } from '../../src/utils/parse-ordinal.js'
 
 /**
  * Safely stringify a value for error messages.
@@ -34,14 +35,30 @@ export function safeStringify (value) {
 }
 
 /**
- * Checks if a value is valid input for parseNumericValue.
+ * Checks if a value is valid input for cardinal conversion.
  *
  * @param {*} value Value to check
- * @returns {boolean} True if value is valid numeric input
+ * @returns {boolean} True if value is valid cardinal input
  */
-export function isValidNumericInput (value) {
+export function isValidCardinalInput (value) {
   try {
-    parseNumericValue(value)
+    parseCardinalValue(value)
+    return true
+  } catch {
+    return false
+  }
+}
+
+/**
+ * Checks if a value is valid input for ordinal conversion.
+ * Ordinals require positive integers (no zero, negative, or decimals).
+ *
+ * @param {*} value Value to check
+ * @returns {boolean} True if value is valid ordinal input
+ */
+export function isValidOrdinalInput (value) {
+  try {
+    parseOrdinalValue(value)
     return true
   } catch {
     return false

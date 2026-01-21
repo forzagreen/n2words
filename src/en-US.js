@@ -2,7 +2,7 @@
  * American English language converter
  *
  * Exports:
- * - toWords(value, options?)  - Cardinal numbers: 42 → "forty-two"
+ * - toCardinal(value, options?)  - Cardinal numbers: 42 → "forty-two"
  * - toOrdinal(value)          - Ordinal numbers: 42 → "forty-second"
  *
  * American English conventions:
@@ -14,7 +14,8 @@
  * - Optional "and" insertion: 101 → "one hundred and one" (informal)
  */
 
-import { parseNumericValue } from './utils/parse-numeric.js'
+import { parseCardinalValue } from './utils/parse-cardinal.js'
+import { parseOrdinalValue } from './utils/parse-ordinal.js'
 import { validateOptions } from './utils/validate-options.js'
 
 // ============================================================================
@@ -95,7 +96,7 @@ function buildSegment (n, useAnd) {
 }
 
 // ============================================================================
-// CARDINAL: toWords(value, options?)
+// CARDINAL: toCardinal(value, options?)
 // ============================================================================
 
 /**
@@ -263,15 +264,15 @@ function decimalPartToWords (decimalPart, useAnd) {
  * @throws {Error} If value is not a valid number format
  *
  * @example
- * toWords(42)                            // 'forty-two'
- * toWords(101)                           // 'one hundred one'
- * toWords(101, { and: true })            // 'one hundred and one'
- * toWords(1500)                          // 'one thousand five hundred'
- * toWords(1500, { hundredPairing: true }) // 'fifteen hundred'
+ * toCardinal(42)                            // 'forty-two'
+ * toCardinal(101)                           // 'one hundred one'
+ * toCardinal(101, { and: true })            // 'one hundred and one'
+ * toCardinal(1500)                          // 'one thousand five hundred'
+ * toCardinal(1500, { hundredPairing: true }) // 'fifteen hundred'
  */
-function toWords (value, options) {
+function toCardinal (value, options) {
   options = validateOptions(options)
-  const { isNegative, integerPart, decimalPart } = parseNumericValue(value)
+  const { isNegative, integerPart, decimalPart } = parseCardinalValue(value)
 
   // Extract options with defaults
   const { hundredPairing = false, and: useAnd = false } = options
@@ -447,19 +448,7 @@ function buildLargeOrdinal (n) {
  * toOrdinal(1000) // 'one thousandth'
  */
 function toOrdinal (value) {
-  const { isNegative, integerPart, decimalPart } = parseNumericValue(value)
-
-  // Ordinals only make sense for positive integers
-  if (isNegative) {
-    throw new RangeError('Ordinals cannot be negative')
-  }
-  if (decimalPart) {
-    throw new RangeError('Ordinals must be whole numbers')
-  }
-  if (integerPart === 0n) {
-    throw new RangeError('Ordinals cannot be zero')
-  }
-
+  const integerPart = parseOrdinalValue(value)
   return integerToOrdinal(integerPart)
 }
 
@@ -467,4 +456,4 @@ function toOrdinal (value) {
 // EXPORTS
 // ============================================================================
 
-export { toWords, toOrdinal }
+export { toCardinal, toOrdinal }

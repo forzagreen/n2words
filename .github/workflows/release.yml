@@ -64,11 +64,8 @@ jobs:
       - name: Install dependencies
         run: npm ci --prefer-offline
 
-      - name: Build type declarations
-        run: npm run build:types
-
-      - name: Build bundles (ESM + UMD)
-        run: npm run build:dist
+      - name: Build all artifacts
+        run: npm run build
 
       - name: Verify build artifacts
         run: |

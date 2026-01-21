@@ -10,7 +10,7 @@
  * - Hangul numerals
  */
 
-import { parseNumericValue } from './utils/parse-numeric.js'
+import { parseCardinalValue } from './utils/parse-cardinal.js'
 
 // ============================================================================
 // Vocabulary (module-level constants)
@@ -226,12 +226,12 @@ function decimalPartToWords (decimalPart) {
  * @throws {Error} If value is not a valid number format
  *
  * @example
- * toWords(21)         // '이십일'
- * toWords(10000)      // '만'
- * toWords(1000000)    // '백만'
+ * toCardinal(21)         // '이십일'
+ * toCardinal(10000)      // '만'
+ * toCardinal(1000000)    // '백만'
  */
-function toWords (value) {
-  const { isNegative, integerPart, decimalPart } = parseNumericValue(value)
+function toCardinal (value) {
+  const { isNegative, integerPart, decimalPart } = parseCardinalValue(value)
 
   const parts = []
 
@@ -253,4 +253,4 @@ function toWords (value) {
 // Public API
 // ============================================================================
 
-export { toWords }
+export { toCardinal }

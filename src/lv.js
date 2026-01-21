@@ -11,7 +11,7 @@
  * - Long scale naming
  */
 
-import { parseNumericValue } from './utils/parse-numeric.js'
+import { parseCardinalValue } from './utils/parse-cardinal.js'
 import { validateOptions } from './utils/validate-options.js'
 
 // ============================================================================
@@ -282,13 +282,13 @@ function decimalPartToWords (decimalPart, gender) {
  * @throws {Error} If value is not a valid number format
  *
  * @example
- * toWords(42)                          // 'četrdesmit divi'
- * toWords(1, { gender: 'feminine' })   // 'viena'
- * toWords(1000)                        // 'tūkstotis'
+ * toCardinal(42)                          // 'četrdesmit divi'
+ * toCardinal(1, { gender: 'feminine' })   // 'viena'
+ * toCardinal(1000)                        // 'tūkstotis'
  */
-function toWords (value, options) {
+function toCardinal (value, options) {
   options = validateOptions(options)
-  const { isNegative, integerPart, decimalPart } = parseNumericValue(value)
+  const { isNegative, integerPart, decimalPart } = parseCardinalValue(value)
 
   // Apply option defaults
   const { gender = 'masculine' } = options
@@ -312,4 +312,4 @@ function toWords (value, options) {
 // Public API
 // ============================================================================
 
-export { toWords }
+export { toCardinal }

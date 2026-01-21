@@ -11,7 +11,7 @@
  * - Long scale naming with -ard forms
  */
 
-import { parseNumericValue } from './utils/parse-numeric.js'
+import { parseCardinalValue } from './utils/parse-cardinal.js'
 
 // ============================================================================
 // Vocabulary (module-level constants)
@@ -265,12 +265,12 @@ function decimalPartToWords (decimalPart) {
  * @throws {Error} If value is not a valid number format
  *
  * @example
- * toWords(42)       // 'fyrtio-två'
- * toWords(101)      // 'hundra och ett'
- * toWords(1000000)  // 'en miljon'
+ * toCardinal(42)       // 'fyrtio-två'
+ * toCardinal(101)      // 'hundra och ett'
+ * toCardinal(1000000)  // 'en miljon'
  */
-function toWords (value) {
-  const { isNegative, integerPart, decimalPart } = parseNumericValue(value)
+function toCardinal (value) {
+  const { isNegative, integerPart, decimalPart } = parseCardinalValue(value)
 
   let result = ''
 
@@ -291,4 +291,4 @@ function toWords (value) {
 // Public API
 // ============================================================================
 
-export { toWords }
+export { toCardinal }

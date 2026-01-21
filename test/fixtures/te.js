@@ -1,4 +1,8 @@
-export default [
+/**
+ * Cardinal number test cases
+ * Format: [input, expected_output, options?]
+ */
+export const cardinal = [
   [0, 'సున్నా'],
   [1, 'ఒకటి'],
   [2, 'రెండు'],

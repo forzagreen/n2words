@@ -11,7 +11,7 @@
  * - Omit "un" before mille
  */
 
-import { parseNumericValue } from './utils/parse-numeric.js'
+import { parseCardinalValue } from './utils/parse-cardinal.js'
 import { validateOptions } from './utils/validate-options.js'
 
 // ============================================================================
@@ -324,13 +324,13 @@ function decimalPartToWords (decimalPart, withHyphen) {
  * @throws {Error} If value is not a valid number format
  *
  * @example
- * toWords(21)           // 'vingt et un'
- * toWords(80)           // 'quatre-vingts'
- * toWords(1000000)      // 'un million'
+ * toCardinal(21)           // 'vingt et un'
+ * toCardinal(80)           // 'quatre-vingts'
+ * toCardinal(1000000)      // 'un million'
  */
-function toWords (value, options) {
+function toCardinal (value, options) {
   options = validateOptions(options)
-  const { isNegative, integerPart, decimalPart } = parseNumericValue(value)
+  const { isNegative, integerPart, decimalPart } = parseCardinalValue(value)
 
   // Apply option defaults
   const { withHyphenSeparator = false } = options
@@ -355,4 +355,4 @@ function toWords (value, options) {
 // Public API
 // ============================================================================
 
-export { toWords }
+export { toCardinal }

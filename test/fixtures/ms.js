@@ -1,4 +1,8 @@
-export default [
+/**
+ * Cardinal number test cases
+ * Format: [input, expected_output, options?]
+ */
+export const cardinal = [
   [0, 'sifar'],
   [1, 'satu'],
   [2, 'dua'],

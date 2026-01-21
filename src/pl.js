@@ -11,7 +11,7 @@
  * - Long scale with -ard forms: miliard, biliard, tryliard
  */
 
-import { parseNumericValue } from './utils/parse-numeric.js'
+import { parseCardinalValue } from './utils/parse-cardinal.js'
 import { validateOptions } from './utils/validate-options.js'
 
 // ============================================================================
@@ -286,14 +286,14 @@ function decimalPartToWords (decimalPart, gender) {
  * @throws {Error} If value is not a valid number format
  *
  * @example
- * toWords(1)                          // 'jeden'
- * toWords(1, { gender: 'feminine' })  // 'jedna'
- * toWords(1000)                       // 'tysiąc'
- * toWords(2000)                       // 'dwa tysiące'
+ * toCardinal(1)                          // 'jeden'
+ * toCardinal(1, { gender: 'feminine' })  // 'jedna'
+ * toCardinal(1000)                       // 'tysiąc'
+ * toCardinal(2000)                       // 'dwa tysiące'
  */
-function toWords (value, options) {
+function toCardinal (value, options) {
   options = validateOptions(options)
-  const { isNegative, integerPart, decimalPart } = parseNumericValue(value)
+  const { isNegative, integerPart, decimalPart } = parseCardinalValue(value)
 
   // Apply option defaults
   const { gender = 'masculine' } = options
@@ -317,4 +317,4 @@ function toWords (value, options) {
 // Public API
 // ============================================================================
 
-export { toWords }
+export { toCardinal }

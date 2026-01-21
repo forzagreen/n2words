@@ -1,14 +1,8 @@
 /**
- * Test fixtures for Amharic (am) language
- *
- * Format: [input, expected_output]
- * - input: number, bigint, or string to convert
- * - expected_output: expected string result
- *
- * Uses native Ge'ez/Ethiopic script.
- * For Latin romanization, see am-Latn.js
+ * Cardinal number test cases
+ * Format: [input, expected_output, options?]
  */
-export default [
+export const cardinal = [
   // Basic numbers (0-10) - Ge'ez script
   [0, 'ዜሮ'],
   [1, 'አንድ'],

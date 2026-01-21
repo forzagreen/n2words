@@ -14,7 +14,7 @@
  * - Some formal numerals differ (參/叁, 貳/贰, 陸/陆)
  */
 
-import { parseNumericValue } from './utils/parse-numeric.js'
+import { parseCardinalValue } from './utils/parse-cardinal.js'
 import { validateOptions } from './utils/validate-options.js'
 
 // ============================================================================
@@ -175,9 +175,9 @@ function decimalDigitsToWords (decimalString, formal = true) {
  * @param {boolean} [options.formal=true] - Use formal/financial numerals
  * @returns {string} The number in Traditional Chinese words
  */
-function toWords (value, options) {
+function toCardinal (value, options) {
   options = validateOptions(options)
-  const { isNegative, integerPart, decimalPart } = parseNumericValue(value)
+  const { isNegative, integerPart, decimalPart } = parseCardinalValue(value)
 
   // Apply option defaults
   const { formal = true } = options
@@ -201,4 +201,4 @@ function toWords (value, options) {
 // Exports
 // ============================================================================
 
-export { toWords }
+export { toCardinal }

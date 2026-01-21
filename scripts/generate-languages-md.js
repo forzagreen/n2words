@@ -55,6 +55,22 @@ function getDisplayName (code) {
 }
 
 // ============================================================================
+// Feature Detection
+// ============================================================================
+
+/**
+ * Check if a language has ordinal support.
+ *
+ * @param {string} code Language code
+ * @returns {boolean} True if language exports toOrdinal
+ */
+function hasOrdinal (code) {
+  const content = readFileSync(`./src/${code}.js`, 'utf-8')
+  return content.includes('export { toCardinal, toOrdinal }') ||
+         content.includes('export { toOrdinal, toCardinal }')
+}
+
+// ============================================================================
 // Options Extraction
 // ============================================================================
 
@@ -64,30 +80,48 @@ function getDisplayName (code) {
  * @property {string} type - Type string (e.g., 'boolean', "'masculine'|'feminine'")
  * @property {string} [defaultValue] - Default value if specified
  * @property {string} description - Description from JSDoc
+ * @property {string} form - Which form this option applies to ('cardinal' or 'ordinal')
  */
 
 /**
- * Parse options from a language file's JSDoc.
+ * Parse options from a language file's JSDoc for a specific function.
  *
  * @param {string} code Language code
+ * @param {string} functionName Function to extract options for
  * @returns {OptionInfo[]} Array of option info objects
  */
-function getOptions (code) {
+function getOptionsForFunction (code, functionName) {
   const content = readFileSync(`./src/${code}.js`, 'utf-8')
 
+  // Find function position first
+  const funcPattern = new RegExp(`function\\s+${functionName}\\s*\\(`)
+  const funcMatch = funcPattern.exec(content)
+  if (!funcMatch) return []
+
+  // Get content before function and find the LAST JSDoc (closest one)
+  const beforeFunc = content.substring(0, funcMatch.index)
+  const jsdocPattern = /\/\*\*[\s\S]*?\*\//g
+  let jsdocBlock = null
+  let match
+  while ((match = jsdocPattern.exec(beforeFunc)) !== null) {
+    jsdocBlock = match[0]
+  }
+
+  if (!jsdocBlock) return []
+
   // Match: @param {type} [options.name=default] - description
-  // or:    @param {type} [options.name] - description
   const optionRegex = /@param\s+\{([^}]+)\}\s+\[options\.(\w+)(?:=([^\]]+))?\]\s+-\s+(.+)/g
 
   const options = []
-  let match
+  let optionMatch
 
-  while ((match = optionRegex.exec(content)) !== null) {
+  while ((optionMatch = optionRegex.exec(jsdocBlock)) !== null) {
     options.push({
-      name: match[2],
-      type: match[1],
-      defaultValue: match[3] || undefined,
-      description: match[4].trim()
+      name: optionMatch[2],
+      type: optionMatch[1],
+      defaultValue: optionMatch[3] || undefined,
+      description: optionMatch[4].trim(),
+      form: functionName === 'toCardinal' ? 'cardinal' : 'ordinal'
     })
   }
 
@@ -95,13 +129,23 @@ function getOptions (code) {
 }
 
 /**
- * Check if a language has options.
+ * Check if a language has cardinal options.
  *
  * @param {string} code Language code
- * @returns {boolean} True if language has options
+ * @returns {boolean} True if language has cardinal options
  */
-function hasOptions (code) {
-  return getOptions(code).length > 0
+function hasCardinalOptions (code) {
+  return getOptionsForFunction(code, 'toCardinal').length > 0
+}
+
+/**
+ * Check if a language has ordinal options.
+ *
+ * @param {string} code Language code
+ * @returns {boolean} True if language has ordinal options
+ */
+function hasOrdinalOptions (code) {
+  return getOptionsForFunction(code, 'toOrdinal').length > 0
 }
 
 // ============================================================================
@@ -123,31 +167,41 @@ function formatType (type) {
 }
 
 /**
- * Collect all options with language info.
+ * Collect options grouped by language.
  *
  * @param {string[]} codes Language codes
- * @returns {Array<{language: string, code: string, option: OptionInfo}>}
+ * @returns {Array<{language: string, code: string, cardinalOptions: OptionInfo[], ordinalOptions: OptionInfo[]}>}
  */
-function collectAllOptions (codes) {
-  const allOptions = []
+function collectOptionsByLanguage (codes) {
+  const result = []
 
   for (const code of codes) {
-    const options = getOptions(code)
-    for (const option of options) {
-      allOptions.push({
+    const cardinalOptions = getOptionsForFunction(code, 'toCardinal')
+    const ordinalOptions = getOptionsForFunction(code, 'toOrdinal')
+
+    if (cardinalOptions.length > 0 || ordinalOptions.length > 0) {
+      result.push({
         language: getDisplayName(code),
         code,
-        option
+        cardinalOptions,
+        ordinalOptions
       })
     }
   }
 
-  // Sort by language name, then option name
-  return allOptions.sort((a, b) => {
-    const langCmp = a.language.localeCompare(b.language)
-    if (langCmp !== 0) return langCmp
-    return a.option.name.localeCompare(b.option.name)
-  })
+  // Sort by language name
+  return result.sort((a, b) => a.language.localeCompare(b.language))
+}
+
+/**
+ * Format an option as a markdown list item.
+ *
+ * @param {OptionInfo} opt Option info
+ * @returns {string} Markdown list item
+ */
+function formatOptionItem (opt) {
+  const defaultStr = opt.defaultValue ? `, default: \`${opt.defaultValue}\`` : ''
+  return `- \`${opt.name}\` (${formatType(opt.type)}${defaultStr}) — ${opt.description}`
 }
 
 /**
@@ -158,47 +212,80 @@ function collectAllOptions (codes) {
  */
 function generateMarkdown (codes) {
   const languageCount = codes.length
-  const codesWithOptions = codes.filter(hasOptions)
-  const optionsCount = codesWithOptions.length
-  const allOptions = collectAllOptions(codes)
+  const codesWithOrdinal = codes.filter(hasOrdinal)
+  const ordinalCount = codesWithOrdinal.length
+  const optionsByLang = collectOptionsByLanguage(codes)
+  const optionsCount = optionsByLang.length
 
   const langRows = codes.map(code => {
     const normalized = normalizeCode(code)
     const name = getDisplayName(code)
-    const options = hasOptions(code) ? '✓' : ''
     const exportCol = code !== normalized ? `\`${normalized}\`` : ''
 
-    return `|\`${code}\`|${exportCol}|${name}|${options}|`
+    // Cardinal column - all languages have cardinal, superscript if has options
+    const cardinalCol = hasCardinalOptions(code) ? '✓¹' : '✓'
+
+    // Ordinal column - only if implemented, superscript if has options
+    let ordinalCol = ''
+    if (hasOrdinal(code)) {
+      ordinalCol = hasOrdinalOptions(code) ? '✓¹' : '✓'
+    }
+
+    return `|\`${code}\`|${exportCol}|${name}|${cardinalCol}|${ordinalCol}|`
   })
 
-  const optionRows = allOptions.map(o => {
-    const def = o.option.defaultValue ? `\`${o.option.defaultValue}\`` : ''
-    return `|${o.language}|\`${o.option.name}\`|${formatType(o.option.type)}|${def}|${o.option.description}|`
+  // Generate per-language options sections
+  const optionSections = optionsByLang.map(lang => {
+    const lines = [`### ${lang.language} (\`${lang.code}\`)`]
+
+    if (lang.cardinalOptions.length > 0) {
+      lines.push('')
+      lines.push('**Cardinal options:**')
+      lines.push('')
+      for (const opt of lang.cardinalOptions) {
+        lines.push(formatOptionItem(opt))
+      }
+    }
+
+    if (lang.ordinalOptions.length > 0) {
+      lines.push('')
+      lines.push('**Ordinal options:**')
+      lines.push('')
+      for (const opt of lang.ordinalOptions) {
+        lines.push(formatOptionItem(opt))
+      }
+    }
+
+    return lines.join('\n')
   })
 
   return `# Supported Languages
 
 > **Auto-generated** — Do not edit manually. Run \`npm run docs:languages\` to update.
 
-n2words supports **${languageCount} languages**, ${optionsCount} of which have additional options.
+n2words supports **${languageCount} languages** with cardinal number conversion, ${ordinalCount} with ordinal support.
 
 Language codes follow [IETF BCP 47](https://tools.ietf.org/html/bcp47) standards.
 
 ## All Languages
 
-|Code|Export|Language|Options|
-|----|------|--------|:-----:|
+|Code|Export|Language|Cardinal|Ordinal|
+|----|------|--------|:------:|:-----:|
 ${langRows.join('\n')}
+
+¹ Has options — see [Language Options](#language-options) section.
 
 ## Usage
 
 \`\`\`js
 // Named imports (tree-shakable)
-import { en, zhHans, frBE } from 'n2words'
+import { enUS, zhHans, frBE } from 'n2words'
+
+enUS.toCardinal(42)  // 'forty-two'
+enUS.toOrdinal(42)   // 'forty-second' (if supported)
 
 // Subpath imports (smallest bundle)
-import { toWords } from 'n2words/en'
-import { toWords as zhHans } from 'n2words/zh-Hans'
+import { toCardinal, toOrdinal } from 'n2words/en-US'
 \`\`\`
 
 ### Import Names
@@ -208,15 +295,13 @@ import { toWords as zhHans } from 'n2words/zh-Hans'
 
 ## Language Options
 
-${optionsCount} languages support additional options via a second parameter:
+${optionsCount} languages support options via a second parameter. Options are passed as an object:
 
 \`\`\`js
-toWords(value, options)
+toCardinal(value, { optionName: value })
 \`\`\`
 
-|Language|Option|Type|Default|Description|
-|--------|------|----|-------|-----------|
-${optionRows.join('\n')}
+${optionSections.join('\n\n')}
 `
 }
 

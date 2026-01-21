@@ -1,10 +1,8 @@
 /**
- * Test fixtures for Georgian (ka) language
- *
- * Georgian uses a vigesimal (base-20) system for numbers 20-99.
+ * Cardinal number test cases
  * Format: [input, expected_output, options?]
  */
-export default [
+export const cardinal = [
   // Basic numbers (0-10)
   [0, 'ნული'],
   [1, 'ერთი'],

@@ -50,9 +50,8 @@
  */
 const PROJECT_SCOPES = [
   // Code Areas
-  'core', // index.js - main entry point
+  'core', // index.js, src/utils/* - main entry point and shared utilities
   'lang', // src/* - general multi-language work
-  'utils', // src/utils/* - shared utilities
 
   // Build & Distribution
   'esm', // ESM bundle output (dist/*.js)
@@ -63,10 +62,8 @@ const PROJECT_SCOPES = [
   'deps', // Production dependencies (unused - zero-dep library)
   'deps-dev', // Development dependencies
 
-  // Quality & Testing
-  'test', // Test infrastructure, AVA config
+  // Quality
   'bench', // Benchmarking (bench/index.js)
-  'e2e', // Playwright E2E browser tests
 
   // Infrastructure
   'release', // Version bumps, release preparation

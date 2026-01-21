@@ -1,8 +1,8 @@
 /**
- * Test cases for Greek (el) number conversion.
+ * Cardinal number test cases
+ * Format: [input, expected_output, options?]
  */
-
-export default [
+export const cardinal = [
   [0, 'μηδέν'],
   [1, 'ένα'],
   [2, 'δύο'],

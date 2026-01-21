@@ -13,7 +13,7 @@
  * - Long scale with -ard forms
  */
 
-import { parseNumericValue } from './utils/parse-numeric.js'
+import { parseCardinalValue } from './utils/parse-cardinal.js'
 import { validateOptions } from './utils/validate-options.js'
 
 // ============================================================================
@@ -284,14 +284,14 @@ function decimalPartToWords (decimalPart, options) {
  * @throws {Error} If value is not a valid number format
  *
  * @example
- * toWords(21)                        // 'eenentwintig'
- * toWords(1)                         // 'één'
- * toWords(1, {accentOne: false})     // 'een'
- * toWords(1104)                      // 'elfhonderd vier'
+ * toCardinal(21)                        // 'eenentwintig'
+ * toCardinal(1)                         // 'één'
+ * toCardinal(1, {accentOne: false})     // 'een'
+ * toCardinal(1104)                      // 'elfhonderd vier'
  */
-function toWords (value, options) {
+function toCardinal (value, options) {
   options = validateOptions(options)
-  const { isNegative, integerPart, decimalPart } = parseNumericValue(value)
+  const { isNegative, integerPart, decimalPart } = parseCardinalValue(value)
 
   // Apply option defaults
   const {
@@ -321,4 +321,4 @@ function toWords (value, options) {
 // Public API
 // ============================================================================
 
-export { toWords }
+export { toCardinal }

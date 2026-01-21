@@ -10,7 +10,7 @@
  * - "و" (and) conjunction between segments
  */
 
-import { parseNumericValue } from './utils/parse-numeric.js'
+import { parseCardinalValue } from './utils/parse-cardinal.js'
 import { validateOptions } from './utils/validate-options.js'
 
 // ============================================================================
@@ -174,12 +174,12 @@ function decimalPartToWords (decimalPart, gender) {
  * @returns {string} The number in Arabic words
  *
  * @example
- * toWords(1)                        // 'واحد'
- * toWords(1, {gender: 'feminine'})  // 'واحدة'
+ * toCardinal(1)                        // 'واحد'
+ * toCardinal(1, {gender: 'feminine'})  // 'واحدة'
  */
-function toWords (value, options) {
+function toCardinal (value, options) {
   options = validateOptions(options)
-  const { isNegative, integerPart, decimalPart } = parseNumericValue(value)
+  const { isNegative, integerPart, decimalPart } = parseCardinalValue(value)
 
   // Apply option defaults
   const {
@@ -207,4 +207,4 @@ function toWords (value, options) {
 // Exports
 // ============================================================================
 
-export { toWords }
+export { toCardinal }

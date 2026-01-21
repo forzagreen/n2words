@@ -1,7 +1,8 @@
-const common = { formal: false }
-
-// Note: when no options are supplied, `formal` defaults to true (financial style).
-export default [
+/**
+ * Cardinal number test cases
+ * Format: [input, expected_output, options?]
+ */
+export const cardinal = [
   // Formal/financial numerals (default)
   [0.01, '零点零壹'],
   [0.007, '零点零零柒'],
@@ -45,43 +46,43 @@ export default [
   ],
 
   // Common/everyday numerals (explicit opt-out)
-  [123, '一百二十三', common],
-  [999_999_999_999n, '九千九百九十九亿九千九百九十九万九千九百九十九', common],
-  [0, '零', common],
-  [1, '一', common],
-  [10, '一十', common],
-  [11, '一十一', common],
-  [20, '二十', common],
-  [21, '二十一', common],
-  [99, '九十九', common],
-  [101, '一百零一', common],
-  [110, '一百一十', common],
-  [111, '一百一十一', common],
-  [1000, '一千', common],
-  [1001, '一千零一', common],
-  [1010, '一千零一十', common],
-  [1011, '一千零一十一', common],
-  [1104, '一千一百零四', common],
-  [1243, '一千二百四十三', common],
-  [10_000, '一万', common],
-  [20_000, '二万', common],
-  [10_001, '一万零一', common],
-  [10_010, '一万零一十', common],
-  [30_210, '三万零二百一十', common],
-  [200_000, '二十万', common],
-  [2_000_000, '二百万', common],
-  [20_000_000, '二千万', common],
-  [200_000_000, '二亿', common],
-  [2_000_000_000, '二十亿', common],
-  [20_000_000_000, '二百亿', common],
-  [22_222_222_222, '二百二十二亿二千二百二十二万二千二百二十二', common],
+  [123, '一百二十三', { formal: false }],
+  [999_999_999_999n, '九千九百九十九亿九千九百九十九万九千九百九十九', { formal: false }],
+  [0, '零', { formal: false }],
+  [1, '一', { formal: false }],
+  [10, '一十', { formal: false }],
+  [11, '一十一', { formal: false }],
+  [20, '二十', { formal: false }],
+  [21, '二十一', { formal: false }],
+  [99, '九十九', { formal: false }],
+  [101, '一百零一', { formal: false }],
+  [110, '一百一十', { formal: false }],
+  [111, '一百一十一', { formal: false }],
+  [1000, '一千', { formal: false }],
+  [1001, '一千零一', { formal: false }],
+  [1010, '一千零一十', { formal: false }],
+  [1011, '一千零一十一', { formal: false }],
+  [1104, '一千一百零四', { formal: false }],
+  [1243, '一千二百四十三', { formal: false }],
+  [10_000, '一万', { formal: false }],
+  [20_000, '二万', { formal: false }],
+  [10_001, '一万零一', { formal: false }],
+  [10_010, '一万零一十', { formal: false }],
+  [30_210, '三万零二百一十', { formal: false }],
+  [200_000, '二十万', { formal: false }],
+  [2_000_000, '二百万', { formal: false }],
+  [20_000_000, '二千万', { formal: false }],
+  [200_000_000, '二亿', { formal: false }],
+  [2_000_000_000, '二十亿', { formal: false }],
+  [20_000_000_000, '二百亿', { formal: false }],
+  [22_222_222_222, '二百二十二亿二千二百二十二万二千二百二十二', { formal: false }],
   [
     222_222_222_222_222,
     '二百二十二万二千二百二十二亿二千二百二十二万二千二百二十二',
-    common
+    { formal: false }
   ],
-  [5.5, '五点五', common],
-  [0.007, '零点零零七', common],
-  [17.42, '一十七点四二', common],
-  [-17.42, '负一十七点四二', common]
+  [5.5, '五点五', { formal: false }],
+  [0.007, '零点零零七', { formal: false }],
+  [17.42, '一十七点四二', { formal: false }],
+  [-17.42, '负一十七点四二', { formal: false }]
 ]

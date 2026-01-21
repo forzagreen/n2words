@@ -10,7 +10,7 @@
  * - "két" instead of "kettő" in compound forms
  */
 
-import { parseNumericValue } from './utils/parse-numeric.js'
+import { parseCardinalValue } from './utils/parse-cardinal.js'
 
 // ============================================================================
 // Vocabulary
@@ -191,8 +191,8 @@ function decimalPartToWords (decimalPart) {
  * @param {number | string | bigint} value - The numeric value to convert
  * @returns {string} The number in Hungarian words
  */
-function toWords (value) {
-  const { isNegative, integerPart, decimalPart } = parseNumericValue(value)
+function toCardinal (value) {
+  const { isNegative, integerPart, decimalPart } = parseCardinalValue(value)
 
   let result = ''
 
@@ -213,4 +213,4 @@ function toWords (value) {
 // Exports
 // ============================================================================
 
-export { toWords }
+export { toCardinal }

@@ -10,7 +10,7 @@
  * - Feminine units for thousands
  */
 
-import { parseNumericValue } from './utils/parse-numeric.js'
+import { parseCardinalValue } from './utils/parse-cardinal.js'
 import { validateOptions } from './utils/validate-options.js'
 
 // ============================================================================
@@ -227,13 +227,13 @@ function decimalPartToWords (decimalPart) {
  * @throws {Error} If value is not a valid number format
  *
  * @example
- * toWords(21)                        // 'douăzeci și unu'
- * toWords(1, { gender: 'feminine' }) // 'una'
- * toWords(1000)                      // 'o mie'
+ * toCardinal(21)                        // 'douăzeci și unu'
+ * toCardinal(1, { gender: 'feminine' }) // 'una'
+ * toCardinal(1000)                      // 'o mie'
  */
-function toWords (value, options) {
+function toCardinal (value, options) {
   options = validateOptions(options)
-  const { isNegative, integerPart, decimalPart } = parseNumericValue(value)
+  const { isNegative, integerPart, decimalPart } = parseCardinalValue(value)
 
   // Apply option defaults
   const { gender = 'masculine' } = options
@@ -257,4 +257,4 @@ function toWords (value, options) {
 // Public API
 // ============================================================================
 
-export { toWords }
+export { toCardinal }

@@ -1,15 +1,8 @@
 /**
- * Test fixtures for Hausa (ha) language
- *
- * Format: [input, expected_output]
- * - input: number, bigint, or string to convert
- * - expected_output: expected string result
- *
- * Uses authentic Boko orthography with:
- * - ɗ (hooked d) for implosive consonant
- * - ' (apostrophe) for glottal stop in Arabic loanwords
+ * Cardinal number test cases
+ * Format: [input, expected_output, options?]
  */
-export default [
+export const cardinal = [
   // Basic numbers (0-10)
   [0, 'sifiri'],
   [1, 'ɗaya'],

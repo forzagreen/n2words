@@ -20,8 +20,8 @@ function getOrdinalLanguages () {
   const ordinalLangs = []
   for (const langCode of languageCodes) {
     const content = readFileSync(`./src/${langCode}.js`, 'utf8')
-    if (content.includes('export { toWords, toOrdinal }') ||
-        content.includes('export { toOrdinal, toWords }')) {
+    if (content.includes('export { toCardinal, toOrdinal }') ||
+        content.includes('export { toOrdinal, toCardinal }')) {
       ordinalLangs.push(langCode)
     }
   }
@@ -47,7 +47,7 @@ const ordinalLanguages = getOrdinalLanguages()
  * Node.js users import directly from src/ (ESM source). No CJS bundle is generated -
  * Node.js 22.12+/20.19+ can require() ESM modules directly.
  *
- * UMD bundles use virtual entry points to re-export toWords as the
+ * UMD bundles use virtual entry points to re-export toCardinal as the
  * normalized language code (e.g., n2words.en, n2words.zhHans), allowing
  * multiple languages to be loaded together without conflicts.
  */
@@ -95,7 +95,7 @@ const basePlugins = [
 // ============================================================================
 
 // Generate individual ESM language bundle configurations
-// ESM bundles directly use source files - they already export toWords
+// ESM bundles directly use source files - they already export toCardinal
 const languageEsmConfigs = languageCodes.map(langCode => ({
   input: `./src/${langCode}.js`,
   output: {
@@ -115,7 +115,7 @@ const languageUmdConfigs = languageCodes.map(langCode => {
   // Build virtual entry content
   // Cardinal: n2words.enUS(42) → "forty-two"
   // Ordinal:  n2words.ordinal.enUS(42) → "forty-second"
-  let virtualContent = `export { toWords as ${normalizedName} } from './src/${langCode}.js';\n`
+  let virtualContent = `export { toCardinal as ${normalizedName} } from './src/${langCode}.js';\n`
 
   if (hasOrdinal) {
     // Export ordinal under nested namespace

@@ -11,7 +11,7 @@
  * - Per-digit decimal reading
  */
 
-import { parseNumericValue } from './utils/parse-numeric.js'
+import { parseCardinalValue } from './utils/parse-cardinal.js'
 import { validateOptions } from './utils/validate-options.js'
 
 // ============================================================================
@@ -236,9 +236,9 @@ function decimalPartToWords (decimalPart) {
  * @param {string} [options.andWord='ו'] - Custom conjunction word
  * @returns {string} The number in Modern Hebrew words
  */
-function toWords (value, options) {
+function toCardinal (value, options) {
   options = validateOptions(options)
-  const { isNegative, integerPart, decimalPart } = parseNumericValue(value)
+  const { isNegative, integerPart, decimalPart } = parseCardinalValue(value)
 
   // Apply option defaults
   const { andWord = 'ו' } = options
@@ -262,4 +262,4 @@ function toWords (value, options) {
 // Exports
 // ============================================================================
 
-export { toWords }
+export { toCardinal }

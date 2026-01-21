@@ -10,7 +10,7 @@
  * - No spaces between characters
  */
 
-import { parseNumericValue } from './utils/parse-numeric.js'
+import { parseCardinalValue } from './utils/parse-cardinal.js'
 
 // ============================================================================
 // Vocabulary (module-level constants)
@@ -218,12 +218,12 @@ function decimalPartToWords (decimalPart) {
  * @throws {Error} If value is not a valid number format
  *
  * @example
- * toWords(42)           // '四十二'
- * toWords(10000)        // '一万'
- * toWords(100000000)    // '一億'
+ * toCardinal(42)           // '四十二'
+ * toCardinal(10000)        // '一万'
+ * toCardinal(100000000)    // '一億'
  */
-function toWords (value) {
-  const { isNegative, integerPart, decimalPart } = parseNumericValue(value)
+function toCardinal (value) {
+  const { isNegative, integerPart, decimalPart } = parseCardinalValue(value)
 
   let result = ''
 
@@ -244,4 +244,4 @@ function toWords (value) {
 // Public API
 // ============================================================================
 
-export { toWords }
+export { toCardinal }

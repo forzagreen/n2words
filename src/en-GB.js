@@ -10,7 +10,7 @@
  * - Western numbering system (short scale: billion = 10^9)
  */
 
-import { parseNumericValue } from './utils/parse-numeric.js'
+import { parseCardinalValue } from './utils/parse-cardinal.js'
 
 // ============================================================================
 // Vocabulary (module-level constants)
@@ -218,12 +218,12 @@ function decimalPartToWords (decimalPart) {
  * @throws {Error} If value is not a valid number format
  *
  * @example
- * toWords(42)           // 'forty-two'
- * toWords(-3.14)        // 'minus three point fourteen'
- * toWords('1000000')    // 'one million'
+ * toCardinal(42)           // 'forty-two'
+ * toCardinal(-3.14)        // 'minus three point fourteen'
+ * toCardinal('1000000')    // 'one million'
  */
-function toWords (value) {
-  const { isNegative, integerPart, decimalPart } = parseNumericValue(value)
+function toCardinal (value) {
+  const { isNegative, integerPart, decimalPart } = parseCardinalValue(value)
 
   let result = ''
 
@@ -244,4 +244,4 @@ function toWords (value) {
 // Public API
 // ============================================================================
 
-export { toWords }
+export { toCardinal }

@@ -1,17 +1,20 @@
 /**
- * Numeric value parsing utility.
+ * Cardinal value parsing utility.
  * Transforms user input (number, string, or bigint) into normalized components.
- * @module parse-numeric
+ * Handles negatives, decimals, and scientific notation.
+ * @module parse-cardinal
  */
 
 /**
- * Parses a numeric value into its components.
- * @param {number|string|bigint} value
+ * Parses a value for cardinal conversion.
+ * Cardinals accept any numeric value: integers, decimals, negatives.
+ *
+ * @param {number|string|bigint} value - The value to parse
  * @returns {{isNegative: boolean, integerPart: bigint, decimalPart?: string}}
  * @throws {TypeError} If value is not number, string, or bigint
  * @throws {Error} If value is not a valid number format
  */
-export function parseNumericValue (value) {
+export function parseCardinalValue (value) {
   const type = typeof value
 
   // BigInt: simplest case

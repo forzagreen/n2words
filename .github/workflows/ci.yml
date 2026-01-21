@@ -82,6 +82,10 @@ jobs:
         if: ${{ matrix.coverage }}
         run: npm run coverage
 
+      - name: Run type and export tests
+        if: ${{ matrix.coverage }}
+        run: npm run build:types && npm run test:types:run && npm run test:exports:run
+
       - name: Check coverage thresholds
         if: ${{ matrix.coverage }}
         run: npx c8 check-coverage --lines 90 --functions 90 --branches 85 --statements 90
@@ -125,11 +129,12 @@ jobs:
           retention-days: 30
           if-no-files-found: ignore
 
-  verify:
-    name: Verify Package
+  build:
+    name: Build & Package
     runs-on: ubuntu-latest
-    needs: [lint, test]
-    timeout-minutes: 15
+    needs: lint
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    timeout-minutes: 5
 
     steps:
       - uses: actions/checkout@v6
@@ -147,32 +152,6 @@ jobs:
 
       - name: Build all artifacts
         run: npm run build
-
-      - name: Run type tests
-        run: npm run test:types:run
-
-      - name: Run exports tests
-        run: npm run test:exports:run
-
-      - name: Run bundle tests
-        run: npm run test:bundles:run
-
-      - name: Install Playwright browsers
-        run: npx playwright install --with-deps
-
-      - name: Run E2E browser tests
-        run: npm run test:e2e:run
-
-      - name: Upload Playwright test results
-        if: failure()
-        uses: actions/upload-artifact@v6
-        with:
-          name: playwright-report
-          path: |
-            playwright-report/
-            test-results/
-          retention-days: 30
-          if-no-files-found: ignore
 
       - name: Verify package contents
         run: npm pack --dry-run

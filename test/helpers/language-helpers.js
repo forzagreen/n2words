@@ -47,8 +47,8 @@ export function getLanguagesWithOptions () {
 export function languageHasOptions (code) {
   try {
     const content = readFileSync(`${LANGUAGE_DIR}/${code}.js`, 'utf8')
-    // Functional implementations accept options as second parameter to toWords
-    return content.includes('function toWords (value, options')
+    // Functional implementations accept options as second parameter to toCardinal
+    return content.includes('function toCardinal (value, options')
   } catch {
     return false
   }

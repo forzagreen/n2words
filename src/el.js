@@ -10,7 +10,7 @@
  * - Per-digit decimal reading
  */
 
-import { parseNumericValue } from './utils/parse-numeric.js'
+import { parseCardinalValue } from './utils/parse-cardinal.js'
 
 // ============================================================================
 // Vocabulary (module-level constants)
@@ -207,12 +207,12 @@ function decimalPartToWords (decimalPart) {
  * @throws {Error} If value is not a valid number format
  *
  * @example
- * toWords(21)       // 'είκοσι ένα'
- * toWords(1000)     // 'χίλια'
- * toWords('3.14')   // 'τρία κόμμα ένα τέσσερα'
+ * toCardinal(21)       // 'είκοσι ένα'
+ * toCardinal(1000)     // 'χίλια'
+ * toCardinal('3.14')   // 'τρία κόμμα ένα τέσσερα'
  */
-function toWords (value) {
-  const { isNegative, integerPart, decimalPart } = parseNumericValue(value)
+function toCardinal (value) {
+  const { isNegative, integerPart, decimalPart } = parseCardinalValue(value)
 
   let result = ''
 
@@ -233,4 +233,4 @@ function toWords (value) {
 // Public API
 // ============================================================================
 
-export { toWords }
+export { toCardinal }

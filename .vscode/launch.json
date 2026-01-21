@@ -56,34 +56,10 @@
     {
       "type": "node",
       "request": "launch",
-      "name": "Debug Performance Benchmark",
+      "name": "Debug Benchmark",
       "skipFiles": ["<node_internals>/**"],
-      "program": "${workspaceFolder}/bench/perf.js",
-      "console": "integratedTerminal",
-      "cwd": "${workspaceFolder}"
-    },
-    {
-      "type": "node",
-      "request": "launch",
-      "name": "Debug Memory Benchmark",
-      "skipFiles": ["<node_internals>/**"],
-      "program": "${workspaceFolder}/bench/memory.js",
-      "runtimeArgs": [
-        "--expose-gc"
-      ],
-      "console": "integratedTerminal",
-      "cwd": "${workspaceFolder}"
-    },
-    {
-      "type": "node",
-      "request": "launch",
-      "name": "Debug Language Validation Script",
-      "skipFiles": ["<node_internals>/**"],
-      "program": "${workspaceFolder}/scripts/validate-language.js",
-      "args": [
-        "--verbose",
-        "${input:languageCode}"
-      ],
+      "program": "${workspaceFolder}/bench/index.js",
+      "runtimeArgs": ["--expose-gc"],
       "console": "integratedTerminal",
       "cwd": "${workspaceFolder}"
     },
