@@ -51,10 +51,7 @@
     },
     "./package.json": "./package.json"
   },
-  "jsdelivr": "./dist/en.js",
-  "unpkg": "./dist/en.umd.js",
   "files": [
-    "index.d.ts",
     "src/**/*.js",
     "src/**/*.d.ts",
     "dist/**/*.js",
@@ -82,8 +79,7 @@
     "lint:js": "standard",
     "lint:md": "markdownlint-cli2",
     "prepare:husky": "husky",
-    "test": "npm run test:unit && npm run test:types",
-    "test:types": "npm run build:types && tsd",
+    "test": "npm run test:unit && npm run build:types",
     "test:unit": "ava \"test/*.test.js\" \"test/utils/*.test.js\""
   },
   "ava": {
@@ -146,7 +142,6 @@
     "rimraf": "^6.1.2",
     "rollup": "^4.55.2",
     "standard": "^17.1.2",
-    "tsd": "^0.33.0",
     "typescript": "^5.9.3"
   },
   "engines": {

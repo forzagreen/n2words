@@ -24,11 +24,10 @@
  *   Always triggers MAJOR version bump and appears in changelog
  *
  * SCOPE USAGE EXAMPLES:
- *   feat(en): add ordinal support           # Single language feature
+ *   feat(en-US): add ordinal support        # Single language feature
  *   fix(fr-BE): correct septante handling   # Language-specific fix
  *   perf(ja): optimize with BigInt modulo   # Language optimization
- *   feat(lang): add 3 new languages         # Multiple languages
- *   refactor(core): simplify exports        # Main entry point
+ *   refactor(core): simplify utilities      # Shared code in src/
  *   build: update Rollup config             # Build system (no scope needed)
  *   build(umd): fix browser global name     # UMD-specific build change
  *   build(esm): add tree-shaking hints      # ESM-specific build change
@@ -50,8 +49,7 @@
  */
 const PROJECT_SCOPES = [
   // Code Areas
-  'core', // index.js, src/utils/* - main entry point and shared utilities
-  'lang', // src/* - general multi-language work
+  'core', // src/* - language files and shared utilities
 
   // Build & Distribution
   'esm', // ESM bundle output (dist/*.js)

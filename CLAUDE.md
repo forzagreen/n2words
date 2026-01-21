@@ -53,7 +53,7 @@ export { toCardinal }
 
 | Pattern       | Files                            |
 | ------------- | -------------------------------- |
-| Western scale | `en.js`, `de.js`, `fr.js`        |
+| Western scale | `en-US.js`, `de.js`, `fr.js`     |
 | South Asian   | `hi.js`, `bn.js`                 |
 | East Asian    | `ja.js`, `ko.js`, `zh-Hans.js`   |
 | Slavic        | `ru.js`, `pl.js`, `uk.js`        |
