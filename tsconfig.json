@@ -18,7 +18,6 @@
     "types": ["node"]
   },
   "include": [
-    "index.js",
     "src/**/*.js",
     "test/**/*.js",
     "scripts/**/*.js",

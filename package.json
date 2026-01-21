@@ -44,11 +44,6 @@
   "type": "module",
   "sideEffects": false,
   "exports": {
-    ".": {
-      "types": "./index.d.ts",
-      "import": "./index.js",
-      "default": "./index.js"
-    },
     "./*": {
       "types": "./src/*.d.ts",
       "import": "./src/*.js",
@@ -56,12 +51,9 @@
     },
     "./package.json": "./package.json"
   },
-  "main": "./index.js",
-  "types": "./index.d.ts",
   "jsdelivr": "./dist/en.js",
   "unpkg": "./dist/en.umd.js",
   "files": [
-    "index.js",
     "index.d.ts",
     "src/**/*.js",
     "src/**/*.d.ts",
@@ -74,16 +66,14 @@
     "bench": "node --expose-gc bench/index.js",
     "browserslist": "browserslist",
     "browserslist:coverage": "browserslist --coverage",
-    "build": "npm run clean && npm run build:types:run && npm run build:dist:run",
-    "build:dist": "npm run clean:dist && npm run build:dist:run",
-    "build:dist:run": "rollup -c",
-    "build:types": "npm run clean:types && npm run build:types:run",
-    "build:types:run": "tsc --project tsconfig.build.json",
+    "build": "npm run clean && npm run build:types && npm run build:dist",
+    "build:dist": "npm run clean:dist && rollup -c",
+    "build:types": "npm run clean:types && tsc --project tsconfig.build.json",
     "clean": "npm run clean:dist && npm run clean:types",
     "clean:all": "npm run clean && npm run clean:artifacts",
     "clean:artifacts": "rimraf coverage .nyc_output",
     "clean:dist": "rimraf dist",
-    "clean:types": "rimraf \"src/**/*.d.ts\" \"index.d.ts\" --glob",
+    "clean:types": "rimraf \"src/**/*.d.ts\" --glob",
     "coverage": "c8 npm run test:unit",
     "docs:languages": "node scripts/generate-languages-md.js",
     "lang:add": "node scripts/add-language.js",
@@ -92,11 +82,8 @@
     "lint:js": "standard",
     "lint:md": "markdownlint-cli2",
     "prepare:husky": "husky",
-    "test": "npm run test:unit && npm run build:types && npm run test:types:run && npm run test:exports:run",
-    "test:exports": "npm run build:types && npm run test:exports:run",
-    "test:exports:run": "attw --pack .",
-    "test:types": "npm run build:types && npm run test:types:run",
-    "test:types:run": "tsd --files test/types.test-d.ts",
+    "test": "npm run test:unit && npm run test:types",
+    "test:types": "npm run build:types && tsd",
     "test:unit": "ava \"test/*.test.js\" \"test/utils/*.test.js\""
   },
   "ava": {
@@ -119,7 +106,6 @@
   "c8": {
     "all": true,
     "include": [
-      "index.js",
       "src/"
     ],
     "exclude": [
@@ -140,7 +126,6 @@
     ]
   },
   "devDependencies": {
-    "@arethetypeswrong/cli": "^0.18.2",
     "@babel/core": "^7.28.6",
     "@babel/preset-env": "^7.28.6",
     "@commitlint/cli": "^20.3.1",

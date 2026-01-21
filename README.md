@@ -26,14 +26,16 @@ npm install n2words
 ```
 
 ```js
-import { enUS, es, ar } from 'n2words'
+import { toCardinal } from 'n2words/en-US'
+import { toCardinal as es } from 'n2words/es'
+import { toCardinal as ar } from 'n2words/ar'
 
-enUS(123)                     // 'one hundred twenty-three'
+toCardinal(123)               // 'one hundred twenty-three'
 es(123)                       // 'ciento veintitrés'
 ar(1, { gender: 'feminine' }) // 'واحدة' (with options)
 
 // Input types: number, string, or BigInt
-enUS(999999999999999999999999n) // Works with arbitrarily large integers
+toCardinal(999999999999999999999999n) // Works with arbitrarily large integers
 ```
 
 ## Usage
@@ -41,12 +43,10 @@ enUS(999999999999999999999999n) // Works with arbitrarily large integers
 **ESM (Node.js, modern bundlers):**
 
 ```js
-// Named imports (tree-shakable)
-import { enUS, es } from 'n2words'
-
-// Subpath imports (smallest bundle, recommended for single language)
+// Import by language code
 import { toCardinal } from 'n2words/en-US'
-import { toCardinal as esWords } from 'n2words/es'
+import { toCardinal as es } from 'n2words/es'
+import { toCardinal, toOrdinal } from 'n2words/de'  // Languages with ordinal support
 ```
 
 **Browser (CDN):**

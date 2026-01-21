@@ -4,18 +4,16 @@ n2words: Number to words converter. ESM + UMD, Node >=20, zero dependencies.
 
 ## Critical Patterns
 
-1. **Alphabetical ordering** - Imports and exports in `index.js` MUST be alphabetically sorted
-2. **IETF BCP 47 codes** - Language codes: `en`, `zh-Hans`, `fr-BE`
-3. **Normalized exports** - Codes become camelCase identifiers: `zhHans`, `frBE`
+1. **IETF BCP 47 codes** - Language codes: `en-US`, `zh-Hans`, `fr-BE`
+2. **Subpath exports** - Import by language code: `import { toCardinal } from 'n2words/en-US'`
 
 ## Architecture
 
 **Functional, self-contained modules** - Each language is a standalone file exporting `toCardinal(value, options?)`. Languages with ordinal support also export `toOrdinal(value)`.
 
 ```text
-index.js                 # Re-exports all languages (alphabetically)
 src/
-├── en.js                # One file per language (flat structure)
+├── en-US.js             # One file per language (flat structure)
 ├── fr.js
 ├── zh-Hans.js
 └── utils/
@@ -46,7 +44,7 @@ export { toCardinal }
 
 ## Adding a Language
 
-1. `npm run lang:add <code>` - creates stub + fixture, updates index.js + type tests
+1. `npm run lang:add <code>` - creates stub + fixture + type tests
 2. Implement `toCardinal()` in `src/{code}.js`
 3. Add test cases to `test/fixtures/{code}.js`
 4. `npm test`

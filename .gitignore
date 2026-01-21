@@ -1,6 +1,7 @@
 # Build outputs
 dist/
 *.d.ts
+!index.d.ts
 
 # Dependencies
 node_modules/

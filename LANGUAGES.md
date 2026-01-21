@@ -71,20 +71,17 @@ Language codes follow [IETF BCP 47](https://tools.ietf.org/html/bcp47) standards
 ## Usage
 
 ```js
-// Named imports (tree-shakable)
-import { enUS, zhHans, frBE } from 'n2words'
+// Import language modules directly
+import { toCardinal } from 'n2words/en-US'
+import { toCardinal, toOrdinal } from 'n2words/de'
 
-enUS.toCardinal(42)  // 'forty-two'
-enUS.toOrdinal(42)   // 'forty-second' (if supported)
-
-// Subpath imports (smallest bundle)
-import { toCardinal, toOrdinal } from 'n2words/en-US'
+toCardinal(42)  // 'forty-two'
+toOrdinal(42)   // 'forty-second' (if supported)
 ```
 
-### Import Names
+### Import Paths
 
-- Simple codes import directly: `en`, `fr`, `de`
-- Hyphenated codes use camelCase: `zh-Hans` → `zhHans`, `fr-BE` → `frBE`
+Import paths use BCP 47 language codes: `n2words/en-US`, `n2words/zh-Hans`, `n2words/fr-BE`
 
 ## Language Options
 
