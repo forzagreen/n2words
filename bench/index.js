@@ -5,12 +5,12 @@
  * Results stream line-by-line as each language completes.
  *
  * Usage:
- *   npm run bench                          # All languages, all forms
- *   npm run bench -- en                    # Single language
- *   npm run bench -- en,fr,de              # Multiple languages
- *   npm run bench -- --form cardinal       # Cardinal only
- *   npm run bench -- --form ordinal        # Ordinal only
- *   npm run bench -- --save --compare      # Track changes over time
+ *   npm run bench                              # All languages, all functions
+ *   npm run bench -- en                        # Single language
+ *   npm run bench -- en,fr,de                  # Multiple languages
+ *   npm run bench -- --fn toCardinal           # toCardinal only
+ *   npm run bench -- --fn toOrdinal            # toOrdinal only
+ *   npm run bench -- --save --compare          # Track changes over time
  */
 import Benchmark from 'benchmark'
 import { existsSync, writeFileSync, readFileSync, renameSync } from 'node:fs'
@@ -20,20 +20,15 @@ import { fileURLToPath } from 'node:url'
 import { getLanguageCodes } from '../test/helpers/language-helpers.js'
 
 // ============================================================================
-// Form Configuration
+// Function Configuration
 // ============================================================================
 
 /**
- * Known conversion forms with display names.
- * Add new forms here as they're implemented.
+ * Known converter functions.
+ * These are the standard export names from language modules.
  */
-const FORMS = {
-  cardinal: { name: 'Cardinal', fn: 'toCardinal' },
-  ordinal: { name: 'Ordinal', fn: 'toOrdinal' }
-  // Future: currency: { name: 'Currency', fn: 'toCurrency' }
-}
-
-const ALL_FORM_KEYS = Object.keys(FORMS)
+const KNOWN_FUNCTIONS = ['toCardinal', 'toOrdinal']
+// Future: 'toCurrency', 'toYear', etc.
 
 // ============================================================================
 // Benchmark Configuration
@@ -99,31 +94,30 @@ const resultsFile = join(__dirname, 'results.json')
 // ============================================================================
 
 /**
- * Loads a converter by language code, returning all available forms.
+ * Loads a converter by language code, returning all available functions.
  *
  * @param {string} langCode Language code (e.g., 'en', 'fr', 'zh-Hans')
- * @param {string[]} requestedForms Forms to include (filters available forms)
- * @returns {Promise<{name: string, forms: Object<string, Function>} | null>}
+ * @param {string[]} requestedFunctions Function names to include (e.g., ['toCardinal', 'toOrdinal'])
+ * @returns {Promise<{name: string, functions: Object<string, Function>} | null>}
  */
-async function loadConverter (langCode, requestedForms) {
+async function loadConverter (langCode, requestedFunctions) {
   try {
     const module = await import(`../src/${langCode}.js`)
 
-    // Collect available forms that match requested forms
-    const forms = {}
-    for (const formKey of requestedForms) {
-      const formConfig = FORMS[formKey]
-      if (formConfig && module[formConfig.fn]) {
-        forms[formKey] = module[formConfig.fn]
+    // Collect available functions that match requested functions
+    const functions = {}
+    for (const fnName of requestedFunctions) {
+      if (module[fnName]) {
+        functions[fnName] = module[fnName]
       }
     }
 
-    // Return null if no matching forms found
-    if (Object.keys(forms).length === 0) {
+    // Return null if no matching functions found
+    if (Object.keys(functions).length === 0) {
       return null
     }
 
-    return { name: langCode, forms }
+    return { name: langCode, functions }
   } catch {
     // Not found
   }
@@ -147,7 +141,7 @@ function parseCommaSeparated (input) {
 const arguments_ = process.argv.slice(2)
 
 const requestedLanguages = []
-let requestedForms = [] // Empty = all forms
+let requestedFunctions = [] // Empty = all known functions
 let value = config.defaultValue
 let saveResults = false
 let compareResults = false
@@ -162,7 +156,7 @@ for (let index = 0; index < arguments_.length; index++) {
   // Skip values that follow flags
   if (index > 0) {
     const prevArg = arguments_[index - 1]
-    if (['--lang', '--language', '--value', '--remove', '--form', '--forms'].includes(prevArg)) {
+    if (['--lang', '--language', '--value', '--remove', '--function', '--fn'].includes(prevArg)) {
       continue
     }
   }
@@ -172,19 +166,19 @@ for (let index = 0; index < arguments_.length; index++) {
     if (lang) {
       requestedLanguages.push(...parseCommaSeparated(lang))
     }
-  } else if (arg === '--form' || arg === '--forms') {
-    const forms = arguments_[index + 1]
-    if (forms) {
-      const parsed = parseCommaSeparated(forms)
-      // Validate form names
-      for (const form of parsed) {
-        if (!FORMS[form]) {
-          console.error(chalk.red(`Unknown form: ${form}`))
-          console.error(chalk.gray(`Available forms: ${ALL_FORM_KEYS.join(', ')}`))
+  } else if (arg === '--function' || arg === '--fn') {
+    const fns = arguments_[index + 1]
+    if (fns) {
+      const parsed = parseCommaSeparated(fns)
+      // Validate function names
+      for (const fn of parsed) {
+        if (!KNOWN_FUNCTIONS.includes(fn)) {
+          console.error(chalk.red(`Unknown function: ${fn}`))
+          console.error(chalk.gray(`Known functions: ${KNOWN_FUNCTIONS.join(', ')}`))
           process.exit(1)
         }
       }
-      requestedForms.push(...parsed)
+      requestedFunctions.push(...parsed)
     }
   } else if (arg === '--value') {
     value = arguments_[index + 1]
@@ -207,9 +201,9 @@ for (let index = 0; index < arguments_.length; index++) {
   }
 }
 
-// Default to all forms if none specified
-if (requestedForms.length === 0) {
-  requestedForms = [...ALL_FORM_KEYS]
+// Default to all known functions if none specified
+if (requestedFunctions.length === 0) {
+  requestedFunctions = [...KNOWN_FUNCTIONS]
 }
 
 // Load previous results if comparing
@@ -219,7 +213,7 @@ if (compareResults) {
     console.log(chalk.yellow('⚠ No previous results found. Run with --save first.\n'))
     compareResults = false
   } else {
-    // Build previousResults map: { langName: { formKey: latestEntry } }
+    // Build previousResults map: { langName: { fnName: latestEntry } }
     previousResults = {}
     const languages = data.languages || {}
     for (const [lang, entries] of Object.entries(languages)) {
@@ -227,10 +221,10 @@ if (compareResults) {
       const matching = entries.filter(e => e.value === value)
       if (matching.length > 0) {
         const latest = matching[matching.length - 1]
-        previousResults[lang] = latest.forms || {}
+        previousResults[lang] = latest.functions || latest.forms || {}
         // Backward compatibility: old format stored hz/bytes directly
-        if (!latest.forms && latest.hz) {
-          previousResults[lang] = { cardinal: { hz: latest.hz, bytes: latest.bytes } }
+        if (!latest.functions && !latest.forms && latest.hz) {
+          previousResults[lang] = { toCardinal: { hz: latest.hz, bytes: latest.bytes } }
         }
       }
     }
@@ -364,13 +358,14 @@ if (showHistory) {
 
     console.log(chalk.cyan.bold(`\n History for ${langCode}:\n`))
 
-    // Build header based on forms in data
-    const formKeys = new Set()
+    // Build header based on functions in data
+    const fnNames = new Set()
     for (const entry of entries) {
-      if (entry.forms) {
-        Object.keys(entry.forms).forEach(k => formKeys.add(k))
+      const fns = entry.functions || entry.forms
+      if (fns) {
+        Object.keys(fns).forEach(k => fnNames.add(k))
       } else if (entry.hz) {
-        formKeys.add('cardinal') // Backward compatibility
+        fnNames.add('toCardinal') // Backward compatibility
       }
     }
 
@@ -378,31 +373,31 @@ if (showHistory) {
       chalk.gray('Date & Time'.padEnd(18)) + ' | ' +
       chalk.gray('Value'.padStart(10))
 
-    for (const formKey of formKeys) {
-      headerLine += ' | ' + chalk.gray(`${FORMS[formKey]?.name || formKey} ops/s`.padStart(12))
+    for (const fnName of fnNames) {
+      headerLine += ' | ' + chalk.gray(`${fnName} ops/s`.padStart(16))
     }
     headerLine += ' | ' + chalk.gray('Memory'.padStart(10))
 
     console.log(headerLine)
-    console.log(chalk.gray('-'.repeat(66 + formKeys.size * 15)))
+    console.log(chalk.gray('-'.repeat(66 + fnNames.size * 19)))
 
     for (const entry of entries) {
       let line = chalk.yellow(String(entry.id).padStart(4)) + ' | ' +
         chalk.gray(formatDateTime(entry.timestamp).padEnd(18)) + ' | ' +
         chalk.gray(formatTestValue(entry.value).padStart(10))
 
-      // Get forms data (with backward compatibility)
-      const formsData = entry.forms || (entry.hz ? { cardinal: { hz: entry.hz, bytes: entry.bytes } } : {})
+      // Get functions data (with backward compatibility)
+      const fnsData = entry.functions || entry.forms || (entry.hz ? { toCardinal: { hz: entry.hz, bytes: entry.bytes } } : {})
 
-      for (const formKey of formKeys) {
-        const formData = formsData[formKey]
-        const hz = formData?.hz ? formatOps(formData.hz) : '-'
-        line += ' | ' + chalk.white(hz.padStart(12))
+      for (const fnName of fnNames) {
+        const fnData = fnsData[fnName]
+        const hz = fnData?.hz ? formatOps(fnData.hz) : '-'
+        line += ' | ' + chalk.white(hz.padStart(16))
       }
 
-      // Show memory from first available form
-      const firstForm = Object.values(formsData)[0]
-      const mem = firstForm?.bytes ? formatBytes(firstForm.bytes) : '-'
+      // Show memory from first available function
+      const firstFn = Object.values(fnsData)[0]
+      const mem = firstFn?.bytes ? formatBytes(firstFn.bytes) : '-'
       line += ' | ' + chalk.gray(mem.padStart(10))
 
       console.log(line)
@@ -434,38 +429,38 @@ if (showHistory) {
       chalk.gray('Language'.padEnd(12)) + ' | ' +
       chalk.gray('ID'.padStart(4)) + ' | ' +
       chalk.gray('Runs'.padStart(4)) + ' | ' +
-      chalk.gray('Cardinal'.padStart(10)) + ' | ' +
-      chalk.gray('Ordinal'.padStart(10)) + ' | ' +
+      chalk.gray('toCardinal'.padStart(12)) + ' | ' +
+      chalk.gray('toOrdinal'.padStart(12)) + ' | ' +
       chalk.gray('Last Run'.padStart(18))
     )
-    console.log(chalk.gray('-'.repeat(75)))
+    console.log(chalk.gray('-'.repeat(79)))
 
     for (const entry of summaries) {
-      // Get forms data (with backward compatibility)
-      const formsData = entry.forms || (entry.hz ? { cardinal: { hz: entry.hz } } : {})
-      const cardinalHz = formsData.cardinal?.hz ? formatOps(formsData.cardinal.hz) : '-'
-      const ordinalHz = formsData.ordinal?.hz ? formatOps(formsData.ordinal.hz) : '-'
+      // Get functions data (with backward compatibility)
+      const fnsData = entry.functions || entry.forms || (entry.hz ? { toCardinal: { hz: entry.hz } } : {})
+      const cardinalHz = fnsData.toCardinal?.hz ? formatOps(fnsData.toCardinal.hz) : '-'
+      const ordinalHz = fnsData.toOrdinal?.hz ? formatOps(fnsData.toOrdinal.hz) : '-'
 
       console.log(
         chalk.gray(entry.name.padEnd(12)) + ' | ' +
         chalk.yellow(String(entry.id).padStart(4)) + ' | ' +
         chalk.gray(String(entry.count).padStart(4)) + ' | ' +
-        chalk.white(cardinalHz.padStart(10)) + ' | ' +
-        chalk.white(ordinalHz.padStart(10)) + ' | ' +
+        chalk.white(cardinalHz.padStart(12)) + ' | ' +
+        chalk.white(ordinalHz.padStart(12)) + ' | ' +
         chalk.gray(formatDateTime(entry.timestamp).padStart(18))
       )
     }
 
     // Summary stats
-    console.log(chalk.gray('-'.repeat(75)))
-    const withCardinal = summaries.filter(e => e.forms?.cardinal?.hz || e.hz)
+    console.log(chalk.gray('-'.repeat(79)))
+    const withCardinal = summaries.filter(e => e.functions?.toCardinal?.hz || e.forms?.toCardinal?.hz || e.hz)
 
     if (withCardinal.length > 0) {
-      const getHz = (e) => e.forms?.cardinal?.hz || e.hz
+      const getHz = (e) => e.functions?.toCardinal?.hz || e.forms?.toCardinal?.hz || e.hz
       const fastest = withCardinal.reduce((max, e) => getHz(e) > getHz(max) ? e : max)
       const slowest = withCardinal.reduce((min, e) => getHz(e) < getHz(min) ? e : min)
-      console.log(chalk.green(`Fastest cardinal: ${fastest.name} (${formatOps(getHz(fastest))})`))
-      console.log(chalk.yellow(`Slowest cardinal: ${slowest.name} (${formatOps(getHz(slowest))})`))
+      console.log(chalk.green(`Fastest toCardinal: ${fastest.name} (${formatOps(getHz(fastest))})`))
+      console.log(chalk.yellow(`Slowest toCardinal: ${slowest.name} (${formatOps(getHz(slowest))})`))
     }
     console.log()
   }
@@ -482,14 +477,14 @@ const languageCodes = requestedLanguages.length > 0
 
 const converters = []
 for (const code of languageCodes) {
-  const converter = await loadConverter(code, requestedForms)
+  const converter = await loadConverter(code, requestedFunctions)
   if (converter) {
     converters.push(converter)
   } else {
     // Check if language exists but has no matching forms
-    const allFormsConverter = await loadConverter(code, ALL_FORM_KEYS)
-    if (allFormsConverter) {
-      console.error(chalk.yellow(`Language ${code} has no ${requestedForms.join('/')} support, skipping`))
+    const allFnsConverter = await loadConverter(code, KNOWN_FUNCTIONS)
+    if (allFnsConverter) {
+      console.error(chalk.yellow(`Language ${code} has no ${requestedFunctions.join('/')} support, skipping`))
     } else {
       console.error(chalk.red(`Language not found: ${code}`))
       console.error(chalk.gray(`  Checked: src/${code}.js`))
@@ -499,7 +494,7 @@ for (const code of languageCodes) {
 }
 
 if (converters.length === 0) {
-  console.error(chalk.red('No languages found with requested forms'))
+  console.error(chalk.red('No languages found with requested functions'))
   process.exit(1)
 }
 
@@ -520,30 +515,30 @@ if (requestedLanguages.length > 0) {
 } else {
   console.log(chalk.gray(`Testing ${converters.length} languages`))
 }
-console.log(chalk.gray(`Forms: ${requestedForms.map(f => FORMS[f].name).join(', ')}`))
+console.log(chalk.gray(`Functions: ${requestedFunctions.join(', ')}`))
 console.log(chalk.gray(`Test value: ${value.toLocaleString()}`))
 if (fullMode) {
   console.log(chalk.cyan('Full mode: maximum iterations'))
 }
 console.log()
 
-// Determine which form columns to show (based on what's actually available)
-const availableForms = new Set()
+// Determine which functions to show (based on what's actually available)
+const availableFunctions = new Set()
 for (const converter of converters) {
-  Object.keys(converter.forms).forEach(f => availableForms.add(f))
+  Object.keys(converter.functions).forEach(f => availableFunctions.add(f))
 }
-const displayForms = requestedForms.filter(f => availableForms.has(f))
+const displayFunctions = requestedFunctions.filter(f => availableFunctions.has(f))
 
-// Print table header
-let header = chalk.cyan.bold('Language'.padEnd(12))
-for (const formKey of displayForms) {
-  const colWidth = compareResults ? 25 : 14
-  header += ' │ ' + chalk.cyan.bold(`${FORMS[formKey].name} ops/s`.padStart(colWidth))
-}
-header += ' │ ' + chalk.cyan.bold('Memory/iter'.padStart(compareResults ? 21 : 12))
+// Print table header (row-per-function layout)
+const opsColWidth = compareResults ? 25 : 14
+const memColWidth = compareResults ? 18 : 10
+const header = chalk.cyan.bold('Language'.padEnd(12)) +
+  ' │ ' + chalk.cyan.bold('Function'.padEnd(12)) +
+  ' │ ' + chalk.cyan.bold('ops/sec'.padStart(opsColWidth)) +
+  ' │ ' + chalk.cyan.bold('Memory'.padStart(memColWidth))
 
 console.log(header)
-const separatorLength = 12 + displayForms.length * (compareResults ? 28 : 17) + (compareResults ? 24 : 15)
+const separatorLength = 12 + 15 + opsColWidth + 3 + memColWidth + 3
 console.log(chalk.gray('─'.repeat(separatorLength)))
 
 // ============================================================================
@@ -556,9 +551,9 @@ const runTimestamp = new Date().toISOString()
 const results = []
 
 for (const converter of converters) {
-  const result = await benchmarkLanguage(converter, displayForms)
+  const result = await benchmarkLanguage(converter, displayFunctions)
   results.push(result)
-  printResultLine(result, displayForms)
+  printResultLine(result, displayFunctions)
   if (saveResults) {
     saveResultIncremental(result)
   }
@@ -569,27 +564,16 @@ console.log(chalk.gray('─'.repeat(separatorLength)))
 
 // Summary
 if (results.length > 1) {
-  // Find fastest for each form
-  for (const formKey of displayForms) {
-    const withForm = results.filter(r => r.forms[formKey]?.hz)
-    if (withForm.length > 0) {
-      const fastest = withForm.reduce((max, r) => r.forms[formKey].hz > max.forms[formKey].hz ? r : max)
-      console.log(chalk.green(`Fastest ${FORMS[formKey].name.toLowerCase()}: ${fastest.name}`))
+  // Find fastest and lowest memory for each function
+  for (const fnName of displayFunctions) {
+    const withFn = results.filter(r => r.functions[fnName]?.hz)
+    if (withFn.length > 0) {
+      const fastest = withFn.reduce((max, r) => r.functions[fnName].hz > max.functions[fnName].hz ? r : max)
+      const lowestMem = withFn.reduce((min, r) =>
+        r.functions[fnName].memoryPerIter < min.functions[fnName].memoryPerIter ? r : min
+      )
+      console.log(chalk.green(`${fnName}: fastest ${fastest.name}, lowest mem ${lowestMem.name}`))
     }
-  }
-
-  // Find lowest memory (use first available form's memory)
-  const withMemory = results.filter(r => {
-    const firstForm = Object.values(r.forms)[0]
-    return firstForm?.memoryPerIter !== undefined
-  })
-  if (withMemory.length > 0) {
-    const lowestMem = withMemory.reduce((min, r) => {
-      const minMem = Object.values(min.forms)[0]?.memoryPerIter || Infinity
-      const rMem = Object.values(r.forms)[0]?.memoryPerIter || Infinity
-      return rMem < minMem ? r : min
-    })
-    console.log(chalk.green(`Lowest memory: ${lowestMem.name}`))
   }
 }
 
@@ -604,26 +588,26 @@ console.log()
  * Benchmark a single language (all requested forms).
  *
  * @param {Object} converter Converter object with name and forms
- * @param {string[]} formsToRun Forms to benchmark
- * @returns {Promise<Object>} Result with forms: { cardinal: { hz, rme, memoryPerIter }, ... }
+ * @param {string[]} functionsToRun Forms to benchmark
+ * @returns {Promise<Object>} Result with functions: { cardinal: { hz, rme, memoryPerIter }, ... }
  */
-async function benchmarkLanguage (converter, formsToRun) {
-  const formResults = {}
+async function benchmarkLanguage (converter, functionsToRun) {
+  const fnResults = {}
 
-  for (const formKey of formsToRun) {
-    const fn = converter.forms[formKey]
+  for (const fnName of functionsToRun) {
+    const fn = converter.functions[fnName]
     if (!fn) {
-      formResults[formKey] = null
+      fnResults[fnName] = null
       continue
     }
 
     // Run performance benchmark
-    const perfResult = await runPerfBenchmark(fn, converter.name, formKey)
+    const perfResult = await runPerfBenchmark(fn, converter.name, fnName)
 
     // Run memory benchmark
     const memoryPerIter = measureMemory(fn)
 
-    formResults[formKey] = {
+    fnResults[fnName] = {
       hz: perfResult.hz,
       rme: perfResult.rme,
       runs: perfResult.runs,
@@ -633,20 +617,20 @@ async function benchmarkLanguage (converter, formsToRun) {
 
   return {
     name: converter.name,
-    forms: formResults
+    functions: fnResults
   }
 }
 
 /**
  * Run Benchmark.js performance test for a single function.
  */
-function runPerfBenchmark (fn, langName, formKey) {
+function runPerfBenchmark (fn, langName, fnName) {
   return new Promise((resolve) => {
     const suite = new Benchmark.Suite()
 
     const benchOptions = fullMode ? config.perfFull : config.perf
 
-    suite.add(`${langName}.${formKey}`, () => {
+    suite.add(`${langName}.${fnName}`, () => {
       fn(value)
     }, benchOptions)
 
@@ -725,60 +709,68 @@ function measureMemory (fn) {
 }
 
 /**
- * Print a single result line.
+ * Print result lines (one row per form).
  */
-function printResultLine (result, displayForms) {
-  let line = chalk.gray(result.name.padEnd(12))
-
+function printResultLine (result, displayFunctions) {
   const prev = previousResults?.[result.name]
+  const opsColWidth = compareResults ? 25 : 14
+  const memColWidth = compareResults ? 18 : 10
 
-  // Form columns
-  for (const formKey of displayForms) {
-    const formResult = result.forms[formKey]
+  let isFirstRow = true
 
-    if (!formResult) {
-      // Form not available for this language
-      const colWidth = compareResults ? 25 : 14
-      line += ' │ ' + chalk.gray('-'.padStart(colWidth))
+  for (const fnName of displayFunctions) {
+    const fnResult = result.functions[fnName]
+
+    if (!fnResult) {
+      // Skip forms this language doesn't support
       continue
     }
 
-    const hz = formatOps(formResult.hz)
-    const rme = `(±${formResult.rme.toFixed(1)}%)`
+    // Language name (only on first row, blank on subsequent)
+    const langCol = isFirstRow ? chalk.gray(result.name.padEnd(12)) : ' '.repeat(12)
+    isFirstRow = false
+
+    // Function name (e.g., toCardinal, toOrdinal)
+    const fnCol = chalk.cyan(fnName.padEnd(12))
+
+    // ops/sec
+    const hz = formatOps(fnResult.hz)
+    const rme = `(±${fnResult.rme.toFixed(1)}%)`
+    let opsCol
 
     if (compareResults && previousResults) {
       const hzBase = `${hz} ${rme}`
-      const prevForm = prev?.[formKey]
+      const prevForm = prev?.[fnName]
       if (prevForm?.hz) {
-        const hzDiff = ((formResult.hz - prevForm.hz) / prevForm.hz) * 100
+        const hzDiff = ((fnResult.hz - prevForm.hz) / prevForm.hz) * 100
         const hzChange = formatChange(hzDiff)
-        line += ' │ ' + hzBase.padStart(16) + ' ' + hzChange
+        opsCol = hzBase.padStart(16) + ' ' + hzChange
       } else {
-        line += ' │ ' + hzBase.padStart(16) + ' ' + chalk.gray('(new)'.padStart(8))
+        opsCol = hzBase.padStart(16) + ' ' + chalk.gray('(new)'.padStart(8))
       }
     } else {
-      line += ' │ ' + chalk.white(`${hz} ${rme}`.padStart(14))
+      opsCol = chalk.white(`${hz} ${rme}`.padStart(opsColWidth))
     }
-  }
 
-  // Memory column (use first available form's memory)
-  const firstFormResult = Object.values(result.forms).find(f => f?.memoryPerIter !== undefined)
-  const mem = firstFormResult ? formatBytes(firstFormResult.memoryPerIter) : '-'
+    // Memory
+    const mem = formatBytes(fnResult.memoryPerIter)
+    let memCol
 
-  if (compareResults && previousResults) {
-    const prevFirstForm = prev ? Object.values(prev)[0] : null
-    if (prevFirstForm?.bytes) {
-      const memDiff = ((firstFormResult.memoryPerIter - prevFirstForm.bytes) / prevFirstForm.bytes) * 100
-      const memChange = formatChange(memDiff, true) // inverted: negative is good for memory
-      line += ' │ ' + mem.padStart(12) + ' ' + memChange
+    if (compareResults && previousResults) {
+      const prevForm = prev?.[fnName]
+      if (prevForm?.bytes) {
+        const memDiff = ((fnResult.memoryPerIter - prevForm.bytes) / prevForm.bytes) * 100
+        const memChange = formatChange(memDiff, true)
+        memCol = mem.padStart(10) + ' ' + memChange
+      } else {
+        memCol = mem.padStart(10) + ' ' + chalk.gray('(new)'.padStart(7))
+      }
     } else {
-      line += ' │ ' + mem.padStart(12) + ' ' + chalk.gray('(new)'.padStart(8))
+      memCol = chalk.gray(mem.padStart(memColWidth))
     }
-  } else {
-    line += ' │ ' + chalk.gray(mem.padStart(12))
-  }
 
-  console.log(line)
+    console.log(`${langCol} │ ${fnCol} │ ${opsCol} │ ${memCol}`)
+  }
 }
 
 /**
@@ -825,12 +817,12 @@ function saveResultIncremental (result) {
 
   // Build forms data for storage
   const formsData = {}
-  for (const [formKey, formResult] of Object.entries(result.forms)) {
-    if (formResult) {
-      formsData[formKey] = {
-        hz: formResult.hz,
-        rme: formResult.rme,
-        bytes: formResult.memoryPerIter
+  for (const [fnName, fnResult] of Object.entries(result.functions)) {
+    if (fnResult) {
+      formsData[fnName] = {
+        hz: fnResult.hz,
+        rme: fnResult.rme,
+        bytes: fnResult.memoryPerIter
       }
     }
   }
@@ -840,7 +832,7 @@ function saveResultIncremental (result) {
     id: data.nextId++,
     timestamp: runTimestamp,
     value,
-    forms: formsData
+    functions: formsData
   })
 
   // Prune old entries
@@ -885,7 +877,7 @@ function displayHelp () {
   console.log(chalk.cyan('Options:'))
   console.log('  ' + chalk.yellow('<lang>') + '              Language code(s) as positional args (e.g., en fr,de)')
   console.log('  ' + chalk.yellow('--lang') + ' <code>       Language(s) to benchmark (alternative syntax)')
-  console.log('  ' + chalk.yellow('--form') + ' <form>       Form(s) to benchmark: ' + ALL_FORM_KEYS.join(', ') + ' (default: all)')
+  console.log('  ' + chalk.yellow('--function') + ' <fn>     Function(s) to benchmark: ' + KNOWN_FUNCTIONS.join(', ') + ' (default: all)')
   console.log('  ' + chalk.yellow('--value') + ' <number>    Test value (default: Number.MAX_SAFE_INTEGER)')
   console.log('  ' + chalk.yellow('--full') + '              Full mode with max iterations (slower, more accurate)')
   console.log('  ' + chalk.yellow('--save') + '              Save results to history')
@@ -894,16 +886,16 @@ function displayHelp () {
   console.log('  ' + chalk.yellow('--remove') + ' <id>       Remove history entry by ID (comma-separated for multiple)')
   console.log('  ' + chalk.yellow('--help') + '              Display this help\n')
   console.log(chalk.cyan('Examples:'))
-  console.log('  ' + chalk.gray('npm run bench                          # All languages, all forms'))
-  console.log('  ' + chalk.gray('npm run bench -- en                    # English only'))
-  console.log('  ' + chalk.gray('npm run bench -- en,fr,de              # Multiple languages'))
-  console.log('  ' + chalk.gray('npm run bench -- --form cardinal       # Cardinal form only'))
-  console.log('  ' + chalk.gray('npm run bench -- --form ordinal        # Ordinal form only'))
-  console.log('  ' + chalk.gray('npm run bench -- en --form cardinal    # Single lang, single form'))
-  console.log('  ' + chalk.gray('npm run bench -- --full                # Full accuracy mode'))
-  console.log('  ' + chalk.gray('npm run bench -- --save --compare      # Track changes'))
-  console.log('  ' + chalk.gray('npm run bench -- --history             # Summary of all saved'))
-  console.log('  ' + chalk.gray('npm run bench -- en --history          # History for one lang'))
-  console.log('  ' + chalk.gray('npm run bench -- --remove 5            # Remove entry by ID'))
-  console.log('  ' + chalk.gray('npm run bench -- --remove 1,2,3        # Remove multiple\n'))
+  console.log('  ' + chalk.gray('npm run bench                              # All languages, all functions'))
+  console.log('  ' + chalk.gray('npm run bench -- en                        # English only'))
+  console.log('  ' + chalk.gray('npm run bench -- en,fr,de                  # Multiple languages'))
+  console.log('  ' + chalk.gray('npm run bench -- --fn toCardinal           # toCardinal only'))
+  console.log('  ' + chalk.gray('npm run bench -- --fn toOrdinal            # toOrdinal only'))
+  console.log('  ' + chalk.gray('npm run bench -- en --function toCardinal  # Single lang, single fn'))
+  console.log('  ' + chalk.gray('npm run bench -- --full                    # Full accuracy mode'))
+  console.log('  ' + chalk.gray('npm run bench -- --save --compare          # Track changes'))
+  console.log('  ' + chalk.gray('npm run bench -- --history                 # Summary of all saved'))
+  console.log('  ' + chalk.gray('npm run bench -- en --history              # History for one lang'))
+  console.log('  ' + chalk.gray('npm run bench -- --remove 5                # Remove entry by ID'))
+  console.log('  ' + chalk.gray('npm run bench -- --remove 1,2,3            # Remove multiple\n'))
 }
