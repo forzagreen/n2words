@@ -36,7 +36,7 @@ npm run lang:add <code>   # e.g., ko, sr-Cyrl, fr-BE
 
 This scaffolds all required files. Then:
 
-1. Implement `toCardinal(value)` in `src/<code>.js`
+1. Implement at least one converter function in `src/<code>.js` (e.g., `toCardinal`, `toOrdinal`)
 2. Add test cases to `test/fixtures/<code>.js`
 3. Run `npm test`
 

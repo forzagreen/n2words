@@ -63,7 +63,7 @@ function toCardinal (value, options) {
 npm run lang:add <code>  # Creates stub + fixture + type tests
 ```
 
-Then: implement `toCardinal()` in `src/{code}.js`, add cases to `test/fixtures/{code}.js`, run `npm test`.
+Then: implement at least one converter function (`toCardinal`, `toOrdinal`, etc.) in `src/{code}.js`, add cases to `test/fixtures/{code}.js`, run `npm test`.
 
 **Reference implementations by pattern**:
 
