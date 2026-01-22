@@ -82,10 +82,6 @@ jobs:
         if: ${{ matrix.coverage }}
         run: npm run coverage
 
-      - name: Run type and export tests
-        if: ${{ matrix.coverage }}
-        run: npm run build:types && npm run test:types:run && npm run test:exports:run
-
       - name: Check coverage thresholds
         if: ${{ matrix.coverage }}
         run: npx c8 check-coverage --lines 90 --functions 90 --branches 85 --statements 90

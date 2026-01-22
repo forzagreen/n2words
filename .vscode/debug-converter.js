@@ -8,21 +8,16 @@
  *   - "Debug Language Converter (Custom Numbers)" - Prompts for custom numbers
  *
  * Usage (command line):
- *   node .vscode/debug-converter.js en                 # Test with default cases
- *   node .vscode/debug-converter.js en 42              # Test specific number
- *   node .vscode/debug-converter.js en 42 -100 3.14    # Test multiple numbers
- *   node .vscode/debug-converter.js en "42 -100 3.14"  # Space-separated string also works
+ *   node .vscode/debug-converter.js en-US                # Test with default cases
+ *   node .vscode/debug-converter.js en-US 42             # Test specific number
+ *   node .vscode/debug-converter.js en-US 42 -100 3.14   # Test multiple numbers
+ *   node .vscode/debug-converter.js en-US "42 -100 3.14" # Space-separated string also works
  *   node .vscode/debug-converter.js zh-Hans
- *   node .vscode/debug-converter.js zhHans             # Normalized exports work too
  */
 
-import * as n2words from '../index.js'
-import { getConvertersByCode, getLanguageCodes } from '../test/helpers/language-helpers.js'
+import { getLanguageCodes } from '../test/helpers/language-helpers.js'
 
-// Build converter map keyed by language code
-const converters = getConvertersByCode(n2words)
-
-const input = process.argv[2] || 'en'
+const langCode = process.argv[2] || 'en-US'
 // Handle both command-line args and VSCode input (which may be a single space-separated string)
 let customNumbers = process.argv.slice(3)
 if (customNumbers.length === 1 && customNumbers[0].includes(' ')) {
@@ -32,28 +27,29 @@ if (customNumbers.length === 1 && customNumbers[0].includes(' ')) {
   // Empty string from VSCode prompt - use default test cases
   customNumbers = []
 }
-let converterName = input
-let converter = n2words[converterName]
 
-// If not found directly, try to resolve from language code
-if (!converter && converters[input]) {
-  converter = converters[input]
-  // Find the converter name for display
-  converterName = Object.keys(n2words).find(key => n2words[key] === converter) || input
-}
-
-if (!converter) {
-  console.error(`Converter not found: ${input}`)
+// Load the language module dynamically
+let module
+try {
+  module = await import(`../src/${langCode}.js`)
+} catch {
+  console.error(`Language not found: ${langCode}`)
   console.log('\nAvailable language codes:')
   const codes = getLanguageCodes().sort()
   codes.forEach(code => console.log(`  - ${code}`))
-
-  console.log('\nOr use normalized export names directly (e.g., en, es, zhHans, frBE)')
-
   process.exit(1)
 }
 
-console.log(`Testing ${converterName}\n`)
+// Get available functions
+const functions = ['toCardinal', 'toOrdinal'].filter(fn => module[fn])
+
+if (functions.length === 0) {
+  console.error(`No converter functions found in ${langCode}`)
+  process.exit(1)
+}
+
+console.log(`Testing ${langCode}`)
+console.log(`Functions: ${functions.join(', ')}\n`)
 
 // Parse custom numbers or use default test cases
 let testCases
@@ -95,9 +91,28 @@ if (customNumbers.length > 0) {
   console.log('Testing default cases...\n')
 }
 
-for (const testCase of testCases) {
-  const result = converter(testCase)
-  console.log(`${String(testCase).padStart(20)} → ${result}`)
+// Test each function
+for (const fnName of functions) {
+  const fn = module[fnName]
+  console.log(`--- ${fnName} ---`)
+
+  for (const testCase of testCases) {
+    // Skip invalid inputs for ordinal (negative, decimal)
+    if (fnName === 'toOrdinal') {
+      if (typeof testCase === 'number' && (testCase < 0 || !Number.isInteger(testCase))) {
+        console.log(`${String(testCase).padStart(20)} → (skipped - ordinal requires positive integer)`)
+        continue
+      }
+    }
+
+    try {
+      const result = fn(testCase)
+      console.log(`${String(testCase).padStart(20)} → ${result}`)
+    } catch (err) {
+      console.log(`${String(testCase).padStart(20)} → Error: ${err.message}`)
+    }
+  }
+  console.log()
 }
 
-console.log('\nDebug complete. Set breakpoints in language files to step through conversion.')
+console.log('Debug complete. Set breakpoints in language files to step through conversion.')

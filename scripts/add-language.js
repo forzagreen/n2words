@@ -316,72 +316,6 @@ export const ordinal = [
 // ============================================================================
 
 /**
- * Insert a line into sorted content.
- *
- * @param {string[]} lines Existing lines
- * @param {string} newLine Line to insert
- * @param {function} getSortKey Function to extract sort key from line
- * @returns {string[]} Updated lines
- */
-function insertSorted (lines, newLine, getSortKey) {
-  const newKey = getSortKey(newLine)
-  let insertIndex = lines.length
-
-  for (let i = 0; i < lines.length; i++) {
-    const existingKey = getSortKey(lines[i])
-    if (existingKey > newKey) {
-      insertIndex = i
-      break
-    }
-  }
-
-  lines.splice(insertIndex, 0, newLine)
-  return lines
-}
-
-/**
- * Update index.js with new language.
- *
- * @param {string} code Language code
- * @param {string} normalized Normalized code
- */
-function updateIndexFile (code, normalized) {
-  const filePath = './index.js'
-  let content = readFileSync(filePath, 'utf-8')
-
-  // 1. Add import line
-  const importLine = `import { toCardinal as ${normalized} } from './src/${code}.js'`
-  const importMatch = content.match(/^import \{ toCardinal as \w+ \} from '\.\/src\/[\w-]+\.js'$/gm)
-  if (importMatch) {
-    const imports = insertSorted(
-      [...importMatch],
-      importLine,
-      line => line.match(/as (\w+)/)?.[1] || ''
-    )
-    const firstImport = importMatch[0]
-    const lastImport = importMatch[importMatch.length - 1]
-    const importSection = content.slice(
-      content.indexOf(firstImport),
-      content.indexOf(lastImport) + lastImport.length
-    )
-    content = content.replace(importSection, imports.join('\n'))
-  }
-
-  // 2. Add to named exports
-  const namedExportMatch = content.match(/export \{[\s\S]*?\n\}/)
-  if (namedExportMatch) {
-    const exportBlock = namedExportMatch[0]
-    const exportLines = exportBlock.split('\n').filter(l => l.trim() && !l.includes('export {') && !l.includes('}'))
-    const newExportLine = `  ${normalized},`
-    insertSorted(exportLines, newExportLine, line => line.trim().replace(',', ''))
-    const newExportBlock = 'export {\n' + exportLines.join('\n') + '\n}'
-    content = content.replace(exportBlock, newExportBlock)
-  }
-
-  writeFileSync(filePath, content)
-}
-
-/**
  * Check which forms are already implemented for a language.
  *
  * @param {string} code Language code
@@ -577,11 +511,6 @@ async function main () {
     }
     writeFileSync(fixtureFilePath, generateTestFixture(code, languageName, formsToScaffold))
     console.log(chalk.green('✓ Created test fixture'))
-
-    // Update index.js
-    console.log(chalk.gray('Updating index.js...'))
-    updateIndexFile(code, normalized)
-    console.log(chalk.green('✓ Updated index.js'))
   } else {
     // Add forms to existing files
     console.log(chalk.gray(`\nUpdating ${langFilePath}...`))

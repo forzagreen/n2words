@@ -1,9 +1,0 @@
-{
-  "entrypoints": [
-    "."
-  ],
-  "ignoreRules": [
-    "cjs-resolves-to-esm",
-    "false-esm"
-  ]
-}

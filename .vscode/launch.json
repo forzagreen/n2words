@@ -80,8 +80,8 @@
     {
       "id": "languageCode",
       "type": "promptString",
-      "description": "Language code (e.g., en, es, zh-Hans)",
-      "default": "en"
+      "description": "Language code (e.g., en-US, es, zh-Hans)",
+      "default": "en-US"
     },
     {
       "id": "customNumbers",
