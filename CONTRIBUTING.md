@@ -13,20 +13,20 @@ npm test
 
 ## Pull Request Process
 
-1. Create a feature branch: `git checkout -b feature/add-korean`
+1. Create a feature branch: `git checkout -b feat/add-pt-BR`
 2. Make changes, then run `npm run lint && npm test`
 3. Commit using [Conventional Commits](https://www.conventionalcommits.org/): `git commit -m "feat(lang): add Korean"`
 4. Push and open PR targeting `main`
 
 **Common commit formats:**
 
-- `feat(lang): add Korean` — new language
-- `fix(en): correct thousand handling` — language-specific fix
+- `feat(pt-BR): add Brazilian Portuguese` — new language
+- `fix(en-US): correct thousand handling` — language-specific fix
 - `perf(ja): optimize BigInt handling` — performance improvement
 - `refactor(core): simplify exports` — code refactoring
 - `docs: update README` — documentation
 
-See [.commitlintrc.mjs](.commitlintrc.mjs) for the full list of types and scopes.
+Scopes use BCP 47 language codes (`en-US`, `fr-BE`, `zh-Hans`) or project areas (`core`, `types`, `umd`). See [.commitlintrc.mjs](.commitlintrc.mjs) for details.
 
 ## Adding a New Language
 
@@ -48,9 +48,9 @@ This scaffolds all required files. Then:
 ## Testing
 
 ```bash
-npm test              # Run all tests
-npm run test:all      # Full suite (types, UMD, browsers)
+npm test              # Run unit tests + build types
 npm run coverage      # With coverage report
+npm run bench         # Performance benchmarks
 ```
 
 ## Release Process (Maintainers)

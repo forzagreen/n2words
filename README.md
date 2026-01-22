@@ -26,11 +26,12 @@ npm install n2words
 ```
 
 ```js
-import { toCardinal } from 'n2words/en-US'
+import { toCardinal, toOrdinal } from 'n2words/en-US'
 import { toCardinal as es } from 'n2words/es'
 import { toCardinal as ar } from 'n2words/ar'
 
 toCardinal(123)               // 'one hundred twenty-three'
+toOrdinal(123)                // 'one hundred twenty-third'
 es(123)                       // 'ciento veintitrés'
 ar(1, { gender: 'feminine' }) // 'واحدة' (with options)
 
@@ -46,7 +47,7 @@ toCardinal(999999999999999999999999n) // Works with arbitrarily large integers
 // Import by language code
 import { toCardinal } from 'n2words/en-US'
 import { toCardinal as es } from 'n2words/es'
-import { toCardinal, toOrdinal } from 'n2words/de'  // Languages with ordinal support
+import { toCardinal, toOrdinal } from 'n2words/en-US'  // Languages with ordinal support
 ```
 
 **Browser (CDN):**
@@ -65,8 +66,9 @@ Individual language bundles are recommended for browsers (~1.4 KB gzipped each).
 <script src="https://cdn.jsdelivr.net/npm/n2words/dist/en-US.umd.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/n2words/dist/es.umd.js"></script>
 <script>
-  n2words.enUS(42)  // 'forty-two'
-  n2words.es(42)    // 'cuarenta y dos'
+  n2words.enUS(42)           // 'forty-two'
+  n2words.es(42)             // 'cuarenta y dos'
+  n2words.ordinal.enUS(42)   // 'forty-second' (languages with ordinal support)
 </script>
 ```
 
@@ -82,18 +84,17 @@ Highlights: Arabic, Chinese (Simplified/Traditional), English, French, German, H
 
 - **Node.js**: 20 or above
 - **Browsers**: Chrome 67+, Firefox 68+, Safari 14+, Edge 79+ (desktop + mobile)
-- **Global Coverage**: ~86% of all users worldwide
+- **Global Coverage**: ~87% of all users worldwide
 
 BigInt is a hard requirement and cannot be polyfilled. Older browsers are not supported.
 
 ## Performance & Bundle Size
 
-| Import Strategy             | Gzipped   | Use Case                     |
-| --------------------------- | --------- | ---------------------------- |
-| **Subpath import** ⭐       | ~1.4 KB   | Single language              |
-| Named import (1 lang)       | ~1.4-2 KB | Single language with barrel  |
-| Named imports (3 langs)     | ~4-6 KB   | Multiple languages           |
-| UMD bundle                  | ~1.4-2 KB | Legacy browser support       |
+| Import Strategy          | Gzipped      | Use Case                      |
+| ------------------------ | ------------ | ----------------------------- |
+| **Subpath import** ⭐    | ~1.4 KB      | Single language (recommended) |
+| Multiple subpath imports | ~1.4 KB each | Multiple languages            |
+| UMD bundle               | ~1.4 KB      | Legacy browser support        |
 
 **Performance characteristics:**
 

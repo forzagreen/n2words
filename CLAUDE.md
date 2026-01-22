@@ -2,100 +2,97 @@
 
 n2words: Number to words converter. ESM + UMD, Node >=20, zero dependencies.
 
-## Critical Patterns
+## Quick Reference
 
-1. **IETF BCP 47 codes** - Language codes: `en-US`, `zh-Hans`, `fr-BE`
-2. **Subpath exports** - Import by language code: `import { toCardinal } from 'n2words/en-US'`
+- **Language codes**: IETF BCP 47 (`en-US`, `zh-Hans`, `fr-BE`)
+- **Imports**: `import { toCardinal } from 'n2words/en-US'`
+- **Exports**: `toCardinal(value, options?)`, optionally `toOrdinal(value)`
 
-## Architecture
-
-**Functional, self-contained modules** - Each language is a standalone file exporting `toCardinal(value, options?)`. Languages with ordinal support also export `toOrdinal(value)`.
+## Project Structure
 
 ```text
 src/
-├── en-US.js             # One file per language (flat structure)
-├── fr.js
-├── zh-Hans.js
+├── {lang-code}.js       # One file per language (55 total)
 └── utils/
-    ├── parse-cardinal.js   # Cardinal value parsing (decimals, negatives)
-    ├── parse-ordinal.js    # Ordinal value parsing (positive integers only)
+    ├── parse-cardinal.js   # Cardinal parsing (decimals, negatives)
+    ├── parse-ordinal.js    # Ordinal parsing (positive integers only)
     ├── is-plain-object.js  # Object type checking
     └── validate-options.js # Options validation
 ```
 
-**Language file pattern** (JSDoc required for type generation):
+## Language File Pattern
 
 ```javascript
 import { parseCardinalValue } from './utils/parse-cardinal.js'
 
 /**
- * @param {number | string | bigint} value - The numeric value to convert
- * @returns {string} The number in words
+ * @param {number | string | bigint} value
+ * @returns {string}
  */
 function toCardinal (value) {
   const { isNegative, integerPart, decimalPart } = parseCardinalValue(value)
-  // Convert integerPart (bigint) to words
-  // Handle isNegative prefix and decimalPart suffix
+  // integerPart is bigint, handle isNegative prefix and decimalPart suffix
   return result
 }
 
 export { toCardinal }
 ```
 
-## Adding a Language
-
-1. `npm run lang:add <code>` - creates stub + fixture + type tests
-2. Implement `toCardinal()` in `src/{code}.js`
-3. Add test cases to `test/fixtures/{code}.js`
-4. `npm test`
-
-**Reference implementations**:
-
-| Pattern       | Files                            |
-| ------------- | -------------------------------- |
-| Western scale | `en-US.js`, `de.js`, `fr.js`     |
-| South Asian   | `hi.js`, `bn.js`                 |
-| East Asian    | `ja.js`, `ko.js`, `zh-Hans.js`   |
-| Slavic        | `ru.js`, `pl.js`, `uk.js`        |
-
 ## Options Pattern
-
-Languages with options accept a second parameter (JSDoc required):
 
 ```javascript
 import { validateOptions } from './utils/validate-options.js'
 
 /**
- * @param {number | string | bigint} value - The numeric value to convert
- * @param {Object} [options] - Optional configuration
- * @param {('masculine'|'feminine')} [options.gender='masculine'] - Grammatical gender
- * @returns {string} The number in words
+ * @param {number | string | bigint} value
+ * @param {Object} [options]
+ * @param {('masculine'|'feminine')} [options.gender='masculine']
+ * @returns {string}
  */
 function toCardinal (value, options) {
   options = validateOptions(options)
   const { isNegative, integerPart, decimalPart } = parseCardinalValue(value)
-
-  // Extract options with defaults at entry point
   const { gender = 'masculine' } = options
-
-  // Pass explicit values to internal functions (not the options object)
-  result += integerToWords(integerPart, gender)
+  // Pass explicit values to internal functions, not options object
 }
 ```
 
-## Commits & Testing
-
-Conventional Commits required. See `.commitlintrc.mjs` for types and scopes.
-
-Before PR:
+## Adding a Language
 
 ```bash
-npm run lint:fix && npm test:all
+npm run lang:add <code>  # Creates stub + fixture + type tests
 ```
 
-Before/after `src/` changes (check for regressions):
+Then: implement `toCardinal()` in `src/{code}.js`, add cases to `test/fixtures/{code}.js`, run `npm test`.
+
+**Reference implementations by pattern**:
+
+| Pattern     | Examples                       |
+| ----------- | ------------------------------ |
+| Western     | `en-US.js`, `de.js`, `fr.js`   |
+| South Asian | `hi.js`, `bn.js`               |
+| East Asian  | `ja.js`, `ko.js`, `zh-Hans.js` |
+| Slavic      | `ru.js`, `pl.js`, `uk.js`      |
+
+## Commands
 
 ```bash
-npm run bench -- --lang en             # Quick single language check
-npm run bench -- --save --compare      # Track changes over time
+npm test                         # Unit tests + build types
+npm run lint:fix                 # Fix linting issues
+npm run bench                    # All languages
+npm run bench -- en-US           # Single language
+npm run bench -- en-US,fr,de     # Multiple languages
+npm run bench -- --save --compare  # Track changes over time
 ```
+
+## Commits
+
+Conventional Commits required. Scopes: BCP 47 codes (`en-US`, `fr-BE`) or project areas (`core`, `types`, `umd`).
+
+```bash
+feat(pt-BR): add Brazilian Portuguese
+fix(en-US): correct thousand handling
+perf(ja): optimize BigInt handling
+```
+
+See `.commitlintrc.mjs` for full configuration.
