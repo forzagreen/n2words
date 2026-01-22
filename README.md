@@ -17,7 +17,7 @@
 - **Zero Dependencies** — Works everywhere: Node.js, browsers, Deno, Bun
 - **Type-Safe** — Full TypeScript support with generated `.d.ts` declarations
 - **BigInt Support** — Handle arbitrarily large numbers without precision loss
-- **High Performance** — 1M+ ops/sec, ~1.4 KB gzipped per language
+- **Lightweight** — ~1.4 KB gzipped per language, pure functions, BigInt math
 
 ## Quick Start
 
@@ -78,37 +78,23 @@ See **[LANGUAGES.md](LANGUAGES.md)** for the complete list with codes, export na
 
 Highlights: Arabic, Chinese (Simplified/Traditional), English, French, German, Hindi, Japanese, Korean, Portuguese, Russian, Spanish, and [44 more](LANGUAGES.md).
 
-## Browser Compatibility
+## Compatibility
 
-**Minimum Requirements** (due to BigInt):
+- **Node.js**: 20+
+- **Browsers**: Chrome 67+, Firefox 68+, Safari 14+, Edge 79+ (~87% global coverage)
+- **Runtimes**: Deno, Bun, Cloudflare Workers
 
-- **Node.js**: 20 or above
-- **Browsers**: Chrome 67+, Firefox 68+, Safari 14+, Edge 79+ (desktop + mobile)
-- **Global Coverage**: ~87% of all users worldwide
+Requires BigInt support (cannot be polyfilled).
 
-BigInt is a hard requirement and cannot be polyfilled. Older browsers are not supported.
+## Performance
 
-## Performance & Bundle Size
+Each language module is ~1.4 KB gzipped. Optimized with:
 
-| Import Strategy          | Gzipped      | Use Case                      |
-| ------------------------ | ------------ | ----------------------------- |
-| **Subpath import** ⭐    | ~1.4 KB      | Single language (recommended) |
-| Multiple subpath imports | ~1.4 KB each | Multiple languages            |
-| UMD bundle               | ~1.4 KB      | Legacy browser support        |
-
-**Performance characteristics:**
-
-- 1M+ ops/sec for most languages
-- Sub-millisecond conversion time
-- ~90-800 bytes memory per conversion
 - BigInt modulo operations (no string manipulation)
+- Pure functions with no shared state
+- Minimal memory allocation per conversion
 
-**Run benchmarks:**
-
-```bash
-npm run bench              # Performance and memory benchmarks
-npm run bench -- --full    # Full mode (more iterations, slower)
-```
+Run `npm run bench` to measure on your hardware.
 
 ## Contributing
 
