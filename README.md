@@ -17,7 +17,7 @@
 - **Zero Dependencies** — Works everywhere: Node.js, browsers, Deno, Bun
 - **Type-Safe** — Full TypeScript support with generated `.d.ts` declarations
 - **BigInt Support** — Handle arbitrarily large numbers without precision loss
-- **High Performance** — 1M+ ops/sec, ~1.4 KB gzipped per language
+- **Lightweight** — ~1.4 KB gzipped per language, pure functions, BigInt math
 
 ## Quick Start
 
@@ -26,11 +26,12 @@ npm install n2words
 ```
 
 ```js
-import { toCardinal } from 'n2words/en-US'
+import { toCardinal, toOrdinal } from 'n2words/en-US'
 import { toCardinal as es } from 'n2words/es'
 import { toCardinal as ar } from 'n2words/ar'
 
 toCardinal(123)               // 'one hundred twenty-three'
+toOrdinal(123)                // 'one hundred twenty-third'
 es(123)                       // 'ciento veintitrés'
 ar(1, { gender: 'feminine' }) // 'واحدة' (with options)
 
@@ -46,7 +47,7 @@ toCardinal(999999999999999999999999n) // Works with arbitrarily large integers
 // Import by language code
 import { toCardinal } from 'n2words/en-US'
 import { toCardinal as es } from 'n2words/es'
-import { toCardinal, toOrdinal } from 'n2words/de'  // Languages with ordinal support
+import { toCardinal, toOrdinal } from 'n2words/en-US'  // Languages with ordinal support
 ```
 
 **Browser (CDN):**
@@ -65,8 +66,9 @@ Individual language bundles are recommended for browsers (~1.4 KB gzipped each).
 <script src="https://cdn.jsdelivr.net/npm/n2words/dist/en-US.umd.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/n2words/dist/es.umd.js"></script>
 <script>
-  n2words.enUS(42)  // 'forty-two'
-  n2words.es(42)    // 'cuarenta y dos'
+  n2words.enUS(42)           // 'forty-two'
+  n2words.es(42)             // 'cuarenta y dos'
+  n2words.ordinal.enUS(42)   // 'forty-second' (languages with ordinal support)
 </script>
 ```
 
@@ -76,38 +78,23 @@ See **[LANGUAGES.md](LANGUAGES.md)** for the complete list with codes, export na
 
 Highlights: Arabic, Chinese (Simplified/Traditional), English, French, German, Hindi, Japanese, Korean, Portuguese, Russian, Spanish, and [44 more](LANGUAGES.md).
 
-## Browser Compatibility
+## Compatibility
 
-**Minimum Requirements** (due to BigInt):
+- **Node.js**: 20+
+- **Browsers**: Chrome 67+, Firefox 68+, Safari 14+, Edge 79+ (~87% global coverage)
+- **Runtimes**: Deno, Bun, Cloudflare Workers
 
-- **Node.js**: 20 or above
-- **Browsers**: Chrome 67+, Firefox 68+, Safari 14+, Edge 79+ (desktop + mobile)
-- **Global Coverage**: ~86% of all users worldwide
+Requires BigInt support (cannot be polyfilled).
 
-BigInt is a hard requirement and cannot be polyfilled. Older browsers are not supported.
+## Performance
 
-## Performance & Bundle Size
+Each language module is ~1.4 KB gzipped. Optimized with:
 
-| Import Strategy             | Gzipped   | Use Case                     |
-| --------------------------- | --------- | ---------------------------- |
-| **Subpath import** ⭐       | ~1.4 KB   | Single language              |
-| Named import (1 lang)       | ~1.4-2 KB | Single language with barrel  |
-| Named imports (3 langs)     | ~4-6 KB   | Multiple languages           |
-| UMD bundle                  | ~1.4-2 KB | Legacy browser support       |
-
-**Performance characteristics:**
-
-- 1M+ ops/sec for most languages
-- Sub-millisecond conversion time
-- ~90-800 bytes memory per conversion
 - BigInt modulo operations (no string manipulation)
+- Pure functions with no shared state
+- Minimal memory allocation per conversion
 
-**Run benchmarks:**
-
-```bash
-npm run bench              # Performance and memory benchmarks
-npm run bench -- --full    # Full mode (more iterations, slower)
-```
+Run `npm run bench` to measure on your hardware.
 
 ## Contributing
 
