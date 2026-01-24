@@ -2,7 +2,7 @@
 
 > **Auto-generated** — Do not edit manually. Run `npm run docs:languages` to update.
 
-n2words supports **57 languages** with cardinal number conversion, 5 with ordinal support, 5 with currency support.
+n2words supports **57 languages** with cardinal number conversion, 6 with ordinal support, 6 with currency support.
 
 Language codes follow [IETF BCP 47](https://tools.ietf.org/html/bcp47) standards.
 
@@ -52,7 +52,7 @@ Language codes follow [IETF BCP 47](https://tools.ietf.org/html/bcp47) standards
 |`pl-PL`|`plPL`|Polish (Poland)|✓¹|||
 |`pt-PT`|`ptPT`|European Portuguese|✓|||
 |`ro-RO`|`roRO`|Romanian (Romania)|✓¹|||
-|`ru-RU`|`ruRU`|Russian (Russia)|✓¹|||
+|`ru-RU`|`ruRU`|Russian (Russia)|✓¹|✓|✓¹|
 |`sr-Cyrl-RS`|`srCyrlRS`|Serbian (Cyrillic, Serbia)|✓¹|||
 |`sr-Latn-RS`|`srLatnRS`|Serbian (Latin, Serbia)|✓¹|||
 |`sv-SE`|`svSE`|Swedish (Sweden)|✓|||
@@ -227,6 +227,10 @@ toCurrency(value, { optionName: value })
 **Cardinal options:**
 
 - `gender` ('masculine' \| 'feminine', default: `'masculine'`) — Grammatical gender
+
+**Currency options:**
+
+- `and` (`boolean`, default: `true`) — Use "и" between rubles and kopecks
 
 ### Serbian (Cyrillic, Serbia) (`sr-Cyrl-RS`)
 
