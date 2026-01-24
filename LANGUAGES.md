@@ -2,7 +2,7 @@
 
 > **Auto-generated** — Do not edit manually. Run `npm run docs:languages` to update.
 
-n2words supports **57 languages** with cardinal number conversion, 8 with ordinal support, 8 with currency support.
+n2words supports **57 languages** with cardinal number conversion, 11 with ordinal support, 11 with currency support.
 
 Language codes follow [IETF BCP 47](https://tools.ietf.org/html/bcp47) standards.
 
@@ -47,10 +47,10 @@ Language codes follow [IETF BCP 47](https://tools.ietf.org/html/bcp47) standards
 |`mr-IN`|`mrIN`|Marathi (India)|✓|||
 |`ms-MY`|`msMY`|Malay (Malaysia)|✓|||
 |`nb-NO`|`nbNO`|Norwegian Bokmål (Norway)|✓|||
-|`nl-NL`|`nlNL`|Dutch (Netherlands)|✓¹|||
+|`nl-NL`|`nlNL`|Dutch (Netherlands)|✓¹|✓|✓¹|
 |`pa-IN`|`paIN`|Punjabi (India)|✓|||
 |`pl-PL`|`plPL`|Polish (Poland)|✓¹|||
-|`pt-PT`|`ptPT`|European Portuguese|✓|||
+|`pt-PT`|`ptPT`|European Portuguese|✓|✓|✓¹|
 |`ro-RO`|`roRO`|Romanian (Romania)|✓¹|||
 |`ru-RU`|`ruRU`|Russian (Russia)|✓¹|✓|✓¹|
 |`sr-Cyrl-RS`|`srCyrlRS`|Serbian (Cyrillic, Serbia)|✓¹|||
@@ -88,7 +88,7 @@ Import paths use BCP 47 language codes: `n2words/en-US`, `n2words/zh-Hans-CN`, `
 
 ## Language Options
 
-25 languages support options via a second parameter. Options are passed as an object:
+26 languages support options via a second parameter. Options are passed as an object:
 
 ```js
 toCardinal(value, { optionName: value })
@@ -144,6 +144,16 @@ toCurrency(value, { optionName: value })
 - `accentOne` (`boolean`, default: `true`) — Use "één" instead of "een"
 - `includeOptionalAnd` (`boolean`, default: `false`) — Include "en" before small numbers
 - `noHundredPairing` (`boolean`, default: `false`) — Disable hundred pairing (1104→duizend honderdvier)
+
+**Currency options:**
+
+- `and` (`boolean`, default: `true`) — Include "en" between euros and cents
+
+### European Portuguese (`pt-PT`)
+
+**Currency options:**
+
+- `and` (`boolean`, default: `true`) — Include "e" between euros and cents
 
 ### European Spanish (`es-ES`)
 

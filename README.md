@@ -8,15 +8,15 @@
 [![npm downloads](https://img.shields.io/npm/dw/n2words)](https://npmjs.com/package/n2words)
 [![jsDelivr](https://img.shields.io/jsdelivr/npm/hm/n2words)](https://www.jsdelivr.com/package/npm/n2words)
 
-**Numbers to words. 55 languages. Zero dependencies.**
+**Numbers to words. 57 languages. Zero dependencies.**
 
 ## Why n2words?
 
 - **Pure Functions** — Each language exports standalone functions. No classes, no configuration, no side effects.
 - **Tree-Shakeable** — Import only what you need. Each form is independently bundled.
-- **Tiny Bundles** — ~2 KB gzipped per language (with all forms). No bloat.
+- **Tiny Bundles** — ~2.4 KB gzipped per language (with all forms). No bloat.
 - **Multiple Forms** — Cardinal ("forty-two"), ordinal ("forty-second"), and currency ("forty-two dollars")
-- **55 Languages** — European, Asian, Middle Eastern, African, and regional variants
+- **57 Languages** — European, Asian, Middle Eastern, African, and regional variants
 - **Zero Dependencies** — Works everywhere: Node.js, browsers, Deno, Bun
 - **BigInt Support** — Handle arbitrarily large numbers without precision loss
 - **Type-Safe** — Full TypeScript support with generated `.d.ts` declarations
@@ -85,11 +85,11 @@ import { toCardinal as fr } from 'n2words/fr'         // Aliased import
 
 See [LANGUAGES.md](LANGUAGES.md) for all language codes and available forms.
 
-## Supported Languages (55)
+## Supported Languages (57)
 
 See **[LANGUAGES.md](LANGUAGES.md)** for the complete list with codes, export names, and options.
 
-Highlights: Arabic, Chinese (Simplified/Traditional), English, French, German, Hindi, Japanese, Korean, Portuguese, Russian, Spanish, and [44 more](LANGUAGES.md).
+Highlights: Arabic, Chinese (Simplified/Traditional), English, French, German, Hindi, Japanese, Korean, Portuguese, Russian, Spanish, and [46 more](LANGUAGES.md).
 
 ## Compatibility
 
@@ -103,7 +103,7 @@ Requires BigInt support (cannot be polyfilled).
 
 n2words is optimized for both size and speed:
 
-- ~2 KB gzipped per language (includes all forms)
+- ~2.4 KB gzipped per language (includes all forms)
 - Individual language imports enable tree-shaking
 - No runtime dependencies
 - BigInt modulo operations (no string manipulation)
