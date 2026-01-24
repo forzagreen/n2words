@@ -122,3 +122,58 @@ export const cardinal = [
   [2001, 'dos mil una', { gender: 'feminine' }],
   [2121, 'dos mil cienta veintiuna', { gender: 'feminine' }]
 ]
+
+/**
+ * Ordinal number test cases
+ * Format: [input, expected_output, options?]
+ *
+ * Spanish ordinals are identical across regions (es-ES and es-MX).
+ */
+export const ordinal = [
+  // Basic ordinals 1-10 (masculine)
+  [1, 'primero'],
+  [2, 'segundo'],
+  [3, 'tercero'],
+  [4, 'cuarto'],
+  [5, 'quinto'],
+  [6, 'sexto'],
+  [7, 'séptimo'],
+  [8, 'octavo'],
+  [9, 'noveno'],
+  [10, 'décimo'],
+
+  // Basic ordinals 1-10 (feminine)
+  [1, 'primera', { gender: 'feminine' }],
+  [2, 'segunda', { gender: 'feminine' }],
+  [3, 'tercera', { gender: 'feminine' }],
+  [10, 'décima', { gender: 'feminine' }],
+
+  // Teens and tens
+  [11, 'décimo primero'],
+  [12, 'décimo segundo'],
+  [20, 'vigésimo'],
+  [21, 'vigésimo primero'],
+  [30, 'trigésimo'],
+  [40, 'cuadragésimo'],
+  [50, 'quincuagésimo'],
+  [99, 'nonagésimo noveno'],
+
+  // Hundreds
+  [100, 'centésimo'],
+  [101, 'centésimo primero'],
+  [200, 'ducentésimo'],
+  [500, 'quincentésimo'],
+
+  // Thousands
+  [1000, 'milésimo'],
+  [1001, 'milésimo primero'],
+  [2000, 'segundo milésimo'],
+
+  // Millions
+  [1000000, 'millonésimo'],
+
+  // Feminine
+  [100, 'centésima', { gender: 'feminine' }],
+  [1000, 'milésima', { gender: 'feminine' }],
+  [21, 'vigésima primera', { gender: 'feminine' }]
+]

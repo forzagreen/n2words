@@ -16,6 +16,7 @@
  */
 
 import { parseCardinalValue } from './utils/parse-cardinal.js'
+import { parseOrdinalValue } from './utils/parse-ordinal.js'
 import { validateOptions } from './utils/validate-options.js'
 
 // ============================================================================
@@ -44,6 +45,18 @@ const SCALES_PLURAL = ['mil', 'millones', 'billones', 'trillones', 'cuatrillones
 const ZERO = 'cero'
 const NEGATIVE = 'menos'
 const DECIMAL_SEP = 'punto'
+
+// Ordinal vocabulary (identical to es-ES - ordinals don't vary by region)
+const ORDINAL_ONES_MASC = ['', 'primero', 'segundo', 'tercero', 'cuarto', 'quinto', 'sexto', 'séptimo', 'octavo', 'noveno']
+const ORDINAL_ONES_FEM = ['', 'primera', 'segunda', 'tercera', 'cuarta', 'quinta', 'sexta', 'séptima', 'octava', 'novena']
+const ORDINAL_TENS_MASC = ['', 'décimo', 'vigésimo', 'trigésimo', 'cuadragésimo', 'quincuagésimo', 'sexagésimo', 'septuagésimo', 'octogésimo', 'nonagésimo']
+const ORDINAL_TENS_FEM = ['', 'décima', 'vigésima', 'trigésima', 'cuadragésima', 'quincuagésima', 'sexagésima', 'septuagésima', 'octogésima', 'nonagésima']
+const ORDINAL_HUNDRED_MASC = 'centésimo'
+const ORDINAL_HUNDRED_FEM = 'centésima'
+const ORDINAL_THOUSAND_MASC = 'milésimo'
+const ORDINAL_THOUSAND_FEM = 'milésima'
+const ORDINAL_MILLION_MASC = 'millonésimo'
+const ORDINAL_MILLION_FEM = 'millonésima'
 
 // ============================================================================
 // Segment Building
@@ -233,7 +246,134 @@ function toCardinal (value, options) {
 }
 
 // ============================================================================
+// ORDINAL: toOrdinal(value, options?)
+// ============================================================================
+
+/**
+ * Builds ordinal word for a 0-999 segment.
+ *
+ * @param {number} n - Segment value 0-999
+ * @param {boolean} feminine - Use feminine forms
+ * @returns {string} Spanish ordinal word
+ */
+function buildOrdinalSegment (n, feminine) {
+  if (n === 0) return ''
+
+  const ones = n % 10
+  const tens = Math.floor(n / 10) % 10
+  const hundreds = Math.floor(n / 100)
+
+  const onesArr = feminine ? ORDINAL_ONES_FEM : ORDINAL_ONES_MASC
+  const tensArr = feminine ? ORDINAL_TENS_FEM : ORDINAL_TENS_MASC
+  const hundredWord = feminine ? ORDINAL_HUNDRED_FEM : ORDINAL_HUNDRED_MASC
+
+  const parts = []
+
+  // Hundreds
+  if (hundreds > 0) {
+    if (hundreds === 1) {
+      parts.push(hundredWord)
+    } else {
+      const prefixes = ['', '', 'du', 'tri', 'cuadri', 'quin', 'sex', 'septi', 'octi', 'noni']
+      parts.push(prefixes[hundreds] + hundredWord)
+    }
+  }
+
+  // Tens
+  if (tens > 0) {
+    parts.push(tensArr[tens])
+  }
+
+  // Ones
+  if (ones > 0) {
+    parts.push(onesArr[ones])
+  }
+
+  return parts.join(' ')
+}
+
+/**
+ * Converts a positive integer to Spanish ordinal words.
+ *
+ * @param {bigint} n - Positive integer to convert
+ * @param {boolean} feminine - Use feminine forms
+ * @returns {string} Spanish ordinal words
+ */
+function integerToOrdinal (n, feminine) {
+  const thousandWord = feminine ? ORDINAL_THOUSAND_FEM : ORDINAL_THOUSAND_MASC
+  const millionWord = feminine ? ORDINAL_MILLION_FEM : ORDINAL_MILLION_MASC
+
+  // Fast path: numbers < 1000
+  if (n < 1000n) {
+    return buildOrdinalSegment(Number(n), feminine)
+  }
+
+  // Numbers 1000-999999
+  if (n < 1_000_000n) {
+    const thousands = Number(n / 1000n)
+    const remainder = Number(n % 1000n)
+
+    let result = ''
+
+    if (thousands === 1) {
+      result = thousandWord
+    } else {
+      result = buildOrdinalSegment(thousands, feminine) + ' ' + thousandWord
+    }
+
+    if (remainder > 0) {
+      result += ' ' + buildOrdinalSegment(remainder, feminine)
+    }
+
+    return result
+  }
+
+  // Numbers >= 1,000,000
+  const millions = Number(n / 1_000_000n)
+  const remainder = n % 1_000_000n
+
+  let result = ''
+
+  if (millions === 1) {
+    result = millionWord
+  } else {
+    result = buildOrdinalSegment(millions, feminine) + ' ' + millionWord
+  }
+
+  if (remainder > 0n) {
+    result += ' ' + integerToOrdinal(remainder, feminine)
+  }
+
+  return result
+}
+
+/**
+ * Converts a numeric value to Spanish ordinal words.
+ *
+ * @param {number | string | bigint} value - The positive integer to convert
+ * @param {Object} [options] - Optional configuration
+ * @param {('masculine'|'feminine')} [options.gender='masculine'] - Grammatical gender
+ * @returns {string} The number in Spanish ordinal words
+ * @throws {TypeError} If value is not a valid numeric type
+ * @throws {Error} If value is not a positive integer
+ *
+ * @example
+ * toOrdinal(1)                          // 'primero'
+ * toOrdinal(1, { gender: 'feminine' })  // 'primera'
+ * toOrdinal(21)                         // 'vigésimo primero'
+ */
+function toOrdinal (value, options) {
+  options = validateOptions(options)
+  const integerPart = parseOrdinalValue(value)
+
+  const { gender = 'masculine' } = options
+  const feminine = gender === 'feminine'
+
+  return integerToOrdinal(integerPart, feminine)
+}
+
+// ============================================================================
 // Public API
 // ============================================================================
 
-export { toCardinal }
+export { toCardinal, toOrdinal }
