@@ -1,7 +1,7 @@
 /**
- * Latvian language converter - Functional Implementation
+ * Latvian (Latvia) language converter
  *
- * Self-contained module with its own input validation, ready for subpath exports.
+ * CLDR: lv-LV | Latvian as used in Latvia
  *
  * Key features:
  * - Two-form pluralization (singular for 1 except 11, plural otherwise)

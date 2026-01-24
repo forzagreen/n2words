@@ -1,7 +1,7 @@
 /**
- * Azerbaijani language converter - Functional Implementation
+ * Azerbaijani (Azerbaijan) language converter
  *
- * Self-contained module with its own input validation, ready for subpath exports.
+ * CLDR: az-AZ | Azerbaijani as used in Azerbaijan
  *
  * Key features:
  * - Turkic language patterns

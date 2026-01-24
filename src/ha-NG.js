@@ -1,7 +1,7 @@
 /**
- * Hausa language converter - Functional Implementation
+ * Hausa (Nigeria) language converter
  *
- * Self-contained module with its own input validation, ready for subpath exports.
+ * CLDR: ha-NG | Hausa as used in Nigeria
  *
  * Key features:
  * - Authentic Boko orthography with ɗ (hooked d) and ' (glottal stop)

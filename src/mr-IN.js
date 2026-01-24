@@ -1,7 +1,7 @@
 /**
- * Marathi language converter - Functional Implementation
+ * Marathi (India) language converter
  *
- * Self-contained module with its own input validation, ready for subpath exports.
+ * CLDR: mr-IN | Marathi as used in India
  *
  * Key features:
  * - Indian numbering system (हजार, लाख, कोटी)

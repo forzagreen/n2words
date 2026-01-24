@@ -1,7 +1,7 @@
 /**
- * Bangla language converter - Functional Implementation
+ * Bangla (Bangladesh) language converter
  *
- * Self-contained module with its own input validation, ready for subpath exports.
+ * CLDR: bn-BD | Bengali as used in Bangladesh
  *
  * Key features:
  * - Indian numbering system (হাজার, লাখ, কোটি)

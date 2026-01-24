@@ -1,7 +1,7 @@
 /**
- * Kannada language converter - Functional Implementation
+ * Kannada (India) language converter
  *
- * Self-contained module with its own input validation, ready for subpath exports.
+ * CLDR: kn-IN | Kannada as used in India
  *
  * Key features:
  * - Indian numbering system (ಸಾವಿರ, ಲಕ್ಷ, ಕೋಟಿ)

@@ -1,7 +1,7 @@
 /**
- * Norwegian Bokmål language converter - Functional Implementation
+ * Norwegian Bokmål (Norway) language converter
  *
- * Self-contained module with its own input validation, ready for subpath exports.
+ * CLDR: nb-NO | Norwegian Bokmål as used in Norway
  *
  * Key features:
  * - Hyphenated tens+ones: "tjue-en" (21)

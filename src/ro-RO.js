@@ -1,7 +1,7 @@
 /**
- * Romanian language converter - Functional Implementation
+ * Romanian (Romania) language converter
  *
- * A performance-optimized number-to-words converter using precomputed lookup tables.
+ * CLDR: ro-RO | Romanian as used in Romania
  *
  * Key features:
  * - Gender agreement (unu/una, doi/două)

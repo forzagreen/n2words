@@ -1,7 +1,7 @@
 /**
- * Korean language converter - Functional Implementation
+ * Korean (South Korea) language converter
  *
- * Self-contained module with its own input validation, ready for subpath exports.
+ * CLDR: ko-KR | Korean as used in South Korea
  *
  * Key features:
  * - Myriad-based (만) grouping - 4 digits

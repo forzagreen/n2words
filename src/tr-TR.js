@@ -1,7 +1,7 @@
 /**
- * Turkish language converter - Functional Implementation
+ * Turkish (Turkey) language converter
  *
- * Self-contained module with its own input validation, ready for subpath exports.
+ * CLDR: tr-TR | Turkish as used in Turkey
  *
  * Key features:
  * - Omits 'bir' (one) before hundreds and thousands

@@ -1,7 +1,7 @@
 /**
- * Swahili language converter - Functional Implementation
+ * Swahili (Kenya) language converter
  *
- * Self-contained converter with precomputed lookup tables.
+ * CLDR: sw-KE | Swahili as used in Kenya
  *
  * Key features:
  * - "na" connector for compound numbers

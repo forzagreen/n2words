@@ -1,7 +1,7 @@
 /**
- * Vietnamese language converter - Functional Implementation
+ * Vietnamese (Vietnam) language converter
  *
- * Self-contained module with its own input validation, ready for subpath exports.
+ * CLDR: vi-VN | Vietnamese as used in Vietnam
  *
  * Vietnamese-specific rules:
  * - Special pronunciation: "lăm" for 5 in tens position, "mốt" for final 1

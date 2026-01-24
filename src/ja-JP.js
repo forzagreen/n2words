@@ -1,7 +1,7 @@
 /**
- * Japanese language converter - Functional Implementation
+ * Japanese (Japan) language converter
  *
- * Self-contained module with its own input validation, ready for subpath exports.
+ * CLDR: ja-JP | Japanese as used in Japan
  *
  * Japanese-specific rules:
  * - Myriad (万-based) grouping: 4 digits per segment instead of 3

@@ -1,7 +1,7 @@
 /**
- * Finnish language converter - Functional Implementation
+ * Finnish (Finland) language converter
  *
- * Self-contained module with its own input validation, ready for subpath exports.
+ * CLDR: fi-FI | Finnish as used in Finland
  *
  * Key features:
  * - Compound tens+ones without spaces: "kaksikymmentäyksi" (21)

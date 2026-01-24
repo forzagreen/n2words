@@ -1,5 +1,7 @@
 /**
- * Arabic language converter - Functional Implementation
+ * Arabic (Saudi Arabia) language converter
+ *
+ * CLDR: ar-SA | Modern Standard Arabic as used in Saudi Arabia
  *
  * Self-contained converter with gender agreement and complex pluralization.
  *

@@ -1,7 +1,7 @@
 /**
- * Indonesian language converter - Functional Implementation
+ * Indonesian (Indonesia) language converter
  *
- * Self-contained module with its own input validation, ready for subpath exports.
+ * CLDR: id-ID | Indonesian as used in Indonesia
  *
  * Key features:
  * - "Se-" prefix for 100 (seratus) and 1000 (seribu)

@@ -1,7 +1,7 @@
 /**
- * Thai language converter - Functional Implementation
+ * Thai (Thailand) language converter
  *
- * Self-contained converter with precomputed lookup tables.
+ * CLDR: th-TH | Thai as used in Thailand
  *
  * Key features:
  * - No word separators (continuous Thai script)

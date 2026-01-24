@@ -1,7 +1,7 @@
 /**
- * Croatian language converter - Functional Implementation
+ * Croatian (Croatia) language converter
  *
- * Self-contained module with its own input validation, ready for subpath exports.
+ * CLDR: hr-HR | Croatian as used in Croatia
  *
  * Key features:
  * - Three-form pluralization (one/few/many)

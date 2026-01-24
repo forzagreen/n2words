@@ -1,13 +1,13 @@
 /**
- * Portuguese language converter - Functional Implementation
+ * Portuguese (Portugal) language converter
  *
- * Self-contained module with its own input validation, ready for subpath exports.
+ * CLDR: pt-PT | European Portuguese as used in Portugal
  *
  * Portuguese-specific rules:
  * - "e" conjunction everywhere: vinte e um, cento e um, mil e um
  * - "cem" for exact 100, "cento" for 100+ remainder
  * - Irregular hundreds: duzentos, trezentos, quatrocentos, etc.
- * - Compound scale: milhão (10^6), mil milhões (10^9), bilião (10^12)
+ * - Long scale: milhão (10^6), mil milhões (10^9), bilião (10^12)
  * - Omit "um" before "mil"
  */
 

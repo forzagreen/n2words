@@ -1,7 +1,7 @@
 /**
- * Swedish language converter - Functional Implementation
+ * Swedish (Sweden) language converter
  *
- * Self-contained module with its own input validation, ready for subpath exports.
+ * CLDR: sv-SE | Swedish as used in Sweden
  *
  * Key features:
  * - Hyphenation for tens-ones (tjugo-ett)

@@ -1,7 +1,7 @@
 /**
- * Hungarian language converter - Functional Implementation
+ * Hungarian (Hungary) language converter
  *
- * Self-contained converter with agglutinative word formation.
+ * CLDR: hu-HU | Hungarian as used in Hungary
  *
  * Key features:
  * - Agglutinative structure (no spaces between compound parts)

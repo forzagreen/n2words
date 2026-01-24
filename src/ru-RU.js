@@ -1,7 +1,7 @@
 /**
- * Russian language converter - Functional Implementation
+ * Russian (Russia) language converter
  *
- * Self-contained module with its own input validation, ready for subpath exports.
+ * CLDR: ru-RU | Russian as used in Russia
  *
  * Key features:
  * - Three-form pluralization (one/few/many)

@@ -1,7 +1,7 @@
 /**
- * Czech language converter - Functional Implementation
+ * Czech (Czechia) language converter
  *
- * Self-contained module with its own input validation, ready for subpath exports.
+ * CLDR: cs-CZ | Czech as used in Czechia
  *
  * Czech-specific rules:
  * - Three-form pluralization: 1 = singular, 2-4 = few, 5+ = many

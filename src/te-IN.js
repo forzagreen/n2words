@@ -1,7 +1,7 @@
 /**
- * Telugu language converter - Functional Implementation
+ * Telugu (India) language converter
  *
- * Self-contained module with its own input validation, ready for subpath exports.
+ * CLDR: te-IN | Telugu as used in India
  *
  * Key features:
  * - Indian numbering system (వెయ్యి, లక్ష, కోటి)

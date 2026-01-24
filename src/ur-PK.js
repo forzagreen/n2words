@@ -1,7 +1,7 @@
 /**
- * Urdu language converter - Functional Implementation
+ * Urdu (Pakistan) language converter
  *
- * Self-contained module with its own input validation, ready for subpath exports.
+ * CLDR: ur-PK | Urdu as used in Pakistan
  *
  * Key features:
  * - Indian numbering system (ہزار, لاکھ, کروڑ)

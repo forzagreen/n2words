@@ -1,7 +1,7 @@
 /**
- * Persian language converter - Functional Implementation
+ * Persian (Iran) language converter
  *
- * Self-contained converter using recursive decomposition.
+ * CLDR: fa-IR | Persian as used in Iran
  *
  * Key features:
  * - "و" (and) conjunction for compound numbers

@@ -1,7 +1,7 @@
 /**
- * Polish language converter - Functional Implementation
+ * Polish (Poland) language converter
  *
- * Self-contained module with its own input validation, ready for subpath exports.
+ * CLDR: pl-PL | Polish as used in Poland
  *
  * Polish-specific rules:
  * - Three-form pluralization: 1 = singular, 2-4 = few, 5+ = many

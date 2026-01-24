@@ -1,7 +1,7 @@
 /**
- * Hindi language converter - Functional Implementation
+ * Hindi (India) language converter
  *
- * Self-contained module with its own input validation, ready for subpath exports.
+ * CLDR: hi-IN | Hindi as used in India
  *
  * Key features:
  * - Indian numbering system (हज़ार, लाख, करोड़)

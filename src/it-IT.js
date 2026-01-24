@@ -1,7 +1,7 @@
 /**
- * Italian language converter - Functional Implementation
+ * Italian (Italy) language converter
  *
- * Self-contained module with its own input validation, ready for subpath exports.
+ * CLDR: it-IT | Italian as used in Italy
  *
  * Italian-specific rules:
  * - Concatenation without spaces within segments ("ventotto" not "venti otto")

@@ -1,7 +1,7 @@
 /**
- * Dutch language converter - Functional Implementation
+ * Dutch (Netherlands) language converter
  *
- * Self-contained module with its own input validation, ready for subpath exports.
+ * CLDR: nl-NL | Dutch as used in the Netherlands
  *
  * Dutch-specific rules:
  * - Inverted tens-ones: eenentwintig (one-and-twenty)

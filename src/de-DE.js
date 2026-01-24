@@ -1,7 +1,7 @@
 /**
- * German language converter - Functional Implementation
+ * German (Germany) language converter
  *
- * Self-contained module with its own input validation, ready for subpath exports.
+ * CLDR: de-DE | German as used in Germany
  *
  * Key features:
  * - Inverted tens-ones order: "einundzwanzig" (one-and-twenty) for 21-99

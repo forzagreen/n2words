@@ -1,7 +1,7 @@
 /**
- * Malay (Bahasa Melayu) language converter - Functional Implementation
+ * Malay (Malaysia) language converter
  *
- * Self-contained module with its own input validation, ready for subpath exports.
+ * CLDR: ms-MY | Malay (Bahasa Melayu) as used in Malaysia
  *
  * Key features:
  * - "Se-" prefix for ALL singular scale units (seratus, seribu, sejuta, sebilion)

@@ -1,7 +1,7 @@
 /**
- * Biblical Hebrew language converter - Functional Implementation
+ * Biblical Hebrew (Israel) language converter
  *
- * Self-contained module with its own input validation, ready for subpath exports.
+ * CLDR: hbo-IL | Biblical/Ancient Hebrew
  *
  * Key features:
  * - Gender agreement (masculine default, feminine via option)

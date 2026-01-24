@@ -1,7 +1,7 @@
 /**
- * Filipino language converter - Functional Implementation
+ * Filipino (Philippines) language converter
  *
- * Self-contained module with its own input validation, ready for subpath exports.
+ * CLDR: fil-PH | Filipino as used in the Philippines
  *
  * Key features:
  * - Linker "ng" after vowels: "isang daang" (100)

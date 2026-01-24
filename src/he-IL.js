@@ -1,7 +1,7 @@
 /**
- * Modern Hebrew language converter - Functional Implementation
+ * Modern Hebrew (Israel) language converter
  *
- * Self-contained module with its own input validation, ready for subpath exports.
+ * CLDR: he-IL | Modern Hebrew as used in Israel
  *
  * Key features:
  * - Feminine grammatical forms (default in Modern Hebrew)

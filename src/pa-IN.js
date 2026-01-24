@@ -1,7 +1,7 @@
 /**
- * Punjabi language converter - Functional Implementation
+ * Punjabi (India) language converter
  *
- * Self-contained module with its own input validation, ready for subpath exports.
+ * CLDR: pa-IN | Punjabi (Gurmukhi) as used in India
  *
  * Key features:
  * - Indian numbering system (ਹਜ਼ਾਰ, ਲੱਖ, ਕਰੋੜ)

@@ -1,8 +1,7 @@
 /**
- * Yoruba language converter - Functional Implementation
+ * Yoruba (Nigeria) language converter
  *
- * A number-to-words converter for Yoruba (yo), a Niger-Congo language
- * spoken by ~45 million people in Nigeria, Benin, and Togo.
+ * CLDR: yo-NG | Yoruba as used in Nigeria
  *
  * Yoruba uses a complex vigesimal (base-20) system with:
  * - Additive patterns: 1-4 added to decade (lé = "plus")

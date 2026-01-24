@@ -1,7 +1,7 @@
 /**
- * Greek language converter - Functional Implementation
+ * Greek (Greece) language converter
  *
- * Self-contained module with its own input validation, ready for subpath exports.
+ * CLDR: el-GR | Greek as used in Greece
  *
  * Key features:
  * - Space-separated number composition

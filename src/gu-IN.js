@@ -1,7 +1,7 @@
 /**
- * Gujarati language converter - Functional Implementation
+ * Gujarati (India) language converter
  *
- * Self-contained module with its own input validation, ready for subpath exports.
+ * CLDR: gu-IN | Gujarati as used in India
  *
  * Key features:
  * - Indian numbering system (હજાર, લાખ, કરોડ)

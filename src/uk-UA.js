@@ -1,7 +1,7 @@
 /**
- * Ukrainian language converter - Functional Implementation
+ * Ukrainian (Ukraine) language converter
  *
- * Self-contained module with its own input validation, ready for subpath exports.
+ * CLDR: uk-UA | Ukrainian as used in Ukraine
  *
  * Key features:
  * - Three-form pluralization (one/few/many)

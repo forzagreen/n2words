@@ -1,7 +1,7 @@
 /**
- * Lithuanian language converter - Functional Implementation
+ * Lithuanian (Lithuania) language converter
  *
- * Self-contained module with its own input validation, ready for subpath exports.
+ * CLDR: lt-LT | Lithuanian as used in Lithuania
  *
  * Key features:
  * - Three-form pluralization (singular/plural/genitive)

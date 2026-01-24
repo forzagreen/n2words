@@ -1,7 +1,7 @@
 /**
- * Georgian language converter - Functional Implementation
+ * Georgian (Georgia) language converter
  *
- * Self-contained module with its own input validation, ready for subpath exports.
+ * CLDR: ka-GE | Georgian as used in Georgia
  *
  * Georgian-specific rules:
  * - Vigesimal (base-20) system for 20-99

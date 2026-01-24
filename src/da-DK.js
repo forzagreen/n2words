@@ -1,7 +1,7 @@
 /**
- * Danish language converter - Functional Implementation
+ * Danish (Denmark) language converter
  *
- * Self-contained module with its own input validation, ready for subpath exports.
+ * CLDR: da-DK | Danish as used in Denmark
  *
  * Key features:
  * - Vigesimal (base-20) tens naming: halvtreds (50), treds (60), etc.

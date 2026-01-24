@@ -1,7 +1,7 @@
 /**
- * Tamil language converter - Functional Implementation
+ * Tamil (India) language converter
  *
- * Self-contained module with its own input validation, ready for subpath exports.
+ * CLDR: ta-IN | Tamil as used in India
  *
  * Key features:
  * - Indian numbering system (ஆயிரம், லட்சம், கோடி)
