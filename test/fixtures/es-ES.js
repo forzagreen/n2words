@@ -201,3 +201,47 @@ export const ordinal = [
   [1000000, 'millonésima', { gender: 'feminine' }],
   [21, 'vigésima primera', { gender: 'feminine' }]
 ]
+
+/**
+ * Currency test cases (Euro - Spain's official currency)
+ * Format: [input, expected_output, options?]
+ */
+export const currency = [
+  // Basic amounts
+  [0, 'cero euros'],
+  [1, 'un euro'],
+  [2, 'dos euros'],
+  [10, 'diez euros'],
+  [21, 'veintiuno euros'],
+  [100, 'cien euros'],
+  [1000, 'mil euros'],
+  [1000000, 'un millón euros'],
+
+  // Cents only
+  [0.01, 'un céntimo'],
+  [0.02, 'dos céntimos'],
+  [0.10, 'diez céntimos'],
+  [0.21, 'veintiuno céntimos'],
+  [0.99, 'noventa y nueve céntimos'],
+
+  // Euros and cents
+  [1.01, 'un euro con un céntimo'],
+  [1.50, 'un euro con cincuenta céntimos'],
+  [2.25, 'dos euros con veinticinco céntimos'],
+  [42.50, 'cuarenta y dos euros con cincuenta céntimos'],
+  [100.99, 'cien euros con noventa y nueve céntimos'],
+  [1234.56, 'mil doscientos treinta y cuatro euros con cincuenta y seis céntimos'],
+
+  // Without connector
+  [42.50, 'cuarenta y dos euros cincuenta céntimos', { and: false }],
+  [1.01, 'un euro un céntimo', { and: false }],
+
+  // Negative amounts
+  [-1, 'menos un euro'],
+  [-0.50, 'menos cincuenta céntimos'],
+  [-42.50, 'menos cuarenta y dos euros con cincuenta céntimos'],
+
+  // Large amounts (long scale)
+  [1000000000, 'mil millones euros'],
+  [1000000000000, 'un billón euros']
+]

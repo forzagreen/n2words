@@ -16,6 +16,7 @@
  */
 
 import { parseCardinalValue } from './utils/parse-cardinal.js'
+import { parseCurrencyValue } from './utils/parse-currency.js'
 import { parseOrdinalValue } from './utils/parse-ordinal.js'
 import { validateOptions } from './utils/validate-options.js'
 
@@ -59,6 +60,13 @@ const ORDINAL_THOUSAND_MASC = 'milésimo'
 const ORDINAL_THOUSAND_FEM = 'milésima'
 const ORDINAL_MILLION_MASC = 'millonésimo'
 const ORDINAL_MILLION_FEM = 'millonésima'
+
+// Currency vocabulary (Euro - Spain's official currency)
+const EURO = 'euro'
+const EUROS = 'euros'
+const CENTIMO = 'céntimo'
+const CENTIMOS = 'céntimos'
+const CURRENCY_CONNECTOR = 'con'
 
 // ============================================================================
 // Segment Building
@@ -468,7 +476,64 @@ function toOrdinal (value, options) {
 }
 
 // ============================================================================
+// CURRENCY: toCurrency(value, options?)
+// ============================================================================
+
+/**
+ * Converts a numeric value to Spanish Euro currency words.
+ *
+ * Spanish currency uses masculine gender for euros (el euro)
+ * and masculine for céntimos (el céntimo).
+ *
+ * @param {number | string | bigint} value - The currency amount to convert
+ * @param {Object} [options] - Optional configuration
+ * @param {boolean} [options.and=true] - Use "con" between euros and cents
+ * @returns {string} The amount in Spanish currency words
+ * @throws {TypeError} If value is not a valid numeric type
+ * @throws {Error} If value is not a valid number format
+ *
+ * @example
+ * toCurrency(42.50)                  // 'cuarenta y dos euros con cincuenta céntimos'
+ * toCurrency(1)                      // 'un euro'
+ * toCurrency(0.99)                   // 'noventa y nueve céntimos'
+ * toCurrency(42.50, { and: false })  // 'cuarenta y dos euros cincuenta céntimos'
+ */
+function toCurrency (value, options) {
+  options = validateOptions(options)
+  const { isNegative, dollars: euros, cents: centimos } = parseCurrencyValue(value)
+  const { and: useAnd = true } = options
+
+  let result = ''
+  if (isNegative) result = NEGATIVE + ' '
+
+  // Euros part (show if non-zero, or if no centimos)
+  if (euros > 0n || centimos === 0n) {
+    // Use masculine for euros, but "un euro" not "uno euro"
+    if (euros === 1n) {
+      result += 'un ' + EURO
+    } else {
+      result += integerToWords(euros, false) + ' ' + EUROS
+    }
+  }
+
+  // Centimos part
+  if (centimos > 0n) {
+    if (euros > 0n) {
+      result += useAnd ? ' ' + CURRENCY_CONNECTOR + ' ' : ' '
+    }
+    // Use masculine for centimos, but "un céntimo" not "uno céntimo"
+    if (centimos === 1n) {
+      result += 'un ' + CENTIMO
+    } else {
+      result += integerToWords(centimos, false) + ' ' + CENTIMOS
+    }
+  }
+
+  return result
+}
+
+// ============================================================================
 // Public API
 // ============================================================================
 
-export { toCardinal, toOrdinal }
+export { toCardinal, toOrdinal, toCurrency }
