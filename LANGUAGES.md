@@ -2,7 +2,7 @@
 
 > **Auto-generated** — Do not edit manually. Run `npm run docs:languages` to update.
 
-n2words supports **57 languages** with cardinal number conversion, 7 with ordinal support, 7 with currency support.
+n2words supports **57 languages** with cardinal number conversion, 8 with ordinal support, 8 with currency support.
 
 Language codes follow [IETF BCP 47](https://tools.ietf.org/html/bcp47) standards.
 
@@ -28,7 +28,7 @@ Language codes follow [IETF BCP 47](https://tools.ietf.org/html/bcp47) standards
 |`fi-FI`|`fiFI`|Finnish (Finland)|✓|||
 |`fil-PH`|`filPH`|Filipino (Philippines)|✓|||
 |`fr-BE`|`frBE`|French (Belgium)|✓¹|||
-|`fr-FR`|`frFR`|French (France)|✓¹|||
+|`fr-FR`|`frFR`|French (France)|✓¹|✓|✓¹|
 |`gu-IN`|`guIN`|Gujarati (India)|✓|||
 |`ha-NG`|`haNG`|Hausa (Nigeria)|✓|||
 |`hbo-IL`|`hboIL`|hbo (Israel)|✓¹|||
@@ -170,6 +170,10 @@ toCurrency(value, { optionName: value })
 **Cardinal options:**
 
 - `withHyphenSeparator` (`boolean`, default: `false`) — Use hyphens between all words
+
+**Currency options:**
+
+- `and` (`boolean`, default: `true`) — Use "et" between euros and centimes
 
 ### German (Germany) (`de-DE`)
 
