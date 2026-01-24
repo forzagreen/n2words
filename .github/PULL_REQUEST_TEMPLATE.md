@@ -28,7 +28,7 @@ npm run lang:add -- <code>
 
 **Manual setup:** If not using the scaffolding tool, ensure you have:
 
-- [ ] Language module in `src/<code>.js` exporting `toCardinal()` and/or `toOrdinal()`
+- [ ] Language module in `src/<code>.js` exporting `toCardinal()`, `toOrdinal()`, and/or `toCurrency()`
 - [ ] Test fixture in `test/fixtures/<code>.js` with matching exports
 - [ ] Tests pass (`npm test`)
 

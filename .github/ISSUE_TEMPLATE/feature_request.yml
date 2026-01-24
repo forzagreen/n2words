@@ -23,8 +23,8 @@ body:
       label: Example (optional)
       description: How would it work?
       placeholder: |
-        enUS(1, { ordinal: true })
-        // "first"
+        import { toOrdinal } from 'n2words/en-US'
+        toOrdinal(1)  // "first"
       render: javascript
 
   - type: textarea
