@@ -26,12 +26,13 @@ npm install n2words
 ```
 
 ```js
-import { toCardinal, toOrdinal } from 'n2words/en-US'
+import { toCardinal, toOrdinal, toCurrency } from 'n2words/en-US'
 import { toCardinal as es } from 'n2words/es'
 import { toCardinal as ar } from 'n2words/ar'
 
 toCardinal(123)               // 'one hundred twenty-three'
 toOrdinal(123)                // 'one hundred twenty-third'
+toCurrency(42.50)             // 'forty-two dollars and fifty cents'
 es(123)                       // 'ciento veintitrés'
 ar(1, { gender: 'feminine' }) // 'واحدة' (with options)
 
@@ -47,7 +48,8 @@ toCardinal(999999999999999999999999n) // Works with arbitrarily large integers
 // Import by language code
 import { toCardinal } from 'n2words/en-US'
 import { toCardinal as es } from 'n2words/es'
-import { toCardinal, toOrdinal } from 'n2words/en-US'  // Languages with ordinal support
+import { toCardinal, toOrdinal } from 'n2words/en-US'     // Languages with ordinal support
+import { toCardinal, toCurrency } from 'n2words/en-US'   // Languages with currency support
 ```
 
 **Browser (CDN):**
@@ -69,6 +71,7 @@ Individual language bundles are recommended for browsers (~1.4 KB gzipped each).
   n2words.enUS(42)           // 'forty-two'
   n2words.es(42)             // 'cuarenta y dos'
   n2words.ordinal.enUS(42)   // 'forty-second' (languages with ordinal support)
+  n2words.currency.enUS(42.50)  // 'forty-two dollars and fifty cents'
 </script>
 ```
 

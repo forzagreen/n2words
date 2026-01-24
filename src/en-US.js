@@ -3,7 +3,8 @@
  *
  * Exports:
  * - toCardinal(value, options?)  - Cardinal numbers: 42 → "forty-two"
- * - toOrdinal(value)          - Ordinal numbers: 42 → "forty-second"
+ * - toOrdinal(value)             - Ordinal numbers: 42 → "forty-second"
+ * - toCurrency(value, options?)  - Currency: 42.50 → "forty-two dollars and fifty cents"
  *
  * American English conventions:
  * - No "and" after hundreds: "one hundred twenty-three" (default)
@@ -15,6 +16,7 @@
  */
 
 import { parseCardinalValue } from './utils/parse-cardinal.js'
+import { parseCurrencyValue } from './utils/parse-currency.js'
 import { parseOrdinalValue } from './utils/parse-ordinal.js'
 import { validateOptions } from './utils/validate-options.js'
 
@@ -42,6 +44,12 @@ const DECIMAL_SEP = 'point'
 const ORDINAL_ONES = ['', 'first', 'second', 'third', 'fourth', 'fifth', 'sixth', 'seventh', 'eighth', 'ninth']
 const ORDINAL_TEENS = ['tenth', 'eleventh', 'twelfth', 'thirteenth', 'fourteenth', 'fifteenth', 'sixteenth', 'seventeenth', 'eighteenth', 'nineteenth']
 const ORDINAL_TENS = ['', '', 'twentieth', 'thirtieth', 'fortieth', 'fiftieth', 'sixtieth', 'seventieth', 'eightieth', 'ninetieth']
+
+// Currency vocabulary
+const DOLLAR = 'dollar'
+const DOLLARS = 'dollars'
+const CENT = 'cent'
+const CENTS = 'cents'
 
 // ============================================================================
 // SHARED HELPERS
@@ -453,7 +461,54 @@ function toOrdinal (value) {
 }
 
 // ============================================================================
+// CURRENCY: toCurrency(value, options?)
+// ============================================================================
+
+/**
+ * Converts a numeric value to American English currency words.
+ *
+ * @param {number | string | bigint} value - The currency amount to convert
+ * @param {Object} [options] - Optional configuration
+ * @param {boolean} [options.and=true] - Use "and" between dollars and cents (e.g., "one dollar and fifty cents")
+ * @returns {string} The amount in American English currency words
+ * @throws {TypeError} If value is not a valid numeric type
+ * @throws {Error} If value is not a valid number format
+ *
+ * @example
+ * toCurrency(42.50)                    // 'forty-two dollars and fifty cents'
+ * toCurrency(1)                        // 'one dollar'
+ * toCurrency(0.99)                     // 'ninety-nine cents'
+ * toCurrency(42.50, { and: false })    // 'forty-two dollars fifty cents'
+ */
+function toCurrency (value, options) {
+  options = validateOptions(options)
+  const { isNegative, dollars, cents } = parseCurrencyValue(value)
+  const { and: useAnd = true } = options
+
+  // Build result
+  let result = ''
+  if (isNegative) result = NEGATIVE + ' '
+
+  // Dollars part (show if non-zero, or if no cents)
+  if (dollars > 0n || cents === 0n) {
+    result += integerToWords(dollars, false, false)
+    result += ' ' + (dollars === 1n ? DOLLAR : DOLLARS)
+  }
+
+  // Cents part
+  if (cents > 0n) {
+    if (dollars > 0n) {
+      result += useAnd ? ' and ' : ' '
+    }
+    result += integerToWords(cents, false, false)
+    result += ' ' + (cents === 1n ? CENT : CENTS)
+  }
+
+  return result
+}
+
+// ============================================================================
 // EXPORTS
 // ============================================================================
 
-export { toCardinal, toOrdinal }
+export { toCardinal, toOrdinal, toCurrency }

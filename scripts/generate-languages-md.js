@@ -66,8 +66,18 @@ function getDisplayName (code) {
  */
 function hasOrdinal (code) {
   const content = readFileSync(`./src/${code}.js`, 'utf-8')
-  return content.includes('export { toCardinal, toOrdinal }') ||
-         content.includes('export { toOrdinal, toCardinal }')
+  return content.includes('toOrdinal') && content.includes('export {')
+}
+
+/**
+ * Check if a language has currency support.
+ *
+ * @param {string} code Language code
+ * @returns {boolean} True if language exports toCurrency
+ */
+function hasCurrency (code) {
+  const content = readFileSync(`./src/${code}.js`, 'utf-8')
+  return content.includes('toCurrency') && content.includes('export {')
 }
 
 // ============================================================================
@@ -116,12 +126,17 @@ function getOptionsForFunction (code, functionName) {
   let optionMatch
 
   while ((optionMatch = optionRegex.exec(jsdocBlock)) !== null) {
+    const formMap = {
+      toCardinal: 'cardinal',
+      toOrdinal: 'ordinal',
+      toCurrency: 'currency'
+    }
     options.push({
       name: optionMatch[2],
       type: optionMatch[1],
       defaultValue: optionMatch[3] || undefined,
       description: optionMatch[4].trim(),
-      form: functionName === 'toCardinal' ? 'cardinal' : 'ordinal'
+      form: formMap[functionName] || functionName
     })
   }
 
@@ -148,6 +163,16 @@ function hasOrdinalOptions (code) {
   return getOptionsForFunction(code, 'toOrdinal').length > 0
 }
 
+/**
+ * Check if a language has currency options.
+ *
+ * @param {string} code Language code
+ * @returns {boolean} True if language has currency options
+ */
+function hasCurrencyOptions (code) {
+  return getOptionsForFunction(code, 'toCurrency').length > 0
+}
+
 // ============================================================================
 // Markdown Generation
 // ============================================================================
@@ -170,7 +195,7 @@ function formatType (type) {
  * Collect options grouped by language.
  *
  * @param {string[]} codes Language codes
- * @returns {Array<{language: string, code: string, cardinalOptions: OptionInfo[], ordinalOptions: OptionInfo[]}>}
+ * @returns {Array<{language: string, code: string, cardinalOptions: OptionInfo[], ordinalOptions: OptionInfo[], currencyOptions: OptionInfo[]}>}
  */
 function collectOptionsByLanguage (codes) {
   const result = []
@@ -178,13 +203,15 @@ function collectOptionsByLanguage (codes) {
   for (const code of codes) {
     const cardinalOptions = getOptionsForFunction(code, 'toCardinal')
     const ordinalOptions = getOptionsForFunction(code, 'toOrdinal')
+    const currencyOptions = getOptionsForFunction(code, 'toCurrency')
 
-    if (cardinalOptions.length > 0 || ordinalOptions.length > 0) {
+    if (cardinalOptions.length > 0 || ordinalOptions.length > 0 || currencyOptions.length > 0) {
       result.push({
         language: getDisplayName(code),
         code,
         cardinalOptions,
-        ordinalOptions
+        ordinalOptions,
+        currencyOptions
       })
     }
   }
@@ -214,6 +241,8 @@ function generateMarkdown (codes) {
   const languageCount = codes.length
   const codesWithOrdinal = codes.filter(hasOrdinal)
   const ordinalCount = codesWithOrdinal.length
+  const codesWithCurrency = codes.filter(hasCurrency)
+  const currencyCount = codesWithCurrency.length
   const optionsByLang = collectOptionsByLanguage(codes)
   const optionsCount = optionsByLang.length
 
@@ -231,7 +260,13 @@ function generateMarkdown (codes) {
       ordinalCol = hasOrdinalOptions(code) ? '✓¹' : '✓'
     }
 
-    return `|\`${code}\`|${exportCol}|${name}|${cardinalCol}|${ordinalCol}|`
+    // Currency column - only if implemented, superscript if has options
+    let currencyCol = ''
+    if (hasCurrency(code)) {
+      currencyCol = hasCurrencyOptions(code) ? '✓¹' : '✓'
+    }
+
+    return `|\`${code}\`|${exportCol}|${name}|${cardinalCol}|${ordinalCol}|${currencyCol}|`
   })
 
   // Generate per-language options sections
@@ -256,6 +291,15 @@ function generateMarkdown (codes) {
       }
     }
 
+    if (lang.currencyOptions.length > 0) {
+      lines.push('')
+      lines.push('**Currency options:**')
+      lines.push('')
+      for (const opt of lang.currencyOptions) {
+        lines.push(formatOptionItem(opt))
+      }
+    }
+
     return lines.join('\n')
   })
 
@@ -263,14 +307,14 @@ function generateMarkdown (codes) {
 
 > **Auto-generated** — Do not edit manually. Run \`npm run docs:languages\` to update.
 
-n2words supports **${languageCount} languages** with cardinal number conversion, ${ordinalCount} with ordinal support.
+n2words supports **${languageCount} languages** with cardinal number conversion, ${ordinalCount} with ordinal support, ${currencyCount} with currency support.
 
 Language codes follow [IETF BCP 47](https://tools.ietf.org/html/bcp47) standards.
 
 ## All Languages
 
-|Code|Export|Language|Cardinal|Ordinal|
-|----|------|--------|:------:|:-----:|
+|Code|Export|Language|Cardinal|Ordinal|Currency|
+|----|------|--------|:------:|:-----:|:------:|
 ${langRows.join('\n')}
 
 ¹ Has options — see [Language Options](#language-options) section.
@@ -280,10 +324,11 @@ ${langRows.join('\n')}
 \`\`\`js
 // Import language modules directly
 import { toCardinal } from 'n2words/en-US'
-import { toCardinal, toOrdinal } from 'n2words/de'
+import { toCardinal, toOrdinal, toCurrency } from 'n2words/en-US'
 
-toCardinal(42)  // 'forty-two'
-toOrdinal(42)   // 'forty-second' (if supported)
+toCardinal(42)     // 'forty-two'
+toOrdinal(42)      // 'forty-second' (if supported)
+toCurrency(42.50)  // 'forty-two dollars and fifty cents' (if supported)
 \`\`\`
 
 ### Import Paths
@@ -296,6 +341,7 @@ ${optionsCount} languages support options via a second parameter. Options are pa
 
 \`\`\`js
 toCardinal(value, { optionName: value })
+toCurrency(value, { optionName: value })
 \`\`\`
 
 ${optionSections.join('\n\n')}

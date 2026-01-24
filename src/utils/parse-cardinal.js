@@ -5,6 +5,8 @@
  * @module parse-cardinal
  */
 
+import { expandScientificNotation, hasScientificNotation } from './expand-scientific.js'
+
 /**
  * Parses a value for cardinal conversion.
  * Cardinals accept any numeric value: integers, decimals, negatives.
@@ -52,9 +54,7 @@ export function parseCardinalValue (value) {
  */
 function numberToString (value) {
   const str = value.toString()
-  return (str.includes('e') || str.includes('E'))
-    ? expandScientificNotation(str)
-    : str
+  return hasScientificNotation(str) ? expandScientificNotation(str) : str
 }
 
 /**
@@ -65,9 +65,7 @@ function normalizeString (value) {
   if (trimmed.length === 0 || Number.isNaN(Number(trimmed))) {
     throw new Error(`Invalid number format: "${value}"`)
   }
-  return (trimmed.includes('e') || trimmed.includes('E'))
-    ? expandScientificNotation(trimmed)
-    : trimmed
+  return hasScientificNotation(trimmed) ? expandScientificNotation(trimmed) : trimmed
 }
 
 /**
@@ -85,27 +83,4 @@ function parseNumericString (str) {
   const integerStr = str.slice(0, dotIndex) || '0'
   const decimalPart = str.slice(dotIndex + 1)
   return { isNegative, integerPart: BigInt(integerStr), decimalPart }
-}
-
-/**
- * Expands scientific notation to decimal form (e.g., "1e21" → "1000...").
- */
-function expandScientificNotation (str) {
-  const [mantissa, expStr] = str.toLowerCase().split('e')
-  const exp = parseInt(expStr, 10)
-
-  const dotIndex = mantissa.indexOf('.')
-  const digits = dotIndex === -1
-    ? mantissa
-    : mantissa.slice(0, dotIndex) + mantissa.slice(dotIndex + 1)
-  const integerLength = dotIndex === -1 ? mantissa.length : dotIndex
-  const newDotPosition = integerLength + exp
-
-  if (newDotPosition >= digits.length) {
-    return digits + '0'.repeat(newDotPosition - digits.length)
-  }
-  if (newDotPosition <= 0) {
-    return '0.' + '0'.repeat(-newDotPosition) + digits
-  }
-  return digits.slice(0, newDotPosition) + '.' + digits.slice(newDotPosition)
 }

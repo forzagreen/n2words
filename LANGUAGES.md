@@ -2,69 +2,69 @@
 
 > **Auto-generated** — Do not edit manually. Run `npm run docs:languages` to update.
 
-n2words supports **55 languages** with cardinal number conversion, 1 with ordinal support.
+n2words supports **55 languages** with cardinal number conversion, 1 with ordinal support, 1 with currency support.
 
 Language codes follow [IETF BCP 47](https://tools.ietf.org/html/bcp47) standards.
 
 ## All Languages
 
-|Code|Export|Language|Cardinal|Ordinal|
-|----|------|--------|:------:|:-----:|
-|`am`||Amharic|✓||
-|`am-Latn`|`amLatn`|Amharic (Latin)|✓||
-|`ar`||Arabic|✓¹||
-|`az`||Azerbaijani|✓||
-|`bn`||Bangla|✓||
-|`cs`||Czech|✓||
-|`da`||Danish|✓||
-|`de`||German|✓||
-|`el`||Greek|✓||
-|`en-GB`|`enGB`|British English|✓||
-|`en-US`|`enUS`|American English|✓¹|✓|
-|`es`||Spanish|✓¹||
-|`fa`||Persian|✓||
-|`fi`||Finnish|✓||
-|`fil`||Filipino|✓||
-|`fr`||French|✓¹||
-|`fr-BE`|`frBE`|French (Belgium)|✓¹||
-|`gu`||Gujarati|✓||
-|`ha`||Hausa|✓||
-|`hbo`||Biblical Hebrew|✓¹||
-|`he`||Hebrew|✓¹||
-|`hi`||Hindi|✓||
-|`hr`||Croatian|✓¹||
-|`hu`||Hungarian|✓||
-|`id`||Indonesian|✓||
-|`it`||Italian|✓||
-|`ja`||Japanese|✓||
-|`ka`||Georgian|✓||
-|`kn`||Kannada|✓||
-|`ko`||Korean|✓||
-|`lt`||Lithuanian|✓¹||
-|`lv`||Latvian|✓¹||
-|`mr`||Marathi|✓||
-|`ms`||Malay|✓||
-|`nb`||Norwegian Bokmål|✓||
-|`nl`||Dutch|✓¹||
-|`pa`||Punjabi|✓||
-|`pl`||Polish|✓¹||
-|`pt`||Portuguese|✓||
-|`ro`||Romanian|✓¹||
-|`ru`||Russian|✓¹||
-|`sr-Cyrl`|`srCyrl`|Serbian (Cyrillic)|✓¹||
-|`sr-Latn`|`srLatn`|Serbian (Latin)|✓¹||
-|`sv`||Swedish|✓||
-|`sw`||Swahili|✓||
-|`ta`||Tamil|✓||
-|`te`||Telugu|✓||
-|`th`||Thai|✓||
-|`tr`||Turkish|✓¹||
-|`uk`||Ukrainian|✓¹||
-|`ur`||Urdu|✓||
-|`vi`||Vietnamese|✓||
-|`yo`||Yoruba|✓||
-|`zh-Hans`|`zhHans`|Simplified Chinese|✓¹||
-|`zh-Hant`|`zhHant`|Traditional Chinese|✓¹||
+|Code|Export|Language|Cardinal|Ordinal|Currency|
+|----|------|--------|:------:|:-----:|:------:|
+|`am`||Amharic|✓|||
+|`am-Latn`|`amLatn`|Amharic (Latin)|✓|||
+|`ar`||Arabic|✓¹|||
+|`az`||Azerbaijani|✓|||
+|`bn`||Bangla|✓|||
+|`cs`||Czech|✓|||
+|`da`||Danish|✓|||
+|`de`||German|✓|||
+|`el`||Greek|✓|||
+|`en-GB`|`enGB`|British English|✓|||
+|`en-US`|`enUS`|American English|✓¹|✓|✓¹|
+|`es`||Spanish|✓¹|||
+|`fa`||Persian|✓|||
+|`fi`||Finnish|✓|||
+|`fil`||Filipino|✓|||
+|`fr`||French|✓¹|||
+|`fr-BE`|`frBE`|French (Belgium)|✓¹|||
+|`gu`||Gujarati|✓|||
+|`ha`||Hausa|✓|||
+|`hbo`||Biblical Hebrew|✓¹|||
+|`he`||Hebrew|✓¹|||
+|`hi`||Hindi|✓|||
+|`hr`||Croatian|✓¹|||
+|`hu`||Hungarian|✓|||
+|`id`||Indonesian|✓|||
+|`it`||Italian|✓|||
+|`ja`||Japanese|✓|||
+|`ka`||Georgian|✓|||
+|`kn`||Kannada|✓|||
+|`ko`||Korean|✓|||
+|`lt`||Lithuanian|✓¹|||
+|`lv`||Latvian|✓¹|||
+|`mr`||Marathi|✓|||
+|`ms`||Malay|✓|||
+|`nb`||Norwegian Bokmål|✓|||
+|`nl`||Dutch|✓¹|||
+|`pa`||Punjabi|✓|||
+|`pl`||Polish|✓¹|||
+|`pt`||Portuguese|✓|||
+|`ro`||Romanian|✓¹|||
+|`ru`||Russian|✓¹|||
+|`sr-Cyrl`|`srCyrl`|Serbian (Cyrillic)|✓¹|||
+|`sr-Latn`|`srLatn`|Serbian (Latin)|✓¹|||
+|`sv`||Swedish|✓|||
+|`sw`||Swahili|✓|||
+|`ta`||Tamil|✓|||
+|`te`||Telugu|✓|||
+|`th`||Thai|✓|||
+|`tr`||Turkish|✓¹|||
+|`uk`||Ukrainian|✓¹|||
+|`ur`||Urdu|✓|||
+|`vi`||Vietnamese|✓|||
+|`yo`||Yoruba|✓|||
+|`zh-Hans`|`zhHans`|Simplified Chinese|✓¹|||
+|`zh-Hant`|`zhHant`|Traditional Chinese|✓¹|||
 
 ¹ Has options — see [Language Options](#language-options) section.
 
@@ -73,10 +73,11 @@ Language codes follow [IETF BCP 47](https://tools.ietf.org/html/bcp47) standards
 ```js
 // Import language modules directly
 import { toCardinal } from 'n2words/en-US'
-import { toCardinal, toOrdinal } from 'n2words/de'
+import { toCardinal, toOrdinal, toCurrency } from 'n2words/en-US'
 
-toCardinal(42)  // 'forty-two'
-toOrdinal(42)   // 'forty-second' (if supported)
+toCardinal(42)     // 'forty-two'
+toOrdinal(42)      // 'forty-second' (if supported)
+toCurrency(42.50)  // 'forty-two dollars and fifty cents' (if supported)
 ```
 
 ### Import Paths
@@ -89,6 +90,7 @@ Import paths use BCP 47 language codes: `n2words/en-US`, `n2words/zh-Hans`, `n2w
 
 ```js
 toCardinal(value, { optionName: value })
+toCurrency(value, { optionName: value })
 ```
 
 ### American English (`en-US`)
@@ -97,6 +99,10 @@ toCardinal(value, { optionName: value })
 
 - `hundredPairing` (`boolean`, default: `false`) — Use hundred-pairing for 1100-9999 (e.g., "fifteen hundred" instead of "one thousand five hundred")
 - `and` (`boolean`, default: `false`) — Use "and" after hundreds and before final small numbers (e.g., "one hundred and one" instead of "one hundred one")
+
+**Currency options:**
+
+- `and` (`boolean`, default: `true`) — Use "and" between dollars and cents (e.g., "one dollar and fifty cents")
 
 ### Arabic (`ar`)
 
