@@ -8,16 +8,18 @@
 [![npm downloads](https://img.shields.io/npm/dw/n2words)](https://npmjs.com/package/n2words)
 [![jsDelivr](https://img.shields.io/jsdelivr/npm/hm/n2words)](https://www.jsdelivr.com/package/npm/n2words)
 
-**Convert numbers to words in 55 languages with zero dependencies.**
+**Numbers to words. 55 languages. Zero dependencies.**
 
 ## Why n2words?
 
+- **Pure Functions** — Each language exports standalone functions. No classes, no configuration, no side effects.
+- **Tree-Shakeable** — Import only what you need. Each form is independently bundled.
+- **Tiny Bundles** — ~2 KB gzipped per language (with all forms). No bloat.
+- **Multiple Forms** — Cardinal ("forty-two"), ordinal ("forty-second"), and currency ("forty-two dollars")
 - **55 Languages** — European, Asian, Middle Eastern, African, and regional variants
-- **Functional API** — Each language is a standalone pure function, no classes or configuration
 - **Zero Dependencies** — Works everywhere: Node.js, browsers, Deno, Bun
-- **Type-Safe** — Full TypeScript support with generated `.d.ts` declarations
 - **BigInt Support** — Handle arbitrarily large numbers without precision loss
-- **Lightweight** — ~1.4 KB gzipped per language, pure functions, BigInt math
+- **Type-Safe** — Full TypeScript support with generated `.d.ts` declarations
 
 ## Quick Start
 
@@ -26,54 +28,62 @@ npm install n2words
 ```
 
 ```js
-import { toCardinal, toOrdinal, toCurrency } from 'n2words/en-US'
+import { toCardinal } from 'n2words/en-US'
 import { toCardinal as es } from 'n2words/es'
-import { toCardinal as ar } from 'n2words/ar'
 
-toCardinal(123)               // 'one hundred twenty-three'
-toOrdinal(123)                // 'one hundred twenty-third'
-toCurrency(42.50)             // 'forty-two dollars and fifty cents'
-es(123)                       // 'ciento veintitrés'
-ar(1, { gender: 'feminine' }) // 'واحدة' (with options)
-
-// Input types: number, string, or BigInt
-toCardinal(999999999999999999999999n) // Works with arbitrarily large integers
+toCardinal(42)   // 'forty-two'
+es(42)           // 'cuarenta y dos'
 ```
+
+## Forms
+
+n2words converts numbers to words in multiple forms:
+
+| Form     | Function             | Example                             |
+| -------- | -------------------- | ----------------------------------- |
+| Cardinal | `toCardinal(42)`     | "forty-two"                         |
+| Ordinal  | `toOrdinal(42)`      | "forty-second"                      |
+| Currency | `toCurrency(42.50)`  | "forty-two dollars and fifty cents" |
+
+```js
+import { toCardinal, toOrdinal, toCurrency } from 'n2words/en-US'
+
+toCardinal(1234)      // 'one thousand two hundred thirty-four'
+toOrdinal(1234)       // 'one thousand two hundred thirty-fourth'
+toCurrency(1234.56)   // 'one thousand two hundred thirty-four dollars and fifty-six cents'
+```
+
+Form availability varies by language. See [LANGUAGES.md](LANGUAGES.md) for details.
 
 ## Usage
 
 **ESM (Node.js, modern bundlers):**
 
 ```js
-// Import by language code
-import { toCardinal } from 'n2words/en-US'
-import { toCardinal as es } from 'n2words/es'
-import { toCardinal, toOrdinal } from 'n2words/en-US'     // Languages with ordinal support
-import { toCardinal, toCurrency } from 'n2words/en-US'   // Languages with currency support
+import { toCardinal } from 'n2words/en-US'            // Single form
+import { toCardinal, toOrdinal } from 'n2words/en-US' // Multiple forms
+import { toCardinal as fr } from 'n2words/fr'         // Aliased import
 ```
 
 **Browser (CDN):**
-
-Individual language bundles are recommended for browsers (~1.4 KB gzipped each).
 
 ```html
 <!-- ESM (recommended) -->
 <script type="module">
   import { toCardinal } from 'https://cdn.jsdelivr.net/npm/n2words/dist/en-US.js'
-  import { toCardinal as es } from 'https://cdn.jsdelivr.net/npm/n2words/dist/es.js'
   console.log(toCardinal(42))  // 'forty-two'
 </script>
 
 <!-- UMD (legacy script tags) -->
 <script src="https://cdn.jsdelivr.net/npm/n2words/dist/en-US.umd.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/n2words/dist/es.umd.js"></script>
 <script>
-  n2words.enUS(42)           // 'forty-two'
-  n2words.es(42)             // 'cuarenta y dos'
-  n2words.ordinal.enUS(42)   // 'forty-second' (languages with ordinal support)
+  n2words.enUS(42)              // 'forty-two'
+  n2words.ordinal.enUS(42)      // 'forty-second'
   n2words.currency.enUS(42.50)  // 'forty-two dollars and fifty cents'
 </script>
 ```
+
+See [LANGUAGES.md](LANGUAGES.md) for all language codes and available forms.
 
 ## Supported Languages (55)
 
@@ -91,8 +101,11 @@ Requires BigInt support (cannot be polyfilled).
 
 ## Performance
 
-Each language module is ~1.4 KB gzipped. Optimized with:
+n2words is optimized for both size and speed:
 
+- ~2 KB gzipped per language (includes all forms)
+- Individual language imports enable tree-shaking
+- No runtime dependencies
 - BigInt modulo operations (no string manipulation)
 - Pure functions with no shared state
 - Minimal memory allocation per conversion
