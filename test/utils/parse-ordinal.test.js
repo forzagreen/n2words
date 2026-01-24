@@ -259,7 +259,7 @@ test('rejects scientific notation with decimal mantissa', t => {
 
 test('rejects scientific notation resulting in decimal', t => {
   const error = t.throws(() => parseOrdinalValue('1e-3'), { instanceOf: RangeError })
-  t.regex(error.message, /positive integers/)
+  t.regex(error.message, /whole numbers/)
 })
 
 test('rejects zero in scientific notation', t => {

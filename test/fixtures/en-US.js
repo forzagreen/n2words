@@ -129,6 +129,60 @@ export const cardinal = [
 ]
 
 /**
+ * Currency test cases
+ * Format: [input, expected_output, options?]
+ */
+export const currency = [
+  // Zero
+  [0, 'zero dollars'],
+
+  // Whole dollars (singular/plural)
+  [1, 'one dollar'],
+  [2, 'two dollars'],
+  [10, 'ten dollars'],
+  [100, 'one hundred dollars'],
+  [1000, 'one thousand dollars'],
+  [1000000, 'one million dollars'],
+
+  // Cents only (singular/plural)
+  [0.01, 'one cent'],
+  [0.02, 'two cents'],
+  [0.10, 'ten cents'],
+  [0.50, 'fifty cents'],
+  [0.99, 'ninety-nine cents'],
+
+  // Dollars and cents
+  [1.01, 'one dollar and one cent'],
+  [1.50, 'one dollar and fifty cents'],
+  [2.02, 'two dollars and two cents'],
+  [42.50, 'forty-two dollars and fifty cents'],
+  [100.99, 'one hundred dollars and ninety-nine cents'],
+  [1000.01, 'one thousand dollars and one cent'],
+  [1000000.01, 'one million dollars and one cent'],
+
+  // Negative amounts
+  [-1, 'minus one dollar'],
+  [-0.50, 'minus fifty cents'],
+  [-42.50, 'minus forty-two dollars and fifty cents'],
+
+  // Without "and" option
+  [42.50, 'forty-two dollars fifty cents', { and: false }],
+  [1.01, 'one dollar one cent', { and: false }],
+
+  // Edge cases: .00 cents should show dollars only
+  [5.00, 'five dollars'],
+  ['5.00', 'five dollars'],
+  [100.00, 'one hundred dollars'],
+
+  // String inputs
+  ['42.50', 'forty-two dollars and fifty cents'],
+  ['0.99', 'ninety-nine cents'],
+
+  // BigInt (whole dollars only)
+  [1000000000000n, 'one trillion dollars']
+]
+
+/**
  * Ordinal number test cases
  * Format: [input, expected_output]
  */

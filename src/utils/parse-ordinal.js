@@ -4,6 +4,8 @@
  * @module parse-ordinal
  */
 
+import { expandScientificNotation, hasScientificNotation } from './expand-scientific.js'
+
 /**
  * Parses a value for ordinal conversion.
  * Ordinals require positive integers only (no zero, negatives, or decimals).
@@ -71,13 +73,20 @@ function parseOrdinalString (value) {
     throw new RangeError('Ordinals must be whole numbers')
   }
 
-  // Handle scientific notation (e.g., "1e3" = 1000)
-  if (trimmed.includes('e') || trimmed.includes('E')) {
-    const num = Number(trimmed)
-    if (!Number.isFinite(num) || !Number.isInteger(num) || num <= 0) {
+  // Handle scientific notation with full precision expansion
+  if (hasScientificNotation(trimmed)) {
+    const expanded = expandScientificNotation(trimmed)
+
+    // Check if expansion resulted in a decimal
+    if (expanded.includes('.')) {
+      throw new RangeError('Ordinals must be whole numbers')
+    }
+
+    const result = BigInt(expanded)
+    if (result <= 0n) {
       throw new RangeError('Ordinals must be positive integers')
     }
-    return BigInt(num)
+    return result
   }
 
   // Parse as BigInt directly

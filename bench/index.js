@@ -27,8 +27,8 @@ import { getLanguageCodes } from '../test/helpers/language-helpers.js'
  * Known converter functions.
  * These are the standard export names from language modules.
  */
-const KNOWN_FUNCTIONS = ['toCardinal', 'toOrdinal']
-// Future: 'toCurrency', 'toYear', etc.
+const KNOWN_FUNCTIONS = ['toCardinal', 'toOrdinal', 'toCurrency']
+// Future: 'toYear', etc.
 
 // ============================================================================
 // Benchmark Configuration

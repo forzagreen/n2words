@@ -4,7 +4,7 @@
  * Language Scaffolding Tool
  *
  * Generates boilerplate code for adding a new language to n2words.
- * Supports scaffolding multiple conversion forms (cardinal, ordinal).
+ * Supports scaffolding multiple conversion forms (cardinal, ordinal, currency).
  *
  * Usage:
  *   npm run lang:add [language-code] [options]
@@ -12,6 +12,7 @@
  * Options:
  *   --cardinal    Scaffold cardinal number support
  *   --ordinal     Scaffold ordinal number support
+ *   --currency    Scaffold currency support
  *
  * If no code provided, prompts interactively.
  * If no form options provided, prompts for form selection.
@@ -21,7 +22,8 @@
  *   npm run lang:add ko                      # Prompts for forms
  *   npm run lang:add ko --cardinal           # Cardinal only
  *   npm run lang:add ko --ordinal            # Ordinal only
- *   npm run lang:add ko --cardinal --ordinal # Both forms
+ *   npm run lang:add ko --currency           # Currency only
+ *   npm run lang:add ko --cardinal --ordinal # Multiple forms
  */
 
 import { execSync } from 'node:child_process'
@@ -54,6 +56,8 @@ function parseArgs (args) {
       result.forms.add('cardinal')
     } else if (arg === '--ordinal') {
       result.forms.add('ordinal')
+    } else if (arg === '--currency') {
+      result.forms.add('currency')
     } else if (!arg.startsWith('-')) {
       result.code = arg
     }
@@ -135,7 +139,7 @@ async function promptForForms (existingForms) {
     output: process.stdout
   })
 
-  const availableForms = ['cardinal', 'ordinal'].filter(f => !existingForms.has(f))
+  const availableForms = ['cardinal', 'ordinal', 'currency'].filter(f => !existingForms.has(f))
 
   if (availableForms.length === 0) {
     console.log(chalk.yellow('\nAll forms are already implemented for this language.'))
@@ -225,6 +229,30 @@ function toOrdinal (value) {
 }
 
 /**
+ * Generate currency function template.
+ *
+ * @param {string} code Language code
+ * @returns {string} Function template
+ */
+function generateCurrencyFunction (code) {
+  return `/**
+ * Converts a numeric value to currency words.
+ *
+ * @param {number | string | bigint} value - The currency amount to convert
+ * @param {Object} [options] - Optional configuration
+ * @returns {string} The amount in currency words
+ */
+function toCurrency (value, options) {
+  options = validateOptions(options)
+  const { isNegative, dollars, cents } = parseCurrencyValue(value)
+
+  // TODO: Implement conversion logic
+  // TODO: Define currency vocabulary (e.g., dollar/dollars, cent/cents)
+  throw new Error('${code} currency not yet implemented')
+}`
+}
+
+/**
  * Generate language implementation file.
  *
  * @param {string} code Language code
@@ -235,13 +263,20 @@ function toOrdinal (value) {
 function generateLanguageFile (code, name, forms) {
   const hasCardinal = forms.has('cardinal')
   const hasOrdinal = forms.has('ordinal')
+  const hasCurrency = forms.has('currency')
 
   const importLines = []
   if (hasCardinal) {
     importLines.push("import { parseCardinalValue } from './utils/parse-cardinal.js'")
   }
+  if (hasCurrency) {
+    importLines.push("import { parseCurrencyValue } from './utils/parse-currency.js'")
+  }
   if (hasOrdinal) {
     importLines.push("import { parseOrdinalValue } from './utils/parse-ordinal.js'")
+  }
+  if (hasCurrency) {
+    importLines.push("import { validateOptions } from './utils/validate-options.js'")
   }
   const imports = importLines.join('\n')
 
@@ -256,10 +291,12 @@ function generateLanguageFile (code, name, forms) {
   const functions = []
   if (hasCardinal) functions.push(generateCardinalFunction(code))
   if (hasOrdinal) functions.push(generateOrdinalFunction(code))
+  if (hasCurrency) functions.push(generateCurrencyFunction(code))
 
   const exports = []
   if (hasCardinal) exports.push('toCardinal')
   if (hasOrdinal) exports.push('toOrdinal')
+  if (hasCurrency) exports.push('toCurrency')
 
   return `${imports}
 
@@ -308,6 +345,19 @@ export const ordinal = [
 ]`)
   }
 
+  if (forms.has('currency')) {
+    exports.push(`/**
+ * Currency test cases for ${name} (${code})
+ * Format: [input, expected_output, options?]
+ */
+export const currency = [
+  // TODO: Add test cases
+  // [0, 'zero dollars'],
+  // [1, 'one dollar'],
+  // [42.50, 'forty-two dollars and fifty cents'],
+]`)
+  }
+
   return exports.join('\n\n') + '\n'
 }
 
@@ -337,6 +387,9 @@ function getExistingForms (code) {
   if (content.includes('function toOrdinal')) {
     forms.add('ordinal')
   }
+  if (content.includes('function toCurrency')) {
+    forms.add('currency')
+  }
 
   return forms
 }
@@ -363,6 +416,11 @@ function addFormsToExistingFile (code, newForms) {
   if (newForms.has('ordinal')) {
     newFunctions.push('\n' + generateOrdinalFunction(code))
     newExports.push('toOrdinal')
+  }
+
+  if (newForms.has('currency')) {
+    newFunctions.push('\n' + generateCurrencyFunction(code))
+    newExports.push('toCurrency')
   }
 
   // Insert functions before export
@@ -405,6 +463,20 @@ export const ordinal = [
 ]`)
   }
 
+  if (newForms.has('currency')) {
+    newExports.push(`
+/**
+ * Currency test cases for ${name} (${code})
+ * Format: [input, expected_output, options?]
+ */
+export const currency = [
+  // TODO: Add test cases
+  // [0, 'zero dollars'],
+  // [1, 'one dollar'],
+  // [42.50, 'forty-two dollars and fifty cents'],
+]`)
+  }
+
   content = content.trimEnd() + '\n' + newExports.join('\n') + '\n'
   writeFileSync(filePath, content)
 }
@@ -422,6 +494,7 @@ async function main () {
     console.log(chalk.gray('Options:'))
     console.log(chalk.gray('  --cardinal    Scaffold cardinal number support'))
     console.log(chalk.gray('  --ordinal     Scaffold ordinal number support'))
+    console.log(chalk.gray('  --currency    Scaffold currency support'))
     console.log()
     console.log(chalk.gray('If no code provided, prompts interactively.'))
     console.log(chalk.gray('If no form options provided, prompts for form selection.'))
@@ -431,7 +504,8 @@ async function main () {
     console.log(chalk.gray('  npm run lang:add ko                      # Prompts for forms'))
     console.log(chalk.gray('  npm run lang:add ko --cardinal           # Cardinal only'))
     console.log(chalk.gray('  npm run lang:add ko --ordinal            # Ordinal only'))
-    console.log(chalk.gray('  npm run lang:add ko --cardinal --ordinal # Both forms'))
+    console.log(chalk.gray('  npm run lang:add ko --currency           # Currency only'))
+    console.log(chalk.gray('  npm run lang:add ko --cardinal --ordinal # Multiple forms'))
     process.exit(0)
   }
 

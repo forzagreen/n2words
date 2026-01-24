@@ -47,9 +47,14 @@ const FORMS = {
       { input: -1, error: RangeError, desc: 'toOrdinal(-1) should throw RangeError' },
       { input: 1.5, error: RangeError, desc: 'toOrdinal(1.5) should throw RangeError' }
     ]
+  },
+  currency: {
+    functionName: 'toCurrency',
+    allowOptions: true,
+    inputValidator: isValidCardinalInput,
+    inputDescription: 'valid currency value',
+    errorCases: null
   }
-  // Future forms can be added here:
-  // currency: { functionName: 'toCurrency', allowOptions: true, inputValidator: isValidNumericInput, inputDescription: 'valid numeric value', errorCases: null }
 }
 
 // ============================================================================
