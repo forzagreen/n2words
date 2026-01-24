@@ -95,3 +95,152 @@ export const cardinal = [
   [10_000_000_000_000_000_000_000_000n, 'dix quadrillions'],
   [1_000_000_000_000_000_000_000_000_000n, 'un quadrilliard']
 ]
+
+/**
+ * Ordinal number test cases
+ * Format: [input, expected_output]
+ */
+export const ordinal = [
+  // Basic ones - special case for 1 (premier)
+  [1, 'premier'],
+  [2, 'deuxième'],
+  [3, 'troisième'],
+  [4, 'quatrième'],
+  [5, 'cinquième'],
+  [6, 'sixième'],
+  [7, 'septième'],
+  [8, 'huitième'],
+  [9, 'neuvième'],
+
+  // Teens
+  [10, 'dixième'],
+  [11, 'onzième'],
+  [12, 'douzième'],
+  [13, 'treizième'],
+  [14, 'quatorzième'],
+  [15, 'quinzième'],
+  [16, 'seizième'],
+  [17, 'dix-septième'],
+  [18, 'dix-huitième'],
+  [19, 'dix-neuvième'],
+
+  // Tens
+  [20, 'vingtième'],
+  [30, 'trentième'],
+  [40, 'quarantième'],
+  [50, 'cinquantième'],
+  [60, 'soixantième'],
+  [70, 'soixante-dixième'],
+  [80, 'quatre-vingtième'],
+  [90, 'quatre-vingt-dixième'],
+
+  // Compound tens-ones (vigesimal pattern)
+  [21, 'vingt et unième'],
+  [22, 'vingt-deuxième'],
+  [31, 'trente et unième'],
+  [42, 'quarante-deuxième'],
+  [55, 'cinquante-cinquième'],
+  [69, 'soixante-neuvième'],
+  [71, 'soixante et onzième'],
+  [75, 'soixante-quinzième'],
+  [81, 'quatre-vingt-unième'],
+  [85, 'quatre-vingt-cinquième'],
+  [89, 'quatre-vingt-neuvième'],
+  [91, 'quatre-vingt-onzième'],
+  [99, 'quatre-vingt-dix-neuvième'],
+
+  // Hundreds
+  [100, 'centième'],
+  [101, 'cent unième'],
+  [102, 'cent deuxième'],
+  [105, 'cent cinquième'],
+  [109, 'cent neuvième'],
+  [111, 'cent onzième'],
+  [121, 'cent vingt et unième'],
+  [200, 'deux centième'],
+  [300, 'trois centième'],
+  [500, 'cinq centième'],
+  [999, 'neuf cent quatre-vingt-dix-neuvième'],
+
+  // Thousands
+  [1000, 'millième'],
+  [1001, 'mille unième'],
+  [1005, 'mille cinquième'],
+  [1009, 'mille neuvième'],
+  [1100, 'mille centième'],
+  [2000, 'deux millième'],
+  [5000, 'cinq millième'],
+  [10000, 'dix millième'],
+  [21000, 'vingt et un millième'],
+  [99999, 'quatre-vingt-dix-neuf mille neuf cent quatre-vingt-dix-neuvième'],
+
+  // Larger scales
+  [1_000_000, 'un millionième'],
+  [1_000_001, 'un million unième'],
+  [2_000_000, 'deux millionième'],
+  [1_000_000_000, 'un milliardième'],
+  [1_000_000_000_000, 'un billionième'],
+
+  // BigInt support
+  [1_000_000_000_000_000_000n, 'un trillionième']
+]
+
+/**
+ * Currency test cases (Euro)
+ * Format: [input, expected_output, options?]
+ */
+export const currency = [
+  // Zero
+  [0, 'zéro euro'],
+
+  // Whole euros
+  [1, 'un euro'],
+  [2, 'deux euros'],
+  [10, 'dix euros'],
+  [21, 'vingt et un euros'],
+  [80, 'quatre-vingts euros'],
+  [100, 'cent euros'],
+  [1000, 'mille euros'],
+  [1000000, 'un million euros'],
+
+  // Centimes only
+  [0.01, 'un centime'],
+  [0.02, 'deux centimes'],
+  [0.10, 'dix centimes'],
+  [0.21, 'vingt et un centimes'],
+  [0.50, 'cinquante centimes'],
+  [0.80, 'quatre-vingts centimes'],
+  [0.99, 'quatre-vingt-dix-neuf centimes'],
+
+  // Euros and centimes
+  [1.01, 'un euro et un centime'],
+  [1.50, 'un euro et cinquante centimes'],
+  [2.02, 'deux euros et deux centimes'],
+  [21.21, 'vingt et un euros et vingt et un centimes'],
+  [42.50, 'quarante-deux euros et cinquante centimes'],
+  [80.80, 'quatre-vingts euros et quatre-vingts centimes'],
+  [100.99, 'cent euros et quatre-vingt-dix-neuf centimes'],
+  [1000.01, 'mille euros et un centime'],
+  [1000000.01, 'un million euros et un centime'],
+
+  // Negative amounts
+  [-1, 'moins un euro'],
+  [-0.50, 'moins cinquante centimes'],
+  [-42.50, 'moins quarante-deux euros et cinquante centimes'],
+
+  // Without "et" option
+  [42.50, 'quarante-deux euros cinquante centimes', { and: false }],
+  [1.01, 'un euro un centime', { and: false }],
+
+  // Edge cases: .00 centimes should show euros only
+  [5.00, 'cinq euros'],
+  ['5.00', 'cinq euros'],
+  [100.00, 'cent euros'],
+
+  // String inputs
+  ['42.50', 'quarante-deux euros et cinquante centimes'],
+  ['0.99', 'quatre-vingt-dix-neuf centimes'],
+
+  // BigInt (whole euros only)
+  [1000000000000n, 'un billion euros']
+]
