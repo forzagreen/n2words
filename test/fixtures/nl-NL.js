@@ -147,3 +147,145 @@ export const cardinal = [
   ],
   [1_000_000_000_000_000_000n, 'één triljoen']
 ]
+
+/**
+ * Ordinal number test cases
+ * Format: [input, expected_output]
+ */
+export const ordinal = [
+  // Basic ones (1-9) - eerste, derde, achtste are irregular
+  [1, 'eerste'],
+  [2, 'tweede'],
+  [3, 'derde'],
+  [4, 'vierde'],
+  [5, 'vijfde'],
+  [6, 'zesde'],
+  [7, 'zevende'],
+  [8, 'achtste'],
+  [9, 'negende'],
+
+  // Teens (10-19) - add -de
+  [10, 'tiende'],
+  [11, 'elfde'],
+  [12, 'twaalfde'],
+  [13, 'dertiende'],
+  [14, 'veertiende'],
+  [15, 'vijftiende'],
+  [16, 'zestiende'],
+  [17, 'zeventiende'],
+  [18, 'achttiende'],
+  [19, 'negentiende'],
+
+  // Tens (20-90) - add -ste
+  [20, 'twintigste'],
+  [30, 'dertigste'],
+  [40, 'veertigste'],
+  [50, 'vijftigste'],
+  [60, 'zestigste'],
+  [70, 'zeventigste'],
+  [80, 'tachtigste'],
+  [90, 'negentigste'],
+
+  // Compound tens-ones
+  [21, 'eenentwintigste'],
+  [22, 'tweeëntwintigste'],
+  [23, 'drieëntwintigste'],
+  [32, 'tweeëndertigste'],
+  [42, 'tweeënveertigste'],
+  [53, 'drieënvijftigste'],
+  [67, 'zevenenzestigste'],
+  [88, 'achtentachtigste'],
+  [99, 'negenennegentigste'],
+
+  // Hundreds
+  [100, 'honderdste'],
+  [101, 'honderd eerste'],
+  [102, 'honderd tweede'],
+  [103, 'honderd derde'],
+  [110, 'honderd tiende'],
+  [111, 'honderd elfde'],
+  [121, 'honderd eenentwintigste'],
+  [200, 'tweehonderdste'],
+  [300, 'driehonderdste'],
+  [500, 'vijfhonderdste'],
+  [999, 'negenhonderd negenennegentigste'],
+
+  // Thousands
+  [1000, 'duizendste'],
+  [1001, 'duizend eerste'],
+  [1010, 'duizend tiende'],
+  [1100, 'duizend honderdste'],
+  [1111, 'duizend honderd elfde'],
+  [2000, 'tweeduizendste'],
+  [5000, 'vijfduizendste'],
+  [10000, 'tienduizendste'],
+  [12345, 'twaalfduizend driehonderd vijfenveertigste'],
+  [99999, 'negenennegentigduizend negenhonderd negenennegentigste'],
+
+  // Larger scales
+  [1_000_000, 'een miljoenste'],
+  [1_000_001, 'een miljoen eerste'],
+  [2_000_000, 'twee miljoenste'],
+  [1_000_000_000, 'een miljardste'],
+  [1_000_000_000_000, 'een biljoenste'],
+
+  // BigInt support
+  [1_000_000_000_000_000_000n, 'een triljoenste']
+]
+
+/**
+ * Currency test cases (Euro)
+ * Format: [input, expected_output, options?]
+ */
+export const currency = [
+  // Zero
+  [0, 'nul euro'],
+
+  // Whole euros
+  [1, 'één euro'],
+  [2, 'twee euro'],
+  [10, 'tien euro'],
+  [21, 'eenentwintig euro'],
+  [100, 'honderd euro'],
+  [1000, 'duizend euro'],
+  [1000000, 'één miljoen euro'],
+
+  // Cents only
+  [0.01, 'één cent'],
+  [0.02, 'twee cent'],
+  [0.10, 'tien cent'],
+  [0.21, 'eenentwintig cent'],
+  [0.50, 'vijftig cent'],
+  [0.99, 'negenennegentig cent'],
+
+  // Euros and cents
+  [1.01, 'één euro en één cent'],
+  [1.50, 'één euro en vijftig cent'],
+  [2.02, 'twee euro en twee cent'],
+  [21.21, 'eenentwintig euro en eenentwintig cent'],
+  [42.50, 'tweeënveertig euro en vijftig cent'],
+  [100.99, 'honderd euro en negenennegentig cent'],
+  [1000.01, 'duizend euro en één cent'],
+  [1000000.01, 'één miljoen euro en één cent'],
+
+  // Negative amounts
+  [-1, 'min één euro'],
+  [-0.50, 'min vijftig cent'],
+  [-42.50, 'min tweeënveertig euro en vijftig cent'],
+
+  // Without "en" option
+  [42.50, 'tweeënveertig euro vijftig cent', { and: false }],
+  [1.01, 'één euro één cent', { and: false }],
+
+  // Edge cases: .00 cents should show euros only
+  [5.00, 'vijf euro'],
+  ['5.00', 'vijf euro'],
+  [100.00, 'honderd euro'],
+
+  // String inputs
+  ['42.50', 'tweeënveertig euro en vijftig cent'],
+  ['0.99', 'negenennegentig cent'],
+
+  // BigInt (whole euros only)
+  [1000000000000n, 'één biljoen euro']
+]
