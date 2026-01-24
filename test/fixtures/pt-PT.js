@@ -73,3 +73,145 @@ export const cardinal = [
   [100_000_000_000_000, 'cem biliões'],
   [1_000_000_000_000_000_000n, 'um trilião']
 ]
+
+/**
+ * Ordinal number test cases
+ * Format: [input, expected_output]
+ */
+export const ordinal = [
+  // Basic ones (1-9)
+  [1, 'primeiro'],
+  [2, 'segundo'],
+  [3, 'terceiro'],
+  [4, 'quarto'],
+  [5, 'quinto'],
+  [6, 'sexto'],
+  [7, 'sétimo'],
+  [8, 'oitavo'],
+  [9, 'nono'],
+
+  // Teens (10-19)
+  [10, 'décimo'],
+  [11, 'décimo primeiro'],
+  [12, 'décimo segundo'],
+  [13, 'décimo terceiro'],
+  [14, 'décimo quarto'],
+  [15, 'décimo quinto'],
+  [16, 'décimo sexto'],
+  [17, 'décimo sétimo'],
+  [18, 'décimo oitavo'],
+  [19, 'décimo nono'],
+
+  // Tens (20-90)
+  [20, 'vigésimo'],
+  [30, 'trigésimo'],
+  [40, 'quadragésimo'],
+  [50, 'quinquagésimo'],
+  [60, 'sexagésimo'],
+  [70, 'septuagésimo'],
+  [80, 'octogésimo'],
+  [90, 'nonagésimo'],
+
+  // Compound tens-ones
+  [21, 'vigésimo primeiro'],
+  [22, 'vigésimo segundo'],
+  [23, 'vigésimo terceiro'],
+  [32, 'trigésimo segundo'],
+  [42, 'quadragésimo segundo'],
+  [53, 'quinquagésimo terceiro'],
+  [67, 'sexagésimo sétimo'],
+  [88, 'octogésimo oitavo'],
+  [99, 'nonagésimo nono'],
+
+  // Hundreds
+  [100, 'centésimo'],
+  [101, 'centésimo primeiro'],
+  [102, 'centésimo segundo'],
+  [103, 'centésimo terceiro'],
+  [110, 'centésimo décimo'],
+  [111, 'centésimo décimo primeiro'],
+  [121, 'centésimo vigésimo primeiro'],
+  [200, 'ducentésimo'],
+  [300, 'tricentésimo'],
+  [500, 'quingentésimo'],
+  [999, 'nongentésimo nonagésimo nono'],
+
+  // Thousands
+  [1000, 'milésimo'],
+  [1001, 'mil primeiro'],
+  [1010, 'mil décimo'],
+  [1100, 'mil centésimo'],
+  [1111, 'mil centésimo décimo primeiro'],
+  [2000, 'segundo milésimo'],
+  [5000, 'quinto milésimo'],
+  [10000, 'décimo milésimo'],
+  [12345, 'doze mil tricentésimo quadragésimo quinto'],
+  [99999, 'noventa e nove mil nongentésimo nonagésimo nono'],
+
+  // Larger scales
+  [1_000_000, 'milionésimo'],
+  [1_000_001, 'um milhão primeiro'],
+  [2_000_000, 'segundo milionésimo'],
+  [1_000_000_000, 'mil milionésimo'],
+  [1_000_000_000_000, 'bilionésimo'],
+
+  // BigInt support
+  [1_000_000_000_000_000_000n, 'trilionésimo']
+]
+
+/**
+ * Currency test cases (Euro)
+ * Format: [input, expected_output, options?]
+ */
+export const currency = [
+  // Zero
+  [0, 'zero euros'],
+
+  // Whole euros
+  [1, 'um euro'],
+  [2, 'dois euros'],
+  [10, 'dez euros'],
+  [21, 'vinte e um euros'],
+  [100, 'cem euros'],
+  [1000, 'mil euros'],
+  [1000000, 'um milhão euros'],
+
+  // Cents only
+  [0.01, 'um cêntimo'],
+  [0.02, 'dois cêntimos'],
+  [0.10, 'dez cêntimos'],
+  [0.21, 'vinte e um cêntimos'],
+  [0.50, 'cinquenta cêntimos'],
+  [0.99, 'noventa e nove cêntimos'],
+
+  // Euros and cents
+  [1.01, 'um euro e um cêntimo'],
+  [1.50, 'um euro e cinquenta cêntimos'],
+  [2.02, 'dois euros e dois cêntimos'],
+  [21.21, 'vinte e um euros e vinte e um cêntimos'],
+  [42.50, 'quarenta e dois euros e cinquenta cêntimos'],
+  [100.99, 'cem euros e noventa e nove cêntimos'],
+  [1000.01, 'mil euros e um cêntimo'],
+  [1000000.01, 'um milhão euros e um cêntimo'],
+
+  // Negative amounts
+  [-1, 'menos um euro'],
+  [-0.50, 'menos cinquenta cêntimos'],
+  [-42.50, 'menos quarenta e dois euros e cinquenta cêntimos'],
+
+  // Without "e" option
+  [42.50, 'quarenta e dois euros cinquenta cêntimos', { and: false }],
+  [1.01, 'um euro um cêntimo', { and: false }],
+
+  // Edge cases: .00 cents should show euros only
+  [5.00, 'cinco euros'],
+  ['5.00', 'cinco euros'],
+  [100.00, 'cem euros'],
+
+  // String inputs
+  ['42.50', 'quarenta e dois euros e cinquenta cêntimos'],
+  ['0.99', 'noventa e nove cêntimos'],
+
+  // BigInt (whole euros only)
+  [1000000000000n, 'um bilião euros']
+]
