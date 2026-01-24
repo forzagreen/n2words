@@ -13,6 +13,9 @@
  */
 
 import { parseCardinalValue } from './utils/parse-cardinal.js'
+import { parseCurrencyValue } from './utils/parse-currency.js'
+import { parseOrdinalValue } from './utils/parse-ordinal.js'
+import { validateOptions } from './utils/validate-options.js'
 
 // ============================================================================
 // Vocabulary (module-level constants)
@@ -38,6 +41,24 @@ const THOUSAND_PLURAL_SUFFIX = 'mila'
 
 // Scale word generation
 const SCALE_PREFIXES = ['m', 'b', 'tr', 'quadr', 'quint', 'sest', 'sett', 'ott', 'nov', 'dec']
+
+// ============================================================================
+// Ordinal Vocabulary
+// ============================================================================
+
+// Irregular ordinals 1-10 (masculine form)
+const ORDINAL_ONES = ['', 'primo', 'secondo', 'terzo', 'quarto', 'quinto', 'sesto', 'settimo', 'ottavo', 'nono', 'decimo']
+
+// Ordinal suffix for 11+
+const ORDINAL_SUFFIX = 'esimo'
+
+// ============================================================================
+// Currency Vocabulary (Euro)
+// ============================================================================
+
+const EURO = 'euro'
+const CENTESIMO = 'centesimo'
+const CENTESIMI = 'centesimi'
 
 // ============================================================================
 // Segment Building
@@ -336,7 +357,150 @@ function toCardinal (value) {
 }
 
 // ============================================================================
+// ORDINAL: toOrdinal(value)
+// ============================================================================
+
+/**
+ * Converts a cardinal word to ordinal form by dropping final vowel and adding -esimo.
+ *
+ * @param {string} cardinalWord - Cardinal word to convert
+ * @returns {string} Ordinal form
+ */
+function cardinalToOrdinal (cardinalWord) {
+  // Handle accented 'é' at end (tré → tre + esimo = treesimo)
+  if (cardinalWord.endsWith('é')) {
+    return cardinalWord.slice(0, -1) + 'e' + ORDINAL_SUFFIX
+  }
+
+  // Handle "mila" ending (duemila → duemillesimo, not duemilesimo)
+  // The ordinal of thousand is "millesimo" (from mille), not "milesimo"
+  if (cardinalWord.endsWith('mila')) {
+    return cardinalWord.slice(0, -4) + 'mill' + ORDINAL_SUFFIX
+  }
+
+  // Handle "mille" ending (mille → millesimo)
+  if (cardinalWord.endsWith('mille')) {
+    return cardinalWord.slice(0, -1) + ORDINAL_SUFFIX
+  }
+
+  // Handle -ardo/-ardi endings (miliardo → miliardiesimo)
+  // These scale words get -iesimo not -esimo
+  if (cardinalWord.endsWith('ardo') || cardinalWord.endsWith('ardi')) {
+    return cardinalWord.slice(0, -1) + 'i' + ORDINAL_SUFFIX
+  }
+
+  // Drop final regular vowel before adding -esimo
+  const lastChar = cardinalWord.slice(-1)
+  if ('aeiouàèìòù'.includes(lastChar)) {
+    return cardinalWord.slice(0, -1) + ORDINAL_SUFFIX
+  }
+
+  // If doesn't end in vowel, just add suffix
+  return cardinalWord + ORDINAL_SUFFIX
+}
+
+/**
+ * Converts a positive integer to Italian ordinal words.
+ *
+ * @param {bigint} n - Positive integer
+ * @returns {string} Italian ordinal words (masculine form)
+ */
+function integerToOrdinal (n) {
+  // Special cases: 1-10 have irregular forms
+  if (n <= 10n) {
+    return ORDINAL_ONES[Number(n)]
+  }
+
+  // For 11+, convert cardinal and apply -esimo
+  const cardinalWord = integerToWords(n)
+  return cardinalToOrdinal(cardinalWord)
+}
+
+/**
+ * Converts a numeric value to Italian ordinal words.
+ *
+ * Italian ordinals: primo, secondo, terzo... (1-10 irregular)
+ * For 11+: cardinal word (drop final vowel) + -esimo
+ *
+ * @param {number | string | bigint} value - The numeric value to convert (positive integer)
+ * @returns {string} The number as ordinal words (masculine form)
+ * @throws {TypeError} If value is not a valid numeric type
+ * @throws {RangeError} If value is negative, zero, or has a decimal part
+ *
+ * @example
+ * toOrdinal(1)    // 'primo'
+ * toOrdinal(2)    // 'secondo'
+ * toOrdinal(11)   // 'undicesimo'
+ * toOrdinal(21)   // 'ventunesimo'
+ * toOrdinal(100)  // 'centesimo'
+ * toOrdinal(1000) // 'millesimo'
+ */
+function toOrdinal (value) {
+  const integerPart = parseOrdinalValue(value)
+  return integerToOrdinal(integerPart)
+}
+
+// ============================================================================
+// CURRENCY: toCurrency(value, options?)
+// ============================================================================
+
+/**
+ * Converts a numeric value to Italian currency words (Euro).
+ *
+ * @param {number | string | bigint} value - The currency amount to convert
+ * @param {Object} [options] - Optional configuration
+ * @param {boolean} [options.and=true] - Use "e" between euros and centesimi
+ * @returns {string} The amount in Italian currency words
+ * @throws {TypeError} If value is not a valid numeric type
+ * @throws {Error} If value is not a valid number format
+ *
+ * @example
+ * toCurrency(42.50)                 // 'quarantadue euro e cinquanta centesimi'
+ * toCurrency(1)                     // 'un euro'
+ * toCurrency(0.99)                  // 'novantanove centesimi'
+ * toCurrency(0.01)                  // 'un centesimo'
+ * toCurrency(42.50, { and: false }) // 'quarantadue euro cinquanta centesimi'
+ */
+function toCurrency (value, options) {
+  options = validateOptions(options)
+  const { isNegative, dollars: euros, cents: centesimi } = parseCurrencyValue(value)
+  const { and: useAnd = true } = options
+
+  // Build result
+  let result = ''
+  if (isNegative) result = NEGATIVE + ' '
+
+  // Euros part
+  if (euros > 0n || centesimi === 0n) {
+    // Use "un" for 1 euro instead of "uno"
+    if (euros === 1n) {
+      result += 'un'
+    } else {
+      result += integerToWords(euros)
+    }
+    // Euro is invariable (doesn't change for plural in Italian)
+    result += ' ' + EURO
+  }
+
+  // Centesimi part
+  if (centesimi > 0n) {
+    if (euros > 0n) {
+      result += useAnd ? ' e ' : ' '
+    }
+    // Use "un" for 1 centesimo instead of "uno"
+    if (centesimi === 1n) {
+      result += 'un'
+    } else {
+      result += integerToWords(centesimi)
+    }
+    result += ' ' + (centesimi === 1n ? CENTESIMO : CENTESIMI)
+  }
+
+  return result
+}
+
+// ============================================================================
 // Public API
 // ============================================================================
 
-export { toCardinal }
+export { toCardinal, toOrdinal, toCurrency }

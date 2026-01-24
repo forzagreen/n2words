@@ -37,7 +37,7 @@ Language codes follow [IETF BCP 47](https://tools.ietf.org/html/bcp47) standards
 |`hr-HR`|`hrHR`|Croatian (Croatia)|✓¹|||
 |`hu-HU`|`huHU`|Hungarian (Hungary)|✓|||
 |`id-ID`|`idID`|Indonesian (Indonesia)|✓|||
-|`it-IT`|`itIT`|Italian (Italy)|✓|||
+|`it-IT`|`itIT`|Italian (Italy)|✓|✓|✓¹|
 |`ja-JP`|`jaJP`|Japanese (Japan)|✓|||
 |`ka-GE`|`kaGE`|Georgian (Georgia)|✓|||
 |`kn-IN`|`knIN`|Kannada (India)|✓|||
@@ -88,7 +88,7 @@ Import paths use BCP 47 language codes: `n2words/en-US`, `n2words/zh-Hans-CN`, `
 
 ## Language Options
 
-24 languages support options via a second parameter. Options are passed as an object:
+25 languages support options via a second parameter. Options are passed as an object:
 
 ```js
 toCardinal(value, { optionName: value })
@@ -193,6 +193,12 @@ toCurrency(value, { optionName: value })
 **Cardinal options:**
 
 - `andWord` (`string`, default: `'ו'`) — Custom conjunction word
+
+### Italian (Italy) (`it-IT`)
+
+**Currency options:**
+
+- `and` (`boolean`, default: `true`) — Use "e" between euros and centesimi
 
 ### Latvian (Latvia) (`lv-LV`)
 
