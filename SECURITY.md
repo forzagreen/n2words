@@ -2,13 +2,7 @@
 
 ## Supported Versions
 
-We actively support the following versions of n2words with security updates:
-
-| Version | Supported          | End of Life    |
-| ------- | ------------------ | -------------- |
-| 3.x     | :white_check_mark: | -              |
-| 2.x     | :x:                | January 2026   |
-| < 2.0   | :x:                | January 2025   |
+Only the latest major version receives security updates.
 
 ## Reporting a Vulnerability
 
@@ -122,4 +116,4 @@ For questions about this policy or n2words security:
 
 ---
 
-**Last Updated**: 2026-01-01
+**Last Updated**: 2026-01-23
