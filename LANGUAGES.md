@@ -2,7 +2,7 @@
 
 > **Auto-generated** — Do not edit manually. Run `npm run docs:languages` to update.
 
-n2words supports **57 languages** with cardinal number conversion, 6 with ordinal support, 6 with currency support.
+n2words supports **57 languages** with cardinal number conversion, 7 with ordinal support, 7 with currency support.
 
 Language codes follow [IETF BCP 47](https://tools.ietf.org/html/bcp47) standards.
 
@@ -17,7 +17,7 @@ Language codes follow [IETF BCP 47](https://tools.ietf.org/html/bcp47) standards
 |`bn-BD`|`bnBD`|Bangla (Bangladesh)|✓|||
 |`cs-CZ`|`csCZ`|Czech (Czechia)|✓|||
 |`da-DK`|`daDK`|Danish (Denmark)|✓|||
-|`de-DE`|`deDE`|German (Germany)|✓|||
+|`de-DE`|`deDE`|German (Germany)|✓|✓|✓¹|
 |`el-GR`|`elGR`|Greek (Greece)|✓|||
 |`en-GB`|`enGB`|British English|✓|✓|✓¹|
 |`en-US`|`enUS`|American English|✓¹|✓|✓¹|
@@ -88,7 +88,7 @@ Import paths use BCP 47 language codes: `n2words/en-US`, `n2words/zh-Hans-CN`, `
 
 ## Language Options
 
-23 languages support options via a second parameter. Options are passed as an object:
+24 languages support options via a second parameter. Options are passed as an object:
 
 ```js
 toCardinal(value, { optionName: value })
@@ -170,6 +170,12 @@ toCurrency(value, { optionName: value })
 **Cardinal options:**
 
 - `withHyphenSeparator` (`boolean`, default: `false`) — Use hyphens between all words
+
+### German (Germany) (`de-DE`)
+
+**Currency options:**
+
+- `and` (`boolean`, default: `true`) — Use "und" between euros and cents
 
 ### hbo (Israel) (`hbo-IL`)
 

@@ -13,6 +13,9 @@
  */
 
 import { parseCardinalValue } from './utils/parse-cardinal.js'
+import { parseCurrencyValue } from './utils/parse-currency.js'
+import { parseOrdinalValue } from './utils/parse-ordinal.js'
+import { validateOptions } from './utils/validate-options.js'
 
 // ============================================================================
 // Vocabulary (module-level constants)
@@ -40,6 +43,30 @@ const HUNDRED = 'hundert'
 const ZERO = 'null'
 const NEGATIVE = 'minus'
 const DECIMAL_SEP = 'komma'
+
+// ============================================================================
+// Ordinal Vocabulary
+// ============================================================================
+
+// Ordinal ones (1-9): erste, zweite, dritte, vierte...
+// Note: 1st (erste), 3rd (dritte), 7th (siebte), 8th (achte) are irregular
+const ORDINAL_ONES = ['', 'erste', 'zweite', 'dritte', 'vierte', 'fünfte', 'sechste', 'siebte', 'achte', 'neunte']
+
+// Ordinal teens: zehnte, elfte, zwölfte...
+const ORDINAL_TEENS = ['zehnte', 'elfte', 'zwölfte', 'dreizehnte', 'vierzehnte', 'fünfzehnte', 'sechzehnte', 'siebzehnte', 'achtzehnte', 'neunzehnte']
+
+// Ordinal tens: zwanzigste, dreißigste...
+const ORDINAL_TENS = ['', '', 'zwanzigste', 'dreißigste', 'vierzigste', 'fünfzigste', 'sechzigste', 'siebzigste', 'achtzigste', 'neunzigste']
+
+// Ordinal scale suffixes: -ste for 20+
+const ORDINAL_SUFFIX = 'ste'
+
+// ============================================================================
+// Currency Vocabulary (Euro)
+// ============================================================================
+
+const EURO = 'Euro'
+const CENT = 'Cent'
 
 // ============================================================================
 // Segment Building
@@ -314,7 +341,263 @@ function toCardinal (value) {
 }
 
 // ============================================================================
+// ORDINAL: toOrdinal(value)
+// ============================================================================
+
+/**
+ * Builds ordinal segment for 0-999.
+ * Only the final component becomes ordinal.
+ * Uses -te for 1-19, -ste for 20+.
+ *
+ * @param {number} n - Number 0-999
+ * @param {boolean} isFinal - Whether this is the final segment (gets ordinal suffix)
+ * @returns {string} German ordinal words for this segment
+ */
+function buildOrdinalSegment (n, isFinal) {
+  if (n === 0) return ''
+
+  const ones = n % 10
+  const tens = Math.trunc(n / 10) % 10
+  const hundreds = Math.trunc(n / 100)
+
+  let result = ''
+
+  // Hundreds part (cardinal form)
+  if (hundreds > 0) {
+    result += (hundreds === 1 ? EIN : ONES[hundreds]) + HUNDRED
+  }
+
+  // Tens and ones
+  if (tens === 1) {
+    // Teens: 10-19
+    if (isFinal) {
+      result += ORDINAL_TEENS[ones]
+    } else {
+      result += TEENS[ones]
+    }
+  } else if (tens >= 2 && ones > 0) {
+    // Compound: einundzwanzig → einundzwanzigste
+    if (isFinal) {
+      result += (ones === 1 ? EIN : ONES[ones]) + 'und' + ORDINAL_TENS[tens]
+    } else {
+      result += (ones === 1 ? EIN : ONES[ones]) + 'und' + TENS[tens]
+    }
+  } else if (tens >= 2) {
+    // Just tens: zwanzig → zwanzigste
+    if (isFinal) {
+      result += ORDINAL_TENS[tens]
+    } else {
+      result += TENS[tens]
+    }
+  } else if (ones > 0) {
+    // Just ones: eins → erste
+    if (isFinal) {
+      result += ORDINAL_ONES[ones]
+    } else {
+      result += ONES[ones]
+    }
+  }
+
+  // If final and only hundreds (100, 200, etc.), add ordinal suffix
+  if (isFinal && hundreds > 0 && tens === 0 && ones === 0) {
+    result += ORDINAL_SUFFIX
+  }
+
+  return result
+}
+
+/**
+ * Converts integer to German ordinal words.
+ *
+ * @param {bigint} n - Positive integer
+ * @returns {string} German ordinal words
+ */
+function integerToOrdinal (n) {
+  // Fast path: numbers < 1000
+  if (n < 1000n) {
+    return buildOrdinalSegment(Number(n), true)
+  }
+
+  // Fast path: numbers < 1,000,000
+  if (n < 1_000_000n) {
+    const thousands = Number(n / 1000n)
+    const remainder = Number(n % 1000n)
+
+    if (remainder === 0) {
+      // Exact thousands: "eintausendste", "zweitausendste"
+      return buildSegmentForThousand(thousands) + SCALES[0] + ORDINAL_SUFFIX
+    }
+
+    // Has remainder: cardinal thousands + ordinal remainder
+    return buildSegmentForThousand(thousands) + SCALES[0] + buildOrdinalSegment(remainder, true)
+  }
+
+  // For larger numbers, use scale decomposition
+  return buildLargeOrdinal(n)
+}
+
+/**
+ * Builds ordinal words for numbers >= 1,000,000.
+ *
+ * @param {bigint} n - Number >= 1,000,000
+ * @returns {string} German ordinal words
+ */
+function buildLargeOrdinal (n) {
+  const numStr = n.toString()
+  const len = numStr.length
+
+  // Build segments of 3 digits from right to left
+  const segments = []
+  const segmentSize = 3
+
+  const remainderLen = len % segmentSize
+  let pos = 0
+  if (remainderLen > 0) {
+    segments.push(Number(numStr.slice(0, remainderLen)))
+    pos = remainderLen
+  }
+  while (pos < len) {
+    segments.push(Number(numStr.slice(pos, pos + segmentSize)))
+    pos += segmentSize
+  }
+
+  // Find the lowest non-zero segment (highest index = lowest scale level)
+  let lowestNonZeroIdx = 0
+  for (let i = segments.length - 1; i >= 0; i--) {
+    if (segments[i] !== 0) {
+      lowestNonZeroIdx = i
+      break
+    }
+  }
+
+  // Convert segments to words
+  const parts = []
+  let scaleIndex = segments.length - 1
+
+  for (let i = 0; i < segments.length; i++) {
+    const segment = segments[i]
+    const isLowestSegment = (i === lowestNonZeroIdx)
+
+    if (segment !== 0) {
+      if (scaleIndex === 0) {
+        // Units segment
+        parts.push({ words: buildOrdinalSegment(segment, true), isScale: false, scaleLevel: 0 })
+      } else if (scaleIndex === 1) {
+        // Thousands
+        const segWords = buildSegmentForThousand(segment)
+        if (isLowestSegment) {
+          parts.push({ words: segWords + SCALES[0] + ORDINAL_SUFFIX, isScale: false, scaleLevel: 1 })
+        } else {
+          parts.push({ words: segWords + SCALES[0], isScale: false, scaleLevel: 1 })
+        }
+      } else {
+        // Million+
+        let segWords
+        if (segment === 1) {
+          segWords = 'eine'
+        } else {
+          segWords = buildSegment(segment)
+        }
+        const scaleWord = segment === 1 ? SCALES[scaleIndex - 1] : SCALES_PLURAL[scaleIndex - 1]
+        parts.push({ words: segWords, isScale: false, scaleLevel: scaleIndex })
+        if (isLowestSegment) {
+          parts.push({ words: scaleWord + ORDINAL_SUFFIX, isScale: true, scaleLevel: scaleIndex })
+        } else {
+          parts.push({ words: scaleWord, isScale: true, scaleLevel: scaleIndex })
+        }
+      }
+    }
+
+    scaleIndex--
+  }
+
+  return joinGermanParts(parts)
+}
+
+/**
+ * Converts a numeric value to German ordinal words.
+ *
+ * German ordinals add -te for 1-19 and -ste for 20+.
+ * Irregular forms: erste (1st), dritte (3rd), siebte (7th), achte (8th).
+ *
+ * @param {number | string | bigint} value - The numeric value to convert (positive integer)
+ * @returns {string} The number as ordinal words
+ * @throws {TypeError} If value is not a valid numeric type
+ * @throws {RangeError} If value is negative, zero, or has a decimal part
+ *
+ * @example
+ * toOrdinal(1)    // 'erste'
+ * toOrdinal(2)    // 'zweite'
+ * toOrdinal(3)    // 'dritte'
+ * toOrdinal(21)   // 'einundzwanzigste'
+ * toOrdinal(100)  // 'einhundertste'
+ * toOrdinal(1000) // 'eintausendste'
+ */
+function toOrdinal (value) {
+  const integerPart = parseOrdinalValue(value)
+  return integerToOrdinal(integerPart)
+}
+
+// ============================================================================
+// CURRENCY: toCurrency(value, options?)
+// ============================================================================
+
+/**
+ * Converts a numeric value to German currency words (Euro).
+ *
+ * @param {number | string | bigint} value - The currency amount to convert
+ * @param {Object} [options] - Optional configuration
+ * @param {boolean} [options.and=true] - Use "und" between euros and cents
+ * @returns {string} The amount in German currency words
+ * @throws {TypeError} If value is not a valid numeric type
+ * @throws {Error} If value is not a valid number format
+ *
+ * @example
+ * toCurrency(42.50)                 // 'zweiundvierzig Euro und fünfzig Cent'
+ * toCurrency(1)                     // 'ein Euro'
+ * toCurrency(0.99)                  // 'neunundneunzig Cent'
+ * toCurrency(0.01)                  // 'ein Cent'
+ * toCurrency(42.50, { and: false }) // 'zweiundvierzig Euro fünfzig Cent'
+ */
+function toCurrency (value, options) {
+  options = validateOptions(options)
+  const { isNegative, dollars: euros, cents } = parseCurrencyValue(value)
+  const { and: useAnd = true } = options
+
+  // Build result
+  let result = ''
+  if (isNegative) result = NEGATIVE + ' '
+
+  // Euros part
+  if (euros > 0n || cents === 0n) {
+    // Use "ein" instead of "eins" before Euro
+    if (euros === 1n) {
+      result += EIN
+    } else {
+      result += integerToWords(euros)
+    }
+    result += ' ' + EURO
+  }
+
+  // Cents part
+  if (cents > 0n) {
+    if (euros > 0n) {
+      result += useAnd ? ' und ' : ' '
+    }
+    // Use "ein" instead of "eins" before Cent
+    if (cents === 1n) {
+      result += EIN
+    } else {
+      result += integerToWords(cents)
+    }
+    result += ' ' + CENT
+  }
+
+  return result
+}
+
+// ============================================================================
 // Public API
 // ============================================================================
 
-export { toCardinal }
+export { toCardinal, toOrdinal, toCurrency }
