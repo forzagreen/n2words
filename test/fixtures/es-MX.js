@@ -1,10 +1,11 @@
 /**
- * Cardinal number test cases for Spanish (Mexico) - Short Scale
+ * Cardinal number test cases for Spanish (Mexico) - Long Scale
  * Format: [input, expected_output, options?]
  *
- * Key difference from es-ES (long scale):
- * - 10⁹ = un billón (not mil millones)
- * - 10¹² = un trillón (not un billón)
+ * Per RAE and Academia Mexicana, Mexico uses the European long scale:
+ * - 10⁶ = un millón
+ * - 10⁹ = mil millones (thousand millions)
+ * - 10¹² = un billón
  */
 export const cardinal = [
   [0.01, 'cero punto cero uno'],
@@ -78,28 +79,28 @@ export const cardinal = [
   [5_000_000, 'cinco millones'],
   [123_456_789, 'ciento veintitrés millones cuatrocientos cincuenta y seis mil setecientos ochenta y nueve'],
 
-  // Billions - SHORT SCALE (different from es-ES!)
-  // 10⁹ = un billón (es-ES: mil millones)
-  [1_000_000_000, 'un billón'],
-  [2_000_000_000, 'dos billones'],
-  [5_000_000_000, 'cinco billones'],
-  [1_234_567_890, 'un billón doscientos treinta y cuatro millones quinientos sesenta y siete mil ochocientos noventa'],
+  // Billions - LONG SCALE (same as es-ES)
+  // 10⁹ = mil millones (thousand millions)
+  [1_000_000_000, 'mil millones'],
+  [2_000_000_000, 'dos mil millones'],
+  [5_000_000_000, 'cinco mil millones'],
+  [1_234_567_890, 'mil millones doscientos treinta y cuatro millones quinientos sesenta y siete mil ochocientos noventa'],
 
-  // Trillions - SHORT SCALE (different from es-ES!)
-  // 10¹² = un trillón (es-ES: un billón)
-  [1_000_000_000_000, 'un trillón'],
-  [2_000_000_000_000, 'dos trillones'],
-  [5_000_000_000_000, 'cinco trillones'],
+  // Trillions - LONG SCALE (same as es-ES)
+  // 10¹² = un billón
+  [1_000_000_000_000, 'un billón'],
+  [2_000_000_000_000, 'dos billones'],
+  [5_000_000_000_000, 'cinco billones'],
 
-  // Quadrillions - SHORT SCALE
-  // 10¹⁵ = un cuatrillón (es-ES: mil billones)
-  [1_000_000_000_000_000, 'un cuatrillón'],
-  [2_000_000_000_000_000, 'dos cuatrillones'],
+  // Quadrillions - LONG SCALE
+  // 10¹⁵ = mil billones
+  [1_000_000_000_000_000, 'mil billones'],
+  [2_000_000_000_000_000, 'dos mil billones'],
 
-  // Quintillions - SHORT SCALE
-  // 10¹⁸ = un quintillón (es-ES: un trillón)
-  [1_000_000_000_000_000_000n, 'un quintillón'],
-  [2_000_000_000_000_000_000n, 'dos quintillones'],
+  // Quintillions - LONG SCALE
+  // 10¹⁸ = un trillón
+  [1_000_000_000_000_000_000n, 'un trillón'],
+  [2_000_000_000_000_000_000n, 'dos trillones'],
 
   // Feminine gender tests (same as es-ES)
   [1, 'una', { gender: 'feminine' }],
@@ -217,7 +218,7 @@ export const currency = [
   [-0.50, 'menos cincuenta centavos'],
   [-42.50, 'menos cuarenta y dos pesos con cincuenta centavos'],
 
-  // Large amounts (short scale)
-  [1000000000, 'un billón pesos'],
-  [1000000000000, 'un trillón pesos']
+  // Large amounts (long scale)
+  [1000000000, 'mil millones pesos'],
+  [1000000000000, 'un billón pesos']
 ]

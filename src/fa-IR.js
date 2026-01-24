@@ -22,6 +22,7 @@ const HUNDREDS = { 100: 'صد', 200: 'دویست', 300: 'سيصد', 400: 'چها
 
 const THOUSAND = 'هزار'
 const MILLION = 'میلیون'
+const MILLIARD = 'میلیارد'
 
 const ZERO = 'صفر'
 const NEGATIVE = 'منفى'
@@ -76,12 +77,21 @@ function integerToWords (n) {
     return `${thousandPrefix}${THOUSAND}${suffix}`
   }
 
-  // 1000000+
-  const millionMultiplier = n / 1_000_000n
-  const millionPrefix = integerToWords(millionMultiplier) + ' ' + MILLION
-  const remainder = n % 1_000_000n
+  // 1000000-999999999 (millions)
+  if (n < 1_000_000_000n) {
+    const millionMultiplier = n / 1_000_000n
+    const millionPrefix = integerToWords(millionMultiplier) + ' ' + MILLION
+    const remainder = n % 1_000_000n
+    const suffix = remainder === 0n ? '' : ' و ' + integerToWords(remainder)
+    return `${millionPrefix}${suffix}`
+  }
+
+  // 1000000000+ (milliards - 10^9)
+  const milliardMultiplier = n / 1_000_000_000n
+  const milliardPrefix = integerToWords(milliardMultiplier) + ' ' + MILLIARD
+  const remainder = n % 1_000_000_000n
   const suffix = remainder === 0n ? '' : ' و ' + integerToWords(remainder)
-  return `${millionPrefix}${suffix}`
+  return `${milliardPrefix}${suffix}`
 }
 
 function decimalPartToWords (decimalPart) {

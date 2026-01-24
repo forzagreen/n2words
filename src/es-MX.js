@@ -3,10 +3,10 @@
  *
  * CLDR: es-MX | Spanish as used in Mexico
  *
- * Uses the short scale numbering system (like US English):
+ * Uses the European long scale numbering system (per RAE and Academia Mexicana):
  * - 10⁶ = millón
- * - 10⁹ = billón (billion)
- * - 10¹² = trillón (trillion)
+ * - 10⁹ = mil millones (thousand millions)
+ * - 10¹² = billón
  *
  * Spanish-specific rules:
  * - Gender agreement: uno/una, veintiuno/veintiuna, hundreds
@@ -41,9 +41,11 @@ const TENS = ['', '', '', 'treinta', 'cuarenta', 'cincuenta', 'sesenta', 'setent
 const HUNDREDS_MASC = ['', 'ciento', 'doscientos', 'trescientos', 'cuatrocientos', 'quinientos', 'seiscientos', 'setecientos', 'ochocientos', 'novecientos']
 const HUNDREDS_FEM = ['', 'cienta', 'doscientas', 'trescientas', 'cuatrocientas', 'quinientas', 'seiscientas', 'setecientas', 'ochocientas', 'novecientas']
 
-// Scale words (short scale - each scale is 10^3 apart)
-const SCALES = ['mil', 'millón', 'billón', 'trillón', 'cuatrillón', 'quintillón']
-const SCALES_PLURAL = ['mil', 'millones', 'billones', 'trillones', 'cuatrillones', 'quintillones']
+// Scale words (compound long scale)
+const SCALES = ['millón', 'billón', 'trillón', 'cuatrillón']
+const SCALES_PLURAL = ['millones', 'billones', 'trillones', 'cuatrillones']
+
+const THOUSAND = 'mil'
 
 const ZERO = 'cero'
 const NEGATIVE = 'menos'
@@ -125,11 +127,41 @@ function buildSegment (n, feminine) {
 }
 
 // ============================================================================
+// Helper Functions
+// ============================================================================
+
+/**
+ * Gets scale word for Spanish compound long scale.
+ *
+ * @param {number} scaleIndex - Scale level (1 = thousand, 2 = million, etc.)
+ * @param {bigint} segment - Segment value for pluralization
+ * @returns {string} Scale word
+ */
+function getScaleWord (scaleIndex, segment) {
+  if (scaleIndex === 1) return THOUSAND
+
+  // Even indices (2, 4, 6, 8): millón, billón, trillón, cuatrillón
+  // Odd indices > 1 (3, 5, 7): mil millones, mil billones, mil trillones
+  if (scaleIndex % 2 === 0) {
+    const arrayIndex = (scaleIndex / 2) - 1
+    const baseWord = SCALES[arrayIndex]
+    if (!baseWord) return ''
+    return segment > 1n ? SCALES_PLURAL[arrayIndex] : baseWord
+  } else {
+    // Compound: "mil millones" pattern
+    const arrayIndex = ((scaleIndex - 1) / 2) - 1
+    const pluralWord = SCALES_PLURAL[arrayIndex]
+    if (!pluralWord) return THOUSAND
+    return THOUSAND + ' ' + pluralWord
+  }
+}
+
+// ============================================================================
 // Conversion Functions
 // ============================================================================
 
 /**
- * Converts a non-negative integer to Spanish words (short scale).
+ * Converts a non-negative integer to Spanish words.
  *
  * @param {bigint} n - Non-negative integer to convert
  * @param {boolean} feminine - Use feminine forms
@@ -143,8 +175,48 @@ function integerToWords (n, feminine) {
     return buildSegment(Number(n), feminine)
   }
 
-  // Extract segments using BigInt division
-  // Each segment is 3 digits, short scale increments by 10^3
+  // Fast path: numbers < 1,000,000 (thousands)
+  if (n < 1_000_000n) {
+    const thousands = Number(n / 1000n)
+    const remainder = Number(n % 1000n)
+
+    let result
+    if (thousands === 1) {
+      // "mil" not "uno mil"
+      result = THOUSAND
+    } else {
+      // Use masculine for thousands segment, but check for "uno" → omit before mil
+      const thousandsWord = buildSegment(thousands, false)
+      // "uno mil" → "mil" (handled in joinSegments equivalent)
+      if (thousandsWord === 'uno' || thousandsWord === 'una') {
+        result = THOUSAND
+      } else {
+        result = thousandsWord + ' ' + THOUSAND
+      }
+    }
+
+    if (remainder > 0) {
+      result += ' ' + buildSegment(remainder, feminine)
+    }
+
+    return result
+  }
+
+  // For numbers >= 1,000,000, use scale decomposition
+  return buildLargeNumberWords(n, feminine)
+}
+
+/**
+ * Builds words for numbers >= 1,000,000.
+ * Uses BigInt division for faster segment extraction.
+ *
+ * @param {bigint} n - Number >= 1,000,000
+ * @param {boolean} feminine - Use feminine forms
+ * @returns {string} Spanish words
+ */
+function buildLargeNumberWords (n, feminine) {
+  // Extract segments using BigInt division (faster than string slicing)
+  // Segments stored least-significant first (index 0 = ones, 1 = thousands, etc.)
   const segmentValues = []
   let temp = n
   while (temp > 0n) {
@@ -152,36 +224,43 @@ function integerToWords (n, feminine) {
     temp = temp / 1000n
   }
 
-  // Build result string
+  // Build result string directly
   let result = ''
 
   for (let i = segmentValues.length - 1; i >= 0; i--) {
     const segment = segmentValues[i]
     if (segment === 0n) continue
 
+    const scaleWord = i > 0 ? getScaleWord(i, segment) : ''
+
     if (result) result += ' '
 
     if (i === 0) {
-      // Units segment - use requested gender
+      // Units segment
       result += buildSegment(Number(segment), feminine)
     } else if (i === 1) {
-      // Thousands: "mil" not "uno mil"
+      // Thousands: omit "uno" before mil
       if (segment === 1n) {
-        result += SCALES[0]
+        result += THOUSAND
       } else {
-        result += buildSegment(Number(segment), false) + ' ' + SCALES[0]
+        result += buildSegment(Number(segment), false) + ' ' + scaleWord
+      }
+    } else if (i % 2 === 1) {
+      // Odd scale indices (3, 5, 7): "mil millones", "mil billones", etc.
+      // Omit "uno" before these compound scales
+      if (segment === 1n) {
+        result += scaleWord
+      } else {
+        result += buildSegment(Number(segment), false) + ' ' + scaleWord
       }
     } else {
-      // Millions and above: "un millón", "dos millones", etc.
-      const scaleIndex = i - 1 // SCALES[1] = millón, SCALES[2] = billón, etc.
-      if (scaleIndex >= SCALES.length) {
-        // Beyond our scale vocabulary
-        result += buildSegment(Number(segment), false)
-      } else if (segment === 1n) {
+      // Even scale indices (2, 4, 6): millón, billón, trillón
+      if (segment === 1n) {
         // "un millón" not "uno millón"
-        result += 'un ' + SCALES[scaleIndex]
+        result += 'un ' + scaleWord
       } else {
-        result += buildSegment(Number(segment), false) + ' ' + SCALES_PLURAL[scaleIndex]
+        // Use masculine for scale segment
+        result += buildSegment(Number(segment), false) + ' ' + scaleWord
       }
     }
   }
@@ -218,7 +297,7 @@ function decimalPartToWords (decimalPart, feminine) {
 }
 
 /**
- * Converts a numeric value to Spanish words (Mexican short scale).
+ * Converts a numeric value to Spanish words (long scale).
  *
  * @param {number | string | bigint} value - The numeric value to convert
  * @param {Object} [options] - Optional configuration
@@ -230,7 +309,7 @@ function decimalPartToWords (decimalPart, feminine) {
  * @example
  * toCardinal(21)                        // 'veintiuno'
  * toCardinal(21, {gender: 'feminine'})  // 'veintiuna'
- * toCardinal(1000000000)                // 'un billón'
+ * toCardinal(1000000000)                // 'mil millones'
  */
 function toCardinal (value, options) {
   options = validateOptions(options)
