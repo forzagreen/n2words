@@ -1,7 +1,7 @@
 /**
- * Serbian Cyrillic language converter - Functional Implementation
+ * Serbian (Cyrillic) language converter
  *
- * Self-contained module with its own input validation, ready for subpath exports.
+ * CLDR: sr-Cyrl | Serbian written in Cyrillic script
  *
  * Key features:
  * - Three-form pluralization (one/few/many)

@@ -1,7 +1,7 @@
 /**
- * French (Belgium) language converter - Functional Implementation
+ * French (Belgium) language converter
  *
- * Self-contained module with its own input validation, ready for subpath exports.
+ * CLDR: fr-BE | French as used in Belgium
  *
  * Belgian French differences from standard French:
  * - septante (70) instead of soixante-dix

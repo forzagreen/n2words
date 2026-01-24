@@ -1,7 +1,7 @@
 /**
- * French language converter - Functional Implementation
+ * French (France) language converter
  *
- * Self-contained module with its own input validation, ready for subpath exports.
+ * CLDR: fr-FR | French as used in France
  *
  * French-specific rules:
  * - Vigesimal patterns: 70 = soixante-dix, 80 = quatre-vingts, 90 = quatre-vingt-dix

@@ -1,7 +1,7 @@
 /**
- * Simplified Chinese language converter - Functional Implementation
+ * Simplified Chinese language converter
  *
- * Self-contained converter for Simplified Chinese.
+ * CLDR: zh-Hans | Simplified Chinese
  *
  * Key features:
  * - Myriad-based (万, 亿) grouping - 4 digits

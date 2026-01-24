@@ -1,8 +1,7 @@
 /**
- * Amharic Latin language converter - Functional Implementation
+ * Amharic (Latin) language converter
  *
- * Self-contained module with its own input validation, ready for subpath exports.
- * Latin/ASCII romanization of Amharic numerals.
+ * CLDR: am-Latn | Amharic in Latin script (romanization)
  *
  * Key features:
  * - Romanized numerals (and, hulet, sost)

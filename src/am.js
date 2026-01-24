@@ -1,8 +1,7 @@
 /**
- * Amharic language converter - Functional Implementation
+ * Amharic language converter
  *
- * Self-contained module with its own input validation, ready for subpath exports.
- * Native Ge'ez script (ግዕዝ) output.
+ * CLDR: am | Amharic (Ge'ez script)
  *
  * Key features:
  * - Ge'ez/Ethiopic script numerals

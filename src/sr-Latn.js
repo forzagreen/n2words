@@ -1,7 +1,7 @@
 /**
- * Serbian Latin language converter - Functional Implementation
+ * Serbian (Latin) language converter
  *
- * Self-contained module with its own input validation, ready for subpath exports.
+ * CLDR: sr-Latn | Serbian written in Latin script
  *
  * Key features:
  * - Three-form pluralization (one/few/many)

@@ -1,7 +1,7 @@
 /**
- * Traditional Chinese language converter - Functional Implementation
+ * Traditional Chinese language converter
  *
- * Self-contained converter for Traditional Chinese.
+ * CLDR: zh-Hant | Traditional Chinese
  *
  * Key features:
  * - Myriad-based (萬, 億) grouping - 4 digits

@@ -1,6 +1,8 @@
 /**
  * Spanish (Spain) language converter
  *
+ * CLDR: es-ES | Spanish as used in Spain
+ *
  * Uses the European long scale numbering system:
  * - 10⁶ = millón
  * - 10⁹ = mil millones (thousand millions)
