@@ -16,6 +16,7 @@
  */
 
 import { parseCardinalValue } from './utils/parse-cardinal.js'
+import { parseCurrencyValue } from './utils/parse-currency.js'
 import { parseOrdinalValue } from './utils/parse-ordinal.js'
 import { validateOptions } from './utils/validate-options.js'
 
@@ -57,6 +58,13 @@ const ORDINAL_THOUSAND_MASC = 'milésimo'
 const ORDINAL_THOUSAND_FEM = 'milésima'
 const ORDINAL_MILLION_MASC = 'millonésimo'
 const ORDINAL_MILLION_FEM = 'millonésima'
+
+// Currency vocabulary (Mexican Peso - MXN)
+const PESO = 'peso'
+const PESOS = 'pesos'
+const CENTAVO = 'centavo'
+const CENTAVOS = 'centavos'
+const CURRENCY_CONNECTOR = 'con'
 
 // ============================================================================
 // Segment Building
@@ -373,7 +381,64 @@ function toOrdinal (value, options) {
 }
 
 // ============================================================================
+// CURRENCY: toCurrency(value, options?)
+// ============================================================================
+
+/**
+ * Converts a numeric value to Mexican Peso currency words.
+ *
+ * Mexican currency uses masculine gender for pesos (el peso)
+ * and masculine for centavos (el centavo).
+ *
+ * @param {number | string | bigint} value - The currency amount to convert
+ * @param {Object} [options] - Optional configuration
+ * @param {boolean} [options.and=true] - Use "con" between pesos and centavos
+ * @returns {string} The amount in Mexican currency words
+ * @throws {TypeError} If value is not a valid numeric type
+ * @throws {Error} If value is not a valid number format
+ *
+ * @example
+ * toCurrency(42.50)                  // 'cuarenta y dos pesos con cincuenta centavos'
+ * toCurrency(1)                      // 'un peso'
+ * toCurrency(0.99)                   // 'noventa y nueve centavos'
+ * toCurrency(42.50, { and: false })  // 'cuarenta y dos pesos cincuenta centavos'
+ */
+function toCurrency (value, options) {
+  options = validateOptions(options)
+  const { isNegative, dollars: pesos, cents: centavos } = parseCurrencyValue(value)
+  const { and: useAnd = true } = options
+
+  let result = ''
+  if (isNegative) result = NEGATIVE + ' '
+
+  // Pesos part (show if non-zero, or if no centavos)
+  if (pesos > 0n || centavos === 0n) {
+    // Use masculine for pesos, but "un peso" not "uno peso"
+    if (pesos === 1n) {
+      result += 'un ' + PESO
+    } else {
+      result += integerToWords(pesos, false) + ' ' + PESOS
+    }
+  }
+
+  // Centavos part
+  if (centavos > 0n) {
+    if (pesos > 0n) {
+      result += useAnd ? ' ' + CURRENCY_CONNECTOR + ' ' : ' '
+    }
+    // Use masculine for centavos, but "un centavo" not "uno centavo"
+    if (centavos === 1n) {
+      result += 'un ' + CENTAVO
+    } else {
+      result += integerToWords(centavos, false) + ' ' + CENTAVOS
+    }
+  }
+
+  return result
+}
+
+// ============================================================================
 // Public API
 // ============================================================================
 
-export { toCardinal, toOrdinal }
+export { toCardinal, toOrdinal, toCurrency }

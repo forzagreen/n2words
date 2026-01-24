@@ -177,3 +177,47 @@ export const ordinal = [
   [1000, 'milésima', { gender: 'feminine' }],
   [21, 'vigésima primera', { gender: 'feminine' }]
 ]
+
+/**
+ * Currency test cases (Mexican Peso - MXN)
+ * Format: [input, expected_output, options?]
+ */
+export const currency = [
+  // Basic amounts
+  [0, 'cero pesos'],
+  [1, 'un peso'],
+  [2, 'dos pesos'],
+  [10, 'diez pesos'],
+  [21, 'veintiuno pesos'],
+  [100, 'cien pesos'],
+  [1000, 'mil pesos'],
+  [1000000, 'un millón pesos'],
+
+  // Centavos only
+  [0.01, 'un centavo'],
+  [0.02, 'dos centavos'],
+  [0.10, 'diez centavos'],
+  [0.21, 'veintiuno centavos'],
+  [0.99, 'noventa y nueve centavos'],
+
+  // Pesos and centavos
+  [1.01, 'un peso con un centavo'],
+  [1.50, 'un peso con cincuenta centavos'],
+  [2.25, 'dos pesos con veinticinco centavos'],
+  [42.50, 'cuarenta y dos pesos con cincuenta centavos'],
+  [100.99, 'cien pesos con noventa y nueve centavos'],
+  [1234.56, 'mil doscientos treinta y cuatro pesos con cincuenta y seis centavos'],
+
+  // Without connector
+  [42.50, 'cuarenta y dos pesos cincuenta centavos', { and: false }],
+  [1.01, 'un peso un centavo', { and: false }],
+
+  // Negative amounts
+  [-1, 'menos un peso'],
+  [-0.50, 'menos cincuenta centavos'],
+  [-42.50, 'menos cuarenta y dos pesos con cincuenta centavos'],
+
+  // Large amounts (short scale)
+  [1000000000, 'un billón pesos'],
+  [1000000000000, 'un trillón pesos']
+]
