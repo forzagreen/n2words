@@ -108,3 +108,140 @@ export const cardinal = [
   [2001, 'dos mil una', { gender: 'feminine' }],
   [2121, 'dos mil cienta veintiuna', { gender: 'feminine' }]
 ]
+
+/**
+ * Ordinal number test cases
+ * Format: [input, expected_output, options?]
+ *
+ * Spanish ordinals agree in gender with the noun they modify.
+ * Default is masculine.
+ */
+export const ordinal = [
+  // Basic ordinals 1-10 (masculine)
+  [1, 'primero'],
+  [2, 'segundo'],
+  [3, 'tercero'],
+  [4, 'cuarto'],
+  [5, 'quinto'],
+  [6, 'sexto'],
+  [7, 'séptimo'],
+  [8, 'octavo'],
+  [9, 'noveno'],
+  [10, 'décimo'],
+
+  // Basic ordinals 1-10 (feminine)
+  [1, 'primera', { gender: 'feminine' }],
+  [2, 'segunda', { gender: 'feminine' }],
+  [3, 'tercera', { gender: 'feminine' }],
+  [4, 'cuarta', { gender: 'feminine' }],
+  [5, 'quinta', { gender: 'feminine' }],
+  [6, 'sexta', { gender: 'feminine' }],
+  [7, 'séptima', { gender: 'feminine' }],
+  [8, 'octava', { gender: 'feminine' }],
+  [9, 'novena', { gender: 'feminine' }],
+  [10, 'décima', { gender: 'feminine' }],
+
+  // Teens (11-19)
+  [11, 'décimo primero'],
+  [12, 'décimo segundo'],
+  [13, 'décimo tercero'],
+  [14, 'décimo cuarto'],
+  [15, 'décimo quinto'],
+  [16, 'décimo sexto'],
+  [17, 'décimo séptimo'],
+  [18, 'décimo octavo'],
+  [19, 'décimo noveno'],
+
+  // Tens
+  [20, 'vigésimo'],
+  [21, 'vigésimo primero'],
+  [22, 'vigésimo segundo'],
+  [30, 'trigésimo'],
+  [31, 'trigésimo primero'],
+  [40, 'cuadragésimo'],
+  [50, 'quincuagésimo'],
+  [60, 'sexagésimo'],
+  [70, 'septuagésimo'],
+  [80, 'octogésimo'],
+  [90, 'nonagésimo'],
+  [99, 'nonagésimo noveno'],
+
+  // Hundreds
+  [100, 'centésimo'],
+  [101, 'centésimo primero'],
+  [110, 'centésimo décimo'],
+  [111, 'centésimo décimo primero'],
+  [200, 'ducentésimo'],
+  [300, 'tricentésimo'],
+  [400, 'cuadricentésimo'],
+  [500, 'quincentésimo'],
+  [600, 'sexcentésimo'],
+  [700, 'septicentésimo'],
+  [800, 'octicentésimo'],
+  [900, 'nonicentésimo'],
+  [999, 'nonicentésimo nonagésimo noveno'],
+
+  // Thousands
+  [1000, 'milésimo'],
+  [1001, 'milésimo primero'],
+  [1100, 'milésimo centésimo'],
+  [2000, 'segundo milésimo'],
+  [3000, 'tercero milésimo'],
+  [10000, 'décimo milésimo'],
+  [100000, 'centésimo milésimo'],
+
+  // Millions
+  [1000000, 'millonésimo'],
+  [2000000, 'segundo millonésimo'],
+  [1000001, 'millonésimo primero'],
+
+  // Feminine forms for higher numbers
+  [100, 'centésima', { gender: 'feminine' }],
+  [1000, 'milésima', { gender: 'feminine' }],
+  [1000000, 'millonésima', { gender: 'feminine' }],
+  [21, 'vigésima primera', { gender: 'feminine' }]
+]
+
+/**
+ * Currency test cases (Euro - Spain's official currency)
+ * Format: [input, expected_output, options?]
+ */
+export const currency = [
+  // Basic amounts
+  [0, 'cero euros'],
+  [1, 'un euro'],
+  [2, 'dos euros'],
+  [10, 'diez euros'],
+  [21, 'veintiuno euros'],
+  [100, 'cien euros'],
+  [1000, 'mil euros'],
+  [1000000, 'un millón euros'],
+
+  // Cents only
+  [0.01, 'un céntimo'],
+  [0.02, 'dos céntimos'],
+  [0.10, 'diez céntimos'],
+  [0.21, 'veintiuno céntimos'],
+  [0.99, 'noventa y nueve céntimos'],
+
+  // Euros and cents
+  [1.01, 'un euro con un céntimo'],
+  [1.50, 'un euro con cincuenta céntimos'],
+  [2.25, 'dos euros con veinticinco céntimos'],
+  [42.50, 'cuarenta y dos euros con cincuenta céntimos'],
+  [100.99, 'cien euros con noventa y nueve céntimos'],
+  [1234.56, 'mil doscientos treinta y cuatro euros con cincuenta y seis céntimos'],
+
+  // Without connector
+  [42.50, 'cuarenta y dos euros cincuenta céntimos', { and: false }],
+  [1.01, 'un euro un céntimo', { and: false }],
+
+  // Negative amounts
+  [-1, 'menos un euro'],
+  [-0.50, 'menos cincuenta céntimos'],
+  [-42.50, 'menos cuarenta y dos euros con cincuenta céntimos'],
+
+  // Large amounts (long scale)
+  [1000000000, 'mil millones euros'],
+  [1000000000000, 'un billón euros']
+]
