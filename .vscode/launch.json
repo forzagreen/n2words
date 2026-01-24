@@ -80,7 +80,7 @@
     {
       "id": "languageCode",
       "type": "promptString",
-      "description": "Language code (e.g., en-US, es, zh-Hans)",
+      "description": "Language code (e.g., en-US, es, zh-Hans-CN)",
       "default": "en-US"
     },
     {

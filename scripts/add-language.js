@@ -83,7 +83,7 @@ async function promptForLanguageCode () {
 
   try {
     console.log(chalk.cyan('\nEnter a BCP 47 language code'))
-    console.log(chalk.gray('Examples: ko, zh-Hans, pt-BR, sr-Latn\n'))
+    console.log(chalk.gray('Examples: ko, zh-Hans-CN, pt-BR, sr-Latn-RS\n'))
 
     const code = await rl.question(chalk.cyan('Language code: '))
     const trimmed = code.trim()
@@ -285,7 +285,7 @@ function generateLanguageFile (code, name, forms) {
 // Reference implementations by pattern:
 //   Western scale: src/en-US.js, de.js, fr.js
 //   South Asian:   src/hi.js, bn.js
-//   East Asian:    src/ja.js, ko.js, zh-Hans.js
+//   East Asian:    src/ja.js, ko.js, zh-Hans-CN.js
 //   Slavic:        src/ru.js, pl.js, uk.js`
 
   const functions = []
@@ -521,7 +521,7 @@ async function main () {
   // Validate BCP 47 language code
   if (!isValidLanguageCode(code)) {
     console.error(chalk.red(`Error: Invalid BCP 47 language tag: ${code}`))
-    console.log(chalk.gray('\nExamples: en, fr, zh-Hans, sr-Latn, fr-BE'))
+    console.log(chalk.gray('\nExamples: en-US, fr, zh-Hans-CN, sr-Latn-RS, fr-BE'))
     process.exit(1)
   }
 

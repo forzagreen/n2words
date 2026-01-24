@@ -333,7 +333,7 @@ toCurrency(42.50)  // 'forty-two dollars and fifty cents' (if supported)
 
 ### Import Paths
 
-Import paths use BCP 47 language codes: \`n2words/en-US\`, \`n2words/zh-Hans\`, \`n2words/fr-BE\`
+Import paths use BCP 47 language codes: \`n2words/en-US\`, \`n2words/zh-Hans-CN\`, \`n2words/fr-BE\`
 
 ## Language Options
 

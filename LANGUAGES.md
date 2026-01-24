@@ -10,8 +10,8 @@ Language codes follow [IETF BCP 47](https://tools.ietf.org/html/bcp47) standards
 
 |Code|Export|Language|Cardinal|Ordinal|Currency|
 |----|------|--------|:------:|:-----:|:------:|
-|`am`||Amharic|✓|||
-|`am-Latn`|`amLatn`|Amharic (Latin)|✓|||
+|`am-ET`|`amET`|Amharic (Ethiopia)|✓|||
+|`am-Latn-ET`|`amLatnET`|Amharic (Latin, Ethiopia)|✓|||
 |`ar-SA`|`arSA`|Arabic (Saudi Arabia)|✓¹|||
 |`az-AZ`|`azAZ`|Azerbaijani (Azerbaijan)|✓|||
 |`bn-BD`|`bnBD`|Bangla (Bangladesh)|✓|||
@@ -53,8 +53,8 @@ Language codes follow [IETF BCP 47](https://tools.ietf.org/html/bcp47) standards
 |`pt-PT`|`ptPT`|European Portuguese|✓|||
 |`ro-RO`|`roRO`|Romanian (Romania)|✓¹|||
 |`ru-RU`|`ruRU`|Russian (Russia)|✓¹|||
-|`sr-Cyrl`|`srCyrl`|Serbian (Cyrillic)|✓¹|||
-|`sr-Latn`|`srLatn`|Serbian (Latin)|✓¹|||
+|`sr-Cyrl-RS`|`srCyrlRS`|Serbian (Cyrillic, Serbia)|✓¹|||
+|`sr-Latn-RS`|`srLatnRS`|Serbian (Latin, Serbia)|✓¹|||
 |`sv-SE`|`svSE`|Swedish (Sweden)|✓|||
 |`sw-KE`|`swKE`|Swahili (Kenya)|✓|||
 |`ta-IN`|`taIN`|Tamil (India)|✓|||
@@ -65,8 +65,8 @@ Language codes follow [IETF BCP 47](https://tools.ietf.org/html/bcp47) standards
 |`ur-PK`|`urPK`|Urdu (Pakistan)|✓|||
 |`vi-VN`|`viVN`|Vietnamese (Vietnam)|✓|||
 |`yo-NG`|`yoNG`|Yoruba (Nigeria)|✓|||
-|`zh-Hans`|`zhHans`|Simplified Chinese|✓¹|||
-|`zh-Hant`|`zhHant`|Traditional Chinese|✓¹|||
+|`zh-Hans-CN`|`zhHansCN`|Chinese (Simplified, China)|✓¹|||
+|`zh-Hant-TW`|`zhHantTW`|Chinese (Traditional, Taiwan)|✓¹|||
 
 ¹ Has options — see [Language Options](#language-options) section.
 
@@ -112,6 +112,18 @@ toCurrency(value, { optionName: value })
 
 - `gender` ('masculine' \| 'feminine', default: `'masculine'`) — Grammatical gender
 - `negativeWord` (`string`) — Custom word for negative numbers
+
+### Chinese (Simplified, China) (`zh-Hans-CN`)
+
+**Cardinal options:**
+
+- `formal` (`boolean`, default: `true`) — Use formal/financial numerals
+
+### Chinese (Traditional, Taiwan) (`zh-Hant-TW`)
+
+**Cardinal options:**
+
+- `formal` (`boolean`, default: `true`) — Use formal/financial numerals
 
 ### Croatian (Croatia) (`hr-HR`)
 
@@ -210,23 +222,17 @@ toCurrency(value, { optionName: value })
 
 - `gender` ('masculine' \| 'feminine', default: `'masculine'`) — Grammatical gender
 
-### Serbian (Cyrillic) (`sr-Cyrl`)
+### Serbian (Cyrillic, Serbia) (`sr-Cyrl-RS`)
 
 **Cardinal options:**
 
 - `gender` ('masculine' \| 'feminine', default: `'masculine'`) — Grammatical gender
 
-### Serbian (Latin) (`sr-Latn`)
+### Serbian (Latin, Serbia) (`sr-Latn-RS`)
 
 **Cardinal options:**
 
 - `gender` ('masculine' \| 'feminine', default: `'masculine'`) — Grammatical gender
-
-### Simplified Chinese (`zh-Hans`)
-
-**Cardinal options:**
-
-- `formal` (`boolean`, default: `true`) — Use formal/financial numerals
 
 ### Spanish (United States) (`es-US`)
 
@@ -241,12 +247,6 @@ toCurrency(value, { optionName: value })
 **Currency options:**
 
 - `and` (`boolean`, default: `true`) — Use "con" between dollars and cents
-
-### Traditional Chinese (`zh-Hant`)
-
-**Cardinal options:**
-
-- `formal` (`boolean`, default: `true`) — Use formal/financial numerals
 
 ### Turkish (Türkiye) (`tr-TR`)
 
