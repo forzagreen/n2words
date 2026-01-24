@@ -12,6 +12,9 @@
  */
 
 import { parseCardinalValue } from './utils/parse-cardinal.js'
+import { parseCurrencyValue } from './utils/parse-currency.js'
+import { parseOrdinalValue } from './utils/parse-ordinal.js'
+import { validateOptions } from './utils/validate-options.js'
 
 // ============================================================================
 // Vocabulary (module-level constants)
@@ -28,6 +31,18 @@ const THOUSAND = 'mil'
 const ZERO = 'zero'
 const NEGATIVE = 'menos'
 const DECIMAL_SEP = 'vírgula'
+
+// Ordinal vocabulary
+const ORDINAL_ONES = ['', 'primeiro', 'segundo', 'terceiro', 'quarto', 'quinto', 'sexto', 'sétimo', 'oitavo', 'nono']
+const ORDINAL_TEENS = ['décimo', 'décimo primeiro', 'décimo segundo', 'décimo terceiro', 'décimo quarto', 'décimo quinto', 'décimo sexto', 'décimo sétimo', 'décimo oitavo', 'décimo nono']
+const ORDINAL_TENS = ['', '', 'vigésimo', 'trigésimo', 'quadragésimo', 'quinquagésimo', 'sexagésimo', 'septuagésimo', 'octogésimo', 'nonagésimo']
+const ORDINAL_HUNDREDS = ['', 'centésimo', 'ducentésimo', 'tricentésimo', 'quadringentésimo', 'quingentésimo', 'sexcentésimo', 'septingentésimo', 'octingentésimo', 'nongentésimo']
+
+// Currency vocabulary (Euro)
+const EURO = 'euro'
+const EUROS = 'euros'
+const CENTIMO = 'cêntimo'
+const CENTIMOS = 'cêntimos'
 
 // ============================================================================
 // Segment Building
@@ -286,7 +301,216 @@ function toCardinal (value) {
 }
 
 // ============================================================================
+// Ordinal Functions
+// ============================================================================
+
+/**
+ * Builds ordinal words for 0-999.
+ *
+ * @param {number} n - Number 0-999
+ * @returns {string} Portuguese ordinal words
+ */
+function buildOrdinalSegment (n) {
+  if (n === 0) return ''
+
+  const ones = n % 10
+  const tens = Math.floor(n / 10) % 10
+  const hundreds = Math.floor(n / 100)
+
+  const parts = []
+
+  // Hundreds ordinal
+  if (hundreds > 0) {
+    parts.push(ORDINAL_HUNDREDS[hundreds])
+  }
+
+  // Tens and ones
+  if (tens === 1) {
+    // 10-19: use teens array (décimo, décimo primeiro, etc.)
+    parts.push(ORDINAL_TEENS[ones])
+  } else if (tens >= 2) {
+    parts.push(ORDINAL_TENS[tens])
+    if (ones > 0) {
+      parts.push(ORDINAL_ONES[ones])
+    }
+  } else if (ones > 0) {
+    parts.push(ORDINAL_ONES[ones])
+  }
+
+  return parts.join(' ')
+}
+
+/**
+ * Builds ordinal words for large numbers.
+ *
+ * @param {bigint} n - Non-negative integer
+ * @returns {string} Portuguese ordinal words
+ */
+function buildLargeOrdinal (n) {
+  // Extract segments
+  const segments = []
+  let temp = n
+  while (temp > 0n) {
+    segments.push(Number(temp % 1000n))
+    temp = temp / 1000n
+  }
+
+  // Find the lowest non-zero segment (index 0 = units, lowest scale)
+  let lowestNonZeroIdx = 0
+  for (let i = 0; i < segments.length; i++) {
+    if (segments[i] !== 0) {
+      lowestNonZeroIdx = i
+      break
+    }
+  }
+
+  // Scale ordinal words (singular forms)
+  const SCALE_ORDINAL = ['', 'milésimo', 'milionésimo', 'mil milionésimo', 'bilionésimo', 'mil bilionésimo', 'trilionésimo']
+
+  let result = ''
+
+  for (let i = segments.length - 1; i >= 0; i--) {
+    const segment = segments[i]
+    if (segment === 0) continue
+
+    if (result) result += ' '
+
+    if (i === lowestNonZeroIdx) {
+      // Last non-zero segment gets ordinal form
+      if (i === 0) {
+        // Units: just ordinal
+        result += buildOrdinalSegment(segment)
+      } else if (segment === 1 && i > 0) {
+        // Exact scale: "milésimo", "milionésimo", etc.
+        result += SCALE_ORDINAL[i]
+      } else {
+        // Segment + scale ordinal
+        result += buildOrdinalSegment(segment) + ' ' + SCALE_ORDINAL[i]
+      }
+    } else {
+      // Higher segments use cardinal form
+      if (i === 0) {
+        result += buildSegment(segment).word
+      } else if (i === 1) {
+        if (segment === 1) {
+          result += THOUSAND
+        } else {
+          result += buildSegment(segment).word + ' ' + THOUSAND
+        }
+      } else {
+        const scaleWord = segment === 1 ? SCALE_WORDS_SINGULAR[i] : SCALE_WORDS_PLURAL[i]
+        if (segment === 1) {
+          result += 'um ' + scaleWord
+        } else {
+          result += buildSegment(segment).word + ' ' + scaleWord
+        }
+      }
+    }
+  }
+
+  return result
+}
+
+/**
+ * Converts a number to Portuguese ordinal words.
+ *
+ * @param {number | string | bigint} value - The number to convert
+ * @returns {string} Portuguese ordinal words
+ *
+ * @example
+ * toOrdinal(1)     // 'primeiro'
+ * toOrdinal(21)    // 'vigésimo primeiro'
+ * toOrdinal(100)   // 'centésimo'
+ */
+function toOrdinal (value) {
+  const n = parseOrdinalValue(value)
+
+  if (n === 0n) return ZERO
+
+  // Fast path: 1-9
+  if (n < 10n) {
+    return ORDINAL_ONES[Number(n)]
+  }
+
+  // Fast path: 10-19
+  if (n < 20n) {
+    return ORDINAL_TEENS[Number(n) - 10]
+  }
+
+  // Fast path: 20-99
+  if (n < 100n) {
+    const ones = Number(n % 10n)
+    const tens = Number(n / 10n)
+    if (ones === 0) {
+      return ORDINAL_TENS[tens]
+    }
+    return ORDINAL_TENS[tens] + ' ' + ORDINAL_ONES[ones]
+  }
+
+  // Fast path: 100-999
+  if (n < 1000n) {
+    return buildOrdinalSegment(Number(n))
+  }
+
+  // Large numbers
+  return buildLargeOrdinal(n)
+}
+
+// ============================================================================
+// Currency Functions
+// ============================================================================
+
+/**
+ * Converts a number to Portuguese currency words (Euro).
+ *
+ * @param {number | string | bigint} value - The amount to convert
+ * @param {Object} [options]
+ * @param {boolean} [options.and=true] - Include "e" between euros and cents
+ * @returns {string} Portuguese currency words
+ *
+ * @example
+ * toCurrency(42.50)  // 'quarenta e dois euros e cinquenta cêntimos'
+ * toCurrency(1)      // 'um euro'
+ * toCurrency(0.01)   // 'um cêntimo'
+ */
+function toCurrency (value, options) {
+  options = validateOptions(options)
+  const { isNegative, dollars: euros, cents } = parseCurrencyValue(value)
+  const { and = true } = options
+
+  let result = ''
+
+  if (isNegative) {
+    result = NEGATIVE + ' '
+  }
+
+  const hasEuros = euros > 0n
+  const hasCents = cents > 0n
+
+  if (!hasEuros && !hasCents) {
+    return ZERO + ' ' + EUROS
+  }
+
+  if (hasEuros) {
+    const euroWords = integerToWords(euros)
+    const euroUnit = euros === 1n ? EURO : EUROS
+    result += euroWords + ' ' + euroUnit
+  }
+
+  if (hasCents) {
+    if (hasEuros) {
+      result += and ? ' e ' : ' '
+    }
+    const centWords = integerToWords(cents)
+    const centUnit = cents === 1n ? CENTIMO : CENTIMOS
+    result += centWords + ' ' + centUnit
+  }
+
+  return result
+}
+
+// ============================================================================
 // Public API
 // ============================================================================
 
-export { toCardinal }
+export { toCardinal, toOrdinal, toCurrency }
