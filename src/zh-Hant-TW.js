@@ -1,7 +1,7 @@
 /**
- * Traditional Chinese language converter
+ * Traditional Chinese (Taiwan) language converter
  *
- * CLDR: zh-Hant | Traditional Chinese
+ * CLDR: zh-Hant-TW | Traditional Chinese as used in Taiwan
  *
  * Key features:
  * - Myriad-based (萬, 億) grouping - 4 digits

@@ -1,14 +1,14 @@
 /**
- * Serbian (Latin) language converter
+ * Serbian (Serbia, Cyrillic script) language converter
  *
- * CLDR: sr-Latn | Serbian written in Latin script
+ * CLDR: sr-Cyrl-RS | Serbian as used in Serbia (Cyrillic script)
  *
  * Key features:
  * - Three-form pluralization (one/few/many)
  * - Gender: thousands are feminine, millions+ are masculine
- * - Irregular hundreds (dvesta, trista, etc.)
+ * - Irregular hundreds
  * - Long scale naming with -ard forms
- * - Latin script
+ * - Cyrillic script
  */
 
 import { parseCardinalValue } from './utils/parse-cardinal.js'
@@ -18,27 +18,27 @@ import { validateOptions } from './utils/validate-options.js'
 // Vocabulary
 // ============================================================================
 
-const ONES_MASC = ['', 'jedan', 'dva', 'tri', 'četiri', 'pet', 'šest', 'sedam', 'osam', 'devet']
-const ONES_FEM = ['', 'jedna', 'dve', 'tri', 'četiri', 'pet', 'šest', 'sedam', 'osam', 'devet']
-const TEENS = ['deset', 'jedanaest', 'dvanaest', 'trinaest', 'četrnaest', 'petnaest', 'šesnaest', 'sedamnaest', 'osamnaest', 'devetnaest']
-const TENS = ['', '', 'dvadeset', 'trideset', 'četrdeset', 'pedeset', 'šezdeset', 'sedamdeset', 'osamdeset', 'devedeset']
-const HUNDREDS = ['', 'sto', 'dvesta', 'trista', 'četiristo', 'petsto', 'šesto', 'sedamsto', 'osamsto', 'devetsto']
+const ONES_MASC = ['', 'један', 'два', 'три', 'четири', 'пет', 'шест', 'седам', 'осам', 'девет']
+const ONES_FEM = ['', 'једна', 'две', 'три', 'четири', 'пет', 'шест', 'седам', 'осам', 'девет']
+const TEENS = ['десет', 'једанаест', 'дванаест', 'тринаест', 'четрнаест', 'петнаест', 'шеснаест', 'седамнаест', 'осамнаест', 'деветнаест']
+const TENS = ['', '', 'двадесет', 'тридесет', 'четрдесет', 'педесет', 'шездесет', 'седамдесет', 'осамдесет', 'деведесет']
+const HUNDREDS = ['', 'сто', 'двеста', 'триста', 'четиристо', 'петсто', 'шесто', 'седамсто', 'осамсто', 'девестo']
 
-const ZERO = 'nula'
-const NEGATIVE = 'minus'
-const DECIMAL_SEP = 'zapeta'
+const ZERO = 'нула'
+const NEGATIVE = 'минус'
+const DECIMAL_SEP = 'запета'
 
 // Scale words: [singular, few, many]
 const SCALE_FORMS = [
-  ['hiljada', 'hiljade', 'hiljada'],
-  ['milion', 'miliona', 'miliona'],
-  ['milijarda', 'milijarde', 'milijarda'],
-  ['bilion', 'biliona', 'biliona'],
-  ['bilijarda', 'bilijarde', 'bilijarda'],
-  ['trilion', 'triliona', 'triliona'],
-  ['trilijarda', 'trilijarde', 'trilijarda'],
-  ['kvadrilion', 'kvadriliona', 'kvadriliona'],
-  ['kvadrilijarda', 'kvadrilijarde', 'kvadrilijarda']
+  ['хиљада', 'хиљаде', 'хиљада'],
+  ['милион', 'милиона', 'милиона'],
+  ['милијарда', 'милијарде', 'милијарда'],
+  ['билион', 'билиона', 'билиона'],
+  ['билијарда', 'билијарде', 'билијарда'],
+  ['трилион', 'трилиона', 'трилиона'],
+  ['трилијарда', 'трилијарде', 'трилијарда'],
+  ['квадрилион', 'квадрилиона', 'квадрилиона'],
+  ['квадрилијарда', 'квадрилијарде', 'квадрилијарда']
 ]
 
 // ============================================================================
@@ -188,12 +188,12 @@ function decimalPartToWords (decimalPart, gender) {
 }
 
 /**
- * Converts a numeric value to Serbian (Latin) words.
+ * Converts a numeric value to Serbian (Cyrillic) words.
  *
  * @param {number | string | bigint} value - The numeric value to convert
  * @param {Object} [options] - Optional configuration
  * @param {('masculine'|'feminine')} [options.gender='masculine'] - Grammatical gender
- * @returns {string} The number in Serbian Latin words
+ * @returns {string} The number in Serbian Cyrillic words
  */
 function toCardinal (value, options) {
   options = validateOptions(options)

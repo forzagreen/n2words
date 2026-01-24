@@ -1,12 +1,12 @@
 /**
- * Amharic language converter
+ * Amharic (Ethiopia, Latin script) language converter
  *
- * CLDR: am | Amharic (Ge'ez script)
+ * CLDR: am-Latn-ET | Amharic as used in Ethiopia (Latin script romanization)
  *
  * Key features:
- * - Ge'ez/Ethiopic script numerals
- * - Teens formed with "አስራ" prefix
- * - Keeps "one" before hundred: "አንድ መቶ" (100)
+ * - Romanized numerals (and, hulet, sost)
+ * - Teens formed with "asra" prefix
+ * - Keeps "one" before hundred: "and meto" (100)
  * - Short scale naming
  * - Per-digit decimal reading
  */
@@ -17,19 +17,19 @@ import { parseCardinalValue } from './utils/parse-cardinal.js'
 // Vocabulary
 // ============================================================================
 
-const ONES = ['', 'አንድ', 'ሁለት', 'ሶስት', 'አራት', 'አምስት', 'ስድስት', 'ሰባት', 'ስምንት', 'ዘጠኝ']
-const TEENS = ['አስር', 'አስራ አንድ', 'አስራ ሁለት', 'አስራ ሶስት', 'አስራ አራት', 'አስራ አምስት', 'አስራ ስድስት', 'አስራ ሰባት', 'አስራ ስምንት', 'አስራ ዘጠኝ']
-const TENS = ['', '', 'ሃያ', 'ሰላሳ', 'አርባ', 'ሃምሳ', 'ስልሳ', 'ሰባ', 'ሰማንያ', 'ዘጠና']
+const ONES = ['', 'and', 'hulet', 'sost', 'arat', 'amist', 'siddist', 'sebat', 'siment', 'zeteny']
+const TEENS = ['asir', 'asra and', 'asra hulet', 'asra sost', 'asra arat', 'asra amist', 'asra siddist', 'asra sebat', 'asra siment', 'asra zeteny']
+const TENS = ['', '', 'haya', 'selasa', 'arba', 'hamsa', 'silsa', 'seba', 'semanya', 'zetena']
 
-const HUNDRED = 'መቶ'
-const THOUSAND = 'ሺ'
+const HUNDRED = 'meto'
+const THOUSAND = 'shi'
 
-const ZERO = 'ዜሮ'
-const NEGATIVE = 'አሉታዊ'
-const DECIMAL_SEP = 'ነጥብ'
+const ZERO = 'zero'
+const NEGATIVE = 'asitegna'
+const DECIMAL_SEP = 'netib'
 
 // Short scale
-const SCALE_WORDS = ['', THOUSAND, 'ሚሊዮን', 'ቢሊዮን']
+const SCALE_WORDS = ['', THOUSAND, 'miliyon', 'billiyon']
 
 // ============================================================================
 // Precomputed Lookup Table
@@ -44,7 +44,7 @@ function buildSegment (n) {
 
   const parts = []
 
-  // Amharic keeps "one" before hundred: "አንድ መቶ" (100)
+  // Amharic keeps "one" before hundred: "and meto" (100)
   if (hundredsDigit > 0) {
     parts.push(ONES[hundredsDigit] + ' ' + HUNDRED)
   }
@@ -128,10 +128,10 @@ function decimalPartToWords (decimalPart) {
 }
 
 /**
- * Converts a numeric value to Amharic words.
+ * Converts a numeric value to Amharic (Latin script) words.
  *
  * @param {number | string | bigint} value - The numeric value to convert
- * @returns {string} The number in Amharic words
+ * @returns {string} The number in Amharic Latin words
  */
 function toCardinal (value) {
   const { isNegative, integerPart, decimalPart } = parseCardinalValue(value)
