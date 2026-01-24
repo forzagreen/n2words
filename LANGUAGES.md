@@ -2,7 +2,7 @@
 
 > **Auto-generated** — Do not edit manually. Run `npm run docs:languages` to update.
 
-n2words supports **57 languages** with cardinal number conversion, 4 with ordinal support, 4 with currency support.
+n2words supports **57 languages** with cardinal number conversion, 5 with ordinal support, 5 with currency support.
 
 Language codes follow [IETF BCP 47](https://tools.ietf.org/html/bcp47) standards.
 
@@ -19,7 +19,7 @@ Language codes follow [IETF BCP 47](https://tools.ietf.org/html/bcp47) standards
 |`da-DK`|`daDK`|Danish (Denmark)|✓|||
 |`de-DE`|`deDE`|German (Germany)|✓|||
 |`el-GR`|`elGR`|Greek (Greece)|✓|||
-|`en-GB`|`enGB`|British English|✓|||
+|`en-GB`|`enGB`|British English|✓|✓|✓¹|
 |`en-US`|`enUS`|American English|✓¹|✓|✓¹|
 |`es-ES`|`esES`|European Spanish|✓¹|✓¹|✓¹|
 |`es-MX`|`esMX`|Mexican Spanish|✓¹|✓¹|✓¹|
@@ -84,11 +84,11 @@ toCurrency(42.50)  // 'forty-two dollars and fifty cents' (if supported)
 
 ### Import Paths
 
-Import paths use BCP 47 language codes: `n2words/en-US`, `n2words/zh-Hans`, `n2words/fr-BE`
+Import paths use BCP 47 language codes: `n2words/en-US`, `n2words/zh-Hans-CN`, `n2words/fr-BE`
 
 ## Language Options
 
-22 languages support options via a second parameter. Options are passed as an object:
+23 languages support options via a second parameter. Options are passed as an object:
 
 ```js
 toCardinal(value, { optionName: value })
@@ -112,6 +112,12 @@ toCurrency(value, { optionName: value })
 
 - `gender` ('masculine' \| 'feminine', default: `'masculine'`) — Grammatical gender
 - `negativeWord` (`string`) — Custom word for negative numbers
+
+### British English (`en-GB`)
+
+**Currency options:**
+
+- `and` (`boolean`, default: `true`) — Use "and" between pounds and pence (e.g., "one pound and fifty pence")
 
 ### Chinese (Simplified, China) (`zh-Hans-CN`)
 

@@ -11,6 +11,9 @@
  */
 
 import { parseCardinalValue } from './utils/parse-cardinal.js'
+import { parseCurrencyValue } from './utils/parse-currency.js'
+import { parseOrdinalValue } from './utils/parse-ordinal.js'
+import { validateOptions } from './utils/validate-options.js'
 
 // ============================================================================
 // Vocabulary (module-level constants)
@@ -32,6 +35,17 @@ const HUNDRED = 'hundred'
 const ZERO = 'zero'
 const NEGATIVE = 'minus'
 const DECIMAL_SEP = 'point'
+
+// Ordinal vocabulary
+const ORDINAL_ONES = ['', 'first', 'second', 'third', 'fourth', 'fifth', 'sixth', 'seventh', 'eighth', 'ninth']
+const ORDINAL_TEENS = ['tenth', 'eleventh', 'twelfth', 'thirteenth', 'fourteenth', 'fifteenth', 'sixteenth', 'seventeenth', 'eighteenth', 'nineteenth']
+const ORDINAL_TENS = ['', '', 'twentieth', 'thirtieth', 'fortieth', 'fiftieth', 'sixtieth', 'seventieth', 'eightieth', 'ninetieth']
+
+// Currency vocabulary
+const POUND = 'pound'
+const POUNDS = 'pounds'
+const PENNY = 'penny'
+const PENCE = 'pence'
 
 // ============================================================================
 // Segment Building
@@ -241,7 +255,215 @@ function toCardinal (value) {
 }
 
 // ============================================================================
+// ORDINAL: toOrdinal(value)
+// ============================================================================
+
+/**
+ * Builds ordinal words for a 0-999 segment (final segment only).
+ * Returns ordinal form: "first", "twenty-third", "one hundred forty-fifth"
+ *
+ * @param {number} n - Number 0-999
+ * @returns {string} Ordinal words for this segment
+ */
+function buildOrdinalSegment (n) {
+  const ones = n % 10
+  const tens = Math.trunc(n / 10) % 10
+  const hundreds = Math.trunc(n / 100)
+
+  // Build ordinal for tens-ones portion
+  let tensOnesOrdinal = ''
+  if (tens === 1) {
+    // Teens: 10-19 → "tenth" through "nineteenth"
+    tensOnesOrdinal = ORDINAL_TEENS[ones]
+  } else if (tens >= 2) {
+    if (ones > 0) {
+      // Compound: "twenty-first", "thirty-second", etc.
+      tensOnesOrdinal = TENS[tens] + '-' + ORDINAL_ONES[ones]
+    } else {
+      // Round tens: "twentieth", "thirtieth", etc.
+      tensOnesOrdinal = ORDINAL_TENS[tens]
+    }
+  } else if (ones > 0) {
+    // Single digit: "first", "second", etc.
+    tensOnesOrdinal = ORDINAL_ONES[ones]
+  }
+
+  // Hundreds place
+  if (hundreds > 0) {
+    if (tensOnesOrdinal) {
+      // "one hundred twenty-first"
+      return ONES[hundreds] + ' ' + HUNDRED + ' ' + tensOnesOrdinal
+    } else {
+      // "one hundredth", "two hundredth", etc.
+      return ONES[hundreds] + ' hundredth'
+    }
+  }
+
+  return tensOnesOrdinal
+}
+
+/**
+ * Converts a positive integer to ordinal words.
+ * Generates ordinals directly without string manipulation.
+ *
+ * @param {bigint} n - Positive integer to convert
+ * @returns {string} Ordinal English words
+ */
+function integerToOrdinal (n) {
+  // Fast path: numbers < 1000
+  if (n < 1000n) {
+    return buildOrdinalSegment(Number(n))
+  }
+
+  // Fast path: numbers < 1,000,000
+  if (n < 1_000_000n) {
+    const thousands = Number(n / 1000n)
+    const remainder = Number(n % 1000n)
+
+    if (remainder === 0) {
+      // Exact thousands: "one thousandth", "five thousandth"
+      return buildSegment(thousands).word + ' ' + SCALES[0] + 'th'
+    }
+
+    // Has remainder: cardinal thousands + ordinal remainder
+    const { word: thousandsWord } = buildSegment(thousands)
+    return thousandsWord + ' ' + SCALES[0] + ' ' + buildOrdinalSegment(remainder)
+  }
+
+  // For numbers >= 1,000,000, use scale decomposition
+  return buildLargeOrdinal(n)
+}
+
+/**
+ * Builds ordinal words for numbers >= 1,000,000.
+ * All segments except the final one are cardinal; final segment is ordinal.
+ *
+ * @param {bigint} n - Number >= 1,000,000
+ * @returns {string} Ordinal English words
+ */
+function buildLargeOrdinal (n) {
+  // Extract segments (least-significant first)
+  const segments = []
+  let temp = n
+  while (temp > 0n) {
+    segments.push(Number(temp % 1000n))
+    temp = temp / 1000n
+  }
+
+  // Find the lowest non-zero segment (this gets ordinal treatment)
+  let lowestNonZeroIdx = 0
+  for (let i = 0; i < segments.length; i++) {
+    if (segments[i] !== 0) {
+      lowestNonZeroIdx = i
+      break
+    }
+  }
+
+  // Build result (most-significant to least)
+  let result = ''
+
+  for (let i = segments.length - 1; i >= 0; i--) {
+    const segment = segments[i]
+    if (segment === 0) continue
+
+    const isLowestSegment = (i === lowestNonZeroIdx)
+
+    if (result) result += ' '
+
+    if (isLowestSegment) {
+      // Final non-zero segment gets ordinal treatment
+      if (i === 0) {
+        // Units position: use ordinal segment
+        result += buildOrdinalSegment(segment)
+      } else {
+        // Scale position with no remainder below: "one millionth"
+        result += buildSegment(segment).word + ' ' + SCALES[i - 1] + 'th'
+      }
+    } else {
+      // Non-final segments are cardinal
+      result += buildSegment(segment).word
+      if (i > 0) {
+        result += ' ' + SCALES[i - 1]
+      }
+    }
+  }
+
+  return result
+}
+
+/**
+ * Converts a numeric value to British English ordinal words.
+ *
+ * @param {number | string | bigint} value - The numeric value to convert (must be a positive integer)
+ * @returns {string} The number as ordinal words (e.g., "first", "forty-second")
+ * @throws {TypeError} If value is not a valid numeric type
+ * @throws {RangeError} If value is negative, zero, or has a decimal part
+ *
+ * @example
+ * toOrdinal(1)    // 'first'
+ * toOrdinal(2)    // 'second'
+ * toOrdinal(3)    // 'third'
+ * toOrdinal(21)   // 'twenty-first'
+ * toOrdinal(42)   // 'forty-second'
+ * toOrdinal(100)  // 'one hundredth'
+ * toOrdinal(101)  // 'one hundred first'
+ * toOrdinal(1000) // 'one thousandth'
+ */
+function toOrdinal (value) {
+  const integerPart = parseOrdinalValue(value)
+  return integerToOrdinal(integerPart)
+}
+
+// ============================================================================
+// CURRENCY: toCurrency(value, options?)
+// ============================================================================
+
+/**
+ * Converts a numeric value to British English currency words.
+ *
+ * @param {number | string | bigint} value - The currency amount to convert
+ * @param {Object} [options] - Optional configuration
+ * @param {boolean} [options.and=true] - Use "and" between pounds and pence (e.g., "one pound and fifty pence")
+ * @returns {string} The amount in British English currency words
+ * @throws {TypeError} If value is not a valid numeric type
+ * @throws {Error} If value is not a valid number format
+ *
+ * @example
+ * toCurrency(42.50)                    // 'forty-two pounds and fifty pence'
+ * toCurrency(1)                        // 'one pound'
+ * toCurrency(0.99)                     // 'ninety-nine pence'
+ * toCurrency(0.01)                     // 'one penny'
+ * toCurrency(42.50, { and: false })    // 'forty-two pounds fifty pence'
+ */
+function toCurrency (value, options) {
+  options = validateOptions(options)
+  const { isNegative, dollars: pounds, cents: pence } = parseCurrencyValue(value)
+  const { and: useAnd = true } = options
+
+  // Build result
+  let result = ''
+  if (isNegative) result = NEGATIVE + ' '
+
+  // Pounds part (show if non-zero, or if no pence)
+  if (pounds > 0n || pence === 0n) {
+    result += integerToWords(pounds)
+    result += ' ' + (pounds === 1n ? POUND : POUNDS)
+  }
+
+  // Pence part
+  if (pence > 0n) {
+    if (pounds > 0n) {
+      result += useAnd ? ' and ' : ' '
+    }
+    result += integerToWords(pence)
+    result += ' ' + (pence === 1n ? PENNY : PENCE)
+  }
+
+  return result
+}
+
+// ============================================================================
 // Public API
 // ============================================================================
 
-export { toCardinal }
+export { toCardinal, toOrdinal, toCurrency }
