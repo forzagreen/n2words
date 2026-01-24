@@ -34,9 +34,17 @@ Scopes use BCP 47 language codes (`en-US`, `fr-BE`, `zh-Hans`) or project areas 
 npm run lang:add <code>   # e.g., ko, sr-Cyrl, fr-BE
 ```
 
-This scaffolds all required files. Then:
+This scaffolds all required files for the forms you select. **Forms** are the different ways to express numbers in words:
 
-1. Implement at least one converter function in `src/<code>.js` (e.g., `toCardinal`, `toOrdinal`)
+| Form     | Function       | Example              |
+| -------- | -------------- | -------------------- |
+| Cardinal | `toCardinal()` | "forty-two"          |
+| Ordinal  | `toOrdinal()`  | "forty-second"       |
+| Currency | `toCurrency()` | "forty-two dollars"  |
+
+Then:
+
+1. Implement at least one form in `src/<code>.js`
 2. Add test cases to `test/fixtures/<code>.js`
 3. Run `npm test`
 

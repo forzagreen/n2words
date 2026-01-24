@@ -13,6 +13,7 @@
 ## Why n2words?
 
 - **55 Languages** — European, Asian, Middle Eastern, African, and regional variants
+- **Multiple Forms** — Cardinal, ordinal, and currency conversion
 - **Functional API** — Each language is a standalone pure function, no classes or configuration
 - **Zero Dependencies** — Works everywhere: Node.js, browsers, Deno, Bun
 - **Type-Safe** — Full TypeScript support with generated `.d.ts` declarations
@@ -48,8 +49,8 @@ toCardinal(999999999999999999999999n) // Works with arbitrarily large integers
 // Import by language code
 import { toCardinal } from 'n2words/en-US'
 import { toCardinal as es } from 'n2words/es'
-import { toCardinal, toOrdinal } from 'n2words/en-US'     // Languages with ordinal support
-import { toCardinal, toCurrency } from 'n2words/en-US'   // Languages with currency support
+import { toCardinal, toOrdinal } from 'n2words/en-US'     // Ordinal form
+import { toCardinal, toCurrency } from 'n2words/en-US'   // Currency form
 ```
 
 **Browser (CDN):**
@@ -70,7 +71,7 @@ Individual language bundles are recommended for browsers (~1.4 KB gzipped each).
 <script>
   n2words.enUS(42)           // 'forty-two'
   n2words.es(42)             // 'cuarenta y dos'
-  n2words.ordinal.enUS(42)   // 'forty-second' (languages with ordinal support)
+  n2words.ordinal.enUS(42)   // 'forty-second' (ordinal form)
   n2words.currency.enUS(42.50)  // 'forty-two dollars and fifty cents'
 </script>
 ```

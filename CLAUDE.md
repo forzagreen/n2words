@@ -6,7 +6,7 @@ n2words: Number to words converter. ESM + UMD, Node >=20, zero dependencies.
 
 - **Language codes**: IETF BCP 47 (`en-US`, `zh-Hans`, `fr-BE`)
 - **Imports**: `import { toCardinal } from 'n2words/en-US'`
-- **Exports**: `toCardinal(value, options?)`, optionally `toOrdinal(value)`
+- **Forms**: Cardinal (`toCardinal`), Ordinal (`toOrdinal`), Currency (`toCurrency`)
 
 ## Project Structure
 
@@ -14,10 +14,12 @@ n2words: Number to words converter. ESM + UMD, Node >=20, zero dependencies.
 src/
 ├── {lang-code}.js       # One file per language (55 total)
 └── utils/
-    ├── parse-cardinal.js   # Cardinal parsing (decimals, negatives)
-    ├── parse-ordinal.js    # Ordinal parsing (positive integers only)
-    ├── is-plain-object.js  # Object type checking
-    └── validate-options.js # Options validation
+    ├── parse-cardinal.js    # Cardinal form parsing (decimals, negatives)
+    ├── parse-ordinal.js     # Ordinal form parsing (positive integers only)
+    ├── parse-currency.js    # Currency form parsing (dollars, cents)
+    ├── expand-scientific.js # Scientific notation expansion
+    ├── is-plain-object.js   # Object type checking
+    └── validate-options.js  # Options validation
 ```
 
 ## Language File Pattern
@@ -63,7 +65,7 @@ function toCardinal (value, options) {
 npm run lang:add <code>  # Creates stub + fixture + type tests
 ```
 
-Then: implement at least one converter function (`toCardinal`, `toOrdinal`, etc.) in `src/{code}.js`, add cases to `test/fixtures/{code}.js`, run `npm test`.
+Then: implement at least one form (`toCardinal`, `toOrdinal`, `toCurrency`) in `src/{code}.js`, add cases to `test/fixtures/{code}.js`, run `npm test`.
 
 **Reference implementations by pattern**:
 
