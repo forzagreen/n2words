@@ -1,7 +1,10 @@
 /**
- * Spanish language converter - Functional Implementation
+ * Spanish (Spain) language converter
  *
- * Self-contained module with its own input validation, ready for subpath exports.
+ * Uses the European long scale numbering system:
+ * - 10⁶ = millón
+ * - 10⁹ = mil millones (thousand millions)
+ * - 10¹² = billón
  *
  * Spanish-specific rules:
  * - Gender agreement: uno/una, veintiuno/veintiuna, hundreds
@@ -9,7 +12,6 @@
  * - "y" conjunction: treinta y uno (only 30-99 with ones)
  * - "cien" for exact 100, "ciento/cienta" otherwise
  * - Irregular hundreds: quinientos, setecientos, novecientos
- * - Compound long scale: millón, mil millones, billón, mil billones
  * - "un" before millón (not "uno"), omit before mil
  */
 

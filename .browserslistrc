@@ -9,7 +9,7 @@
 # "defaults" = > 0.5% usage, last 2 versions, Firefox ESR, not dead
 # Filtering by "supports bigint" excludes KaiOS 2.5 and Opera Mini (can't run BigInt)
 #
-# This query targets ~86% of global users (all in-use browsers with BigInt support).
+# This query targets ~87% of global users (all in-use browsers with BigInt support).
 # See: https://github.com/browserslist/browserslist#queries
 
 # Target all in-use browsers that can run BigInt (non-polyfillable)
