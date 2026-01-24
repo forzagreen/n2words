@@ -98,3 +98,146 @@ export const cardinal = [
     'nine hundred and ninety-nine vigintillion one hundred and twenty-three novemdecillion'
   ]
 ]
+
+/**
+ * Ordinal number test cases
+ * Format: [input, expected_output]
+ */
+export const ordinal = [
+  // Basic ones
+  [1, 'first'],
+  [2, 'second'],
+  [3, 'third'],
+  [4, 'fourth'],
+  [5, 'fifth'],
+  [6, 'sixth'],
+  [7, 'seventh'],
+  [8, 'eighth'],
+  [9, 'ninth'],
+
+  // Teens
+  [10, 'tenth'],
+  [11, 'eleventh'],
+  [12, 'twelfth'],
+  [13, 'thirteenth'],
+  [14, 'fourteenth'],
+  [15, 'fifteenth'],
+  [16, 'sixteenth'],
+  [17, 'seventeenth'],
+  [18, 'eighteenth'],
+  [19, 'nineteenth'],
+
+  // Tens
+  [20, 'twentieth'],
+  [30, 'thirtieth'],
+  [40, 'fortieth'],
+  [50, 'fiftieth'],
+  [60, 'sixtieth'],
+  [70, 'seventieth'],
+  [80, 'eightieth'],
+  [90, 'ninetieth'],
+
+  // Compound tens-ones
+  [21, 'twenty-first'],
+  [22, 'twenty-second'],
+  [23, 'twenty-third'],
+  [24, 'twenty-fourth'],
+  [32, 'thirty-second'],
+  [42, 'forty-second'],
+  [53, 'fifty-third'],
+  [67, 'sixty-seventh'],
+  [88, 'eighty-eighth'],
+  [99, 'ninety-ninth'],
+
+  // Hundreds
+  [100, 'one hundredth'],
+  [101, 'one hundred first'],
+  [102, 'one hundred second'],
+  [103, 'one hundred third'],
+  [110, 'one hundred tenth'],
+  [111, 'one hundred eleventh'],
+  [112, 'one hundred twelfth'],
+  [120, 'one hundred twentieth'],
+  [121, 'one hundred twenty-first'],
+  [200, 'two hundredth'],
+  [300, 'three hundredth'],
+  [500, 'five hundredth'],
+  [999, 'nine hundred ninety-ninth'],
+
+  // Thousands
+  [1000, 'one thousandth'],
+  [1001, 'one thousand first'],
+  [1010, 'one thousand tenth'],
+  [1100, 'one thousand one hundredth'],
+  [1111, 'one thousand one hundred eleventh'],
+  [2000, 'two thousandth'],
+  [5000, 'five thousandth'],
+  [10000, 'ten thousandth'],
+  [12345, 'twelve thousand three hundred forty-fifth'],
+  [99999, 'ninety-nine thousand nine hundred ninety-ninth'],
+
+  // Larger scales
+  [1_000_000, 'one millionth'],
+  [1_000_001, 'one million first'],
+  [2_000_000, 'two millionth'],
+  [1_000_000_000, 'one billionth'],
+  [1_000_000_000_000, 'one trillionth'],
+
+  // BigInt support
+  [1_000_000_000_000_000_000n, 'one quintillionth'],
+  [1_000_000_000_000_000_000_000n, 'one sextillionth']
+]
+
+/**
+ * Currency test cases (British Pound Sterling)
+ * Format: [input, expected_output, options?]
+ */
+export const currency = [
+  // Zero
+  [0, 'zero pounds'],
+
+  // Whole pounds (singular/plural)
+  [1, 'one pound'],
+  [2, 'two pounds'],
+  [10, 'ten pounds'],
+  [100, 'one hundred pounds'],
+  [1000, 'one thousand pounds'],
+  [1000000, 'one million pounds'],
+
+  // Pence only (singular/plural)
+  [0.01, 'one penny'],
+  [0.02, 'two pence'],
+  [0.10, 'ten pence'],
+  [0.50, 'fifty pence'],
+  [0.99, 'ninety-nine pence'],
+
+  // Pounds and pence
+  [1.01, 'one pound and one penny'],
+  [1.50, 'one pound and fifty pence'],
+  [2.02, 'two pounds and two pence'],
+  [42.50, 'forty-two pounds and fifty pence'],
+  [100.99, 'one hundred pounds and ninety-nine pence'],
+  [1000.01, 'one thousand pounds and one penny'],
+  [1000000.01, 'one million pounds and one penny'],
+
+  // Negative amounts
+  [-1, 'minus one pound'],
+  [-0.50, 'minus fifty pence'],
+  [-42.50, 'minus forty-two pounds and fifty pence'],
+
+  // Without "and" option
+  [42.50, 'forty-two pounds fifty pence', { and: false }],
+  [1.01, 'one pound one penny', { and: false }],
+
+  // Edge cases: .00 pence should show pounds only
+  [5.00, 'five pounds'],
+  ['5.00', 'five pounds'],
+  [100.00, 'one hundred pounds'],
+
+  // String inputs
+  ['42.50', 'forty-two pounds and fifty pence'],
+  ['0.99', 'ninety-nine pence'],
+
+  // BigInt (whole pounds only)
+  [1000000000000n, 'one trillion pounds']
+]
