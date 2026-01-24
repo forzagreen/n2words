@@ -1,6 +1,8 @@
 /**
  * Spanish (Mexico) language converter
  *
+ * CLDR: es-MX | Spanish as used in Mexico
+ *
  * Uses the short scale numbering system (like US English):
  * - 10⁶ = millón
  * - 10⁹ = billón (billion)

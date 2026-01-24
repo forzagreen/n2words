@@ -96,7 +96,7 @@ const resultsFile = join(__dirname, 'results.json')
 /**
  * Loads a converter by language code, returning all available functions.
  *
- * @param {string} langCode Language code (e.g., 'en', 'fr', 'zh-Hans')
+ * @param {string} langCode Language code (e.g., 'en-US', 'fr', 'zh-Hans-CN')
  * @param {string[]} requestedFunctions Function names to include (e.g., ['toCardinal', 'toOrdinal'])
  * @returns {Promise<{name: string, functions: Object<string, Function>} | null>}
  */

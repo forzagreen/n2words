@@ -26,12 +26,12 @@ npm test
 - `refactor(core): simplify exports` — code refactoring
 - `docs: update README` — documentation
 
-Scopes use BCP 47 language codes (`en-US`, `fr-BE`, `zh-Hans`) or project areas (`core`, `types`, `umd`). See [.commitlintrc.mjs](.commitlintrc.mjs) for details.
+Scopes use BCP 47 language codes (`en-US`, `fr-BE`, `zh-Hans-CN`) or project areas (`core`, `types`, `umd`). See [.commitlintrc.mjs](.commitlintrc.mjs) for details.
 
 ## Adding a New Language
 
 ```bash
-npm run lang:add <code>   # e.g., ko, sr-Cyrl, fr-BE
+npm run lang:add <code>   # e.g., ko, sr-Cyrl-RS, fr-BE
 ```
 
 This scaffolds all required files for the forms you select. **Forms** are the different ways to express numbers in words:

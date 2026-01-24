@@ -1,6 +1,8 @@
 /**
  * American English language converter
  *
+ * CLDR: en-US | English as used in the United States
+ *
  * Exports:
  * - toCardinal(value, options?)  - Cardinal numbers: 42 → "forty-two"
  * - toOrdinal(value)             - Ordinal numbers: 42 → "forty-second"

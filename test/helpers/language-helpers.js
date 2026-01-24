@@ -21,7 +21,7 @@ const LANGUAGE_DIR = './src'
 /**
  * Gets all language codes from language files.
  *
- * @returns {string[]} Language codes (e.g., ['en', 'fr', 'zh-Hans'])
+ * @returns {string[]} Language codes (e.g., ['en-US', 'fr', 'zh-Hans-CN'])
  */
 export function getLanguageCodes () {
   return readdirSync(LANGUAGE_DIR)

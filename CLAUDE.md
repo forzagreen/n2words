@@ -4,7 +4,7 @@ n2words: Number to words converter. ESM + UMD, Node >=20, zero dependencies.
 
 ## Quick Reference
 
-- **Language codes**: IETF BCP 47 (`en-US`, `zh-Hans`, `fr-BE`)
+- **Language codes**: IETF BCP 47 (`en-US`, `zh-Hans-CN`, `fr-BE`)
 - **Imports**: `import { toCardinal } from 'n2words/en-US'`
 - **Forms**: Cardinal (`toCardinal`), Ordinal (`toOrdinal`), Currency (`toCurrency`)
 
@@ -69,12 +69,12 @@ Then: implement at least one form (`toCardinal`, `toOrdinal`, `toCurrency`) in `
 
 **Reference implementations by pattern**:
 
-| Pattern     | Examples                       |
-| ----------- | ------------------------------ |
-| Western     | `en-US.js`, `de.js`, `fr.js`   |
-| South Asian | `hi.js`, `bn.js`               |
-| East Asian  | `ja.js`, `ko.js`, `zh-Hans.js` |
-| Slavic      | `ru.js`, `pl.js`, `uk.js`      |
+| Pattern     | Examples                          |
+| ----------- | --------------------------------- |
+| Western     | `en-US.js`, `de.js`, `fr.js`      |
+| South Asian | `hi.js`, `bn.js`                  |
+| East Asian  | `ja.js`, `ko.js`, `zh-Hans-CN.js` |
+| Slavic      | `ru.js`, `pl.js`, `uk.js`         |
 
 ## Commands
 

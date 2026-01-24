@@ -16,8 +16,8 @@
  * @param {string} code Language code to validate
  * @returns {boolean} True if valid
  * @example
- * isValidLanguageCode('en')       // true
- * isValidLanguageCode('zh-Hans')  // true
+ * isValidLanguageCode('en-US')       // true
+ * isValidLanguageCode('zh-Hans-CN')  // true
  * isValidLanguageCode('invalid')  // false
  */
 export function isValidLanguageCode (code) {
@@ -34,8 +34,8 @@ export function isValidLanguageCode (code) {
  * @param {string} code Language code (may be non-canonical)
  * @returns {string|null} Canonical form, or null if invalid
  * @example
- * getCanonicalCode('en')       // 'en'
- * getCanonicalCode('zh-hans')  // 'zh-Hans' (case-corrected)
+ * getCanonicalCode('en-US')    // 'en-US'
+ * getCanonicalCode('zh-hans-cn')  // 'zh-Hans-CN' (case-corrected)
  * getCanonicalCode('invalid')  // null
  */
 export function getCanonicalCode (code) {
@@ -54,9 +54,9 @@ export function getCanonicalCode (code) {
  * @param {string} code BCP 47 language code (e.g., 'zh-Hans', 'fr-BE')
  * @returns {string} Normalized identifier (e.g., 'zhHans', 'frBE')
  * @example
- * normalizeCode('en')       // 'en'
- * normalizeCode('zh-Hans')  // 'zhHans'
- * normalizeCode('fr-BE')    // 'frBE'
+ * normalizeCode('en-US')       // 'enUS'
+ * normalizeCode('zh-Hans-CN')  // 'zhHansCN'
+ * normalizeCode('fr-BE')       // 'frBE'
  */
 export function normalizeCode (code) {
   return code.replace(/-([a-zA-Z])/g, (_, letter) => letter.toUpperCase())
@@ -72,8 +72,8 @@ export function normalizeCode (code) {
  * @param {string} code BCP 47 language code
  * @returns {string|null} Language name in English, or null if not in CLDR
  * @example
- * getLanguageName('en')       // 'English'
- * getLanguageName('zh-Hans')  // 'Simplified Chinese'
+ * getLanguageName('en-US')       // 'American English'
+ * getLanguageName('zh-Hans-CN')  // 'Simplified Chinese (China)'
  * getLanguageName('hbo')      // null (not in CLDR)
  */
 export function getLanguageName (code) {

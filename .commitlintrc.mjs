@@ -70,7 +70,7 @@ const PROJECT_SCOPES = [
 
 /**
  * BCP 47 language code pattern
- * Examples: en, fr-BE, zh-Hans, sr-Latn, pa-Guru
+ * Examples: en-US, fr-BE, zh-Hans-CN, sr-Latn-RS, pa-Guru-IN
  */
 const LANGUAGE_CODE_PATTERN = /^[a-z]{2,3}(-[A-Z][a-z]{3,4})?(-[A-Z]{2})?$/
 
@@ -96,7 +96,7 @@ function validateScope (scope) {
     return { valid: true }
   }
 
-  // Support comma-separated language codes: "zh-Hans, zh-Hant"
+  // Support comma-separated language codes: "zh-Hans-CN, zh-Hant-TW"
   if (scope.includes(',')) {
     const codes = scope.split(',').map(s => s.trim())
     if (codes.every(code => LANGUAGE_CODE_PATTERN.test(code))) {
@@ -106,7 +106,7 @@ function validateScope (scope) {
 
   return {
     valid: false,
-    error: `Invalid scope "${scope}". Use a project area (${PROJECT_SCOPES.slice(0, 5).join(', ')}, ...) or BCP 47 language code (en, en-US, en-GB, zh-Hans)`
+    error: `Invalid scope "${scope}". Use a project area (${PROJECT_SCOPES.slice(0, 5).join(', ')}, ...) or BCP 47 language code (en-US, en-GB, zh-Hans-CN)`
   }
 }
 

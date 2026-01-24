@@ -1,7 +1,7 @@
 /**
- * British English language converter - Functional Implementation
+ * British English language converter
  *
- * Self-contained module with its own input validation, ready for subpath exports.
+ * CLDR: en-GB | English as used in the United Kingdom
  *
  * British English conventions:
  * - "and" after hundreds: "one hundred and twenty-three"

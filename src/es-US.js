@@ -1,6 +1,8 @@
 /**
  * Spanish (United States) language converter
  *
+ * CLDR: es-US | Spanish as used in the United States
+ *
  * Uses the short scale numbering system (like US English):
  * - 10⁶ = millón
  * - 10⁹ = billón (billion)
