@@ -4,7 +4,6 @@
 [![Coverage](https://img.shields.io/coveralls/github/forzagreen/n2words)](https://coveralls.io/github/forzagreen/n2words)
 [![npm version](https://img.shields.io/npm/v/n2words)](https://npmjs.com/package/n2words)
 [![npm provenance](https://img.shields.io/badge/npm-provenance-blue)](https://www.npmjs.com/package/n2words)
-[![Bundle size](https://img.shields.io/bundlephobia/minzip/n2words)](https://bundlephobia.com/package/n2words)
 [![npm downloads](https://img.shields.io/npm/dw/n2words)](https://npmjs.com/package/n2words)
 [![jsDelivr](https://img.shields.io/jsdelivr/npm/hm/n2words)](https://www.jsdelivr.com/package/npm/n2words)
 
