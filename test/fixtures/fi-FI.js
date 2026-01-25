@@ -75,3 +75,82 @@ export const cardinal = [
   // BigInt
   [BigInt(999), 'yhdeksän sata yhdeksänkymmentäyhdeksän']
 ]
+
+/**
+ * Ordinal number test cases
+ * Format: [input, expected_output, options?]
+ */
+export const ordinal = [
+  // Special forms
+  [1, 'ensimmäinen'],
+  [2, 'toinen'],
+
+  // Basic ordinals (-s forms)
+  [3, 'kolmas'],
+  [4, 'neljäs'],
+  [5, 'viides'],
+  [6, 'kuudes'],
+  [7, 'seitsemäs'],
+  [8, 'kahdeksas'],
+  [9, 'yhdeksäs'],
+  [10, 'kymmenes'],
+
+  // Teens
+  [11, 'yhdestoista'],
+  [12, 'kahdestoista'],
+  [13, 'kolmastoista'],
+  [15, 'viidestoista'],
+  [19, 'yhdeksästoista'],
+
+  // Tens
+  [20, 'kahdeskymmenes'],
+  [21, 'kaksikymmentäensimmäinen'],
+  [30, 'kolmaskymmenes'],
+  [42, 'neljäkymmentätoinen'],
+  [99, 'yhdeksänkymmentäyhdeksäs'],
+
+  // Hundreds (simplified form)
+  [100, 'satas'],
+  [1000, 'tuhats']
+]
+
+/**
+ * Currency test cases (Euro)
+ * Format: [input, expected_output, options?]
+ */
+export const currency = [
+  // Zero
+  [0, 'nolla euroa'],
+
+  // Singular euro
+  [1, 'yksi euro'],
+
+  // Plural euro
+  [2, 'kaksi euroa'],
+  [5, 'viisi euroa'],
+  [10, 'kymmenen euroa'],
+  [100, 'sata euroa'],
+  [1000, 'tuhat euroa'],
+
+  // Singular cent
+  [0.01, 'yksi sentti'],
+
+  // Plural cents
+  [0.02, 'kaksi senttiä'],
+  [0.50, 'viisikymmentä senttiä'],
+  [0.99, 'yhdeksänkymmentäyhdeksän senttiä'],
+
+  // Euro and cents
+  [1.01, 'yksi euro yksi sentti'],
+  [1.50, 'yksi euro viisikymmentä senttiä'],
+  [42.50, 'neljäkymmentäkaksi euroa viisikymmentä senttiä'],
+  [1000.99, 'tuhat euroa yhdeksänkymmentäyhdeksän senttiä'],
+
+  // Negative amounts
+  [-1, 'miinus yksi euro'],
+  [-42.50, 'miinus neljäkymmentäkaksi euroa viisikymmentä senttiä'],
+
+  // Edge cases
+  [5.00, 'viisi euroa'],
+  ['5.00', 'viisi euroa']
+]
