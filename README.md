@@ -13,7 +13,7 @@
 ## Why n2words?
 
 - **Pure Functions** — Each language exports standalone functions. No classes, no configuration, no side effects.
-- **Tree-Shakeable** — Import only what you need. Each form is independently bundled.
+- **Tree-Shakeable** — Import only what you need. Unused exports are eliminated by modern bundlers.
 - **Tiny Bundles** — ~2.4 KB gzipped per language (with all forms). No bloat.
 - **Multiple Forms** — Cardinal ("forty-two"), ordinal ("forty-second"), and currency ("forty-two dollars")
 - **57 Languages** — European, Asian, Middle Eastern, African, and regional variants
