@@ -2,8 +2,8 @@
  * Canadian English test cases
  * Format: [input, expected_output, options?]
  *
- * Canadian English generally follows American English conventions:
- * - No "and" after hundreds by default
+ * Canadian English follows British English conventions:
+ * - "and" after hundreds by default: "one hundred and one"
  * - Short scale (billion = 10^9)
  * - Currency: Canadian Dollar (CAD) - dollar/dollars, cent/cents
  */
@@ -25,27 +25,27 @@ export const cardinal = [
   [42, 'forty-two'],
   [99, 'ninety-nine'],
 
-  // Hundreds (American-style, no "and" by default)
+  // Hundreds (British/Canadian-style, "and" by default)
   [100, 'one hundred'],
-  [101, 'one hundred one'],
-  [999, 'nine hundred ninety-nine'],
+  [101, 'one hundred and one'],
+  [999, 'nine hundred and ninety-nine'],
 
   // Thousands
   [1000, 'one thousand'],
-  [1001, 'one thousand one'],
-  [12345, 'twelve thousand three hundred forty-five'],
+  [1001, 'one thousand and one'],
+  [12345, 'twelve thousand three hundred and forty-five'],
 
   // Millions
   [1000000, 'one million'],
-  [1000001, 'one million one'],
+  [1000001, 'one million and one'],
 
   // Billions
   [1000000000, 'one billion'],
 
-  // With "and" option (informal Canadian style)
-  [101, 'one hundred and one', { and: true }],
-  [1001, 'one thousand and one', { and: true }],
-  [1000001, 'one million and one', { and: true }],
+  // Without "and" option (American style)
+  [101, 'one hundred one', { and: false }],
+  [1001, 'one thousand one', { and: false }],
+  [1000001, 'one million one', { and: false }],
 
   // Hundred-pairing (colloquial)
   [1500, 'fifteen hundred', { hundredPairing: true }],

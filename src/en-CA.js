@@ -9,13 +9,13 @@
  * - toCurrency(value, options?)  - Currency: 42.50 → "forty-two dollars and fifty cents"
  *
  * Canadian English conventions:
- * - Generally follows American English style
- * - No "and" after hundreds: "one hundred twenty-three" (default)
- * - No "and" before final segment: "one million one" (default)
+ * - Follows British English style for number words
+ * - "and" after hundreds: "one hundred and twenty-three" (default)
+ * - "and" before final segment: "one million and one" (default)
  * - Hyphenated tens-ones: "twenty-one", "forty-two"
  * - Western numbering system (short scale: billion = 10^9)
  * - Optional hundred-pairing: 1500 → "fifteen hundred" (colloquial)
- * - Optional "and" insertion: 101 → "one hundred and one" (informal)
+ * - Optional "and" omission: 101 → "one hundred one" (American style)
  * - Currency: Canadian Dollar (CAD) - dollar/dollars, cent/cents
  */
 
@@ -270,15 +270,15 @@ function decimalPartToWords (decimalPart, useAnd) {
  * @param {number | string | bigint} value - The numeric value to convert
  * @param {Object} [options] - Optional configuration
  * @param {boolean} [options.hundredPairing=false] - Use hundred-pairing for 1100-9999 (e.g., "fifteen hundred" instead of "one thousand five hundred")
- * @param {boolean} [options.and=false] - Use "and" after hundreds and before final small numbers (e.g., "one hundred and one" instead of "one hundred one")
+ * @param {boolean} [options.and=true] - Use "and" after hundreds and before final small numbers (default: true, Canadian/British style)
  * @returns {string} The number in Canadian English words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {Error} If value is not a valid number format
  *
  * @example
  * toCardinal(42)                            // 'forty-two'
- * toCardinal(101)                           // 'one hundred one'
- * toCardinal(101, { and: true })            // 'one hundred and one'
+ * toCardinal(101)                           // 'one hundred and one'
+ * toCardinal(101, { and: false })           // 'one hundred one'
  * toCardinal(1500)                          // 'one thousand five hundred'
  * toCardinal(1500, { hundredPairing: true }) // 'fifteen hundred'
  */
@@ -286,8 +286,8 @@ function toCardinal (value, options) {
   options = validateOptions(options)
   const { isNegative, integerPart, decimalPart } = parseCardinalValue(value)
 
-  // Extract options with defaults
-  const { hundredPairing = false, and: useAnd = false } = options
+  // Extract options with defaults (Canadian English uses "and" like British English)
+  const { hundredPairing = false, and: useAnd = true } = options
 
   let result = ''
 
