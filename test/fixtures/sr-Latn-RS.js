@@ -73,3 +73,114 @@ export const cardinal = [
   [100_000_000_000_000, 'sto biliona'],
   [1_000_000_000_000_000_000n, 'jedan trilion']
 ]
+
+/**
+ * Ordinal number test cases
+ * Format: [input, expected_output, options?]
+ */
+export const ordinal = [
+  // Basic ordinals (1-10)
+  [1, 'prvi'],
+  [2, 'drugi'],
+  [3, 'treći'],
+  [4, 'četvrti'],
+  [5, 'peti'],
+  [6, 'šesti'],
+  [7, 'sedmi'],
+  [8, 'osmi'],
+  [9, 'deveti'],
+  [10, 'deseti'],
+
+  // Teens
+  [11, 'jedanaesti'],
+  [12, 'dvanaesti'],
+  [13, 'trinaesti'],
+  [14, 'četrnaesti'],
+  [15, 'petnaesti'],
+  [16, 'šesnaesti'],
+  [17, 'sedamnaesti'],
+  [18, 'osamnaesti'],
+  [19, 'devetnaesti'],
+
+  // Round tens
+  [20, 'dvadeseti'],
+  [30, 'trideseti'],
+  [40, 'četrdeseti'],
+  [50, 'pedeseti'],
+  [60, 'šezdeseti'],
+  [70, 'sedamdeseti'],
+  [80, 'osamdeseti'],
+  [90, 'devedeseti'],
+
+  // Compound tens
+  [21, 'dvadeset prvi'],
+  [42, 'četrdeset drugi'],
+  [99, 'devedeset deveti'],
+
+  // Hundreds
+  [100, 'stoti'],
+  [101, 'sto prvi'],
+  [200, 'dvestoti'],
+  [300, 'tristoti'],
+  [500, 'petstoti'],
+  [999, 'devetsto devedeset deveti'],
+
+  // Thousands
+  [1000, 'hiljaditi'],
+  [1001, 'jedna hiljada prvi'],
+  [2000, 'dve hiljaditi'],
+  [5000, 'pet hiljaditi'],
+
+  // Larger numbers
+  [1_000_000, 'milioniti'],
+  [2_000_000, 'dva milioniti']
+]
+
+/**
+ * Currency test cases (Serbian Dinar)
+ * Format: [input, expected_output, options?]
+ */
+export const currency = [
+  // Zero
+  [0, 'nula dinara'],
+
+  // Whole dinars (singular/plural forms)
+  [1, 'jedan dinar'],
+  [2, 'dva dinara'],
+  [3, 'tri dinara'],
+  [4, 'četiri dinara'],
+  [5, 'pet dinara'],
+  [11, 'jedanaest dinara'],
+  [21, 'dvadeset jedan dinar'],
+  [22, 'dvadeset dva dinara'],
+  [100, 'sto dinara'],
+  [1000, 'jedna hiljada dinara'],
+  [1_000_000, 'jedan milion dinara'],
+
+  // Para only (singular/plural forms)
+  [0.01, 'jedna para'],
+  [0.02, 'dve pare'],
+  [0.03, 'tri pare'],
+  [0.04, 'četiri pare'],
+  [0.05, 'pet para'],
+  [0.11, 'jedanaest para'],
+  [0.21, 'dvadeset jedna para'],
+  [0.50, 'pedeset para'],
+  [0.99, 'devedeset devet para'],
+
+  // Dinars and para
+  [1.01, 'jedan dinar i jedna para'],
+  [42.50, 'četrdeset dva dinara i pedeset para'],
+  [1000.99, 'jedna hiljada dinara i devedeset devet para'],
+
+  // Negative amounts
+  [-1, 'minus jedan dinar'],
+  [-42.50, 'minus četrdeset dva dinara i pedeset para'],
+
+  // Without "i" option
+  [42.50, 'četrdeset dva dinara pedeset para', { and: false }],
+
+  // Edge cases
+  [5.00, 'pet dinara'],
+  ['5.00', 'pet dinara']
+]

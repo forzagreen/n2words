@@ -98,3 +98,118 @@ export const cardinal = [
   [1243, 'mille-deux-cent-quarante-trois', { withHyphenSeparator: true }],
   [21_602, 'vingt-et-un-mille-six-cent-deux', { withHyphenSeparator: true }]
 ]
+
+/**
+ * Ordinal number test cases
+ * Format: [input, expected_output, options?]
+ */
+export const ordinal = [
+  // Basic ordinals
+  [1, 'premier'],
+  [2, 'deuxième'],
+  [3, 'troisième'],
+  [4, 'quatrième'],
+  [5, 'cinquième'],
+  [6, 'sixième'],
+  [7, 'septième'],
+  [8, 'huitième'],
+  [9, 'neuvième'],
+  [10, 'dixième'],
+  [11, 'onzième'],
+  [12, 'douzième'],
+
+  // Teens
+  [16, 'seizième'],
+  [17, 'dix-septième'],
+  [19, 'dix-neuvième'],
+
+  // Tens with Belgian patterns
+  [20, 'vingtième'],
+  [21, 'vingt et unième'],
+  [30, 'trentième'],
+  [31, 'trente et unième'],
+  [40, 'quarantième'],
+  [50, 'cinquantième'],
+  [60, 'soixantième'],
+
+  // Belgian septante (70s)
+  [70, 'septantième'],
+  [71, 'septante et unième'],
+  [75, 'septante-cinquième'],
+  [79, 'septante-neuvième'],
+
+  // Quatre-vingts (80s) - same as France
+  [80, 'quatre-vingtième'],
+  [81, 'quatre-vingt-unième'],
+  [85, 'quatre-vingt-cinquième'],
+  [89, 'quatre-vingt-neuvième'],
+
+  // Belgian nonante (90s)
+  [90, 'nonantième'],
+  [91, 'nonante et unième'],
+  [95, 'nonante-cinquième'],
+  [99, 'nonante-neuvième'],
+
+  // Hundreds
+  [100, 'centième'],
+  [101, 'cent unième'],
+  [200, 'deux centième'],
+  [300, 'trois centième'],
+
+  // Thousands
+  [1000, 'millième'],
+  [1001, 'mille unième'],
+  [2000, 'deux millième'],
+
+  // Larger numbers
+  [1_000_000, 'un millionième'],
+  [2_000_000, 'deux millionième']
+]
+
+/**
+ * Currency test cases (Euro)
+ * Format: [input, expected_output, options?]
+ */
+export const currency = [
+  // Zero
+  [0, 'zéro euro'],
+
+  // Whole euros (singular/plural)
+  [1, 'un euro'],
+  [2, 'deux euros'],
+  [21, 'vingt et un euros'],
+  [100, 'cent euros'],
+  [1000, 'mille euros'],
+  [1_000_000, 'un million euros'],
+
+  // Centimes only (singular/plural)
+  [0.01, 'un centime'],
+  [0.02, 'deux centimes'],
+  [0.50, 'cinquante centimes'],
+
+  // Belgian patterns in centimes
+  [0.70, 'septante centimes'],
+  [0.71, 'septante et un centimes'],
+  [0.90, 'nonante centimes'],
+  [0.99, 'nonante-neuf centimes'],
+
+  // Euros and centimes
+  [1.01, 'un euro et un centime'],
+  [42.50, 'quarante-deux euros et cinquante centimes'],
+  [1000.99, 'mille euros et nonante-neuf centimes'],
+
+  // Belgian patterns in full amounts
+  [70.70, 'septante euros et septante centimes'],
+  [90.90, 'nonante euros et nonante centimes'],
+
+  // Negative amounts
+  [-1, 'moins un euro'],
+  [-42.50, 'moins quarante-deux euros et cinquante centimes'],
+
+  // Without "et" option
+  [42.50, 'quarante-deux euros cinquante centimes', { and: false }],
+
+  // Edge cases
+  [5.00, 'cinq euros'],
+  ['5.00', 'cinq euros']
+]
