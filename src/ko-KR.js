@@ -11,6 +11,8 @@
  */
 
 import { parseCardinalValue } from './utils/parse-cardinal.js'
+import { parseCurrencyValue } from './utils/parse-currency.js'
+import { parseOrdinalValue } from './utils/parse-ordinal.js'
 
 // ============================================================================
 // Vocabulary (module-level constants)
@@ -29,6 +31,18 @@ const DECIMAL_SEP = '점'
 // Myriad scale words (powers of 10,000)
 // 만 (10^4), 억 (10^8), 조 (10^12), 경 (10^16), etc.
 const SCALES = ['만', '억', '조', '경', '해', '자', '양']
+
+// ============================================================================
+// Ordinal Vocabulary
+// ============================================================================
+
+const ORDINAL_PREFIX = '제'
+
+// ============================================================================
+// Currency Vocabulary (Korean Won)
+// ============================================================================
+
+const WON = '원'
 
 // ============================================================================
 // Segment Building
@@ -250,7 +264,75 @@ function toCardinal (value) {
 }
 
 // ============================================================================
+// ORDINAL: toOrdinal(value)
+// ============================================================================
+
+/**
+ * Converts a non-negative integer to Korean ordinal words.
+ *
+ * Korean ordinals use "제" prefix + Sino-Korean numeral.
+ *
+ * @param {bigint} n - Positive integer to convert
+ * @returns {string} Korean ordinal words
+ */
+function integerToOrdinal (n) {
+  return ORDINAL_PREFIX + integerToWords(n)
+}
+
+/**
+ * Converts a numeric value to Korean ordinal words.
+ *
+ * @param {number | string | bigint} value - The numeric value to convert (positive integer)
+ * @returns {string} The number as ordinal words
+ * @throws {TypeError} If value is not a valid numeric type
+ * @throws {RangeError} If value is negative, zero, or has a decimal part
+ *
+ * @example
+ * toOrdinal(1)    // '제일'
+ * toOrdinal(2)    // '제이'
+ * toOrdinal(10)   // '제십'
+ */
+function toOrdinal (value) {
+  const integerPart = parseOrdinalValue(value)
+  return integerToOrdinal(integerPart)
+}
+
+// ============================================================================
+// CURRENCY: toCurrency(value)
+// ============================================================================
+
+/**
+ * Converts a numeric value to Korean currency words (Won).
+ *
+ * Korean Won has no subunit (jeon are historical).
+ * Amounts are rounded to whole won.
+ *
+ * @param {number | string | bigint} value - The currency amount to convert
+ * @returns {string} The amount in Korean currency words
+ * @throws {TypeError} If value is not a valid numeric type
+ * @throws {Error} If value is not a valid number format
+ *
+ * @example
+ * toCurrency(42)     // '사십이원'
+ * toCurrency(1000)   // '천원'
+ * toCurrency(-5)     // '마이너스 오원'
+ */
+function toCurrency (value) {
+  const { isNegative, dollars: won } = parseCurrencyValue(value)
+
+  let result = ''
+  if (isNegative) {
+    result = NEGATIVE + ' '
+  }
+
+  result += integerToWords(won)
+  result += WON
+
+  return result
+}
+
+// ============================================================================
 // Public API
 // ============================================================================
 
-export { toCardinal }
+export { toCardinal, toOrdinal, toCurrency }

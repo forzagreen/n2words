@@ -11,6 +11,8 @@
  */
 
 import { parseCardinalValue } from './utils/parse-cardinal.js'
+import { parseCurrencyValue } from './utils/parse-currency.js'
+import { parseOrdinalValue } from './utils/parse-ordinal.js'
 
 // ============================================================================
 // Vocabulary (module-level constants)
@@ -44,6 +46,23 @@ const SCALES = [
 const ZERO = '零'
 const NEGATIVE = 'マイナス'
 const DECIMAL_SEP = '点'
+
+// ============================================================================
+// Ordinal Vocabulary
+// ============================================================================
+
+// Ordinal prefix
+const ORDINAL_PREFIX = '第'
+
+// ============================================================================
+// Currency Vocabulary (Japanese Yen)
+// ============================================================================
+
+// Yen (main unit)
+const YEN = '円'
+
+// Sen (1/100 yen) - historically used, now rare
+const SEN = '銭'
 
 // Internal scale words (within 4-digit segments)
 const TEN = '十'
@@ -241,7 +260,87 @@ function toCardinal (value) {
 }
 
 // ============================================================================
+// ORDINAL: toOrdinal(value)
+// ============================================================================
+
+/**
+ * Converts a positive integer to Japanese ordinal words.
+ *
+ * Japanese ordinals: 第 prefix + cardinal number.
+ *
+ * @param {bigint} n - Positive integer to convert
+ * @returns {string} Japanese ordinal words
+ */
+function integerToOrdinal (n) {
+  return ORDINAL_PREFIX + integerToWords(n)
+}
+
+/**
+ * Converts a numeric value to Japanese ordinal words.
+ *
+ * @param {number | string | bigint} value - The numeric value to convert (positive integer)
+ * @returns {string} The number as ordinal words
+ * @throws {TypeError} If value is not a valid numeric type
+ * @throws {RangeError} If value is negative, zero, or has a decimal part
+ *
+ * @example
+ * toOrdinal(1)    // '第一'
+ * toOrdinal(10)   // '第十'
+ * toOrdinal(100)  // '第百'
+ */
+function toOrdinal (value) {
+  const integerPart = parseOrdinalValue(value)
+  return integerToOrdinal(integerPart)
+}
+
+// ============================================================================
+// CURRENCY: toCurrency(value, options?)
+// ============================================================================
+
+/**
+ * Converts a numeric value to Japanese currency words (Yen).
+ *
+ * Note: Sen (銭, 1/100 yen) is included for completeness but is rarely used
+ * in modern Japan. Most transactions are in whole yen.
+ *
+ * @param {number | string | bigint} value - The currency amount to convert
+ * @returns {string} The amount in Japanese currency words
+ * @throws {TypeError} If value is not a valid numeric type
+ * @throws {Error} If value is not a valid number format
+ *
+ * @example
+ * toCurrency(42)     // '四十二円'
+ * toCurrency(1)      // '一円'
+ * toCurrency(0.50)   // '五十銭'
+ * toCurrency(42.50)  // '四十二円五十銭'
+ */
+function toCurrency (value) {
+  const { isNegative, dollars: yen, cents: sen } = parseCurrencyValue(value)
+
+  // Build result
+  let result = ''
+  if (isNegative) result = NEGATIVE
+
+  // Yen part
+  if (yen > 0n) {
+    result += integerToWords(yen) + YEN
+  }
+
+  // Sen part (1/100 yen)
+  if (sen > 0n) {
+    result += integerToWords(sen) + SEN
+  }
+
+  // Handle zero case
+  if (yen === 0n && sen === 0n) {
+    result += ZERO + YEN
+  }
+
+  return result
+}
+
+// ============================================================================
 // Public API
 // ============================================================================
 
-export { toCardinal }
+export { toCardinal, toOrdinal, toCurrency }
