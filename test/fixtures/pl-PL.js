@@ -85,3 +85,102 @@ export const cardinal = [
   [1001, 'tysiąc jeden', { gender: 'feminine' }],
   [1002, 'tysiąc dwa', { gender: 'feminine' }]
 ]
+
+/**
+ * Ordinal number test cases
+ * Format: [input, expected_output, options?]
+ */
+export const ordinal = [
+  // Basic ordinals 1-10
+  [1, 'pierwszy'],
+  [2, 'drugi'],
+  [3, 'trzeci'],
+  [4, 'czwarty'],
+  [5, 'piąty'],
+  [6, 'szósty'],
+  [7, 'siódmy'],
+  [8, 'ósmy'],
+  [9, 'dziewiąty'],
+  [10, 'dziesiąty'],
+
+  // Teens
+  [11, 'jedenasty'],
+  [12, 'dwunasty'],
+  [13, 'trzynasty'],
+  [14, 'czternasty'],
+  [15, 'piętnasty'],
+  [16, 'szesnasty'],
+  [17, 'siedemnasty'],
+  [18, 'osiemnasty'],
+  [19, 'dziewiętnasty'],
+
+  // Tens
+  [20, 'dwudziesty'],
+  [21, 'dwudziesty pierwszy'],
+  [30, 'trzydziesty'],
+  [42, 'czterdziesty drugi'],
+  [50, 'pięćdziesiąty'],
+  [99, 'dziewięćdziesiąty dziewiąty'],
+
+  // Hundreds
+  [100, 'setny'],
+  [101, 'sto pierwszy'],
+  [200, 'dwusetny'],
+  [300, 'trzechsetny'],
+
+  // Thousands
+  [1000, 'tysięczny'],
+  [1001, 'tysiąc pierwszy'],
+  [2000, 'dwa tysięczny'],
+
+  // Large numbers
+  [1000000, 'milionowy']
+]
+
+/**
+ * Currency test cases (Polish Złoty)
+ * Format: [input, expected_output, options?]
+ */
+export const currency = [
+  // Zero
+  [0, 'zero złotych'],
+
+  // Whole złoty - singular/plural forms
+  [1, 'jeden złoty'],
+  [2, 'dwa złote'],
+  [3, 'trzy złote'],
+  [4, 'cztery złote'],
+  [5, 'pięć złotych'],
+  [10, 'dziesięć złotych'],
+  [11, 'jedenaście złotych'],
+  [12, 'dwanaście złotych'],
+  [21, 'dwadzieścia jeden złotych'],
+  [22, 'dwadzieścia dwa złote'],
+  [42, 'czterdzieści dwa złote'],
+  [100, 'sto złotych'],
+  [1000, 'tysiąc złotych'],
+
+  // Grosze only
+  [0.01, 'jeden grosz'],
+  [0.02, 'dwa grosze'],
+  [0.05, 'pięć groszy'],
+  [0.25, 'dwadzieścia pięć groszy'],
+  [0.50, 'pięćdziesiąt groszy'],
+  [0.99, 'dziewięćdziesiąt dziewięć groszy'],
+
+  // Złoty and grosze
+  [1.01, 'jeden złoty jeden grosz'],
+  [1.50, 'jeden złoty pięćdziesiąt groszy'],
+  [2.02, 'dwa złote dwa grosze'],
+  [5.05, 'pięć złotych pięć groszy'],
+  [42.50, 'czterdzieści dwa złote pięćdziesiąt groszy'],
+  [100.99, 'sto złotych dziewięćdziesiąt dziewięć groszy'],
+
+  // Negative amounts
+  [-1, 'minus jeden złoty'],
+  [-42.50, 'minus czterdzieści dwa złote pięćdziesiąt groszy'],
+
+  // Edge cases
+  [5.00, 'pięć złotych'],
+  ['5.00', 'pięć złotych']
+]

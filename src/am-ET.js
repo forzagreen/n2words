@@ -12,6 +12,8 @@
  */
 
 import { parseCardinalValue } from './utils/parse-cardinal.js'
+import { parseCurrencyValue } from './utils/parse-currency.js'
+import { parseOrdinalValue } from './utils/parse-ordinal.js'
 
 // ============================================================================
 // Vocabulary
@@ -27,6 +29,26 @@ const THOUSAND = 'ሺ'
 const ZERO = 'ዜሮ'
 const NEGATIVE = 'አሉታዊ'
 const DECIMAL_SEP = 'ነጥብ'
+
+// ============================================================================
+// Ordinal Vocabulary
+// ============================================================================
+
+// Ordinal suffix
+const ORDINAL_SUFFIX = 'ኛ'
+
+// Special ordinal for first
+const FIRST = 'አንደኛ'
+
+// ============================================================================
+// Currency Vocabulary (Ethiopian Birr)
+// ============================================================================
+
+// Birr (main unit)
+const BIRR = 'ብር'
+
+// Santim (1/100 of birr)
+const SANTIM = 'ሳንቲም'
 
 // Short scale
 const SCALE_WORDS = ['', THOUSAND, 'ሚሊዮን', 'ቢሊዮን']
@@ -152,7 +174,96 @@ function toCardinal (value) {
 }
 
 // ============================================================================
+// ORDINAL: toOrdinal(value)
+// ============================================================================
+
+/**
+ * Converts a positive integer to Amharic ordinal words.
+ *
+ * In Amharic, ordinals are formed by adding -ኛ suffix to the cardinal.
+ * Special case: 1 = አንደኛ (not አንድኛ)
+ *
+ * @param {bigint} n - Positive integer to convert
+ * @returns {string} Amharic ordinal words
+ */
+function integerToOrdinal (n) {
+  // Special case: 1 → አንደኛ
+  if (n === 1n) {
+    return FIRST
+  }
+
+  // Get cardinal form and add ordinal suffix
+  const cardinal = integerToWords(n)
+  return cardinal + ORDINAL_SUFFIX
+}
+
+/**
+ * Converts a numeric value to Amharic ordinal words.
+ *
+ * Amharic ordinals: add -ኛ suffix to cardinal.
+ * Special case: 1 → አንደኛ
+ *
+ * @param {number | string | bigint} value - The numeric value to convert (positive integer)
+ * @returns {string} The number as ordinal words
+ * @throws {TypeError} If value is not a valid numeric type
+ * @throws {RangeError} If value is negative, zero, or has a decimal part
+ *
+ * @example
+ * toOrdinal(1)    // 'አንደኛ'
+ * toOrdinal(2)    // 'ሁለትኛ'
+ * toOrdinal(10)   // 'አስርኛ'
+ * toOrdinal(100)  // 'አንድ መቶኛ'
+ */
+function toOrdinal (value) {
+  const integerPart = parseOrdinalValue(value)
+  return integerToOrdinal(integerPart)
+}
+
+// ============================================================================
+// CURRENCY: toCurrency(value, options?)
+// ============================================================================
+
+/**
+ * Converts a numeric value to Amharic currency words (Ethiopian Birr).
+ *
+ * @param {number | string | bigint} value - The currency amount to convert
+ * @returns {string} The amount in Amharic currency words
+ * @throws {TypeError} If value is not a valid numeric type
+ * @throws {Error} If value is not a valid number format
+ *
+ * @example
+ * toCurrency(42.50)  // 'አርባ ሁለት ብር ሃምሳ ሳንቲም'
+ * toCurrency(1)      // 'አንድ ብር'
+ * toCurrency(0.99)   // 'ዘጠና ዘጠኝ ሳንቲም'
+ * toCurrency(0.01)   // 'አንድ ሳንቲም'
+ */
+function toCurrency (value) {
+  const { isNegative, dollars: birr, cents: santim } = parseCurrencyValue(value)
+
+  // Build result
+  let result = ''
+  if (isNegative) result = NEGATIVE + ' '
+
+  // Birr part - show if non-zero, or if no santim
+  if (birr > 0n || santim === 0n) {
+    result += integerToWords(birr)
+    result += ' ' + BIRR
+  }
+
+  // Santim part
+  if (santim > 0n) {
+    if (birr > 0n) {
+      result += ' '
+    }
+    result += integerToWords(santim)
+    result += ' ' + SANTIM
+  }
+
+  return result
+}
+
+// ============================================================================
 // Exports
 // ============================================================================
 
-export { toCardinal }
+export { toCardinal, toOrdinal, toCurrency }

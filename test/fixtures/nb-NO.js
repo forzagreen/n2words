@@ -73,3 +73,81 @@ export const cardinal = [
   [100_000_000_000_000, 'en hundre billion'],
   [1_000_000_000_000_000_000n, 'en kvintillion']
 ]
+
+/**
+ * Ordinal number test cases
+ * Format: [input, expected_output, options?]
+ */
+export const ordinal = [
+  // Special forms 1-12
+  [1, 'første'],
+  [2, 'andre'],
+  [3, 'tredje'],
+  [4, 'fjerde'],
+  [5, 'femte'],
+  [6, 'sjette'],
+  [7, 'sjuende'],
+  [8, 'åttende'],
+  [9, 'niende'],
+  [10, 'tiende'],
+  [11, 'ellevte'],
+  [12, 'tolvte'],
+
+  // Regular forms (cardinal + de)
+  [13, 'trettende'],
+  [14, 'fjortende'],
+  [19, 'nittende'],
+  [20, 'tjuede'],
+  [21, 'tjue-ende'],
+  [30, 'trettide'],
+  [42, 'førti-tode'],
+  [99, 'nitti-niede'],
+
+  // Hundreds
+  [100, 'en hundrede'],
+  [101, 'en hundre og ende'],
+  [200, 'to hundrede'],
+
+  // Thousands
+  [1000, 'en tusende'],
+  [1001, 'en tusen og ende']
+]
+
+/**
+ * Currency test cases (Norwegian Krone)
+ * Format: [input, expected_output, options?]
+ */
+export const currency = [
+  // Zero
+  [0, 'null kroner'],
+
+  // Whole kroner
+  [1, 'en krone'],
+  [2, 'to kroner'],
+  [5, 'fem kroner'],
+  [10, 'ti kroner'],
+  [21, 'tjue-en kroner'],
+  [42, 'førti-to kroner'],
+  [100, 'en hundre kroner'],
+  [1000, 'en tusen kroner'],
+
+  // Øre only
+  [0.01, 'en øre'],
+  [0.25, 'tjue-fem øre'],
+  [0.50, 'femti øre'],
+  [0.99, 'nitti-ni øre'],
+
+  // Kroner and øre
+  [1.01, 'en krone og en øre'],
+  [1.50, 'en krone og femti øre'],
+  [42.50, 'førti-to kroner og femti øre'],
+  [100.99, 'en hundre kroner og nitti-ni øre'],
+
+  // Negative amounts
+  [-1, 'minus en krone'],
+  [-42.50, 'minus førti-to kroner og femti øre'],
+
+  // Edge cases
+  [5.00, 'fem kroner'],
+  ['5.00', 'fem kroner']
+]

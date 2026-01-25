@@ -11,6 +11,8 @@
  */
 
 import { parseCardinalValue } from './utils/parse-cardinal.js'
+import { parseCurrencyValue } from './utils/parse-currency.js'
+import { parseOrdinalValue } from './utils/parse-ordinal.js'
 
 // ============================================================================
 // Vocabulary
@@ -27,6 +29,21 @@ const SCALE_WORDS = ['juta', 'bilion', 'trilion']
 const ZERO = 'sifar'
 const NEGATIVE = 'minus'
 const DECIMAL_SEP = 'perpuluhan'
+
+// ============================================================================
+// Ordinal Vocabulary
+// ============================================================================
+
+const ORDINAL_PREFIX = 'ke'
+// First is special: "pertama" (not "kesatu")
+const ORDINAL_FIRST = 'pertama'
+
+// ============================================================================
+// Currency Vocabulary (Malaysian Ringgit)
+// ============================================================================
+
+const RINGGIT = 'ringgit'
+const SEN = 'sen'
 
 // ============================================================================
 // Segment Building
@@ -194,7 +211,93 @@ function toCardinal (value) {
 }
 
 // ============================================================================
+// ORDINAL: toOrdinal(value)
+// ============================================================================
+
+/**
+ * Converts a non-negative integer to Malay ordinal words.
+ *
+ * Malay ordinals use "ke-" prefix + cardinal number.
+ * Special case: "pertama" for 1st (not "kesatu").
+ *
+ * @param {bigint} n - Positive integer to convert
+ * @returns {string} Malay ordinal words
+ */
+function integerToOrdinal (n) {
+  // Special case: 1st is "pertama"
+  if (n === 1n) {
+    return ORDINAL_FIRST
+  }
+
+  // All others: "ke" + cardinal (no hyphen in Malay)
+  return ORDINAL_PREFIX + integerToWords(n)
+}
+
+/**
+ * Converts a numeric value to Malay ordinal words.
+ *
+ * @param {number | string | bigint} value - The numeric value to convert (positive integer)
+ * @returns {string} The number as ordinal words
+ * @throws {TypeError} If value is not a valid numeric type
+ * @throws {RangeError} If value is negative, zero, or has a decimal part
+ *
+ * @example
+ * toOrdinal(1)    // 'pertama'
+ * toOrdinal(2)    // 'kedua'
+ * toOrdinal(10)   // 'kesepuluh'
+ */
+function toOrdinal (value) {
+  const integerPart = parseOrdinalValue(value)
+  return integerToOrdinal(integerPart)
+}
+
+// ============================================================================
+// CURRENCY: toCurrency(value)
+// ============================================================================
+
+/**
+ * Converts a numeric value to Malay currency words (Ringgit).
+ *
+ * Malaysian Ringgit uses sen as subunit (100 sen = 1 ringgit).
+ *
+ * @param {number | string | bigint} value - The currency amount to convert
+ * @returns {string} The amount in Malay currency words
+ * @throws {TypeError} If value is not a valid numeric type
+ * @throws {Error} If value is not a valid number format
+ *
+ * @example
+ * toCurrency(42)     // 'empat puluh dua ringgit'
+ * toCurrency(1.50)   // 'satu ringgit lima puluh sen'
+ * toCurrency(-5)     // 'minus lima ringgit'
+ */
+function toCurrency (value) {
+  const { isNegative, dollars: ringgit, cents: sen } = parseCurrencyValue(value)
+
+  let result = ''
+  if (isNegative) {
+    result = NEGATIVE + ' '
+  }
+
+  // Ringgit part - show if non-zero, or if no sen
+  if (ringgit > 0n || sen === 0n) {
+    result += integerToWords(ringgit)
+    result += ' ' + RINGGIT
+  }
+
+  // Sen part
+  if (sen > 0n) {
+    if (ringgit > 0n) {
+      result += ' '
+    }
+    result += integerToWords(sen)
+    result += ' ' + SEN
+  }
+
+  return result
+}
+
+// ============================================================================
 // Exports
 // ============================================================================
 
-export { toCardinal }
+export { toCardinal, toOrdinal, toCurrency }

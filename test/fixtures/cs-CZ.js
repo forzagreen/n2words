@@ -98,3 +98,99 @@ export const cardinal = [
   [2_000_000_000_000_000_000_000_000n, 'dva kvadriliony'],
   [5_000_000_000_000_000_000_000_000n, 'pět kvadrilionů']
 ]
+
+/**
+ * Ordinal number test cases
+ * Format: [input, expected_output, options?]
+ */
+export const ordinal = [
+  // Basic ordinals 1-9
+  [1, 'první'],
+  [2, 'druhý'],
+  [3, 'třetí'],
+  [4, 'čtvrtý'],
+  [5, 'pátý'],
+  [6, 'šestý'],
+  [7, 'sedmý'],
+  [8, 'osmý'],
+  [9, 'devátý'],
+
+  // Teens
+  [10, 'desátý'],
+  [11, 'jedenáctý'],
+  [12, 'dvanáctý'],
+  [13, 'třináctý'],
+  [14, 'čtrnáctý'],
+  [15, 'patnáctý'],
+  [19, 'devatenáctý'],
+
+  // Tens
+  [20, 'dvacátý'],
+  [21, 'dvacet první'],
+  [30, 'třicátý'],
+  [42, 'čtyřicet druhý'],
+  [99, 'devadesát devátý'],
+
+  // Hundreds
+  [100, 'stý'],
+  [101, 'sto první'],
+  [200, 'dvoustý'],
+  [300, 'třístý'],
+  [500, 'pětistý'],
+  [121, 'sto dvacet první'],
+
+  // Thousands
+  [1000, 'tisící'],
+  [1001, 'tisíc první'],
+  [2000, 'dva tisící'],
+  [5000, 'pět tisící'],
+  [10000, 'deset tisící'],
+
+  // Millions
+  [1000000, 'miliontý'],
+  [2000000, 'dva miliontý']
+]
+
+/**
+ * Currency test cases (Czech Koruna)
+ * Format: [input, expected_output, options?]
+ */
+export const currency = [
+  // Zero
+  [0, 'nula korun'],
+
+  // Whole koruny
+  [1, 'jedna koruna'],
+  [2, 'dva koruny'],
+  [3, 'tři koruny'],
+  [4, 'čtyři koruny'],
+  [5, 'pět korun'],
+  [10, 'deset korun'],
+  [21, 'dvacet jedna korun'],
+  [42, 'čtyřicet dva koruny'],
+  [100, 'sto korun'],
+  [1000, 'tisíc korun'],
+
+  // Haléře only
+  [0.01, 'jedna haléř'],
+  [0.02, 'dva haléře'],
+  [0.05, 'pět haléřů'],
+  [0.25, 'dvacet pět haléřů'],
+  [0.50, 'padesát haléřů'],
+  [0.99, 'devadesát devět haléřů'],
+
+  // Koruny and haléře
+  [1.01, 'jedna koruna jedna haléř'],
+  [1.50, 'jedna koruna padesát haléřů'],
+  [2.02, 'dva koruny dva haléře'],
+  [42.50, 'čtyřicet dva koruny padesát haléřů'],
+  [100.99, 'sto korun devadesát devět haléřů'],
+
+  // Negative amounts
+  [-1, 'mínus jedna koruna'],
+  [-42.50, 'mínus čtyřicet dva koruny padesát haléřů'],
+
+  // Edge cases
+  [5.00, 'pět korun'],
+  ['5.00', 'pět korun']
+]

@@ -12,6 +12,8 @@
  */
 
 import { parseCardinalValue } from './utils/parse-cardinal.js'
+import { parseCurrencyValue } from './utils/parse-currency.js'
+import { parseOrdinalValue } from './utils/parse-ordinal.js'
 
 // ============================================================================
 // Vocabulary (module-level constants)
@@ -33,6 +35,29 @@ const DECIMAL_SEP = 'pilkku'
 
 // Long scale
 const SCALES = ['miljoona', 'miljardi', 'biljoona', 'triljoona']
+
+// ============================================================================
+// Ordinal Vocabulary
+// ============================================================================
+
+// Finnish ordinals: special forms for 1st-2nd, then -s suffix
+const ORDINAL_FIRST = 'ensimmäinen'
+const ORDINAL_SECOND = 'toinen'
+const ORDINAL_SUFFIX = 's' // e.g., kolmas, neljäs
+
+// Ordinal forms for basic numbers
+const ORDINAL_ONES = ['', 'ensimmäinen', 'toinen', 'kolmas', 'neljäs', 'viides', 'kuudes', 'seitsemäs', 'kahdeksas', 'yhdeksäs']
+const ORDINAL_TEENS = ['kymmenes', 'yhdestoista', 'kahdestoista', 'kolmastoista', 'neljästoista', 'viidestoista', 'kuudestoista', 'seitsemästoista', 'kahdeksastoista', 'yhdeksästoista']
+const ORDINAL_TENS = ['', '', 'kahdeskymmenes', 'kolmaskymmenes', 'neljäskymmenes', 'viideskymmenes', 'kuudeskymmenes', 'seitsemäskymmenes', 'kahdeksaskymmenes', 'yhdeksäskymmenes']
+
+// ============================================================================
+// Currency Vocabulary (Euro)
+// ============================================================================
+
+const EURO = 'euroa'
+const EURO_SINGULAR = 'euro'
+const CENT = 'senttiä'
+const CENT_SINGULAR = 'sentti'
 
 // ============================================================================
 // Segment Building
@@ -232,7 +257,123 @@ function toCardinal (value) {
 }
 
 // ============================================================================
+// ORDINAL: toOrdinal(value)
+// ============================================================================
+
+/**
+ * Builds ordinal segment for 0-99.
+ * Finnish ordinals have special forms.
+ */
+function buildOrdinalSegment (n) {
+  if (n === 0) return ''
+  if (n < 10) return ORDINAL_ONES[n]
+  if (n < 20) return ORDINAL_TEENS[n - 10]
+
+  const ones = n % 10
+  const tens = Math.floor(n / 10)
+
+  if (ones === 0) {
+    return ORDINAL_TENS[tens]
+  }
+
+  // Compound: kahdeskymmenes + first/second/third etc
+  // For compound ordinals, only the last part is ordinal form
+  return TENS[tens] + ORDINAL_ONES[ones]
+}
+
+/**
+ * Converts a non-negative integer to Finnish ordinal words.
+ *
+ * Finnish ordinals: ensimmäinen (1st), toinen (2nd), kolmas (3rd), etc.
+ * For larger numbers, use cardinal + ordinal ending.
+ *
+ * @param {bigint} n - Positive integer to convert
+ * @returns {string} Finnish ordinal words
+ */
+function integerToOrdinal (n) {
+  // Special cases
+  if (n === 1n) return ORDINAL_FIRST
+  if (n === 2n) return ORDINAL_SECOND
+
+  // For numbers < 100, use ordinal forms
+  if (n < 100n) {
+    return buildOrdinalSegment(Number(n))
+  }
+
+  // For larger numbers, use cardinal form with ordinal suffix on last part
+  // This is a simplification - full Finnish ordinal grammar is complex
+  const cardinal = integerToWords(n)
+  // Add ordinal suffix approximation
+  return cardinal + ORDINAL_SUFFIX
+}
+
+/**
+ * Converts a numeric value to Finnish ordinal words.
+ *
+ * @param {number | string | bigint} value - The numeric value to convert (positive integer)
+ * @returns {string} The number as ordinal words
+ * @throws {TypeError} If value is not a valid numeric type
+ * @throws {RangeError} If value is negative, zero, or has a decimal part
+ *
+ * @example
+ * toOrdinal(1)    // 'ensimmäinen'
+ * toOrdinal(2)    // 'toinen'
+ * toOrdinal(3)    // 'kolmas'
+ * toOrdinal(10)   // 'kymmenes'
+ */
+function toOrdinal (value) {
+  const integerPart = parseOrdinalValue(value)
+  return integerToOrdinal(integerPart)
+}
+
+// ============================================================================
+// CURRENCY: toCurrency(value)
+// ============================================================================
+
+/**
+ * Converts a numeric value to Finnish currency words (Euro).
+ *
+ * Euro uses sentti as subunit (100 senttiä = 1 euro).
+ * Finnish has singular/plural: 1 euro vs 2 euroa, 1 sentti vs 2 senttiä.
+ *
+ * @param {number | string | bigint} value - The currency amount to convert
+ * @returns {string} The amount in Finnish currency words
+ * @throws {TypeError} If value is not a valid numeric type
+ * @throws {Error} If value is not a valid number format
+ *
+ * @example
+ * toCurrency(1)      // 'yksi euro'
+ * toCurrency(42)     // 'neljäkymmentäkaksi euroa'
+ * toCurrency(1.50)   // 'yksi euro viisikymmentä senttiä'
+ */
+function toCurrency (value) {
+  const { isNegative, dollars: euros, cents } = parseCurrencyValue(value)
+
+  let result = ''
+  if (isNegative) {
+    result = NEGATIVE + ' '
+  }
+
+  // Euro part - always show if non-zero, or if no cents
+  if (euros > 0n || cents === 0n) {
+    result += integerToWords(euros)
+    result += ' ' + (euros === 1n ? EURO_SINGULAR : EURO)
+  }
+
+  // Cent part
+  if (cents > 0n) {
+    if (euros > 0n) {
+      result += ' '
+    }
+    result += integerToWords(cents)
+    result += ' ' + (cents === 1n ? CENT_SINGULAR : CENT)
+  }
+
+  return result
+}
+
+// ============================================================================
 // Public API
 // ============================================================================
 
-export { toCardinal }
+export { toCardinal, toOrdinal, toCurrency }

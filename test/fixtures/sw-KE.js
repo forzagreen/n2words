@@ -59,3 +59,79 @@ export const cardinal = [
   [1_000_000_000, 'bilioni moja'],
   [1_000_000_000_000n, 'trilioni moja']
 ]
+
+/**
+ * Ordinal number test cases
+ * Format: [input, expected_output, options?]
+ */
+export const ordinal = [
+  // Special forms for 1-9
+  [1, 'wa kwanza'],
+  [2, 'wa pili'],
+  [3, 'wa tatu'],
+  [4, 'wa nne'],
+  [5, 'wa tano'],
+  [6, 'wa sita'],
+  [7, 'wa saba'],
+  [8, 'wa nane'],
+  [9, 'wa tisa'],
+
+  // Tens (wa + cardinal)
+  [10, 'wa kumi'],
+  [11, 'wa kumi na moja'],
+  [12, 'wa kumi na mbili'],
+  [19, 'wa kumi na tisa'],
+  [20, 'wa ishirini'],
+  [21, 'wa ishirini na moja'],
+  [30, 'wa thelathini'],
+  [42, 'wa arobaini na mbili'],
+  [99, 'wa tisini na tisa'],
+
+  // Hundreds
+  [100, 'wa mia moja'],
+  [101, 'wa mia moja na moja'],
+  [200, 'wa mia mbili'],
+
+  // Thousands
+  [1000, 'wa elfu moja'],
+  [1001, 'wa elfu moja na moja']
+]
+
+/**
+ * Currency test cases (Kenyan Shilling)
+ * Format: [input, expected_output, options?]
+ */
+export const currency = [
+  // Zero
+  [0, 'shilingi sifuri'],
+
+  // Whole shillings
+  [1, 'shilingi moja'],
+  [2, 'shilingi mbili'],
+  [5, 'shilingi tano'],
+  [10, 'shilingi kumi'],
+  [21, 'shilingi ishirini na moja'],
+  [42, 'shilingi arobaini na mbili'],
+  [100, 'shilingi mia moja'],
+  [1000, 'shilingi elfu moja'],
+
+  // Senti only
+  [0.01, 'senti moja'],
+  [0.25, 'senti ishirini na tano'],
+  [0.50, 'senti hamsini'],
+  [0.99, 'senti tisini na tisa'],
+
+  // Shillings and senti
+  [1.01, 'shilingi moja na senti moja'],
+  [1.50, 'shilingi moja na senti hamsini'],
+  [42.50, 'shilingi arobaini na mbili na senti hamsini'],
+  [100.99, 'shilingi mia moja na senti tisini na tisa'],
+
+  // Negative amounts
+  [-1, 'minus shilingi moja'],
+  [-42.50, 'minus shilingi arobaini na mbili na senti hamsini'],
+
+  // Edge cases
+  [5.00, 'shilingi tano'],
+  ['5.00', 'shilingi tano']
+]

@@ -11,6 +11,8 @@
  */
 
 import { parseCardinalValue } from './utils/parse-cardinal.js'
+import { parseCurrencyValue } from './utils/parse-currency.js'
+import { parseOrdinalValue } from './utils/parse-ordinal.js'
 import { validateOptions } from './utils/validate-options.js'
 
 // ============================================================================
@@ -30,6 +32,25 @@ const HUNDRED = 'cent'
 const ZERO = 'zéro'
 const NEGATIVE = 'moins'
 const DECIMAL_SEP = 'virgule'
+
+// ============================================================================
+// Ordinal Vocabulary
+// ============================================================================
+
+// Ordinal suffix
+const ORDINAL_SUFFIX = 'ième'
+
+// Special ordinals
+const PREMIER = 'premier'
+
+// ============================================================================
+// Currency Vocabulary (Euro)
+// ============================================================================
+
+const EURO = 'euro'
+const EUROS = 'euros'
+const CENTIME = 'centime'
+const CENTIMES = 'centimes'
 
 // ============================================================================
 // Segment Building
@@ -287,7 +308,146 @@ function toCardinal (value, options) {
 }
 
 // ============================================================================
+// ORDINAL: toOrdinal(value)
+// ============================================================================
+
+/**
+ * Converts a cardinal number word to its ordinal form.
+ * Rules:
+ * - 1 → premier (special case)
+ * - Drop final -e before adding -ième (quatre → quatrième)
+ * - cinq → cinquième (add -u- before -ième)
+ * - neuf → neuvième (f → v before -ième)
+ *
+ * @param {string} cardinalWord - Cardinal word to convert
+ * @returns {string} Ordinal form
+ */
+function cardinalToOrdinal (cardinalWord) {
+  // Handle special endings
+  if (cardinalWord.endsWith('cinq')) {
+    // cinq → cinquième (add 'u')
+    return cardinalWord + 'u' + ORDINAL_SUFFIX
+  }
+
+  if (cardinalWord.endsWith('neuf')) {
+    // neuf → neuvième (f → v)
+    return cardinalWord.slice(0, -1) + 'v' + ORDINAL_SUFFIX
+  }
+
+  // Drop plural -s from cents/vingts/millions/etc. (quatre-vingts → quatre-vingtième)
+  // Note: "trois", "six" also end in s but that's not a plural
+  if (cardinalWord.endsWith('cents') ||
+      cardinalWord.endsWith('vingts') ||
+      cardinalWord.endsWith('millions') ||
+      cardinalWord.endsWith('milliards') ||
+      cardinalWord.endsWith('billions') ||
+      cardinalWord.endsWith('billiards') ||
+      cardinalWord.endsWith('trillions') ||
+      cardinalWord.endsWith('trilliards') ||
+      cardinalWord.endsWith('quadrillions') ||
+      cardinalWord.endsWith('quadrilliards')) {
+    return cardinalWord.slice(0, -1) + ORDINAL_SUFFIX
+  }
+
+  // Drop final -e before adding -ième (quatre → quatrième)
+  if (cardinalWord.endsWith('e')) {
+    return cardinalWord.slice(0, -1) + ORDINAL_SUFFIX
+  }
+
+  // Default: just add -ième
+  return cardinalWord + ORDINAL_SUFFIX
+}
+
+/**
+ * Converts a positive integer to Belgian French ordinal words.
+ *
+ * @param {bigint} n - Positive integer
+ * @returns {string} Belgian French ordinal words
+ */
+function integerToOrdinal (n) {
+  // Special case: 1 → premier
+  if (n === 1n) {
+    return PREMIER
+  }
+
+  // Get cardinal form and convert to ordinal
+  const cardinalWord = integerToWords(n, false)
+  return cardinalToOrdinal(cardinalWord)
+}
+
+/**
+ * Converts a numeric value to Belgian French ordinal words.
+ *
+ * Belgian French ordinals: premier (1st), then cardinal + ième.
+ * Special rules: quatre→quatrième, cinq→cinquième, neuf→neuvième.
+ *
+ * @param {number | string | bigint} value - The numeric value to convert (positive integer)
+ * @returns {string} The number as ordinal words
+ * @throws {TypeError} If value is not a valid numeric type
+ * @throws {RangeError} If value is negative, zero, or has a decimal part
+ *
+ * @example
+ * toOrdinal(1)    // 'premier'
+ * toOrdinal(2)    // 'deuxième'
+ * toOrdinal(70)   // 'septantième'
+ * toOrdinal(90)   // 'nonantième'
+ */
+function toOrdinal (value) {
+  const integerPart = parseOrdinalValue(value)
+  return integerToOrdinal(integerPart)
+}
+
+// ============================================================================
+// CURRENCY: toCurrency(value, options?)
+// ============================================================================
+
+/**
+ * Converts a numeric value to Belgian French currency words (Euro).
+ *
+ * @param {number | string | bigint} value - The currency amount to convert
+ * @param {Object} [options] - Optional configuration
+ * @param {boolean} [options.and=true] - Use "et" between euros and centimes
+ * @returns {string} The amount in Belgian French currency words
+ * @throws {TypeError} If value is not a valid numeric type
+ * @throws {Error} If value is not a valid number format
+ *
+ * @example
+ * toCurrency(42.50)                 // 'quarante-deux euros et cinquante centimes'
+ * toCurrency(1)                     // 'un euro'
+ * toCurrency(0.99)                  // 'nonante-neuf centimes'
+ * toCurrency(0.01)                  // 'un centime'
+ * toCurrency(42.50, { and: false }) // 'quarante-deux euros cinquante centimes'
+ */
+function toCurrency (value, options) {
+  options = validateOptions(options)
+  const { isNegative, dollars: euros, cents: centimes } = parseCurrencyValue(value)
+  const { and: useAnd = true } = options
+
+  // Build result
+  let result = ''
+  if (isNegative) result = NEGATIVE + ' '
+
+  // Euros part
+  if (euros > 0n || centimes === 0n) {
+    result += integerToWords(euros, false)
+    // In French, 0 and 1 are singular: "zéro euro", "un euro"
+    result += ' ' + (euros <= 1n ? EURO : EUROS)
+  }
+
+  // Centimes part
+  if (centimes > 0n) {
+    if (euros > 0n) {
+      result += useAnd ? ' et ' : ' '
+    }
+    result += integerToWords(centimes, false)
+    result += ' ' + (centimes === 1n ? CENTIME : CENTIMES)
+  }
+
+  return result
+}
+
+// ============================================================================
 // Exports
 // ============================================================================
 
-export { toCardinal }
+export { toCardinal, toOrdinal, toCurrency }

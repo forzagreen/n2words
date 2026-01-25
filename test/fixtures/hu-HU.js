@@ -74,3 +74,79 @@ export const cardinal = [
   [100_000_000_000_000, 'százbillió'],
   [1_000_000_000_000_000_000n, 'egytrillió']
 ]
+
+/**
+ * Ordinal number test cases
+ * Format: [input, expected_output, options?]
+ */
+export const ordinal = [
+  // Special forms 1-10
+  [1, 'első'],
+  [2, 'második'],
+  [3, 'harmadik'],
+  [4, 'negyedik'],
+  [5, 'ötödik'],
+  [6, 'hatodik'],
+  [7, 'hetedik'],
+  [8, 'nyolcadik'],
+  [9, 'kilencedik'],
+  [10, 'tizedik'],
+
+  // Regular forms (cardinal + suffix)
+  [11, 'tizenegyedik'],
+  [12, 'tizenkettődik'],
+  [19, 'tizenkilencedik'],
+  [20, 'huszadik'],
+  [21, 'huszonegyedik'],
+  [30, 'harmincadik'],
+  [42, 'negyvenkettődik'],
+  [99, 'kilencvenkilencedik'],
+
+  // Hundreds
+  [100, 'századik'],
+  [101, 'százegyedik'],
+  [200, 'kétszázadik'],
+
+  // Thousands
+  [1000, 'ezredik'],
+  [1001, 'ezeregyedik']
+]
+
+/**
+ * Currency test cases (Hungarian Forint)
+ * Format: [input, expected_output, options?]
+ */
+export const currency = [
+  // Zero
+  [0, 'nulla forint'],
+
+  // Whole forint
+  [1, 'egy forint'],
+  [2, 'kettő forint'],
+  [5, 'öt forint'],
+  [10, 'tíz forint'],
+  [21, 'huszonegy forint'],
+  [42, 'negyvenkettő forint'],
+  [100, 'száz forint'],
+  [1000, 'ezer forint'],
+
+  // Fillér only
+  [0.01, 'egy fillér'],
+  [0.25, 'huszonöt fillér'],
+  [0.50, 'ötven fillér'],
+  [0.99, 'kilencvenkilenc fillér'],
+
+  // Forint and fillér
+  [1.01, 'egy forint egy fillér'],
+  [1.50, 'egy forint ötven fillér'],
+  [42.50, 'negyvenkettő forint ötven fillér'],
+  [100.99, 'száz forint kilencvenkilenc fillér'],
+
+  // Negative amounts
+  [-1, 'mínusz egy forint'],
+  [-42.50, 'mínusz negyvenkettő forint ötven fillér'],
+
+  // Edge cases
+  [5.00, 'öt forint'],
+  ['5.00', 'öt forint']
+]

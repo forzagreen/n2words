@@ -10,6 +10,8 @@
  */
 
 import { parseCardinalValue } from './utils/parse-cardinal.js'
+import { parseCurrencyValue } from './utils/parse-currency.js'
+import { parseOrdinalValue } from './utils/parse-ordinal.js'
 
 // ============================================================================
 // Vocabulary
@@ -27,6 +29,31 @@ const MILLIARD = 'میلیارد'
 const ZERO = 'صفر'
 const NEGATIVE = 'منفى'
 const DECIMAL_SEP = 'ممیّز'
+
+// ============================================================================
+// Ordinal Vocabulary
+// ============================================================================
+
+// Persian ordinals: add -ُم (-om) suffix to cardinal
+// Special forms for 1st, 2nd, 3rd
+const ORDINAL_SUFFIX = 'م' // ـُم (-om)
+const ORDINAL_ONES = {
+  1: 'اول', // avval (first)
+  2: 'دوم', // dovvom (second)
+  3: 'سوم', // sevvom (third)
+  4: 'چهارم',
+  5: 'پنجم',
+  6: 'ششم',
+  7: 'هفتم',
+  8: 'هشتم',
+  9: 'نهم'
+}
+
+// ============================================================================
+// Currency Vocabulary (Iranian Rial)
+// ============================================================================
+
+const RIAL = 'ریال'
 
 // ============================================================================
 // Conversion Functions
@@ -138,7 +165,82 @@ function toCardinal (value) {
 }
 
 // ============================================================================
+// ORDINAL: toOrdinal(value)
+// ============================================================================
+
+/**
+ * Converts a non-negative integer to Persian ordinal words.
+ *
+ * Persian ordinals: اول (1st), دوم (2nd), سوم (3rd), then cardinal + م suffix.
+ *
+ * @param {bigint} n - Positive integer to convert
+ * @returns {string} Persian ordinal words
+ */
+function integerToOrdinal (n) {
+  // Special forms for 1-9
+  if (n >= 1n && n <= 9n) {
+    return ORDINAL_ONES[Number(n)]
+  }
+
+  // For 10+, add -م suffix to cardinal
+  const cardinal = integerToWords(n)
+  return cardinal + ORDINAL_SUFFIX
+}
+
+/**
+ * Converts a numeric value to Persian ordinal words.
+ *
+ * @param {number | string | bigint} value - The numeric value to convert (positive integer)
+ * @returns {string} The number as ordinal words
+ * @throws {TypeError} If value is not a valid numeric type
+ * @throws {RangeError} If value is negative, zero, or has a decimal part
+ *
+ * @example
+ * toOrdinal(1)    // 'اول'
+ * toOrdinal(2)    // 'دوم'
+ * toOrdinal(10)   // 'دهم'
+ */
+function toOrdinal (value) {
+  const integerPart = parseOrdinalValue(value)
+  return integerToOrdinal(integerPart)
+}
+
+// ============================================================================
+// CURRENCY: toCurrency(value)
+// ============================================================================
+
+/**
+ * Converts a numeric value to Persian currency words (Rial).
+ *
+ * Iranian Rial has no subunit in modern usage.
+ * (Historically dinar was 1/100 rial, but not used today)
+ *
+ * @param {number | string | bigint} value - The currency amount to convert
+ * @returns {string} The amount in Persian currency words
+ * @throws {TypeError} If value is not a valid numeric type
+ * @throws {Error} If value is not a valid number format
+ *
+ * @example
+ * toCurrency(42)     // 'چهل و دو ریال'
+ * toCurrency(1000)   // 'هزار ریال'
+ * toCurrency(-5)     // 'منفى پنج ریال'
+ */
+function toCurrency (value) {
+  const { isNegative, dollars: rial } = parseCurrencyValue(value)
+
+  let result = ''
+  if (isNegative) {
+    result = NEGATIVE + ' '
+  }
+
+  result += integerToWords(rial)
+  result += ' ' + RIAL
+
+  return result
+}
+
+// ============================================================================
 // Exports
 // ============================================================================
 
-export { toCardinal }
+export { toCardinal, toOrdinal, toCurrency }

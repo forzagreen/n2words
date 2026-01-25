@@ -11,6 +11,8 @@
  */
 
 import { parseCardinalValue } from './utils/parse-cardinal.js'
+import { parseCurrencyValue } from './utils/parse-currency.js'
+import { parseOrdinalValue } from './utils/parse-ordinal.js'
 
 // ============================================================================
 // Vocabulary
@@ -27,6 +29,20 @@ const SCALE_WORDS = ['juta', 'miliar', 'triliun', 'kuadriliun', 'kuantiliun', 's
 const ZERO = 'nol'
 const NEGATIVE = 'min'
 const DECIMAL_SEP = 'koma'
+
+// ============================================================================
+// Ordinal Vocabulary
+// ============================================================================
+
+const ORDINAL_PREFIX = 'ke'
+// First is special: "pertama" (not "kesatu")
+const ORDINAL_FIRST = 'pertama'
+
+// ============================================================================
+// Currency Vocabulary (Indonesian Rupiah)
+// ============================================================================
+
+const RUPIAH = 'rupiah'
 
 // ============================================================================
 // Segment Building
@@ -190,7 +206,82 @@ function toCardinal (value) {
 }
 
 // ============================================================================
+// ORDINAL: toOrdinal(value)
+// ============================================================================
+
+/**
+ * Converts a non-negative integer to Indonesian ordinal words.
+ *
+ * Indonesian ordinals use "ke-" prefix + cardinal number.
+ * Special case: "pertama" for 1st (not "kesatu").
+ *
+ * @param {bigint} n - Positive integer to convert
+ * @returns {string} Indonesian ordinal words
+ */
+function integerToOrdinal (n) {
+  // Special case: 1st is "pertama"
+  if (n === 1n) {
+    return ORDINAL_FIRST
+  }
+
+  // All others: "ke" + cardinal (no hyphen in Indonesian)
+  return ORDINAL_PREFIX + integerToWords(n)
+}
+
+/**
+ * Converts a numeric value to Indonesian ordinal words.
+ *
+ * @param {number | string | bigint} value - The numeric value to convert (positive integer)
+ * @returns {string} The number as ordinal words
+ * @throws {TypeError} If value is not a valid numeric type
+ * @throws {RangeError} If value is negative, zero, or has a decimal part
+ *
+ * @example
+ * toOrdinal(1)    // 'pertama'
+ * toOrdinal(2)    // 'kedua'
+ * toOrdinal(10)   // 'kesepuluh'
+ */
+function toOrdinal (value) {
+  const integerPart = parseOrdinalValue(value)
+  return integerToOrdinal(integerPart)
+}
+
+// ============================================================================
+// CURRENCY: toCurrency(value)
+// ============================================================================
+
+/**
+ * Converts a numeric value to Indonesian currency words (Rupiah).
+ *
+ * Indonesian Rupiah has no subunit in modern usage (sen are historical).
+ * Amounts are rounded to whole rupiah.
+ *
+ * @param {number | string | bigint} value - The currency amount to convert
+ * @returns {string} The amount in Indonesian currency words
+ * @throws {TypeError} If value is not a valid numeric type
+ * @throws {Error} If value is not a valid number format
+ *
+ * @example
+ * toCurrency(42)     // 'empat puluh dua rupiah'
+ * toCurrency(1000)   // 'seribu rupiah'
+ * toCurrency(-5)     // 'min lima rupiah'
+ */
+function toCurrency (value) {
+  const { isNegative, dollars: rupiah } = parseCurrencyValue(value)
+
+  let result = ''
+  if (isNegative) {
+    result = NEGATIVE + ' '
+  }
+
+  result += integerToWords(rupiah)
+  result += ' ' + RUPIAH
+
+  return result
+}
+
+// ============================================================================
 // Exports
 // ============================================================================
 
-export { toCardinal }
+export { toCardinal, toOrdinal, toCurrency }

@@ -17,6 +17,8 @@
  */
 
 import { parseCardinalValue } from './utils/parse-cardinal.js'
+import { parseCurrencyValue } from './utils/parse-currency.js'
+import { parseOrdinalValue } from './utils/parse-ordinal.js'
 
 // ============================================================================
 // Vocabulary (module-level constants)
@@ -109,6 +111,23 @@ const ZERO = 'òdo'
 const NEGATIVE = 'àìní'
 const DECIMAL_SEP = 'àmì'
 const AND = 'ó lé' // "and" / "plus" connector
+
+// ============================================================================
+// Ordinal Vocabulary
+// ============================================================================
+
+// Yoruba ordinals use "ìkẹ-" prefix: ìkẹta (3rd), ìkẹrin (4th)
+// First and second have special forms
+const ORDINAL_FIRST = 'àkọ́kọ́' // first
+const ORDINAL_SECOND = 'ìkejì' // second
+const ORDINAL_PREFIX = 'ìkẹ'
+
+// ============================================================================
+// Currency Vocabulary (Nigerian Naira)
+// ============================================================================
+
+const NAIRA = 'náírà'
+const KOBO = 'kọ́bọ̀'
 
 // ============================================================================
 // Segment Building
@@ -299,4 +318,86 @@ function toCardinal (value) {
   return result
 }
 
-export { toCardinal }
+// ============================================================================
+// ORDINAL: toOrdinal(value)
+// ============================================================================
+
+/**
+ * Converts a non-negative integer to Yoruba ordinal words.
+ *
+ * Yoruba ordinals: àkọ́kọ́ (1st), ìkejì (2nd), ìkẹta (3rd), ìkẹrin (4th), etc.
+ *
+ * @param {bigint} n - Positive integer to convert
+ * @returns {string} Yoruba ordinal words
+ */
+function integerToOrdinal (n) {
+  // Special forms
+  if (n === 1n) return ORDINAL_FIRST
+  if (n === 2n) return ORDINAL_SECOND
+
+  // For 3+, use ìkẹ- prefix + cardinal
+  return ORDINAL_PREFIX + integerToWords(n)
+}
+
+/**
+ * Converts a numeric value to Yoruba ordinal words.
+ *
+ * @param {number | string | bigint} value - The numeric value to convert (positive integer)
+ * @returns {string} The number as ordinal words
+ * @throws {TypeError} If value is not a valid numeric type
+ * @throws {RangeError} If value is negative, zero, or has a decimal part
+ *
+ * @example
+ * toOrdinal(1)    // 'àkọ́kọ́'
+ * toOrdinal(2)    // 'ìkejì'
+ * toOrdinal(3)    // 'ìkẹẹ̀ta'
+ */
+function toOrdinal (value) {
+  const integerPart = parseOrdinalValue(value)
+  return integerToOrdinal(integerPart)
+}
+
+// ============================================================================
+// CURRENCY: toCurrency(value)
+// ============================================================================
+
+/**
+ * Converts a numeric value to Yoruba currency words (Nigerian Naira).
+ *
+ * Uses náírà (naira) and kọ́bọ̀ (kobo).
+ *
+ * @param {number | string | bigint} value - The currency amount to convert
+ * @returns {string} The amount in Yoruba currency words
+ * @throws {TypeError} If value is not a valid numeric type
+ * @throws {Error} If value is not a valid number format
+ *
+ * @example
+ * toCurrency(42)     // 'èjì lé lógójì náírà'
+ * toCurrency(1.50)   // 'ọ̀kan náírà àti àádọ́ta kọ́bọ̀'
+ * toCurrency(-5)     // 'àìní àrùn náírà'
+ */
+function toCurrency (value) {
+  const { isNegative, dollars: naira, cents: kobo } = parseCurrencyValue(value)
+
+  let result = ''
+  if (isNegative) {
+    result = NEGATIVE + ' '
+  }
+
+  // Naira part
+  if (naira > 0n || kobo === 0n) {
+    result += integerToWords(naira) + ' ' + NAIRA
+  }
+
+  // Kobo part
+  if (kobo > 0n) {
+    if (naira > 0n) {
+      result += ' àti '
+    }
+    result += integerToWords(kobo) + ' ' + KOBO
+  }
+
+  return result
+}
+
+export { toCardinal, toOrdinal, toCurrency }

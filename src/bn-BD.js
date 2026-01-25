@@ -11,6 +11,8 @@
  */
 
 import { parseCardinalValue } from './utils/parse-cardinal.js'
+import { parseCurrencyValue } from './utils/parse-currency.js'
+import { parseOrdinalValue } from './utils/parse-ordinal.js'
 
 // ============================================================================
 // Vocabulary
@@ -20,6 +22,26 @@ const ZERO = 'শূন্য'
 const NEGATIVE = 'মাইনাস'
 const DECIMAL_SEP = 'দশমিক'
 const HUNDRED = 'শত'
+
+// ============================================================================
+// Ordinal Vocabulary
+// ============================================================================
+
+// Ordinal suffix (adds to cardinal for numbers >= 7)
+const ORDINAL_SUFFIX = 'তম'
+
+// Special ordinals for first few numbers (1-6 have irregular forms)
+const ORDINAL_SPECIAL = ['', 'প্রথম', 'দ্বিতীয়', 'তৃতীয়', 'চতুর্থ', 'পঞ্চম', 'ষষ্ঠ']
+
+// ============================================================================
+// Currency Vocabulary (Bangladeshi Taka)
+// ============================================================================
+
+// Taka: singular/plural (same form used in Bengali)
+const TAKA = 'টাকা'
+
+// Paisa: singular/plural (same form used in Bengali)
+const PAISA = 'পয়সা'
 
 const BELOW_HUNDRED = [
   'শূন্য', 'এক', 'দুই', 'তিন', 'চার', 'পাঁচ', 'ছয়', 'সাত', 'আট', 'নয়',
@@ -160,7 +182,89 @@ function toCardinal (value) {
 }
 
 // ============================================================================
+// ORDINAL: toOrdinal(value)
+// ============================================================================
+
+/**
+ * Converts a positive integer to Bengali ordinal words.
+ *
+ * Bengali ordinals: First 6 are irregular, then add -তম suffix.
+ *
+ * @param {bigint} n - Positive integer to convert
+ * @returns {string} Bengali ordinal words
+ */
+function integerToOrdinal (n) {
+  // Special ordinals for 1-6
+  if (n >= 1n && n <= 6n) {
+    return ORDINAL_SPECIAL[Number(n)]
+  }
+
+  // For 7 and above, add suffix to cardinal
+  const cardinal = integerToWords(n)
+  return cardinal + ORDINAL_SUFFIX
+}
+
+/**
+ * Converts a numeric value to Bengali ordinal words.
+ *
+ * @param {number | string | bigint} value - The numeric value to convert (positive integer)
+ * @returns {string} The number as ordinal words
+ * @throws {TypeError} If value is not a valid numeric type
+ * @throws {RangeError} If value is negative, zero, or has a decimal part
+ *
+ * @example
+ * toOrdinal(1)    // 'প্রথম'
+ * toOrdinal(2)    // 'দ্বিতীয়'
+ * toOrdinal(3)    // 'তৃতীয়'
+ * toOrdinal(10)   // 'দশতম'
+ */
+function toOrdinal (value) {
+  const integerPart = parseOrdinalValue(value)
+  return integerToOrdinal(integerPart)
+}
+
+// ============================================================================
+// CURRENCY: toCurrency(value, options?)
+// ============================================================================
+
+/**
+ * Converts a numeric value to Bengali currency words (Bangladeshi Taka).
+ *
+ * @param {number | string | bigint} value - The currency amount to convert
+ * @returns {string} The amount in Bengali currency words
+ * @throws {TypeError} If value is not a valid numeric type
+ * @throws {Error} If value is not a valid number format
+ *
+ * @example
+ * toCurrency(42.50)  // 'বেয়াল্লিশ টাকা পঞ্চাশ পয়সা'
+ * toCurrency(1)      // 'এক টাকা'
+ * toCurrency(0.01)   // 'এক পয়সা'
+ */
+function toCurrency (value) {
+  const { isNegative, dollars: taka, cents: paisa } = parseCurrencyValue(value)
+
+  // Build result
+  let result = ''
+  if (isNegative) result = NEGATIVE + ' '
+
+  // Taka part - show if non-zero, or if no paisa
+  if (taka > 0n || paisa === 0n) {
+    result += integerToWords(taka) + ' ' + TAKA
+  }
+
+  // Paisa part
+  if (paisa > 0n) {
+    if (taka > 0n) {
+      result += ' '
+    }
+    result += integerToWords(paisa) + ' ' + PAISA
+  }
+
+  return result
+}
+
+// ============================================================================
 // Exports
 // ============================================================================
 
-export { toCardinal }
+export { toCardinal, toOrdinal, toCurrency }

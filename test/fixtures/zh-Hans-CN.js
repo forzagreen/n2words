@@ -86,3 +86,85 @@ export const cardinal = [
   [17.42, '一十七点四二', { formal: false }],
   [-17.42, '负一十七点四二', { formal: false }]
 ]
+
+/**
+ * Ordinal number test cases
+ * Format: [input, expected_output, options?]
+ */
+export const ordinal = [
+  // Formal numerals (default)
+  [1, '第壹'],
+  [2, '第贰'],
+  [3, '第叁'],
+  [10, '第壹拾'],
+  [11, '第壹拾壹'],
+  [21, '第贰拾壹'],
+  [100, '第壹佰'],
+  [101, '第壹佰零壹'],
+  [1000, '第壹仟'],
+  [10000, '第壹万'],
+  [100000000, '第壹亿'],
+
+  // Common numerals
+  [1, '第一', { formal: false }],
+  [2, '第二', { formal: false }],
+  [3, '第三', { formal: false }],
+  [10, '第一十', { formal: false }],
+  [11, '第一十一', { formal: false }],
+  [21, '第二十一', { formal: false }],
+  [100, '第一百', { formal: false }],
+  [101, '第一百零一', { formal: false }],
+  [1000, '第一千', { formal: false }],
+  [10000, '第一万', { formal: false }],
+  [100000000, '第一亿', { formal: false }]
+]
+
+/**
+ * Currency test cases (Chinese Yuan / Renminbi)
+ * Format: [input, expected_output, options?]
+ */
+export const currency = [
+  // Formal numerals (default) - standard financial writing
+  [0, '零圆整'],
+  [1, '壹圆整'],
+  [2, '贰圆整'],
+  [10, '壹拾圆整'],
+  [100, '壹佰圆整'],
+  [1000, '壹仟圆整'],
+
+  // Jiao only (1/10 yuan)
+  [0.10, '壹角整'],
+  [0.20, '贰角整'],
+  [0.50, '伍角整'],
+
+  // Fen only (1/100 yuan)
+  [0.01, '壹分'],
+  [0.02, '贰分'],
+  [0.05, '伍分'],
+
+  // Yuan and jiao
+  [1.10, '壹圆壹角整'],
+  [42.50, '肆拾贰圆伍角整'],
+
+  // Yuan and fen (needs zero placeholder)
+  [1.01, '壹圆零壹分'],
+  [1.05, '壹圆零伍分'],
+
+  // Yuan, jiao, and fen
+  [1.11, '壹圆壹角壹分'],
+  [42.56, '肆拾贰圆伍角陆分'],
+  [1000.99, '壹仟圆玖角玖分'],
+
+  // Negative amounts
+  [-1, '负壹圆整'],
+  [-42.50, '负肆拾贰圆伍角整'],
+
+  // Common numerals
+  [42.50, '四十二元五角整', { formal: false }],
+  [1.01, '一元零一分', { formal: false }],
+  [0, '零元整', { formal: false }],
+
+  // Edge cases
+  [5.00, '伍圆整'],
+  ['5.00', '伍圆整']
+]

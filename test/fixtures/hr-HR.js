@@ -85,3 +85,91 @@ export const cardinal = [
   [2001, 'dvije tisuće jedna', { gender: 'feminine' }],
   [2002, 'dvije tisuće dvije', { gender: 'feminine' }]
 ]
+
+/**
+ * Ordinal number test cases
+ * Format: [input, expected_output, options?]
+ */
+export const ordinal = [
+  // Basic ordinals 1-9
+  [1, 'prvi'],
+  [2, 'drugi'],
+  [3, 'treći'],
+  [4, 'četvrti'],
+  [5, 'peti'],
+  [6, 'šesti'],
+  [7, 'sedmi'],
+  [8, 'osmi'],
+  [9, 'deveti'],
+
+  // Teens
+  [10, 'deseti'],
+  [11, 'jedanaesti'],
+  [12, 'dvanaesti'],
+  [13, 'trinaesti'],
+  [19, 'devetnaesti'],
+
+  // Tens
+  [20, 'dvadeseti'],
+  [21, 'dvadeset prvi'],
+  [30, 'trideseti'],
+  [42, 'četrdeset drugi'],
+  [99, 'devedeset deveti'],
+
+  // Hundreds
+  [100, 'stoti'],
+  [101, 'sto prvi'],
+  [200, 'dvjestoti'],
+  [121, 'sto dvadeset prvi'],
+
+  // Thousands
+  [1000, 'tisućiti'],
+  [1001, 'jedna tisuća prvi'],
+  [2000, 'dvije tisućiti'],
+
+  // Millions
+  [1000000, 'milijunti'],
+  [2000000, 'dva milijunti']
+]
+
+/**
+ * Currency test cases (Croatian - Euro)
+ * Format: [input, expected_output, options?]
+ */
+export const currency = [
+  // Zero
+  [0, 'nula eura'],
+
+  // Whole euros
+  [1, 'jedan euro'],
+  [2, 'dva eura'],
+  [5, 'pet eura'],
+  [10, 'deset eura'],
+  [21, 'dvadeset jedan euro'],
+  [42, 'četrdeset dva eura'],
+  [100, 'sto eura'],
+  [1000, 'jedna tisuća eura'],
+
+  // Cents only
+  [0.01, 'jedan cent'],
+  [0.02, 'dva centa'],
+  [0.05, 'pet centi'],
+  [0.25, 'dvadeset pet centi'],
+  [0.50, 'pedeset centi'],
+  [0.99, 'devedeset devet centi'],
+
+  // Euros and cents
+  [1.01, 'jedan euro jedan cent'],
+  [1.50, 'jedan euro pedeset centi'],
+  [2.02, 'dva eura dva centa'],
+  [42.50, 'četrdeset dva eura pedeset centi'],
+  [100.99, 'sto eura devedeset devet centi'],
+
+  // Negative amounts
+  [-1, 'minus jedan euro'],
+  [-42.50, 'minus četrdeset dva eura pedeset centi'],
+
+  // Edge cases
+  [5.00, 'pet eura'],
+  ['5.00', 'pet eura']
+]

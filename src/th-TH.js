@@ -12,6 +12,8 @@
  */
 
 import { parseCardinalValue } from './utils/parse-cardinal.js'
+import { parseCurrencyValue } from './utils/parse-currency.js'
+import { parseOrdinalValue } from './utils/parse-ordinal.js'
 
 // ============================================================================
 // Vocabulary
@@ -22,6 +24,20 @@ const ONES = ['หนึ่ง', 'สอง', 'สาม', 'สี่', 'ห้�
 const ZERO = 'ศูนย์'
 const NEGATIVE = 'ลบ'
 const DECIMAL_SEP = 'จุด'
+
+// ============================================================================
+// Ordinal Vocabulary
+// ============================================================================
+
+const ORDINAL_PREFIX = 'ที่'
+
+// ============================================================================
+// Currency Vocabulary (Thai Baht)
+// ============================================================================
+
+const BAHT = 'บาท'
+const SATANG = 'สตางค์'
+const BAHT_ONLY = 'ถ้วน' // "exactly" suffix when no satang
 
 // ============================================================================
 // Conversion Functions
@@ -155,7 +171,84 @@ function toCardinal (value) {
 }
 
 // ============================================================================
+// ORDINAL: toOrdinal(value)
+// ============================================================================
+
+/**
+ * Converts a non-negative integer to Thai ordinal words.
+ *
+ * Thai ordinals use "ที่" prefix + cardinal number.
+ *
+ * @param {bigint} n - Positive integer to convert
+ * @returns {string} Thai ordinal words
+ */
+function integerToOrdinal (n) {
+  return ORDINAL_PREFIX + integerToWords(n)
+}
+
+/**
+ * Converts a numeric value to Thai ordinal words.
+ *
+ * @param {number | string | bigint} value - The numeric value to convert (positive integer)
+ * @returns {string} The number as ordinal words
+ * @throws {TypeError} If value is not a valid numeric type
+ * @throws {RangeError} If value is negative, zero, or has a decimal part
+ *
+ * @example
+ * toOrdinal(1)    // 'ที่หนึ่ง'
+ * toOrdinal(2)    // 'ที่สอง'
+ * toOrdinal(10)   // 'ที่สิบ'
+ */
+function toOrdinal (value) {
+  const integerPart = parseOrdinalValue(value)
+  return integerToOrdinal(integerPart)
+}
+
+// ============================================================================
+// CURRENCY: toCurrency(value)
+// ============================================================================
+
+/**
+ * Converts a numeric value to Thai currency words (Baht).
+ *
+ * Thai Baht uses satang as subunit (100 satang = 1 baht).
+ * When whole amounts, adds "ถ้วน" (exactly) suffix.
+ *
+ * @param {number | string | bigint} value - The currency amount to convert
+ * @returns {string} The amount in Thai currency words
+ * @throws {TypeError} If value is not a valid numeric type
+ * @throws {Error} If value is not a valid number format
+ *
+ * @example
+ * toCurrency(42)     // 'สี่สิบสองบาทถ้วน'
+ * toCurrency(1.50)   // 'หนึ่งบาทห้าสิบสตางค์'
+ * toCurrency(-5)     // 'ลบห้าบาทถ้วน'
+ */
+function toCurrency (value) {
+  const { isNegative, dollars: baht, cents: satang } = parseCurrencyValue(value)
+
+  let result = ''
+  if (isNegative) {
+    result = NEGATIVE
+  }
+
+  // Baht part - always show
+  result += integerToWords(baht)
+  result += BAHT
+
+  // Satang part or "exactly" suffix
+  if (satang > 0n) {
+    result += integerToWords(satang)
+    result += SATANG
+  } else {
+    result += BAHT_ONLY
+  }
+
+  return result
+}
+
+// ============================================================================
 // Exports
 // ============================================================================
 
-export { toCardinal }
+export { toCardinal, toOrdinal, toCurrency }

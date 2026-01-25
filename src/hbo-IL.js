@@ -12,6 +12,8 @@
  */
 
 import { parseCardinalValue } from './utils/parse-cardinal.js'
+import { parseCurrencyValue } from './utils/parse-currency.js'
+import { parseOrdinalValue } from './utils/parse-ordinal.js'
 import { validateOptions } from './utils/validate-options.js'
 
 // ============================================================================
@@ -40,6 +42,18 @@ const SCALE_PLURAL = ['', 'אלפים', 'מיליונים', 'מיליארדים'
 const ZERO = 'אפס'
 const NEGATIVE = 'מינוס'
 const DECIMAL_SEP = 'נקודה'
+
+// Ordinal forms (masculine) - used in Biblical Hebrew
+const ORDINAL_ONES = ['', 'ראשון', 'שני', 'שלישי', 'רביעי', 'חמישי', 'שישי', 'שביעי', 'שמיני', 'תשיעי']
+const ORDINAL_TEENS = ['עשירי', 'אחד עשר', 'שנים עשר', 'שלשה עשר', 'ארבעה עשר', 'חמשה עשר', 'ששה עשר', 'שבעה עשר', 'שמונה עשר', 'תשעה עשר']
+const ORDINAL_TENS = ['', '', 'עשרים', 'שלשים', 'ארבעים', 'חמישים', 'ששים', 'שבעים', 'שמונים', 'תשעים']
+const ORDINAL_HUNDRED = 'מאה'
+
+// Currency (Biblical Shekel - historical usage)
+const SHEKEL = 'שקל'
+const SHEKEL_PLURAL = 'שקלים'
+const GERAH = 'גרה'
+const GERAH_PLURAL = 'גרות'
 
 // ============================================================================
 // Segment Building
@@ -279,7 +293,182 @@ function toCardinal (value, options) {
 }
 
 // ============================================================================
+// Ordinal Functions
+// ============================================================================
+
+/**
+ * Builds ordinal for tens and ones (0-99).
+ *
+ * @param {number} n - Number 0-99
+ * @returns {string} Ordinal word
+ */
+function buildOrdinalTensOnes (n) {
+  if (n === 0) return ''
+  if (n < 10) return ORDINAL_ONES[n]
+  if (n < 20) return ORDINAL_TEENS[n - 10]
+
+  const ones = n % 10
+  const tens = Math.floor(n / 10)
+
+  if (ones === 0) {
+    // Round tens: add "וראשון"
+    return ORDINAL_TENS[tens] + ' ו' + ORDINAL_ONES[1]
+  }
+  // Compound: cardinal tens + ordinal ones
+  return ORDINAL_TENS[tens] + ' ו' + ORDINAL_ONES[ones]
+}
+
+/**
+ * Converts a non-negative integer to Biblical Hebrew ordinal words.
+ *
+ * @param {bigint} n - Non-negative integer to convert
+ * @returns {string} Biblical Hebrew ordinal words
+ */
+function integerToOrdinal (n) {
+  if (n === 0n) return ''
+  if (n === 1n) return ORDINAL_ONES[1]
+
+  // Numbers < 100
+  if (n < 100n) {
+    return buildOrdinalTensOnes(Number(n))
+  }
+
+  // Numbers < 1000
+  if (n < 1000n) {
+    const hundreds = Number(n / 100n)
+    const remainder = Number(n % 100n)
+
+    if (remainder === 0) {
+      return ORDINAL_HUNDRED
+    }
+    return HUNDREDS[hundreds] + ' ' + buildOrdinalTensOnes(remainder)
+  }
+
+  // Numbers < 1,000,000
+  if (n < 1_000_000n) {
+    const thousands = Number(n / 1000n)
+    const remainder = Number(n % 1000n)
+
+    if (remainder === 0) {
+      if (thousands <= 9) {
+        return THOUSANDS_MASC[thousands]
+      }
+      return buildScaleSegment(thousands, 'ו', ONES_MASC, TEENS_MASC, HUNDREDS) + ' ' + SCALE[1]
+    }
+
+    // Cardinal thousands + ordinal remainder
+    let result
+    if (thousands <= 9) {
+      result = THOUSANDS_MASC[thousands]
+    } else {
+      result = buildScaleSegment(thousands, 'ו', ONES_MASC, TEENS_MASC, HUNDREDS) + ' ' + SCALE[1]
+    }
+
+    if (remainder < 100) {
+      return result + ' ' + buildOrdinalTensOnes(remainder)
+    }
+
+    const remHundreds = Math.floor(remainder / 100)
+    const remTensOnes = remainder % 100
+
+    if (remTensOnes === 0) {
+      return result + ' ' + HUNDREDS[remHundreds]
+    }
+    return result + ' ' + HUNDREDS[remHundreds] + ' ' + buildOrdinalTensOnes(remTensOnes)
+  }
+
+  // Numbers >= 1,000,000
+  const millions = Number(n / 1_000_000n)
+  const remainder = n % 1_000_000n
+
+  if (remainder === 0n) {
+    if (millions === 1) {
+      return SCALE[2]
+    }
+    return buildScaleSegment(millions, 'ו', ONES_MASC, TEENS_MASC, HUNDREDS) + ' ' + SCALE_PLURAL[2]
+  }
+
+  // Cardinal millions + ordinal remainder
+  let result
+  if (millions === 1) {
+    result = SCALE[2]
+  } else {
+    result = buildScaleSegment(millions, 'ו', ONES_MASC, TEENS_MASC, HUNDREDS) + ' ' + SCALE_PLURAL[2]
+  }
+
+  return result + ' ' + integerToOrdinal(remainder)
+}
+
+/**
+ * Converts a numeric value to Biblical Hebrew ordinal words.
+ *
+ * @param {number | string | bigint} value - The numeric value to convert
+ * @returns {string} The ordinal in Biblical Hebrew words
+ * @throws {TypeError} If value is not a valid numeric type
+ * @throws {Error} If value is not a positive integer
+ *
+ * @example
+ * toOrdinal(1)   // 'ראשון'
+ * toOrdinal(21)  // 'עשרים וראשון'
+ */
+function toOrdinal (value) {
+  const n = parseOrdinalValue(value)
+  return integerToOrdinal(n)
+}
+
+// ============================================================================
+// Currency Functions
+// ============================================================================
+
+/**
+ * Converts a numeric value to Biblical Hebrew Shekel currency words.
+ *
+ * @param {number | string | bigint} value - The numeric value to convert
+ * @returns {string} The currency in Biblical Hebrew words
+ * @throws {TypeError} If value is not a valid numeric type
+ * @throws {Error} If value is not a valid number format
+ *
+ * @example
+ * toCurrency(1)     // 'שקל אחד'
+ * toCurrency(2.50)  // 'שניים שקלים חמישים גרות'
+ */
+function toCurrency (value) {
+  const { isNegative, dollars, cents } = parseCurrencyValue(value)
+
+  const parts = []
+
+  if (isNegative) {
+    parts.push(NEGATIVE)
+  }
+
+  // Shekels (masculine)
+  if (dollars > 0n || cents === 0n) {
+    if (dollars === 1n) {
+      parts.push(SHEKEL + ' ' + ONES_MASC[1])
+    } else if (dollars === 2n) {
+      parts.push(ONES_MASC[2] + ' ' + SHEKEL_PLURAL)
+    } else {
+      const shekelWord = integerToWords(dollars, 'masculine', 'ו')
+      parts.push(shekelWord + ' ' + SHEKEL_PLURAL)
+    }
+  }
+
+  // Gerah (feminine subunit)
+  if (cents > 0n) {
+    const centNum = Number(cents)
+    if (centNum === 1) {
+      parts.push(GERAH + ' ' + ONES_FEM[1])
+    } else {
+      const gerahWord = integerToWords(cents, 'feminine', 'ו')
+      parts.push(gerahWord + ' ' + GERAH_PLURAL)
+    }
+  }
+
+  return parts.join(' ')
+}
+
+// ============================================================================
 // Exports
 // ============================================================================
 
-export { toCardinal }
+export { toCardinal, toOrdinal, toCurrency }

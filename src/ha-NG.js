@@ -14,6 +14,8 @@
  */
 
 import { parseCardinalValue } from './utils/parse-cardinal.js'
+import { parseCurrencyValue } from './utils/parse-currency.js'
+import { parseOrdinalValue } from './utils/parse-ordinal.js'
 
 // ============================================================================
 // Vocabulary
@@ -33,6 +35,22 @@ const DECIMAL_SEP = 'digo'
 
 // Short scale
 const SCALE_WORDS = ['', THOUSAND, 'miliyan', 'biliyan']
+
+// ============================================================================
+// Ordinal Vocabulary
+// ============================================================================
+
+// Hausa ordinals: "na" + cardinal (na ɗaya = 1st, na biyu = 2nd)
+// First has special form "na fari" or "farko"
+const ORDINAL_PREFIX = 'na'
+const ORDINAL_FIRST = 'na farko'
+
+// ============================================================================
+// Currency Vocabulary (Nigerian Naira)
+// ============================================================================
+
+const NAIRA = 'naira'
+const KOBO = 'kobo'
 
 // ============================================================================
 // Precomputed Lookup Table
@@ -219,7 +237,88 @@ function toCardinal (value) {
 }
 
 // ============================================================================
+// ORDINAL: toOrdinal(value)
+// ============================================================================
+
+/**
+ * Converts a non-negative integer to Hausa ordinal words.
+ *
+ * Hausa ordinals: na farko (1st), na biyu (2nd), na uku (3rd), etc.
+ *
+ * @param {bigint} n - Positive integer to convert
+ * @returns {string} Hausa ordinal words
+ */
+function integerToOrdinal (n) {
+  // Special form for first
+  if (n === 1n) return ORDINAL_FIRST
+
+  // For 2+, use "na" prefix + cardinal
+  return ORDINAL_PREFIX + ' ' + integerToWords(n)
+}
+
+/**
+ * Converts a numeric value to Hausa ordinal words.
+ *
+ * @param {number | string | bigint} value - The numeric value to convert (positive integer)
+ * @returns {string} The number as ordinal words
+ * @throws {TypeError} If value is not a valid numeric type
+ * @throws {RangeError} If value is negative, zero, or has a decimal part
+ *
+ * @example
+ * toOrdinal(1)    // 'na farko'
+ * toOrdinal(2)    // 'na biyu'
+ * toOrdinal(10)   // 'na goma'
+ */
+function toOrdinal (value) {
+  const integerPart = parseOrdinalValue(value)
+  return integerToOrdinal(integerPart)
+}
+
+// ============================================================================
+// CURRENCY: toCurrency(value)
+// ============================================================================
+
+/**
+ * Converts a numeric value to Hausa currency words (Nigerian Naira).
+ *
+ * Uses naira and kobo (100 kobo = 1 naira).
+ *
+ * @param {number | string | bigint} value - The currency amount to convert
+ * @returns {string} The amount in Hausa currency words
+ * @throws {TypeError} If value is not a valid numeric type
+ * @throws {Error} If value is not a valid number format
+ *
+ * @example
+ * toCurrency(42)     // 'arba'in da biyu naira'
+ * toCurrency(1.50)   // 'ɗaya naira da hamsin kobo'
+ * toCurrency(-5)     // 'babu biyar naira'
+ */
+function toCurrency (value) {
+  const { isNegative, dollars: naira, cents: kobo } = parseCurrencyValue(value)
+
+  let result = ''
+  if (isNegative) {
+    result = NEGATIVE + ' '
+  }
+
+  // Naira part
+  if (naira > 0n || kobo === 0n) {
+    result += integerToWords(naira) + ' ' + NAIRA
+  }
+
+  // Kobo part
+  if (kobo > 0n) {
+    if (naira > 0n) {
+      result += ' da '
+    }
+    result += integerToWords(kobo) + ' ' + KOBO
+  }
+
+  return result
+}
+
+// ============================================================================
 // Exports
 // ============================================================================
 
-export { toCardinal }
+export { toCardinal, toOrdinal, toCurrency }

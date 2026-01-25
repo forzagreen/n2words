@@ -120,3 +120,84 @@ export const cardinal = [
   ['3.14', 'ẹ̀ta àmì ọ̀kan ẹ̀rin'],
   ['0.5', 'òdo àmì àrùn']
 ]
+
+/**
+ * Ordinal number test cases
+ * Format: [input, expected_output, options?]
+ */
+export const ordinal = [
+  // Special forms
+  [1, 'àkọ́kọ́'],
+  [2, 'ìkejì'],
+
+  // Regular ìkẹ- prefix
+  [3, 'ìkẹẹ̀ta'],
+  [4, 'ìkẹẹ̀rin'],
+  [5, 'ìkẹàrùn'],
+  [6, 'ìkẹẹ̀fà'],
+  [7, 'ìkẹèje'],
+  [8, 'ìkẹẹ̀jọ'],
+  [9, 'ìkẹẹ̀sán'],
+  [10, 'ìkẹẹ̀wá'],
+
+  // Teens
+  [11, 'ìkẹọ̀kànlá'],
+  [12, 'ìkẹèjìlá'],
+  [15, 'ìkẹàrùndínlógún'],
+  [19, 'ìkẹọ̀kàndínlógún'],
+
+  // Tens
+  [20, 'ìkẹogún'],
+  [21, 'ìkẹọ̀kan lé lógún'],
+  [30, 'ìkẹọgbọ̀n'],
+  [42, 'ìkẹèjì lé lógójì'],
+  [50, 'ìkẹàádọ́ta'],
+
+  // Hundreds
+  [100, 'ìkẹọgọ́rùn'],
+  [101, 'ìkẹọgọ́rùn ó lé ọ̀kan'],
+  [200, 'ìkẹigba'],
+
+  // Thousands
+  [1000, 'ìkẹẹgbẹ̀rún kan'],
+  [1001, 'ìkẹẹgbẹ̀rún kan, ó lé ọ̀kan']
+]
+
+/**
+ * Currency test cases (Nigerian Naira)
+ * Format: [input, expected_output, options?]
+ */
+export const currency = [
+  // Zero
+  [0, 'òdo náírà'],
+
+  // Whole naira
+  [1, 'ọ̀kan náírà'],
+  [2, 'èjì náírà'],
+  [5, 'àrùn náírà'],
+  [10, 'ẹ̀wá náírà'],
+  [21, 'ọ̀kan lé lógún náírà'],
+  [42, 'èjì lé lógójì náírà'],
+  [100, 'ọgọ́rùn náírà'],
+  [1000, 'ẹgbẹ̀rún kan náírà'],
+
+  // Kobo only
+  [0.01, 'ọ̀kan kọ́bọ̀'],
+  [0.25, 'àrùndínlọgbọ̀n kọ́bọ̀'],
+  [0.50, 'àádọ́ta kọ́bọ̀'],
+  [0.99, 'ọ̀kandínlọ́gọ́rùn kọ́bọ̀'],
+
+  // Naira and kobo
+  [1.01, 'ọ̀kan náírà àti ọ̀kan kọ́bọ̀'],
+  [1.50, 'ọ̀kan náírà àti àádọ́ta kọ́bọ̀'],
+  [42.50, 'èjì lé lógójì náírà àti àádọ́ta kọ́bọ̀'],
+  [100.99, 'ọgọ́rùn náírà àti ọ̀kandínlọ́gọ́rùn kọ́bọ̀'],
+
+  // Negative amounts
+  [-1, 'àìní ọ̀kan náírà'],
+  [-42.50, 'àìní èjì lé lógójì náírà àti àádọ́ta kọ́bọ̀'],
+
+  // Edge cases
+  [5.00, 'àrùn náírà'],
+  ['5.00', 'àrùn náírà']
+]

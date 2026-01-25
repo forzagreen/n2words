@@ -11,6 +11,8 @@
  */
 
 import { parseCardinalValue } from './utils/parse-cardinal.js'
+import { parseCurrencyValue } from './utils/parse-currency.js'
+import { parseOrdinalValue } from './utils/parse-ordinal.js'
 import { validateOptions } from './utils/validate-options.js'
 
 // ============================================================================
@@ -36,6 +38,30 @@ const YI_WORD = '亿' // 100,000,000
 const ZERO = '零'
 const NEGATIVE = '负'
 const DECIMAL_SEP = '点'
+
+// ============================================================================
+// Ordinal Vocabulary
+// ============================================================================
+
+// Ordinal prefix
+const ORDINAL_PREFIX = '第'
+
+// ============================================================================
+// Currency Vocabulary (Chinese Yuan / Renminbi)
+// ============================================================================
+
+// Yuan (main unit) - formal uses 圆, common uses 元
+const YUAN_FORMAL = '圆'
+const YUAN_COMMON = '元'
+
+// Jiao (1/10 yuan) - both use 角
+const JIAO = '角'
+
+// Fen (1/100 yuan) - both use 分
+const FEN = '分'
+
+// "Whole" when no jiao/fen
+const ZHENG = '整'
 
 // ============================================================================
 // Conversion Functions
@@ -178,7 +204,111 @@ function toCardinal (value, options) {
 }
 
 // ============================================================================
+// ORDINAL: toOrdinal(value)
+// ============================================================================
+
+/**
+ * Converts a positive integer to Simplified Chinese ordinal words.
+ *
+ * Chinese ordinals: 第 prefix + cardinal number.
+ *
+ * @param {bigint} n - Positive integer to convert
+ * @param {boolean} formal - Use formal numerals
+ * @returns {string} Simplified Chinese ordinal words
+ */
+function integerToOrdinal (n, formal) {
+  return ORDINAL_PREFIX + integerToWords(n, formal)
+}
+
+/**
+ * Converts a numeric value to Simplified Chinese ordinal words.
+ *
+ * @param {number | string | bigint} value - The numeric value to convert (positive integer)
+ * @param {Object} [options] - Optional configuration
+ * @param {boolean} [options.formal=true] - Use formal/financial numerals
+ * @returns {string} The number as ordinal words
+ * @throws {TypeError} If value is not a valid numeric type
+ * @throws {RangeError} If value is negative, zero, or has a decimal part
+ *
+ * @example
+ * toOrdinal(1)                    // '第壹'
+ * toOrdinal(1, { formal: false }) // '第一'
+ * toOrdinal(10)                   // '第壹拾'
+ */
+function toOrdinal (value, options) {
+  options = validateOptions(options)
+  const integerPart = parseOrdinalValue(value)
+  const { formal = true } = options
+  return integerToOrdinal(integerPart, formal)
+}
+
+// ============================================================================
+// CURRENCY: toCurrency(value, options?)
+// ============================================================================
+
+/**
+ * Converts a numeric value to Simplified Chinese currency words (Yuan/Renminbi).
+ *
+ * @param {number | string | bigint} value - The currency amount to convert
+ * @param {Object} [options] - Optional configuration
+ * @param {boolean} [options.formal=true] - Use formal/financial numerals
+ * @returns {string} The amount in Simplified Chinese currency words
+ * @throws {TypeError} If value is not a valid numeric type
+ * @throws {Error} If value is not a valid number format
+ *
+ * @example
+ * toCurrency(42.50)                    // '肆拾贰圆伍角整'
+ * toCurrency(1)                        // '壹圆整'
+ * toCurrency(0.05)                     // '伍分'
+ * toCurrency(42.50, { formal: false }) // '四十二元五角整'
+ */
+function toCurrency (value, options) {
+  options = validateOptions(options)
+  const { isNegative, dollars: yuan, cents } = parseCurrencyValue(value)
+  const { formal = true } = options
+
+  const ones = formal ? ONES_FORMAL : ONES_COMMON
+  const yuanWord = formal ? YUAN_FORMAL : YUAN_COMMON
+
+  // Split cents into jiao (tens) and fen (ones)
+  const jiao = cents / 10n
+  const fen = cents % 10n
+
+  // Build result
+  let result = ''
+  if (isNegative) result = NEGATIVE
+
+  // Yuan part
+  if (yuan > 0n) {
+    result += integerToWords(yuan, formal) + yuanWord
+  }
+
+  // Jiao part (1/10)
+  if (jiao > 0n) {
+    result += ones[Number(jiao)] + JIAO
+  } else if (yuan > 0n && fen > 0n) {
+    // Need zero placeholder between yuan and fen
+    result += ZERO
+  }
+
+  // Fen part (1/100)
+  if (fen > 0n) {
+    result += ones[Number(fen)] + FEN
+  } else if (yuan > 0n || jiao > 0n) {
+    // Add 整 (zheng) to indicate whole amount
+    result += ZHENG
+  }
+
+  // Handle zero case
+  if (yuan === 0n && jiao === 0n && fen === 0n) {
+    result += ZERO + yuanWord + ZHENG
+  }
+
+  return result
+}
+
+// ============================================================================
 // Exports
 // ============================================================================
 
-export { toCardinal }
+export { toCardinal, toOrdinal, toCurrency }

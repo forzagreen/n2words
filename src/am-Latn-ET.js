@@ -12,6 +12,8 @@
  */
 
 import { parseCardinalValue } from './utils/parse-cardinal.js'
+import { parseCurrencyValue } from './utils/parse-currency.js'
+import { parseOrdinalValue } from './utils/parse-ordinal.js'
 
 // ============================================================================
 // Vocabulary
@@ -27,6 +29,26 @@ const THOUSAND = 'shi'
 const ZERO = 'zero'
 const NEGATIVE = 'asitegna'
 const DECIMAL_SEP = 'netib'
+
+// ============================================================================
+// Ordinal Vocabulary
+// ============================================================================
+
+// Ordinal suffix (romanized -ኛ)
+const ORDINAL_SUFFIX = 'nya'
+
+// Special ordinal for first (romanized አንደኛ)
+const FIRST = 'andenya'
+
+// ============================================================================
+// Currency Vocabulary (Ethiopian Birr)
+// ============================================================================
+
+// Birr (main unit, romanized ብር)
+const BIRR = 'birr'
+
+// Santim (1/100 of birr, romanized ሳንቲም)
+const SANTIM = 'santim'
 
 // Short scale
 const SCALE_WORDS = ['', THOUSAND, 'miliyon', 'billiyon']
@@ -152,7 +174,91 @@ function toCardinal (value) {
 }
 
 // ============================================================================
+// ORDINAL: toOrdinal(value)
+// ============================================================================
+
+/**
+ * Converts a positive integer to Amharic (Latin script) ordinal words.
+ *
+ * In Amharic, ordinals are formed by adding -nya suffix to the cardinal.
+ * Special case: 1 = andenya
+ *
+ * @param {bigint} n - Positive integer to convert
+ * @returns {string} Amharic (Latin) ordinal words
+ */
+function integerToOrdinal (n) {
+  // Special case: 1 → andenya
+  if (n === 1n) {
+    return FIRST
+  }
+
+  // Get cardinal form and add ordinal suffix
+  const cardinal = integerToWords(n)
+  return cardinal + ORDINAL_SUFFIX
+}
+
+/**
+ * Converts a numeric value to Amharic (Latin script) ordinal words.
+ *
+ * @param {number | string | bigint} value - The numeric value to convert (positive integer)
+ * @returns {string} The number as ordinal words
+ * @throws {TypeError} If value is not a valid numeric type
+ * @throws {RangeError} If value is negative, zero, or has a decimal part
+ *
+ * @example
+ * toOrdinal(1)    // 'andenya'
+ * toOrdinal(2)    // 'huletnya'
+ * toOrdinal(10)   // 'asirnya'
+ */
+function toOrdinal (value) {
+  const integerPart = parseOrdinalValue(value)
+  return integerToOrdinal(integerPart)
+}
+
+// ============================================================================
+// CURRENCY: toCurrency(value, options?)
+// ============================================================================
+
+/**
+ * Converts a numeric value to Amharic (Latin script) currency words (Ethiopian Birr).
+ *
+ * @param {number | string | bigint} value - The currency amount to convert
+ * @returns {string} The amount in Amharic (Latin) currency words
+ * @throws {TypeError} If value is not a valid numeric type
+ * @throws {Error} If value is not a valid number format
+ *
+ * @example
+ * toCurrency(42.50)  // 'arba hulet birr hamsa santim'
+ * toCurrency(1)      // 'and birr'
+ * toCurrency(0.01)   // 'and santim'
+ */
+function toCurrency (value) {
+  const { isNegative, dollars: birr, cents: santim } = parseCurrencyValue(value)
+
+  // Build result
+  let result = ''
+  if (isNegative) result = NEGATIVE + ' '
+
+  // Birr part - show if non-zero, or if no santim
+  if (birr > 0n || santim === 0n) {
+    result += integerToWords(birr)
+    result += ' ' + BIRR
+  }
+
+  // Santim part
+  if (santim > 0n) {
+    if (birr > 0n) {
+      result += ' '
+    }
+    result += integerToWords(santim)
+    result += ' ' + SANTIM
+  }
+
+  return result
+}
+
+// ============================================================================
 // Exports
 // ============================================================================
 
-export { toCardinal }
+export { toCardinal, toOrdinal, toCurrency }

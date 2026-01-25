@@ -12,6 +12,8 @@
  */
 
 import { parseCardinalValue } from './utils/parse-cardinal.js'
+import { parseCurrencyValue } from './utils/parse-currency.js'
+import { parseOrdinalValue } from './utils/parse-ordinal.js'
 
 // ============================================================================
 // Vocabulary
@@ -21,6 +23,28 @@ const ZERO = 'શૂન્ય'
 const NEGATIVE = 'ઋણ'
 const DECIMAL_SEP = 'દશાંશ'
 const HUNDRED = 'સો'
+
+// ============================================================================
+// Ordinal Vocabulary
+// ============================================================================
+
+// Ordinal suffix (adds to cardinal for numbers >= 7)
+const ORDINAL_SUFFIX = 'મું'
+
+// Special ordinals for first few numbers (1-6 have irregular forms)
+const ORDINAL_SPECIAL = ['', 'પહેલું', 'બીજું', 'ત્રીજું', 'ચોથું', 'પાંચમું', 'છઠ્ઠું']
+
+// ============================================================================
+// Currency Vocabulary (Indian Rupee)
+// ============================================================================
+
+// Rupee: singular/plural
+const RUPEE = 'રૂપિયો'
+const RUPEES = 'રૂપિયા'
+
+// Paisa: singular/plural
+const PAISA = 'પૈસો'
+const PAISE = 'પૈસા'
 
 const BELOW_HUNDRED = [
   'શૂન્ય', 'એક', 'બે', 'ત્રણ', 'ચાર', 'પાંચ', 'છ', 'સાત', 'આઠ', 'નવ',
@@ -144,7 +168,92 @@ function toCardinal (value) {
 }
 
 // ============================================================================
+// ORDINAL: toOrdinal(value)
+// ============================================================================
+
+/**
+ * Converts a positive integer to Gujarati ordinal words.
+ *
+ * Gujarati ordinals: First 6 are irregular, then add -મું suffix.
+ *
+ * @param {bigint} n - Positive integer to convert
+ * @returns {string} Gujarati ordinal words
+ */
+function integerToOrdinal (n) {
+  // Special ordinals for 1-6
+  if (n >= 1n && n <= 6n) {
+    return ORDINAL_SPECIAL[Number(n)]
+  }
+
+  // For 7 and above, add suffix to cardinal
+  const cardinal = integerToWords(n)
+  return cardinal + ORDINAL_SUFFIX
+}
+
+/**
+ * Converts a numeric value to Gujarati ordinal words.
+ *
+ * @param {number | string | bigint} value - The numeric value to convert (positive integer)
+ * @returns {string} The number as ordinal words
+ * @throws {TypeError} If value is not a valid numeric type
+ * @throws {RangeError} If value is negative, zero, or has a decimal part
+ *
+ * @example
+ * toOrdinal(1)    // 'પહેલું'
+ * toOrdinal(2)    // 'બીજું'
+ * toOrdinal(10)   // 'દસમું'
+ */
+function toOrdinal (value) {
+  const integerPart = parseOrdinalValue(value)
+  return integerToOrdinal(integerPart)
+}
+
+// ============================================================================
+// CURRENCY: toCurrency(value, options?)
+// ============================================================================
+
+/**
+ * Converts a numeric value to Gujarati currency words (Indian Rupee).
+ *
+ * @param {number | string | bigint} value - The currency amount to convert
+ * @returns {string} The amount in Gujarati currency words
+ * @throws {TypeError} If value is not a valid numeric type
+ * @throws {Error} If value is not a valid number format
+ *
+ * @example
+ * toCurrency(42.50)  // 'બેતાળીસ રૂપિયા પચાસ પૈસા'
+ * toCurrency(1)      // 'એક રૂપિયો'
+ * toCurrency(0.01)   // 'એક પૈસો'
+ */
+function toCurrency (value) {
+  const { isNegative, dollars: rupees, cents: paise } = parseCurrencyValue(value)
+
+  // Build result
+  let result = ''
+  if (isNegative) result = NEGATIVE + ' '
+
+  // Rupees part - show if non-zero, or if no paise
+  if (rupees > 0n || paise === 0n) {
+    result += integerToWords(rupees)
+    // Singular for 1 rupee, plural otherwise
+    result += ' ' + (rupees === 1n ? RUPEE : RUPEES)
+  }
+
+  // Paise part
+  if (paise > 0n) {
+    if (rupees > 0n) {
+      result += ' '
+    }
+    result += integerToWords(paise)
+    // Singular for 1 paisa, plural otherwise
+    result += ' ' + (paise === 1n ? PAISA : PAISE)
+  }
+
+  return result
+}
+
+// ============================================================================
 // Exports
 // ============================================================================
 
-export { toCardinal }
+export { toCardinal, toOrdinal, toCurrency }

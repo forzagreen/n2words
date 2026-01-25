@@ -74,3 +74,82 @@ export const cardinal = [
   [100_000_000_000_000, 'một trăm nghìn tỷ'],
   [1_000_000_000_000_000_000n, 'một Quintillion']
 ]
+
+/**
+ * Ordinal number test cases
+ * Format: [input, expected_output, options?]
+ */
+export const ordinal = [
+  // Special case: 1st uses "nhất"
+  [1, 'thứ nhất'],
+
+  // Regular ordinals use cardinal
+  [2, 'thứ hai'],
+  [3, 'thứ ba'],
+  [4, 'thứ bốn'],
+  [5, 'thứ năm'],
+  [6, 'thứ sáu'],
+  [7, 'thứ bảy'],
+  [8, 'thứ tám'],
+  [9, 'thứ chín'],
+  [10, 'thứ mười'],
+
+  // Teens
+  [11, 'thứ mười một'],
+  [12, 'thứ mười hai'],
+  [15, 'thứ mười lăm'],
+  [19, 'thứ mười chín'],
+
+  // Tens with special forms
+  [20, 'thứ hai mươi'],
+  [21, 'thứ hai mươi mốt'],
+  [25, 'thứ hai mươi lăm'],
+  [30, 'thứ ba mươi'],
+  [42, 'thứ bốn mươi hai'],
+  [55, 'thứ năm mươi lăm'],
+  [99, 'thứ chín mươi chín'],
+
+  // Hundreds
+  [100, 'thứ một trăm'],
+  [101, 'thứ một trăm lẻ một'],
+  [200, 'thứ hai trăm'],
+
+  // Thousands
+  [1000, 'thứ một nghìn'],
+  [1001, 'thứ một nghìn lẻ một'],
+
+  // Millions
+  [1000000, 'thứ một triệu']
+]
+
+/**
+ * Currency test cases (Vietnamese Dong)
+ * Format: [input, expected_output, options?]
+ */
+export const currency = [
+  // Zero
+  [0, 'không đồng'],
+
+  // Whole amounts
+  [1, 'một đồng'],
+  [2, 'hai đồng'],
+  [5, 'năm đồng'],
+  [10, 'mười đồng'],
+  [21, 'hai mươi mốt đồng'],
+  [55, 'năm mươi lăm đồng'],
+  [100, 'một trăm đồng'],
+  [101, 'một trăm lẻ một đồng'],
+  [1000, 'một nghìn đồng'],
+  [1001, 'một nghìn lẻ một đồng'],
+  [10000, 'mười nghìn đồng'],
+  [100000, 'một trăm nghìn đồng'],
+  [1000000, 'một triệu đồng'],
+
+  // Negative amounts
+  [-1, 'âm một đồng'],
+  [-1000, 'âm một nghìn đồng'],
+
+  // Edge cases (decimals rounded)
+  [5.00, 'năm đồng'],
+  ['5.00', 'năm đồng']
+]

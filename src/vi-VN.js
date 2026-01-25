@@ -10,6 +10,8 @@
  */
 
 import { parseCardinalValue } from './utils/parse-cardinal.js'
+import { parseCurrencyValue } from './utils/parse-currency.js'
+import { parseOrdinalValue } from './utils/parse-ordinal.js'
 
 // ============================================================================
 // Vocabulary (module-level constants)
@@ -32,6 +34,20 @@ const ZERO = 'không'
 const NEGATIVE = 'âm'
 const DECIMAL_SEP = 'phẩy'
 const LE = 'lẻ' // "odd/extra" marker for gaps
+
+// ============================================================================
+// Ordinal Vocabulary
+// ============================================================================
+
+const ORDINAL_PREFIX = 'thứ'
+// First is special: "thứ nhất" (not "thứ một")
+const ORDINAL_ONE = 'nhất'
+
+// ============================================================================
+// Currency Vocabulary (Vietnamese Dong)
+// ============================================================================
+
+const DONG = 'đồng'
 
 // Special forms
 const MOT_FINAL = 'mốt' // 1 in tens position (21, 31, etc.)
@@ -290,7 +306,82 @@ function toCardinal (value) {
 }
 
 // ============================================================================
+// ORDINAL: toOrdinal(value)
+// ============================================================================
+
+/**
+ * Converts a non-negative integer to Vietnamese ordinal words.
+ *
+ * Vietnamese ordinals use "thứ" prefix + cardinal number.
+ * Special case: "thứ nhất" for 1st (not "thứ một").
+ *
+ * @param {bigint} n - Positive integer to convert
+ * @returns {string} Vietnamese ordinal words
+ */
+function integerToOrdinal (n) {
+  // Special case: 1st is "thứ nhất"
+  if (n === 1n) {
+    return ORDINAL_PREFIX + ' ' + ORDINAL_ONE
+  }
+
+  // All others: "thứ" + cardinal
+  return ORDINAL_PREFIX + ' ' + integerToWords(n)
+}
+
+/**
+ * Converts a numeric value to Vietnamese ordinal words.
+ *
+ * @param {number | string | bigint} value - The numeric value to convert (positive integer)
+ * @returns {string} The number as ordinal words
+ * @throws {TypeError} If value is not a valid numeric type
+ * @throws {RangeError} If value is negative, zero, or has a decimal part
+ *
+ * @example
+ * toOrdinal(1)    // 'thứ nhất'
+ * toOrdinal(2)    // 'thứ hai'
+ * toOrdinal(10)   // 'thứ mười'
+ */
+function toOrdinal (value) {
+  const integerPart = parseOrdinalValue(value)
+  return integerToOrdinal(integerPart)
+}
+
+// ============================================================================
+// CURRENCY: toCurrency(value)
+// ============================================================================
+
+/**
+ * Converts a numeric value to Vietnamese currency words (Dong).
+ *
+ * Vietnamese Dong has no subunit in modern usage (xu are historical).
+ * Amounts are rounded to whole đồng.
+ *
+ * @param {number | string | bigint} value - The currency amount to convert
+ * @returns {string} The amount in Vietnamese currency words
+ * @throws {TypeError} If value is not a valid numeric type
+ * @throws {Error} If value is not a valid number format
+ *
+ * @example
+ * toCurrency(42)     // 'bốn mươi hai đồng'
+ * toCurrency(1000)   // 'một nghìn đồng'
+ * toCurrency(-5)     // 'âm năm đồng'
+ */
+function toCurrency (value) {
+  const { isNegative, dollars: dong } = parseCurrencyValue(value)
+
+  let result = ''
+  if (isNegative) {
+    result = NEGATIVE + ' '
+  }
+
+  result += integerToWords(dong)
+  result += ' ' + DONG
+
+  return result
+}
+
+// ============================================================================
 // Public API
 // ============================================================================
 
-export { toCardinal }
+export { toCardinal, toOrdinal, toCurrency }

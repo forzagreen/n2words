@@ -14,6 +14,8 @@
  */
 
 import { parseCardinalValue } from './utils/parse-cardinal.js'
+import { parseCurrencyValue } from './utils/parse-currency.js'
+import { parseOrdinalValue } from './utils/parse-ordinal.js'
 
 // ============================================================================
 // Vocabulary
@@ -22,6 +24,26 @@ import { parseCardinalValue } from './utils/parse-cardinal.js'
 const ZERO = 'பூஜ்ஜியம்'
 const NEGATIVE = 'மைனஸ்'
 const DECIMAL_SEP = 'புள்ளி'
+
+// ============================================================================
+// Ordinal Vocabulary
+// ============================================================================
+
+// Ordinal suffix
+const ORDINAL_SUFFIX = 'ஆவது'
+
+// Special ordinals for first few numbers
+const ORDINAL_SPECIAL = ['', 'முதல்', 'இரண்டாவது', 'மூன்றாவது', 'நான்காவது', 'ஐந்தாவது', 'ஆறாவது']
+
+// ============================================================================
+// Currency Vocabulary (Indian Rupee)
+// ============================================================================
+
+// Rupee (singular/plural same in Tamil)
+const RUPEE = 'ரூபாய்'
+
+// Paisa (singular/plural same in Tamil)
+const PAISA = 'பைசா'
 
 const BELOW_HUNDRED = [
   'பூஜ்ஜியம்', 'ஒன்று', 'இரண்டு', 'மூன்று', 'நான்கு', 'ஐந்து', 'ஆறு', 'ஏழு', 'எட்டு', 'ஒன்பது',
@@ -161,7 +183,88 @@ function toCardinal (value) {
 }
 
 // ============================================================================
+// ORDINAL: toOrdinal(value)
+// ============================================================================
+
+/**
+ * Converts a positive integer to Tamil ordinal words.
+ *
+ * Tamil ordinals: First has special form, 2-6 have special suffixes, then -ஆவது suffix.
+ *
+ * @param {bigint} n - Positive integer to convert
+ * @returns {string} Tamil ordinal words
+ */
+function integerToOrdinal (n) {
+  // Special ordinals for 1-6
+  if (n >= 1n && n <= 6n) {
+    return ORDINAL_SPECIAL[Number(n)]
+  }
+
+  // For 7 and above, add suffix to cardinal
+  const cardinal = integerToWords(n)
+  return cardinal + ORDINAL_SUFFIX
+}
+
+/**
+ * Converts a numeric value to Tamil ordinal words.
+ *
+ * @param {number | string | bigint} value - The numeric value to convert (positive integer)
+ * @returns {string} The number as ordinal words
+ * @throws {TypeError} If value is not a valid numeric type
+ * @throws {RangeError} If value is negative, zero, or has a decimal part
+ *
+ * @example
+ * toOrdinal(1)    // 'முதல்'
+ * toOrdinal(2)    // 'இரண்டாவது'
+ * toOrdinal(10)   // 'பத்துஆவது'
+ */
+function toOrdinal (value) {
+  const integerPart = parseOrdinalValue(value)
+  return integerToOrdinal(integerPart)
+}
+
+// ============================================================================
+// CURRENCY: toCurrency(value, options?)
+// ============================================================================
+
+/**
+ * Converts a numeric value to Tamil currency words (Indian Rupee).
+ *
+ * @param {number | string | bigint} value - The currency amount to convert
+ * @returns {string} The amount in Tamil currency words
+ * @throws {TypeError} If value is not a valid numeric type
+ * @throws {Error} If value is not a valid number format
+ *
+ * @example
+ * toCurrency(42.50)  // 'நாற்பத்திரண்டு ரூபாய் ஐம்பது பைசா'
+ * toCurrency(1)      // 'ஒன்று ரூபாய்'
+ * toCurrency(0.01)   // 'ஒன்று பைசா'
+ */
+function toCurrency (value) {
+  const { isNegative, dollars: rupees, cents: paise } = parseCurrencyValue(value)
+
+  // Build result
+  let result = ''
+  if (isNegative) result = NEGATIVE + ' '
+
+  // Rupees part - show if non-zero, or if no paise
+  if (rupees > 0n || paise === 0n) {
+    result += integerToWords(rupees) + ' ' + RUPEE
+  }
+
+  // Paise part
+  if (paise > 0n) {
+    if (rupees > 0n) {
+      result += ' '
+    }
+    result += integerToWords(paise) + ' ' + PAISA
+  }
+
+  return result
+}
+
+// ============================================================================
 // Exports
 // ============================================================================
 
-export { toCardinal }
+export { toCardinal, toOrdinal, toCurrency }

@@ -13,6 +13,8 @@
  */
 
 import { parseCardinalValue } from './utils/parse-cardinal.js'
+import { parseCurrencyValue } from './utils/parse-currency.js'
+import { parseOrdinalValue } from './utils/parse-ordinal.js'
 
 // ============================================================================
 // Vocabulary (module-level constants)
@@ -42,6 +44,16 @@ const SCALES = ['', '', 'მილიონი', 'მილიარდი', '�
 const ZERO = 'ნული'
 const NEGATIVE = 'მინუს'
 const DECIMAL_SEP = 'მთელი'
+
+// Ordinal suffix (Georgian adds -ე to form ordinals)
+const ORDINAL_SUFFIX = 'ე'
+
+// Ordinal forms for 1-9 (these are special)
+const ORDINAL_ONES = ['', 'პირველი', 'მეორე', 'მესამე', 'მეოთხე', 'მეხუთე', 'მეექვსე', 'მეშვიდე', 'მერვე', 'მეცხრე']
+
+// Currency (Georgian Lari)
+const LARI = 'ლარი'
+const TETRI = 'თეთრი'
 
 // ============================================================================
 // Segment Building
@@ -285,7 +297,97 @@ function toCardinal (value) {
 }
 
 // ============================================================================
+// Ordinal Functions
+// ============================================================================
+
+/**
+ * Converts a non-negative integer to Georgian ordinal words.
+ * Georgian ordinals are formed by:
+ * - 1-9: special forms (პირველი, მეორე, მესამე, etc.)
+ * - 10+: მე- prefix + cardinal + -ე suffix
+ *
+ * @param {bigint} n - Non-negative integer to convert
+ * @returns {string} Georgian ordinal words
+ */
+function integerToOrdinal (n) {
+  if (n === 0n) return ''
+  if (n <= 9n) return ORDINAL_ONES[Number(n)]
+
+  // For 10+, use მე- + cardinal stem + -ე
+  const cardinal = integerToWords(n)
+
+  // Remove final vowel and add -ე suffix
+  const lastChar = cardinal.slice(-1)
+  let stem
+  if (lastChar === 'ი' || lastChar === 'ა') {
+    stem = cardinal.slice(0, -1)
+  } else {
+    stem = cardinal
+  }
+
+  return 'მე' + stem + ORDINAL_SUFFIX
+}
+
+/**
+ * Converts a numeric value to Georgian ordinal words.
+ *
+ * @param {number | string | bigint} value - The numeric value to convert
+ * @returns {string} The ordinal in Georgian words
+ * @throws {TypeError} If value is not a valid numeric type
+ * @throws {Error} If value is not a positive integer
+ *
+ * @example
+ * toOrdinal(1)   // 'პირველი'
+ * toOrdinal(10)  // 'მეათე'
+ * toOrdinal(21)  // 'მეოცდაერთე'
+ */
+function toOrdinal (value) {
+  const n = parseOrdinalValue(value)
+  return integerToOrdinal(n)
+}
+
+// ============================================================================
+// Currency Functions
+// ============================================================================
+
+/**
+ * Converts a numeric value to Georgian Lari currency words.
+ *
+ * @param {number | string | bigint} value - The numeric value to convert
+ * @returns {string} The currency in Georgian words
+ * @throws {TypeError} If value is not a valid numeric type
+ * @throws {Error} If value is not a valid number format
+ *
+ * @example
+ * toCurrency(1)     // 'ერთი ლარი'
+ * toCurrency(2.50)  // 'ორი ლარი ორმოცდაათი თეთრი'
+ */
+function toCurrency (value) {
+  const { isNegative, dollars, cents } = parseCurrencyValue(value)
+
+  const parts = []
+
+  if (isNegative) {
+    parts.push(NEGATIVE)
+  }
+
+  // Lari
+  if (dollars > 0n || cents === 0n) {
+    const lariWord = integerToWords(dollars)
+    parts.push(lariWord + ' ' + LARI)
+  }
+
+  // Tetri
+  if (cents > 0n) {
+    const tetriWord = integerToWords(cents)
+    parts.push(tetriWord + ' ' + TETRI)
+  }
+
+  return parts.join(' ')
+}
+
+// ============================================================================
 // Public API
 // ============================================================================
 
-export { toCardinal }
+export { toCardinal, toOrdinal, toCurrency }

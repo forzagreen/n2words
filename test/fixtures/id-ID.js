@@ -73,3 +73,76 @@ export const cardinal = [
   [100_000_000_000_000, 'seratus triliun'],
   [1_000_000_000_000_000_000n, 'satu kuantiliun']
 ]
+
+/**
+ * Ordinal number test cases
+ * Format: [input, expected_output, options?]
+ */
+export const ordinal = [
+  // Special case: 1st is "pertama"
+  [1, 'pertama'],
+
+  // Regular ordinals use ke- prefix
+  [2, 'kedua'],
+  [3, 'ketiga'],
+  [4, 'keempat'],
+  [5, 'kelima'],
+  [6, 'keenam'],
+  [7, 'ketujuh'],
+  [8, 'kedelapan'],
+  [9, 'kesembilan'],
+  [10, 'kesepuluh'],
+
+  // Teens
+  [11, 'kesebelas'],
+  [12, 'kedua belas'],
+  [15, 'kelima belas'],
+  [19, 'kesembilan belas'],
+
+  // Tens
+  [20, 'kedua puluh'],
+  [21, 'kedua puluh satu'],
+  [30, 'ketiga puluh'],
+  [42, 'keempat puluh dua'],
+  [99, 'kesembilan puluh sembilan'],
+
+  // Hundreds
+  [100, 'keseratus'],
+  [101, 'keseratus satu'],
+  [200, 'kedua ratus'],
+
+  // Thousands
+  [1000, 'keseribu'],
+  [1001, 'keseribu satu'],
+
+  // Millions
+  [1000000, 'kesatu juta']
+]
+
+/**
+ * Currency test cases (Indonesian Rupiah)
+ * Format: [input, expected_output, options?]
+ */
+export const currency = [
+  // Zero
+  [0, 'nol rupiah'],
+
+  // Whole amounts
+  [1, 'satu rupiah'],
+  [2, 'dua rupiah'],
+  [5, 'lima rupiah'],
+  [10, 'sepuluh rupiah'],
+  [100, 'seratus rupiah'],
+  [1000, 'seribu rupiah'],
+  [10000, 'sepuluh ribu rupiah'],
+  [100000, 'seratus ribu rupiah'],
+  [1000000, 'satu juta rupiah'],
+
+  // Negative amounts
+  [-1, 'min satu rupiah'],
+  [-1000, 'min seribu rupiah'],
+
+  // Edge cases (decimals rounded)
+  [5.00, 'lima rupiah'],
+  ['5.00', 'lima rupiah']
+]
