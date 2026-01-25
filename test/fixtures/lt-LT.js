@@ -85,3 +85,91 @@ export const cardinal = [
   [1001, 'vienas tūkstantis vienas', { gender: 'feminine' }],
   [1002, 'vienas tūkstantis du', { gender: 'feminine' }]
 ]
+
+/**
+ * Ordinal number test cases
+ * Format: [input, expected_output, options?]
+ */
+export const ordinal = [
+  // Basic ordinals 1-9
+  [1, 'pirmas'],
+  [2, 'antras'],
+  [3, 'trečias'],
+  [4, 'ketvirtas'],
+  [5, 'penktas'],
+  [6, 'šeštas'],
+  [7, 'septintas'],
+  [8, 'aštuntas'],
+  [9, 'devintas'],
+
+  // Teens
+  [10, 'dešimtas'],
+  [11, 'vienuoliktas'],
+  [12, 'dvyliktas'],
+  [13, 'tryliktas'],
+  [19, 'devynioliktas'],
+
+  // Tens
+  [20, 'dvidešimtas'],
+  [21, 'dvidešimt pirmas'],
+  [30, 'trisdešimtas'],
+  [42, 'keturiasdešimt antras'],
+  [99, 'devyniasdešimt devintas'],
+
+  // Hundreds
+  [100, 'šimtasis'],
+  [101, 'vienas šimtas pirmas'],
+  [200, 'dviejų šimtasis'],
+
+  // Thousands
+  [1000, 'tūkstantasis'],
+  [1001, 'vienas tūkstantis pirmas'],
+  [2000, 'du tūkstančiai tūkstantasis'],
+
+  // Millions
+  [1000000, 'milijonasis'],
+  [2000000, 'du milijonai milijonasis']
+]
+
+/**
+ * Currency test cases (Euro)
+ * Format: [input, expected_output, options?]
+ */
+export const currency = [
+  // Zero
+  [0, 'nulis eurų'],
+
+  // Whole euros
+  [1, 'vienas euras'],
+  [2, 'du eurai'],
+  [5, 'penki eurai'],
+  [10, 'dešimt eurų'],
+  [21, 'dvidešimt vienas euras'],
+  [42, 'keturiasdešimt du eurai'],
+  [100, 'vienas šimtas eurų'],
+  [1000, 'vienas tūkstantis eurų'],
+
+  // Cents only
+  [0.01, 'vienas centas'],
+  [0.02, 'du centai'],
+  [0.05, 'penki centai'],
+  [0.10, 'dešimt centų'],
+  [0.25, 'dvidešimt penki centai'],
+  [0.50, 'penkiasdešimt centų'],
+  [0.99, 'devyniasdešimt devyni centai'],
+
+  // Euros and cents
+  [1.01, 'vienas euras vienas centas'],
+  [1.50, 'vienas euras penkiasdešimt centų'],
+  [2.02, 'du eurai du centai'],
+  [42.50, 'keturiasdešimt du eurai penkiasdešimt centų'],
+  [100.99, 'vienas šimtas eurų devyniasdešimt devyni centai'],
+
+  // Negative amounts
+  [-1, 'minus vienas euras'],
+  [-42.50, 'minus keturiasdešimt du eurai penkiasdešimt centų'],
+
+  // Edge cases
+  [5.00, 'penki eurai'],
+  ['5.00', 'penki eurai']
+]

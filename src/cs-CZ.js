@@ -12,6 +12,8 @@
  */
 
 import { parseCardinalValue } from './utils/parse-cardinal.js'
+import { parseCurrencyValue } from './utils/parse-currency.js'
+import { parseOrdinalValue } from './utils/parse-ordinal.js'
 
 // ============================================================================
 // Vocabulary (module-level constants)
@@ -44,6 +46,34 @@ const PLURAL_FORMS = {
 
 const ZERO = 'nula'
 const NEGATIVE = 'mínus'
+
+// ============================================================================
+// Ordinal Vocabulary
+// ============================================================================
+
+// Czech ordinals (masculine nominative singular)
+const ORDINAL_ONES = ['', 'první', 'druhý', 'třetí', 'čtvrtý', 'pátý', 'šestý', 'sedmý', 'osmý', 'devátý']
+
+// Ordinal teens
+const ORDINAL_TEENS = ['desátý', 'jedenáctý', 'dvanáctý', 'třináctý', 'čtrnáctý', 'patnáctý', 'šestnáctý', 'sedmnáctý', 'osmnáctý', 'devatenáctý']
+
+// Ordinal tens (for exact tens)
+const ORDINAL_TENS = ['', '', 'dvacátý', 'třicátý', 'čtyřicátý', 'padesátý', 'šedesátý', 'sedmdesátý', 'osmdesátý', 'devadesátý']
+
+// Ordinal hundreds (for exact hundreds)
+const ORDINAL_HUNDREDS = ['', 'stý', 'dvoustý', 'třístý', 'čtyřstý', 'pětistý', 'šestistý', 'sedmistý', 'osmistý', 'devítistý']
+
+// Scale ordinals
+const ORDINAL_SCALES = ['tisící', 'miliontý', 'miliardtý', 'biliontý']
+
+// ============================================================================
+// Currency Vocabulary (Czech Koruna)
+// ============================================================================
+
+// Koruna forms: [singular, few (2-4), many (5+)]
+const KORUNA_FORMS = ['koruna', 'koruny', 'korun']
+// Haléř forms: [singular, few (2-4), many (5+)]
+const HALER_FORMS = ['haléř', 'haléře', 'haléřů']
 
 // ============================================================================
 // Segment Building
@@ -316,7 +346,203 @@ function toCardinal (value) {
 }
 
 // ============================================================================
+// ORDINAL: toOrdinal(value)
+// ============================================================================
+
+/**
+ * Builds ordinal for a 0-99 segment when it's the final (ordinal) part.
+ *
+ * @param {number} n - Number 0-99
+ * @returns {string} Ordinal words
+ */
+function buildOrdinalTensOnes (n) {
+  if (n === 0) return ''
+
+  const onesDigit = n % 10
+  const tensDigit = Math.floor(n / 10)
+
+  if (tensDigit === 0) {
+    return ORDINAL_ONES[onesDigit]
+  }
+
+  if (tensDigit === 1) {
+    return ORDINAL_TEENS[onesDigit]
+  }
+
+  if (onesDigit === 0) {
+    return ORDINAL_TENS[tensDigit]
+  }
+
+  return TENS[tensDigit] + ' ' + ORDINAL_ONES[onesDigit]
+}
+
+/**
+ * Converts a positive integer to Czech ordinal words (masculine nominative).
+ *
+ * @param {bigint} n - Positive integer to convert
+ * @returns {string} Ordinal Czech words
+ */
+function integerToOrdinal (n) {
+  if (n < 100n) {
+    return buildOrdinalTensOnes(Number(n))
+  }
+
+  if (n < 1000n) {
+    const num = Number(n)
+    const hundredsDigit = Math.floor(num / 100)
+    const remainder = num % 100
+
+    if (remainder === 0) {
+      return ORDINAL_HUNDREDS[hundredsDigit]
+    }
+
+    return HUNDREDS[hundredsDigit] + ' ' + buildOrdinalTensOnes(remainder)
+  }
+
+  if (n < 1_000_000n) {
+    const thousands = Number(n / 1000n)
+    const remainder = Number(n % 1000n)
+
+    if (remainder === 0) {
+      if (thousands === 1) {
+        return ORDINAL_SCALES[0]
+      }
+      return buildSegment(thousands) + ' ' + ORDINAL_SCALES[0]
+    }
+
+    const scaleWord = pluralize(BigInt(thousands), PLURAL_FORMS[1])
+    const thousandsWord = thousands === 1 ? '' : buildSegment(thousands) + ' '
+    return (thousands === 1 ? 'tisíc' : thousandsWord + scaleWord) + ' ' + integerToOrdinal(BigInt(remainder))
+  }
+
+  return buildLargeOrdinal(n)
+}
+
+/**
+ * Builds ordinal words for numbers >= 1,000,000.
+ *
+ * @param {bigint} n - Number >= 1,000,000
+ * @returns {string} Ordinal Czech words
+ */
+function buildLargeOrdinal (n) {
+  const segmentValues = []
+  let temp = n
+  while (temp > 0n) {
+    segmentValues.push(temp % 1000n)
+    temp = temp / 1000n
+  }
+
+  let lastNonZeroIdx = 0
+  for (let i = 0; i < segmentValues.length; i++) {
+    if (segmentValues[i] !== 0n) {
+      lastNonZeroIdx = i
+    }
+  }
+
+  const parts = []
+
+  for (let i = segmentValues.length - 1; i >= 0; i--) {
+    const segment = segmentValues[i]
+    if (segment === 0n) continue
+
+    const isLastNonZero = (i === lastNonZeroIdx)
+
+    if (i === 0) {
+      if (isLastNonZero) {
+        parts.push(integerToOrdinal(segment))
+      } else {
+        parts.push(buildSegmentWithHundreds(Number(segment)))
+      }
+    } else {
+      if (isLastNonZero) {
+        if (segment === 1n) {
+          parts.push(ORDINAL_SCALES[i - 1] || PLURAL_FORMS[i][0])
+        } else {
+          parts.push(buildSegment(Number(segment)) + ' ' + (ORDINAL_SCALES[i - 1] || PLURAL_FORMS[i][0]))
+        }
+      } else {
+        const forms = PLURAL_FORMS[i]
+        if (forms) {
+          const scaleWord = pluralize(segment, forms)
+          if (segment === 1n) {
+            parts.push(scaleWord)
+          } else {
+            parts.push(buildSegment(Number(segment)) + ' ' + scaleWord)
+          }
+        }
+      }
+    }
+  }
+
+  return parts.join(' ')
+}
+
+/**
+ * Converts a numeric value to Czech ordinal words (masculine nominative).
+ *
+ * @param {number | string | bigint} value - The numeric value to convert (must be a positive integer)
+ * @returns {string} The number as ordinal words
+ * @throws {TypeError} If value is not a valid numeric type
+ * @throws {RangeError} If value is negative, zero, or has a decimal part
+ *
+ * @example
+ * toOrdinal(1)    // 'první'
+ * toOrdinal(2)    // 'druhý'
+ * toOrdinal(21)   // 'dvacet první'
+ * toOrdinal(100)  // 'stý'
+ * toOrdinal(1000) // 'tisící'
+ */
+function toOrdinal (value) {
+  const integerPart = parseOrdinalValue(value)
+  return integerToOrdinal(integerPart)
+}
+
+// ============================================================================
+// CURRENCY: toCurrency(value)
+// ============================================================================
+
+/**
+ * Converts a numeric value to Czech currency words (Koruna).
+ *
+ * @param {number | string | bigint} value - The currency amount to convert
+ * @returns {string} The amount in Czech currency words
+ * @throws {TypeError} If value is not a valid numeric type
+ * @throws {Error} If value is not a valid number format
+ *
+ * @example
+ * toCurrency(42)     // 'čtyřicet dva koruny'
+ * toCurrency(1)      // 'jedna koruna'
+ * toCurrency(1.50)   // 'jedna koruna padesát haléřů'
+ * toCurrency(-5)     // 'mínus pět korun'
+ */
+function toCurrency (value) {
+  const { isNegative, dollars: koruny, cents: halere } = parseCurrencyValue(value)
+
+  let result = ''
+  if (isNegative) {
+    result = NEGATIVE + ' '
+  }
+
+  // Koruna part
+  if (koruny > 0n || halere === 0n) {
+    result += integerToWords(koruny)
+    result += ' ' + pluralize(koruny, KORUNA_FORMS)
+  }
+
+  // Haléř part
+  if (halere > 0n) {
+    if (koruny > 0n) {
+      result += ' '
+    }
+    result += integerToWords(halere)
+    result += ' ' + pluralize(halere, HALER_FORMS)
+  }
+
+  return result
+}
+
+// ============================================================================
 // Public API
 // ============================================================================
 
-export { toCardinal }
+export { toCardinal, toOrdinal, toCurrency }
