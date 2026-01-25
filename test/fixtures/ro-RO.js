@@ -152,3 +152,91 @@ export const cardinal = [
   [1_000_002, 'un milion două', { gender: 'feminine' }],
   [2_000_001, 'două milioane una', { gender: 'feminine' }]
 ]
+
+/**
+ * Ordinal number test cases
+ * Format: [input, expected_output, options?]
+ */
+export const ordinal = [
+  // Basic ordinals 1-9
+  [1, 'primul'],
+  [2, 'al doilea'],
+  [3, 'al treilea'],
+  [4, 'al patrulea'],
+  [5, 'al cincilea'],
+  [6, 'al șaselea'],
+  [7, 'al șaptelea'],
+  [8, 'al optulea'],
+  [9, 'al nouălea'],
+
+  // Teens
+  [10, 'al zecelea'],
+  [11, 'al unsprezecelea'],
+  [12, 'al doisprezecelea'],
+  [13, 'al treisprezecelea'],
+  [19, 'al nouăsprezecelea'],
+
+  // Tens
+  [20, 'al douăzecilea'],
+  [21, 'douăzeci și primul'],
+  [30, 'al treizecilea'],
+  [42, 'patruzeci și al doilea'],
+  [99, 'nouăzeci și al nouălea'],
+
+  // Hundreds
+  [100, 'al sutălea'],
+  [101, 'o sută primul'],
+  [200, 'al sutălea'],
+  [121, 'o sută douăzeci și primul'],
+
+  // Thousands
+  [1000, 'al miilea'],
+  [1001, 'o mie primul'],
+  [2000, 'două mii al miilea'],
+
+  // Millions
+  [1000000, 'al milionulea'],
+  [2000000, 'două milioane al milionulea']
+]
+
+/**
+ * Currency test cases (Romanian Leu)
+ * Format: [input, expected_output, options?]
+ */
+export const currency = [
+  // Zero
+  [0, 'zero lei'],
+
+  // Whole lei
+  [1, 'un leu'],
+  [2, 'doi lei'],
+  [5, 'cinci lei'],
+  [10, 'zece lei'],
+  [21, 'douăzeci și unu lei'],
+  [42, 'patruzeci și doi lei'],
+  [100, 'o sută lei'],
+  [1000, 'o mie lei'],
+
+  // Bani only
+  [0.01, 'un ban'],
+  [0.02, 'doi bani'],
+  [0.05, 'cinci bani'],
+  [0.25, 'douăzeci și cinci de bani'],
+  [0.50, 'cincizeci de bani'],
+  [0.99, 'nouăzeci și nouă de bani'],
+
+  // Lei and bani
+  [1.01, 'un leu un ban'],
+  [1.50, 'un leu cincizeci de bani'],
+  [2.02, 'doi lei doi bani'],
+  [42.50, 'patruzeci și doi lei cincizeci de bani'],
+  [100.99, 'o sută lei nouăzeci și nouă de bani'],
+
+  // Negative amounts
+  [-1, 'minus un leu'],
+  [-42.50, 'minus patruzeci și doi lei cincizeci de bani'],
+
+  // Edge cases
+  [5.00, 'cinci lei'],
+  ['5.00', 'cinci lei']
+]
