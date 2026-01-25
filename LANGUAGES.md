@@ -2,7 +2,7 @@
 
 > **Auto-generated** — Do not edit manually. Run `npm run docs:languages` to update.
 
-n2words supports **57 languages** with cardinal number conversion, 11 with ordinal support, 11 with currency support.
+n2words supports **71 languages** with cardinal number conversion, 25 with ordinal support, 25 with currency support.
 
 Language codes follow [IETF BCP 47](https://tools.ietf.org/html/bcp47) standards.
 
@@ -19,8 +19,22 @@ Language codes follow [IETF BCP 47](https://tools.ietf.org/html/bcp47) standards
 |`da-DK`|`daDK`|Danish (Denmark)|✓|||
 |`de-DE`|`deDE`|German (Germany)|✓|✓|✓¹|
 |`el-GR`|`elGR`|Greek (Greece)|✓|||
+|`en-AU`|`enAU`|Australian English|✓|✓|✓¹|
+|`en-BD`|`enBD`|English (Bangladesh)|✓|✓|✓¹|
+|`en-CA`|`enCA`|Canadian English|✓¹|✓|✓¹|
 |`en-GB`|`enGB`|British English|✓|✓|✓¹|
+|`en-GH`|`enGH`|English (Ghana)|✓|✓|✓|
+|`en-IE`|`enIE`|English (Ireland)|✓|✓|✓¹|
+|`en-IN`|`enIN`|English (India)|✓|✓|✓¹|
+|`en-KE`|`enKE`|English (Kenya)|✓|✓|✓|
+|`en-MY`|`enMY`|English (Malaysia)|✓|✓|✓|
+|`en-NG`|`enNG`|English (Nigeria)|✓|✓|✓¹|
+|`en-NZ`|`enNZ`|English (New Zealand)|✓|✓|✓|
+|`en-PH`|`enPH`|English (Philippines)|✓|✓|✓|
+|`en-PK`|`enPK`|English (Pakistan)|✓|✓|✓¹|
+|`en-SG`|`enSG`|English (Singapore)|✓|✓|✓|
 |`en-US`|`enUS`|American English|✓¹|✓|✓¹|
+|`en-ZA`|`enZA`|English (South Africa)|✓|✓|✓¹|
 |`es-ES`|`esES`|European Spanish|✓¹|✓¹|✓¹|
 |`es-MX`|`esMX`|Mexican Spanish|✓¹|✓¹|✓¹|
 |`es-US`|`esUS`|Spanish (United States)|✓¹|✓¹|✓¹|
@@ -88,7 +102,7 @@ Import paths use BCP 47 language codes: `n2words/en-US`, `n2words/zh-Hans-CN`, `
 
 ## Language Options
 
-26 languages support options via a second parameter. Options are passed as an object:
+34 languages support options via a second parameter. Options are passed as an object:
 
 ```js
 toCardinal(value, { optionName: value })
@@ -113,11 +127,28 @@ toCurrency(value, { optionName: value })
 - `gender` ('masculine' \| 'feminine', default: `'masculine'`) — Grammatical gender
 - `negativeWord` (`string`) — Custom word for negative numbers
 
+### Australian English (`en-AU`)
+
+**Currency options:**
+
+- `and` (`boolean`, default: `true`) — Use "and" between dollars and cents
+
 ### British English (`en-GB`)
 
 **Currency options:**
 
 - `and` (`boolean`, default: `true`) — Use "and" between pounds and pence (e.g., "one pound and fifty pence")
+
+### Canadian English (`en-CA`)
+
+**Cardinal options:**
+
+- `hundredPairing` (`boolean`, default: `false`) — Use hundred-pairing for 1100-9999 (e.g., "fifteen hundred" instead of "one thousand five hundred")
+- `and` (`boolean`, default: `false`) — Use "and" after hundreds and before final small numbers (e.g., "one hundred and one" instead of "one hundred one")
+
+**Currency options:**
+
+- `and` (`boolean`, default: `true`) — Use "and" between dollars and cents (e.g., "one dollar and fifty cents")
 
 ### Chinese (Simplified, China) (`zh-Hans-CN`)
 
@@ -148,6 +179,42 @@ toCurrency(value, { optionName: value })
 **Currency options:**
 
 - `and` (`boolean`, default: `true`) — Include "en" between euros and cents
+
+### English (Bangladesh) (`en-BD`)
+
+**Currency options:**
+
+- `and` (`boolean`, default: `true`) — Use "and" between taka and paise
+
+### English (India) (`en-IN`)
+
+**Currency options:**
+
+- `and` (`boolean`, default: `true`) — Use "and" between rupees and paise
+
+### English (Ireland) (`en-IE`)
+
+**Currency options:**
+
+- `and` (`boolean`, default: `true`) — Use "and" between euro and cent (e.g., "one euro and fifty cents")
+
+### English (Nigeria) (`en-NG`)
+
+**Currency options:**
+
+- `and` (`boolean`, default: `true`) — Use "and" between naira and kobo (e.g., "one naira and fifty kobo")
+
+### English (Pakistan) (`en-PK`)
+
+**Currency options:**
+
+- `and` (`boolean`, default: `true`) — Use "and" between rupees and paise
+
+### English (South Africa) (`en-ZA`)
+
+**Currency options:**
+
+- `and` (`boolean`, default: `true`) — Use "and" between rand and cents (e.g., "one rand and fifty cents")
 
 ### European Portuguese (`pt-PT`)
 
