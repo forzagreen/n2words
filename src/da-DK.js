@@ -12,6 +12,8 @@
  */
 
 import { parseCardinalValue } from './utils/parse-cardinal.js'
+import { parseCurrencyValue } from './utils/parse-currency.js'
+import { parseOrdinalValue } from './utils/parse-ordinal.js'
 
 // ============================================================================
 // Vocabulary (module-level constants)
@@ -35,6 +37,35 @@ const DECIMAL_SEP = 'komma'
 
 // Long scale: millioner, millarder, billioner, etc.
 const SCALES = ['millioner', 'millarder', 'billioner', 'billarder', 'trillioner', 'trillarder', 'quadrillioner', 'quadrillarder']
+
+// ============================================================================
+// Ordinal Vocabulary
+// ============================================================================
+
+// Danish ordinals: 1st-2nd special, others use -te/-nde suffix
+// "anden/andet" for 2nd (common/neuter), we use common form
+const ORDINAL_SPECIAL = {
+  1: 'første',
+  2: 'anden',
+  3: 'tredje',
+  4: 'fjerde',
+  5: 'femte',
+  6: 'sjette',
+  7: 'syvende',
+  8: 'ottende',
+  9: 'niende',
+  10: 'tiende',
+  11: 'ellevte',
+  12: 'tolvte'
+}
+
+// ============================================================================
+// Currency Vocabulary (Danish Krone)
+// ============================================================================
+
+const KRONE = 'krone'
+const KRONER = 'kroner' // plural
+const ORE = 'øre' // same singular and plural
 
 // ============================================================================
 // Segment Building
@@ -282,7 +313,96 @@ function toCardinal (value) {
 }
 
 // ============================================================================
+// ORDINAL: toOrdinal(value)
+// ============================================================================
+
+/**
+ * Converts a non-negative integer to Danish ordinal words.
+ *
+ * Danish ordinals: første (1st), anden (2nd), tredje (3rd), etc.
+ * 1-12 have special forms, others use cardinal + -de/-nde suffix.
+ *
+ * @param {bigint} n - Positive integer to convert
+ * @returns {string} Danish ordinal words
+ */
+function integerToOrdinal (n) {
+  // Special forms for 1-12
+  if (n >= 1n && n <= 12n) {
+    return ORDINAL_SPECIAL[Number(n)]
+  }
+
+  // For numbers > 12, add -de suffix to cardinal
+  const cardinal = integerToWords(n)
+  return cardinal + 'de'
+}
+
+/**
+ * Converts a numeric value to Danish ordinal words.
+ *
+ * @param {number | string | bigint} value - The numeric value to convert (positive integer)
+ * @returns {string} The number as ordinal words
+ * @throws {TypeError} If value is not a valid numeric type
+ * @throws {RangeError} If value is negative, zero, or has a decimal part
+ *
+ * @example
+ * toOrdinal(1)    // 'første'
+ * toOrdinal(2)    // 'anden'
+ * toOrdinal(21)   // 'enogtyvede'
+ */
+function toOrdinal (value) {
+  const integerPart = parseOrdinalValue(value)
+  return integerToOrdinal(integerPart)
+}
+
+// ============================================================================
+// CURRENCY: toCurrency(value)
+// ============================================================================
+
+/**
+ * Converts a numeric value to Danish currency words (Danish Krone).
+ *
+ * Uses krone/kroner and øre (100 øre = 1 krone).
+ *
+ * @param {number | string | bigint} value - The currency amount to convert
+ * @returns {string} The amount in Danish currency words
+ * @throws {TypeError} If value is not a valid numeric type
+ * @throws {Error} If value is not a valid number format
+ *
+ * @example
+ * toCurrency(1)      // 'en krone'
+ * toCurrency(42)     // 'toogfyrre kroner'
+ * toCurrency(1.50)   // 'en krone og halvtreds øre'
+ */
+function toCurrency (value) {
+  const { isNegative, dollars: kroner, cents: ore } = parseCurrencyValue(value)
+
+  let result = ''
+  if (isNegative) {
+    result = NEGATIVE + ' '
+  }
+
+  // Kroner part - use "en" for 1 krone
+  if (kroner > 0n || ore === 0n) {
+    if (kroner === 1n) {
+      result += 'en ' + KRONE
+    } else {
+      result += integerToWords(kroner) + ' ' + KRONER
+    }
+  }
+
+  // Øre part
+  if (ore > 0n) {
+    if (kroner > 0n) {
+      result += ' og '
+    }
+    result += integerToWords(ore) + ' ' + ORE
+  }
+
+  return result
+}
+
+// ============================================================================
 // Public API
 // ============================================================================
 
-export { toCardinal }
+export { toCardinal, toOrdinal, toCurrency }

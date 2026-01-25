@@ -112,3 +112,86 @@ export const cardinal = [
   [100_000_000_000_000, 'yüz trilyon'],
   [1_000_000_000_000_000_000n, 'bir kentilyon']
 ]
+
+/**
+ * Ordinal number test cases
+ * Format: [input, expected_output, options?]
+ */
+export const ordinal = [
+  // Special forms for 1-10
+  [1, 'birinci'],
+  [2, 'ikinci'],
+  [3, 'üçüncü'],
+  [4, 'dördüncü'],
+  [5, 'beşinci'],
+  [6, 'altıncı'],
+  [7, 'yeddinci'],
+  [8, 'səkkizinci'],
+  [9, 'doqquzuncu'],
+  [10, 'onuncu'],
+
+  // Teens (vowel harmony)
+  [11, 'onbirinci'],
+  [12, 'onikiinci'],
+  [15, 'onbeşinci'],
+  [19, 'ondoqquzuncu'],
+
+  // Tens
+  [20, 'iyirmiinci'],
+  [21, 'iyirmibirinci'],
+  [30, 'otuzuncu'],
+  [40, 'qırxıncı'],
+  [50, 'əlliinci'],
+  [60, 'altmışıncı'],
+  [70, 'yetmişinci'],
+  [80, 'səksəninci'],
+  [90, 'doxsanıncı'],
+
+  // Hundreds
+  [100, 'yüzüncü'],
+  [101, 'yüzbirinci'],
+  [200, 'ikiyüzüncü'],
+
+  // Thousands
+  [1000, 'mininci'],
+  [1001, 'minbirinci']
+]
+
+/**
+ * Currency test cases (Azerbaijani Manat)
+ * Format: [input, expected_output, options?]
+ */
+export const currency = [
+  // Zero
+  [0, 'sıfır manat'],
+
+  // Whole manat
+  [1, 'bir manat'],
+  [2, 'iki manat'],
+  [5, 'beş manat'],
+  [10, 'on manat'],
+  [21, 'iyirmi bir manat'],
+  [42, 'qırx iki manat'],
+  [100, 'yüz manat'],
+  [1000, 'min manat'],
+
+  // Qəpik only
+  [0.01, 'bir qəpik'],
+  [0.25, 'iyirmi beş qəpik'],
+  [0.50, 'əlli qəpik'],
+  [0.99, 'doxsan doqquz qəpik'],
+
+  // Manat and qəpik
+  [1.01, 'bir manat bir qəpik'],
+  [1.50, 'bir manat əlli qəpik'],
+  [42.50, 'qırx iki manat əlli qəpik'],
+  [100.99, 'yüz manat doxsan doqquz qəpik'],
+
+  // Negative amounts
+  [-1, 'mənfi bir manat'],
+  [-42.50, 'mənfi qırx iki manat əlli qəpik'],
+
+  // Edge cases
+  [5.00, 'beş manat'],
+  ['5.00', 'beş manat']
+]

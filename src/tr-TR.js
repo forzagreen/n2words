@@ -10,6 +10,8 @@
  */
 
 import { parseCardinalValue } from './utils/parse-cardinal.js'
+import { parseCurrencyValue } from './utils/parse-currency.js'
+import { parseOrdinalValue } from './utils/parse-ordinal.js'
 import { validateOptions } from './utils/validate-options.js'
 
 // ============================================================================
@@ -30,6 +32,32 @@ const DECIMAL_SEP = 'virgül'
 
 // Short scale
 const SCALES = ['milyon', 'milyar', 'trilyon', 'katrilyon', 'kentilyon']
+
+// ============================================================================
+// Ordinal Vocabulary
+// ============================================================================
+
+// Turkish ordinals use -(i/ı/u/ü)nci/ncı/ncu/ncü suffix with vowel harmony
+// Special forms for 1-10
+const ORDINAL_SPECIAL = {
+  1: 'birinci',
+  2: 'ikinci',
+  3: 'üçüncü',
+  4: 'dördüncü',
+  5: 'beşinci',
+  6: 'altıncı',
+  7: 'yedinci',
+  8: 'sekizinci',
+  9: 'dokuzuncu',
+  10: 'onuncu'
+}
+
+// ============================================================================
+// Currency Vocabulary (Turkish Lira)
+// ============================================================================
+
+const LIRA = 'lira' // same singular and plural
+const KURUS = 'kuruş' // subunit (100 kuruş = 1 lira)
 
 // ============================================================================
 // Segment Building
@@ -249,7 +277,121 @@ function toCardinal (value, options) {
 }
 
 // ============================================================================
+// ORDINAL: toOrdinal(value)
+// ============================================================================
+
+/**
+ * Determines the ordinal suffix based on Turkish vowel harmony.
+ * @param {string} word - The cardinal word
+ * @returns {string} The appropriate suffix
+ */
+function getOrdinalSuffix (word) {
+  // Turkish vowel harmony: back vowels (a,ı,o,u) vs front vowels (e,i,ö,ü)
+  // Find last vowel to determine suffix
+  const backVowels = 'aıou'
+  const frontVowels = 'eiöü'
+
+  // Scan from end for last vowel
+  for (let i = word.length - 1; i >= 0; i--) {
+    const char = word[i]
+    if (backVowels.includes(char)) {
+      // Back vowels: -ıncı (after ı,a) or -uncu (after o,u)
+      if ('ou'.includes(char)) return 'uncu'
+      return 'ıncı'
+    }
+    if (frontVowels.includes(char)) {
+      // Front vowels: -inci (after e,i) or -üncü (after ö,ü)
+      if ('öü'.includes(char)) return 'üncü'
+      return 'inci'
+    }
+  }
+  return 'inci' // default
+}
+
+/**
+ * Converts a non-negative integer to Turkish ordinal words.
+ *
+ * Turkish ordinals: birinci (1st), ikinci (2nd), üçüncü (3rd), etc.
+ * Uses vowel harmony for suffix selection.
+ *
+ * @param {bigint} n - Positive integer to convert
+ * @returns {string} Turkish ordinal words
+ */
+function integerToOrdinal (n) {
+  // Special forms for 1-10
+  if (n >= 1n && n <= 10n) {
+    return ORDINAL_SPECIAL[Number(n)]
+  }
+
+  // For numbers > 10, add appropriate suffix to cardinal (dropSpaces=true)
+  const cardinal = integerToWords(n, true)
+  const suffix = getOrdinalSuffix(cardinal)
+  return cardinal + suffix
+}
+
+/**
+ * Converts a numeric value to Turkish ordinal words.
+ *
+ * @param {number | string | bigint} value - The numeric value to convert (positive integer)
+ * @returns {string} The number as ordinal words
+ * @throws {TypeError} If value is not a valid numeric type
+ * @throws {RangeError} If value is negative, zero, or has a decimal part
+ *
+ * @example
+ * toOrdinal(1)    // 'birinci'
+ * toOrdinal(2)    // 'ikinci'
+ * toOrdinal(21)   // 'yirmibirinci'
+ */
+function toOrdinal (value) {
+  const integerPart = parseOrdinalValue(value)
+  return integerToOrdinal(integerPart)
+}
+
+// ============================================================================
+// CURRENCY: toCurrency(value)
+// ============================================================================
+
+/**
+ * Converts a numeric value to Turkish currency words (Turkish Lira).
+ *
+ * Uses lira and kuruş (100 kuruş = 1 lira).
+ *
+ * @param {number | string | bigint} value - The currency amount to convert
+ * @returns {string} The amount in Turkish currency words
+ * @throws {TypeError} If value is not a valid numeric type
+ * @throws {Error} If value is not a valid number format
+ *
+ * @example
+ * toCurrency(42)     // 'kırk iki lira'
+ * toCurrency(1.50)   // 'bir lira elli kuruş'
+ * toCurrency(-5)     // 'eksi beş lira'
+ */
+function toCurrency (value) {
+  const { isNegative, dollars: lira, cents: kurus } = parseCurrencyValue(value)
+
+  let result = ''
+  if (isNegative) {
+    result = NEGATIVE + ' '
+  }
+
+  // Lira part
+  if (lira > 0n || kurus === 0n) {
+    result += integerToWords(lira, false) + ' ' + LIRA
+  }
+
+  // Kuruş part
+  if (kurus > 0n) {
+    if (lira > 0n) {
+      result += ' '
+    }
+    result += integerToWords(kurus, false) + ' ' + KURUS
+  }
+
+  return result
+}
+
+// ============================================================================
 // Public API
 // ============================================================================
 
-export { toCardinal }
+export { toCardinal, toOrdinal, toCurrency }

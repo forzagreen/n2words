@@ -11,6 +11,8 @@
  */
 
 import { parseCardinalValue } from './utils/parse-cardinal.js'
+import { parseCurrencyValue } from './utils/parse-currency.js'
+import { parseOrdinalValue } from './utils/parse-ordinal.js'
 
 // ============================================================================
 // Vocabulary (module-level constants)
@@ -30,6 +32,34 @@ const DECIMAL_SEP = 'komma'
 
 // Short scale: million, milliard, billion, etc.
 const SCALES = ['million', 'milliard', 'billion', 'billiard', 'kvintillion', 'sekstillion', 'septillion', 'oktillion']
+
+// ============================================================================
+// Ordinal Vocabulary
+// ============================================================================
+
+// Norwegian ordinals: 1st-12th special forms, then cardinal + -de/-te
+const ORDINAL_SPECIAL = {
+  1: 'første',
+  2: 'andre',
+  3: 'tredje',
+  4: 'fjerde',
+  5: 'femte',
+  6: 'sjette',
+  7: 'sjuende',
+  8: 'åttende',
+  9: 'niende',
+  10: 'tiende',
+  11: 'ellevte',
+  12: 'tolvte'
+}
+
+// ============================================================================
+// Currency Vocabulary (Norwegian Krone)
+// ============================================================================
+
+const KRONE = 'krone'
+const KRONER = 'kroner' // plural
+const ORE = 'øre' // same singular and plural
 
 // ============================================================================
 // Segment Building
@@ -279,7 +309,119 @@ function toCardinal (value) {
 }
 
 // ============================================================================
+// ORDINAL: toOrdinal(value)
+// ============================================================================
+
+/**
+ * Converts a non-negative integer to Norwegian Bokmål ordinal words.
+ *
+ * Norwegian ordinals: første (1st), andre (2nd), tredje (3rd), etc.
+ * 1-12 have special forms, others use cardinal + de/te suffix.
+ * Teens (13-19): drop -en and add -ende (tretten → trettende)
+ * Numbers ending in 'en' (one): replace with 'ende' (tjue-en → tjue-ende)
+ * Numbers ending in 9 (ni): add 'ede' (nitti-ni → nitti-niede)
+ *
+ * @param {bigint} n - Positive integer to convert
+ * @returns {string} Norwegian ordinal words
+ */
+function integerToOrdinal (n) {
+  // Special forms for 1-12
+  if (n >= 1n && n <= 12n) {
+    return ORDINAL_SPECIAL[Number(n)]
+  }
+
+  const num = Number(n)
+  const cardinal = integerToWords(n)
+
+  // Teens 13-19: drop -en and add -ende
+  if (num >= 13 && num <= 19) {
+    // tretten → trettende, nitten → nittende
+    return cardinal.slice(0, -2) + 'ende'
+  }
+
+  // For other numbers, check if cardinal ends with 'en' (one)
+  // tjue-en → tjue-ende, en hundre og en → en hundre og ende
+  if (cardinal.endsWith('en')) {
+    return cardinal.slice(0, -2) + 'ende'
+  }
+
+  // Numbers ending in 'ni' (9): add 'ede'
+  // nitti-ni → nitti-niede
+  if (cardinal.endsWith('ni')) {
+    return cardinal + 'ede'
+  }
+
+  // Others use -de suffix
+  return cardinal + 'de'
+}
+
+/**
+ * Converts a numeric value to Norwegian Bokmål ordinal words.
+ *
+ * @param {number | string | bigint} value - The numeric value to convert (positive integer)
+ * @returns {string} The number as ordinal words
+ * @throws {TypeError} If value is not a valid numeric type
+ * @throws {RangeError} If value is negative, zero, or has a decimal part
+ *
+ * @example
+ * toOrdinal(1)    // 'første'
+ * toOrdinal(2)    // 'andre'
+ * toOrdinal(21)   // 'tjue-ende'
+ */
+function toOrdinal (value) {
+  const integerPart = parseOrdinalValue(value)
+  return integerToOrdinal(integerPart)
+}
+
+// ============================================================================
+// CURRENCY: toCurrency(value)
+// ============================================================================
+
+/**
+ * Converts a numeric value to Norwegian currency words (Norwegian Krone).
+ *
+ * Uses krone/kroner and øre (100 øre = 1 krone).
+ *
+ * @param {number | string | bigint} value - The currency amount to convert
+ * @returns {string} The amount in Norwegian currency words
+ * @throws {TypeError} If value is not a valid numeric type
+ * @throws {Error} If value is not a valid number format
+ *
+ * @example
+ * toCurrency(1)      // 'en krone'
+ * toCurrency(42)     // 'førti-to kroner'
+ * toCurrency(1.50)   // 'en krone og femti øre'
+ */
+function toCurrency (value) {
+  const { isNegative, dollars: kroner, cents: ore } = parseCurrencyValue(value)
+
+  let result = ''
+  if (isNegative) {
+    result = NEGATIVE + ' '
+  }
+
+  // Kroner part
+  if (kroner > 0n || ore === 0n) {
+    if (kroner === 1n) {
+      result += 'en ' + KRONE
+    } else {
+      result += integerToWords(kroner) + ' ' + KRONER
+    }
+  }
+
+  // Øre part
+  if (ore > 0n) {
+    if (kroner > 0n) {
+      result += ' og '
+    }
+    result += integerToWords(ore) + ' ' + ORE
+  }
+
+  return result
+}
+
+// ============================================================================
 // Public API
 // ============================================================================
 
-export { toCardinal }
+export { toCardinal, toOrdinal, toCurrency }

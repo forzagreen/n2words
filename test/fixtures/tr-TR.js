@@ -117,3 +117,79 @@ export const cardinal = [
   [100_000_000_000_000, 'yüz trilyon'],
   [1_000_000_000_000_000_000n, 'bir kentilyon']
 ]
+
+/**
+ * Ordinal number test cases
+ * Format: [input, expected_output, options?]
+ */
+export const ordinal = [
+  // Special forms 1-10
+  [1, 'birinci'],
+  [2, 'ikinci'],
+  [3, 'üçüncü'],
+  [4, 'dördüncü'],
+  [5, 'beşinci'],
+  [6, 'altıncı'],
+  [7, 'yedinci'],
+  [8, 'sekizinci'],
+  [9, 'dokuzuncu'],
+  [10, 'onuncu'],
+
+  // Regular forms (cardinal + suffix with vowel harmony)
+  [11, 'onbirinci'],
+  [12, 'onikiinci'],
+  [19, 'ondokuzuncu'],
+  [20, 'yirmiinci'],
+  [21, 'yirmibirinci'],
+  [30, 'otuzuncu'],
+  [42, 'kırkikiinci'],
+  [99, 'doksandokuzuncu'],
+
+  // Hundreds
+  [100, 'yüzüncü'],
+  [101, 'yüzbirinci'],
+  [200, 'ikiyüzüncü'],
+
+  // Thousands
+  [1000, 'bininci'],
+  [1001, 'binbirinci']
+]
+
+/**
+ * Currency test cases (Turkish Lira)
+ * Format: [input, expected_output, options?]
+ */
+export const currency = [
+  // Zero
+  [0, 'sıfır lira'],
+
+  // Whole lira
+  [1, 'bir lira'],
+  [2, 'iki lira'],
+  [5, 'beş lira'],
+  [10, 'on lira'],
+  [21, 'yirmi bir lira'],
+  [42, 'kırk iki lira'],
+  [100, 'yüz lira'],
+  [1000, 'bin lira'],
+
+  // Kuruş only
+  [0.01, 'bir kuruş'],
+  [0.25, 'yirmi beş kuruş'],
+  [0.50, 'elli kuruş'],
+  [0.99, 'doksan dokuz kuruş'],
+
+  // Lira and kuruş
+  [1.01, 'bir lira bir kuruş'],
+  [1.50, 'bir lira elli kuruş'],
+  [42.50, 'kırk iki lira elli kuruş'],
+  [100.99, 'yüz lira doksan dokuz kuruş'],
+
+  // Negative amounts
+  [-1, 'eksi bir lira'],
+  [-42.50, 'eksi kırk iki lira elli kuruş'],
+
+  // Edge cases
+  [5.00, 'beş lira'],
+  ['5.00', 'beş lira']
+]

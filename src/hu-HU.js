@@ -11,6 +11,8 @@
  */
 
 import { parseCardinalValue } from './utils/parse-cardinal.js'
+import { parseCurrencyValue } from './utils/parse-currency.js'
+import { parseOrdinalValue } from './utils/parse-ordinal.js'
 
 // ============================================================================
 // Vocabulary
@@ -70,6 +72,42 @@ const WORDS = new Map([
 const ZERO = 'nulla'
 const NEGATIVE = 'mínusz'
 const DECIMAL_SEP = 'egész'
+
+// ============================================================================
+// Ordinal Vocabulary
+// ============================================================================
+
+// Hungarian ordinals: special forms 1-10, then cardinal + -dik/-ik suffix
+// Vowel harmony determines -dik vs -ik
+const ORDINAL_SPECIAL = {
+  1: 'első',
+  2: 'második',
+  3: 'harmadik',
+  4: 'negyedik',
+  5: 'ötödik',
+  6: 'hatodik',
+  7: 'hetedik',
+  8: 'nyolcadik',
+  9: 'kilencedik',
+  10: 'tizedik',
+  20: 'huszadik',
+  30: 'harmincadik',
+  40: 'negyvenedik',
+  50: 'ötvenedik',
+  60: 'hatvanadik',
+  70: 'hetvenedik',
+  80: 'nyolcvanadik',
+  90: 'kilencvenedik',
+  100: 'századik',
+  1000: 'ezredik'
+}
+
+// ============================================================================
+// Currency Vocabulary (Hungarian Forint)
+// ============================================================================
+
+const FORINT = 'forint' // same singular and plural
+const FILLER = 'fillér' // subunit (rarely used, same singular and plural)
 
 // ============================================================================
 // Conversion Functions
@@ -210,7 +248,127 @@ function toCardinal (value) {
 }
 
 // ============================================================================
+// ORDINAL: toOrdinal(value)
+// ============================================================================
+
+/**
+ * Converts a non-negative integer to Hungarian ordinal words.
+ *
+ * Hungarian ordinals: első (1st), második (2nd), harmadik (3rd), etc.
+ * 1-10 have special forms, others use cardinal + -dik/-edik/-adik/-ödik suffix.
+ *
+ * @param {bigint} n - Positive integer to convert
+ * @returns {string} Hungarian ordinal words
+ */
+function integerToOrdinal (n) {
+  const num = Number(n)
+
+  // Exact special forms
+  if (ORDINAL_SPECIAL[num]) {
+    return ORDINAL_SPECIAL[num]
+  }
+
+  // For compound numbers, get cardinal and add suffix
+  const cardinal = integerToWords(n)
+
+  // Determine suffix based on last vowel (vowel harmony)
+  // Back vowels (a,á,o,ó,u,ú) -> -adik
+  // Front unrounded (e,é,i,í) -> -edik
+  // Front rounded (ö,ő,ü,ű) -> -ödik
+  // If ends in consonant, add linking vowel + dik
+
+  const lastChar = cardinal[cardinal.length - 1]
+
+  // If ends in vowel, just add -dik
+  if ('aáoóuúeéiíöőüű'.includes(lastChar)) {
+    return cardinal + 'dik'
+  }
+
+  // If ends in consonant, find last vowel for harmony
+  const backVowels = 'aáoóuú'
+  const frontRoundedVowels = 'öőüű'
+
+  for (let i = cardinal.length - 1; i >= 0; i--) {
+    const char = cardinal[i]
+    if (backVowels.includes(char)) {
+      return cardinal + 'adik'
+    }
+    if (frontRoundedVowels.includes(char)) {
+      return cardinal + 'ödik'
+    }
+    if ('eéií'.includes(char)) {
+      return cardinal + 'edik'
+    }
+  }
+
+  // Default to -edik
+  return cardinal + 'edik'
+}
+
+/**
+ * Converts a numeric value to Hungarian ordinal words.
+ *
+ * @param {number | string | bigint} value - The numeric value to convert (positive integer)
+ * @returns {string} The number as ordinal words
+ * @throws {TypeError} If value is not a valid numeric type
+ * @throws {RangeError} If value is negative, zero, or has a decimal part
+ *
+ * @example
+ * toOrdinal(1)    // 'első'
+ * toOrdinal(2)    // 'második'
+ * toOrdinal(21)   // 'huszonegyedik'
+ */
+function toOrdinal (value) {
+  const integerPart = parseOrdinalValue(value)
+  return integerToOrdinal(integerPart)
+}
+
+// ============================================================================
+// CURRENCY: toCurrency(value)
+// ============================================================================
+
+/**
+ * Converts a numeric value to Hungarian currency words (Hungarian Forint).
+ *
+ * Uses forint (no plural form needed in Hungarian).
+ * Fillér (1/100) is rarely used but included for completeness.
+ *
+ * @param {number | string | bigint} value - The currency amount to convert
+ * @returns {string} The amount in Hungarian currency words
+ * @throws {TypeError} If value is not a valid numeric type
+ * @throws {Error} If value is not a valid number format
+ *
+ * @example
+ * toCurrency(42)     // 'negyvenkettő forint'
+ * toCurrency(1.50)   // 'egy forint ötven fillér'
+ * toCurrency(-5)     // 'mínusz öt forint'
+ */
+function toCurrency (value) {
+  const { isNegative, dollars: forint, cents: filler } = parseCurrencyValue(value)
+
+  let result = ''
+  if (isNegative) {
+    result = NEGATIVE + ' '
+  }
+
+  // Forint part
+  if (forint > 0n || filler === 0n) {
+    result += integerToWords(forint) + ' ' + FORINT
+  }
+
+  // Fillér part
+  if (filler > 0n) {
+    if (forint > 0n) {
+      result += ' '
+    }
+    result += integerToWords(filler) + ' ' + FILLER
+  }
+
+  return result
+}
+
+// ============================================================================
 // Exports
 // ============================================================================
 
-export { toCardinal }
+export { toCardinal, toOrdinal, toCurrency }
