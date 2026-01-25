@@ -12,7 +12,7 @@ n2words: Number to words converter. ESM + UMD, Node >=20, zero dependencies.
 
 ```text
 src/
-├── {lang-code}.js       # One file per language (57 total)
+├── {lang-code}.js       # One file per language (71 total)
 └── utils/
     ├── parse-cardinal.js    # Cardinal form parsing (decimals, negatives)
     ├── parse-ordinal.js     # Ordinal form parsing (positive integers only)
