@@ -16,31 +16,6 @@
     {
       "type": "node",
       "request": "launch",
-      "name": "Debug Language Converter",
-      "skipFiles": ["<node_internals>/**"],
-      "program": "${workspaceFolder}/.vscode/debug-converter.js",
-      "args": [
-        "${input:languageCode}"
-      ],
-      "console": "integratedTerminal",
-      "cwd": "${workspaceFolder}"
-    },
-    {
-      "type": "node",
-      "request": "launch",
-      "name": "Debug Language Converter (Custom Numbers)",
-      "skipFiles": ["<node_internals>/**"],
-      "program": "${workspaceFolder}/.vscode/debug-converter.js",
-      "args": [
-        "${input:languageCode}",
-        "${input:customNumbers}"
-      ],
-      "console": "integratedTerminal",
-      "cwd": "${workspaceFolder}"
-    },
-    {
-      "type": "node",
-      "request": "launch",
       "name": "Debug Tests (AVA)",
       "skipFiles": ["<node_internals>/**"],
       "runtimeExecutable": "npm",
@@ -77,18 +52,6 @@
     }
   ],
   "inputs": [
-    {
-      "id": "languageCode",
-      "type": "promptString",
-      "description": "Language code (e.g., en-US, es, zh-Hans-CN)",
-      "default": "en-US"
-    },
-    {
-      "id": "customNumbers",
-      "type": "promptString",
-      "description": "Custom numbers to test (space-separated, e.g., 42 -100 3.14 9007199254740992n) - leave empty for default test cases",
-      "default": ""
-    },
     {
       "id": "newLanguageCode",
       "type": "promptString",
