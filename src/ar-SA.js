@@ -13,6 +13,8 @@
  */
 
 import { parseCardinalValue } from './utils/parse-cardinal.js'
+import { parseCurrencyValue } from './utils/parse-currency.js'
+import { parseOrdinalValue } from './utils/parse-ordinal.js'
 import { validateOptions } from './utils/validate-options.js'
 
 // ============================================================================
@@ -39,6 +41,32 @@ const ZERO = 'صفر'
 const NEGATIVE = 'ناقص'
 const DECIMAL_SEP = 'فاصلة'
 const AND = 'و'
+
+// ============================================================================
+// Ordinal Vocabulary
+// ============================================================================
+
+// Masculine ordinal forms (1-10)
+const ORDINAL_MASC = ['الأول', 'الثاني', 'الثالث', 'الرابع', 'الخامس', 'السادس', 'السابع', 'الثامن', 'التاسع', 'العاشر']
+
+// Feminine ordinal forms (1-10)
+const ORDINAL_FEM = ['الأولى', 'الثانية', 'الثالثة', 'الرابعة', 'الخامسة', 'السادسة', 'السابعة', 'الثامنة', 'التاسعة', 'العاشرة']
+
+// ============================================================================
+// Currency Vocabulary (Saudi Riyal)
+// ============================================================================
+
+// Riyal: singular, dual, plural (3-10), plural (11+)
+const RIYAL_SINGULAR = 'ريال'
+const RIYAL_DUAL = 'ريالان'
+const RIYAL_PLURAL_3_10 = 'ريالات'
+const RIYAL_PLURAL_11 = 'ريالاً'
+
+// Halala: singular, dual, plural (3-10), plural (11+)
+const HALALA_SINGULAR = 'هللة'
+const HALALA_DUAL = 'هللتان'
+const HALALA_PLURAL_3_10 = 'هللات'
+const HALALA_PLURAL_11 = 'هللة'
 
 // ============================================================================
 // Conversion Functions
@@ -206,7 +234,134 @@ function toCardinal (value, options) {
 }
 
 // ============================================================================
+// ORDINAL: toOrdinal(value, options?)
+// ============================================================================
+
+/**
+ * Gets the Arabic ordinal form for a number.
+ *
+ * Arabic ordinals 1-10 have special forms, beyond 10 use cardinal + position.
+ *
+ * @param {bigint} n - Positive integer to convert
+ * @param {string} gender - 'masculine' or 'feminine'
+ * @returns {string} Arabic ordinal words
+ */
+function integerToOrdinal (n, gender) {
+  const ordinals = gender === 'feminine' ? ORDINAL_FEM : ORDINAL_MASC
+
+  // Special ordinals for 1-10
+  if (n >= 1n && n <= 10n) {
+    return ordinals[Number(n) - 1]
+  }
+
+  // For 11 and above, use cardinal form with "ال" prefix for definiteness
+  const cardinal = integerToWords(n, gender)
+  return 'ال' + cardinal
+}
+
+/**
+ * Converts a numeric value to Arabic ordinal words.
+ *
+ * @param {number | string | bigint} value - The numeric value to convert (positive integer)
+ * @param {Object} [options] - Optional configuration
+ * @param {('masculine'|'feminine')} [options.gender='masculine'] - Grammatical gender
+ * @returns {string} The number as ordinal words
+ * @throws {TypeError} If value is not a valid numeric type
+ * @throws {RangeError} If value is negative, zero, or has a decimal part
+ *
+ * @example
+ * toOrdinal(1)                        // 'الأول'
+ * toOrdinal(1, {gender: 'feminine'})  // 'الأولى'
+ * toOrdinal(3)                        // 'الثالث'
+ */
+function toOrdinal (value, options) {
+  options = validateOptions(options)
+  const integerPart = parseOrdinalValue(value)
+  const { gender = 'masculine' } = options
+  return integerToOrdinal(integerPart, gender)
+}
+
+// ============================================================================
+// CURRENCY: toCurrency(value, options?)
+// ============================================================================
+
+/**
+ * Gets the appropriate currency word form based on number.
+ *
+ * Arabic has complex pluralization:
+ * - 1: singular
+ * - 2: dual
+ * - 3-10: plural form 1
+ * - 11+: plural form 2 (different ending)
+ */
+function getRiyalForm (n) {
+  if (n === 1n) return RIYAL_SINGULAR
+  if (n === 2n) return RIYAL_DUAL
+  if (n >= 3n && n <= 10n) return RIYAL_PLURAL_3_10
+  return RIYAL_PLURAL_11
+}
+
+function getHalalaForm (n) {
+  if (n === 1n) return HALALA_SINGULAR
+  if (n === 2n) return HALALA_DUAL
+  if (n >= 3n && n <= 10n) return HALALA_PLURAL_3_10
+  return HALALA_PLURAL_11
+}
+
+/**
+ * Converts a numeric value to Arabic currency words (Saudi Riyal).
+ *
+ * @param {number | string | bigint} value - The currency amount to convert
+ * @returns {string} The amount in Arabic currency words
+ * @throws {TypeError} If value is not a valid numeric type
+ * @throws {Error} If value is not a valid number format
+ *
+ * @example
+ * toCurrency(42.50)  // 'اثنان وأربعون ريالاً وخمسون هللة'
+ * toCurrency(1)      // 'ريال واحد'
+ * toCurrency(0.01)   // 'هللة واحدة'
+ */
+function toCurrency (value) {
+  const { isNegative, dollars: riyals, cents: halalas } = parseCurrencyValue(value)
+
+  // Build result
+  let result = ''
+  if (isNegative) result = NEGATIVE + ' '
+
+  // Riyals part - show if non-zero, or if no halalas
+  if (riyals > 0n || halalas === 0n) {
+    // Special case for 1 and 2: currency word comes first
+    if (riyals === 1n) {
+      result += RIYAL_SINGULAR + ' ' + ONES_MASC[0]
+    } else if (riyals === 2n) {
+      result += RIYAL_DUAL
+    } else {
+      const riyalWord = integerToWords(riyals, 'masculine')
+      result += riyalWord + ' ' + getRiyalForm(riyals)
+    }
+  }
+
+  // Halalas part
+  if (halalas > 0n) {
+    if (riyals > 0n) {
+      result += ' ' + AND
+    }
+    // Special case for 1 and 2: currency word comes first
+    if (halalas === 1n) {
+      result += HALALA_SINGULAR + ' ' + ONES_FEM[0]
+    } else if (halalas === 2n) {
+      result += HALALA_DUAL
+    } else {
+      const halalaWord = integerToWords(halalas, 'feminine')
+      result += halalaWord + ' ' + getHalalaForm(halalas)
+    }
+  }
+
+  return result
+}
+
+// ============================================================================
 // Exports
 // ============================================================================
 
-export { toCardinal }
+export { toCardinal, toOrdinal, toCurrency }
