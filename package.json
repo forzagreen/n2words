@@ -134,7 +134,7 @@
     "lint-staged": "^16.2.7",
     "markdownlint-cli2": "^0.20.0",
     "rimraf": "^6.1.2",
-    "rollup": "^4.55.2",
+    "rollup": "^4.56.0",
     "standard": "^17.1.2",
     "typescript": "^5.9.3"
   },
