@@ -11,6 +11,8 @@
  */
 
 import { parseCardinalValue } from './utils/parse-cardinal.js'
+import { parseCurrencyValue } from './utils/parse-currency.js'
+import { parseOrdinalValue } from './utils/parse-ordinal.js'
 
 // ============================================================================
 // Vocabulary
@@ -30,6 +32,25 @@ const DECIMAL_SEP = 'punto'
 
 // Short scale with linker
 const SCALE_WORDS = ['', THOUSAND, 'milyong', 'bilyong', 'trilyong']
+
+// ============================================================================
+// Ordinal Vocabulary
+// ============================================================================
+
+// Filipino ordinals use "ika-" prefix: ika-isa (1st), ikalawa (2nd), etc.
+// Special forms for 1st and 2nd
+const ORDINAL_PREFIX = 'ika'
+const ORDINAL_SPECIAL = {
+  1: 'una', // first
+  2: 'ikalawa' // second (contracted form)
+}
+
+// ============================================================================
+// Currency Vocabulary (Philippine Peso)
+// ============================================================================
+
+const PESO = 'piso'
+const SENTIMO = 'sentimo'
 
 // ============================================================================
 // Helper Functions
@@ -205,7 +226,122 @@ function toCardinal (value) {
 }
 
 // ============================================================================
+// ORDINAL: toOrdinal(value)
+// ============================================================================
+
+/**
+ * Converts a non-negative integer to Filipino ordinal words.
+ *
+ * Filipino ordinals: una (1st), ikalawa (2nd), then ika- + cardinal.
+ *
+ * @param {bigint} n - Positive integer to convert
+ * @returns {string} Filipino ordinal words
+ */
+function integerToOrdinal (n) {
+  // Special forms for 1st and 2nd
+  if (n === 1n) return ORDINAL_SPECIAL[1]
+  if (n === 2n) return ORDINAL_SPECIAL[2]
+
+  // For 3+, use ika- prefix + cardinal
+  return ORDINAL_PREFIX + '-' + integerToWords(n)
+}
+
+/**
+ * Converts a numeric value to Filipino ordinal words.
+ *
+ * @param {number | string | bigint} value - The numeric value to convert (positive integer)
+ * @returns {string} The number as ordinal words
+ * @throws {TypeError} If value is not a valid numeric type
+ * @throws {RangeError} If value is negative, zero, or has a decimal part
+ *
+ * @example
+ * toOrdinal(1)    // 'una'
+ * toOrdinal(2)    // 'ikalawa'
+ * toOrdinal(3)    // 'ika-tatlo'
+ */
+function toOrdinal (value) {
+  const integerPart = parseOrdinalValue(value)
+  return integerToOrdinal(integerPart)
+}
+
+// ============================================================================
+// CURRENCY: toCurrency(value)
+// ============================================================================
+
+/**
+ * Converts a numeric value to Filipino currency words (Philippine Peso).
+ *
+ * Uses piso (peso) and sentimo (centavo).
+ *
+ * @param {number | string | bigint} value - The currency amount to convert
+ * @returns {string} The amount in Filipino currency words
+ * @throws {TypeError} If value is not a valid numeric type
+ * @throws {Error} If value is not a valid number format
+ *
+ * @example
+ * toCurrency(42)     // 'apatnapu dalawang piso'
+ * toCurrency(1.50)   // 'isang piso at limampung sentimo'
+ * toCurrency(-5)     // 'negatibo limang piso'
+ */
+function toCurrency (value) {
+  const { isNegative, dollars: pesos, cents: sentimos } = parseCurrencyValue(value)
+
+  let result = ''
+  if (isNegative) {
+    result = NEGATIVE + ' '
+  }
+
+  // Pesos part
+  if (pesos > 0n || sentimos === 0n) {
+    // Add linker before "piso"
+    const pesoWords = integerToWords(pesos)
+    if (pesos === 0n) {
+      result += pesoWords + ' ' + PESO
+    } else {
+      // Need to add linker to the last word before "piso"
+      const lastSpaceIdx = pesoWords.lastIndexOf(' ')
+      if (lastSpaceIdx === -1) {
+        // Single word
+        result += addLinker(pesoWords) + ' ' + PESO
+      } else {
+        const prefix = pesoWords.slice(0, lastSpaceIdx + 1)
+        const lastWord = pesoWords.slice(lastSpaceIdx + 1)
+        if (lastWord.endsWith('ng')) {
+          result += pesoWords + ' ' + PESO
+        } else {
+          result += prefix + addLinker(lastWord) + ' ' + PESO
+        }
+      }
+    }
+  }
+
+  // Sentimos part
+  if (sentimos > 0n) {
+    if (pesos > 0n) {
+      result += ' at '
+    }
+    const sentimoWords = integerToWords(sentimos)
+    // Add linker before "sentimo"
+    const lastSpaceIdx = sentimoWords.lastIndexOf(' ')
+    if (lastSpaceIdx === -1) {
+      // Single word
+      result += addLinker(sentimoWords) + ' ' + SENTIMO
+    } else {
+      const prefix = sentimoWords.slice(0, lastSpaceIdx + 1)
+      const lastWord = sentimoWords.slice(lastSpaceIdx + 1)
+      if (lastWord.endsWith('ng')) {
+        result += sentimoWords + ' ' + SENTIMO
+      } else {
+        result += prefix + addLinker(lastWord) + ' ' + SENTIMO
+      }
+    }
+  }
+
+  return result
+}
+
+// ============================================================================
 // Exports
 // ============================================================================
 
-export { toCardinal }
+export { toCardinal, toOrdinal, toCurrency }

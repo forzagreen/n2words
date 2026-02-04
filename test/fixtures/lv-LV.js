@@ -85,3 +85,92 @@ export const cardinal = [
   [1001, 'tūkstotis viens', { gender: 'feminine' }],
   [1002, 'tūkstotis divi', { gender: 'feminine' }]
 ]
+
+/**
+ * Ordinal number test cases
+ * Format: [input, expected_output, options?]
+ */
+export const ordinal = [
+  // Basic ordinals 1-9
+  [1, 'pirmais'],
+  [2, 'otrais'],
+  [3, 'trešais'],
+  [4, 'ceturtais'],
+  [5, 'piektais'],
+  [6, 'sestais'],
+  [7, 'septītais'],
+  [8, 'astotais'],
+  [9, 'devītais'],
+
+  // Teens
+  [10, 'desmitais'],
+  [11, 'vienpadsmitais'],
+  [12, 'divpadsmitais'],
+  [13, 'trīspadsmitais'],
+  [19, 'deviņpadsmitais'],
+
+  // Tens
+  [20, 'divdesmitais'],
+  [21, 'divdesmit pirmais'],
+  [30, 'trīsdesmitais'],
+  [42, 'četrdesmit otrais'],
+  [99, 'deviņdesmit devītais'],
+
+  // Hundreds
+  [100, 'simtais'],
+  [101, 'simts pirmais'],
+  [200, 'divsimtais'],
+
+  // Thousands
+  [1000, 'tūkstošais'],
+  [1001, 'tūkstotis pirmais'],
+  [2000, 'divi tūkstoši tūkstošais'],
+
+  // Millions
+  [1000000, 'miljonais'],
+  [2000000, 'divi miljoni miljonais']
+]
+
+/**
+ * Currency test cases (Euro)
+ * Format: [input, expected_output, options?]
+ */
+export const currency = [
+  // Zero
+  [0, 'nulle eiro'],
+
+  // Whole euros (eiro is indeclinable)
+  [1, 'viens eiro'],
+  [2, 'divi eiro'],
+  [5, 'pieci eiro'],
+  [10, 'desmit eiro'],
+  [21, 'divdesmit viens eiro'],
+  [42, 'četrdesmit divi eiro'],
+  [100, 'simts eiro'],
+  [1000, 'tūkstotis eiro'],
+
+  // Cents only
+  [0.01, 'viens cents'],
+  [0.02, 'divi centi'],
+  [0.05, 'pieci centi'],
+  [0.10, 'desmit centu'],
+  [0.11, 'vienpadsmit centu'],
+  [0.25, 'divdesmit pieci centi'],
+  [0.50, 'piecdesmit centu'],
+  [0.99, 'deviņdesmit deviņi centi'],
+
+  // Euros and cents
+  [1.01, 'viens eiro viens cents'],
+  [1.50, 'viens eiro piecdesmit centu'],
+  [2.02, 'divi eiro divi centi'],
+  [42.50, 'četrdesmit divi eiro piecdesmit centu'],
+  [100.99, 'simts eiro deviņdesmit deviņi centi'],
+
+  // Negative amounts
+  [-1, 'mīnus viens eiro'],
+  [-42.50, 'mīnus četrdesmit divi eiro piecdesmit centu'],
+
+  // Edge cases
+  [5.00, 'pieci eiro'],
+  ['5.00', 'pieci eiro']
+]

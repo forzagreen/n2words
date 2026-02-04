@@ -11,6 +11,8 @@
  */
 
 import { parseCardinalValue } from './utils/parse-cardinal.js'
+import { parseCurrencyValue } from './utils/parse-currency.js'
+import { parseOrdinalValue } from './utils/parse-ordinal.js'
 import { validateOptions } from './utils/validate-options.js'
 
 // ============================================================================
@@ -30,6 +32,20 @@ const HUNDREDS = ['', 'o sută', 'două sute', 'trei sute', 'patru sute', 'cinci
 const ZERO = 'zero'
 const NEGATIVE = 'minus'
 const DECIMAL_SEP = 'virgulă'
+
+// Ordinal vocabulary (masculine forms)
+const ORDINAL_ONES = ['', 'primul', 'al doilea', 'al treilea', 'al patrulea', 'al cincilea', 'al șaselea', 'al șaptelea', 'al optulea', 'al nouălea']
+const ORDINAL_TEENS = ['al zecelea', 'al unsprezecelea', 'al doisprezecelea', 'al treisprezecelea', 'al paisprezecelea', 'al cincisprezecelea', 'al șaisprezecelea', 'al șaptesprezecelea', 'al optsprezecelea', 'al nouăsprezecelea']
+const ORDINAL_TENS = ['', '', 'al douăzecilea', 'al treizecilea', 'al patruzecilea', 'al cincizecilea', 'al șaizecilea', 'al șaptezecilea', 'al optzecilea', 'al nouăzecilea']
+const ORDINAL_HUNDRED = 'al sutălea'
+const ORDINAL_THOUSAND = 'al miilea'
+const ORDINAL_MILLION = 'al milionulea'
+
+// Currency (Romanian Leu)
+const LEU_SINGULAR = 'leu'
+const LEU_PLURAL = 'lei'
+const BAN_SINGULAR = 'ban'
+const BAN_PLURAL = 'bani'
 
 // Scale metadata: [singular, plural, article, feminine, needsDe]
 // - singular: form for 1
@@ -254,7 +270,182 @@ function toCardinal (value, options) {
 }
 
 // ============================================================================
+// Ordinal Functions
+// ============================================================================
+
+/**
+ * Builds ordinal for tens and ones (0-99).
+ *
+ * @param {number} n - Number 0-99
+ * @returns {string} Ordinal word
+ */
+function buildOrdinalTensOnes (n) {
+  if (n === 0) return ''
+  if (n < 10) return ORDINAL_ONES[n]
+  if (n < 20) return ORDINAL_TEENS[n - 10]
+
+  const ones = n % 10
+  const tens = Math.floor(n / 10)
+
+  if (ones === 0) {
+    return ORDINAL_TENS[tens]
+  }
+  // Compound: cardinal tens + ordinal ones (only last is ordinal)
+  return TWENTIES[tens] + ' și ' + ORDINAL_ONES[ones]
+}
+
+/**
+ * Converts a non-negative integer to Romanian ordinal words.
+ *
+ * @param {bigint} n - Non-negative integer to convert
+ * @returns {string} Romanian ordinal words
+ */
+function integerToOrdinal (n) {
+  if (n === 0n) return ''
+  if (n === 1n) return ORDINAL_ONES[1]
+
+  // Numbers < 100
+  if (n < 100n) {
+    return buildOrdinalTensOnes(Number(n))
+  }
+
+  // Numbers < 1000
+  if (n < 1000n) {
+    const hundreds = Number(n / 100n)
+    const remainder = Number(n % 100n)
+
+    if (remainder === 0) {
+      return ORDINAL_HUNDRED
+    }
+    return HUNDREDS[hundreds] + ' ' + buildOrdinalTensOnes(remainder)
+  }
+
+  // Numbers < 1,000,000
+  if (n < 1_000_000n) {
+    const thousands = Number(n / 1000n)
+    const remainder = Number(n % 1000n)
+
+    if (remainder === 0) {
+      if (thousands === 1) {
+        return ORDINAL_THOUSAND
+      }
+      return buildScalePhrase(thousands, 1) + ' ' + ORDINAL_THOUSAND
+    }
+
+    // Cardinal thousands + ordinal remainder
+    let result
+    if (thousands === 1) {
+      result = 'o mie'
+    } else {
+      result = buildScalePhrase(thousands, 1)
+    }
+
+    if (remainder < 100) {
+      return result + ' ' + buildOrdinalTensOnes(remainder)
+    }
+
+    const remHundreds = Math.floor(remainder / 100)
+    const remTensOnes = remainder % 100
+
+    if (remTensOnes === 0) {
+      return result + ' ' + ORDINAL_HUNDRED
+    }
+    return result + ' ' + HUNDREDS[remHundreds] + ' ' + buildOrdinalTensOnes(remTensOnes)
+  }
+
+  // Numbers >= 1,000,000
+  const millions = Number(n / 1_000_000n)
+  const remainder = n % 1_000_000n
+
+  if (remainder === 0n) {
+    if (millions === 1) {
+      return ORDINAL_MILLION
+    }
+    return buildScalePhrase(millions, 2) + ' ' + ORDINAL_MILLION
+  }
+
+  // Cardinal millions + ordinal remainder
+  let result
+  if (millions === 1) {
+    result = 'un milion'
+  } else {
+    result = buildScalePhrase(millions, 2)
+  }
+
+  return result + ' ' + integerToOrdinal(remainder)
+}
+
+/**
+ * Converts a numeric value to Romanian ordinal words.
+ *
+ * @param {number | string | bigint} value - The numeric value to convert
+ * @returns {string} The ordinal in Romanian words
+ * @throws {TypeError} If value is not a valid numeric type
+ * @throws {Error} If value is not a positive integer
+ *
+ * @example
+ * toOrdinal(1)   // 'primul'
+ * toOrdinal(21)  // 'douăzeci și primul'
+ */
+function toOrdinal (value) {
+  const n = parseOrdinalValue(value)
+  return integerToOrdinal(n)
+}
+
+// ============================================================================
+// Currency Functions
+// ============================================================================
+
+/**
+ * Converts a numeric value to Romanian Leu currency words.
+ *
+ * @param {number | string | bigint} value - The numeric value to convert
+ * @returns {string} The currency in Romanian words
+ * @throws {TypeError} If value is not a valid numeric type
+ * @throws {Error} If value is not a valid number format
+ *
+ * @example
+ * toCurrency(1)     // 'un leu'
+ * toCurrency(2.50)  // 'doi lei cincizeci de bani'
+ */
+function toCurrency (value) {
+  const { isNegative, dollars, cents } = parseCurrencyValue(value)
+
+  const parts = []
+
+  if (isNegative) {
+    parts.push(NEGATIVE)
+  }
+
+  // Lei (masculine)
+  if (dollars > 0n || cents === 0n) {
+    if (dollars === 1n) {
+      parts.push('un ' + LEU_SINGULAR)
+    } else {
+      const leuWord = integerToWords(dollars, 'masculine')
+      parts.push(leuWord + ' ' + LEU_PLURAL)
+    }
+  }
+
+  // Bani (masculine)
+  if (cents > 0n) {
+    const centNum = Number(cents)
+    if (centNum === 1) {
+      parts.push('un ' + BAN_SINGULAR)
+    } else if (centNum >= 20) {
+      const banWord = spellUnder100(centNum, false)
+      parts.push(banWord + ' de ' + BAN_PLURAL)
+    } else {
+      const banWord = spellUnder100(centNum, false)
+      parts.push(banWord + ' ' + BAN_PLURAL)
+    }
+  }
+
+  return parts.join(' ')
+}
+
+// ============================================================================
 // Public API
 // ============================================================================
 
-export { toCardinal }
+export { toCardinal, toOrdinal, toCurrency }

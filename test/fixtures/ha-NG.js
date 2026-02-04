@@ -95,3 +95,83 @@ export const cardinal = [
   [BigInt(999), "tara ɗari tis'in da tara"],
   [BigInt(1000000), 'ɗaya miliyan']
 ]
+
+/**
+ * Ordinal number test cases
+ * Format: [input, expected_output, options?]
+ */
+export const ordinal = [
+  // Special form for first
+  [1, 'na farko'],
+
+  // Regular "na" prefix
+  [2, 'na biyu'],
+  [3, 'na uku'],
+  [4, 'na huɗu'],
+  [5, 'na biyar'],
+  [6, 'na shida'],
+  [7, 'na bakwai'],
+  [8, 'na takwas'],
+  [9, 'na tara'],
+  [10, 'na goma'],
+
+  // Teens
+  [11, 'na sha ɗaya'],
+  [12, 'na sha biyu'],
+  [19, 'na sha tara'],
+
+  // Tens
+  [20, 'na ashirin'],
+  [21, 'na ashirin da ɗaya'],
+  [30, 'na talatin'],
+  [42, "na arba'in da biyu"],
+  [99, "na tis'in da tara"],
+
+  // Hundreds
+  [100, 'na ɗari'],
+  [101, 'na ɗari da ɗaya'],
+  [200, 'na biyu ɗari'],
+
+  // Thousands
+  [1000, 'na dubu'],
+  [1001, 'na dubu da ɗaya']
+]
+
+/**
+ * Currency test cases (Nigerian Naira)
+ * Format: [input, expected_output, options?]
+ */
+export const currency = [
+  // Zero
+  [0, 'sifiri naira'],
+
+  // Whole naira
+  [1, 'ɗaya naira'],
+  [2, 'biyu naira'],
+  [5, 'biyar naira'],
+  [10, 'goma naira'],
+  [21, 'ashirin da ɗaya naira'],
+  [42, "arba'in da biyu naira"],
+  [100, 'ɗari naira'],
+  [1000, 'dubu naira'],
+
+  // Kobo only
+  [0.01, 'ɗaya kobo'],
+  [0.25, 'ashirin da biyar kobo'],
+  [0.50, 'hamsin kobo'],
+  [0.99, "tis'in da tara kobo"],
+
+  // Naira and kobo
+  [1.01, 'ɗaya naira da ɗaya kobo'],
+  [1.50, 'ɗaya naira da hamsin kobo'],
+  [42.50, "arba'in da biyu naira da hamsin kobo"],
+  [100.99, "ɗari naira da tis'in da tara kobo"],
+
+  // Negative amounts
+  [-1, 'babu ɗaya naira'],
+  [-42.50, "babu arba'in da biyu naira da hamsin kobo"],
+
+  // Edge cases
+  [5.00, 'biyar naira'],
+  ['5.00', 'biyar naira']
+]

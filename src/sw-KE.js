@@ -10,6 +10,8 @@
  */
 
 import { parseCardinalValue } from './utils/parse-cardinal.js'
+import { parseCurrencyValue } from './utils/parse-currency.js'
+import { parseOrdinalValue } from './utils/parse-ordinal.js'
 
 // ============================================================================
 // Vocabulary
@@ -23,6 +25,32 @@ const SCALE_WORDS = ['', 'elfu', 'milioni', 'bilioni', 'trilioni', 'kwadrilioni'
 const ZERO = 'sifuri'
 const NEGATIVE = 'minus'
 const DECIMAL_SEP = 'nukta'
+
+// ============================================================================
+// Ordinal Vocabulary
+// ============================================================================
+
+// Swahili ordinals use "wa" + cardinal: wa kwanza (1st), wa pili (2nd)
+// First few have special forms
+const ORDINAL_ONES = {
+  1: 'wa kwanza',
+  2: 'wa pili',
+  3: 'wa tatu',
+  4: 'wa nne',
+  5: 'wa tano',
+  6: 'wa sita',
+  7: 'wa saba',
+  8: 'wa nane',
+  9: 'wa tisa'
+}
+const ORDINAL_PREFIX = 'wa'
+
+// ============================================================================
+// Currency Vocabulary (Kenyan Shilling)
+// ============================================================================
+
+const SHILLING = 'shilingi'
+const CENT = 'senti'
 
 // ============================================================================
 // Conversion Functions
@@ -147,7 +175,90 @@ function toCardinal (value) {
 }
 
 // ============================================================================
+// ORDINAL: toOrdinal(value)
+// ============================================================================
+
+/**
+ * Converts a non-negative integer to Swahili ordinal words.
+ *
+ * Swahili ordinals: wa kwanza (1st), wa pili (2nd), wa tatu (3rd), etc.
+ *
+ * @param {bigint} n - Positive integer to convert
+ * @returns {string} Swahili ordinal words
+ */
+function integerToOrdinal (n) {
+  // Special forms for 1-9
+  if (n >= 1n && n <= 9n) {
+    return ORDINAL_ONES[Number(n)]
+  }
+
+  // For 10+, use "wa" prefix + cardinal
+  return ORDINAL_PREFIX + ' ' + integerToWords(n)
+}
+
+/**
+ * Converts a numeric value to Swahili ordinal words.
+ *
+ * @param {number | string | bigint} value - The numeric value to convert (positive integer)
+ * @returns {string} The number as ordinal words
+ * @throws {TypeError} If value is not a valid numeric type
+ * @throws {RangeError} If value is negative, zero, or has a decimal part
+ *
+ * @example
+ * toOrdinal(1)    // 'wa kwanza'
+ * toOrdinal(2)    // 'wa pili'
+ * toOrdinal(10)   // 'wa kumi'
+ */
+function toOrdinal (value) {
+  const integerPart = parseOrdinalValue(value)
+  return integerToOrdinal(integerPart)
+}
+
+// ============================================================================
+// CURRENCY: toCurrency(value)
+// ============================================================================
+
+/**
+ * Converts a numeric value to Swahili currency words (Kenyan Shilling).
+ *
+ * Uses shilingi and senti (100 senti = 1 shilingi).
+ *
+ * @param {number | string | bigint} value - The currency amount to convert
+ * @returns {string} The amount in Swahili currency words
+ * @throws {TypeError} If value is not a valid numeric type
+ * @throws {Error} If value is not a valid number format
+ *
+ * @example
+ * toCurrency(42)     // 'shilingi arobaini na mbili'
+ * toCurrency(1.50)   // 'shilingi moja na senti hamsini'
+ * toCurrency(-5)     // 'minus shilingi tano'
+ */
+function toCurrency (value) {
+  const { isNegative, dollars: shillings, cents: senti } = parseCurrencyValue(value)
+
+  let result = ''
+  if (isNegative) {
+    result = NEGATIVE + ' '
+  }
+
+  // Shillings part
+  if (shillings > 0n || senti === 0n) {
+    result += SHILLING + ' ' + integerToWords(shillings)
+  }
+
+  // Senti part
+  if (senti > 0n) {
+    if (shillings > 0n) {
+      result += ' na '
+    }
+    result += CENT + ' ' + integerToWords(senti)
+  }
+
+  return result
+}
+
+// ============================================================================
 // Exports
 // ============================================================================
 
-export { toCardinal }
+export { toCardinal, toOrdinal, toCurrency }

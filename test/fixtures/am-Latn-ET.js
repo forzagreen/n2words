@@ -77,3 +77,80 @@ export const cardinal = [
   // BigInt
   [BigInt(999), 'zeteny meto zetena zeteny']
 ]
+
+/**
+ * Ordinal number test cases
+ * Format: [input, expected_output, options?]
+ */
+export const ordinal = [
+  // Basic ordinals
+  [1, 'andenya'],
+  [2, 'huletnya'],
+  [3, 'sostnya'],
+  [4, 'aratnya'],
+  [5, 'amistnya'],
+  [6, 'siddistnya'],
+  [7, 'sebatnya'],
+  [8, 'simentnya'],
+  [9, 'zetenynya'],
+  [10, 'asirnya'],
+
+  // Teens
+  [11, 'asra andnya'],
+  [12, 'asra huletnya'],
+  [19, 'asra zetenynya'],
+
+  // Tens
+  [20, 'hayanya'],
+  [30, 'selasanya'],
+  [42, 'arba huletnya'],
+  [99, 'zetena zetenynya'],
+
+  // Hundreds
+  [100, 'and metonya'],
+  [101, 'and meto andnya'],
+  [200, 'hulet metonya'],
+
+  // Thousands
+  [1000, 'and shinya'],
+  [1001, 'and shi andnya'],
+  [2000, 'hulet shinya'],
+
+  // Larger
+  [1_000_000, 'and miliyonnya']
+]
+
+/**
+ * Currency test cases (Ethiopian Birr)
+ * Format: [input, expected_output, options?]
+ */
+export const currency = [
+  // Zero
+  [0, 'zero birr'],
+
+  // Whole birr
+  [1, 'and birr'],
+  [2, 'hulet birr'],
+  [10, 'asir birr'],
+  [100, 'and meto birr'],
+  [1000, 'and shi birr'],
+
+  // Santim only
+  [0.01, 'and santim'],
+  [0.02, 'hulet santim'],
+  [0.50, 'hamsa santim'],
+  [0.99, 'zetena zeteny santim'],
+
+  // Birr and santim
+  [1.01, 'and birr and santim'],
+  [42.50, 'arba hulet birr hamsa santim'],
+  [1000.99, 'and shi birr zetena zeteny santim'],
+
+  // Negative amounts
+  [-1, 'asitegna and birr'],
+  [-42.50, 'asitegna arba hulet birr hamsa santim'],
+
+  // Edge cases
+  [5.00, 'amist birr'],
+  ['5.00', 'amist birr']
+]

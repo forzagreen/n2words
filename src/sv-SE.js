@@ -12,6 +12,8 @@
  */
 
 import { parseCardinalValue } from './utils/parse-cardinal.js'
+import { parseCurrencyValue } from './utils/parse-currency.js'
+import { parseOrdinalValue } from './utils/parse-ordinal.js'
 
 // ============================================================================
 // Vocabulary (module-level constants)
@@ -30,6 +32,35 @@ const DECIMAL_SEP = 'komma'
 
 // Scale words (long scale with -ard forms)
 const SCALES = ['tusen', 'miljon', 'miljard', 'biljon', 'biljard', 'triljon', 'triljard', 'kvadriljon']
+
+// ============================================================================
+// Ordinal Vocabulary
+// ============================================================================
+
+// Swedish ordinals: 1st-2nd use -a (första, andra), then -de suffix
+// Numbers ending in 1, 2 (except 11, 12) use special forms
+const ORDINAL_ONES = {
+  1: 'första',
+  2: 'andra',
+  3: 'tredje',
+  4: 'fjärde',
+  5: 'femte',
+  6: 'sjätte',
+  7: 'sjunde',
+  8: 'åttonde',
+  9: 'nionde',
+  10: 'tionde',
+  11: 'elfte',
+  12: 'tolfte'
+}
+
+// ============================================================================
+// Currency Vocabulary (Swedish Krona)
+// ============================================================================
+
+const KRONA = 'krona'
+const KRONOR = 'kronor' // plural
+const ORE = 'öre' // same singular and plural
 
 // ============================================================================
 // Segment Building
@@ -288,7 +319,101 @@ function toCardinal (value) {
 }
 
 // ============================================================================
+// ORDINAL: toOrdinal(value)
+// ============================================================================
+
+/**
+ * Converts a non-negative integer to Swedish ordinal words.
+ *
+ * Swedish ordinals: första (1st), andra (2nd), tredje (3rd), etc.
+ * Most use cardinal + de suffix, with special forms 1-12.
+ *
+ * @param {bigint} n - Positive integer to convert
+ * @returns {string} Swedish ordinal words
+ */
+function integerToOrdinal (n) {
+  // Special forms for 1-12
+  if (n >= 1n && n <= 12n) {
+    return ORDINAL_ONES[Number(n)]
+  }
+
+  // For numbers > 12, add -de suffix to cardinal
+  // But need to handle endings in 1, 2 specially
+  const cardinal = integerToWords(n)
+
+  // Numbers ending in ett -> första pattern not used for compound
+  // Swedish ordinals mostly add -de for >12
+  return cardinal + 'de'
+}
+
+/**
+ * Converts a numeric value to Swedish ordinal words.
+ *
+ * @param {number | string | bigint} value - The numeric value to convert (positive integer)
+ * @returns {string} The number as ordinal words
+ * @throws {TypeError} If value is not a valid numeric type
+ * @throws {RangeError} If value is negative, zero, or has a decimal part
+ *
+ * @example
+ * toOrdinal(1)    // 'första'
+ * toOrdinal(2)    // 'andra'
+ * toOrdinal(21)   // 'tjugo-ettde'
+ */
+function toOrdinal (value) {
+  const integerPart = parseOrdinalValue(value)
+  return integerToOrdinal(integerPart)
+}
+
+// ============================================================================
+// CURRENCY: toCurrency(value)
+// ============================================================================
+
+/**
+ * Converts a numeric value to Swedish currency words (Swedish Krona).
+ *
+ * Uses krona/kronor and öre (100 öre = 1 krona).
+ *
+ * @param {number | string | bigint} value - The currency amount to convert
+ * @returns {string} The amount in Swedish currency words
+ * @throws {TypeError} If value is not a valid numeric type
+ * @throws {Error} If value is not a valid number format
+ *
+ * @example
+ * toCurrency(1)      // 'en krona'
+ * toCurrency(42)     // 'fyrtio-två kronor'
+ * toCurrency(1.50)   // 'en krona och femtio öre'
+ */
+function toCurrency (value) {
+  const { isNegative, dollars: kronor, cents: ore } = parseCurrencyValue(value)
+
+  let result = ''
+  if (isNegative) {
+    result = NEGATIVE + ' '
+  }
+
+  // Kronor part
+  if (kronor > 0n || ore === 0n) {
+    // Use "en" for 1 krona (not "ett")
+    if (kronor === 1n) {
+      result += 'en ' + KRONA
+    } else {
+      result += integerToWords(kronor) + ' ' + KRONOR
+    }
+  }
+
+  // Öre part
+  if (ore > 0n) {
+    if (kronor > 0n) {
+      result += ' och '
+    }
+    result += integerToWords(ore) + ' ' + ORE
+  }
+
+  return result
+}
+
+// ============================================================================
 // Public API
 // ============================================================================
 
-export { toCardinal }
+export { toCardinal, toOrdinal, toCurrency }

@@ -10,6 +10,8 @@
  */
 
 import { parseCardinalValue } from './utils/parse-cardinal.js'
+import { parseCurrencyValue } from './utils/parse-currency.js'
+import { parseOrdinalValue } from './utils/parse-ordinal.js'
 
 // ============================================================================
 // Vocabulary
@@ -28,6 +30,32 @@ const DECIMAL_SEP = 'nöqtə'
 
 // Short scale
 const SCALE_WORDS = ['', THOUSAND, 'milyon', 'milyar', 'trilyon', 'katrilyon', 'kentilyon']
+
+// ============================================================================
+// Ordinal Vocabulary
+// ============================================================================
+
+// Azerbaijani ordinals use -(i/ı/u/ü)nci/ncı/ncu/ncü suffix with vowel harmony
+// Special forms for 1-10
+const ORDINAL_SPECIAL = {
+  1: 'birinci',
+  2: 'ikinci',
+  3: 'üçüncü',
+  4: 'dördüncü',
+  5: 'beşinci',
+  6: 'altıncı',
+  7: 'yeddinci',
+  8: 'səkkizinci',
+  9: 'doqquzuncu',
+  10: 'onuncu'
+}
+
+// ============================================================================
+// Currency Vocabulary (Azerbaijani Manat)
+// ============================================================================
+
+const MANAT = 'manat'
+const QEPIK = 'qəpik' // subunit (100 qəpik = 1 manat)
 
 // ============================================================================
 // Precomputed Lookup Table
@@ -165,7 +193,120 @@ function toCardinal (value) {
 }
 
 // ============================================================================
+// ORDINAL: toOrdinal(value)
+// ============================================================================
+
+/**
+ * Determines the ordinal suffix based on Azerbaijani vowel harmony.
+ * @param {string} word - The cardinal word
+ * @returns {string} The appropriate suffix
+ */
+function getOrdinalSuffix (word) {
+  // Azerbaijani vowel harmony: back vowels (a,ı,o,u) vs front vowels (ə,e,i,ö,ü)
+  const backVowels = 'aıou'
+  const frontVowels = 'əeiöü'
+
+  // Scan from end for last vowel
+  for (let i = word.length - 1; i >= 0; i--) {
+    const char = word[i]
+    if (backVowels.includes(char)) {
+      // Back vowels: -ıncı (after a,ı) or -uncu (after o,u)
+      if ('ou'.includes(char)) return 'uncu'
+      return 'ıncı'
+    }
+    if (frontVowels.includes(char)) {
+      // Front vowels: -inci (after ə,e,i) or -üncü (after ö,ü)
+      if ('öü'.includes(char)) return 'üncü'
+      return 'inci'
+    }
+  }
+  return 'inci' // default
+}
+
+/**
+ * Converts a non-negative integer to Azerbaijani ordinal words.
+ *
+ * Azerbaijani ordinals: birinci (1st), ikinci (2nd), üçüncü (3rd), etc.
+ * Uses vowel harmony for suffix selection.
+ *
+ * @param {bigint} n - Positive integer to convert
+ * @returns {string} Azerbaijani ordinal words
+ */
+function integerToOrdinal (n) {
+  // Special forms for 1-10
+  if (n >= 1n && n <= 10n) {
+    return ORDINAL_SPECIAL[Number(n)]
+  }
+
+  // For numbers > 10, get cardinal without spaces and add appropriate suffix
+  const cardinal = integerToWords(n).replace(/ /g, '')
+  const suffix = getOrdinalSuffix(cardinal)
+  return cardinal + suffix
+}
+
+/**
+ * Converts a numeric value to Azerbaijani ordinal words.
+ *
+ * @param {number | string | bigint} value - The numeric value to convert (positive integer)
+ * @returns {string} The number as ordinal words
+ * @throws {TypeError} If value is not a valid numeric type
+ * @throws {RangeError} If value is negative, zero, or has a decimal part
+ *
+ * @example
+ * toOrdinal(1)    // 'birinci'
+ * toOrdinal(2)    // 'ikinci'
+ * toOrdinal(21)   // 'iyirmibirinci'
+ */
+function toOrdinal (value) {
+  const integerPart = parseOrdinalValue(value)
+  return integerToOrdinal(integerPart)
+}
+
+// ============================================================================
+// CURRENCY: toCurrency(value)
+// ============================================================================
+
+/**
+ * Converts a numeric value to Azerbaijani currency words (Manat).
+ *
+ * Uses manat and qəpik (100 qəpik = 1 manat).
+ *
+ * @param {number | string | bigint} value - The currency amount to convert
+ * @returns {string} The amount in Azerbaijani currency words
+ * @throws {TypeError} If value is not a valid numeric type
+ * @throws {Error} If value is not a valid number format
+ *
+ * @example
+ * toCurrency(42)     // 'qırx iki manat'
+ * toCurrency(1.50)   // 'bir manat əlli qəpik'
+ * toCurrency(-5)     // 'mənfi beş manat'
+ */
+function toCurrency (value) {
+  const { isNegative, dollars: manat, cents: qepik } = parseCurrencyValue(value)
+
+  let result = ''
+  if (isNegative) {
+    result = NEGATIVE + ' '
+  }
+
+  // Manat part
+  if (manat > 0n || qepik === 0n) {
+    result += integerToWords(manat) + ' ' + MANAT
+  }
+
+  // Qəpik part
+  if (qepik > 0n) {
+    if (manat > 0n) {
+      result += ' '
+    }
+    result += integerToWords(qepik) + ' ' + QEPIK
+  }
+
+  return result
+}
+
+// ============================================================================
 // Exports
 // ============================================================================
 
-export { toCardinal }
+export { toCardinal, toOrdinal, toCurrency }
