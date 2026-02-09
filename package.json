@@ -116,10 +116,10 @@
     ]
   },
   "devDependencies": {
-    "@babel/core": "^7.28.6",
-    "@babel/preset-env": "^7.28.6",
-    "@commitlint/cli": "^20.3.1",
-    "@commitlint/config-conventional": "^20.3.1",
+    "@babel/core": "^7.29.0",
+    "@babel/preset-env": "^7.29.0",
+    "@commitlint/cli": "^20.4.1",
+    "@commitlint/config-conventional": "^20.4.1",
     "@commitlint/format": "^20.3.1",
     "@rollup/plugin-babel": "^6.1.0",
     "@rollup/plugin-node-resolve": "^16.0.3",
@@ -134,7 +134,7 @@
     "lint-staged": "^16.2.7",
     "markdownlint-cli2": "^0.20.0",
     "rimraf": "^6.1.2",
-    "rollup": "^4.55.2",
+    "rollup": "^4.57.1",
     "standard": "^17.1.2",
     "typescript": "^5.9.3"
   },
