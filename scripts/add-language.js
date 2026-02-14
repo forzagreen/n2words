@@ -18,12 +18,12 @@
  * If no form options provided, prompts for form selection.
  *
  * Examples:
- *   npm run lang:add                         # Fully interactive
- *   npm run lang:add ko                      # Prompts for forms
- *   npm run lang:add ko --cardinal           # Cardinal only
- *   npm run lang:add ko --ordinal            # Ordinal only
- *   npm run lang:add ko --currency           # Currency only
- *   npm run lang:add ko --cardinal --ordinal # Multiple forms
+ *   npm run lang:add                              # Fully interactive
+ *   npm run lang:add ko-KR                        # Prompts for forms
+ *   npm run lang:add ko-KR --cardinal             # Cardinal only
+ *   npm run lang:add ko-KR --ordinal              # Ordinal only
+ *   npm run lang:add ko-KR --currency             # Currency only
+ *   npm run lang:add ko-KR --cardinal --ordinal   # Multiple forms
  */
 
 import { execSync } from 'node:child_process'
@@ -83,7 +83,7 @@ async function promptForLanguageCode () {
 
   try {
     console.log(chalk.cyan('\nEnter a BCP 47 language code'))
-    console.log(chalk.gray('Examples: ko, zh-Hans-CN, pt-BR, sr-Latn-RS\n'))
+    console.log(chalk.gray('Examples: ko-KR, zh-Hans-CN, pt-BR, sr-Latn-RS\n'))
 
     const code = await rl.question(chalk.cyan('Language code: '))
     const trimmed = code.trim()
@@ -283,10 +283,10 @@ function generateLanguageFile (code, name, forms) {
   const header = `// TODO: Implement number-to-words conversion for ${name} (${code})
 //
 // Reference implementations by pattern:
-//   Western scale: src/en-US.js, de.js, fr.js
-//   South Asian:   src/hi.js, bn.js
-//   East Asian:    src/ja.js, ko.js, zh-Hans-CN.js
-//   Slavic:        src/ru.js, pl.js, uk.js`
+//   Western scale: src/en-US.js, de-DE.js, fr-FR.js
+//   South Asian:   src/hi-IN.js, bn-BD.js
+//   East Asian:    src/ja-JP.js, ko-KR.js, zh-Hans-CN.js
+//   Slavic:        src/ru-RU.js, pl-PL.js, uk-UA.js`
 
   const functions = []
   if (hasCardinal) functions.push(generateCardinalFunction(code))
@@ -410,8 +410,40 @@ function addFormsToExistingFile (code, newForms) {
     throw new Error(`Could not find export statement in ${filePath}`)
   }
 
+  // Add missing imports
+  const newImports = []
+  if (newForms.has('cardinal') && !content.includes('parse-cardinal.js')) {
+    newImports.push("import { parseCardinalValue } from './utils/parse-cardinal.js'")
+  }
+  if (newForms.has('ordinal') && !content.includes('parse-ordinal.js')) {
+    newImports.push("import { parseOrdinalValue } from './utils/parse-ordinal.js'")
+  }
+  if (newForms.has('currency') && !content.includes('parse-currency.js')) {
+    newImports.push("import { parseCurrencyValue } from './utils/parse-currency.js'")
+  }
+  if (newForms.has('currency') && !content.includes('validate-options.js')) {
+    newImports.push("import { validateOptions } from './utils/validate-options.js'")
+  }
+
+  if (newImports.length > 0) {
+    // Insert after the last existing import
+    const lastImportIdx = content.lastIndexOf('\nimport ')
+    if (lastImportIdx !== -1) {
+      const endOfLine = content.indexOf('\n', lastImportIdx + 1)
+      content = content.slice(0, endOfLine) + '\n' + newImports.join('\n') + content.slice(endOfLine)
+    } else {
+      // No existing imports — add at top
+      content = newImports.join('\n') + '\n\n' + content
+    }
+  }
+
   const newFunctions = []
   const newExports = []
+
+  if (newForms.has('cardinal')) {
+    newFunctions.push('\n' + generateCardinalFunction(code))
+    newExports.push('toCardinal')
+  }
 
   if (newForms.has('ordinal')) {
     newFunctions.push('\n' + generateOrdinalFunction(code))
@@ -423,12 +455,13 @@ function addFormsToExistingFile (code, newForms) {
     newExports.push('toCurrency')
   }
 
-  // Insert functions before export
-  const insertPos = content.indexOf(exportMatch[0])
+  // Insert functions before export (re-find since content may have shifted)
+  const updatedExportMatch = content.match(/export \{[^}]+\}/)
+  const insertPos = content.indexOf(updatedExportMatch[0])
   content = content.slice(0, insertPos) + newFunctions.join('\n') + '\n\n' + content.slice(insertPos)
 
   // Update export statement
-  const currentExports = exportMatch[0].match(/\{ ([^}]+) \}/)?.[1].split(',').map(s => s.trim()) || []
+  const currentExports = updatedExportMatch[0].match(/\{ ([^}]+) \}/)?.[1].split(',').map(s => s.trim()) || []
   const allExports = [...currentExports, ...newExports]
   const newExportStatement = `export { ${allExports.join(', ')} }`
   content = content.replace(/export \{[^}]+\}/, newExportStatement)
@@ -448,6 +481,20 @@ function addFormsToExistingFixture (code, name, newForms) {
   let content = readFileSync(filePath, 'utf-8')
 
   const newExports = []
+
+  if (newForms.has('cardinal')) {
+    newExports.push(`
+/**
+ * Cardinal number test cases for ${name} (${code})
+ * Format: [input, expected_output, options?]
+ */
+export const cardinal = [
+  // TODO: Add test cases
+  // [0, 'zero'],
+  // [1, 'one'],
+  // [42, 'forty-two'],
+]`)
+  }
 
   if (newForms.has('ordinal')) {
     newExports.push(`
@@ -500,12 +547,12 @@ async function main () {
     console.log(chalk.gray('If no form options provided, prompts for form selection.'))
     console.log()
     console.log(chalk.gray('Examples:'))
-    console.log(chalk.gray('  npm run lang:add                         # Fully interactive'))
-    console.log(chalk.gray('  npm run lang:add ko                      # Prompts for forms'))
-    console.log(chalk.gray('  npm run lang:add ko --cardinal           # Cardinal only'))
-    console.log(chalk.gray('  npm run lang:add ko --ordinal            # Ordinal only'))
-    console.log(chalk.gray('  npm run lang:add ko --currency           # Currency only'))
-    console.log(chalk.gray('  npm run lang:add ko --cardinal --ordinal # Multiple forms'))
+    console.log(chalk.gray('  npm run lang:add                              # Fully interactive'))
+    console.log(chalk.gray('  npm run lang:add ko-KR                        # Prompts for forms'))
+    console.log(chalk.gray('  npm run lang:add ko-KR --cardinal             # Cardinal only'))
+    console.log(chalk.gray('  npm run lang:add ko-KR --ordinal              # Ordinal only'))
+    console.log(chalk.gray('  npm run lang:add ko-KR --currency             # Currency only'))
+    console.log(chalk.gray('  npm run lang:add ko-KR --cardinal --ordinal   # Multiple forms'))
     process.exit(0)
   }
 
@@ -521,7 +568,7 @@ async function main () {
   // Validate BCP 47 language code
   if (!isValidLanguageCode(code)) {
     console.error(chalk.red(`Error: Invalid BCP 47 language tag: ${code}`))
-    console.log(chalk.gray('\nExamples: en-US, fr, zh-Hans-CN, sr-Latn-RS, fr-BE'))
+    console.log(chalk.gray('\nExamples: en-US, fr-FR, zh-Hans-CN, sr-Latn-RS, fr-BE'))
     process.exit(1)
   }
 
@@ -606,7 +653,7 @@ async function main () {
   console.log(chalk.gray(`1. Implement ${langFilePath}`))
   console.log(chalk.gray(`2. Add test cases to ${fixtureFilePath}`))
   console.log(chalk.gray('3. Run: npm test'))
-  console.log(chalk.gray('4. Run: npm run build:types && npm run test:types'))
+  console.log(chalk.gray('4. Run: npm run build:types'))
 }
 
 main().catch(err => {
