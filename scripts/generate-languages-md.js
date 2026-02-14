@@ -15,7 +15,7 @@
  */
 
 import { readFileSync, writeFileSync, readdirSync } from 'node:fs'
-import { getLanguageName, normalizeCode } from '../test/helpers/language-naming.js'
+import { getLanguageName } from '../test/helpers/language-naming.js'
 
 // ============================================================================
 // Language Discovery
@@ -23,7 +23,7 @@ import { getLanguageName, normalizeCode } from '../test/helpers/language-naming.
 
 // Manual overrides for languages not in CLDR
 const LANGUAGE_NAME_OVERRIDES = {
-  hbo: 'Biblical Hebrew'
+  'hbo-IL': 'Biblical Hebrew (Israel)'
 }
 
 /**
@@ -38,7 +38,7 @@ function getLanguageCodes () {
     .filter(f => f.isFile() && f.name.endsWith('.js') && !f.name.startsWith('utils'))
     .map(f => f.name.replace('.js', ''))
     .filter(code => !code.includes('/')) // Exclude utils subfolder
-    .sort((a, b) => normalizeCode(a).localeCompare(normalizeCode(b)))
+    .sort((a, b) => a.localeCompare(b))
 }
 
 /**
@@ -221,14 +221,37 @@ function collectOptionsByLanguage (codes) {
 }
 
 /**
- * Format an option as a markdown list item.
+ * Generate a GitHub-compatible heading anchor from a language name and code.
  *
- * @param {OptionInfo} opt Option info
- * @returns {string} Markdown list item
+ * @param {string} language Display name
+ * @param {string} code Language code
+ * @returns {string} Anchor string (without #)
  */
-function formatOptionItem (opt) {
-  const defaultStr = opt.defaultValue ? `, default: \`${opt.defaultValue}\`` : ''
-  return `- \`${opt.name}\` (${formatType(opt.type)}${defaultStr}) — ${opt.description}`
+function getAnchor (language, code) {
+  // Match GitHub's heading anchor algorithm:
+  // lowercase, keep alphanumeric/unicode/hyphens/spaces, spaces to hyphens
+  return `${language} (${code})`
+    .toLowerCase()
+    .replace(/[^\p{L}\p{N}\s-]/gu, '')
+    .replace(/\s+/g, '-')
+}
+
+/**
+ * Format options as a compact markdown table.
+ *
+ * @param {OptionInfo[]} options Array of option info
+ * @returns {string} Markdown table
+ */
+function formatOptionsTable (options) {
+  const lines = [
+    '|Option|Form|Type|Default|Description|',
+    '|------|----|----|-------|-----------|'
+  ]
+  for (const opt of options) {
+    const defaultStr = opt.defaultValue ? `\`${opt.defaultValue}\`` : '—'
+    lines.push(`|\`${opt.name}\`|${opt.form}|${formatType(opt.type)}|${defaultStr}|${opt.description}|`)
+  }
+  return lines.join('\n')
 }
 
 /**
@@ -246,61 +269,42 @@ function generateMarkdown (codes) {
   const optionsByLang = collectOptionsByLanguage(codes)
   const optionsCount = optionsByLang.length
 
+  // Build a set of codes that have options for quick anchor lookup
+  const optionAnchors = new Map()
+  for (const lang of optionsByLang) {
+    optionAnchors.set(lang.code, getAnchor(lang.language, lang.code))
+  }
+
   const langRows = codes.map(code => {
-    const normalized = normalizeCode(code)
     const name = getDisplayName(code)
-    const exportCol = code !== normalized ? `\`${normalized}\`` : ''
+    const anchor = optionAnchors.get(code)
 
-    // Cardinal column - all languages have cardinal, superscript if has options
-    const cardinalCol = hasCardinalOptions(code) ? '✓¹' : '✓'
+    // Link to options section when language has options for that form
+    const linked = `[✓*](#${anchor})`
+    const cardinalCol = hasCardinalOptions(code) ? linked : '✓'
 
-    // Ordinal column - only if implemented, superscript if has options
     let ordinalCol = ''
     if (hasOrdinal(code)) {
-      ordinalCol = hasOrdinalOptions(code) ? '✓¹' : '✓'
+      ordinalCol = hasOrdinalOptions(code) ? linked : '✓'
     }
 
-    // Currency column - only if implemented, superscript if has options
     let currencyCol = ''
     if (hasCurrency(code)) {
-      currencyCol = hasCurrencyOptions(code) ? '✓¹' : '✓'
+      currencyCol = hasCurrencyOptions(code) ? linked : '✓'
     }
 
-    return `|\`${code}\`|${exportCol}|${name}|${cardinalCol}|${ordinalCol}|${currencyCol}|`
+    return `|\`${code}\`|${name}|${cardinalCol}|${ordinalCol}|${currencyCol}|`
   })
 
-  // Generate per-language options sections
+  // Generate per-language options sections with compact tables
   const optionSections = optionsByLang.map(lang => {
-    const lines = [`### ${lang.language} (\`${lang.code}\`)`]
+    const allOptions = [
+      ...lang.cardinalOptions,
+      ...lang.ordinalOptions,
+      ...lang.currencyOptions
+    ]
 
-    if (lang.cardinalOptions.length > 0) {
-      lines.push('')
-      lines.push('**Cardinal options:**')
-      lines.push('')
-      for (const opt of lang.cardinalOptions) {
-        lines.push(formatOptionItem(opt))
-      }
-    }
-
-    if (lang.ordinalOptions.length > 0) {
-      lines.push('')
-      lines.push('**Ordinal options:**')
-      lines.push('')
-      for (const opt of lang.ordinalOptions) {
-        lines.push(formatOptionItem(opt))
-      }
-    }
-
-    if (lang.currencyOptions.length > 0) {
-      lines.push('')
-      lines.push('**Currency options:**')
-      lines.push('')
-      for (const opt of lang.currencyOptions) {
-        lines.push(formatOptionItem(opt))
-      }
-    }
-
-    return lines.join('\n')
+    return `### ${lang.language} (\`${lang.code}\`)\n\n${formatOptionsTable(allOptions)}`
   })
 
   return `# Supported Languages
@@ -313,11 +317,11 @@ Language codes follow [IETF BCP 47](https://tools.ietf.org/html/bcp47) standards
 
 ## All Languages
 
-|Code|Export|Language|Cardinal|Ordinal|Currency|
-|----|------|--------|:------:|:-----:|:------:|
+|Code|Language|Cardinal|Ordinal|Currency|
+|----|--------|:------:|:-----:|:------:|
 ${langRows.join('\n')}
 
-¹ Has options — see [Language Options](#language-options) section.
+\\* Has options — click to jump to that language's options.
 
 ## Usage
 

@@ -13,22 +13,40 @@ const pkg = JSON.parse(readFileSync('./package.json', 'utf8'))
 const languageCodes = getLanguageCodes()
 
 /**
+ * Check if a language file exports a given function name.
+ * @param {string} content File content
+ * @param {string} fnName Function name to look for in export statement
+ * @returns {boolean}
+ */
+function hasExport (content, fnName) {
+  const exportMatch = content.match(/export\s*\{([^}]+)\}/)
+  return exportMatch ? exportMatch[1].includes(fnName) : false
+}
+
+/**
  * Get languages that have ordinal support by checking for toOrdinal export.
  * @returns {string[]} Language codes with ordinal support
  */
 function getOrdinalLanguages () {
-  const ordinalLangs = []
-  for (const langCode of languageCodes) {
-    const content = readFileSync(`./src/${langCode}.js`, 'utf8')
-    if (content.includes('export { toCardinal, toOrdinal }') ||
-        content.includes('export { toOrdinal, toCardinal }')) {
-      ordinalLangs.push(langCode)
-    }
-  }
-  return ordinalLangs
+  return languageCodes.filter(code => {
+    const content = readFileSync(`./src/${code}.js`, 'utf8')
+    return hasExport(content, 'toOrdinal')
+  })
+}
+
+/**
+ * Get languages that have currency support by checking for toCurrency export.
+ * @returns {string[]} Language codes with currency support
+ */
+function getCurrencyLanguages () {
+  return languageCodes.filter(code => {
+    const content = readFileSync(`./src/${code}.js`, 'utf8')
+    return hasExport(content, 'toCurrency')
+  })
 }
 
 const ordinalLanguages = getOrdinalLanguages()
+const currencyLanguages = getCurrencyLanguages()
 
 /**
  * Rollup configuration for n2words bundles.
@@ -111,17 +129,22 @@ const languageUmdConfigs = languageCodes.map(langCode => {
   const normalizedName = normalizeCode(langCode)
   const virtualEntryId = `\0virtual:umd:${langCode}`
   const hasOrdinal = ordinalLanguages.includes(langCode)
+  const hasCurrency = currencyLanguages.includes(langCode)
 
   // Build virtual entry content
   // Cardinal: n2words.enUS(42) → "forty-two"
   // Ordinal:  n2words.ordinal.enUS(42) → "forty-second"
+  // Currency: n2words.currency.enUS(42.50) → "forty-two dollars and fifty cents"
   let virtualContent = `export { toCardinal as ${normalizedName} } from './src/${langCode}.js';\n`
 
   if (hasOrdinal) {
-    // Export ordinal under nested namespace
-    // This creates: n2words.ordinal = { enUS: toOrdinal }
     virtualContent += `import { toOrdinal } from './src/${langCode}.js';\n`
-    virtualContent += `export const ordinal = { ${normalizedName}: toOrdinal };`
+    virtualContent += `export const ordinal = { ${normalizedName}: toOrdinal };\n`
+  }
+
+  if (hasCurrency) {
+    virtualContent += `import { toCurrency } from './src/${langCode}.js';\n`
+    virtualContent += `export const currency = { ${normalizedName}: toCurrency };\n`
   }
 
   return {
