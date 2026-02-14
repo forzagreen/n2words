@@ -28,7 +28,7 @@ npm install n2words
 
 ```js
 import { toCardinal } from 'n2words/en-US'
-import { toCardinal as es } from 'n2words/es'
+import { toCardinal as es } from 'n2words/es-ES'
 
 toCardinal(42)   // 'forty-two'
 es(42)           // 'cuarenta y dos'
@@ -52,7 +52,7 @@ toOrdinal(1234)       // 'one thousand two hundred thirty-fourth'
 toCurrency(1234.56)   // 'one thousand two hundred thirty-four dollars and fifty-six cents'
 ```
 
-Form availability varies by language. See [LANGUAGES.md](LANGUAGES.md) for details.
+All 71 languages support all three forms. See [LANGUAGES.md](LANGUAGES.md) for details.
 
 ## Usage
 
@@ -61,7 +61,7 @@ Form availability varies by language. See [LANGUAGES.md](LANGUAGES.md) for detai
 ```js
 import { toCardinal } from 'n2words/en-US'            // Single form
 import { toCardinal, toOrdinal } from 'n2words/en-US' // Multiple forms
-import { toCardinal as fr } from 'n2words/fr'         // Aliased import
+import { toCardinal as fr } from 'n2words/fr-FR'       // Aliased import
 ```
 
 **Browser (CDN):**
@@ -86,7 +86,7 @@ See [LANGUAGES.md](LANGUAGES.md) for all language codes and available forms.
 
 ## Supported Languages (71)
 
-See **[LANGUAGES.md](LANGUAGES.md)** for the complete list with codes, export names, and options.
+See **[LANGUAGES.md](LANGUAGES.md)** for the complete list with codes and options.
 
 Highlights: Arabic, Chinese (Simplified/Traditional), English, French, German, Hindi, Japanese, Korean, Portuguese, Russian, Spanish, and [60 more](LANGUAGES.md).
 

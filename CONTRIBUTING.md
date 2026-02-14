@@ -15,14 +15,14 @@ npm test
 
 1. Create a feature branch: `git checkout -b feat/add-pt-BR`
 2. Make changes, then run `npm run lint && npm test`
-3. Commit using [Conventional Commits](https://www.conventionalcommits.org/): `git commit -m "feat(lang): add Korean"`
+3. Commit using [Conventional Commits](https://www.conventionalcommits.org/): `git commit -m "feat(ko-KR): add Korean"`
 4. Push and open PR targeting `main`
 
 **Common commit formats:**
 
 - `feat(pt-BR): add Brazilian Portuguese` — new language
 - `fix(en-US): correct thousand handling` — language-specific fix
-- `perf(ja): optimize BigInt handling` — performance improvement
+- `perf(ja-JP): optimize BigInt handling` — performance improvement
 - `refactor(core): simplify exports` — code refactoring
 - `docs: update README` — documentation
 
@@ -31,10 +31,10 @@ Scopes use BCP 47 language codes (`en-US`, `fr-BE`, `zh-Hans-CN`) or project are
 ## Adding a New Language
 
 ```bash
-npm run lang:add <code>   # e.g., ko, sr-Cyrl-RS, fr-BE
+npm run lang:add <code>   # e.g., ko-KR, sr-Cyrl-RS, fr-BE
 ```
 
-This scaffolds all required files for the forms you select. **Forms** are the different ways to express numbers in words:
+This scaffolds all required files. Every language implements three **forms**:
 
 | Form     | Function       | Example              |
 | -------- | -------------- | -------------------- |
@@ -44,7 +44,7 @@ This scaffolds all required files for the forms you select. **Forms** are the di
 
 Then:
 
-1. Implement at least one form in `src/<code>.js`
+1. Implement all three forms in `src/<code>.js`
 2. Add test cases to `test/fixtures/<code>.js`
 3. Run `npm test`
 

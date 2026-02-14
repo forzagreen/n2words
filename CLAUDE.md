@@ -5,7 +5,7 @@ n2words: Number to words converter. ESM + UMD, Node >=20, zero dependencies.
 ## Quick Reference
 
 - **Language codes**: IETF BCP 47 (`en-US`, `zh-Hans-CN`, `fr-BE`)
-- **Imports**: `import { toCardinal } from 'n2words/en-US'`
+- **Imports**: `import { toCardinal, toOrdinal, toCurrency } from 'n2words/en-US'`
 - **Forms**: Cardinal (`toCardinal`), Ordinal (`toOrdinal`), Currency (`toCurrency`)
 
 ## Project Structure
@@ -24,20 +24,29 @@ src/
 
 ## Language File Pattern
 
+Every language exports all three forms: `toCardinal`, `toOrdinal`, `toCurrency`.
+
 ```javascript
 import { parseCardinalValue } from './utils/parse-cardinal.js'
+import { parseCurrencyValue } from './utils/parse-currency.js'
+import { parseOrdinalValue } from './utils/parse-ordinal.js'
 
-/**
- * @param {number | string | bigint} value
- * @returns {string}
- */
 function toCardinal (value) {
   const { isNegative, integerPart, decimalPart } = parseCardinalValue(value)
   // integerPart is bigint, handle isNegative prefix and decimalPart suffix
-  return result
 }
 
-export { toCardinal }
+function toOrdinal (value) {
+  const integerPart = parseOrdinalValue(value)
+  // positive integers only
+}
+
+function toCurrency (value) {
+  const { isNegative, dollars, cents } = parseCurrencyValue(value)
+  // dollars/cents are bigints
+}
+
+export { toCardinal, toOrdinal, toCurrency }
 ```
 
 ## Options Pattern
@@ -65,16 +74,16 @@ function toCardinal (value, options) {
 npm run lang:add <code>  # Creates stub + fixture + type tests
 ```
 
-Then: implement at least one form (`toCardinal`, `toOrdinal`, `toCurrency`) in `src/{code}.js`, add cases to `test/fixtures/{code}.js`, run `npm test`.
+Then: implement all three forms (`toCardinal`, `toOrdinal`, `toCurrency`) in `src/{code}.js`, add cases to `test/fixtures/{code}.js`, run `npm test`.
 
 **Reference implementations by pattern**:
 
-| Pattern     | Examples                          |
-| ----------- | --------------------------------- |
-| Western     | `en-US.js`, `de.js`, `fr.js`      |
-| South Asian | `hi.js`, `bn.js`                  |
-| East Asian  | `ja.js`, `ko.js`, `zh-Hans-CN.js` |
-| Slavic      | `ru.js`, `pl.js`, `uk.js`         |
+| Pattern     | Examples                                |
+| ----------- | --------------------------------------- |
+| Western     | `en-US.js`, `de-DE.js`, `fr-FR.js`      |
+| South Asian | `hi-IN.js`, `bn-BD.js`                  |
+| East Asian  | `ja-JP.js`, `ko-KR.js`, `zh-Hans-CN.js` |
+| Slavic      | `ru-RU.js`, `pl-PL.js`, `uk-UA.js`      |
 
 ## Commands
 
@@ -83,7 +92,7 @@ npm test                         # Unit tests + build types
 npm run lint:fix                 # Fix linting issues
 npm run bench                    # All languages
 npm run bench -- en-US           # Single language
-npm run bench -- en-US,fr,de     # Multiple languages
+npm run bench -- en-US,fr-FR,de-DE  # Multiple languages
 npm run bench -- --save --compare  # Track changes over time
 ```
 
@@ -94,7 +103,7 @@ Conventional Commits required. Scopes: BCP 47 codes (`en-US`, `fr-BE`) or projec
 ```bash
 feat(pt-BR): add Brazilian Portuguese
 fix(en-US): correct thousand handling
-perf(ja): optimize BigInt handling
+perf(ja-JP): optimize BigInt handling
 ```
 
 See `.commitlintrc.mjs` for full configuration.
