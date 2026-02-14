@@ -6,8 +6,8 @@
  *
  * Usage:
  *   npm run bench                              # All languages, all functions
- *   npm run bench -- en                        # Single language
- *   npm run bench -- en,fr,de                  # Multiple languages
+ *   npm run bench -- en-US                     # Single language
+ *   npm run bench -- en-US,fr-FR,de-DE         # Multiple languages
  *   npm run bench -- --fn toCardinal           # toCardinal only
  *   npm run bench -- --fn toOrdinal            # toOrdinal only
  *   npm run bench -- --save --compare          # Track changes over time
@@ -28,7 +28,6 @@ import { getLanguageCodes } from '../test/helpers/language-helpers.js'
  * These are the standard export names from language modules.
  */
 const KNOWN_FUNCTIONS = ['toCardinal', 'toOrdinal', 'toCurrency']
-// Future: 'toYear', etc.
 
 // ============================================================================
 // Benchmark Configuration
@@ -221,11 +220,7 @@ if (compareResults) {
       const matching = entries.filter(e => e.value === value)
       if (matching.length > 0) {
         const latest = matching[matching.length - 1]
-        previousResults[lang] = latest.functions || latest.forms || {}
-        // Backward compatibility: old format stored hz/bytes directly
-        if (!latest.functions && !latest.forms && latest.hz) {
-          previousResults[lang] = { toCardinal: { hz: latest.hz, bytes: latest.bytes } }
-        }
+        previousResults[lang] = latest.functions || {}
       }
     }
     if (Object.keys(previousResults).length === 0) {
@@ -361,11 +356,8 @@ if (showHistory) {
     // Build header based on functions in data
     const fnNames = new Set()
     for (const entry of entries) {
-      const fns = entry.functions || entry.forms
-      if (fns) {
-        Object.keys(fns).forEach(k => fnNames.add(k))
-      } else if (entry.hz) {
-        fnNames.add('toCardinal') // Backward compatibility
+      if (entry.functions) {
+        Object.keys(entry.functions).forEach(k => fnNames.add(k))
       }
     }
 
@@ -386,8 +378,7 @@ if (showHistory) {
         chalk.gray(formatDateTime(entry.timestamp).padEnd(18)) + ' | ' +
         chalk.gray(formatTestValue(entry.value).padStart(10))
 
-      // Get functions data (with backward compatibility)
-      const fnsData = entry.functions || entry.forms || (entry.hz ? { toCardinal: { hz: entry.hz, bytes: entry.bytes } } : {})
+      const fnsData = entry.functions || {}
 
       for (const fnName of fnNames) {
         const fnData = fnsData[fnName]
@@ -431,15 +422,16 @@ if (showHistory) {
       chalk.gray('Runs'.padStart(4)) + ' | ' +
       chalk.gray('toCardinal'.padStart(12)) + ' | ' +
       chalk.gray('toOrdinal'.padStart(12)) + ' | ' +
+      chalk.gray('toCurrency'.padStart(12)) + ' | ' +
       chalk.gray('Last Run'.padStart(18))
     )
-    console.log(chalk.gray('-'.repeat(79)))
+    console.log(chalk.gray('-'.repeat(93)))
 
     for (const entry of summaries) {
-      // Get functions data (with backward compatibility)
-      const fnsData = entry.functions || entry.forms || (entry.hz ? { toCardinal: { hz: entry.hz } } : {})
+      const fnsData = entry.functions || {}
       const cardinalHz = fnsData.toCardinal?.hz ? formatOps(fnsData.toCardinal.hz) : '-'
       const ordinalHz = fnsData.toOrdinal?.hz ? formatOps(fnsData.toOrdinal.hz) : '-'
+      const currencyHz = fnsData.toCurrency?.hz ? formatOps(fnsData.toCurrency.hz) : '-'
 
       console.log(
         chalk.gray(entry.name.padEnd(12)) + ' | ' +
@@ -447,20 +439,21 @@ if (showHistory) {
         chalk.gray(String(entry.count).padStart(4)) + ' | ' +
         chalk.white(cardinalHz.padStart(12)) + ' | ' +
         chalk.white(ordinalHz.padStart(12)) + ' | ' +
+        chalk.white(currencyHz.padStart(12)) + ' | ' +
         chalk.gray(formatDateTime(entry.timestamp).padStart(18))
       )
     }
 
     // Summary stats
-    console.log(chalk.gray('-'.repeat(79)))
-    const withCardinal = summaries.filter(e => e.functions?.toCardinal?.hz || e.forms?.toCardinal?.hz || e.hz)
-
-    if (withCardinal.length > 0) {
-      const getHz = (e) => e.functions?.toCardinal?.hz || e.forms?.toCardinal?.hz || e.hz
-      const fastest = withCardinal.reduce((max, e) => getHz(e) > getHz(max) ? e : max)
-      const slowest = withCardinal.reduce((min, e) => getHz(e) < getHz(min) ? e : min)
-      console.log(chalk.green(`Fastest toCardinal: ${fastest.name} (${formatOps(getHz(fastest))})`))
-      console.log(chalk.yellow(`Slowest toCardinal: ${slowest.name} (${formatOps(getHz(slowest))})`))
+    console.log(chalk.gray('-'.repeat(93)))
+    for (const fnName of KNOWN_FUNCTIONS) {
+      const withFn = summaries.filter(e => e.functions?.[fnName]?.hz)
+      if (withFn.length > 0) {
+        const fastest = withFn.reduce((max, e) => e.functions[fnName].hz > max.functions[fnName].hz ? e : max)
+        const slowest = withFn.reduce((min, e) => e.functions[fnName].hz < min.functions[fnName].hz ? e : min)
+        console.log(chalk.green(`Fastest ${fnName}: ${fastest.name} (${formatOps(fastest.functions[fnName].hz)})`))
+        console.log(chalk.yellow(`Slowest ${fnName}: ${slowest.name} (${formatOps(slowest.functions[fnName].hz)})`))
+      }
     }
     console.log()
   }
@@ -886,16 +879,16 @@ function displayHelp () {
   console.log('  ' + chalk.yellow('--remove') + ' <id>       Remove history entry by ID (comma-separated for multiple)')
   console.log('  ' + chalk.yellow('--help') + '              Display this help\n')
   console.log(chalk.cyan('Examples:'))
-  console.log('  ' + chalk.gray('npm run bench                              # All languages, all functions'))
-  console.log('  ' + chalk.gray('npm run bench -- en                        # English only'))
-  console.log('  ' + chalk.gray('npm run bench -- en,fr,de                  # Multiple languages'))
-  console.log('  ' + chalk.gray('npm run bench -- --fn toCardinal           # toCardinal only'))
-  console.log('  ' + chalk.gray('npm run bench -- --fn toOrdinal            # toOrdinal only'))
-  console.log('  ' + chalk.gray('npm run bench -- en --function toCardinal  # Single lang, single fn'))
-  console.log('  ' + chalk.gray('npm run bench -- --full                    # Full accuracy mode'))
-  console.log('  ' + chalk.gray('npm run bench -- --save --compare          # Track changes'))
-  console.log('  ' + chalk.gray('npm run bench -- --history                 # Summary of all saved'))
-  console.log('  ' + chalk.gray('npm run bench -- en --history              # History for one lang'))
-  console.log('  ' + chalk.gray('npm run bench -- --remove 5                # Remove entry by ID'))
-  console.log('  ' + chalk.gray('npm run bench -- --remove 1,2,3            # Remove multiple\n'))
+  console.log('  ' + chalk.gray('npm run bench                                   # All languages, all functions'))
+  console.log('  ' + chalk.gray('npm run bench -- en-US                          # Single language'))
+  console.log('  ' + chalk.gray('npm run bench -- en-US,fr-FR,de-DE              # Multiple languages'))
+  console.log('  ' + chalk.gray('npm run bench -- --fn toCardinal                # toCardinal only'))
+  console.log('  ' + chalk.gray('npm run bench -- --fn toOrdinal                 # toOrdinal only'))
+  console.log('  ' + chalk.gray('npm run bench -- en-US --function toCardinal    # Single lang, single fn'))
+  console.log('  ' + chalk.gray('npm run bench -- --full                         # Full accuracy mode'))
+  console.log('  ' + chalk.gray('npm run bench -- --save --compare               # Track changes'))
+  console.log('  ' + chalk.gray('npm run bench -- --history                      # Summary of all saved'))
+  console.log('  ' + chalk.gray('npm run bench -- en-US --history                # History for one lang'))
+  console.log('  ' + chalk.gray('npm run bench -- --remove 5                     # Remove entry by ID'))
+  console.log('  ' + chalk.gray('npm run bench -- --remove 1,2,3                 # Remove multiple\n'))
 }

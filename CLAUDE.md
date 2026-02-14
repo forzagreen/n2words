@@ -96,6 +96,10 @@ npm run bench -- en-US,fr-FR,de-DE  # Multiple languages
 npm run bench -- --save --compare  # Track changes over time
 ```
 
+## Git Workflow
+
+**NEVER commit directly to `main`.** Always create a feature branch and open a PR. The `main` branch has branch protection — direct pushes will be rejected.
+
 ## Commits
 
 Conventional Commits required. Scopes: BCP 47 codes (`en-US`, `fr-BE`) or project areas (`core`, `types`, `umd`).
