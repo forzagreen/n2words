@@ -70,17 +70,17 @@ test('rejects function', t => {
 // ============================================================================
 
 test('rejects NaN', t => {
-  const error = t.throws(() => parseCurrencyValue(NaN), { instanceOf: Error })
+  const error = t.throws(() => parseCurrencyValue(NaN), { instanceOf: RangeError })
   t.regex(error.message, /finite/)
 })
 
 test('rejects Infinity', t => {
-  const error = t.throws(() => parseCurrencyValue(Infinity), { instanceOf: Error })
+  const error = t.throws(() => parseCurrencyValue(Infinity), { instanceOf: RangeError })
   t.regex(error.message, /finite/)
 })
 
 test('rejects negative Infinity', t => {
-  const error = t.throws(() => parseCurrencyValue(-Infinity), { instanceOf: Error })
+  const error = t.throws(() => parseCurrencyValue(-Infinity), { instanceOf: RangeError })
   t.regex(error.message, /finite/)
 })
 
@@ -214,6 +214,14 @@ test('expands negative exponent to decimal', t => {
 
 test('handles negative scientific notation', t => {
   t.deepEqual(parseCurrencyValue('-1e2'), { isNegative: true, dollars: 100n, cents: 0n })
+})
+
+test('handles negative number with negative exponent', t => {
+  t.deepEqual(parseCurrencyValue('-5e-1'), { isNegative: true, dollars: 0n, cents: 50n })
+})
+
+test('handles negative string with negative exponent', t => {
+  t.deepEqual(parseCurrencyValue('-1.5e-1'), { isNegative: true, dollars: 0n, cents: 15n })
 })
 
 // ============================================================================
