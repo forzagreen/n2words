@@ -4,7 +4,7 @@
  * @module parse-currency
  */
 
-import { expandScientificNotation, hasScientificNotation } from './expand-scientific.js'
+import { expandScientificNotation, hasScientificNotation, numberToString } from './expand-scientific.js'
 
 /**
  * Parses a value for currency conversion.
@@ -13,7 +13,7 @@ import { expandScientificNotation, hasScientificNotation } from './expand-scient
  * @param {number|string|bigint} value - The value to parse
  * @returns {{isNegative: boolean, dollars: bigint, cents: bigint}}
  * @throws {TypeError} If value is not number, string, or bigint
- * @throws {Error} If value is not a valid number format
+ * @throws {RangeError} If value is not finite
  */
 export function parseCurrencyValue (value) {
   const type = typeof value
@@ -28,7 +28,7 @@ export function parseCurrencyValue (value) {
   // Number: fast path for safe integers
   if (type === 'number') {
     if (!Number.isFinite(value)) {
-      throw new Error('Currency must be a finite number')
+      throw new RangeError('Currency must be a finite number')
     }
     if (Number.isSafeInteger(value)) {
       return value < 0
@@ -47,14 +47,6 @@ export function parseCurrencyValue (value) {
   throw new TypeError(
     `Invalid value type: expected number, string, or bigint, received ${type}`
   )
-}
-
-/**
- * Converts a number to decimal string, expanding scientific notation if needed.
- */
-function numberToString (value) {
-  const str = value.toString()
-  return hasScientificNotation(str) ? expandScientificNotation(str) : str
 }
 
 /**

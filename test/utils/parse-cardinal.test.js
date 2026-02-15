@@ -155,17 +155,17 @@ test('rejects class instance', t => {
 // ============================================================================
 
 test('rejects NaN', t => {
-  const error = t.throws(() => parseCardinalValue(NaN), { instanceOf: Error })
+  const error = t.throws(() => parseCardinalValue(NaN), { instanceOf: RangeError })
   t.is(error.message, 'Number must be finite (NaN and Infinity are not supported)')
 })
 
 test('rejects Infinity', t => {
-  const error = t.throws(() => parseCardinalValue(Infinity), { instanceOf: Error })
+  const error = t.throws(() => parseCardinalValue(Infinity), { instanceOf: RangeError })
   t.is(error.message, 'Number must be finite (NaN and Infinity are not supported)')
 })
 
 test('rejects negative Infinity', t => {
-  const error = t.throws(() => parseCardinalValue(-Infinity), { instanceOf: Error })
+  const error = t.throws(() => parseCardinalValue(-Infinity), { instanceOf: RangeError })
   t.is(error.message, 'Number must be finite (NaN and Infinity are not supported)')
 })
 
@@ -344,6 +344,20 @@ test('handles negative scientific notation', t => {
   const result = parseCardinalValue(-1e21)
   t.is(result.isNegative, true)
   t.is(result.integerPart, 1000000000000000000000n)
+})
+
+test('handles negative number with negative exponent', t => {
+  const result = parseCardinalValue(-1e-7)
+  t.is(result.isNegative, true)
+  t.is(result.integerPart, 0n)
+  t.is(result.decimalPart, '0000001')
+})
+
+test('handles negative string with negative exponent', t => {
+  const result = parseCardinalValue('-1.5e-3')
+  t.is(result.isNegative, true)
+  t.is(result.integerPart, 0n)
+  t.is(result.decimalPart, '0015')
 })
 
 // ============================================================================

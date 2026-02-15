@@ -17,8 +17,15 @@
  * expandScientificNotation("1e-3")    // "0.001"
  */
 export function expandScientificNotation (str) {
-  const [mantissa, expStr] = str.toLowerCase().split('e')
+  let [mantissa, expStr] = str.toLowerCase().split('e')
   const exp = parseInt(expStr, 10)
+
+  // Strip sign before processing digits
+  let sign = ''
+  if (mantissa[0] === '-') {
+    sign = '-'
+    mantissa = mantissa.slice(1)
+  }
 
   const dotIndex = mantissa.indexOf('.')
   const digits = dotIndex === -1
@@ -28,12 +35,23 @@ export function expandScientificNotation (str) {
   const newDotPosition = integerLength + exp
 
   if (newDotPosition >= digits.length) {
-    return digits + '0'.repeat(newDotPosition - digits.length)
+    return sign + digits + '0'.repeat(newDotPosition - digits.length)
   } else if (newDotPosition <= 0) {
-    return '0.' + '0'.repeat(-newDotPosition) + digits
+    return sign + '0.' + '0'.repeat(-newDotPosition) + digits
   } else {
-    return digits.slice(0, newDotPosition) + '.' + digits.slice(newDotPosition)
+    return sign + digits.slice(0, newDotPosition) + '.' + digits.slice(newDotPosition)
   }
+}
+
+/**
+ * Converts a number to decimal string, expanding scientific notation if needed.
+ *
+ * @param {number} value - The number to convert
+ * @returns {string} Decimal string representation
+ */
+export function numberToString (value) {
+  const str = value.toString()
+  return hasScientificNotation(str) ? expandScientificNotation(str) : str
 }
 
 /**
