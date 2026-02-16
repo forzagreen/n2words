@@ -59,8 +59,8 @@ function buildSegment (n) {
   if (n === 100) return { word: 'cem', isExactHundred: true }
 
   const ones = n % 10
-  const tens = Math.floor(n / 10) % 10
-  const hundreds = Math.floor(n / 100)
+  const tens = Math.trunc(n / 10) % 10
+  const hundreds = Math.trunc(n / 100)
 
   const parts = []
 
@@ -314,8 +314,8 @@ function buildOrdinalSegment (n) {
   if (n === 0) return ''
 
   const ones = n % 10
-  const tens = Math.floor(n / 10) % 10
-  const hundreds = Math.floor(n / 100)
+  const tens = Math.trunc(n / 10) % 10
+  const hundreds = Math.trunc(n / 100)
 
   const parts = []
 
@@ -424,8 +424,6 @@ function buildLargeOrdinal (n) {
  */
 function toOrdinal (value) {
   const n = parseOrdinalValue(value)
-
-  if (n === 0n) return ZERO
 
   // Fast path: 1-9
   if (n < 10n) {
