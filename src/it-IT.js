@@ -77,8 +77,8 @@ function buildSegment (n) {
   if (n === 0) return ''
 
   const ones = n % 10
-  const tens = Math.floor(n / 10) % 10
-  const hundreds = Math.floor(n / 100)
+  const tens = Math.trunc(n / 10) % 10
+  const hundreds = Math.trunc(n / 100)
 
   let result = ''
 
@@ -160,7 +160,7 @@ function buildThousands (n) {
  */
 function getScaleWordSingular (scaleIndex) {
   if (scaleIndex < 2) return ''
-  const prefixIndex = Math.floor((scaleIndex - 2) / 2)
+  const prefixIndex = Math.trunc((scaleIndex - 2) / 2)
   const isIardo = (scaleIndex - 2) % 2 === 1
   const prefix = SCALE_PREFIXES[prefixIndex]
   if (!prefix) return ''
@@ -173,7 +173,7 @@ function getScaleWordSingular (scaleIndex) {
  */
 function getScaleWordPlural (scaleIndex) {
   if (scaleIndex < 2) return ''
-  const prefixIndex = Math.floor((scaleIndex - 2) / 2)
+  const prefixIndex = Math.trunc((scaleIndex - 2) / 2)
   const isIardo = (scaleIndex - 2) % 2 === 1
   const prefix = SCALE_PREFIXES[prefixIndex]
   if (!prefix) return ''

@@ -74,8 +74,8 @@ function buildSegment (n) {
   if (n === 0) return { word: '', hasHundred: false, lessThan100: false }
 
   const ones = n % 10
-  const tens = Math.floor(n / 10) % 10
-  const hundreds = Math.floor(n / 100)
+  const tens = Math.trunc(n / 10) % 10
+  const hundreds = Math.trunc(n / 100)
 
   const parts = []
   let hasHundred = false
