@@ -59,7 +59,7 @@ function parseCurrencyString (value) {
   let str = value.trim()
 
   if (str.length === 0 || Number.isNaN(Number(str))) {
-    throw new Error(`Invalid currency format: "${value}"`)
+    throw new RangeError(`Invalid currency format: "${value}"`)
   }
 
   // Expand scientific notation

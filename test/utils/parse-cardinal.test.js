@@ -174,22 +174,22 @@ test('rejects negative Infinity', t => {
 // ============================================================================
 
 test('rejects empty string', t => {
-  const error = t.throws(() => parseCardinalValue(''), { instanceOf: Error })
+  const error = t.throws(() => parseCardinalValue(''), { instanceOf: RangeError })
   t.is(error.message, 'Invalid number format: ""')
 })
 
 test('rejects whitespace-only string', t => {
-  const error = t.throws(() => parseCardinalValue('   '), { instanceOf: Error })
+  const error = t.throws(() => parseCardinalValue('   '), { instanceOf: RangeError })
   t.is(error.message, 'Invalid number format: "   "')
 })
 
 test('rejects non-numeric string', t => {
-  const error = t.throws(() => parseCardinalValue('abc'), { instanceOf: Error })
+  const error = t.throws(() => parseCardinalValue('abc'), { instanceOf: RangeError })
   t.is(error.message, 'Invalid number format: "abc"')
 })
 
 test('rejects string with letters mixed in', t => {
-  const error = t.throws(() => parseCardinalValue('12abc34'), { instanceOf: Error })
+  const error = t.throws(() => parseCardinalValue('12abc34'), { instanceOf: RangeError })
   t.is(error.message, 'Invalid number format: "12abc34"')
 })
 
