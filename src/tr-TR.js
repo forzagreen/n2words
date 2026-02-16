@@ -71,8 +71,8 @@ function buildSegment (n, separator = ' ') {
   if (n === 0) return ''
 
   const ones = n % 10
-  const tens = Math.floor(n / 10) % 10
-  const hundreds = Math.floor(n / 100)
+  const tens = Math.trunc(n / 10) % 10
+  const hundreds = Math.trunc(n / 100)
 
   const parts = []
 

@@ -67,8 +67,8 @@ function buildScaleSegment (n, andWord, ONES, TEENS, HUNDREDS_ARR) {
   if (n === 0) return ''
 
   const ones = n % 10
-  const tens = Math.floor(n / 10) % 10
-  const hundreds = Math.floor(n / 100)
+  const tens = Math.trunc(n / 10) % 10
+  const hundreds = Math.trunc(n / 100)
 
   let result = ''
 
@@ -117,8 +117,8 @@ function buildUnitsSegment (n, andWord, ONES, TEENS, HUNDREDS_ARR) {
   if (n === 0) return ''
 
   const ones = n % 10
-  const tens = Math.floor(n / 10) % 10
-  const hundreds = Math.floor(n / 100)
+  const tens = Math.trunc(n / 10) % 10
+  const hundreds = Math.trunc(n / 100)
 
   let result = ''
 
@@ -308,7 +308,7 @@ function buildOrdinalTensOnes (n) {
   if (n < 20) return ORDINAL_TEENS[n - 10]
 
   const ones = n % 10
-  const tens = Math.floor(n / 10)
+  const tens = Math.trunc(n / 10)
 
   if (ones === 0) {
     // Round tens: add "וראשון"
@@ -368,7 +368,7 @@ function integerToOrdinal (n) {
       return result + ' ' + buildOrdinalTensOnes(remainder)
     }
 
-    const remHundreds = Math.floor(remainder / 100)
+    const remHundreds = Math.trunc(remainder / 100)
     const remTensOnes = remainder % 100
 
     if (remTensOnes === 0) {

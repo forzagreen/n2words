@@ -112,8 +112,8 @@ function buildSegmentMasc (n) {
   if (n === 0) return ''
 
   const onesDigit = n % 10
-  const tensDigit = Math.floor(n / 10) % 10
-  const hundredsDigit = Math.floor(n / 100)
+  const tensDigit = Math.trunc(n / 10) % 10
+  const hundredsDigit = Math.trunc(n / 100)
 
   const parts = []
 
@@ -138,8 +138,8 @@ function buildSegmentFem (n) {
   if (n === 0) return ''
 
   const onesDigit = n % 10
-  const tensDigit = Math.floor(n / 10) % 10
-  const hundredsDigit = Math.floor(n / 100)
+  const tensDigit = Math.trunc(n / 10) % 10
+  const hundredsDigit = Math.trunc(n / 100)
 
   const parts = []
 
@@ -301,7 +301,7 @@ function buildOrdinalTensOnes (n) {
   if (n === 0) return ''
 
   const onesDigit = n % 10
-  const tensDigit = Math.floor(n / 10)
+  const tensDigit = Math.trunc(n / 10)
 
   if (tensDigit === 0) {
     // Single digit: первый, второй, etc.
@@ -341,7 +341,7 @@ function integerToOrdinal (n) {
   // Fast path: numbers < 1000
   if (n < 1000n) {
     const num = Number(n)
-    const hundredsDigit = Math.floor(num / 100)
+    const hundredsDigit = Math.trunc(num / 100)
     const remainder = num % 100
 
     if (remainder === 0) {

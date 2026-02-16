@@ -74,7 +74,7 @@ function buildBelowHundred (n) {
 
   // 20-99
   const ones = n % 10
-  const tens = Math.floor(n / 10)
+  const tens = Math.trunc(n / 10)
   const tensWord = ONES[tens] + ' mươi'
 
   if (ones === 0) return tensWord
@@ -89,7 +89,7 @@ function buildBelowHundred (n) {
 function buildSegment (n) {
   if (n === 0) return ''
 
-  const hundreds = Math.floor(n / 100)
+  const hundreds = Math.trunc(n / 100)
   const remainder = n % 100
 
   let result = ''

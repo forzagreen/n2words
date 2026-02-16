@@ -88,8 +88,8 @@ function buildSegment (n) {
   if (n === 0) return ''
 
   const ones = n % 10
-  const tens = Math.floor(n / 10) % 10
-  const hundreds = Math.floor(n / 100)
+  const tens = Math.trunc(n / 10) % 10
+  const hundreds = Math.trunc(n / 100)
 
   const parts = []
 
@@ -130,8 +130,8 @@ function buildSegmentFeminine (n) {
   if (n === 0) return ''
 
   const ones = n % 10
-  const tens = Math.floor(n / 10) % 10
-  const hundreds = Math.floor(n / 100)
+  const tens = Math.trunc(n / 10) % 10
+  const hundreds = Math.trunc(n / 100)
 
   const parts = []
 
@@ -384,7 +384,7 @@ function buildOrdinalTensOnes (n) {
   if (n === 0) return ''
 
   const onesDigit = n % 10
-  const tensDigit = Math.floor(n / 10)
+  const tensDigit = Math.trunc(n / 10)
 
   if (tensDigit === 0) {
     return ORDINAL_ONES[onesDigit]
@@ -414,7 +414,7 @@ function integerToOrdinal (n) {
 
   if (n < 1000n) {
     const num = Number(n)
-    const hundredsDigit = Math.floor(num / 100)
+    const hundredsDigit = Math.trunc(num / 100)
     const remainder = num % 100
 
     if (remainder === 0) {

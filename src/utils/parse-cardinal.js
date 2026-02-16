@@ -55,7 +55,7 @@ export function parseCardinalValue (value) {
 function normalizeString (value) {
   const trimmed = value.trim()
   if (trimmed.length === 0 || Number.isNaN(Number(trimmed))) {
-    throw new Error(`Invalid number format: "${value}"`)
+    throw new RangeError(`Invalid number format: "${value}"`)
   }
   return hasScientificNotation(trimmed) ? expandScientificNotation(trimmed) : trimmed
 }

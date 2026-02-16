@@ -89,17 +89,17 @@ test('rejects negative Infinity', t => {
 // ============================================================================
 
 test('rejects empty string', t => {
-  const error = t.throws(() => parseCurrencyValue(''), { instanceOf: Error })
+  const error = t.throws(() => parseCurrencyValue(''), { instanceOf: RangeError })
   t.regex(error.message, /Invalid currency format/)
 })
 
 test('rejects whitespace-only string', t => {
-  const error = t.throws(() => parseCurrencyValue('   '), { instanceOf: Error })
+  const error = t.throws(() => parseCurrencyValue('   '), { instanceOf: RangeError })
   t.regex(error.message, /Invalid currency format/)
 })
 
 test('rejects non-numeric string', t => {
-  const error = t.throws(() => parseCurrencyValue('abc'), { instanceOf: Error })
+  const error = t.throws(() => parseCurrencyValue('abc'), { instanceOf: RangeError })
   t.regex(error.message, /Invalid currency format/)
 })
 

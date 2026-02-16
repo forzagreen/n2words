@@ -149,7 +149,7 @@ function buildUnder100 (n) {
   // Exact decades
   if (n % 10 === 0) return DECADES[n]
 
-  const decade = Math.floor(n / 10) * 10
+  const decade = Math.trunc(n / 10) * 10
   const unit = n % 10
 
   // 1-4 are added to current decade (21 = 1 + 20, not 1 + 30)
@@ -173,7 +173,7 @@ function buildUnder100 (n) {
 function convertHundreds (n) {
   if (n < 100) return buildUnder100(n)
 
-  const hundreds = Math.floor(n / 100)
+  const hundreds = Math.trunc(n / 100)
   const remainder = n % 100
 
   let result

@@ -55,8 +55,8 @@ function buildSegment (n, withAnd) {
   if (n === 0) return ''
 
   const ones = n % 10
-  const tens = Math.floor(n / 10) % 10
-  const hundreds = Math.floor(n / 100)
+  const tens = Math.trunc(n / 10) % 10
+  const hundreds = Math.trunc(n / 100)
   const tensOnes = n % 100
 
   let result = ''
@@ -365,7 +365,7 @@ function smallCardinalToOrdinal (cardinalWord, n) {
 function buildOrdinalSegment (n) {
   if (n === 0) return ''
 
-  const hundreds = Math.floor(n / 100)
+  const hundreds = Math.trunc(n / 100)
   const tensOnes = n % 100
 
   // Simple cases: 1-99
@@ -406,8 +406,6 @@ function buildOrdinalSegment (n) {
  */
 function toOrdinal (value) {
   const n = parseOrdinalValue(value)
-
-  if (n === 0n) return 'nulde'
 
   // Fast path: 1-9
   if (n < 10n) return ORDINAL_ONES[Number(n)]

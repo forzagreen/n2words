@@ -80,7 +80,7 @@ function spellUnder100 (n, feminine = false, masculineTeens = false) {
   if (n < 20) {
     return masculineTeens ? TEENS_MASC[n - 10] : TEENS[n - 10]
   }
-  const t = Math.floor(n / 10)
+  const t = Math.trunc(n / 10)
   const u = n % 10
   if (u === 0) {
     return TWENTIES[t]
@@ -96,7 +96,7 @@ function spellUnder1000 (n, feminine = false, masculineTeens = false) {
   if (n === 0) return ''
   if (n < 100) return spellUnder100(n, feminine, masculineTeens)
 
-  const h = Math.floor(n / 100)
+  const h = Math.trunc(n / 100)
   const r = n % 100
   const hundredWord = HUNDREDS[h]
 
@@ -285,7 +285,7 @@ function buildOrdinalTensOnes (n) {
   if (n < 20) return ORDINAL_TEENS[n - 10]
 
   const ones = n % 10
-  const tens = Math.floor(n / 10)
+  const tens = Math.trunc(n / 10)
 
   if (ones === 0) {
     return ORDINAL_TENS[tens]
@@ -344,7 +344,7 @@ function integerToOrdinal (n) {
       return result + ' ' + buildOrdinalTensOnes(remainder)
     }
 
-    const remHundreds = Math.floor(remainder / 100)
+    const remHundreds = Math.trunc(remainder / 100)
     const remTensOnes = remainder % 100
 
     if (remTensOnes === 0) {

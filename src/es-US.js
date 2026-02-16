@@ -85,8 +85,8 @@ function buildSegment (n, feminine) {
   if (n === 100) return 'cien'
 
   const ones = n % 10
-  const tens = Math.floor(n / 10) % 10
-  const hundreds = Math.floor(n / 100)
+  const tens = Math.trunc(n / 10) % 10
+  const hundreds = Math.trunc(n / 100)
   const tensOnes = n % 100
 
   const parts = []
@@ -270,8 +270,8 @@ function buildOrdinalSegment (n, feminine) {
   if (n === 0) return ''
 
   const ones = n % 10
-  const tens = Math.floor(n / 10) % 10
-  const hundreds = Math.floor(n / 100)
+  const tens = Math.trunc(n / 10) % 10
+  const hundreds = Math.trunc(n / 100)
 
   const onesArr = feminine ? ORDINAL_ONES_FEM : ORDINAL_ONES_MASC
   const tensArr = feminine ? ORDINAL_TENS_FEM : ORDINAL_TENS_MASC

@@ -53,8 +53,8 @@ function buildSegment (n) {
   if (n === 0) return ''
 
   const onesDigit = n % 10
-  const tensDigit = Math.floor(n / 10) % 10
-  const hundredsDigit = Math.floor(n / 100)
+  const tensDigit = Math.trunc(n / 10) % 10
+  const hundredsDigit = Math.trunc(n / 100)
 
   const parts = []
 

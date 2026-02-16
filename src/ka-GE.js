@@ -68,7 +68,7 @@ function buildTens (n) {
   if (n < 10) return ONES[n]
   if (n < 20) return TEENS[n - 10]
 
-  const vigesimalGroup = Math.floor(n / 20)
+  const vigesimalGroup = Math.trunc(n / 20)
   const remainder = n % 20
 
   if (remainder === 0) {
@@ -99,7 +99,7 @@ function buildSegment (n) {
     return { full: word, stem }
   }
 
-  const hundreds = Math.floor(n / 100)
+  const hundreds = Math.trunc(n / 100)
   const remainder = n % 100
 
   // Build hundreds: ასი (100), ორასი (200), etc.

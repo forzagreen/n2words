@@ -65,7 +65,7 @@ function buildSegment (n) {
   if (n === 0) return { word: '', endsWithCents: false, endsWithVingts: false }
 
   const tensOnes = n % 100
-  const hundreds = Math.floor(n / 100)
+  const hundreds = Math.trunc(n / 100)
 
   const parts = []
   let endsWithCents = false
@@ -105,7 +105,7 @@ function buildSegment (n) {
     parts.push(TEENS[tensOnes - 10])
   } else if (tensOnes < 70) {
     // 20-69: standard tens + ones
-    const t = Math.floor(tensOnes / 10)
+    const t = Math.trunc(tensOnes / 10)
     const o = tensOnes % 10
     if (o === 0) {
       parts.push(TENS[t])
