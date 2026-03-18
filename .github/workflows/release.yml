@@ -5,44 +5,60 @@ env:
   CI: true
 
 on:
-  push:
-    branches:
-      - main
+  workflow_dispatch:
+    inputs:
+      bump:
+        description: 'Version bump type'
+        required: true
+        type: choice
+        options: [patch, minor, major]
 
 concurrency:
-  group: release-${{ github.ref }}
+  group: release
   cancel-in-progress: false
 
-permissions:
-  contents: read
-
 jobs:
-  release-please:
-    name: Release Please
+  build:
+    name: Build
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
-      contents: write
-      pull-requests: write
-    outputs:
-      release_created: ${{ steps.release.outputs.release_created }}
-      tag_name: ${{ steps.release.outputs.tag_name }}
+      contents: read
 
     steps:
-      - name: Run Release Please
-        id: release
-        uses: googleapis/release-please-action@v4
+      - uses: actions/checkout@v6
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          config-file: release-please-config.json
-          manifest-file: .release-please-manifest.json
+          persist-credentials: false
 
-  publish:
-    name: Publish to npm
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '25'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci --prefer-offline
+
+      - name: Run tests
+        run: npm test
+
+      - name: Build all artifacts
+        run: npm run build
+
+      - name: Verify build artifacts
+        run: |
+          echo "dist/:"
+          ls -lh dist/
+          echo ""
+          echo "Type declarations:"
+          find src -name "*.d.ts" -type f
+
+
+  release:
+    name: Tag, Changelog & Publish
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    needs: [release-please]
-    if: ${{ needs.release-please.outputs.release_created == 'true' }}
+    needs: build
     environment: npm
     permissions:
       contents: write
@@ -51,8 +67,8 @@ jobs:
     steps:
       - uses: actions/checkout@v6
         with:
-          ref: ${{ needs.release-please.outputs.tag_name }}
-          persist-credentials: false
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v6
@@ -64,73 +80,77 @@ jobs:
       - name: Install dependencies
         run: npm ci --prefer-offline
 
-      - name: Build all artifacts
-        run: npm run build
+      - name: Install git-cliff
+        uses: taiki-e/install-action@v2
+        with:
+          tool: git-cliff
 
-      - name: Verify build artifacts
+      - name: Configure git
         run: |
-          echo "Checking build artifacts..."
-          ls -lh dist/
-          echo ""
-          echo "Type declarations:"
-          find src -name "*.d.ts" -type f
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Bump version
+        id: version
+        run: |
+          npm version ${{ github.event.inputs.bump }} --no-git-tag-version
+          VERSION=$(node -p "require('./package.json').version")
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+          echo "tag=v${VERSION}" >> $GITHUB_OUTPUT
+
+      - name: Generate changelog
+        run: |
+          git-cliff --tag ${{ steps.version.outputs.tag }} --output CHANGELOG.md
+
+      - name: Build dist with bumped version
+        run: npm run build:dist
+
+      - name: Commit, tag and push
+        run: |
+          git add package.json package-lock.json CHANGELOG.md
+          git commit -m "chore(release): ${{ steps.version.outputs.tag }}"
+          git tag ${{ steps.version.outputs.tag }}
+          git push origin main --follow-tags
 
       - name: Dry-run publish
         run: npm publish --dry-run
 
-      - name: Publish to npm with provenance
+      - name: Publish to npm
         id: publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: |
-          echo "Publishing to npm with trusted publishing (OIDC)..."
-          echo "npm version: $(npm --version)"
-          npm publish --provenance
-          echo "published=true" >> $GITHUB_OUTPUT
-
-      - name: Verify npm publication
-        if: steps.publish.outputs.published == 'true'
-        run: |
-          PKG_NAME=$(node -p "require('./package.json').name")
-          PKG_VERSION=$(node -p "require('./package.json').version")
-          echo "Verifying publication..."
-          sleep 5
-          npm view "$PKG_NAME@$PKG_VERSION" version || echo "Package not yet available (may take a few minutes)"
+        run: npm publish --provenance
 
       - name: Create release archive
         run: |
-          PKG_VERSION=$(node -p "require('./package.json').version")
-          mkdir -p n2words-${PKG_VERSION}
-          cp dist/*.js n2words-${PKG_VERSION}/
-          zip -r n2words-${PKG_VERSION}.zip n2words-${PKG_VERSION}/
+          VERSION=${{ steps.version.outputs.version }}
+          mkdir -p n2words-${VERSION}
+          cp dist/*.js n2words-${VERSION}/
+          zip -r n2words-${VERSION}.zip n2words-${VERSION}/
 
-      - name: Upload build artifacts to release
+      - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          tag_name: ${{ needs.release-please.outputs.tag_name }}
+          tag_name: ${{ steps.version.outputs.tag }}
+          name: ${{ steps.version.outputs.tag }}
+          body_path: CHANGELOG.md
           files: n2words-*.zip
 
       - name: Generate job summary
         if: always()
         run: |
-          PKG_VERSION=$(node -p "require('./package.json').version")
-          TAG="${{ needs.release-please.outputs.tag_name }}"
-          echo "## Publish Summary" >> $GITHUB_STEP_SUMMARY
+          VERSION=${{ steps.version.outputs.version }}
+          TAG=${{ steps.version.outputs.tag }}
+          PKG_NAME=$(node -p "require('./package.json').name")
+          echo "## Release Summary" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "| Item | Value |" >> $GITHUB_STEP_SUMMARY
           echo "|------|-------|" >> $GITHUB_STEP_SUMMARY
-          echo "| **Version** | v${PKG_VERSION} |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Version** | v${VERSION} |" >> $GITHUB_STEP_SUMMARY
           echo "| **Tag** | \`${TAG}\` |" >> $GITHUB_STEP_SUMMARY
-          echo "| **Commit** | \`${GITHUB_SHA::7}\` |" >> $GITHUB_STEP_SUMMARY
-          echo "| **Published** | ${{ steps.publish.outputs.published == 'true' && 'Yes' || 'No' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Bump** | ${{ github.event.inputs.bump }} |" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-
-          if [ "${{ steps.publish.outputs.published }}" == "true" ]; then
-            PKG_NAME=$(node -p "require('./package.json').name")
-            echo "### Package Links" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "- **npm**: https://www.npmjs.com/package/$PKG_NAME/v/${PKG_VERSION}" >> $GITHUB_STEP_SUMMARY
-            echo "- **unpkg**: https://unpkg.com/$PKG_NAME@${PKG_VERSION}/" >> $GITHUB_STEP_SUMMARY
-            echo "- **jsDelivr**: https://cdn.jsdelivr.net/npm/$PKG_NAME@${PKG_VERSION}/" >> $GITHUB_STEP_SUMMARY
-          fi
+          echo "- **npm**: https://www.npmjs.com/package/${PKG_NAME}/v/${VERSION}" >> $GITHUB_STEP_SUMMARY
+          echo "- **unpkg**: https://unpkg.com/${PKG_NAME}@${VERSION}/" >> $GITHUB_STEP_SUMMARY
+          echo "- **jsDelivr**: https://cdn.jsdelivr.net/npm/${PKG_NAME}@${VERSION}/" >> $GITHUB_STEP_SUMMARY

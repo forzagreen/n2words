@@ -63,11 +63,12 @@ npm run bench         # Performance benchmarks
 
 ## Release Process (Maintainers)
 
-Releases are automated via [release-please](https://github.com/googleapis/release-please):
+Releases are triggered manually via GitHub Actions using [git-cliff](https://git-cliff.org/) for changelog generation:
 
-1. Push commits to `main` using Conventional Commits
-2. Release-please creates/updates a Release PR with changelog
-3. Merge the Release PR → creates tag + GitHub Release → npm publish
+1. Go to **Actions → Release → Run workflow**
+2. Select bump type: `patch`, `minor`, or `major`
+3. The workflow runs tests and build first — tagging only happens if both pass
+4. On success: `package.json` is bumped, `CHANGELOG.md` is updated, commit + tag + GitHub Release are created, and the package is published to npm
 
 **Version bumps:** `feat:` → minor, `fix:`/`perf:` → patch, `feat!:` → major
 
