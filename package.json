@@ -1,6 +1,6 @@
 {
   "name": "n2words",
-  "version": "4.0.0",
+  "version": "3.1.0",
   "description": "Convert numbers to words in 71 languages with zero dependencies. Supports BigInt, decimals, and browser/Node.js environments.",
   "keywords": [
     "number-to-words",
@@ -118,10 +118,10 @@
   },
   "devDependencies": {
     "@babel/core": "^7.29.0",
-    "@babel/preset-env": "^7.29.0",
-    "@commitlint/cli": "^20.4.3",
-    "@commitlint/config-conventional": "^20.4.3",
-    "@commitlint/format": "^20.4.3",
+    "@babel/preset-env": "^7.29.2",
+    "@commitlint/cli": "^20.5.0",
+    "@commitlint/config-conventional": "^20.5.0",
+    "@commitlint/format": "^20.5.0",
     "@rollup/plugin-babel": "^7.0.0",
     "@rollup/plugin-node-resolve": "^16.0.3",
     "@rollup/plugin-terser": "^1.0.0",
@@ -132,7 +132,7 @@
     "c8": "^11.0.0",
     "chalk": "^5.6.2",
     "husky": "^9.1.7",
-    "lint-staged": "^16.3.2",
+    "lint-staged": "^16.4.0",
     "markdownlint-cli2": "^0.21.0",
     "rimraf": "^6.1.3",
     "rollup": "^4.59.0",
