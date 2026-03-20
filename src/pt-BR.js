@@ -153,8 +153,8 @@ function integerToWords(n) {
 
     if (remainder > 0) {
       const remainderResult = buildSegment(remainder)
-      // Insert "e" before remainder if it doesn't start with hundreds (< 100)
-      if (!remainderResult.startsWithHundreds) {
+      // REGRA DO "E": Menor que 100 OU Centena Exata (ex: 500)
+      if (!remainderResult.startsWithHundreds || remainderResult.isExactHundred) {
         result += ' e ' + remainderResult.word
       } else {
         result += ' ' + remainderResult.word
@@ -177,7 +177,6 @@ function integerToWords(n) {
  */
 function buildLargeNumberWords(n) {
   // Extract segments using BigInt division
-  // Segments stored least-significant first (index 0 = ones, 1 = thousands, etc.)
   const segments = []
   let temp = n
   while (temp > 0n) {
@@ -185,7 +184,7 @@ function buildLargeNumberWords(n) {
     temp = temp / 1000n
   }
 
-  // Find the first non-zero segment index (lowest scale with value)
+  // Find the first non-zero segment index
   let firstNonZeroIdx = 0
   for (let i = 0; i < segments.length; i++) {
     if (segments[i] !== 0) {
@@ -194,7 +193,6 @@ function buildLargeNumberWords(n) {
     }
   }
 
-  // Build result string directly
   let result = ''
   let prevWasScale = false
 
@@ -205,8 +203,8 @@ function buildLargeNumberWords(n) {
     const segmentResult = buildSegment(segment)
     const isLastSegment = (i === firstNonZeroIdx)
 
-    // Add "e" before final segment if previous was scale and this doesn't start with hundreds
-    if (result && isLastSegment && prevWasScale && !segmentResult.startsWithHundreds) {
+    // REGRA DO "E": Se for o último segmento e for < 100 OU centena exata (ex: 500)
+    if (result && isLastSegment && prevWasScale && (!segmentResult.startsWithHundreds || segmentResult.isExactHundred)) {
       result += ' e'
     }
 
@@ -225,7 +223,7 @@ function buildLargeNumberWords(n) {
       }
       prevWasScale = true
     } else {
-      // Million and above - use scale arrays
+      // Million and above
       const scaleWord = segment === 1 ? SCALE_WORDS_SINGULAR[i] : SCALE_WORDS_PLURAL[i]
       if (segment === 1) {
         result += 'um ' + scaleWord
@@ -454,7 +452,7 @@ function toOrdinal(value) {
  * @example
  * toCurrency(42.50)  // 'quarenta e dois reais e cinquenta centavos'
  * toCurrency(1)      // 'um real'
- * toCurrency(0.01)   // 'um centavo'
+ * toCurrency(1000000)// 'um milhão de reais'
  */
 function toCurrency(value, options) {
   options = validateOptions(options)
@@ -477,7 +475,12 @@ function toCurrency(value, options) {
   if (hasReais) {
     const reaisWords = integerToWords(reais)
     const reaisUnit = reais === 1n ? REAL : REAIS
-    result += reaisWords + ' ' + reaisUnit
+
+    // Regra do "de": aplica-se a valores redondos de milhões, bilhões, etc.
+    const requiresDe = reais >= 1_000_000n && reais % 1_000_000n === 0n
+    const separator = requiresDe ? ' de ' : ' '
+
+    result += reaisWords + separator + reaisUnit
   }
 
   if (hasCentavos) {
