@@ -8,61 +8,25 @@ on:
   workflow_dispatch:
     inputs:
       bump:
-        description: 'Version bump type'
-        required: true
+        description: "Version bump (leave empty to auto-detect from commits)"
+        required: false
         type: choice
-        options: [patch, minor, major]
+        options: ["", "major", "minor", "patch"]
+        default: ""
 
 concurrency:
   group: release
   cancel-in-progress: false
 
 jobs:
-  build:
-    name: Build
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    permissions:
-      contents: read
-
-    steps:
-      - uses: actions/checkout@v6
-        with:
-          persist-credentials: false
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v6
-        with:
-          node-version: '25'
-          cache: 'npm'
-
-      - name: Install dependencies
-        run: npm ci --prefer-offline
-
-      - name: Run tests
-        run: npm test
-
-      - name: Build all artifacts
-        run: npm run build
-
-      - name: Verify build artifacts
-        run: |
-          echo "dist/:"
-          ls -lh dist/
-          echo ""
-          echo "Type declarations:"
-          find src -name "*.d.ts" -type f
-
-
   release:
-    name: Tag, Changelog & Publish
+    name: Release
     runs-on: ubuntu-latest
-    timeout-minutes: 10
-    needs: build
-    environment: npm
+    timeout-minutes: 15
     permissions:
       contents: write
       id-token: write
+    environment: npm
 
     steps:
       - uses: actions/checkout@v6
@@ -80,6 +44,9 @@ jobs:
       - name: Install dependencies
         run: npm ci --prefer-offline
 
+      - name: Run tests
+        run: npm test
+
       - name: Install git-cliff
         uses: taiki-e/install-action@v2
         with:
@@ -90,51 +57,85 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: Bump version
+      - name: Determine next version
         id: version
         run: |
-          npm version ${{ github.event.inputs.bump }} --no-git-tag-version
-          VERSION=$(node -p "require('./package.json').version")
-          echo "version=${VERSION}" >> $GITHUB_OUTPUT
-          echo "tag=v${VERSION}" >> $GITHUB_OUTPUT
+          CURRENT=$(node -p "require('./package.json').version")
+          if [ -n "${{ inputs.bump }}" ]; then
+            TAG=$(git-cliff --bump ${{ inputs.bump }} --bumped-version)
+          else
+            TAG=$(git-cliff --bumped-version)
+          fi
+          BARE="${TAG#v}"
+          if [ "$BARE" = "$CURRENT" ]; then
+            echo "::warning::No version change detected (already at $CURRENT). Skipping release."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+          echo "version=$BARE" >> "$GITHUB_OUTPUT"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "Next version: $TAG (current: $CURRENT)"
 
-      - name: Generate changelog
-        run: |
-          git-cliff --tag ${{ steps.version.outputs.tag }} --output CHANGELOG.md
+      - name: Bump package.json
+        if: steps.version.outputs.skip != 'true'
+        run: npm version ${{ steps.version.outputs.version }} --no-git-tag-version
 
-      - name: Build dist with bumped version
+      - name: Build dist
+        if: steps.version.outputs.skip != 'true'
         run: npm run build:dist
 
+      - name: Verify build artifacts
+        if: steps.version.outputs.skip != 'true'
+        run: |
+          echo "dist/:"
+          ls -lh dist/
+          echo ""
+          echo "Type declarations:"
+          find src -name "*.d.ts" -type f
+
+      - name: Dry-run publish
+        if: steps.version.outputs.skip != 'true'
+        run: npm publish --dry-run
+
+      - name: Generate changelog
+        if: steps.version.outputs.skip != 'true'
+        run: |
+          BUMP_ARG="${{ inputs.bump }}"
+          git-cliff --bump ${BUMP_ARG:+$BUMP_ARG} --output CHANGELOG.md
+          git-cliff --bump ${BUMP_ARG:+$BUMP_ARG} --unreleased --strip header --output RELEASE_NOTES.md
+
       - name: Commit, tag and push
+        if: steps.version.outputs.skip != 'true'
         run: |
           git add package.json package-lock.json CHANGELOG.md
           git commit -m "chore(release): ${{ steps.version.outputs.tag }}"
           git tag ${{ steps.version.outputs.tag }}
           git push origin main --follow-tags
 
-      - name: Dry-run publish
-        run: npm publish --dry-run
-
       - name: Publish to npm
-        id: publish
+        if: steps.version.outputs.skip != 'true'
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: npm publish --provenance
 
       - name: Create release archive
+        if: steps.version.outputs.skip != 'true'
         run: |
           VERSION=${{ steps.version.outputs.version }}
-          mkdir -p n2words-${VERSION}
-          cp dist/*.js n2words-${VERSION}/
+          mkdir -p n2words-${VERSION}/{src,dist}
+          cp src/*.js src/*.d.ts n2words-${VERSION}/src/
+          cp dist/*.js n2words-${VERSION}/dist/
           zip -r n2words-${VERSION}.zip n2words-${VERSION}/
 
       - name: Create GitHub Release
+        if: steps.version.outputs.skip != 'true'
         uses: softprops/action-gh-release@v2
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           tag_name: ${{ steps.version.outputs.tag }}
           name: ${{ steps.version.outputs.tag }}
-          body_path: CHANGELOG.md
+          body_path: RELEASE_NOTES.md
           files: n2words-*.zip
 
       - name: Generate job summary
@@ -142,15 +143,20 @@ jobs:
         run: |
           VERSION=${{ steps.version.outputs.version }}
           TAG=${{ steps.version.outputs.tag }}
+          SKIP=${{ steps.version.outputs.skip }}
           PKG_NAME=$(node -p "require('./package.json').name")
           echo "## Release Summary" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "| Item | Value |" >> $GITHUB_STEP_SUMMARY
-          echo "|------|-------|" >> $GITHUB_STEP_SUMMARY
-          echo "| **Version** | v${VERSION} |" >> $GITHUB_STEP_SUMMARY
-          echo "| **Tag** | \`${TAG}\` |" >> $GITHUB_STEP_SUMMARY
-          echo "| **Bump** | ${{ github.event.inputs.bump }} |" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "- **npm**: https://www.npmjs.com/package/${PKG_NAME}/v/${VERSION}" >> $GITHUB_STEP_SUMMARY
-          echo "- **unpkg**: https://unpkg.com/${PKG_NAME}@${VERSION}/" >> $GITHUB_STEP_SUMMARY
-          echo "- **jsDelivr**: https://cdn.jsdelivr.net/npm/${PKG_NAME}@${VERSION}/" >> $GITHUB_STEP_SUMMARY
+          if [ "$SKIP" = "true" ]; then
+            echo "> **Skipped** — no version change detected (already at v${VERSION})" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "| Item | Value |" >> $GITHUB_STEP_SUMMARY
+            echo "|------|-------|" >> $GITHUB_STEP_SUMMARY
+            echo "| **Version** | v${VERSION} |" >> $GITHUB_STEP_SUMMARY
+            echo "| **Tag** | \`${TAG}\` |" >> $GITHUB_STEP_SUMMARY
+            echo "| **Bump** | ${{ inputs.bump || 'auto-detected' }} |" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "- **npm**: https://www.npmjs.com/package/${PKG_NAME}/v/${VERSION}" >> $GITHUB_STEP_SUMMARY
+            echo "- **unpkg**: https://unpkg.com/${PKG_NAME}@${VERSION}/" >> $GITHUB_STEP_SUMMARY
+            echo "- **jsDelivr**: https://cdn.jsdelivr.net/npm/${PKG_NAME}@${VERSION}/" >> $GITHUB_STEP_SUMMARY
+          fi
