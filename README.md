@@ -7,7 +7,7 @@
 [![npm downloads](https://img.shields.io/npm/dw/n2words)](https://npmjs.com/package/n2words)
 [![jsDelivr](https://img.shields.io/jsdelivr/npm/hm/n2words)](https://www.jsdelivr.com/package/npm/n2words)
 
-**Numbers to words. 71 languages. Zero dependencies.**
+**Numbers to words. 70+ languages. Zero dependencies.**
 
 ## Why n2words?
 
@@ -15,7 +15,7 @@
 - **Tree-Shakeable** — Import only what you need. Unused exports are eliminated by modern bundlers.
 - **Tiny Bundles** — ~2.4 KB gzipped per language (with all forms). No bloat.
 - **Multiple Forms** — Cardinal ("forty-two"), ordinal ("forty-second"), and currency ("forty-two dollars")
-- **71 Languages** — European, Asian, Middle Eastern, African, and regional variants
+- **70+ Languages** — European, Asian, Middle Eastern, African, and regional variants
 - **Zero Dependencies** — Works everywhere: Node.js, browsers, Deno, Bun
 - **BigInt Support** — Handle arbitrarily large numbers without precision loss
 - **Type-Safe** — Full TypeScript support with generated `.d.ts` declarations
@@ -52,7 +52,7 @@ toOrdinal(1234)       // 'one thousand two hundred thirty-fourth'
 toCurrency(1234.56)   // 'one thousand two hundred thirty-four dollars and fifty-six cents'
 ```
 
-All 71 languages support all three forms. See [LANGUAGES.md](LANGUAGES.md) for details.
+All languages support all three forms. See [LANGUAGES.md](LANGUAGES.md) for details.
 
 ## Usage
 
@@ -84,11 +84,11 @@ import { toCardinal as fr } from 'n2words/fr-FR'       // Aliased import
 
 See [LANGUAGES.md](LANGUAGES.md) for all language codes and available forms.
 
-## Supported Languages (71)
+## Supported Languages
 
 See **[LANGUAGES.md](LANGUAGES.md)** for the complete list with codes and options.
 
-Highlights: Arabic, Chinese (Simplified/Traditional), English, French, German, Hindi, Japanese, Korean, Portuguese, Russian, Spanish, and [60 more](LANGUAGES.md).
+Highlights: Arabic, Chinese (Simplified/Traditional), English, French, German, Hindi, Japanese, Korean, Portuguese, Russian, Spanish, and [many more](LANGUAGES.md).
 
 ## Compatibility
 
