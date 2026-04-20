@@ -38,11 +38,22 @@ const ORDINAL_TEENS = ['décimo', 'décimo primeiro', 'décimo segundo', 'décim
 const ORDINAL_TENS = ['', '', 'vigésimo', 'trigésimo', 'quadragésimo', 'quinquagésimo', 'sexagésimo', 'septuagésimo', 'octogésimo', 'nonagésimo']
 const ORDINAL_HUNDREDS = ['', 'centésimo', 'ducentésimo', 'tricentésimo', 'quadringentésimo', 'quingentésimo', 'sexcentésimo', 'septingentésimo', 'octingentésimo', 'nongentésimo']
 
-// Currency vocabulary (BRL)
-const REAL = 'real'
-const REAIS = 'reais'
-const CENTAVO = 'centavo'
-const CENTAVOS = 'centavos'
+
+// ============================================================================
+// Currency vocabulary
+// ============================================================================
+
+// Dicionário focado no uso no Brasil (centavos para dólar e euro em vez de cêntimos)
+const CURRENCIES = {
+  BRL: { major: ['real', 'reais'], minor: ['centavo', 'centavos'] },
+  USD: { major: ['dólar', 'dólares'], minor: ['centavo', 'centavos'] },
+  EUR: { major: ['euro', 'euros'], minor: ['centavo', 'centavos'] }, // No Brasil é comum falar "centavos de euro"
+  GBP: { major: ['libra', 'libras'], minor: ['pêni', 'pence'] },
+  JPY: { major: ['iene', 'ienes'], minor: ['sen', 'sen'] }, // Iene não tem subdivisão usada no dia a dia
+}
+
+// Fallback para caso o usuário passe uma moeda não mapeada (ex: 'CAD')
+const DEFAULT_CURRENCY_WORDS = { major: ['unidade', 'unidades'], minor: ['centavo', 'centavos'] }
 
 // ============================================================================
 // Segment Building
@@ -442,22 +453,41 @@ function toOrdinal(value) {
 // ============================================================================
 
 /**
- * Converts a number to Brazilian currency words (Real).
+ * Converts a number to Brazilian Portuguese currency words.
  *
  * @param {number | string | bigint} value - The amount to convert
  * @param {Object} [options]
- * @param {boolean} [options.and=true] - Include "e" between reais and centavos
- * @returns {string} Portuguese currency words
+ * @param {boolean} [options.and=true] - Include "e" between major and minor units
+ * @param {string} [options.currency] - Currency code (e.g., 'BRL', 'USD')
+ * @returns {string} Brazilian Portuguese currency words
  *
  * @example
- * toCurrency(42.50)  // 'quarenta e dois reais e cinquenta centavos'
- * toCurrency(1)      // 'um real'
- * toCurrency(1000000)// 'um milhão de reais'
+ * toCurrency(42.50)                    // 'quarenta e dois reais e cinquenta centavos'
+ * toCurrency(42.50, {currency: 'USD'}) // 'quarenta e dois dólares e cinquenta centavos'
  */
 function toCurrency(value, options) {
   options = validateOptions(options)
-  const { isNegative, dollars: reais, cents: centavos } = parseCurrencyValue(value)
+  const { isNegative, dollars: majorUnits, cents: minorUnits } = parseCurrencyValue(value)
   const { and = true } = options
+
+  // 1. Descobre a moeda informada ou busca automaticamente a padrão do país (pt-BR = BRL)
+  let currencyCode = options.currency
+  if (!currencyCode) {
+    try {
+      const localeInfo = new Intl.Locale('pt-BR')
+      currencyCode = localeInfo.getCurrencies?.()[0]
+    } catch (e) {
+      // Ignora erro em ambientes antigos (fallback garantido abaixo)
+    }
+    currencyCode = currencyCode || 'BRL' // Padrão absoluto para o Brasil
+  }
+  currencyCode = currencyCode.toUpperCase()
+
+  // 2. Busca os nomes no dicionário ou usa o fallback genérico
+  const currencyWords = CURRENCIES[currencyCode] || {
+    major: [currencyCode, currencyCode],
+    minor: DEFAULT_CURRENCY_WORDS.minor
+  }
 
   let result = ''
 
@@ -465,31 +495,34 @@ function toCurrency(value, options) {
     result = NEGATIVE + ' '
   }
 
-  const hasReais = reais > 0n
-  const hasCentavos = centavos > 0n
+  const hasMajor = majorUnits > 0n
+  const hasMinor = minorUnits > 0n
 
-  if (!hasReais && !hasCentavos) {
-    return ZERO + ' ' + REAIS
+  if (!hasMajor && !hasMinor) {
+    return ZERO + ' ' + currencyWords.major[1]
   }
 
-  if (hasReais) {
-    const reaisWords = integerToWords(reais)
-    const reaisUnit = reais === 1n ? REAL : REAIS
-
-    // Regra do "de": aplica-se a valores redondos de milhões, bilhões, etc.
-    const requiresDe = reais >= 1_000_000n && reais % 1_000_000n === 0n
-    const separator = requiresDe ? ' de ' : ' '
-
-    result += reaisWords + separator + reaisUnit
+  // Parte inteira (Reais, Dólares...)
+  if (hasMajor) {
+    const majorText = integerToWords(majorUnits)
+    const majorUnit = majorUnits === 1n ? currencyWords.major[0] : currencyWords.major[1]
+    result += majorText + ' ' + majorUnit
   }
 
-  if (hasCentavos) {
-    if (hasReais) {
+  // Parte decimal (Centavos...)
+  if (hasMinor) {
+    if (hasMajor) {
       result += and ? ' e ' : ' '
     }
-    const centavosWords = integerToWords(centavos)
-    const centavosUnit = centavos === 1n ? CENTAVO : CENTAVOS
-    result += centavosWords + ' ' + centavosUnit
+    const minorText = integerToWords(minorUnits)
+    const minorUnit = minorUnits === 1n ? currencyWords.minor[0] : currencyWords.minor[1]
+
+    // Ignora adicionar unidade de centavos se a moeda não os tiver (ex: JPY onde minor é string vazia)
+    if (minorUnit === '') {
+      result += minorText
+    } else {
+      result += minorText + ' ' + minorUnit
+    }
   }
 
   return result

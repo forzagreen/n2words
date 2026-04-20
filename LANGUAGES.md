@@ -2,7 +2,7 @@
 
 > **Auto-generated** — Do not edit manually. Run `npm run docs:languages` to update.
 
-n2words supports **71 languages** with cardinal number conversion, 71 with ordinal support, 71 with currency support.
+n2words supports **72 languages** with cardinal number conversion, 72 with ordinal support, 72 with currency support.
 
 Language codes follow [IETF BCP 47](https://tools.ietf.org/html/bcp47) standards.
 
@@ -64,6 +64,7 @@ Language codes follow [IETF BCP 47](https://tools.ietf.org/html/bcp47) standards
 |`nl-NL`|Dutch (Netherlands)|[✓*](#dutch-netherlands-nl-nl)|✓|[✓*](#dutch-netherlands-nl-nl)|
 |`pa-IN`|Punjabi (India)|✓|✓|✓|
 |`pl-PL`|Polish (Poland)|[✓*](#polish-poland-pl-pl)|✓|✓|
+|`pt-BR`|Brazilian Portuguese|✓|✓|[✓*](#brazilian-portuguese-pt-br)|
 |`pt-PT`|European Portuguese|✓|✓|[✓*](#european-portuguese-pt-pt)|
 |`ro-RO`|Romanian (Romania)|[✓*](#romanian-romania-ro-ro)|✓|✓|
 |`ru-RU`|Russian (Russia)|[✓*](#russian-russia-ru-ru)|✓|[✓*](#russian-russia-ru-ru)|
@@ -102,7 +103,7 @@ Import paths use BCP 47 language codes: `n2words/en-US`, `n2words/zh-Hans-CN`, `
 
 ## Language Options
 
-34 languages support options via a second parameter. Options are passed as an object:
+35 languages support options via a second parameter. Options are passed as an object:
 
 ```js
 toCardinal(value, { optionName: value })
@@ -137,6 +138,13 @@ toCurrency(value, { optionName: value })
 |------|----|----|-------|-----------|
 |`gender`|cardinal|'masculine' \| 'feminine'|`'masculine'`|Grammatical gender|
 |`andWord`|cardinal|`string`|`'ו'`|Custom conjunction word|
+
+### Brazilian Portuguese (`pt-BR`)
+
+|Option|Form|Type|Default|Description|
+|------|----|----|-------|-----------|
+|`and`|currency|`boolean`|`true`|Include "e" between major and minor units|
+|`currency`|currency|`string`|—|Currency code (e.g., 'BRL', 'USD')|
 
 ### British English (`en-GB`)
 
