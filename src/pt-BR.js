@@ -38,7 +38,6 @@ const ORDINAL_TEENS = ['décimo', 'décimo primeiro', 'décimo segundo', 'décim
 const ORDINAL_TENS = ['', '', 'vigésimo', 'trigésimo', 'quadragésimo', 'quinquagésimo', 'sexagésimo', 'septuagésimo', 'octogésimo', 'nonagésimo']
 const ORDINAL_HUNDREDS = ['', 'centésimo', 'ducentésimo', 'tricentésimo', 'quadringentésimo', 'quingentésimo', 'sexcentésimo', 'septingentésimo', 'octingentésimo', 'nongentésimo']
 
-
 // ============================================================================
 // Currency vocabulary
 // ============================================================================
@@ -49,7 +48,7 @@ const CURRENCIES = {
   USD: { major: ['dólar', 'dólares'], minor: ['centavo', 'centavos'] },
   EUR: { major: ['euro', 'euros'], minor: ['centavo', 'centavos'] }, // No Brasil é comum falar "centavos de euro"
   GBP: { major: ['libra', 'libras'], minor: ['pêni', 'pence'] },
-  JPY: { major: ['iene', 'ienes'], minor: ['sen', 'sen'] }, // Iene não tem subdivisão usada no dia a dia
+  JPY: { major: ['iene', 'ienes'], minor: ['sen', 'sen'] } // Iene não tem subdivisão usada no dia a dia
 }
 
 // Fallback para caso o usuário passe uma moeda não mapeada (ex: 'CAD')
@@ -63,7 +62,7 @@ const DEFAULT_CURRENCY_WORDS = { major: ['unidade', 'unidades'], minor: ['centav
  * Builds segment word for 0-999 with Portuguese "e" rules.
  * Returns the word and whether it's an exact hundred (for "cem" handling).
  */
-function buildSegment(n) {
+function buildSegment (n) {
   if (n === 0) return { word: '', isExactHundred: false }
 
   // Special case: exact 100 is "cem"
@@ -141,7 +140,7 @@ const SCALE_WORDS_PLURAL = [
  * @param {bigint} n - Non-negative integer to convert
  * @returns {string} Portuguese words
  */
-function integerToWords(n) {
+function integerToWords (n) {
   if (n === 0n) return ZERO
 
   // Fast path: numbers < 1000
@@ -186,7 +185,7 @@ function integerToWords(n) {
  * @param {bigint} n - Number >= 1,000,000
  * @returns {string} Portuguese words
  */
-function buildLargeNumberWords(n) {
+function buildLargeNumberWords (n) {
   // Extract segments using BigInt division
   const segments = []
   let temp = n
@@ -254,7 +253,7 @@ function buildLargeNumberWords(n) {
  * @param {string} decimalPart - Decimal digits (without the point)
  * @returns {string} Portuguese words for decimal part
  */
-function decimalPartToWords(decimalPart) {
+function decimalPartToWords (decimalPart) {
   let result = ''
 
   // Handle leading zeros
@@ -281,7 +280,7 @@ function decimalPartToWords(decimalPart) {
  * @param {number | string | bigint} value - The numeric value to convert
  * @returns {string} The number in Portuguese words
  */
-function toCardinal(value) {
+function toCardinal (value) {
   const { isNegative, integerPart, decimalPart } = parseCardinalValue(value)
 
   let result = ''
@@ -309,7 +308,7 @@ function toCardinal(value) {
  * @param {number} n - Number 0-999
  * @returns {string} Portuguese ordinal words
  */
-function buildOrdinalSegment(n) {
+function buildOrdinalSegment (n) {
   if (n === 0) return ''
 
   const ones = n % 10
@@ -345,7 +344,7 @@ function buildOrdinalSegment(n) {
  * @param {bigint} n - Non-negative integer
  * @returns {string} Portuguese ordinal words
  */
-function buildLargeOrdinal(n) {
+function buildLargeOrdinal (n) {
   // Extract segments
   const segments = []
   let temp = n
@@ -416,7 +415,7 @@ function buildLargeOrdinal(n) {
  * @param {number | string | bigint} value - The number to convert
  * @returns {string} Portuguese ordinal words
  */
-function toOrdinal(value) {
+function toOrdinal (value) {
   const n = parseOrdinalValue(value)
 
   // Fast path: 1-9
@@ -465,7 +464,7 @@ function toOrdinal(value) {
  * toCurrency(42.50)                    // 'quarenta e dois reais e cinquenta centavos'
  * toCurrency(42.50, {currency: 'USD'}) // 'quarenta e dois dólares e cinquenta centavos'
  */
-function toCurrency(value, options) {
+function toCurrency (value, options) {
   options = validateOptions(options)
   const { isNegative, dollars: majorUnits, cents: minorUnits } = parseCurrencyValue(value)
   const { and = true } = options
