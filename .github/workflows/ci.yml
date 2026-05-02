@@ -54,7 +54,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        node: ['20', '22', '25']
+        node: ['22', '26']
         coverage: [false]
         include:
           - node: '24'

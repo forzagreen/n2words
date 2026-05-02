@@ -1,6 +1,6 @@
 # CLAUDE.md
 
-n2words: Number to words converter. ESM + UMD, Node >=20, zero dependencies.
+n2words: Number to words converter. ESM + UMD, Node >=22, zero dependencies.
 
 ## Quick Reference
 
