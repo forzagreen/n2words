@@ -13,7 +13,7 @@
 
 - **Pure Functions** — Each language exports standalone functions. No classes, no configuration, no side effects.
 - **Tree-Shakeable** — Import only what you need. Unused exports are eliminated by modern bundlers.
-- **Tiny Bundles** — ~2.4 KB gzipped per language (with all forms). No bloat.
+- **Tiny Bundles** — ~2 KB gzipped per language (with all forms). No bloat.
 - **Multiple Forms** — Cardinal ("forty-two"), ordinal ("forty-second"), and currency ("forty-two dollars")
 - **70+ Languages** — European, Asian, Middle Eastern, African, and regional variants
 - **Zero Dependencies** — Works everywhere: Node.js, browsers, Deno, Bun
@@ -93,7 +93,7 @@ Highlights: Arabic, Chinese (Simplified/Traditional), English, French, German, H
 ## Compatibility
 
 - **Node.js**: 22+
-- **Browsers**: Chrome 67+, Firefox 68+, Safari 14+, Edge 79+ (~87% global coverage)
+- **Browsers**: Chrome 67+, Firefox 68+, Safari 14+, Edge 79+ — any browser with BigInt support
 - **Runtimes**: Deno, Bun, Cloudflare Workers
 
 Requires BigInt support (cannot be polyfilled).
@@ -102,7 +102,7 @@ Requires BigInt support (cannot be polyfilled).
 
 n2words is optimized for both size and speed:
 
-- ~2.4 KB gzipped per language (includes all forms)
+- ~2 KB gzipped per language (includes all forms)
 - Individual language imports enable tree-shaking
 - No runtime dependencies
 - BigInt modulo operations (no string manipulation)
