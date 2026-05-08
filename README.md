@@ -92,7 +92,7 @@ Highlights: Arabic, Chinese (Simplified/Traditional), English, French, German, H
 
 ## Compatibility
 
-- **Node.js**: 20+
+- **Node.js**: 22+
 - **Browsers**: Chrome 67+, Firefox 68+, Safari 14+, Edge 79+ (~87% global coverage)
 - **Runtimes**: Deno, Bun, Cloudflare Workers
 

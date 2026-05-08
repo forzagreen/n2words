@@ -9,7 +9,7 @@ npm install
 npm test
 ```
 
-**Requirements:** Node.js >=20, Git
+**Requirements:** Node.js >=22, Git
 
 ## Pull Request Process
 

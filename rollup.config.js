@@ -63,7 +63,7 @@ const currencyLanguages = getCurrencyLanguages()
  *   browser <script> tags
  *
  * Node.js users import directly from src/ (ESM source). No CJS bundle is generated -
- * Node.js 22.12+/20.19+ can require() ESM modules directly.
+ * Node.js 22.12+ can require() ESM modules directly.
  *
  * UMD bundles use virtual entry points to re-export toCardinal as the
  * normalized language code (e.g., n2words.en, n2words.zhHans), allowing
