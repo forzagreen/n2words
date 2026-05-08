@@ -3,6 +3,7 @@ name: Release
 env:
   HUSKY: 0
   CI: true
+  NODE_VERSION: "26"
 
 on:
   workflow_dispatch:
@@ -34,12 +35,41 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Verify NODE_VERSION satisfies engines.node
+        # engines.node is a floor (e.g. ">=22"). The runner's Node major
+        # must clear it — otherwise we'd publish a package whose engines
+        # field contradicts the toolchain that built it.
+        run: |
+          ENGINES_MIN=$(node -p "require('./package.json').engines.node.match(/\d+/)[0]")
+          ENV_VERSION="${{ env.NODE_VERSION }}"
+          echo "Node check: NODE_VERSION=$ENV_VERSION  engines.node>=$ENGINES_MIN"
+          if [ "$ENV_VERSION" -lt "$ENGINES_MIN" ]; then
+            echo "::error::NODE_VERSION ($ENV_VERSION) is below engines.node minimum ($ENGINES_MIN). Bump NODE_VERSION in release.yml."
+            exit 1
+          fi
+
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: '26'
+          node-version: ${{ env.NODE_VERSION }}
           registry-url: 'https://registry.npmjs.org'
-          cache: 'npm'
+
+      # Cache key derived from package.json's deps fields ONLY, not the
+      # full lockfile. The release workflow rewrites package-lock.json's
+      # root `version` on every run, so a key based on the lockfile hash
+      # (what setup-node's `cache: 'npm'` shorthand uses) rotates every
+      # release and accumulates a stale cache per run.
+      - name: Compute npm cache key
+        id: cache-key
+        run: |
+          HASH=$(jq -S '{dependencies,devDependencies,optionalDependencies,peerDependencies}' package.json | sha256sum | cut -c1-16)
+          echo "key=npm-${{ runner.os }}-node${{ env.NODE_VERSION }}-${HASH}" >> "$GITHUB_OUTPUT"
+      - uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: ${{ steps.cache-key.outputs.key }}
+          restore-keys: |
+            npm-${{ runner.os }}-node${{ env.NODE_VERSION }}-
 
       - name: Install dependencies
         run: npm ci --prefer-offline
@@ -76,6 +106,14 @@ jobs:
           echo "version=$BARE" >> "$GITHUB_OUTPUT"
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
           echo "Next version: $TAG (current: $CURRENT)"
+
+          # Defend against the "previous run pushed the tag but failed
+          # before npm publish" case. package.json's CURRENT may not
+          # reflect what's actually tagged in git.
+          if git rev-parse --verify "refs/tags/$TAG" >/dev/null 2>&1; then
+            echo "::error::Tag $TAG already exists in git. A previous release run probably partially completed. Manually delete the tag (git push --delete origin $TAG) or bump past it before retrying."
+            exit 1
+          fi
 
       - name: Bump package.json
         if: steps.version.outputs.skip != 'true'
