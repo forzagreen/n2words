@@ -14,6 +14,7 @@
  */
 import Benchmark from 'benchmark'
 import { existsSync, writeFileSync, readFileSync, renameSync } from 'node:fs'
+import { parseArgs } from 'node:util'
 import chalk from 'chalk'
 import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -137,73 +138,58 @@ function parseCommaSeparated (input) {
   return input.split(',').map(s => s.trim()).filter(Boolean)
 }
 
-const arguments_ = process.argv.slice(2)
+const { values: flags, positionals } = parseArgs({
+  options: {
+    lang: { type: 'string', multiple: true },
+    language: { type: 'string', multiple: true },
+    function: { type: 'string', multiple: true },
+    fn: { type: 'string', multiple: true },
+    value: { type: 'string' },
+    save: { type: 'boolean' },
+    compare: { type: 'boolean' },
+    history: { type: 'boolean' },
+    full: { type: 'boolean' },
+    remove: { type: 'string' },
+    help: { type: 'boolean' }
+  },
+  allowPositionals: true,
+  strict: true
+})
 
-const requestedLanguages = []
-let requestedFunctions = [] // Empty = all known functions
-let value = config.defaultValue
-let saveResults = false
-let compareResults = false
-let showHistory = false
-let fullMode = false
-let removeId = null
+if (flags.help) {
+  displayHelp()
+  process.exit(0)
+}
+
+// `--lang` / `--language` are aliases; positionals also feed languages.
+// Each occurrence may itself be comma-separated, so flatten through parseCommaSeparated.
+const requestedLanguages = [
+  ...(flags.lang ?? []),
+  ...(flags.language ?? []),
+  ...positionals
+].flatMap(parseCommaSeparated)
+
+const functionInputs = [
+  ...(flags.function ?? []),
+  ...(flags.fn ?? [])
+].flatMap(parseCommaSeparated)
+
+for (const fn of functionInputs) {
+  if (!KNOWN_FUNCTIONS.includes(fn)) {
+    console.error(chalk.red(`Unknown function: ${fn}`))
+    console.error(chalk.gray(`Known functions: ${KNOWN_FUNCTIONS.join(', ')}`))
+    process.exit(1)
+  }
+}
+
+const requestedFunctions = functionInputs.length > 0 ? functionInputs : [...KNOWN_FUNCTIONS]
+const value = flags.value ?? config.defaultValue
+const saveResults = flags.save ?? false
+let compareResults = flags.compare ?? false
+const showHistory = flags.history ?? false
+const fullMode = flags.full ?? false
+const removeId = flags.remove ?? null
 let previousResults = null
-
-for (let index = 0; index < arguments_.length; index++) {
-  const arg = arguments_[index]
-
-  // Skip values that follow flags
-  if (index > 0) {
-    const prevArg = arguments_[index - 1]
-    if (['--lang', '--language', '--value', '--remove', '--function', '--fn'].includes(prevArg)) {
-      continue
-    }
-  }
-
-  if (arg === '--lang' || arg === '--language') {
-    const lang = arguments_[index + 1]
-    if (lang) {
-      requestedLanguages.push(...parseCommaSeparated(lang))
-    }
-  } else if (arg === '--function' || arg === '--fn') {
-    const fns = arguments_[index + 1]
-    if (fns) {
-      const parsed = parseCommaSeparated(fns)
-      // Validate function names
-      for (const fn of parsed) {
-        if (!KNOWN_FUNCTIONS.includes(fn)) {
-          console.error(chalk.red(`Unknown function: ${fn}`))
-          console.error(chalk.gray(`Known functions: ${KNOWN_FUNCTIONS.join(', ')}`))
-          process.exit(1)
-        }
-      }
-      requestedFunctions.push(...parsed)
-    }
-  } else if (arg === '--value') {
-    value = arguments_[index + 1]
-  } else if (arg === '--save') {
-    saveResults = true
-  } else if (arg === '--compare') {
-    compareResults = true
-  } else if (arg === '--history') {
-    showHistory = true
-  } else if (arg === '--full') {
-    fullMode = true
-  } else if (arg === '--remove') {
-    removeId = arguments_[index + 1]
-  } else if (arg === '--help') {
-    displayHelp()
-    process.exit(0)
-  } else if (!arg.startsWith('-')) {
-    // Positional argument: treat as language code(s)
-    requestedLanguages.push(...parseCommaSeparated(arg))
-  }
-}
-
-// Default to all known functions if none specified
-if (requestedFunctions.length === 0) {
-  requestedFunctions = [...KNOWN_FUNCTIONS]
-}
 
 // Load previous results if comparing
 if (compareResults) {
