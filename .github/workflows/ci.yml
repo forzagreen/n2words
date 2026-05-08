@@ -54,8 +54,6 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # Node 26 will fail until actions/node-versions publishes a v26 build:
-        # https://github.com/actions/node-versions
         node: ['22', '26']
         coverage: [false]
         include:

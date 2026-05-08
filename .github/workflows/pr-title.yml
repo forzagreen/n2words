@@ -2,7 +2,7 @@ name: PR Title
 
 on:
   pull_request:
-    types: [opened, edited, synchronize, reopened]
+    types: [opened, edited, reopened]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
@@ -26,12 +26,11 @@ jobs:
         uses: actions/setup-node@v6
         with:
           node-version: '24'
-          cache: 'npm'
 
-      - name: Install dependencies
-        run: npm ci --prefer-offline
-
+      # Skip `npm ci` — only commitlint is needed and `npx --package` fetches
+      # it on demand. Major versions pinned to match package.json's caret
+      # range so behavior matches local dev.
       - name: Validate PR title
         env:
           PR_TITLE: ${{ github.event.pull_request.title }}
-        run: echo "$PR_TITLE" | npx commitlint --config .commitlintrc.mjs
+        run: echo "$PR_TITLE" | npx --yes --package=@commitlint/cli@20 --package=@commitlint/config-conventional@20 commitlint --config .commitlintrc.mjs
