@@ -55,7 +55,7 @@ const currencyLanguages = getCurrencyLanguages()
  * 1. Source (src/): Modern ES2022+ code with BigInt, optional chaining
  * 2. Babel: Transpiles ES2022+ features down while preserving BigInt support
  * 3. Terser: Minifies using ES2020 syntax (safe for BigInt-supporting browsers)
- * 4. Target: ~85.9% global coverage via .browserslistrc ("defaults and supports bigint")
+ * 4. Target: in-use browsers with BigInt support, via .browserslistrc ("defaults and supports bigint")
  *
  * Generates:
  * - Individual ESM bundles (dist/{langCode}.js): One per language, for browsers
