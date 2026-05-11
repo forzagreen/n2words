@@ -121,7 +121,7 @@
     "@babel/preset-env": "^7.29.5",
     "@commitlint/cli": "^20.5.3",
     "@commitlint/config-conventional": "^20.5.3",
-    "@commitlint/format": "^20.5.0",
+    "@commitlint/format": "^21.0.0",
     "@rollup/plugin-babel": "^7.0.0",
     "@rollup/plugin-node-resolve": "^16.0.3",
     "@rollup/plugin-terser": "^1.0.0",
