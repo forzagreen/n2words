@@ -46,6 +46,12 @@
     "./utils/*": null,
     "./package.json": "./package.json"
   },
+  "typesVersions": {
+    "*": {
+      "utils/*": [],
+      "*": ["./src/*.d.ts"]
+    }
+  },
   "files": [
     "src/**/*.js",
     "src/**/*.d.ts",
