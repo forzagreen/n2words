@@ -33,4 +33,4 @@ jobs:
       - name: Validate PR title
         env:
           PR_TITLE: ${{ github.event.pull_request.title }}
-        run: echo "$PR_TITLE" | npx --yes --package=@commitlint/cli@20 --package=@commitlint/config-conventional@20 commitlint --config .commitlintrc.mjs
+        run: echo "$PR_TITLE" | npx --yes --package=@commitlint/cli@21 --package=@commitlint/config-conventional@21 commitlint --config .commitlintrc.mjs
