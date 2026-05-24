@@ -100,24 +100,26 @@ jobs:
         if: ${{ matrix.coverage }}
         continue-on-error: true
         run: |
-          echo "## 📊 Coverage Report" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
+          {
+            echo "## 📊 Coverage Report"
+            echo ""
 
-          if [ -f coverage/coverage-summary.json ] && command -v jq &> /dev/null; then
-            TOTAL=$(jq -r '.total.lines.pct' coverage/coverage-summary.json)
-            STATEMENTS=$(jq -r '.total.statements.pct' coverage/coverage-summary.json)
-            BRANCHES=$(jq -r '.total.branches.pct' coverage/coverage-summary.json)
-            FUNCTIONS=$(jq -r '.total.functions.pct' coverage/coverage-summary.json)
+            if [ -f coverage/coverage-summary.json ] && command -v jq &> /dev/null; then
+              TOTAL=$(jq -r '.total.lines.pct' coverage/coverage-summary.json)
+              STATEMENTS=$(jq -r '.total.statements.pct' coverage/coverage-summary.json)
+              BRANCHES=$(jq -r '.total.branches.pct' coverage/coverage-summary.json)
+              FUNCTIONS=$(jq -r '.total.functions.pct' coverage/coverage-summary.json)
 
-            echo "| Metric | Coverage |" >> $GITHUB_STEP_SUMMARY
-            echo "|--------|----------|" >> $GITHUB_STEP_SUMMARY
-            echo "| **Lines** | ${TOTAL}% |" >> $GITHUB_STEP_SUMMARY
-            echo "| Statements | ${STATEMENTS}% |" >> $GITHUB_STEP_SUMMARY
-            echo "| Branches | ${BRANCHES}% |" >> $GITHUB_STEP_SUMMARY
-            echo "| Functions | ${FUNCTIONS}% |" >> $GITHUB_STEP_SUMMARY
-          else
-            echo "### ℹ️ Coverage data not available" >> $GITHUB_STEP_SUMMARY
-          fi
+              echo "| Metric | Coverage |"
+              echo "|--------|----------|"
+              echo "| **Lines** | ${TOTAL}% |"
+              echo "| Statements | ${STATEMENTS}% |"
+              echo "| Branches | ${BRANCHES}% |"
+              echo "| Functions | ${FUNCTIONS}% |"
+            else
+              echo "### ℹ️ Coverage data not available"
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Upload coverage to Coveralls
         if: ${{ matrix.coverage }}

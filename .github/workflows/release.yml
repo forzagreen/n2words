@@ -209,23 +209,27 @@ jobs:
 
       - name: Generate job summary
         if: always()
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+          TAG: ${{ steps.version.outputs.tag }}
+          SKIP: ${{ steps.version.outputs.skip }}
+          BUMP: ${{ inputs.bump }}
         run: |
-          VERSION=${{ steps.version.outputs.version }}
-          TAG=${{ steps.version.outputs.tag }}
-          SKIP=${{ steps.version.outputs.skip }}
           PKG_NAME=$(node -p "require('./package.json').name")
-          echo "## Release Summary" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          if [ "$SKIP" = "true" ]; then
-            echo "> **Skipped** — no version change detected (already at v${VERSION})" >> $GITHUB_STEP_SUMMARY
-          else
-            echo "| Item | Value |" >> $GITHUB_STEP_SUMMARY
-            echo "|------|-------|" >> $GITHUB_STEP_SUMMARY
-            echo "| **Version** | v${VERSION} |" >> $GITHUB_STEP_SUMMARY
-            echo "| **Tag** | \`${TAG}\` |" >> $GITHUB_STEP_SUMMARY
-            echo "| **Bump** | ${{ inputs.bump || 'auto-detected' }} |" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "- **npm**: https://www.npmjs.com/package/${PKG_NAME}/v/${VERSION}" >> $GITHUB_STEP_SUMMARY
-            echo "- **unpkg**: https://unpkg.com/${PKG_NAME}@${VERSION}/" >> $GITHUB_STEP_SUMMARY
-            echo "- **jsDelivr**: https://cdn.jsdelivr.net/npm/${PKG_NAME}@${VERSION}/" >> $GITHUB_STEP_SUMMARY
-          fi
+          {
+            echo "## Release Summary"
+            echo ""
+            if [ "$SKIP" = "true" ]; then
+              echo "> **Skipped** — no version change detected (already at v${VERSION})"
+            else
+              echo "| Item | Value |"
+              echo "|------|-------|"
+              echo "| **Version** | v${VERSION} |"
+              echo "| **Tag** | \`${TAG}\` |"
+              echo "| **Bump** | ${BUMP} |"
+              echo ""
+              echo "- **npm**: https://www.npmjs.com/package/${PKG_NAME}/v/${VERSION}"
+              echo "- **unpkg**: https://unpkg.com/${PKG_NAME}@${VERSION}/"
+              echo "- **jsDelivr**: https://cdn.jsdelivr.net/npm/${PKG_NAME}@${VERSION}/"
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
