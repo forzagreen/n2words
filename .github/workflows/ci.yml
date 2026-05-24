@@ -30,6 +30,16 @@ jobs:
         with:
           persist-credentials: false
 
+      # actionlint runs before npm-dependent steps so a workflow-YAML
+      # bug fails fast without paying the ~30s `npm ci` cost.
+      # Installer URL and binary version are pinned to the same tag —
+      # `main` is mutable and would defeat supply-chain immutability
+      # even if the binary itself is pinned.
+      - name: Run actionlint
+        run: |
+          bash <(curl -sSfL https://raw.githubusercontent.com/rhysd/actionlint/v1.7.6/scripts/download-actionlint.bash) 1.7.6
+          ./actionlint -color
+
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
