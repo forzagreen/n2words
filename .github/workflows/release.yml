@@ -9,11 +9,11 @@ on:
   workflow_dispatch:
     inputs:
       bump:
-        description: "Version bump (leave empty to auto-detect from commits)"
+        description: "Version bump (use 'auto' to detect from commits)"
         required: false
         type: choice
-        options: ["", "major", "minor", "patch"]
-        default: ""
+        options: ["auto", "major", "minor", "patch"]
+        default: "auto"
 
 concurrency:
   group: release
@@ -91,10 +91,10 @@ jobs:
         id: version
         run: |
           CURRENT=$(node -p "require('./package.json').version")
-          if [ -n "${{ inputs.bump }}" ]; then
-            TAG=$(git-cliff --bump ${{ inputs.bump }} --bumped-version)
-          else
+          if [ "${{ inputs.bump }}" = "auto" ]; then
             TAG=$(git-cliff --bumped-version)
+          else
+            TAG=$(git-cliff --bump ${{ inputs.bump }} --bumped-version)
           fi
           BARE="${TAG#v}"
           if [ "$BARE" = "$CURRENT" ]; then
@@ -139,23 +139,54 @@ jobs:
       - name: Generate changelog
         if: steps.version.outputs.skip != 'true'
         run: |
-          BUMP_ARG="${{ inputs.bump }}"
-          git-cliff --bump ${BUMP_ARG:+$BUMP_ARG} --output CHANGELOG.md
-          git-cliff --bump ${BUMP_ARG:+$BUMP_ARG} --unreleased --strip header --output RELEASE_NOTES.md
+          if [ "${{ inputs.bump }}" = "auto" ]; then
+            git-cliff --bump --output CHANGELOG.md
+            git-cliff --bump --unreleased --strip header --output RELEASE_NOTES.md
+          else
+            git-cliff --bump ${{ inputs.bump }} --output CHANGELOG.md
+            git-cliff --bump ${{ inputs.bump }} --unreleased --strip header --output RELEASE_NOTES.md
+          fi
 
-      - name: Commit, tag and push
+      # Commit locally only — defer the push until AFTER `npm publish`
+      # succeeds (see "Tag and push to origin" below). `[skip ci]` keeps
+      # the eventual push from re-triggering ci.yml on main, which would
+      # waste a billing minute re-running checks that already passed on
+      # the parent PR. The bump commit goes onto whatever the runner
+      # checked out; origin only learns about it after the artifact is
+      # durable on npm.
+      - name: Commit chore(release) locally
         if: steps.version.outputs.skip != 'true'
         run: |
           git add package.json package-lock.json CHANGELOG.md
-          git commit -m "chore(release): ${{ steps.version.outputs.tag }}"
-          git tag ${{ steps.version.outputs.tag }}
-          git push origin main --follow-tags
+          git commit -m "chore(release): ${{ steps.version.outputs.tag }} [skip ci]"
 
       - name: Publish to npm
         if: steps.version.outputs.skip != 'true'
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: npm publish --provenance
+
+      # Tag + push deferred until AFTER `npm publish` lands the
+      # artifact. Prior shape pushed first; an npm-publish failure (OIDC
+      # expiry, registry hiccup, etc.) left the tag on origin pointing
+      # at a version that wasn't on npm, and the next run tripped the
+      # "tag exists" guard. Now: tag on origin ⇒ artifact on npm.
+      #
+      # Annotated tag (`-a`) — `--follow-tags` only pushes annotated
+      # tags; lightweight ones are silently skipped. `--atomic` makes
+      # the main + tag advance server-side all-or-nothing, closing the
+      # narrower "commit lands but tag doesn't" anomaly.
+      #
+      # `git pull --rebase --autostash` defends against a human commit
+      # arriving on main between the bump and this push. Without the
+      # rebase the push is rejected as non-fast-forward and the release
+      # is stuck with the package on npm but no commit on main.
+      - name: Tag and push to origin
+        if: steps.version.outputs.skip != 'true'
+        run: |
+          git pull --rebase --autostash origin main
+          git tag -a ${{ steps.version.outputs.tag }} -m "Release ${{ steps.version.outputs.tag }}"
+          git push origin main --atomic --follow-tags
 
       - name: Create release archive
         if: steps.version.outputs.skip != 'true'
@@ -178,23 +209,27 @@ jobs:
 
       - name: Generate job summary
         if: always()
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+          TAG: ${{ steps.version.outputs.tag }}
+          SKIP: ${{ steps.version.outputs.skip }}
+          BUMP: ${{ inputs.bump }}
         run: |
-          VERSION=${{ steps.version.outputs.version }}
-          TAG=${{ steps.version.outputs.tag }}
-          SKIP=${{ steps.version.outputs.skip }}
           PKG_NAME=$(node -p "require('./package.json').name")
-          echo "## Release Summary" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          if [ "$SKIP" = "true" ]; then
-            echo "> **Skipped** — no version change detected (already at v${VERSION})" >> $GITHUB_STEP_SUMMARY
-          else
-            echo "| Item | Value |" >> $GITHUB_STEP_SUMMARY
-            echo "|------|-------|" >> $GITHUB_STEP_SUMMARY
-            echo "| **Version** | v${VERSION} |" >> $GITHUB_STEP_SUMMARY
-            echo "| **Tag** | \`${TAG}\` |" >> $GITHUB_STEP_SUMMARY
-            echo "| **Bump** | ${{ inputs.bump || 'auto-detected' }} |" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "- **npm**: https://www.npmjs.com/package/${PKG_NAME}/v/${VERSION}" >> $GITHUB_STEP_SUMMARY
-            echo "- **unpkg**: https://unpkg.com/${PKG_NAME}@${VERSION}/" >> $GITHUB_STEP_SUMMARY
-            echo "- **jsDelivr**: https://cdn.jsdelivr.net/npm/${PKG_NAME}@${VERSION}/" >> $GITHUB_STEP_SUMMARY
-          fi
+          {
+            echo "## Release Summary"
+            echo ""
+            if [ "$SKIP" = "true" ]; then
+              echo "> **Skipped** — no version change detected (already at v${VERSION})"
+            else
+              echo "| Item | Value |"
+              echo "|------|-------|"
+              echo "| **Version** | v${VERSION} |"
+              echo "| **Tag** | \`${TAG}\` |"
+              echo "| **Bump** | ${BUMP} |"
+              echo ""
+              echo "- **npm**: https://www.npmjs.com/package/${PKG_NAME}/v/${VERSION}"
+              echo "- **unpkg**: https://unpkg.com/${PKG_NAME}@${VERSION}/"
+              echo "- **jsDelivr**: https://cdn.jsdelivr.net/npm/${PKG_NAME}@${VERSION}/"
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"

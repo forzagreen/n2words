@@ -2,7 +2,9 @@ name: PR Title
 
 on:
   pull_request:
-    types: [opened, edited, reopened]
+    # `synchronize` re-runs on every push so a fixed title goes green
+    # without forcing a fresh PR open/close cycle.
+    types: [opened, edited, synchronize, reopened]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
@@ -21,16 +23,24 @@ jobs:
       - uses: actions/checkout@v6
         with:
           persist-credentials: false
+          # Shallow clone — commitlint only reads the piped title, not history.
+          fetch-depth: 1
 
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
           node-version: '24'
+          cache: 'npm'
 
-      # Skip `npm ci` — only commitlint is needed and `npx --package` fetches
-      # it on demand. Major versions pinned to match package.json's caret
-      # range so behavior matches local dev.
+      # `npm ci --ignore-scripts` installs commitlint from package.json's
+      # caret range, so this workflow uses the same major as local dev
+      # and the husky hook with no separate pin to drift. Skipping scripts
+      # avoids husky's prepare (no git hooks needed in CI) and any other
+      # postinstall noise.
+      - name: Install dependencies
+        run: npm ci --ignore-scripts --prefer-offline
+
       - name: Validate PR title
         env:
           PR_TITLE: ${{ github.event.pull_request.title }}
-        run: echo "$PR_TITLE" | npx --yes --package=@commitlint/cli@21 --package=@commitlint/config-conventional@21 commitlint --config .commitlintrc.mjs
+        run: echo "$PR_TITLE" | npx --no-install commitlint --config .commitlintrc.mjs
