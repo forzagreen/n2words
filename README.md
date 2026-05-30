@@ -116,8 +116,8 @@ Run `npm run bench` to measure on your hardware.
 We welcome contributions! Add a new language or improve existing ones:
 
 ```bash
-npm run lang:add <code>    # Scaffold a new language (BCP 47 code)
-npm test                   # Run full test suite
+npm run lang:add -- <code>   # Scaffold a new language (BCP 47 code)
+npm test                     # Run full test suite
 ```
 
 Also welcome: bug reports, feature requests, and documentation improvements.

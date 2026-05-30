@@ -71,7 +71,7 @@ function toCardinal (value, options) {
 ## Adding a Language
 
 ```bash
-npm run lang:add <code>  # Creates stub + fixture + type tests
+npm run lang:add -- <code>  # Creates stub + fixture + type tests
 ```
 
 Then: implement all three forms (`toCardinal`, `toOrdinal`, `toCurrency`) in `src/{code}.js`, add cases to `test/fixtures/{code}.js`, run `npm test`.

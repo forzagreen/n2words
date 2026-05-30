@@ -31,7 +31,7 @@ Scopes use BCP 47 language codes (`en-US`, `fr-BE`, `zh-Hans-CN`) or project are
 ## Adding a New Language
 
 ```bash
-npm run lang:add <code>   # e.g., ko-KR, sr-Cyrl-RS, fr-BE
+npm run lang:add -- <code>   # e.g., ko-KR, sr-Cyrl-RS, fr-BE
 ```
 
 This scaffolds all required files. Every language implements three **forms**:
