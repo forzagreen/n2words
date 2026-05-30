@@ -1,12 +1,43 @@
+# git-cliff configuration
+#
+# Emits the canonical Conventional-Changelog / "Keep a Changelog"
+# format: newest release on top, a compare link + date in each version
+# header, changes grouped by type with a leading BREAKING CHANGES
+# block, and every entry ending in its PR (#NN) and commit links — the
+# PR is the full story behind the one-line hook.
+#
+# Links are derived offline from the squash-merge "(#NN)" suffix and
+# the commit hash; no GitHub API/token needed. The release workflow
+# prepends ONLY the new version's section (`--unreleased --prepend`),
+# so historical entries — including the hand-written 3.0.0 migration
+# tables — are preserved verbatim.
+
 [changelog]
-header = ""
+header = "# Changelog\n\n"
 body = """
-{% for group, commits in commits | group_by(attribute="group") %}
-### {{ group }}
-{% for commit in commits %}
-- {{ commit.message | upper_first }}\
+{% if version %}\
+## [{{ version | trim_start_matches(pat="v") }}](https://github.com/forzagreen/n2words/compare/{{ previous.version }}...{{ version }}) ({{ timestamp | date(format="%Y-%m-%d") }})
+{% else %}\
+## [Unreleased]
+{% endif %}
+{% set breaking = commits | filter(attribute="breaking", value=true) %}\
+{% if breaking | length > 0 %}
+### ⚠ BREAKING CHANGES
+
+{% for commit in breaking %}\
+* {% if commit.scope %}**{{ commit.scope }}:** {% endif %}{{ commit.breaking_description }}
+{% endfor %}\
+{% endif %}\
+{% for group, commits in commits | group_by(attribute="group") %}\
+{% if "skip" not in group %}
+### {{ group | split(pat=">") | last }}
+
+{% for commit in commits %}\
+* {% if commit.scope %}**{{ commit.scope }}:** {% endif %}{{ commit.message }} ([{{ commit.id | truncate(length=7, end="") }}](https://github.com/forzagreen/n2words/commit/{{ commit.id }}))
+{% endfor %}\
+{% endif %}\
 {% endfor %}
-{% endfor %}
+
 """
 trim = true
 footer = ""
@@ -15,18 +46,28 @@ footer = ""
 conventional_commits = true
 filter_unconventional = true
 split_commits = false
+commit_preprocessors = [
+  # Link the squash-merge "(#123)" PR reference inline in the subject.
+  { pattern = '\(#([0-9]+)\)', replace = "([#${1}](https://github.com/forzagreen/n2words/issues/${1}))" },
+]
+# Group names carry an order prefix (<N>) the template strips, so
+# sections render in this order regardless of git-cliff's grouping
+# sort. Hidden types share a "<9>skip" group: the template skips any
+# group containing "skip", but they stay in the commit set so a
+# breaking change typed as chore!/ci!/etc. still surfaces in the
+# BREAKING CHANGES block above (rather than being dropped entirely).
 commit_parsers = [
-  { message = "^feat", group = "Features" },
-  { message = "^fix", group = "Bug Fixes" },
-  { message = "^perf", group = "Performance Improvements" },
-  { message = "^revert", group = "Reverts" },
-  { message = "^refactor", group = "Code Refactoring", skip = true },
-  { message = "^docs", skip = true },
-  { message = "^style", skip = true },
-  { message = "^chore", skip = true },
-  { message = "^test", skip = true },
-  { message = "^build", skip = true },
-  { message = "^ci", skip = true },
+  { message = "^feat", group = "<1>Features" },
+  { message = "^fix", group = "<2>Bug Fixes" },
+  { message = "^perf", group = "<3>Performance Improvements" },
+  { message = "^revert", group = "<4>Reverts" },
+  { message = "^refactor", group = "<9>skip" },
+  { message = "^docs", group = "<9>skip" },
+  { message = "^style", group = "<9>skip" },
+  { message = "^chore", group = "<9>skip" },
+  { message = "^test", group = "<9>skip" },
+  { message = "^build", group = "<9>skip" },
+  { message = "^ci", group = "<9>skip" },
 ]
 filter_commits = true
 tag_pattern = "v[0-9].*"
