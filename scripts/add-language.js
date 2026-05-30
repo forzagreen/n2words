@@ -203,9 +203,11 @@ function generateCardinalFunction (code) {
  * @returns {string} The number in words
  */
 function toCardinal (value) {
-  const { isNegative, integerPart, decimalPart } = parseCardinalValue(value)
+  // parseCardinalValue(value) -> { isNegative, integerPart: bigint, decimalPart? }
+  // (decimalPart is present only for decimal inputs)
+  parseCardinalValue(value)
 
-  // TODO: Implement conversion logic
+  // TODO: build the words from integerPart, applying isNegative and decimalPart
   throw new Error('${code} cardinal not yet implemented')
 }`
 }
@@ -225,9 +227,10 @@ function generateOrdinalFunction (code) {
  * @throws {RangeError} If value is not a positive integer
  */
 function toOrdinal (value) {
-  const integerPart = parseOrdinalValue(value)
+  // parseOrdinalValue(value) -> integerPart (bigint, positive integers only)
+  parseOrdinalValue(value)
 
-  // TODO: Implement conversion logic
+  // TODO: build and return the ordinal words
   throw new Error('${code} ordinal not yet implemented')
 }`
 }
@@ -248,10 +251,11 @@ function generateCurrencyFunction (code) {
  */
 function toCurrency (value, options) {
   options = validateOptions(options)
-  const { isNegative, dollars, cents } = parseCurrencyValue(value)
+  // parseCurrencyValue(value) -> { isNegative, dollars: bigint, cents: bigint }
+  parseCurrencyValue(value)
 
-  // TODO: Implement conversion logic
-  // TODO: Define currency vocabulary (e.g., dollar/dollars, cent/cents)
+  // TODO: build the words from dollars and cents, applying isNegative
+  // TODO: define this locale's currency vocabulary (major/minor unit names)
   throw new Error('${code} currency not yet implemented')
 }`
 }
@@ -579,10 +583,13 @@ async function main () {
     process.exit(1)
   }
 
-  // Warn if using non-canonical form
+  // Canonicalize the code (e.g. cy-gb -> cy-GB) so the filename, export
+  // name, and import path all follow the project's BCP 47 convention.
+  // Everything downstream uses `code`, so reassign it here.
   const canonical = getCanonicalCode(code)
   if (canonical && canonical !== code) {
-    console.log(chalk.yellow(`Warning: "${code}" will be canonicalized to "${canonical}"`))
+    console.log(chalk.yellow(`Note: canonicalized "${code}" -> "${canonical}"`))
+    code = canonical
   }
 
   const normalized = normalizeCode(code)
