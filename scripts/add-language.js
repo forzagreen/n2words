@@ -7,7 +7,11 @@
  * Supports scaffolding multiple conversion forms (cardinal, ordinal, currency).
  *
  * Usage:
- *   npm run lang:add [language-code] [options]
+ *   npm run lang:add -- [language-code] [options]
+ *
+ * The `--` separates npm's own args from the script's. It is required
+ * whenever you pass a flag (--cardinal etc.); without it npm swallows
+ * the flag and warns. Use it in every invocation for consistency.
  *
  * Options:
  *   --cardinal    Scaffold cardinal number support
@@ -18,12 +22,12 @@
  * If no form options provided, prompts for form selection.
  *
  * Examples:
- *   npm run lang:add                              # Fully interactive
- *   npm run lang:add ko-KR                        # Prompts for forms
- *   npm run lang:add ko-KR --cardinal             # Cardinal only
- *   npm run lang:add ko-KR --ordinal              # Ordinal only
- *   npm run lang:add ko-KR --currency             # Currency only
- *   npm run lang:add ko-KR --cardinal --ordinal   # Multiple forms
+ *   npm run lang:add                                 # Fully interactive
+ *   npm run lang:add -- ko-KR                        # Prompts for forms
+ *   npm run lang:add -- ko-KR --cardinal             # Cardinal only
+ *   npm run lang:add -- ko-KR --ordinal              # Ordinal only
+ *   npm run lang:add -- ko-KR --currency             # Currency only
+ *   npm run lang:add -- ko-KR --cardinal --ordinal   # Multiple forms
  */
 
 import { execSync } from 'node:child_process'
@@ -536,7 +540,10 @@ async function main () {
   const { code: cliCode, forms: cliFlags, help } = parseArgs(process.argv.slice(2))
 
   if (help) {
-    console.log(chalk.cyan('Usage: npm run lang:add [language-code] [options]'))
+    console.log(chalk.cyan('Usage: npm run lang:add -- [language-code] [options]'))
+    console.log()
+    console.log(chalk.gray('The `--` separates npm args from the script. Required when passing'))
+    console.log(chalk.gray('a flag; use it always for consistency.'))
     console.log()
     console.log(chalk.gray('Options:'))
     console.log(chalk.gray('  --cardinal    Scaffold cardinal number support'))
@@ -547,12 +554,12 @@ async function main () {
     console.log(chalk.gray('If no form options provided, prompts for form selection.'))
     console.log()
     console.log(chalk.gray('Examples:'))
-    console.log(chalk.gray('  npm run lang:add                              # Fully interactive'))
-    console.log(chalk.gray('  npm run lang:add ko-KR                        # Prompts for forms'))
-    console.log(chalk.gray('  npm run lang:add ko-KR --cardinal             # Cardinal only'))
-    console.log(chalk.gray('  npm run lang:add ko-KR --ordinal              # Ordinal only'))
-    console.log(chalk.gray('  npm run lang:add ko-KR --currency             # Currency only'))
-    console.log(chalk.gray('  npm run lang:add ko-KR --cardinal --ordinal   # Multiple forms'))
+    console.log(chalk.gray('  npm run lang:add                                 # Fully interactive'))
+    console.log(chalk.gray('  npm run lang:add -- ko-KR                        # Prompts for forms'))
+    console.log(chalk.gray('  npm run lang:add -- ko-KR --cardinal             # Cardinal only'))
+    console.log(chalk.gray('  npm run lang:add -- ko-KR --ordinal              # Ordinal only'))
+    console.log(chalk.gray('  npm run lang:add -- ko-KR --currency             # Currency only'))
+    console.log(chalk.gray('  npm run lang:add -- ko-KR --cardinal --ordinal   # Multiple forms'))
     process.exit(0)
   }
 
@@ -650,10 +657,10 @@ async function main () {
   // Success message
   console.log(chalk.green(`\n✓ Successfully scaffolded ${code} ${isNewLanguage ? 'language' : 'forms'}`))
   console.log(chalk.cyan('\nNext steps:'))
-  console.log(chalk.gray(`1. Implement ${langFilePath}`))
-  console.log(chalk.gray(`2. Add test cases to ${fixtureFilePath}`))
-  console.log(chalk.gray('3. Run: npm test'))
-  console.log(chalk.gray('4. Run: npm run build:types'))
+  console.log(chalk.gray(`1. Implement ${langFilePath} (replace the \`throw\` in each form)`))
+  console.log(chalk.gray(`2. Add at least one case per form to ${fixtureFilePath}`))
+  console.log(chalk.gray('   — the suite rejects empty fixtures, so it fails until you do'))
+  console.log(chalk.gray('3. Run: npm test  (runs the suite and builds types)'))
 }
 
 main().catch(err => {
