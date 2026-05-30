@@ -13,6 +13,4 @@
 
 <!-- Optional: Fixes #123 -->
 
----
-
 📚 Adding a language or a breaking change? See [CONTRIBUTING.md](https://github.com/forzagreen/n2words/blob/main/CONTRIBUTING.md).
