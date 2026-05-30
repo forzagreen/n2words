@@ -37,7 +37,7 @@ jobs:
       # even if the binary itself is pinned.
       - name: Run actionlint
         run: |
-          bash <(curl -sSfL https://raw.githubusercontent.com/rhysd/actionlint/v1.7.6/scripts/download-actionlint.bash) 1.7.6
+          bash <(curl -sSfL https://raw.githubusercontent.com/rhysd/actionlint/v1.7.12/scripts/download-actionlint.bash) 1.7.12
           ./actionlint -color
 
       - name: Setup Node.js
