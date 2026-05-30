@@ -30,10 +30,31 @@ jobs:
     environment: npm
 
     steps:
+      # Mint a short-lived installation token from the release-bot
+      # GitHub App. The App is a bypass actor on the `main` branch
+      # ruleset, so the chore(release) commit pushed below is exempt
+      # from the "require a pull request" rule. The default
+      # GITHUB_TOKEN / github-actions[bot] is NOT a bypass actor —
+      # pushing with it is what the ruleset rejected, leaving a
+      # published npm version with no tag or commit on main.
+      - name: Mint release-bot token
+        id: app-token
+        uses: actions/create-github-app-token@v3
+        with:
+          # `app-id` (the App's numeric ID), not `client-id`: both work
+          # in v3, but actionlint's bundled action metadata doesn't know
+          # `client-id` yet and fails the lint gate on it. Switch when
+          # the pinned actionlint recognizes it.
+          app-id: ${{ secrets.RELEASE_BOT_APP_ID }}
+          private-key: ${{ secrets.RELEASE_BOT_PRIVATE_KEY }}
+
       - uses: actions/checkout@v6
         with:
           fetch-depth: 0
-          token: ${{ secrets.GITHUB_TOKEN }}
+          # Persisted as the push credential for "Tag and push to
+          # origin" below — that push then authenticates as the App
+          # (the bypass actor), not github-actions[bot].
+          token: ${{ steps.app-token.outputs.token }}
 
       - name: Verify NODE_VERSION satisfies engines.node
         # engines.node is a floor (e.g. ">=22"). The runner's Node major
@@ -208,7 +229,7 @@ jobs:
         if: steps.version.outputs.skip != 'true'
         uses: softprops/action-gh-release@v3
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ steps.app-token.outputs.token }}
           tag_name: ${{ steps.version.outputs.tag }}
           name: ${{ steps.version.outputs.tag }}
           body_path: RELEASE_NOTES.md
