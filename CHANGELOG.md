@@ -1,5 +1,20 @@
 # Changelog
 
+## [5.0.0](https://github.com/forzagreen/n2words/compare/v4.0.0...v5.0.0) (2026-05-30)
+
+
+### ⚠ BREAKING CHANGES
+
+* require Node.js >=22, drop EOL Node 20 ([#287](https://github.com/forzagreen/n2words/issues/287))
+
+### Features
+
+* add Brazilian Portuguese (pt-BR) support ([#275](https://github.com/forzagreen/n2words/issues/275))
+
+### Bug Fixes
+
+* **types:** add typesVersions to support CommonJS imports in TypeScript ([#301](https://github.com/forzagreen/n2words/issues/301))
+
 ## [4.0.0](https://github.com/forzagreen/n2words/compare/v3.1.0...v4.0.0) (2026-03-05)
 
 
