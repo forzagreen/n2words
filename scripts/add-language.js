@@ -203,7 +203,8 @@ function generateCardinalFunction (code) {
  * @returns {string} The number in words
  */
 function toCardinal (value) {
-  // parseCardinalValue(value) -> { isNegative, integerPart: bigint, decimalPart }
+  // parseCardinalValue(value) -> { isNegative, integerPart: bigint, decimalPart? }
+  // (decimalPart is present only for decimal inputs)
   parseCardinalValue(value)
 
   // TODO: build the words from integerPart, applying isNegative and decimalPart
