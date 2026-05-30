@@ -177,14 +177,21 @@ jobs:
       # the main + tag advance server-side all-or-nothing, closing the
       # narrower "commit lands but tag doesn't" anomaly.
       #
-      # `git pull --rebase --autostash` defends against a human commit
-      # arriving on main between the bump and this push. Without the
-      # rebase the push is rejected as non-fast-forward and the release
-      # is stuck with the package on npm but no commit on main.
+      # Do NOT rebase onto origin/main before pushing. The npm package
+      # was already published from THIS chore(release) commit's tree.
+      # A rebase would replay that commit onto any PR that merged during
+      # the build, so the tag's tree would include source the published
+      # package was never built from (tag/artifact mismatch), and the
+      # merged PR would sink below the tag where the next
+      # `git-cliff --bumped-version` walk skips it — silently dropped
+      # from the changelog. Let the race fail loud instead: a PR landing
+      # on origin/main mid-build makes this a non-fast-forward push and
+      # `--atomic` rejects both main and the tag. That is recoverable —
+      # the package is already on npm; once main is stable, re-run the
+      # release or push the chore(release) commit + tag by hand.
       - name: Tag and push to origin
         if: steps.version.outputs.skip != 'true'
         run: |
-          git pull --rebase --autostash origin main
           git tag -a ${{ steps.version.outputs.tag }} -m "Release ${{ steps.version.outputs.tag }}"
           git push origin main --atomic --follow-tags
 
