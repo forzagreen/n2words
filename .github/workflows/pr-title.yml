@@ -43,4 +43,8 @@ jobs:
       - name: Validate PR title
         env:
           PR_TITLE: ${{ github.event.pull_request.title }}
-        run: echo "$PR_TITLE" | npx --no-install commitlint --config .commitlintrc.mjs
+        # `printf '%s\n'`, not `echo` — a title starting with `-n`/`-e`
+        # is otherwise swallowed by echo as a flag (POSIX echo is
+        # underspecified on flag handling), so commitlint would see a
+        # truncated title and could pass or fail misleadingly.
+        run: printf '%s\n' "$PR_TITLE" | npx --no-install commitlint --config .commitlintrc.mjs
