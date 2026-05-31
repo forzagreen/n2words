@@ -11,6 +11,8 @@ npm test
 
 **Requirements:** Node.js >=22, Git
 
+**Package manager:** examples use npm, but **pnpm** and **bun** work too — scripts run through `node --run`, so `pnpm run <script>` / `bun run <script>` behave the same. `package-lock.json` is the committed lockfile; pnpm/bun/yarn lockfiles are gitignored.
+
 ## Pull Request Process
 
 1. Create a feature branch: `git checkout -b feat/add-pt-BR`
