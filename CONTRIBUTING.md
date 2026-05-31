@@ -11,7 +11,7 @@ npm test
 
 **Requirements:** Node.js >=22, Git
 
-**Package manager:** examples use npm, but **pnpm** and **bun** work too — scripts run through `node --run`, so `pnpm run <script>` / `bun run <script>` behave the same. The committed lockfile is npm's; please don't commit `pnpm-lock.yaml` or `bun.lock`.
+**Package manager:** examples use npm, but **pnpm** and **bun** work too — scripts run through `node --run`, so `pnpm run <script>` / `bun run <script>` behave the same. `package-lock.json` is the committed lockfile; pnpm/bun/yarn lockfiles are gitignored.
 
 ## Pull Request Process
 
