@@ -15,6 +15,7 @@
  */
 
 import { readFileSync, writeFileSync, readdirSync } from 'node:fs'
+import { getExportedForms } from '../test/helpers/language-helpers.js'
 import { getLanguageName } from '../test/helpers/language-naming.js'
 
 // ============================================================================
@@ -58,27 +59,8 @@ function getDisplayName (code) {
 // Feature Detection
 // ============================================================================
 
-/**
- * Check if a language has ordinal support.
- *
- * @param {string} code Language code
- * @returns {boolean} True if language exports toOrdinal
- */
-function hasOrdinal (code) {
-  const content = readFileSync(`./src/${code}.js`, 'utf-8')
-  return content.includes('toOrdinal') && content.includes('export {')
-}
-
-/**
- * Check if a language has currency support.
- *
- * @param {string} code Language code
- * @returns {boolean} True if language exports toCurrency
- */
-function hasCurrency (code) {
-  const content = readFileSync(`./src/${code}.js`, 'utf-8')
-  return content.includes('toCurrency') && content.includes('export {')
-}
+// Form support (ordinal/currency) is read from each module's real exports
+// via getExportedForms — see main(), which passes a `forms` map down.
 
 // ============================================================================
 // Options Extraction
@@ -258,9 +240,13 @@ function formatOptionsTable (options) {
  * Generate the LANGUAGES.md content.
  *
  * @param {string[]} codes Array of language codes
+ * @param {Map<string, Set<string>>} forms Code -> set of exported forms
  * @returns {string} Markdown content
  */
-function generateMarkdown (codes) {
+function generateMarkdown (codes, forms) {
+  const hasOrdinal = code => forms.get(code).has('ordinal')
+  const hasCurrency = code => forms.get(code).has('currency')
+
   const languageCount = codes.length
   const codesWithOrdinal = codes.filter(hasOrdinal)
   const ordinalCount = codesWithOrdinal.length
@@ -356,9 +342,12 @@ ${optionSections.join('\n\n')}
 // Main
 // ============================================================================
 
-function main () {
+async function main () {
   const codes = getLanguageCodes()
-  const markdown = generateMarkdown(codes)
+  const forms = new Map(
+    await Promise.all(codes.map(async code => [code, await getExportedForms(code)]))
+  )
+  const markdown = generateMarkdown(codes, forms)
 
   writeFileSync('./LANGUAGES.md', markdown)
   console.log(`✓ Generated LANGUAGES.md (${codes.length} languages)`)
