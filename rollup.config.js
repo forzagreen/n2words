@@ -42,6 +42,7 @@ const babelConfig = {
     [
       '@babel/preset-env',
       {
+        bugfixes: true, // Narrower, smaller transforms (the default in Babel 8)
         modules: false // Preserve ES modules for Rollup's tree-shaking
       }
     ]
