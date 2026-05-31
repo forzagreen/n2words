@@ -1,4 +1,3 @@
-import { babel } from '@rollup/plugin-babel'
 import { nodeResolve } from '@rollup/plugin-node-resolve'
 import terser from '@rollup/plugin-terser'
 import virtual from '@rollup/plugin-virtual'
@@ -16,10 +15,12 @@ const languageCodes = getLanguageCodes()
  * Rollup configuration for n2words bundles.
  *
  * Build Strategy:
- * 1. Source (src/): Modern ES2022+ code with BigInt, optional chaining
- * 2. Babel: Transpiles ES2022+ features down while preserving BigInt support
- * 3. Terser: Minifies using ES2020 syntax (safe for BigInt-supporting browsers)
- * 4. Target: in-use browsers with BigInt support, via .browserslistrc ("defaults and supports bigint")
+ * 1. Source (src/): modern ES2022+ code with BigInt.
+ * 2. Terser: minifies (ES2020 output).
+ * 3. Target: in-use browsers with BigInt support, via .browserslistrc
+ *    ("defaults and supports bigint"). No transpile step — the source uses
+ *    only syntax those browsers already support, so Terser alone suffices.
+ *    (eslint-plugin-compat enforces that the source stays within the floor.)
  *
  * Generates:
  * - Individual ESM bundles (dist/{langCode}.js): One per language, for browsers
@@ -33,20 +34,6 @@ const languageCodes = getLanguageCodes()
  * normalized language code (e.g., n2words.en, n2words.zhHans), allowing
  * multiple languages to be loaded together without conflicts.
  */
-
-// Common babel configuration
-const babelConfig = {
-  babelHelpers: 'bundled',
-  exclude: 'node_modules/**',
-  presets: [
-    [
-      '@babel/preset-env',
-      {
-        modules: false // Preserve ES modules for Rollup's tree-shaking
-      }
-    ]
-  ]
-}
 
 // Individual bundle terser config - aggressive since only one function is exported
 const individualTerserConfig = terser({
@@ -68,8 +55,7 @@ const individualTerserConfig = terser({
 
 // Base plugins (shared between all bundles)
 const basePlugins = [
-  nodeResolve({ preferBuiltins: false }),
-  babel(babelConfig)
+  nodeResolve({ preferBuiltins: false })
 ]
 
 // ============================================================================
