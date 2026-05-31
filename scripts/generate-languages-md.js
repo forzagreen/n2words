@@ -14,7 +14,8 @@
  *   LANGUAGES.md - Complete language reference table
  */
 
-import { readFileSync, writeFileSync, readdirSync } from 'node:fs'
+import { writeFileSync, readdirSync } from 'node:fs'
+import ts from 'typescript'
 import { getExportedForms } from '../test/helpers/language-helpers.js'
 import { getLanguageName } from '../test/helpers/language-naming.js'
 
@@ -69,60 +70,137 @@ function getDisplayName (code) {
 /**
  * @typedef {Object} OptionInfo
  * @property {string} name - Option name (e.g., 'gender')
- * @property {string} type - Type string (e.g., 'boolean', "'masculine'|'feminine'")
+ * @property {string} type - JSDoc-style type ('boolean', "('masculine'|'feminine')")
  * @property {string} [defaultValue] - Default value if specified
  * @property {string} description - Description from JSDoc
- * @property {string} form - Which form this option applies to ('cardinal' or 'ordinal')
+ * @property {string} form - Which form this option applies to ('cardinal' etc.)
  */
 
+const FORM_FUNCTIONS = { toCardinal: 'cardinal', toOrdinal: 'ordinal', toCurrency: 'currency' }
+
+// code -> (functionName -> OptionInfo[]); populated by buildOptionsIndex() in
+// main() before any markdown is generated.
+let optionsIndex = new Map()
+
 /**
- * Parse options from a language file's JSDoc for a specific function.
+ * Render a property's resolved type back into the JSDoc-style string the
+ * markdown renderer expects: a string-literal union becomes
+ * `('a'|'b')`, everything else uses its plain type name (`boolean`, `string`).
+ *
+ * @param {import('typescript').TypeChecker} checker
+ * @param {import('typescript').Type} propType
+ * @returns {string}
+ */
+function toDocType (checker, propType) {
+  // Optional props arrive as `T | undefined`; drop the undefined first.
+  const type = propType.getNonNullableType()
+  const parts = type.isUnion() ? type.types : [type]
+
+  if (parts.length > 0 && parts.every(t => t.isStringLiteral())) {
+    const literals = parts.map(t => `'${t.value}'`)
+    return parts.length > 1 ? `(${literals.join('|')})` : literals[0]
+  }
+
+  return checker.typeToString(type)
+}
+
+/**
+ * Read an option's default from its `@param {type} [options.name=default]`
+ * tag — a bounded read on the single declaration node the checker resolved,
+ * not a scan of the file.
+ *
+ * @param {import('typescript').Symbol} prop
+ * @param {string} name
+ * @returns {string|undefined}
+ */
+function extractDefault (prop, name) {
+  const decl = prop.valueDeclaration ?? prop.declarations?.[0]
+  if (!decl) return undefined
+  const text = decl.getText(decl.getSourceFile())
+  const match = text.match(new RegExp(`\\[options\\.${name}(?:=([^\\]]+))?\\]`))
+  return match && match[1] != null ? match[1] : undefined
+}
+
+/**
+ * Build code -> (functionName -> OptionInfo[]) by type-checking the language
+ * sources once. Option names, types, and descriptions come straight from the
+ * checker (the same view TypeScript exposes to consumers), so the docs can't
+ * drift from comment formatting the way the old regex scrape could.
+ *
+ * @param {string[]} codes Language codes
+ * @returns {Map<string, Map<string, OptionInfo[]>>}
+ */
+function buildOptionsIndex (codes) {
+  const program = ts.createProgram(
+    codes.map(code => `./src/${code}.js`),
+    {
+      allowJs: true,
+      checkJs: false,
+      noEmit: true,
+      target: ts.ScriptTarget.ES2022,
+      module: ts.ModuleKind.NodeNext,
+      moduleResolution: ts.ModuleResolutionKind.NodeNext
+    }
+  )
+  const checker = program.getTypeChecker()
+  const index = new Map()
+
+  for (const code of codes) {
+    const sourceFile = program.getSourceFile(`./src/${code}.js`)
+    if (!sourceFile) {
+      throw new Error(`Could not load source for "${code}" (./src/${code}.js) — cannot extract options`)
+    }
+    const byFunction = new Map()
+
+    ts.forEachChild(sourceFile, node => {
+      if (!ts.isFunctionDeclaration(node) || !node.name) return
+      const fnName = node.name.text
+      if (!(fnName in FORM_FUNCTIONS)) return
+
+      const optionsParam = node.parameters.find(
+        p => ts.isIdentifier(p.name) && p.name.text === 'options'
+      )
+      if (!optionsParam) return
+
+      let type = checker.getTypeAtLocation(optionsParam)
+      if (type.isUnion()) {
+        type = type.types.find(t => !(t.flags & ts.TypeFlags.Undefined)) ?? type
+      }
+
+      const options = (type.getProperties?.() ?? []).map(prop => {
+        const name = prop.getName()
+        const description = ts
+          .displayPartsToString(prop.getDocumentationComment(checker))
+          .trim()
+          .replace(/^-\s*/, '')
+          .trim()
+        return {
+          name,
+          type: toDocType(checker, checker.getTypeOfSymbolAtLocation(prop, optionsParam)),
+          defaultValue: extractDefault(prop, name),
+          description,
+          form: FORM_FUNCTIONS[fnName]
+        }
+      })
+
+      if (options.length > 0) byFunction.set(fnName, options)
+    })
+
+    index.set(code, byFunction)
+  }
+
+  return index
+}
+
+/**
+ * Look up the options for one form of one language from the prebuilt index.
  *
  * @param {string} code Language code
- * @param {string} functionName Function to extract options for
+ * @param {string} functionName Function to get options for
  * @returns {OptionInfo[]} Array of option info objects
  */
 function getOptionsForFunction (code, functionName) {
-  const content = readFileSync(`./src/${code}.js`, 'utf-8')
-
-  // Find function position first
-  const funcPattern = new RegExp(`function\\s+${functionName}\\s*\\(`)
-  const funcMatch = funcPattern.exec(content)
-  if (!funcMatch) return []
-
-  // Get content before function and find the LAST JSDoc (closest one)
-  const beforeFunc = content.substring(0, funcMatch.index)
-  const jsdocPattern = /\/\*\*[\s\S]*?\*\//g
-  let jsdocBlock = null
-  let match
-  while ((match = jsdocPattern.exec(beforeFunc)) !== null) {
-    jsdocBlock = match[0]
-  }
-
-  if (!jsdocBlock) return []
-
-  // Match: @param {type} [options.name=default] - description
-  const optionRegex = /@param\s+\{([^}]+)\}\s+\[options\.(\w+)(?:=([^\]]+))?\]\s+-\s+(.+)/g
-
-  const options = []
-  let optionMatch
-
-  while ((optionMatch = optionRegex.exec(jsdocBlock)) !== null) {
-    const formMap = {
-      toCardinal: 'cardinal',
-      toOrdinal: 'ordinal',
-      toCurrency: 'currency'
-    }
-    options.push({
-      name: optionMatch[2],
-      type: optionMatch[1],
-      defaultValue: optionMatch[3] || undefined,
-      description: optionMatch[4].trim(),
-      form: formMap[functionName] || functionName
-    })
-  }
-
-  return options
+  return optionsIndex.get(code)?.get(functionName) ?? []
 }
 
 /**
@@ -347,6 +425,7 @@ async function main () {
   const forms = new Map(
     await Promise.all(codes.map(async code => [code, await getExportedForms(code)]))
   )
+  optionsIndex = buildOptionsIndex(codes)
   const markdown = generateMarkdown(codes, forms)
 
   writeFileSync('./LANGUAGES.md', markdown)
