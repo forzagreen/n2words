@@ -85,7 +85,7 @@ let optionsIndex = new Map()
 /**
  * Render a property's resolved type back into the JSDoc-style string the
  * markdown renderer expects: a string-literal union becomes
- * `('a'|'b')`, everything else its plain type name (`boolean`, `string`).
+ * `('a'|'b')`, everything else uses its plain type name (`boolean`, `string`).
  *
  * @param {import('typescript').TypeChecker} checker
  * @param {import('typescript').Type} propType
@@ -147,6 +147,9 @@ function buildOptionsIndex (codes) {
 
   for (const code of codes) {
     const sourceFile = program.getSourceFile(`./src/${code}.js`)
+    if (!sourceFile) {
+      throw new Error(`Could not load source for "${code}" (./src/${code}.js) — cannot extract options`)
+    }
     const byFunction = new Map()
 
     ts.forEachChild(sourceFile, node => {
