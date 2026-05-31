@@ -6,15 +6,14 @@
   "files.insertFinalNewline": true,
   "files.eol": "\n", // LF line endings (matches .editorconfig)
 
-  // JavaScript Standard Style (Project Linter)
-  "standard.enable": true,
-  "standard.validate": ["javascript"],
+  // ESLint (flat config, neostandard style) is the project linter
+  "eslint.useFlatConfig": true,
   "javascript.preferences.quoteStyle": "single",
 
   // Auto-fix on save using code actions (modern approach)
   "editor.formatOnSave": false, // Disable default formatter
   "editor.codeActionsOnSave": {
-    "source.fixAll.standard": "explicit"
+    "source.fixAll.eslint": "explicit"
   },
 
   // Markdown Linting (Project Standard - matches .markdownlint.mjs)

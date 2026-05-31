@@ -52,7 +52,7 @@ Then:
 
 ## Code Style
 
-- **JavaScript:** [StandardJS](https://standardjs.com/) — `npm run lint:fix`
+- **JavaScript:** ESLint with [neostandard](https://github.com/neostandard/neostandard) (standard style) — `npm run lint:fix`
 - **Markdown:** [markdownlint](https://github.com/DavidAnson/markdownlint) — `npm run lint:md -- --fix`
 
 ## Testing
