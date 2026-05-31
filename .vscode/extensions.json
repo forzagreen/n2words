@@ -2,11 +2,10 @@
   "recommendations": [
     "editorconfig.editorconfig",
     "davidanson.vscode-markdownlint",
-    "standard.vscode-standard",
+    "dbaeumer.vscode-eslint",
     "vivaxy.vscode-conventional-commits"
   ],
   "unwantedRecommendations": [
-    "prettier.prettier-vscode",
-    "dbaeumer.vscode-eslint"
+    "prettier.prettier-vscode"
   ]
 }
