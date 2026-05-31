@@ -78,8 +78,8 @@
     "docs:languages": "node scripts/generate-languages-md.js",
     "lang:add": "node scripts/add-language.js",
     "lint": "node --run lint:js && node --run lint:md",
-    "lint:fix": "standard --fix && markdownlint-cli2 --fix",
-    "lint:js": "standard",
+    "lint:fix": "eslint --fix && markdownlint-cli2 --fix",
+    "lint:js": "eslint",
     "lint:md": "markdownlint-cli2",
     "prepare:husky": "husky",
     "test": "node --run test:unit && node --run build:types",
@@ -97,11 +97,6 @@
     "concurrency": 8,
     "workerThreads": false
   },
-  "standard": {
-    "ignore": [
-      "!.vscode/"
-    ]
-  },
   "c8": {
     "all": true,
     "include": [
@@ -118,7 +113,7 @@
   },
   "lint-staged": {
     "*.{js,cjs,mjs}": [
-      "standard --fix"
+      "eslint --fix"
     ],
     "*.md": [
       "markdownlint-cli2 --fix"
@@ -136,12 +131,15 @@
     "browserslist": "^4.28.2",
     "c8": "^11.0.0",
     "chalk": "^5.6.2",
+    "eslint": "^9.39.4",
+    "eslint-plugin-es-x": "^9.6.0",
+    "globals": "^17.6.0",
     "husky": "^9.1.7",
     "lint-staged": "^17.0.5",
     "markdownlint-cli2": "^0.22.1",
+    "neostandard": "^0.13.0",
     "rimraf": "^6.1.3",
     "rollup": "^4.60.4",
-    "standard": "^17.1.2",
     "typescript": "^6.0.3"
   },
   "engines": {
