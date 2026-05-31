@@ -1,7 +1,6 @@
 # Browserslist configuration
-# Defines the supported browser baseline. Consumed by eslint-plugin-compat
-# (which fails lint if src/ uses an API/syntax above this floor) and the
-# `browserslist` npm scripts.
+# Defines the supported browser baseline, consumed by the `browserslist`
+# npm scripts.
 #
 # Strategy: Target all in-use browsers (defaults) that support BigInt (hard requirement).
 #

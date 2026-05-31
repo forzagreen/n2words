@@ -18,9 +18,9 @@ const languageCodes = getLanguageCodes()
  * 1. Source (src/): modern ES2022+ code with BigInt.
  * 2. Terser: minifies (ES2020 output).
  * 3. Target: in-use browsers with BigInt support, via .browserslistrc
- *    ("defaults and supports bigint"). No transpile step — the source uses
- *    only syntax those browsers already support, so Terser alone suffices.
- *    (eslint-plugin-compat enforces that the source stays within the floor.)
+ *    ("defaults and supports bigint"). No transpile step — the source is
+ *    authored to stay within what those browsers support, so Terser alone
+ *    suffices.
  *
  * Generates:
  * - Individual ESM bundles (dist/{langCode}.js): One per language, for browsers
