@@ -34,6 +34,7 @@ import { execSync } from 'node:child_process'
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import * as readline from 'node:readline/promises'
 import chalk from 'chalk'
+import { getExportedForms } from '../test/helpers/language-helpers.js'
 import { getCanonicalCode, getLanguageName, isInCLDR, isValidLanguageCode, normalizeCode } from '../test/helpers/language-naming.js'
 
 // ============================================================================
@@ -374,35 +375,6 @@ export const currency = [
 // ============================================================================
 
 /**
- * Check which forms are already implemented for a language.
- *
- * @param {string} code Language code
- * @returns {Set<string>} Set of implemented forms
- */
-function getExistingForms (code) {
-  const filePath = `./src/${code}.js`
-  const forms = new Set()
-
-  if (!existsSync(filePath)) {
-    return forms
-  }
-
-  const content = readFileSync(filePath, 'utf-8')
-
-  if (content.includes('function toCardinal')) {
-    forms.add('cardinal')
-  }
-  if (content.includes('function toOrdinal')) {
-    forms.add('ordinal')
-  }
-  if (content.includes('function toCurrency')) {
-    forms.add('currency')
-  }
-
-  return forms
-}
-
-/**
  * Add new forms to an existing language file.
  *
  * @param {string} code Language code
@@ -596,8 +568,8 @@ async function main () {
   const langFilePath = `./src/${code}.js`
   const fixtureFilePath = `./test/fixtures/${code}.js`
 
-  // Check existing implementation
-  const existingForms = getExistingForms(code)
+  // Check existing implementation (read from real exports, not source text)
+  const existingForms = await getExportedForms(code)
   const isNewLanguage = existingForms.size === 0
 
   // Determine which forms to scaffold

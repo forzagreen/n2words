@@ -3,7 +3,7 @@ import { nodeResolve } from '@rollup/plugin-node-resolve'
 import terser from '@rollup/plugin-terser'
 import virtual from '@rollup/plugin-virtual'
 import { readFileSync } from 'node:fs'
-import { getLanguageCodes } from './test/helpers/language-helpers.js'
+import { getExportedForms, getLanguageCodes } from './test/helpers/language-helpers.js'
 import { normalizeCode } from './test/helpers/language-naming.js'
 
 // Read package.json for version
@@ -11,42 +11,6 @@ const pkg = JSON.parse(readFileSync('./package.json', 'utf8'))
 
 // Get all language codes from the src directory
 const languageCodes = getLanguageCodes()
-
-/**
- * Check if a language file exports a given function name.
- * @param {string} content File content
- * @param {string} fnName Function name to look for in export statement
- * @returns {boolean}
- */
-function hasExport (content, fnName) {
-  const exportMatch = content.match(/export\s*\{([^}]+)\}/)
-  return exportMatch ? exportMatch[1].includes(fnName) : false
-}
-
-/**
- * Get languages that have ordinal support by checking for toOrdinal export.
- * @returns {string[]} Language codes with ordinal support
- */
-function getOrdinalLanguages () {
-  return languageCodes.filter(code => {
-    const content = readFileSync(`./src/${code}.js`, 'utf8')
-    return hasExport(content, 'toOrdinal')
-  })
-}
-
-/**
- * Get languages that have currency support by checking for toCurrency export.
- * @returns {string[]} Language codes with currency support
- */
-function getCurrencyLanguages () {
-  return languageCodes.filter(code => {
-    const content = readFileSync(`./src/${code}.js`, 'utf8')
-    return hasExport(content, 'toCurrency')
-  })
-}
-
-const ordinalLanguages = getOrdinalLanguages()
-const currencyLanguages = getCurrencyLanguages()
 
 /**
  * Rollup configuration for n2words bundles.
@@ -124,12 +88,13 @@ const languageEsmConfigs = languageCodes.map(langCode => ({
   plugins: [...basePlugins, individualTerserConfig]
 }))
 
-// Generate individual UMD language bundle configurations
-const languageUmdConfigs = languageCodes.map(langCode => {
+/**
+ * Build the UMD config for one language. `forms` is the Set of forms the
+ * language actually exports (read from the module, not scanned from text).
+ */
+function umdConfig (langCode, forms) {
   const normalizedName = normalizeCode(langCode)
   const virtualEntryId = `\0virtual:umd:${langCode}`
-  const hasOrdinal = ordinalLanguages.includes(langCode)
-  const hasCurrency = currencyLanguages.includes(langCode)
 
   // Build virtual entry content
   // Cardinal: n2words.enUS(42) → "forty-two"
@@ -137,12 +102,12 @@ const languageUmdConfigs = languageCodes.map(langCode => {
   // Currency: n2words.currency.enUS(42.50) → "forty-two dollars and fifty cents"
   let virtualContent = `export { toCardinal as ${normalizedName} } from './src/${langCode}.js';\n`
 
-  if (hasOrdinal) {
+  if (forms.has('ordinal')) {
     virtualContent += `import { toOrdinal } from './src/${langCode}.js';\n`
     virtualContent += `export const ordinal = { ${normalizedName}: toOrdinal };\n`
   }
 
-  if (hasCurrency) {
+  if (forms.has('currency')) {
     virtualContent += `import { toCurrency } from './src/${langCode}.js';\n`
     virtualContent += `export const currency = { ${normalizedName}: toCurrency };\n`
   }
@@ -165,10 +130,17 @@ const languageUmdConfigs = languageCodes.map(langCode => {
       individualTerserConfig
     ]
   }
-})
+}
 
-// Export all configurations as an array
-export default [
-  ...languageEsmConfigs,
-  ...languageUmdConfigs
-]
+// Async config: resolve each language's exported forms (an import() per
+// module), then build the UMD entries from real exports.
+export default async () => {
+  const languageUmdConfigs = await Promise.all(
+    languageCodes.map(async langCode => umdConfig(langCode, await getExportedForms(langCode)))
+  )
+
+  return [
+    ...languageEsmConfigs,
+    ...languageUmdConfigs
+  ]
+}
