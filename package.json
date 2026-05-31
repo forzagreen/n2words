@@ -134,6 +134,7 @@
     "@rollup/plugin-node-resolve": "^16.0.3",
     "@rollup/plugin-terser": "^1.0.0",
     "@rollup/plugin-virtual": "^3.0.2",
+    "@types/node": "^24.12.4",
     "ava": "^8.0.1",
     "benchmark": "^2.1.4",
     "browserslist": "^4.28.2",
