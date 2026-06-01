@@ -94,6 +94,13 @@ const KOPECK_FORMS = ['копейка', 'копейки', 'копеек']
 // Segment Building
 // ============================================================================
 
+/**
+ * Selects the correct plural form based on Russian pluralization rules.
+ *
+ * @param {number | bigint} n - The count
+ * @param {string[]} forms - [one, few, many] forms
+ * @returns {string} The matching plural form
+ */
 function pluralize (n, forms) {
   const num = typeof n === 'bigint' ? Number(n) : n
   const lastDigit = num % 10
@@ -108,6 +115,12 @@ function pluralize (n, forms) {
   return forms[2]
 }
 
+/**
+ * Builds masculine cardinal words for a 0-999 segment.
+ *
+ * @param {number} n - Number 0-999
+ * @returns {string} Masculine cardinal words
+ */
 function buildSegmentMasc (n) {
   if (n === 0) return ''
 
@@ -134,6 +147,12 @@ function buildSegmentMasc (n) {
   return parts.join(' ')
 }
 
+/**
+ * Builds feminine cardinal words for a 0-999 segment.
+ *
+ * @param {number} n - Number 0-999
+ * @returns {string} Feminine cardinal words
+ */
 function buildSegmentFem (n) {
   if (n === 0) return ''
 
@@ -164,6 +183,13 @@ function buildSegmentFem (n) {
 // Conversion Functions
 // ============================================================================
 
+/**
+ * Converts a non-negative integer to Russian cardinal words.
+ *
+ * @param {bigint} n - Non-negative integer to convert
+ * @param {('masculine'|'feminine')} gender - Grammatical gender
+ * @returns {string} Cardinal Russian words
+ */
 function integerToWords (n, gender) {
   if (n === 0n) return ZERO
 
@@ -193,6 +219,13 @@ function integerToWords (n, gender) {
   return buildLargeNumberWords(n, gender)
 }
 
+/**
+ * Builds cardinal words for numbers >= 1,000,000 via scale decomposition.
+ *
+ * @param {bigint} n - Number >= 1,000,000
+ * @param {('masculine'|'feminine')} gender - Grammatical gender
+ * @returns {string} Cardinal Russian words
+ */
 function buildLargeNumberWords (n, gender) {
   const feminine = gender === 'feminine'
   const numStr = n.toString()
@@ -237,6 +270,13 @@ function buildLargeNumberWords (n, gender) {
   return parts.join(' ')
 }
 
+/**
+ * Converts the fractional digit string to Russian words.
+ *
+ * @param {string} decimalPart - The fractional digits
+ * @param {('masculine'|'feminine')} gender - Grammatical gender
+ * @returns {string} Cardinal Russian words for the decimal part
+ */
 function decimalPartToWords (decimalPart, gender) {
   let result = ''
   let i = 0

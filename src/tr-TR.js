@@ -39,6 +39,7 @@ const SCALES = ['milyon', 'milyar', 'trilyon', 'katrilyon', 'kentilyon']
 
 // Turkish ordinals use -(i/ı/u/ü)nci/ncı/ncu/ncü suffix with vowel harmony
 // Special forms for 1-10
+/** @type {Record<number, string>} */
 const ORDINAL_SPECIAL = {
   1: 'birinci',
   2: 'ikinci',
@@ -66,6 +67,10 @@ const KURUS = 'kuruş' // subunit (100 kuruş = 1 lira)
 /**
  * Builds segment word for 0-999.
  * Omits "bir" before "yüz" (hundred).
+ *
+ * @param {number} n - Segment value (0-999)
+ * @param {string} [separator=' '] - Separator between words
+ * @returns {string} Segment words
  */
 function buildSegment (n, separator = ' ') {
   if (n === 0) return ''
@@ -111,7 +116,7 @@ function buildSegment (n, separator = ' ') {
  * Converts a non-negative integer to Turkish words.
  *
  * @param {bigint} n - Non-negative integer to convert
- * @param {Object} options - Conversion options
+ * @param {boolean} dropSpaces - Remove spaces for compound form
  * @returns {string} Turkish words
  */
 function integerToWords (n, dropSpaces) {
@@ -152,7 +157,7 @@ function integerToWords (n, dropSpaces) {
  * Builds words for numbers >= 1,000,000.
  *
  * @param {bigint} n - Number >= 1,000,000
- * @param {Object} options - Conversion options
+ * @param {boolean} dropSpaces - Remove spaces for compound form
  * @returns {string} Turkish words
  */
 function buildLargeNumberWords (n, dropSpaces) {
@@ -213,7 +218,7 @@ function buildLargeNumberWords (n, dropSpaces) {
  * Converts decimal digits to Turkish words.
  *
  * @param {string} decimalPart - Decimal digits (without the point)
- * @param {Object} options - Conversion options
+ * @param {boolean} dropSpaces - Remove spaces for compound form
  * @returns {string} Turkish words for decimal part
  */
 function decimalPartToWords (decimalPart, dropSpaces) {

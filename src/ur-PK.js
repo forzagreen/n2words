@@ -67,6 +67,9 @@ const SCALE_WORDS = ['', 'ہزار', 'لاکھ', 'کروڑ', 'ارب', 'کھرب
 
 /**
  * Builds words for a 0-999 segment.
+ *
+ * @param {number} n - Segment value (0-999)
+ * @returns {string} Urdu words for the segment
  */
 function buildSegment (n) {
   if (n === 0) return ''
@@ -132,6 +135,12 @@ function integerToWords (n) {
   return words.join(' ')
 }
 
+/**
+ * Converts the fractional digit string to Urdu words.
+ *
+ * @param {string} decimalPart - Digits after the decimal separator
+ * @returns {string} Urdu words for the decimal part
+ */
 function decimalPartToWords (decimalPart) {
   let result = ''
   let i = 0

@@ -43,6 +43,10 @@ const BAHT_ONLY = 'ถ้วน' // "exactly" suffix when no satang
 // Conversion Functions
 // ============================================================================
 
+/**
+ * @param {number} n
+ * @returns {string}
+ */
 function convertBelowMillion (n) {
   if (n === 0) return ''
 
@@ -102,6 +106,10 @@ function convertBelowMillion (n) {
   return parts.join('')
 }
 
+/**
+ * @param {bigint} n
+ * @returns {number[]}
+ */
 function splitMillionGroups (n) {
   const groups = []
   let remaining = n
@@ -116,6 +124,10 @@ function splitMillionGroups (n) {
   return groups
 }
 
+/**
+ * @param {bigint} n
+ * @returns {string}
+ */
 function integerToWords (n) {
   if (n === 0n) return ZERO
 
@@ -136,6 +148,10 @@ function integerToWords (n) {
   return parts.join('')
 }
 
+/**
+ * @param {string} decimalPart
+ * @returns {string}
+ */
 function decimalPartToWords (decimalPart) {
   // Per-digit decimal reading
   const digits = []

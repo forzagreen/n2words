@@ -43,6 +43,7 @@ const ORDINAL_HUNDREDS = ['', 'centésimo', 'ducentésimo', 'tricentésimo', 'qu
 // ============================================================================
 
 // Dicionário focado no uso no Brasil (centavos para dólar e euro em vez de cêntimos)
+/** @type {Record<string, {major: string[], minor: string[]}>} */
 const CURRENCIES = {
   BRL: { major: ['real', 'reais'], minor: ['centavo', 'centavos'] },
   USD: { major: ['dólar', 'dólares'], minor: ['centavo', 'centavos'] },
@@ -61,6 +62,8 @@ const DEFAULT_CURRENCY_WORDS = { major: ['unidade', 'unidades'], minor: ['centav
 /**
  * Builds segment word for 0-999 with Portuguese "e" rules.
  * Returns the word and whether it's an exact hundred (for "cem" handling).
+ *
+ * @param {number} n - Number 0-999
  */
 function buildSegment (n) {
   if (n === 0) return { word: '', isExactHundred: false }
@@ -473,7 +476,10 @@ function toCurrency (value, options) {
   let currencyCode = options.currency
   if (!currencyCode) {
     try {
-      const localeInfo = new Intl.Locale('pt-BR')
+      // Intl Locale Info (getCurrencies) is a newer TC39 API present at
+      // runtime in modern engines but not yet in the TS ES2022 lib types;
+      // augment the type locally rather than widen the project's lib.
+      const localeInfo = /** @type {Intl.Locale & { getCurrencies(): string[] }} */ (new Intl.Locale('pt-BR'))
       currencyCode = localeInfo.getCurrencies?.()[0]
     } catch (e) {
       // Ignora erro em ambientes antigos (fallback garantido abaixo)

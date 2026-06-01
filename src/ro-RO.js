@@ -71,6 +71,10 @@ const SCALE_META = [
 
 /**
  * Spells number under 100.
+ *
+ * @param {number} n - Number 0-99
+ * @param {boolean} [feminine] - Use feminine forms
+ * @param {boolean} [masculineTeens] - Use masculine teen forms
  */
 function spellUnder100 (n, feminine = false, masculineTeens = false) {
   if (n === 0) return ''
@@ -91,6 +95,10 @@ function spellUnder100 (n, feminine = false, masculineTeens = false) {
 
 /**
  * Spells number under 1000.
+ *
+ * @param {number} n - Number 0-999
+ * @param {boolean} [feminine] - Use feminine forms
+ * @param {boolean} [masculineTeens] - Use masculine teen forms
  */
 function spellUnder1000 (n, feminine = false, masculineTeens = false) {
   if (n === 0) return ''
@@ -107,6 +115,9 @@ function spellUnder1000 (n, feminine = false, masculineTeens = false) {
 /**
  * Builds scale word with proper pluralization and "de" insertion.
  * Romanian always uses feminine forms (două, not doi) when counting scale words.
+ *
+ * @param {number} segment - Three-digit segment value (1-999)
+ * @param {number} scaleIndex - Scale position (1 = thousands, 2 = millions, ...)
  */
 function buildScalePhrase (segment, scaleIndex) {
   const meta = SCALE_META[scaleIndex - 1]
@@ -139,7 +150,7 @@ function buildScalePhrase (segment, scaleIndex) {
  * Converts a non-negative integer to Romanian words.
  *
  * @param {bigint} n - Non-negative integer to convert
- * @param {Object} options - Conversion options
+ * @param {string | {gender?: string}} gender - Gender for numbers ('feminine'/'masculine')
  * @returns {string} Romanian words
  */
 function integerToWords (n, gender) {
@@ -159,7 +170,7 @@ function integerToWords (n, gender) {
  * Uses BigInt division for faster segment extraction.
  *
  * @param {bigint} n - Number >= 1000
- * @param {Object} options - Conversion options
+ * @param {string | {gender?: string}} gender - Gender for numbers ('feminine'/'masculine')
  * @returns {string} Romanian words
  */
 function buildLargeNumberWords (n, gender) {

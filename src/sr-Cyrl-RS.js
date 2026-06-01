@@ -86,6 +86,13 @@ const SCALE_FORMS = [
 // Segment Building
 // ============================================================================
 
+/**
+ * Selects the correct plural form for a count.
+ *
+ * @param {number | bigint} n - The count
+ * @param {string[]} forms - Plural forms [one, few, many]
+ * @returns {string} The selected plural form
+ */
 function pluralize (n, forms) {
   const num = typeof n === 'bigint' ? Number(n) : n
   const lastDigit = num % 10
@@ -100,6 +107,12 @@ function pluralize (n, forms) {
   return forms[2]
 }
 
+/**
+ * Builds the masculine word form for a 0-999 segment.
+ *
+ * @param {number} n - Number 0-999
+ * @returns {string} The segment words
+ */
 function buildSegmentMasc (n) {
   if (n === 0) return ''
 
@@ -126,6 +139,12 @@ function buildSegmentMasc (n) {
   return parts.join(' ')
 }
 
+/**
+ * Builds the feminine word form for a 0-999 segment.
+ *
+ * @param {number} n - Number 0-999
+ * @returns {string} The segment words
+ */
 function buildSegmentFem (n) {
   if (n === 0) return ''
 
@@ -156,6 +175,13 @@ function buildSegmentFem (n) {
 // Conversion Functions
 // ============================================================================
 
+/**
+ * Converts a non-negative integer to Serbian words.
+ *
+ * @param {bigint} n - The integer to convert
+ * @param {('masculine'|'feminine')} gender - Grammatical gender
+ * @returns {string} The integer in words
+ */
 function integerToWords (n, gender) {
   if (n === 0n) return ZERO
 
@@ -166,6 +192,13 @@ function integerToWords (n, gender) {
   return buildLargeNumberWords(n, gender)
 }
 
+/**
+ * Builds words for integers >= 1000 using scale decomposition.
+ *
+ * @param {bigint} n - The integer to convert (>= 1000)
+ * @param {('masculine'|'feminine')} gender - Grammatical gender
+ * @returns {string} The integer in words
+ */
 function buildLargeNumberWords (n, gender) {
   const numStr = n.toString()
   const len = numStr.length
@@ -209,6 +242,13 @@ function buildLargeNumberWords (n, gender) {
   return parts.join(' ')
 }
 
+/**
+ * Converts the decimal-part digit string to Serbian words.
+ *
+ * @param {string} decimalPart - The decimal digits as a string
+ * @param {('masculine'|'feminine')} gender - Grammatical gender
+ * @returns {string} The decimal part in words
+ */
 function decimalPartToWords (decimalPart, gender) {
   let result = ''
   let i = 0
