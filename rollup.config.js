@@ -35,7 +35,10 @@ const languageCodes = getLanguageCodes()
  * multiple languages to be loaded together without conflicts.
  */
 
-// Individual bundle terser config - aggressive since only one function is exported
+// Individual bundle terser config — aggressive because each bundle is a
+// self-contained leaf artifact: nothing external imports its internals, so
+// every non-exported top-level name is safe to mangle. Terser still preserves
+// the public exports (toCardinal/toOrdinal/toCurrency) regardless of toplevel.
 const individualTerserConfig = terser({
   compress: {
     passes: 3, // Extra pass for better compression
