@@ -81,6 +81,7 @@
     "lint:fix": "eslint --fix && markdownlint-cli2 --fix",
     "lint:js": "eslint",
     "lint:md": "markdownlint-cli2",
+    "prepack": "node --run build",
     "prepare:husky": "husky",
     "test": "node --run test:unit && node --run build:types",
     "test:unit": "ava \"test/*.test.js\" \"test/utils/*.test.js\""
