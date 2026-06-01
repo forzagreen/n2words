@@ -20,14 +20,14 @@ export function parseCardinalValue (value) {
   const type = typeof value
 
   // BigInt: simplest case
-  if (type === 'bigint') {
+  if (typeof value === 'bigint') {
     return value < 0n
       ? { isNegative: true, integerPart: -value }
       : { isNegative: false, integerPart: value }
   }
 
   // Number: fast path for safe integers
-  if (type === 'number') {
+  if (typeof value === 'number') {
     if (!Number.isFinite(value)) {
       throw new RangeError('Number must be finite (NaN and Infinity are not supported)')
     }
@@ -40,7 +40,7 @@ export function parseCardinalValue (value) {
   }
 
   // String input
-  if (type === 'string') {
+  if (typeof value === 'string') {
     return parseNumericString(normalizeString(value))
   }
 
@@ -51,6 +51,9 @@ export function parseCardinalValue (value) {
 
 /**
  * Validates and normalizes a string numeric input.
+ *
+ * @param {string} value - The string to normalize
+ * @returns {string} The normalized numeric string
  */
 function normalizeString (value) {
   const trimmed = value.trim()
@@ -62,6 +65,9 @@ function normalizeString (value) {
 
 /**
  * Parses a normalized numeric string into components.
+ *
+ * @param {string} str - The normalized numeric string
+ * @returns {{isNegative: boolean, integerPart: bigint, decimalPart?: string}}
  */
 function parseNumericString (str) {
   const isNegative = str[0] === '-'

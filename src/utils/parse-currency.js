@@ -19,14 +19,14 @@ export function parseCurrencyValue (value) {
   const type = typeof value
 
   // BigInt: whole dollars only
-  if (type === 'bigint') {
+  if (typeof value === 'bigint') {
     return value < 0n
       ? { isNegative: true, dollars: -value, cents: 0n }
       : { isNegative: false, dollars: value, cents: 0n }
   }
 
   // Number: fast path for safe integers
-  if (type === 'number') {
+  if (typeof value === 'number') {
     if (!Number.isFinite(value)) {
       throw new RangeError('Currency must be a finite number')
     }
@@ -40,7 +40,7 @@ export function parseCurrencyValue (value) {
   }
 
   // String input
-  if (type === 'string') {
+  if (typeof value === 'string') {
     return parseCurrencyString(value)
   }
 
