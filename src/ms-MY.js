@@ -49,6 +49,12 @@ const SEN = 'sen'
 // Segment Building
 // ============================================================================
 
+/**
+ * Builds the words for a number segment (0-999).
+ *
+ * @param {number} n - Integer segment in range 0-999
+ * @returns {string} The segment in Malay words
+ */
 function buildSegment (n) {
   if (n === 0) return ''
 
@@ -89,6 +95,12 @@ function buildSegment (n) {
 // Conversion Functions
 // ============================================================================
 
+/**
+ * Converts a non-negative integer to Malay words.
+ *
+ * @param {bigint} n - Non-negative integer to convert
+ * @returns {string} The integer in Malay words
+ */
 function integerToWords (n) {
   if (n === 0n) return ZERO
 
@@ -117,6 +129,12 @@ function integerToWords (n) {
   return buildLargeNumberWords(n)
 }
 
+/**
+ * Builds words for large numbers (>= 1,000,000) using scale words.
+ *
+ * @param {bigint} n - Integer to convert (>= 1,000,000)
+ * @returns {string} The integer in Malay words
+ */
 function buildLargeNumberWords (n) {
   const numStr = n.toString()
   const len = numStr.length
@@ -167,6 +185,12 @@ function buildLargeNumberWords (n) {
   return parts.join(' ')
 }
 
+/**
+ * Converts the decimal part (digit string) to Malay words.
+ *
+ * @param {string} decimalPart - Decimal digits as a string
+ * @returns {string} The decimal digits in Malay words
+ */
 function decimalPartToWords (decimalPart) {
   let result = ''
 

@@ -72,6 +72,9 @@ const CENTESIMI = 'centesimi'
  * - Tens ending in vowel + uno/otto → drop tens vowel: ventuno, ventotto
  * - Hundreds cento + otto/ottanta → centotto, centottanta (drop 'o')
  * - Final 'tre' in compounds becomes 'tré': ventitré, trentatré
+ *
+ * @param {number} n - Number 0-999 to convert
+ * @returns {string} Segment word
  */
 function buildSegment (n) {
   if (n === 0) return ''
@@ -129,6 +132,9 @@ function buildSegment (n) {
 /**
  * Builds segment word with "un" for scale context (millions, billions).
  * Same as buildSegment but returns "un" for 1 instead of "uno".
+ *
+ * @param {number} n - Number 0-999 to convert
+ * @returns {string} Segment word
  */
 function buildSegmentForScale (n) {
   if (n === 0) return ''
@@ -139,6 +145,9 @@ function buildSegmentForScale (n) {
 /**
  * Builds thousands word for 1-999 thousand.
  * Handles elision: tre + mila = tremila (no accent), otto + mila = ottomila
+ *
+ * @param {number} n - Number of thousands 1-999
+ * @returns {string} Thousands word
  */
 function buildThousands (n) {
   if (n === 0) return ''

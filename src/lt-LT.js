@@ -80,6 +80,9 @@ const SCALE_FORMS = [
 
 /**
  * Builds segment word for 0-999 (masculine form).
+ *
+ * @param {number} n - Segment value (0-999)
+ * @returns {string} Segment words
  */
 function buildSegment (n) {
   if (n === 0) return ''
@@ -113,6 +116,9 @@ function buildSegment (n) {
 
 /**
  * Builds segment word for 0-999 (feminine form - only differs in ones).
+ *
+ * @param {number} n - Segment value (0-999)
+ * @returns {string} Segment words
  */
 function buildSegmentFeminine (n) {
   if (n === 0) return ''
@@ -191,7 +197,7 @@ function pluralize (n, forms) {
  * Converts a non-negative integer to Lithuanian words.
  *
  * @param {bigint} n - Non-negative integer to convert
- * @param {Object} options - Conversion options
+ * @param {string} gender - Gender for numbers < 1000 ('masculine' or 'feminine')
  * @returns {string} Lithuanian words
  */
 function integerToWords (n, gender) {
@@ -213,7 +219,7 @@ function integerToWords (n, gender) {
  * Builds words for numbers >= 1000.
  *
  * @param {bigint} n - Number >= 1000
- * @param {Object} options - Conversion options
+ * @param {string} gender - Gender for numbers < 1000 ('masculine' or 'feminine')
  * @returns {string} Lithuanian words
  */
 function buildLargeNumberWords (n, gender) {
@@ -266,7 +272,7 @@ function buildLargeNumberWords (n, gender) {
  * Converts decimal digits to Lithuanian words.
  *
  * @param {string} decimalPart - Decimal digits (without the point)
- * @param {Object} options - Conversion options
+ * @param {string} gender - Gender for numbers < 1000 ('masculine' or 'feminine')
  * @returns {string} Lithuanian words for decimal part
  */
 function decimalPartToWords (decimalPart, gender) {

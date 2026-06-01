@@ -68,6 +68,9 @@ const SCALE_WORDS = ['', 'હજાર', 'લાખ', 'કરોડ', 'અબજ
 
 /**
  * Builds words for a 0-999 segment.
+ *
+ * @param {number} n - Segment value (0-999)
+ * @returns {string} Gujarati words for the segment
  */
 function buildSegment (n) {
   if (n === 0) return ''
@@ -133,6 +136,12 @@ function integerToWords (n) {
   return words.join(' ')
 }
 
+/**
+ * Converts the fractional digits to per-digit Gujarati words.
+ *
+ * @param {string} decimalPart - Decimal digits as a string
+ * @returns {string} Gujarati words for each digit
+ */
 function decimalPartToWords (decimalPart) {
   // Per-digit decimal reading
   const digits = []

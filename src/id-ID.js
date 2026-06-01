@@ -48,6 +48,12 @@ const RUPIAH = 'rupiah'
 // Segment Building
 // ============================================================================
 
+/**
+ * Builds the Indonesian words for a 1-3 digit segment (0-999).
+ *
+ * @param {number} n - The segment value (0-999)
+ * @returns {string} The segment in Indonesian words
+ */
 function buildSegment (n) {
   if (n === 0) return ''
 
@@ -88,6 +94,12 @@ function buildSegment (n) {
 // Conversion Functions
 // ============================================================================
 
+/**
+ * Converts a non-negative integer to Indonesian words.
+ *
+ * @param {bigint} n - The integer value to convert
+ * @returns {string} The integer in Indonesian words
+ */
 function integerToWords (n) {
   if (n === 0n) return ZERO
 
@@ -116,6 +128,12 @@ function integerToWords (n) {
   return buildLargeNumberWords(n)
 }
 
+/**
+ * Builds Indonesian words for large numbers (1,000,000 and above).
+ *
+ * @param {bigint} n - The integer value to convert
+ * @returns {string} The number in Indonesian words
+ */
 function buildLargeNumberWords (n) {
   const numStr = n.toString()
   const len = numStr.length
@@ -162,6 +180,12 @@ function buildLargeNumberWords (n) {
   return parts.join(' ')
 }
 
+/**
+ * Converts the decimal-part digit string to Indonesian words.
+ *
+ * @param {string} decimalPart - The decimal digits as a string
+ * @returns {string} The decimal part in Indonesian words
+ */
 function decimalPartToWords (decimalPart) {
   let result = ''
 

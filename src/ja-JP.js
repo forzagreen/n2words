@@ -76,6 +76,9 @@ const THOUSAND = '千'
 /**
  * Builds segment word for 0-9999 with 一 omission rules.
  * - Omit 一 before 十, 百, 千
+ *
+ * @param {number} n - Segment value (0-9999)
+ * @returns {string} Japanese kanji words for the segment
  */
 function buildSegment (n) {
   if (n === 0) return ''

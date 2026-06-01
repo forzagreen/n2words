@@ -31,6 +31,7 @@ const TENS = ['', '', 'dwadzieścia', 'trzydzieści', 'czterdzieści', 'pięćdz
 const HUNDREDS = ['', 'sto', 'dwieście', 'trzysta', 'czterysta', 'pięćset', 'sześćset', 'siedemset', 'osiemset', 'dziewięćset']
 
 // Scale words: [singular, few (2-4), many (5+)]
+/** @type {Record<number, string[]>} */
 const PLURAL_FORMS = {
   1: ['tysiąc', 'tysiące', 'tysięcy'],
   2: ['milion', 'miliony', 'milionów'],
@@ -187,7 +188,7 @@ function pluralize (n, forms) {
  * Converts a non-negative integer to Polish words.
  *
  * @param {bigint} n - Non-negative integer to convert
- * @param {Object} options - Conversion options
+ * @param {string} gender - Gender for numbers < 1000 ('masculine' or 'feminine')
  * @returns {string} Polish words
  */
 function integerToWords (n, gender) {
@@ -229,7 +230,7 @@ function integerToWords (n, gender) {
  * Uses BigInt division for faster segment extraction.
  *
  * @param {bigint} n - Number >= 1,000,000
- * @param {Object} options - Conversion options
+ * @param {string} gender - Gender for numbers < 1000 ('masculine' or 'feminine')
  * @returns {string} Polish words
  */
 function buildLargeNumberWords (n, gender) {
@@ -279,7 +280,7 @@ function buildLargeNumberWords (n, gender) {
  * Converts decimal digits to Polish words.
  *
  * @param {string} decimalPart - Decimal digits (without the point)
- * @param {Object} options - Conversion options
+ * @param {string} gender - Gender for numbers < 1000 ('masculine' or 'feminine')
  * @returns {string} Polish words for decimal part
  */
 function decimalPartToWords (decimalPart, gender) {

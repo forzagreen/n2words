@@ -62,6 +62,13 @@ const GERAH_PLURAL = 'גרות'
 /**
  * Builds segment word for scale segments (thousands, millions, etc.).
  * "ו" is added before tens and ones when following hundreds.
+ *
+ * @param {number} n - Segment value (0-999)
+ * @param {string} andWord - Conjunction word
+ * @param {string[]} ONES - Ones vocabulary
+ * @param {string[]} TEENS - Teens vocabulary
+ * @param {string[]} HUNDREDS_ARR - Hundreds vocabulary
+ * @returns {string} Segment word
  */
 function buildScaleSegment (n, andWord, ONES, TEENS, HUNDREDS_ARR) {
   if (n === 0) return ''
@@ -112,6 +119,13 @@ function buildScaleSegment (n, andWord, ONES, TEENS, HUNDREDS_ARR) {
 /**
  * Builds segment word for units segment (no scale word).
  * "ו" is only added before the final ones digit.
+ *
+ * @param {number} n - Segment value (0-999)
+ * @param {string} andWord - Conjunction word
+ * @param {string[]} ONES - Ones vocabulary
+ * @param {string[]} TEENS - Teens vocabulary
+ * @param {string[]} HUNDREDS_ARR - Hundreds vocabulary
+ * @returns {string} Segment word
  */
 function buildUnitsSegment (n, andWord, ONES, TEENS, HUNDREDS_ARR) {
   if (n === 0) return ''
@@ -165,7 +179,8 @@ function buildUnitsSegment (n, andWord, ONES, TEENS, HUNDREDS_ARR) {
  * Converts a non-negative integer to Biblical Hebrew words.
  *
  * @param {bigint} n - Non-negative integer to convert
- * @param {Object} options - Conversion options
+ * @param {('masculine'|'feminine')} gender - Grammatical gender
+ * @param {string} andWord - Conjunction word
  * @returns {string} Biblical Hebrew words
  */
 function integerToWords (n, gender, andWord) {
@@ -242,7 +257,8 @@ function integerToWords (n, gender, andWord) {
  * Converts decimal digits to Biblical Hebrew words (digit by digit).
  *
  * @param {string} decimalPart - Decimal digits (without the point)
- * @param {Object} options - Conversion options
+ * @param {('masculine'|'feminine')} gender - Grammatical gender
+ * @param {string} andWord - Conjunction word
  * @returns {string} Biblical Hebrew words for decimal part
  */
 function decimalPartToWords (decimalPart, gender, andWord) {
