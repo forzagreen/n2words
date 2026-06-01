@@ -65,6 +65,9 @@ const SCALE_WORDS = ['', 'হাজার', 'লাখ', 'কোটি', 'আর
 
 /**
  * Builds words for a 0-999 segment.
+ *
+ * @param {number} n - Segment value in the range 0-999
+ * @returns {string} Bengali words for the segment
  */
 function buildSegment (n) {
   if (n === 0) return ''
@@ -138,6 +141,12 @@ function integerToWords (n) {
   return words.join(' ')
 }
 
+/**
+ * Converts the fractional digits string to Bengali words.
+ *
+ * @param {string} decimalPart - The fractional digits (e.g. '05')
+ * @returns {string} Bengali words for the decimal part
+ */
 function decimalPartToWords (decimalPart) {
   let result = ''
   let i = 0

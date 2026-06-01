@@ -57,6 +57,10 @@ const SCALE_WORDS = ['', THOUSAND, 'ሚሊዮን', 'ቢሊዮን']
 // Precomputed Lookup Table
 // ============================================================================
 
+/**
+ * @param {number} n
+ * @returns {string}
+ */
 function buildSegment (n) {
   if (n === 0) return ''
 
@@ -89,6 +93,10 @@ function buildSegment (n) {
 // Conversion Functions
 // ============================================================================
 
+/**
+ * @param {bigint} n
+ * @returns {string}
+ */
 function integerToWords (n) {
   if (n === 0n) return ZERO
 
@@ -99,6 +107,10 @@ function integerToWords (n) {
   return buildLargeNumberWords(n)
 }
 
+/**
+ * @param {bigint} n
+ * @returns {string}
+ */
 function buildLargeNumberWords (n) {
   const numStr = n.toString()
   const len = numStr.length
@@ -139,6 +151,10 @@ function buildLargeNumberWords (n) {
   return parts.join(' ')
 }
 
+/**
+ * @param {string} decimalPart
+ * @returns {string}
+ */
 function decimalPartToWords (decimalPart) {
   // Per-digit decimal reading
   const digits = []

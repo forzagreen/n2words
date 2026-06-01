@@ -247,6 +247,12 @@ function toCardinal (value) {
 // ORDINAL
 // ============================================================================
 
+/**
+ * Builds ordinal words for a 0-999 segment.
+ *
+ * @param {number} n - Number 0-999
+ * @returns {string} Ordinal words
+ */
 function buildOrdinalSegment (n) {
   const ones = n % 10
   const tens = Math.trunc(n / 10) % 10
@@ -276,6 +282,12 @@ function buildOrdinalSegment (n) {
   return tensOnesOrdinal
 }
 
+/**
+ * Converts a non-negative integer to English ordinal words.
+ *
+ * @param {bigint} n - Non-negative integer to convert
+ * @returns {string} English ordinal words
+ */
 function integerToOrdinal (n) {
   if (n < 1000n) {
     return buildOrdinalSegment(Number(n))
@@ -296,6 +308,12 @@ function integerToOrdinal (n) {
   return buildLargeOrdinal(n)
 }
 
+/**
+ * Builds ordinal words for numbers >= 1,000,000.
+ *
+ * @param {bigint} n - Number >= 1,000,000
+ * @returns {string} English ordinal words
+ */
 function buildLargeOrdinal (n) {
   const segments = []
   let temp = n
@@ -339,6 +357,14 @@ function buildLargeOrdinal (n) {
   return result
 }
 
+/**
+ * Converts a numeric value to New Zealand English ordinal words.
+ *
+ * @param {number | string | bigint} value - The numeric value to convert (positive integer)
+ * @returns {string} The number as ordinal words
+ * @throws {TypeError} If value is not a valid numeric type
+ * @throws {RangeError} If value is negative, zero, or has a decimal part
+ */
 function toOrdinal (value) {
   const integerPart = parseOrdinalValue(value)
   return integerToOrdinal(integerPart)
@@ -348,6 +374,15 @@ function toOrdinal (value) {
 // CURRENCY
 // ============================================================================
 
+/**
+ * Converts a numeric value to New Zealand English currency words (New Zealand Dollar).
+ *
+ * @param {number | string | bigint} value - The currency amount to convert
+ * @param {{and?: boolean}} [options] - Optional configuration
+ * @returns {string} The amount in New Zealand English currency words
+ * @throws {TypeError} If value is not a valid numeric type
+ * @throws {Error} If value is not a valid number format
+ */
 function toCurrency (value, options) {
   options = validateOptions(options)
   const { isNegative, dollars, cents } = parseCurrencyValue(value)

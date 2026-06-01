@@ -32,6 +32,7 @@ const TENS = ['', '', 'dvacet', 'třicet', 'čtyřicet', 'padesát', 'šedesát'
 const HUNDREDS = ['', 'sto', 'dvě stě', 'tři sta', 'čtyři sta', 'pět set', 'šest set', 'sedm set', 'osm set', 'devět set']
 
 // Scale plural forms [singular, few (2-4), many (5+)]
+/** @type {Record<number, string[]>} */
 const PLURAL_FORMS = {
   1: ['tisíc', 'tisíce', 'tisíc'], // 10^3
   2: ['milion', 'miliony', 'milionů'], // 10^6
@@ -81,6 +82,9 @@ const HALER_FORMS = ['haléř', 'haléře', 'haléřů']
 
 /**
  * Builds segment word for 0-999 (masculine, default form).
+ *
+ * @param {number} n - Number 0-999
+ * @returns {string} Czech words
  */
 function buildSegment (n) {
   if (n === 0) return ''
@@ -115,6 +119,9 @@ function buildSegment (n) {
 /**
  * Builds segment word for 0-999 with feminine hundreds.
  * Hundreds use irregular forms (dvě stě, tři sta) but ones remain masculine.
+ *
+ * @param {number} n - Number 0-999
+ * @returns {string} Czech words
  */
 function buildSegmentWithHundreds (n) {
   if (n === 0) return ''
@@ -174,6 +181,9 @@ function pluralize (n, forms) {
 /**
  * Gets the decimal separator word based on integer part.
  * celá (0-1), celé (2-4), celých (5+)
+ *
+ * @param {bigint} integerPart - The integer part of the value
+ * @returns {string} The decimal separator word
  */
 function getDecimalSeparator (integerPart) {
   if (integerPart === 0n || integerPart === 1n) {

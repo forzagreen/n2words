@@ -60,6 +60,12 @@ const PESEWAS = 'pesewas'
 
 const segmentResult = { word: '', hasHundred: false }
 
+/**
+ * Builds the words for a three-digit segment (0-999).
+ *
+ * @param {number} n - The segment value (0-999)
+ * @returns {{word: string, hasHundred: boolean}} The segment words and whether it includes a hundred
+ */
 function buildSegment (n) {
   if (n === 0) {
     segmentResult.word = ''
@@ -99,6 +105,12 @@ function buildSegment (n) {
 // Conversion Functions
 // ============================================================================
 
+/**
+ * Converts a non-negative integer to cardinal words.
+ *
+ * @param {bigint} n - The non-negative integer to convert
+ * @returns {string} The number in English words
+ */
 function integerToWords (n) {
   if (n === 0n) return ZERO
 
@@ -124,6 +136,12 @@ function integerToWords (n) {
   return buildLargeNumberWords(n)
 }
 
+/**
+ * Builds cardinal words for integers of one million or greater.
+ *
+ * @param {bigint} n - The integer to convert (>= 1,000,000)
+ * @returns {string} The number in English words
+ */
 function buildLargeNumberWords (n) {
   const segments = []
   let temp = n
@@ -168,6 +186,12 @@ function buildLargeNumberWords (n) {
   return result
 }
 
+/**
+ * Converts the fractional digits of a decimal to words.
+ *
+ * @param {string} decimalPart - The decimal digits (e.g., "05")
+ * @returns {string} The decimal part in English words
+ */
 function decimalPartToWords (decimalPart) {
   let result = ''
 
@@ -217,6 +241,12 @@ function toCardinal (value) {
 // ORDINAL
 // ============================================================================
 
+/**
+ * Builds the ordinal words for a three-digit segment (0-999).
+ *
+ * @param {number} n - The segment value (0-999)
+ * @returns {string} The ordinal segment words
+ */
 function buildOrdinalSegment (n) {
   const ones = n % 10
   const tens = Math.trunc(n / 10) % 10
@@ -246,6 +276,12 @@ function buildOrdinalSegment (n) {
   return tensOnesOrdinal
 }
 
+/**
+ * Converts a positive integer to ordinal words.
+ *
+ * @param {bigint} n - The positive integer to convert
+ * @returns {string} The ordinal in English words
+ */
 function integerToOrdinal (n) {
   if (n < 1000n) {
     return buildOrdinalSegment(Number(n))
@@ -266,6 +302,12 @@ function integerToOrdinal (n) {
   return buildLargeOrdinal(n)
 }
 
+/**
+ * Builds ordinal words for integers of one million or greater.
+ *
+ * @param {bigint} n - The integer to convert (>= 1,000,000)
+ * @returns {string} The ordinal in English words
+ */
 function buildLargeOrdinal (n) {
   const segments = []
   let temp = n
@@ -309,6 +351,14 @@ function buildLargeOrdinal (n) {
   return result
 }
 
+/**
+ * Converts a numeric value to Ghanaian English ordinal words.
+ *
+ * @param {number | string | bigint} value - The numeric value to convert (must be a positive integer)
+ * @returns {string} The number as ordinal words (e.g., "first", "forty-second")
+ * @throws {TypeError} If value is not a valid numeric type
+ * @throws {RangeError} If value is negative, zero, or has a decimal part
+ */
 function toOrdinal (value) {
   const integerPart = parseOrdinalValue(value)
   return integerToOrdinal(integerPart)
@@ -318,6 +368,15 @@ function toOrdinal (value) {
 // CURRENCY
 // ============================================================================
 
+/**
+ * Converts a numeric value to Ghanaian English currency words.
+ *
+ * @param {number | string | bigint} value - The currency amount to convert
+ * @param {{and?: boolean}} [options] - Optional configuration
+ * @returns {string} The amount in Ghanaian English currency words
+ * @throws {TypeError} If value is not a valid numeric type
+ * @throws {Error} If value is not a valid number format
+ */
 function toCurrency (value, options) {
   options = validateOptions(options)
   const { isNegative, dollars: cedis, cents: pesewas } = parseCurrencyValue(value)

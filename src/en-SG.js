@@ -60,6 +60,10 @@ const CENTS = 'cents'
 
 const segmentResult = { word: '', hasHundred: false }
 
+/**
+ * @param {number} n - Number 0-999
+ * @returns {{ word: string, hasHundred: boolean }}
+ */
 function buildSegment (n) {
   if (n === 0) {
     segmentResult.word = ''
@@ -99,6 +103,10 @@ function buildSegment (n) {
 // Conversion Functions
 // ============================================================================
 
+/**
+ * @param {bigint} n - Non-negative integer to convert
+ * @returns {string} English words
+ */
 function integerToWords (n) {
   if (n === 0n) return ZERO
 
@@ -124,6 +132,10 @@ function integerToWords (n) {
   return buildLargeNumberWords(n)
 }
 
+/**
+ * @param {bigint} n - Number >= 1,000,000
+ * @returns {string} English words
+ */
 function buildLargeNumberWords (n) {
   const segments = []
   let temp = n
@@ -168,6 +180,10 @@ function buildLargeNumberWords (n) {
   return result
 }
 
+/**
+ * @param {string} decimalPart - Decimal digits (without the point)
+ * @returns {string} English words for decimal part
+ */
 function decimalPartToWords (decimalPart) {
   let result = ''
 
@@ -217,6 +233,10 @@ function toCardinal (value) {
 // ORDINAL
 // ============================================================================
 
+/**
+ * @param {number} n - Number 0-999
+ * @returns {string} Ordinal words for this segment
+ */
 function buildOrdinalSegment (n) {
   const ones = n % 10
   const tens = Math.trunc(n / 10) % 10
@@ -246,6 +266,10 @@ function buildOrdinalSegment (n) {
   return tensOnesOrdinal
 }
 
+/**
+ * @param {bigint} n - Positive integer to convert
+ * @returns {string} Ordinal English words
+ */
 function integerToOrdinal (n) {
   if (n < 1000n) {
     return buildOrdinalSegment(Number(n))
@@ -266,6 +290,10 @@ function integerToOrdinal (n) {
   return buildLargeOrdinal(n)
 }
 
+/**
+ * @param {bigint} n - Number >= 1,000,000
+ * @returns {string} Ordinal English words
+ */
 function buildLargeOrdinal (n) {
   const segments = []
   let temp = n
@@ -309,6 +337,12 @@ function buildLargeOrdinal (n) {
   return result
 }
 
+/**
+ * Converts a numeric value to Singaporean English ordinal words.
+ *
+ * @param {number | string | bigint} value - The numeric value to convert (must be a positive integer)
+ * @returns {string} The number as ordinal words (e.g., "first", "forty-second")
+ */
 function toOrdinal (value) {
   const integerPart = parseOrdinalValue(value)
   return integerToOrdinal(integerPart)
@@ -318,6 +352,13 @@ function toOrdinal (value) {
 // CURRENCY
 // ============================================================================
 
+/**
+ * Converts a numeric value to Singaporean English currency words.
+ *
+ * @param {number | string | bigint} value - The currency amount to convert
+ * @param {{ and?: boolean }} [options] - Optional configuration
+ * @returns {string} The amount in Singaporean English currency words
+ */
 function toCurrency (value, options) {
   options = validateOptions(options)
   const { isNegative, dollars, cents } = parseCurrencyValue(value)

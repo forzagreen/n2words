@@ -56,6 +56,12 @@ const CENTIMES = 'centimes'
 // Segment Building
 // ============================================================================
 
+/**
+ * Builds the words for a 0-999 segment.
+ *
+ * @param {number} n - Segment value (0-999)
+ * @returns {{word: string, endsWithCents: boolean, endsWithVingts: boolean}} Segment words and flags
+ */
 function buildSegment (n) {
   if (n === 0) return { word: '', endsWithCents: false, endsWithVingts: false }
 
@@ -137,6 +143,13 @@ function buildSegment (n) {
 // Helper Functions
 // ============================================================================
 
+/**
+ * Returns the scale word (mille, million, milliard, ...) for a scale index.
+ *
+ * @param {number} scaleIndex - Scale group index
+ * @param {bigint} segment - Segment value used to decide pluralization
+ * @returns {string} The scale word
+ */
 function getScaleWord (scaleIndex, segment) {
   if (scaleIndex === 1) return THOUSAND
 
@@ -157,6 +170,13 @@ function getScaleWord (scaleIndex, segment) {
 // Conversion Functions
 // ============================================================================
 
+/**
+ * Converts a non-negative integer to Belgian French cardinal words.
+ *
+ * @param {bigint} n - Non-negative integer
+ * @param {boolean} [withHyphen=false] - Use hyphens between words
+ * @returns {string} The integer in Belgian French words
+ */
 function integerToWords (n, withHyphen = false) {
   if (n === 0n) return ZERO
 
@@ -196,6 +216,13 @@ function integerToWords (n, withHyphen = false) {
   return buildLargeNumberWords(n, withHyphen)
 }
 
+/**
+ * Builds words for large integers (>= 1,000,000) using scale groups.
+ *
+ * @param {bigint} n - Integer value (>= 1,000,000)
+ * @param {boolean} withHyphen - Use hyphens between words
+ * @returns {string} The integer in Belgian French words
+ */
 function buildLargeNumberWords (n, withHyphen) {
   const numStr = n.toString()
   const len = numStr.length
@@ -256,6 +283,13 @@ function buildLargeNumberWords (n, withHyphen) {
   return result
 }
 
+/**
+ * Converts the decimal part digits to words (leading zeros spoken as zéro).
+ *
+ * @param {string} decimalPart - Decimal digits as a string
+ * @param {boolean} withHyphen - Use hyphens between words
+ * @returns {string} The decimal part in Belgian French words
+ */
 function decimalPartToWords (decimalPart, withHyphen) {
   let result = ''
   const sep = withHyphen ? '-' : ' '

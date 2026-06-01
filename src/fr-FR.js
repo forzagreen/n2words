@@ -60,6 +60,9 @@ const CENTIMES = 'centimes'
 /**
  * Builds segment word for 0-999.
  * Returns object with { word, endsWithCents, endsWithVingts } for pluralization handling.
+ *
+ * @param {number} n - Segment value (0-999)
+ * @returns {{ word: string, endsWithCents: boolean, endsWithVingts: boolean }} Segment words and pluralization flags
  */
 function buildSegment (n) {
   if (n === 0) return { word: '', endsWithCents: false, endsWithVingts: false }
