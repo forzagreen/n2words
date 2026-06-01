@@ -19,7 +19,7 @@ export function parseOrdinalValue (value) {
   const type = typeof value
 
   // BigInt: simplest case
-  if (type === 'bigint') {
+  if (typeof value === 'bigint') {
     if (value <= 0n) {
       throw new RangeError('Ordinals must be positive integers')
     }
@@ -27,7 +27,7 @@ export function parseOrdinalValue (value) {
   }
 
   // Number: fast path for safe integers
-  if (type === 'number') {
+  if (typeof value === 'number') {
     if (!Number.isFinite(value)) {
       throw new RangeError('Ordinals must be finite numbers')
     }
@@ -41,7 +41,7 @@ export function parseOrdinalValue (value) {
   }
 
   // String input
-  if (type === 'string') {
+  if (typeof value === 'string') {
     return parseOrdinalString(value)
   }
 
