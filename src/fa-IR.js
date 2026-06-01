@@ -17,9 +17,13 @@ import { parseOrdinalValue } from './utils/parse-ordinal.js'
 // Vocabulary
 // ============================================================================
 
+/** @type {Record<number, string>} */
 const ONES = { 1: 'یک', 2: 'دو', 3: 'سه', 4: 'چهار', 5: 'پنج', 6: 'شش', 7: 'هفت', 8: 'هشت', 9: 'نه' }
+/** @type {Record<number, string>} */
 const TEENS = { 10: 'ده', 11: 'یازده', 12: 'دوازده', 13: 'سیزده', 14: 'چهارده', 15: 'پانزده', 16: 'شانزده', 17: 'هفده', 18: 'هجده', 19: 'نوزده' }
+/** @type {Record<number, string>} */
 const TENS = { 20: 'بیست', 30: 'سی', 40: 'چهل', 50: 'پنجاه', 60: 'شصت', 70: 'هفتاد', 80: 'هشتاد', 90: 'نود' }
+/** @type {Record<number, string>} */
 const HUNDREDS = { 100: 'صد', 200: 'دویست', 300: 'سيصد', 400: 'چهار صد', 500: 'پانصد', 600: 'ششصد', 700: 'هفتصد', 800: 'هشتصد', 900: 'نهصد' }
 
 const THOUSAND = 'هزار'
@@ -37,6 +41,7 @@ const DECIMAL_SEP = 'ممیّز'
 // Persian ordinals: add -ُم (-om) suffix to cardinal
 // Special forms for 1st, 2nd, 3rd
 const ORDINAL_SUFFIX = 'م' // ـُم (-om)
+/** @type {Record<number, string>} */
 const ORDINAL_ONES = {
   1: 'اول', // avval (first)
   2: 'دوم', // dovvom (second)
@@ -59,6 +64,12 @@ const RIAL = 'ریال'
 // Conversion Functions
 // ============================================================================
 
+/**
+ * Converts a non-negative integer to Persian cardinal words.
+ *
+ * @param {bigint} n - Non-negative integer to convert
+ * @returns {string} Persian cardinal words
+ */
 function integerToWords (n) {
   if (n === 0n) return ZERO
 
@@ -121,6 +132,12 @@ function integerToWords (n) {
   return `${milliardPrefix}${suffix}`
 }
 
+/**
+ * Converts the fractional digits of a number to Persian words.
+ *
+ * @param {string} decimalPart - The fractional digits as a string
+ * @returns {string} Persian words for the decimal portion
+ */
 function decimalPartToWords (decimalPart) {
   let result = ''
   let i = 0

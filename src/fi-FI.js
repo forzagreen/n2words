@@ -66,6 +66,9 @@ const CENT_SINGULAR = 'sentti'
 /**
  * Builds segment word for 0-999.
  * Omits "yksi" before "sata" (hundred).
+ *
+ * @param {number} n - Integer 0-999 to convert
+ * @returns {string} Finnish words for the segment
  */
 function buildSegment (n) {
   if (n === 0) return ''
@@ -263,6 +266,9 @@ function toCardinal (value) {
 /**
  * Builds ordinal segment for 0-99.
  * Finnish ordinals have special forms.
+ *
+ * @param {number} n - Integer 0-99 to convert
+ * @returns {string} Finnish ordinal words for the segment
  */
 function buildOrdinalSegment (n) {
   if (n === 0) return ''

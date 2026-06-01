@@ -58,6 +58,9 @@ const CENT_FORMS = ['λεπτό', 'λεπτά'] // Singular, plural
 
 /**
  * Builds segment word for 0-999.
+ *
+ * @param {number} n - Number 0-999
+ * @returns {string} Greek words for the segment
  */
 function buildSegment (n) {
   if (n === 0) return ''

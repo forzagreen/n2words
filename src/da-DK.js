@@ -44,6 +44,7 @@ const SCALES = ['millioner', 'millarder', 'billioner', 'billarder', 'trillioner'
 
 // Danish ordinals: 1st-2nd special, others use -te/-nde suffix
 // "anden/andet" for 2nd (common/neuter), we use common form
+/** @type {Record<number, string>} */
 const ORDINAL_SPECIAL = {
   1: 'første',
   2: 'anden',
@@ -73,6 +74,9 @@ const ORE = 'øre' // same singular and plural
 
 /**
  * Builds segment word for 0-999.
+ *
+ * @param {number} n - Integer in range 0-999
+ * @returns {string} Danish words for the segment
  */
 function buildSegment (n) {
   if (n === 0) return ''
@@ -218,7 +222,7 @@ function buildLargeNumberWords (n) {
  * - After thousands with remainder: "tusinde og"
  * - Millions are space-separated
  *
- * @param {Array} parts - Parts with type metadata
+ * @param {Array<{word: string, type: string}>} parts - Parts with type metadata
  * @returns {string} Joined string
  */
 function joinDanishParts (parts) {

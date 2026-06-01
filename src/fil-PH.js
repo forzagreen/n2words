@@ -58,6 +58,10 @@ const SENTIMO = 'sentimo'
 
 const VOWELS = ['a', 'e', 'i', 'o', 'u']
 
+/**
+ * @param {string} word - Word to append a linker to
+ * @returns {string} Word with "ng" or " na" linker appended
+ */
 function addLinker (word) {
   const lastChar = word[word.length - 1]
   if (VOWELS.includes(lastChar)) {
@@ -70,6 +74,10 @@ function addLinker (word) {
 // Segment Building
 // ============================================================================
 
+/**
+ * @param {number} n - Value 0-999 to convert to words
+ * @returns {string} Filipino words for the segment
+ */
 function buildSegment (n) {
   if (n === 0) return ''
 
@@ -114,6 +122,8 @@ function buildSegment (n) {
 
 /**
  * Builds segment with linker added to last word (for use before scale words).
+ * @param {number} n - Value 0-999 to convert to words
+ * @returns {string} Filipino words with a trailing linker
  */
 function buildSegmentWithLinker (n) {
   const segmentWord = buildSegment(n)
@@ -144,6 +154,10 @@ function buildSegmentWithLinker (n) {
 // Conversion Functions
 // ============================================================================
 
+/**
+ * @param {bigint} n - Non-negative integer to convert to words
+ * @returns {string} Filipino words for the integer
+ */
 function integerToWords (n) {
   if (n === 0n) return ZERO
 
@@ -191,6 +205,10 @@ function buildLargeNumberWords (n) {
   return result
 }
 
+/**
+ * @param {string} decimalPart - Digits after the decimal separator
+ * @returns {string} Per-digit Filipino reading of the decimal part
+ */
 function decimalPartToWords (decimalPart) {
   // Per-digit decimal reading
   const digits = []

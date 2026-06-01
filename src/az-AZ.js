@@ -37,6 +37,7 @@ const SCALE_WORDS = ['', THOUSAND, 'milyon', 'milyar', 'trilyon', 'katrilyon', '
 
 // Azerbaijani ordinals use -(i/ı/u/ü)nci/ncı/ncu/ncü suffix with vowel harmony
 // Special forms for 1-10
+/** @type {Record<number, string>} */
 const ORDINAL_SPECIAL = {
   1: 'birinci',
   2: 'ikinci',
@@ -61,6 +62,11 @@ const QEPIK = 'qəpik' // subunit (100 qəpik = 1 manat)
 // Precomputed Lookup Table
 // ============================================================================
 
+/**
+ * Builds the Azerbaijani words for a 3-digit segment (0-999).
+ * @param {number} n - The segment value
+ * @returns {string} The segment in words
+ */
 function buildSegment (n) {
   if (n === 0) return ''
 
@@ -96,6 +102,11 @@ function buildSegment (n) {
 // Conversion Functions
 // ============================================================================
 
+/**
+ * Converts a non-negative integer to Azerbaijani words.
+ * @param {bigint} n - The integer value
+ * @returns {string} The integer in words
+ */
 function integerToWords (n) {
   if (n === 0n) return ZERO
 
@@ -106,6 +117,11 @@ function integerToWords (n) {
   return buildLargeNumberWords(n)
 }
 
+/**
+ * Builds Azerbaijani words for numbers >= 1000 using scale words.
+ * @param {bigint} n - The integer value
+ * @returns {string} The number in words
+ */
 function buildLargeNumberWords (n) {
   const numStr = n.toString()
   const len = numStr.length
@@ -149,6 +165,11 @@ function buildLargeNumberWords (n) {
   return parts.join(' ')
 }
 
+/**
+ * Converts the decimal-part digit string to Azerbaijani words.
+ * @param {string} decimalPart - The decimal digits as a string
+ * @returns {string} The decimal part in words
+ */
 function decimalPartToWords (decimalPart) {
   let result = ''
   let i = 0

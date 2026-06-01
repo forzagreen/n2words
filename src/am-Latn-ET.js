@@ -57,6 +57,12 @@ const SCALE_WORDS = ['', THOUSAND, 'miliyon', 'billiyon']
 // Precomputed Lookup Table
 // ============================================================================
 
+/**
+ * Builds the words for a 3-digit segment (0-999).
+ *
+ * @param {number} n - Segment value (0-999)
+ * @returns {string} The segment in Amharic (Latin) words
+ */
 function buildSegment (n) {
   if (n === 0) return ''
 
@@ -89,6 +95,12 @@ function buildSegment (n) {
 // Conversion Functions
 // ============================================================================
 
+/**
+ * Converts a non-negative integer to Amharic (Latin script) words.
+ *
+ * @param {bigint} n - Non-negative integer to convert
+ * @returns {string} The integer in Amharic (Latin) words
+ */
 function integerToWords (n) {
   if (n === 0n) return ZERO
 
@@ -99,6 +111,12 @@ function integerToWords (n) {
   return buildLargeNumberWords(n)
 }
 
+/**
+ * Builds the words for a number of 1000 or greater using short-scale grouping.
+ *
+ * @param {bigint} n - Integer of 1000 or greater
+ * @returns {string} The number in Amharic (Latin) words
+ */
 function buildLargeNumberWords (n) {
   const numStr = n.toString()
   const len = numStr.length
@@ -139,6 +157,12 @@ function buildLargeNumberWords (n) {
   return parts.join(' ')
 }
 
+/**
+ * Reads the decimal part digit by digit.
+ *
+ * @param {string} decimalPart - The fractional digits as a string
+ * @returns {string} The decimal digits in Amharic (Latin) words
+ */
 function decimalPartToWords (decimalPart) {
   // Per-digit decimal reading
   const digits = []

@@ -60,6 +60,9 @@ const CENTAVOS = 'centavos'
 
 const segmentResult = { word: '', hasHundred: false }
 
+/**
+ * @param {number} n
+ */
 function buildSegment (n) {
   if (n === 0) {
     segmentResult.word = ''
@@ -99,6 +102,9 @@ function buildSegment (n) {
 // Conversion Functions
 // ============================================================================
 
+/**
+ * @param {bigint} n
+ */
 function integerToWords (n) {
   if (n === 0n) return ZERO
 
@@ -124,6 +130,9 @@ function integerToWords (n) {
   return buildLargeNumberWords(n)
 }
 
+/**
+ * @param {bigint} n
+ */
 function buildLargeNumberWords (n) {
   const segments = []
   let temp = n
@@ -168,6 +177,9 @@ function buildLargeNumberWords (n) {
   return result
 }
 
+/**
+ * @param {string} decimalPart
+ */
 function decimalPartToWords (decimalPart) {
   let result = ''
 
@@ -217,6 +229,9 @@ function toCardinal (value) {
 // ORDINAL
 // ============================================================================
 
+/**
+ * @param {number} n
+ */
 function buildOrdinalSegment (n) {
   const ones = n % 10
   const tens = Math.trunc(n / 10) % 10
@@ -246,6 +261,9 @@ function buildOrdinalSegment (n) {
   return tensOnesOrdinal
 }
 
+/**
+ * @param {bigint} n
+ */
 function integerToOrdinal (n) {
   if (n < 1000n) {
     return buildOrdinalSegment(Number(n))
@@ -266,6 +284,9 @@ function integerToOrdinal (n) {
   return buildLargeOrdinal(n)
 }
 
+/**
+ * @param {bigint} n
+ */
 function buildLargeOrdinal (n) {
   const segments = []
   let temp = n
@@ -309,6 +330,14 @@ function buildLargeOrdinal (n) {
   return result
 }
 
+/**
+ * Converts a numeric value to Philippine English ordinal words.
+ *
+ * @param {number | string | bigint} value - The numeric value to convert (must be a positive integer)
+ * @returns {string} The number as ordinal words (e.g., "first", "forty-second")
+ * @throws {TypeError} If value is not a valid numeric type
+ * @throws {RangeError} If value is negative, zero, or has a decimal part
+ */
 function toOrdinal (value) {
   const integerPart = parseOrdinalValue(value)
   return integerToOrdinal(integerPart)
@@ -318,6 +347,15 @@ function toOrdinal (value) {
 // CURRENCY
 // ============================================================================
 
+/**
+ * Converts a numeric value to Philippine English currency words.
+ *
+ * @param {number | string | bigint} value - The numeric value to convert
+ * @param {{and?: boolean}} [options] - Optional configuration
+ * @returns {string} The amount in Philippine English currency words
+ * @throws {TypeError} If value is not a valid numeric type
+ * @throws {Error} If value is not a valid number format
+ */
 function toCurrency (value, options) {
   options = validateOptions(options)
   const { isNegative, dollars: pesos, cents: centavos } = parseCurrencyValue(value)

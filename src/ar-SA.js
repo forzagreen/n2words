@@ -76,6 +76,12 @@ const HALALA_PLURAL_11 = 'هللة'
  * Convert a 3-digit group to words.
  * Returns a clean string with no leading/trailing spaces.
  * Arabic "و" (and) is attached to following word: "مائة وخمسة" not "مائة و خمسة"
+ *
+ * @param {number} groupNumber - The 3-digit group value (0-999)
+ * @param {number} groupLevel - The scale level of this group (0 = units, 1 = thousands, ...)
+ * @param {bigint} fullNumber - The full number being converted
+ * @param {string[]} ones - Gender-specific ones words (1-19)
+ * @returns {string} The group rendered as words
  */
 function segmentToWords (groupNumber, groupLevel, fullNumber, ones) {
   const tensValue = groupNumber % 100
@@ -127,6 +133,13 @@ function segmentToWords (groupNumber, groupLevel, fullNumber, ones) {
   return result
 }
 
+/**
+ * Convert a non-negative integer to Arabic words.
+ *
+ * @param {bigint} n - The non-negative integer to convert
+ * @param {string} gender - 'masculine' or 'feminine'
+ * @returns {string} The number rendered as words
+ */
 function integerToWords (n, gender) {
   if (n === 0n) return ZERO
 
@@ -177,6 +190,13 @@ function integerToWords (n, gender) {
   return result
 }
 
+/**
+ * Convert the fractional digits of a number to Arabic words.
+ *
+ * @param {string} decimalPart - The decimal digits (after the separator)
+ * @param {string} gender - 'masculine' or 'feminine'
+ * @returns {string} The decimal part rendered as words
+ */
 function decimalPartToWords (decimalPart, gender) {
   const parts = []
   let i = 0
@@ -293,6 +313,9 @@ function toOrdinal (value, options) {
  * - 2: dual
  * - 3-10: plural form 1
  * - 11+: plural form 2 (different ending)
+ *
+ * @param {bigint} n - The riyal count
+ * @returns {string} The appropriate riyal word form
  */
 function getRiyalForm (n) {
   if (n === 1n) return RIYAL_SINGULAR
@@ -301,6 +324,12 @@ function getRiyalForm (n) {
   return RIYAL_PLURAL_11
 }
 
+/**
+ * Gets the appropriate halala word form based on number.
+ *
+ * @param {bigint} n - The halala count
+ * @returns {string} The appropriate halala word form
+ */
 function getHalalaForm (n) {
   if (n === 1n) return HALALA_SINGULAR
   if (n === 2n) return HALALA_DUAL

@@ -251,7 +251,7 @@ function buildLargeNumberWords (n) {
  * Joins parts with German spacing rules.
  * Spaces only around million+ scale words.
  *
- * @param {Array} parts - Parts with metadata
+ * @param {Array<{words: string, isScale: boolean, scaleLevel: number}>} parts - Parts with metadata
  * @returns {string} Joined string
  */
 function joinGermanParts (parts) {
