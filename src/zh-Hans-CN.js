@@ -69,6 +69,13 @@ const ZHENG = '整'
 
 /**
  * Convert number below 万 (10,000) to words using direct string concatenation.
+ *
+ * @param {bigint} value
+ * @param {string[]} ones
+ * @param {string} ten
+ * @param {string} hundred
+ * @param {string} thousand
+ * @returns {string}
  */
 function convertBelowWan (value, ones, ten, hundred, thousand) {
   if (value === 0n) return ''
@@ -117,6 +124,13 @@ function convertBelowWan (value, ones, ten, hundred, thousand) {
 
 /**
  * Convert number below 亿 (100 million) to words.
+ *
+ * @param {bigint} value
+ * @param {string[]} ones
+ * @param {string} ten
+ * @param {string} hundred
+ * @param {string} thousand
+ * @returns {string}
  */
 function convertBelowYi (value, ones, ten, hundred, thousand) {
   if (value === 0n) return ''
@@ -139,6 +153,13 @@ function convertBelowYi (value, ones, ten, hundred, thousand) {
   return convertBelowWan(value, ones, ten, hundred, thousand)
 }
 
+/**
+ * Convert an integer to Simplified Chinese words.
+ *
+ * @param {bigint} n
+ * @param {boolean} [formal]
+ * @returns {string}
+ */
 function integerToWords (n, formal = true) {
   if (n === 0n) return ZERO
 
@@ -167,6 +188,10 @@ function integerToWords (n, formal = true) {
 
 /**
  * Convert decimal digits to words using direct concatenation.
+ *
+ * @param {string} decimalString
+ * @param {string[]} ones
+ * @returns {string}
  */
 function decimalDigitsToWords (decimalString, ones) {
   let result = ''

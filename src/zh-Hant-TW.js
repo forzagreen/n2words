@@ -66,6 +66,13 @@ const YUAN_COMMON = '元'
 // Conversion Functions
 // ============================================================================
 
+/**
+ * Converts a non-negative integer to Traditional Chinese words.
+ *
+ * @param {bigint} n - The integer value to convert
+ * @param {boolean} [formal=true] - Use formal/financial numerals
+ * @returns {string} The integer in Traditional Chinese words
+ */
 function integerToWords (n, formal = true) {
   if (n === 0n) return ZERO
 
@@ -75,6 +82,10 @@ function integerToWords (n, formal = true) {
   const thousand = formal ? THOUSAND_FORMAL : THOUSAND_COMMON
 
   // Convert number below 萬 (10,000)
+  /**
+   * @param {bigint} value
+   * @returns {string}
+   */
   function convertBelowWan (value) {
     if (value === 0n) return ''
 
@@ -128,6 +139,10 @@ function integerToWords (n, formal = true) {
   }
 
   // Convert number below 億 (100 million)
+  /**
+   * @param {bigint} value
+   * @returns {string}
+   */
   function convertBelowYi (value) {
     if (value === 0n) return ''
 
@@ -179,6 +194,13 @@ function integerToWords (n, formal = true) {
   return parts.join('')
 }
 
+/**
+ * Converts each digit of a decimal string to Traditional Chinese words.
+ *
+ * @param {string} decimalString - The decimal digits to convert
+ * @param {boolean} [formal=true] - Use formal/financial numerals
+ * @returns {string[]} The decimal digits as Traditional Chinese words
+ */
 function decimalDigitsToWords (decimalString, formal = true) {
   const ones = formal ? ONES_FORMAL : ONES_COMMON
   const words = []

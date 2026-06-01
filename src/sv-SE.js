@@ -39,6 +39,7 @@ const SCALES = ['tusen', 'miljon', 'miljard', 'biljon', 'biljard', 'triljon', 't
 
 // Swedish ordinals: 1st-2nd use -a (första, andra), then -de suffix
 // Numbers ending in 1, 2 (except 11, 12) use special forms
+/** @type {Record<number, string>} */
 const ORDINAL_ONES = {
   1: 'första',
   2: 'andra',
@@ -69,6 +70,8 @@ const ORE = 'öre' // same singular and plural
 /**
  * Builds segment word for 0-999.
  * Returns object with word and metadata for "och" logic.
+ *
+ * @param {number} n - Integer in range 0-999
  */
 function buildSegment (n) {
   if (n === 0) return { word: '', hasHundred: false, lessThan100: false }
@@ -233,7 +236,7 @@ function buildLargeNumberWords (n) {
  * Joins parts with Swedish "och" rules.
  * Insert "och" before final segment if it follows a scale word and doesn't have "hundra".
  *
- * @param {Array} parts - Parts with metadata
+ * @param {Array<{word: string, hasHundred: boolean, isScale: boolean}>} parts - Parts with metadata
  * @returns {string} Joined string
  */
 function joinSwedishParts (parts) {

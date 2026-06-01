@@ -72,6 +72,9 @@ const SCALE_WORDS = ['', 'వెయ్యి', 'లక్ష', 'కోటి', '
 
 /**
  * Builds words for a 0-999 segment.
+ *
+ * @param {number} n - Segment value (0-999)
+ * @returns {string} Telugu words for the segment
  */
 function buildSegment (n) {
   if (n === 0) return ''
@@ -139,6 +142,12 @@ function integerToWords (n) {
   return words.join(' ')
 }
 
+/**
+ * Reads a decimal fraction digit-by-digit in Telugu.
+ *
+ * @param {string} decimalPart - Fractional digits as a string
+ * @returns {string} Telugu words for each digit
+ */
 function decimalPartToWords (decimalPart) {
   // Per-digit decimal reading
   const digits = []

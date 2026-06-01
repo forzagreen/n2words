@@ -51,6 +51,8 @@ const CENTIMOS = 'cêntimos'
 /**
  * Builds segment word for 0-999 with Portuguese "e" rules.
  * Returns the word and whether it's an exact hundred (for "cem" handling).
+ *
+ * @param {number} n - Number 0-999
  */
 function buildSegment (n) {
   if (n === 0) return { word: '', isExactHundred: false }

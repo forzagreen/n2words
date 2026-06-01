@@ -59,6 +59,9 @@ const LAM = 'lăm' // 5 in tens position (25, 35, etc.)
 
 /**
  * Builds word for 0-99 with special forms (mốt, lăm).
+ *
+ * @param {number} n - Integer in range 0-99
+ * @returns {string} Vietnamese words
  */
 function buildBelowHundred (n) {
   if (n === 0) return ONES[0]
@@ -85,6 +88,9 @@ function buildBelowHundred (n) {
 
 /**
  * Builds segment word for 0-999.
+ *
+ * @param {number} n - Integer in range 0-999
+ * @returns {string} Vietnamese words
  */
 function buildSegment (n) {
   if (n === 0) return ''
@@ -120,6 +126,9 @@ function buildSegment (n) {
 
 /**
  * Builds "lẻ" prefixed word for small remainders (1-99) after scale words.
+ *
+ * @param {number} n - Integer in range 0-99
+ * @returns {string} Vietnamese words
  */
 function buildLeSegment (n) {
   if (n === 0) return ''

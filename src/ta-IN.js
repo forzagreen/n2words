@@ -148,6 +148,12 @@ function integerToWords (n) {
   return words.join(' ')
 }
 
+/**
+ * Converts the decimal portion of a number to Tamil words (per-digit reading).
+ *
+ * @param {string} decimalPart - The fractional digits as a string
+ * @returns {string} Tamil words for each decimal digit
+ */
 function decimalPartToWords (decimalPart) {
   // Per-digit decimal reading
   const digits = []

@@ -18,6 +18,7 @@ import { parseOrdinalValue } from './utils/parse-ordinal.js'
 // ============================================================================
 
 const ONES = ['sifuri', 'moja', 'mbili', 'tatu', 'nne', 'tano', 'sita', 'saba', 'nane', 'tisa']
+/** @type {Record<number, string>} */
 const TENS = { 10: 'kumi', 20: 'ishirini', 30: 'thelathini', 40: 'arobaini', 50: 'hamsini', 60: 'sitini', 70: 'sabini', 80: 'themanini', 90: 'tisini' }
 
 const SCALE_WORDS = ['', 'elfu', 'milioni', 'bilioni', 'trilioni', 'kwadrilioni', 'kwintilioni']
@@ -32,6 +33,7 @@ const DECIMAL_SEP = 'nukta'
 
 // Swahili ordinals use "wa" + cardinal: wa kwanza (1st), wa pili (2nd)
 // First few have special forms
+/** @type {Record<number, string>} */
 const ORDINAL_ONES = {
   1: 'wa kwanza',
   2: 'wa pili',
@@ -56,6 +58,10 @@ const CENT = 'senti'
 // Conversion Functions
 // ============================================================================
 
+/**
+ * @param {number} n
+ * @returns {string}
+ */
 function wordsUnder100 (n) {
   if (n < 10) return ONES[n]
   if (n === 10) return TENS[10]
@@ -69,6 +75,10 @@ function wordsUnder100 (n) {
   return TENS[tens] + ' na ' + ONES[ones]
 }
 
+/**
+ * @param {number} n
+ * @returns {string}
+ */
 function wordsUnder1000 (n) {
   if (n < 100) return wordsUnder100(n)
   if (n === 100) return 'mia moja'
@@ -89,6 +99,10 @@ function wordsUnder1000 (n) {
   return parts.join(' ')
 }
 
+/**
+ * @param {bigint} n
+ * @returns {number[]}
+ */
 function extractSegments (n) {
   const segments = []
   let temp = n
@@ -99,6 +113,10 @@ function extractSegments (n) {
   return segments
 }
 
+/**
+ * @param {bigint} n
+ * @returns {string}
+ */
 function integerToWords (n) {
   if (n === 0n) return ZERO
 
@@ -131,6 +149,10 @@ function integerToWords (n) {
   return parts.join(' ').trim()
 }
 
+/**
+ * @param {string} decimalPart
+ * @returns {string}
+ */
 function decimalPartToWords (decimalPart) {
   let result = ''
   let i = 0

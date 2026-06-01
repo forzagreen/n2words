@@ -60,6 +60,7 @@ const TEENS_SUB = [
 // Decades (base-20 structure)
 // Even decades are multiples of 20
 // Odd decades subtract 10 from next even decade
+/** @type {Record<number, string>} */
 const DECADES = {
   20: 'ogún', // 20 = 20 × 1
   30: 'ọgbọ̀n', // 30 = 20 + 10 (special word)
@@ -73,6 +74,7 @@ const DECADES = {
 }
 
 // Prefixes for adding to decades (lé lógún, lé lọgbọ̀n, etc.)
+/** @type {Record<number, string>} */
 const DECADE_ADD_SUFFIX = {
   20: 'lógún',
   30: 'lọgbọ̀n',
@@ -86,6 +88,7 @@ const DECADE_ADD_SUFFIX = {
 }
 
 // Prefixes for subtracting from decades (dín lógójì, etc.)
+/** @type {Record<number, string>} */
 const DECADE_SUB_SUFFIX = {
   20: 'dínlógún',
   30: 'dínlọgbọ̀n',
@@ -135,6 +138,9 @@ const KOBO = 'kọ́bọ̀'
 
 /**
  * Builds word for numbers 0-99
+ *
+ * @param {number} n - Integer in the range 0-99
+ * @returns {string} Yoruba words for the number
  */
 function buildUnder100 (n) {
   if (n === 0) return ''
@@ -169,6 +175,9 @@ function buildUnder100 (n) {
 
 /**
  * Converts hundreds (100-999)
+ *
+ * @param {number} n - Integer in the range 0-999
+ * @returns {string} Yoruba words for the number
  */
 function convertHundreds (n) {
   if (n < 100) return buildUnder100(n)
