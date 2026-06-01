@@ -38,6 +38,7 @@ const SCALES = ['million', 'milliard', 'billion', 'billiard', 'kvintillion', 'se
 // ============================================================================
 
 // Norwegian ordinals: 1st-12th special forms, then cardinal + -de/-te
+/** @type {Record<number, string>} */
 const ORDINAL_SPECIAL = {
   1: 'første',
   2: 'andre',
@@ -68,6 +69,9 @@ const ORE = 'øre' // same singular and plural
 /**
  * Builds segment word for 0-999.
  * Returns object with word and hasHundred flag.
+ *
+ * @param {number} n - Integer 0-999
+ * @returns {{word: string, hasHundred: boolean}} Segment word and hundred flag
  */
 function buildSegment (n) {
   if (n === 0) return { word: '', hasHundred: false }
@@ -211,7 +215,7 @@ function buildLargeNumberWords (n) {
 /**
  * Joins parts with Norwegian spacing and comma rules.
  *
- * @param {Array} parts - Parts with type metadata
+ * @param {Array<{word: string, hasHundred: boolean, type: string}>} parts - Parts with type metadata
  * @returns {string} Joined string
  */
 function joinNorwegianParts (parts) {

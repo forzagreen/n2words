@@ -144,6 +144,12 @@ function integerToWords (n) {
   return words.join(' ')
 }
 
+/**
+ * Converts the decimal-part digit string to Hindi words.
+ *
+ * @param {string} decimalPart - The digits after the decimal separator
+ * @returns {string} Hindi words for the decimal part
+ */
 function decimalPartToWords (decimalPart) {
   let result = ''
   let i = 0

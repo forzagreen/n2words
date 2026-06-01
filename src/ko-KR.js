@@ -51,6 +51,9 @@ const WON = '원'
 /**
  * Builds segment word for 0-9999 (4-digit myriad segment).
  * Korean omits "일" before 십, 백, 천.
+ *
+ * @param {number} n - Segment value (0-9999)
+ * @returns {string} Korean words for the segment
  */
 function buildSegment (n) {
   if (n === 0) return ''
@@ -182,7 +185,7 @@ function buildLargeNumberWords (n) {
  * - Concatenate without spaces within segments
  * - Space after scale words before next number
  *
- * @param {Array} parts - Parts with isScale metadata
+ * @param {Array<{word: string, isScale: boolean}>} parts - Parts with isScale metadata
  * @returns {string} Joined string
  */
 function joinKoreanParts (parts) {

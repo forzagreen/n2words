@@ -59,6 +59,10 @@ const AGORA_PLURAL = 'אגורות'
 /**
  * Builds segment word for scale segments (thousands, millions, etc.).
  * "ו" is added before tens and ones when following hundreds.
+ *
+ * @param {number} n - Segment value (0-999)
+ * @param {string} andWord - Conjunction word
+ * @returns {string} Hebrew words for the segment
  */
 function buildScaleSegment (n, andWord) {
   if (n === 0) return ''
@@ -109,6 +113,10 @@ function buildScaleSegment (n, andWord) {
 /**
  * Builds segment word for units segment (no scale word).
  * "ו" is only added before the final ones digit.
+ *
+ * @param {number} n - Segment value (0-999)
+ * @param {string} andWord - Conjunction word
+ * @returns {string} Hebrew words for the segment
  */
 function buildUnitsSegment (n, andWord) {
   if (n === 0) return ''
@@ -415,6 +423,9 @@ function toOrdinal (value) {
 
 /**
  * Builds segment word for currency (masculine forms).
+ *
+ * @param {number} n - Segment value (0-999)
+ * @returns {string} Hebrew words for the segment (masculine form)
  */
 function buildCurrencySegment (n) {
   if (n === 0) return ''

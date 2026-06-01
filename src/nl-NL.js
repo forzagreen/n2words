@@ -110,7 +110,7 @@ function buildSegment (n, withAnd) {
  * Converts a non-negative integer to Dutch words.
  *
  * @param {bigint} n - Non-negative integer to convert
- * @param {Object} options - Conversion options
+ * @param {{accentOne: boolean, includeOptionalAnd: boolean, noHundredPairing: boolean}} options - Conversion options
  * @returns {string} Dutch words
  */
 function integerToWords (n, options) {
@@ -119,6 +119,7 @@ function integerToWords (n, options) {
   const { accentOne, includeOptionalAnd, noHundredPairing } = options
 
   // Apply één/een replacement
+  /** @param {string} word */
   const applyAccent = (word) => {
     if (accentOne) {
       return word.replace(/\been\b/g, 'één')
@@ -186,7 +187,7 @@ function integerToWords (n, options) {
  * Uses BigInt division for faster segment extraction (4x faster than string slicing).
  *
  * @param {bigint} n - Number >= 1,000,000
- * @param {Object} options - Conversion options
+ * @param {{accentOne: boolean, includeOptionalAnd: boolean, noHundredPairing: boolean}} options - Conversion options
  * @returns {string} Dutch words
  */
 function buildLargeNumberWords (n, options) {
@@ -251,7 +252,7 @@ function buildLargeNumberWords (n, options) {
  * Converts decimal digits to Dutch words.
  *
  * @param {string} decimalPart - Decimal digits (without the point)
- * @param {Object} options - Conversion options
+ * @param {{accentOne: boolean, includeOptionalAnd: boolean, noHundredPairing: boolean}} options - Conversion options
  * @returns {string} Dutch words for decimal part
  */
 function decimalPartToWords (decimalPart, options) {

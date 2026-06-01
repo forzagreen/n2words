@@ -83,6 +83,8 @@ const SCALE_FORMS = [
  * Builds segment word for 0-999 (masculine form).
  * Does NOT include special handling for segment=1 (omitOneBeforeScale).
  * That's handled at join time.
+ *
+ * @param {number} n - Segment value 0-999
  */
 function buildSegment (n) {
   if (n === 0) return ''
@@ -125,6 +127,8 @@ function buildSegment (n) {
 
 /**
  * Builds segment word for 0-999 (feminine form - only differs in ones).
+ *
+ * @param {number} n - Segment value 0-999
  */
 function buildSegmentFeminine (n) {
   if (n === 0) return ''
@@ -229,7 +233,7 @@ function pluralizeCurrency (n, forms) {
  * Converts a non-negative integer to Latvian words.
  *
  * @param {bigint} n - Non-negative integer to convert
- * @param {Object} options - Conversion options
+ * @param {string} gender - Gender for numbers < 1000
  * @returns {string} Latvian words
  */
 function integerToWords (n, gender) {
@@ -250,7 +254,7 @@ function integerToWords (n, gender) {
  * Builds words for numbers >= 1000.
  *
  * @param {bigint} n - Number >= 1000
- * @param {Object} options - Conversion options
+ * @param {string} gender - Gender for numbers < 1000
  * @returns {string} Latvian words
  */
 function buildLargeNumberWords (n, gender) {
@@ -309,7 +313,7 @@ function buildLargeNumberWords (n, gender) {
  * Converts decimal digits to Latvian words.
  *
  * @param {string} decimalPart - Decimal digits (without the point)
- * @param {Object} options - Conversion options
+ * @param {string} gender - Gender for numbers < 1000
  * @returns {string} Latvian words for decimal part
  */
 function decimalPartToWords (decimalPart, gender) {

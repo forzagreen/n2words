@@ -68,6 +68,9 @@ const SCALE_WORDS = ['', 'हजार', 'लाख', 'कोटी', 'अब्
 
 /**
  * Builds words for a 0-999 segment.
+ *
+ * @param {number} n - Segment value (0-999)
+ * @returns {string} Marathi words for the segment
  */
 function buildSegment (n) {
   if (n === 0) return ''
@@ -133,6 +136,12 @@ function integerToWords (n) {
   return words.join(' ')
 }
 
+/**
+ * Reads the fractional digits per-digit in Marathi.
+ *
+ * @param {string} decimalPart - Decimal digit string
+ * @returns {string} Marathi words for each digit
+ */
 function decimalPartToWords (decimalPart) {
   // Per-digit decimal reading
   const digits = []

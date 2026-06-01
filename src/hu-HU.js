@@ -79,6 +79,7 @@ const DECIMAL_SEP = 'egész'
 
 // Hungarian ordinals: special forms 1-10, then cardinal + -dik/-ik suffix
 // Vowel harmony determines -dik vs -ik
+/** @type {Record<number, string>} */
 const ORDINAL_SPECIAL = {
   1: 'első',
   2: 'második',
@@ -113,19 +114,31 @@ const FILLER = 'fillér' // subunit (rarely used, same singular and plural)
 // Conversion Functions
 // ============================================================================
 
+/**
+ * @param {bigint} value
+ * @returns {string | undefined}
+ */
 function wordForScale (value) {
   return WORDS.get(value)
 }
 
+/**
+ * @param {bigint} n
+ * @returns {string}
+ */
 function tensToCardinal (n) {
   if (WORDS.has(n)) {
-    return WORDS.get(n)
+    return /** @type {string} */ (WORDS.get(n))
   }
   const tens = n / 10n
   const units = n % 10n
   return wordForScale(tens * 10n) + integerToWordsInner(units)
 }
 
+/**
+ * @param {bigint} n
+ * @returns {string}
+ */
 function hundredsToCardinal (n) {
   const hundreds = n / 100n
   let prefix = 'száz'
@@ -136,6 +149,10 @@ function hundredsToCardinal (n) {
   return prefix + postfix
 }
 
+/**
+ * @param {bigint} n
+ * @returns {string}
+ */
 function thousandsToCardinal (n) {
   const thousands = n / 1000n
   let prefix = 'ezer'
@@ -159,6 +176,10 @@ const SCALES = [
   1_000_000n
 ]
 
+/**
+ * @param {bigint} n
+ * @returns {string}
+ */
 function bigNumberToCardinal (n) {
   // Find appropriate scale using BigInt comparison (avoids toString)
   let exp = 1_000_000n
@@ -175,6 +196,11 @@ function bigNumberToCardinal (n) {
   return prefix + wordForScale(exp) + postfix
 }
 
+/**
+ * @param {bigint} n
+ * @param {string} [zeroWord]
+ * @returns {string}
+ */
 function integerToWordsInner (n, zeroWord = ZERO) {
   // Normalize to BigInt for consistent comparisons
   if (typeof n !== 'bigint') n = BigInt(n)
@@ -186,7 +212,7 @@ function integerToWordsInner (n, zeroWord = ZERO) {
     return 'két'
   }
   if (n < 30n) {
-    return wordForScale(n)
+    return /** @type {string} */ (wordForScale(n))
   }
   if (n < 100n) {
     return tensToCardinal(n)
@@ -200,10 +226,18 @@ function integerToWordsInner (n, zeroWord = ZERO) {
   return bigNumberToCardinal(n)
 }
 
+/**
+ * @param {bigint} n
+ * @returns {string}
+ */
 function integerToWords (n) {
   return integerToWordsInner(n, ZERO)
 }
 
+/**
+ * @param {string} decimalPart
+ * @returns {string}
+ */
 function decimalPartToWords (decimalPart) {
   let result = ''
   let i = 0

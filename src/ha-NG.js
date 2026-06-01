@@ -60,6 +60,9 @@ const KOBO = 'kobo'
  * Build segment for 0-999 with Hausa patterns.
  * Hausa uses reversed order for hundreds: "biyu ɗari" (200)
  * And "da" connector for ones: "ashirin da ɗaya" (21)
+ *
+ * @param {number} n - Integer segment value (0-999)
+ * @returns {string}
  */
 function buildSegment (n) {
   if (n === 0) return ''
@@ -110,6 +113,10 @@ function buildSegment (n) {
 // Conversion Functions
 // ============================================================================
 
+/**
+ * @param {bigint} n - Non-negative integer value
+ * @returns {string}
+ */
 function integerToWords (n) {
   if (n === 0n) return ZERO
 
@@ -122,11 +129,18 @@ function integerToWords (n) {
 
 /**
  * Checks if a word is a single digit (1-9).
+ *
+ * @param {string} word - Word to test
+ * @returns {boolean}
  */
 function isSingleDigit (word) {
   return ONES.slice(1).includes(word)
 }
 
+/**
+ * @param {bigint} n - Integer value of 1000 or greater
+ * @returns {string}
+ */
 function buildLargeNumberWords (n) {
   const numStr = n.toString()
   const len = numStr.length
@@ -202,6 +216,10 @@ function buildLargeNumberWords (n) {
   return result.join('')
 }
 
+/**
+ * @param {string} decimalPart - Digit string of the fractional part
+ * @returns {string}
+ */
 function decimalPartToWords (decimalPart) {
   // Per-digit decimal reading
   const digits = []

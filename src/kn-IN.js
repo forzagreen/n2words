@@ -68,6 +68,9 @@ const SCALE_WORDS = ['', 'ಸಾವಿರ', 'ಲಕ್ಷ', 'ಕೋಟಿ', 'ಅ
 
 /**
  * Builds words for a 0-999 segment.
+ *
+ * @param {number} n - Segment value (0-999)
+ * @returns {string} Kannada words for the segment
  */
 function buildSegment (n) {
   if (n === 0) return ''
@@ -133,6 +136,12 @@ function integerToWords (n) {
   return words.join(' ')
 }
 
+/**
+ * Reads a decimal-fraction digit string per-digit in Kannada.
+ *
+ * @param {string} decimalPart - Digits after the decimal separator
+ * @returns {string} Per-digit Kannada words
+ */
 function decimalPartToWords (decimalPart) {
   // Per-digit decimal reading
   const digits = []
