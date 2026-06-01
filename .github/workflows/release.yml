@@ -140,7 +140,7 @@ jobs:
         if: steps.version.outputs.skip != 'true'
         run: npm version ${{ steps.version.outputs.version }} --no-git-tag-version
 
-      # `npm publish --dry-run` runs the prepack script (npm run build), which
+      # `npm publish --dry-run` runs the prepack script (node --run build), which
       # builds dist/ + type declarations and leaves them on disk for the steps
       # that follow (Verify below, the real Publish, Create release archive).
       # A failing build fails the dry run, gating the release before any commit,
