@@ -228,7 +228,10 @@ jobs:
         run: |
           VERSION=${{ steps.version.outputs.version }}
           mkdir -p n2words-${VERSION}/{src,dist}
-          cp src/*.js src/*.d.ts n2words-${VERSION}/src/
+          # Recursive copy so the zip mirrors the npm package's src/ tree —
+          # a flat `src/*.js src/*.d.ts` glob silently drops src/utils/ (its
+          # .js + .d.ts), which the package's `files: ["src/**/*"]` globs ship.
+          cp -r src/. n2words-${VERSION}/src/
           cp dist/*.js n2words-${VERSION}/dist/
           zip -r n2words-${VERSION}.zip n2words-${VERSION}/
 
