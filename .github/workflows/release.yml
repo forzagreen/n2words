@@ -140,9 +140,14 @@ jobs:
         if: steps.version.outputs.skip != 'true'
         run: npm version ${{ steps.version.outputs.version }} --no-git-tag-version
 
-      - name: Build dist
+      # `npm publish --dry-run` runs the prepack script (npm run build), which
+      # builds dist/ + type declarations and leaves them on disk for the steps
+      # that follow (Verify below, the real Publish, Create release archive).
+      # A failing build fails the dry run, gating the release before any commit,
+      # tag, or publish happens.
+      - name: Dry-run publish
         if: steps.version.outputs.skip != 'true'
-        run: npm run build:dist
+        run: npm publish --dry-run
 
       - name: Verify build artifacts
         if: steps.version.outputs.skip != 'true'
@@ -152,10 +157,6 @@ jobs:
           echo ""
           echo "Type declarations:"
           find src -name "*.d.ts" -type f
-
-      - name: Dry-run publish
-        if: steps.version.outputs.skip != 'true'
-        run: npm publish --dry-run
 
       # `--unreleased --prepend` adds ONLY the new version's section to
       # the top of the existing CHANGELOG.md. The old `--output`
