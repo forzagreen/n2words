@@ -158,8 +158,8 @@ jobs:
       - name: Install dependencies
         run: npm ci --prefer-offline
 
-      - name: Build all artifacts
-        run: npm run build
-
-      - name: Verify package contents
+      # `npm pack --dry-run` runs the prepack script (node --run build), so this one
+      # step both builds every artifact and verifies the published file list — a
+      # failing build fails the pack. No separate build step needed.
+      - name: Build & verify package contents
         run: npm pack --dry-run
