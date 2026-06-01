@@ -84,7 +84,8 @@
     "prepack": "node --run build",
     "prepare:husky": "husky",
     "test": "node --run test:unit && node --run build:types",
-    "test:unit": "ava \"test/*.test.js\" \"test/utils/*.test.js\""
+    "test:unit": "ava \"test/*.test.js\" \"test/utils/*.test.js\"",
+    "typecheck": "tsc --project tsconfig.typecheck.json"
   },
   "ava": {
     "extensions": [
