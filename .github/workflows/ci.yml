@@ -55,6 +55,13 @@ jobs:
       - name: Lint
         run: npm run lint
 
+      # Strict checkJs over src (tsconfig.typecheck.json, noEmit) — fast type
+      # gate that fails in the cheap lint job before the test matrix. The
+      # shipped declarations are independently gated by build:types
+      # (checkJs + noEmitOnError) in the test job and prepack.
+      - name: Typecheck
+        run: npm run typecheck
+
   test:
     name: Test (Node ${{ matrix.node }}${{ matrix.coverage && ' + Coverage' || '' }})
     runs-on: ubuntu-latest
