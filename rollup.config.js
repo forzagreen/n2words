@@ -1,4 +1,3 @@
-import { nodeResolve } from '@rollup/plugin-node-resolve'
 import terser from '@rollup/plugin-terser'
 import virtual from '@rollup/plugin-virtual'
 import { readFileSync } from 'node:fs'
@@ -56,11 +55,6 @@ const individualTerserConfig = terser({
   },
 })
 
-// Base plugins (shared between all bundles)
-const basePlugins = [
-  nodeResolve({ preferBuiltins: false }),
-]
-
 // ============================================================================
 // Individual Language Bundle Configurations
 // ============================================================================
@@ -74,7 +68,7 @@ const languageEsmConfigs = languageCodes.map(langCode => ({
     format: 'es',
     banner: `/*! n2words/${langCode} v${pkg.version} | MIT License | github.com/forzagreen/n2words */`,
   },
-  plugins: [...basePlugins, individualTerserConfig],
+  plugins: [individualTerserConfig],
 }))
 
 /**
@@ -115,7 +109,6 @@ function umdConfig(langCode, forms) {
       virtual({
         [virtualEntryId]: virtualContent,
       }),
-      ...basePlugins,
       individualTerserConfig,
     ],
   }
