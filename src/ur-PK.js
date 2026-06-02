@@ -55,7 +55,7 @@ const BELOW_HUNDRED = [
   'ساٹھ', 'اکسٹھ', 'باسٹھ', 'ترسٹھ', 'چونسٹھ', 'پینسٹھ', 'چھیاسٹھ', 'سڑسٹھ', 'اڑسٹھ', 'انہتر',
   'ستر', 'اکہتر', 'بہتر', 'تہتر', 'چوہتر', 'پچھتر', 'چھہتر', 'ستتر', 'اٹھہتر', 'اناسی',
   'اسی', 'اکیاسی', 'بیاسی', 'تریاسی', 'چوراسی', 'پچاسی', 'چھیاسی', 'ستاسی', 'اٹھاسی', 'نواسی',
-  'نوے', 'اکانوے', 'بانوے', 'ترانوے', 'چورانوے', 'پچانوے', 'چھیانوے', 'ستانوے', 'اٹھانوے', 'ننانوے'
+  'نوے', 'اکانوے', 'بانوے', 'ترانوے', 'چورانوے', 'پچانوے', 'چھیانوے', 'ستانوے', 'اٹھانوے', 'ننانوے',
 ]
 
 // Scale words: index 0 = units (empty), 1 = thousand, 2 = lakh, 3 = crore, etc.
@@ -71,7 +71,7 @@ const SCALE_WORDS = ['', 'ہزار', 'لاکھ', 'کروڑ', 'ارب', 'کھرب
  * @param {number} n - Segment value (0-999)
  * @returns {string} Urdu words for the segment
  */
-function buildSegment (n) {
+function buildSegment(n) {
   if (n === 0) return ''
   if (n < 100) return BELOW_HUNDRED[n]
 
@@ -97,7 +97,7 @@ function buildSegment (n) {
  * @param {bigint} n - Non-negative integer to convert
  * @returns {string} Urdu words
  */
-function integerToWords (n) {
+function integerToWords(n) {
   if (n === 0n) return ZERO
 
   // Fast path: numbers < 1000 (direct lookup)
@@ -123,7 +123,8 @@ function integerToWords (n) {
 
     if (i === 0) {
       words.push(buildSegment(segment))
-    } else {
+    }
+    else {
       words.push(BELOW_HUNDRED[segment])
     }
 
@@ -141,7 +142,7 @@ function integerToWords (n) {
  * @param {string} decimalPart - Digits after the decimal separator
  * @returns {string} Urdu words for the decimal part
  */
-function decimalPartToWords (decimalPart) {
+function decimalPartToWords(decimalPart) {
   let result = ''
   let i = 0
 
@@ -166,7 +167,7 @@ function decimalPartToWords (decimalPart) {
  * @param {number | string | bigint} value - The numeric value to convert
  * @returns {string} The number in Urdu words
  */
-function toCardinal (value) {
+function toCardinal(value) {
   const { isNegative, integerPart, decimalPart } = parseCardinalValue(value)
 
   let result = ''
@@ -196,7 +197,7 @@ function toCardinal (value) {
  * @param {bigint} n - Positive integer to convert
  * @returns {string} Urdu ordinal words
  */
-function integerToOrdinal (n) {
+function integerToOrdinal(n) {
   // Special ordinals for 1-6
   if (n >= 1n && n <= 6n) {
     return ORDINAL_SPECIAL[Number(n)]
@@ -221,7 +222,7 @@ function integerToOrdinal (n) {
  * toOrdinal(3)    // 'تیسرا'
  * toOrdinal(10)   // 'دسواں'
  */
-function toOrdinal (value) {
+function toOrdinal(value) {
   const integerPart = parseOrdinalValue(value)
   return integerToOrdinal(integerPart)
 }
@@ -243,7 +244,7 @@ function toOrdinal (value) {
  * toCurrency(1)      // 'ایک روپیہ'
  * toCurrency(0.01)   // 'ایک پیسہ'
  */
-function toCurrency (value) {
+function toCurrency(value) {
   const { isNegative, dollars: rupees, cents: paise } = parseCurrencyValue(value)
 
   // Build result

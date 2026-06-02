@@ -1,32 +1,38 @@
 import { defineConfig, globalIgnores } from 'eslint/config'
-import neostandard from 'neostandard'
+import js from '@eslint/js'
+import stylistic from '@stylistic/eslint-plugin'
+import compat from 'eslint-plugin-compat'
 import esx from 'eslint-plugin-es-x'
 import globals from 'globals'
 
-// Flat config (ESLint 9). neostandard is the maintained flat-config successor
-// to standard — same style rules, but (unlike `standard`) it supports plugins.
+// Flat config (ESLint 10). Built on ESLint's own recommended rules + @stylistic
+// for formatting — neostandard has no ESLint 10 release (it pins an @stylistic
+// that crashes on 10). Browser compatibility of the shipped source is enforced
+// two complementary ways: eslint-plugin-compat flags APIs/built-ins unsupported
+// by the .browserslistrc targets, and eslint-plugin-es-x rejects any syntax or
+// built-in newer than ES2022. There is no transpile step, so src/ must run
+// as-authored in the target browsers.
 export default defineConfig([
   globalIgnores(['dist/', 'coverage/', '**/*.d.ts']),
 
-  neostandard(),
+  js.configs.recommended,
+  stylistic.configs.recommended,
 
-  // Shipped library code must run in the browserslist floor (Chrome 109 /
-  // Safari 16 ≈ ES2022). es-x fails lint if src/ uses any syntax or built-in
-  // newer than ES2022, so we never ship something those browsers can't run —
-  // the guarantee Babel nominally provided, now enforced at the source. It
-  // covers the raw src/ that npm/Node consumers import, not just dist bundles.
-  // (eslint-plugin-compat was the wrong tool here — it only tracks Web/DOM
-  // APIs, which this library doesn't use.)
+  // Shipped library code runs in browsers (the browserslist floor).
   {
-    name: 'n2words/src-es2022-floor',
+    name: 'n2words/src-browser',
     files: ['src/**/*.js'],
-    extends: [esx.configs['flat/restrict-to-es2022']]
+    languageOptions: { globals: globals.browser },
+    extends: [
+      compat.configs['flat/recommended'],
+      esx.configs['flat/restrict-to-es2022'],
+    ],
   },
 
-  // Tooling, tests, and config files run on Node, not in browsers.
+  // Tooling, tests, and config files run on Node.
   {
     name: 'n2words/node-tooling',
     files: ['test/**/*.js', 'scripts/**/*.js', 'bench/**/*.js', '*.js'],
-    languageOptions: { globals: globals.node }
-  }
+    languageOptions: { globals: globals.node },
+  },
 ])

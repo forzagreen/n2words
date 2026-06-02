@@ -83,7 +83,7 @@ const HALALA_PLURAL_11 = 'هللة'
  * @param {string[]} ones - Gender-specific ones words (1-19)
  * @returns {string} The group rendered as words
  */
-function segmentToWords (groupNumber, groupLevel, fullNumber, ones) {
+function segmentToWords(groupNumber, groupLevel, fullNumber, ones) {
   const tensValue = groupNumber % 100
   const hundredsDigit = Math.trunc(groupNumber / 100)
   let result = ''
@@ -92,7 +92,8 @@ function segmentToWords (groupNumber, groupLevel, fullNumber, ones) {
   if (hundredsDigit > 0) {
     if (tensValue === 0 && hundredsDigit === 2) {
       result = DUAL[0]
-    } else {
+    }
+    else {
       const hundredsWord = HUNDREDS[hundredsDigit]
       if (hundredsWord) {
         result = hundredsWord
@@ -111,15 +112,19 @@ function segmentToWords (groupNumber, groupLevel, fullNumber, ones) {
         const pow = Math.trunc(Math.log10(numValue))
         if (pow % 3 === 0 && fullNumber === BigInt(2 * Math.pow(10, pow))) {
           result += (groupNumber === 2 ? DUAL[groupLevel] : DUAL_APPENDED[groupLevel])
-        } else {
+        }
+        else {
           result += DUAL[groupLevel]
         }
-      } else if (tensValue === 1 && groupLevel > 0) {
+      }
+      else if (tensValue === 1 && groupLevel > 0) {
         result += SCALE_WORDS[groupLevel]
-      } else {
+      }
+      else {
         result += ones[tensValue - 1]
       }
-    } else {
+    }
+    else {
       const onesDigit = tensValue % 10
       const tensIndex = Math.trunc(tensValue / 10) - 2
 
@@ -140,7 +145,7 @@ function segmentToWords (groupNumber, groupLevel, fullNumber, ones) {
  * @param {string} gender - 'masculine' or 'feminine'
  * @returns {string} The number rendered as words
  */
-function integerToWords (n, gender) {
+function integerToWords(n, gender) {
   if (n === 0n) return ZERO
 
   const ones = gender === 'feminine' ? ONES_FEM : ONES_MASC
@@ -164,9 +169,11 @@ function integerToWords (n, gender) {
           const remainder = numberToProcess % 100
           if (remainder === 1) {
             groupText += ' ' + SCALE_WORDS[group]
-          } else if (numberToProcess >= 3 && numberToProcess <= 10) {
+          }
+          else if (numberToProcess >= 3 && numberToProcess <= 10) {
             groupText += ' ' + SCALE_PLURAL[group]
-          } else {
+          }
+          else {
             groupText += ' ' + (groups.length > 0 ? SCALE_APPENDED[group] : SCALE_WORDS[group])
           }
         }
@@ -197,7 +204,7 @@ function integerToWords (n, gender) {
  * @param {string} gender - 'masculine' or 'feminine'
  * @returns {string} The decimal part rendered as words
  */
-function decimalPartToWords (decimalPart, gender) {
+function decimalPartToWords(decimalPart, gender) {
   const parts = []
   let i = 0
 
@@ -227,14 +234,14 @@ function decimalPartToWords (decimalPart, gender) {
  * toCardinal(1)                        // 'واحد'
  * toCardinal(1, {gender: 'feminine'})  // 'واحدة'
  */
-function toCardinal (value, options) {
+function toCardinal(value, options) {
   options = validateOptions(options)
   const { isNegative, integerPart, decimalPart } = parseCardinalValue(value)
 
   // Apply option defaults
   const {
     gender = 'masculine',
-    negativeWord = NEGATIVE
+    negativeWord = NEGATIVE,
   } = options
 
   const parts = []
@@ -266,7 +273,7 @@ function toCardinal (value, options) {
  * @param {string} gender - 'masculine' or 'feminine'
  * @returns {string} Arabic ordinal words
  */
-function integerToOrdinal (n, gender) {
+function integerToOrdinal(n, gender) {
   const ordinals = gender === 'feminine' ? ORDINAL_FEM : ORDINAL_MASC
 
   // Special ordinals for 1-10
@@ -294,7 +301,7 @@ function integerToOrdinal (n, gender) {
  * toOrdinal(1, {gender: 'feminine'})  // 'الأولى'
  * toOrdinal(3)                        // 'الثالث'
  */
-function toOrdinal (value, options) {
+function toOrdinal(value, options) {
   options = validateOptions(options)
   const integerPart = parseOrdinalValue(value)
   const { gender = 'masculine' } = options
@@ -317,7 +324,7 @@ function toOrdinal (value, options) {
  * @param {bigint} n - The riyal count
  * @returns {string} The appropriate riyal word form
  */
-function getRiyalForm (n) {
+function getRiyalForm(n) {
   if (n === 1n) return RIYAL_SINGULAR
   if (n === 2n) return RIYAL_DUAL
   if (n >= 3n && n <= 10n) return RIYAL_PLURAL_3_10
@@ -330,7 +337,7 @@ function getRiyalForm (n) {
  * @param {bigint} n - The halala count
  * @returns {string} The appropriate halala word form
  */
-function getHalalaForm (n) {
+function getHalalaForm(n) {
   if (n === 1n) return HALALA_SINGULAR
   if (n === 2n) return HALALA_DUAL
   if (n >= 3n && n <= 10n) return HALALA_PLURAL_3_10
@@ -350,7 +357,7 @@ function getHalalaForm (n) {
  * toCurrency(1)      // 'ريال واحد'
  * toCurrency(0.01)   // 'هللة واحدة'
  */
-function toCurrency (value) {
+function toCurrency(value) {
   const { isNegative, dollars: riyals, cents: halalas } = parseCurrencyValue(value)
 
   // Build result
@@ -362,9 +369,11 @@ function toCurrency (value) {
     // Special case for 1 and 2: currency word comes first
     if (riyals === 1n) {
       result += RIYAL_SINGULAR + ' ' + ONES_MASC[0]
-    } else if (riyals === 2n) {
+    }
+    else if (riyals === 2n) {
       result += RIYAL_DUAL
-    } else {
+    }
+    else {
       const riyalWord = integerToWords(riyals, 'masculine')
       result += riyalWord + ' ' + getRiyalForm(riyals)
     }
@@ -378,9 +387,11 @@ function toCurrency (value) {
     // Special case for 1 and 2: currency word comes first
     if (halalas === 1n) {
       result += HALALA_SINGULAR + ' ' + ONES_FEM[0]
-    } else if (halalas === 2n) {
+    }
+    else if (halalas === 2n) {
       result += HALALA_DUAL
-    } else {
+    }
+    else {
       const halalaWord = integerToWords(halalas, 'feminine')
       result += halalaWord + ' ' + getHalalaForm(halalas)
     }

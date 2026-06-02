@@ -23,7 +23,7 @@ const LANGUAGE_DIR = './src'
  *
  * @returns {string[]} Language codes (e.g., ['en-US', 'fr-FR', 'zh-Hans-CN'])
  */
-export function getLanguageCodes () {
+export function getLanguageCodes() {
   return readdirSync(LANGUAGE_DIR)
     .filter(file => file.endsWith('.js'))
     .map(file => file.replace('.js', ''))
@@ -33,7 +33,7 @@ export function getLanguageCodes () {
 const FORM_EXPORTS = {
   cardinal: 'toCardinal',
   ordinal: 'toOrdinal',
-  currency: 'toCurrency'
+  currency: 'toCurrency',
 }
 
 /**
@@ -45,17 +45,18 @@ const FORM_EXPORTS = {
  * @returns {Promise<Set<'cardinal'|'ordinal'|'currency'>>} Supported forms
  *   (empty if the module is missing or fails to import)
  */
-export async function getExportedForms (code) {
+export async function getExportedForms(code) {
   let mod
   try {
     mod = await import(`../../src/${code}.js`)
-  } catch {
+  }
+  catch {
     return new Set()
   }
 
   return new Set(
     Object.entries(FORM_EXPORTS)
       .filter(([, exportName]) => typeof mod[exportName] === 'function')
-      .map(([form]) => form)
+      .map(([form]) => form),
   )
 }

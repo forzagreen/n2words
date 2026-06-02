@@ -71,7 +71,7 @@ export const cardinal = [
   [4_000_000, 'četiri miliona'],
   [10_000_000_000_000, 'deset biliona'],
   [100_000_000_000_000, 'sto biliona'],
-  [1_000_000_000_000_000_000n, 'jedan trilion']
+  [1_000_000_000_000_000_000n, 'jedan trilion'],
 ]
 
 /**
@@ -133,7 +133,7 @@ export const ordinal = [
 
   // Larger numbers
   [1_000_000, 'milioniti'],
-  [2_000_000, 'dva milioniti']
+  [2_000_000, 'dva milioniti'],
 ]
 
 /**
@@ -182,5 +182,5 @@ export const currency = [
 
   // Edge cases
   [5.00, 'pet dinara'],
-  ['5.00', 'pet dinara']
+  ['5.00', 'pet dinara'],
 ]

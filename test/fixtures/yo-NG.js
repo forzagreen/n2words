@@ -118,7 +118,7 @@ export const cardinal = [
 
   // Decimals
   ['3.14', 'ẹ̀ta àmì ọ̀kan ẹ̀rin'],
-  ['0.5', 'òdo àmì àrùn']
+  ['0.5', 'òdo àmì àrùn'],
 ]
 
 /**
@@ -160,7 +160,7 @@ export const ordinal = [
 
   // Thousands
   [1000, 'ìkẹẹgbẹ̀rún kan'],
-  [1001, 'ìkẹẹgbẹ̀rún kan, ó lé ọ̀kan']
+  [1001, 'ìkẹẹgbẹ̀rún kan, ó lé ọ̀kan'],
 ]
 
 /**
@@ -199,5 +199,5 @@ export const currency = [
 
   // Edge cases
   [5.00, 'àrùn náírà'],
-  ['5.00', 'àrùn náírà']
+  ['5.00', 'àrùn náírà'],
 ]

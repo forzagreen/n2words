@@ -62,7 +62,7 @@ const CENT_FORMS = ['λεπτό', 'λεπτά'] // Singular, plural
  * @param {number} n - Number 0-999
  * @returns {string} Greek words for the segment
  */
-function buildSegment (n) {
+function buildSegment(n) {
   if (n === 0) return ''
 
   const ones = n % 10
@@ -81,13 +81,17 @@ function buildSegment (n) {
 
   if (tensOnes === 0) {
     // Just hundreds
-  } else if (tensOnes < 10) {
+  }
+  else if (tensOnes < 10) {
     parts.push(ONES[ones])
-  } else if (tensOnes < 20) {
+  }
+  else if (tensOnes < 20) {
     parts.push(TEENS[ones])
-  } else if (ones === 0) {
+  }
+  else if (ones === 0) {
     parts.push(TENS[tens])
-  } else {
+  }
+  else {
     parts.push(TENS[tens] + ' ' + ONES[ones])
   }
 
@@ -104,7 +108,7 @@ function buildSegment (n) {
  * @param {bigint} n - Non-negative integer to convert
  * @returns {string} Greek words
  */
-function integerToWords (n) {
+function integerToWords(n) {
   if (n === 0n) return ZERO
 
   // Fast path: numbers < 1000 (direct lookup)
@@ -121,7 +125,8 @@ function integerToWords (n) {
     let result
     if (thousands === 1) {
       result = THOUSAND
-    } else {
+    }
+    else {
       result = buildSegment(thousands) + ' ' + THOUSAND
     }
 
@@ -142,7 +147,7 @@ function integerToWords (n) {
  * @param {bigint} n - Number >= 1,000,000
  * @returns {string} Greek words
  */
-function buildLargeNumberWords (n) {
+function buildLargeNumberWords(n) {
   const numStr = n.toString()
   const len = numStr.length
 
@@ -174,19 +179,23 @@ function buildLargeNumberWords (n) {
       if (scaleIndex === 0) {
         // Units segment
         parts.push(segmentWord)
-      } else if (scaleIndex === 1) {
+      }
+      else if (scaleIndex === 1) {
         // Thousands - omit "ένα" before χίλια
         if (segment === 1) {
           parts.push(THOUSAND)
-        } else {
+        }
+        else {
           parts.push(segmentWord + ' ' + THOUSAND)
         }
-      } else {
+      }
+      else {
         // Millions+ - omit "ένα" before scale words
         const scaleWord = SCALES[scaleIndex - 2]
         if (segment === 1) {
           parts.push(scaleWord)
-        } else {
+        }
+        else {
           parts.push(segmentWord + ' ' + scaleWord)
         }
       }
@@ -204,14 +213,15 @@ function buildLargeNumberWords (n) {
  * @param {string} decimalPart - Decimal digits (without the point)
  * @returns {string} Greek words for decimal part
  */
-function decimalPartToWords (decimalPart) {
+function decimalPartToWords(decimalPart) {
   const parts = []
 
   for (const digit of decimalPart) {
     const d = parseInt(digit, 10)
     if (d === 0) {
       parts.push(ZERO)
-    } else {
+    }
+    else {
       parts.push(ONES[d])
     }
   }
@@ -232,7 +242,7 @@ function decimalPartToWords (decimalPart) {
  * toCardinal(1000)     // 'χίλια'
  * toCardinal('3.14')   // 'τρία κόμμα ένα τέσσερα'
  */
-function toCardinal (value) {
+function toCardinal(value) {
   const { isNegative, integerPart, decimalPart } = parseCardinalValue(value)
 
   let result = ''
@@ -260,7 +270,7 @@ function toCardinal (value) {
  * @param {number} n - Number 0-99
  * @returns {string} Ordinal word
  */
-function buildOrdinalTensOnes (n) {
+function buildOrdinalTensOnes(n) {
   if (n === 0) return ''
   if (n < 10) return ORDINAL_ONES[n]
   if (n < 20) return ORDINAL_TEENS[n - 10]
@@ -280,7 +290,7 @@ function buildOrdinalTensOnes (n) {
  * @param {bigint} n - Non-negative integer to convert
  * @returns {string} Greek ordinal words
  */
-function integerToOrdinal (n) {
+function integerToOrdinal(n) {
   if (n === 0n) return ''
   if (n === 1n) return ORDINAL_ONES[1]
 
@@ -316,7 +326,8 @@ function integerToOrdinal (n) {
     let result
     if (thousands === 1) {
       result = THOUSAND
-    } else {
+    }
+    else {
       result = buildSegment(thousands) + ' ' + THOUSAND
     }
 
@@ -348,7 +359,8 @@ function integerToOrdinal (n) {
   let result
   if (millions === 1) {
     result = SCALES[0]
-  } else {
+  }
+  else {
     result = buildSegment(millions) + ' ' + SCALES[0]
   }
 
@@ -367,7 +379,7 @@ function integerToOrdinal (n) {
  * toOrdinal(1)   // 'πρώτος'
  * toOrdinal(21)  // 'εικοστός πρώτος'
  */
-function toOrdinal (value) {
+function toOrdinal(value) {
   const n = parseOrdinalValue(value)
   return integerToOrdinal(n)
 }
@@ -388,7 +400,7 @@ function toOrdinal (value) {
  * toCurrency(1)     // 'ένα ευρώ'
  * toCurrency(2.50)  // 'δύο ευρώ πενήντα λεπτά'
  */
-function toCurrency (value) {
+function toCurrency(value) {
   const { isNegative, dollars, cents } = parseCurrencyValue(value)
 
   const parts = []

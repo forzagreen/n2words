@@ -24,7 +24,7 @@ import { parseOrdinalValue } from './utils/parse-ordinal.js'
 const ONES = ['', 'ɗaya', 'biyu', 'uku', 'huɗu', 'biyar', 'shida', 'bakwai', 'takwas', 'tara']
 const TEENS = ['goma', 'sha ɗaya', 'sha biyu', 'sha uku', 'sha huɗu', 'sha biyar', 'sha shida', 'sha bakwai', 'sha takwas', 'sha tara']
 // Arabic loanwords for tens
-const TENS = ['', '', 'ashirin', 'talatin', "arba'in", 'hamsin', 'sittin', "saba'in", 'tamanin', "tis'in"]
+const TENS = ['', '', 'ashirin', 'talatin', 'arba\'in', 'hamsin', 'sittin', 'saba\'in', 'tamanin', 'tis\'in']
 
 const HUNDRED = 'ɗari'
 const THOUSAND = 'dubu'
@@ -64,7 +64,7 @@ const KOBO = 'kobo'
  * @param {number} n - Integer segment value (0-999)
  * @returns {string}
  */
-function buildSegment (n) {
+function buildSegment(n) {
   if (n === 0) return ''
 
   const ones = n % 10
@@ -77,7 +77,8 @@ function buildSegment (n) {
   if (hundredsDigit > 0) {
     if (hundredsDigit === 1) {
       parts.push(HUNDRED)
-    } else {
+    }
+    else {
       // Reversed: multiplier + hundredWord
       parts.push(ONES[hundredsDigit] + ' ' + HUNDRED)
     }
@@ -88,20 +89,25 @@ function buildSegment (n) {
 
   if (tensOnes === 0) {
     // Just hundreds
-  } else if (tensOnes < 10) {
+  }
+  else if (tensOnes < 10) {
     // Single digit - with "da" connector if after hundreds
     if (hundredsDigit > 0) {
       parts.push('da ' + ONES[ones])
-    } else {
+    }
+    else {
       parts.push(ONES[ones])
     }
-  } else if (tensOnes < 20) {
+  }
+  else if (tensOnes < 20) {
     // Teens (10-19): "sha X"
     parts.push(TEENS[ones])
-  } else if (ones === 0) {
+  }
+  else if (ones === 0) {
     // Even tens (20, 30, 40, etc.)
     parts.push(TENS[tensDigit])
-  } else {
+  }
+  else {
     // Tens + ones with "da" connector
     parts.push(TENS[tensDigit] + ' da ' + ONES[ones])
   }
@@ -117,7 +123,7 @@ function buildSegment (n) {
  * @param {bigint} n - Non-negative integer value
  * @returns {string}
  */
-function integerToWords (n) {
+function integerToWords(n) {
   if (n === 0n) return ZERO
 
   if (n < 1000n) {
@@ -133,7 +139,7 @@ function integerToWords (n) {
  * @param {string} word - Word to test
  * @returns {boolean}
  */
-function isSingleDigit (word) {
+function isSingleDigit(word) {
   return ONES.slice(1).includes(word)
 }
 
@@ -141,7 +147,7 @@ function isSingleDigit (word) {
  * @param {bigint} n - Integer value of 1000 or greater
  * @returns {string}
  */
-function buildLargeNumberWords (n) {
+function buildLargeNumberWords(n) {
   const numStr = n.toString()
   const len = numStr.length
 
@@ -171,7 +177,8 @@ function buildLargeNumberWords (n) {
 
       if (scaleIndex === 0) {
         rawParts.push(buildSegment(segment))
-      } else {
+      }
+      else {
         rawParts.push(buildSegment(segment))
         rawParts.push(scaleWord)
       }
@@ -202,11 +209,12 @@ function buildLargeNumberWords (n) {
 
     // Determine if we need "da" connector
     // Use "da" when current is a single digit following a scale word
-    if (prevPart && isSingleDigit(part) &&
-        (prevPart === THOUSAND || prevPart === HUNDRED ||
-         SCALE_WORDS.includes(prevPart))) {
+    if (prevPart && isSingleDigit(part)
+      && (prevPart === THOUSAND || prevPart === HUNDRED
+        || SCALE_WORDS.includes(prevPart))) {
       result.push(' da ')
-    } else if (i > 0) {
+    }
+    else if (i > 0) {
       result.push(' ')
     }
 
@@ -220,7 +228,7 @@ function buildLargeNumberWords (n) {
  * @param {string} decimalPart - Digit string of the fractional part
  * @returns {string}
  */
-function decimalPartToWords (decimalPart) {
+function decimalPartToWords(decimalPart) {
   // Per-digit decimal reading
   const digits = []
   for (const char of decimalPart) {
@@ -236,7 +244,7 @@ function decimalPartToWords (decimalPart) {
  * @param {number | string | bigint} value - The numeric value to convert
  * @returns {string} The number in Hausa words
  */
-function toCardinal (value) {
+function toCardinal(value) {
   const { isNegative, integerPart, decimalPart } = parseCardinalValue(value)
 
   let result = ''
@@ -266,7 +274,7 @@ function toCardinal (value) {
  * @param {bigint} n - Positive integer to convert
  * @returns {string} Hausa ordinal words
  */
-function integerToOrdinal (n) {
+function integerToOrdinal(n) {
   // Special form for first
   if (n === 1n) return ORDINAL_FIRST
 
@@ -287,7 +295,7 @@ function integerToOrdinal (n) {
  * toOrdinal(2)    // 'na biyu'
  * toOrdinal(10)   // 'na goma'
  */
-function toOrdinal (value) {
+function toOrdinal(value) {
   const integerPart = parseOrdinalValue(value)
   return integerToOrdinal(integerPart)
 }
@@ -311,7 +319,7 @@ function toOrdinal (value) {
  * toCurrency(1.50)   // 'ɗaya naira da hamsin kobo'
  * toCurrency(-5)     // 'babu biyar naira'
  */
-function toCurrency (value) {
+function toCurrency(value) {
   const { isNegative, dollars: naira, cents: kobo } = parseCurrencyValue(value)
 
   let result = ''

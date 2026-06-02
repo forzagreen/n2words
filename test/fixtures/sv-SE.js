@@ -21,7 +21,7 @@ export const cardinal = [
   [2000, 'två tusen'],
   [1000000, 'en miljon'],
   [-5, 'minus fem'],
-  ['3.05', 'tre komma noll fem']
+  ['3.05', 'tre komma noll fem'],
 ]
 
 /**
@@ -61,7 +61,7 @@ export const ordinal = [
 
   // Thousands
   [1000, 'tusende'],
-  [1001, 'tusen och ettde']
+  [1001, 'tusen och ettde'],
 ]
 
 /**
@@ -100,5 +100,5 @@ export const currency = [
 
   // Edge cases
   [5.00, 'fem kronor'],
-  ['5.00', 'fem kronor']
+  ['5.00', 'fem kronor'],
 ]

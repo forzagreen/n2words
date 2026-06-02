@@ -25,7 +25,7 @@ import { getLanguageName } from '../test/helpers/language-naming.js'
 
 // Manual overrides for languages not in CLDR
 const LANGUAGE_NAME_OVERRIDES = {
-  'hbo-IL': 'Biblical Hebrew (Israel)'
+  'hbo-IL': 'Biblical Hebrew (Israel)',
 }
 
 /**
@@ -33,7 +33,7 @@ const LANGUAGE_NAME_OVERRIDES = {
  *
  * @returns {string[]} Sorted array of language codes
  */
-function getLanguageCodes () {
+function getLanguageCodes() {
   const files = readdirSync('./src', { withFileTypes: true })
 
   return files
@@ -49,7 +49,7 @@ function getLanguageCodes () {
  * @param {string} code Language code
  * @returns {string} Human-readable language name
  */
-function getDisplayName (code) {
+function getDisplayName(code) {
   if (LANGUAGE_NAME_OVERRIDES[code]) {
     return LANGUAGE_NAME_OVERRIDES[code]
   }
@@ -91,7 +91,7 @@ let optionsIndex = new Map()
  * @param {import('typescript').Type} propType
  * @returns {string}
  */
-function toDocType (checker, propType) {
+function toDocType(checker, propType) {
   // Optional props arrive as `T | undefined`; drop the undefined first.
   const type = propType.getNonNullableType()
   const parts = type.isUnion() ? type.types : [type]
@@ -113,7 +113,7 @@ function toDocType (checker, propType) {
  * @param {string} name
  * @returns {string|undefined}
  */
-function extractDefault (prop, name) {
+function extractDefault(prop, name) {
   const decl = prop.valueDeclaration ?? prop.declarations?.[0]
   if (!decl) return undefined
   const text = decl.getText(decl.getSourceFile())
@@ -130,7 +130,7 @@ function extractDefault (prop, name) {
  * @param {string[]} codes Language codes
  * @returns {Map<string, Map<string, OptionInfo[]>>}
  */
-function buildOptionsIndex (codes) {
+function buildOptionsIndex(codes) {
   const program = ts.createProgram(
     codes.map(code => `./src/${code}.js`),
     {
@@ -139,8 +139,8 @@ function buildOptionsIndex (codes) {
       noEmit: true,
       target: ts.ScriptTarget.ES2022,
       module: ts.ModuleKind.NodeNext,
-      moduleResolution: ts.ModuleResolutionKind.NodeNext
-    }
+      moduleResolution: ts.ModuleResolutionKind.NodeNext,
+    },
   )
   const checker = program.getTypeChecker()
   const index = new Map()
@@ -152,13 +152,13 @@ function buildOptionsIndex (codes) {
     }
     const byFunction = new Map()
 
-    ts.forEachChild(sourceFile, node => {
+    ts.forEachChild(sourceFile, (node) => {
       if (!ts.isFunctionDeclaration(node) || !node.name) return
       const fnName = node.name.text
       if (!(fnName in FORM_FUNCTIONS)) return
 
       const optionsParam = node.parameters.find(
-        p => ts.isIdentifier(p.name) && p.name.text === 'options'
+        p => ts.isIdentifier(p.name) && p.name.text === 'options',
       )
       if (!optionsParam) return
 
@@ -167,7 +167,7 @@ function buildOptionsIndex (codes) {
         type = type.types.find(t => !(t.flags & ts.TypeFlags.Undefined)) ?? type
       }
 
-      const options = (type.getProperties?.() ?? []).map(prop => {
+      const options = (type.getProperties?.() ?? []).map((prop) => {
         const name = prop.getName()
         const description = ts
           .displayPartsToString(prop.getDocumentationComment(checker))
@@ -179,7 +179,7 @@ function buildOptionsIndex (codes) {
           type: toDocType(checker, checker.getTypeOfSymbolAtLocation(prop, optionsParam)),
           defaultValue: extractDefault(prop, name),
           description,
-          form: FORM_FUNCTIONS[fnName]
+          form: FORM_FUNCTIONS[fnName],
         }
       })
 
@@ -199,7 +199,7 @@ function buildOptionsIndex (codes) {
  * @param {string} functionName Function to get options for
  * @returns {OptionInfo[]} Array of option info objects
  */
-function getOptionsForFunction (code, functionName) {
+function getOptionsForFunction(code, functionName) {
   return optionsIndex.get(code)?.get(functionName) ?? []
 }
 
@@ -209,7 +209,7 @@ function getOptionsForFunction (code, functionName) {
  * @param {string} code Language code
  * @returns {boolean} True if language has cardinal options
  */
-function hasCardinalOptions (code) {
+function hasCardinalOptions(code) {
   return getOptionsForFunction(code, 'toCardinal').length > 0
 }
 
@@ -219,7 +219,7 @@ function hasCardinalOptions (code) {
  * @param {string} code Language code
  * @returns {boolean} True if language has ordinal options
  */
-function hasOrdinalOptions (code) {
+function hasOrdinalOptions(code) {
   return getOptionsForFunction(code, 'toOrdinal').length > 0
 }
 
@@ -229,7 +229,7 @@ function hasOrdinalOptions (code) {
  * @param {string} code Language code
  * @returns {boolean} True if language has currency options
  */
-function hasCurrencyOptions (code) {
+function hasCurrencyOptions(code) {
   return getOptionsForFunction(code, 'toCurrency').length > 0
 }
 
@@ -243,7 +243,7 @@ function hasCurrencyOptions (code) {
  * @param {string} type JSDoc type
  * @returns {string} Formatted type
  */
-function formatType (type) {
+function formatType(type) {
   // Convert ('masculine'|'feminine') to 'masculine' \| 'feminine'
   if (type.startsWith('(') && type.endsWith(')')) {
     return type.slice(1, -1).replace(/\|/g, ' \\| ')
@@ -257,7 +257,7 @@ function formatType (type) {
  * @param {string[]} codes Language codes
  * @returns {Array<{language: string, code: string, cardinalOptions: OptionInfo[], ordinalOptions: OptionInfo[], currencyOptions: OptionInfo[]}>}
  */
-function collectOptionsByLanguage (codes) {
+function collectOptionsByLanguage(codes) {
   const result = []
 
   for (const code of codes) {
@@ -271,7 +271,7 @@ function collectOptionsByLanguage (codes) {
         code,
         cardinalOptions,
         ordinalOptions,
-        currencyOptions
+        currencyOptions,
       })
     }
   }
@@ -287,7 +287,7 @@ function collectOptionsByLanguage (codes) {
  * @param {string} code Language code
  * @returns {string} Anchor string (without #)
  */
-function getAnchor (language, code) {
+function getAnchor(language, code) {
   // Match GitHub's heading anchor algorithm:
   // lowercase, keep alphanumeric/unicode/hyphens/spaces, spaces to hyphens
   return `${language} (${code})`
@@ -302,10 +302,10 @@ function getAnchor (language, code) {
  * @param {OptionInfo[]} options Array of option info
  * @returns {string} Markdown table
  */
-function formatOptionsTable (options) {
+function formatOptionsTable(options) {
   const lines = [
     '|Option|Form|Type|Default|Description|',
-    '|------|----|----|-------|-----------|'
+    '|------|----|----|-------|-----------|',
   ]
   for (const opt of options) {
     const defaultStr = opt.defaultValue ? `\`${opt.defaultValue}\`` : '—'
@@ -321,7 +321,7 @@ function formatOptionsTable (options) {
  * @param {Map<string, Set<string>>} forms Code -> set of exported forms
  * @returns {string} Markdown content
  */
-function generateMarkdown (codes, forms) {
+function generateMarkdown(codes, forms) {
   const hasOrdinal = code => forms.get(code).has('ordinal')
   const hasCurrency = code => forms.get(code).has('currency')
 
@@ -339,7 +339,7 @@ function generateMarkdown (codes, forms) {
     optionAnchors.set(lang.code, getAnchor(lang.language, lang.code))
   }
 
-  const langRows = codes.map(code => {
+  const langRows = codes.map((code) => {
     const name = getDisplayName(code)
     const anchor = optionAnchors.get(code)
 
@@ -361,11 +361,11 @@ function generateMarkdown (codes, forms) {
   })
 
   // Generate per-language options sections with compact tables
-  const optionSections = optionsByLang.map(lang => {
+  const optionSections = optionsByLang.map((lang) => {
     const allOptions = [
       ...lang.cardinalOptions,
       ...lang.ordinalOptions,
-      ...lang.currencyOptions
+      ...lang.currencyOptions,
     ]
 
     return `### ${lang.language} (\`${lang.code}\`)\n\n${formatOptionsTable(allOptions)}`
@@ -420,10 +420,10 @@ ${optionSections.join('\n\n')}
 // Main
 // ============================================================================
 
-async function main () {
+async function main() {
   const codes = getLanguageCodes()
   const forms = new Map(
-    await Promise.all(codes.map(async code => [code, await getExportedForms(code)]))
+    await Promise.all(codes.map(async code => [code, await getExportedForms(code)])),
   )
   optionsIndex = buildOptionsIndex(codes)
   const markdown = generateMarkdown(codes, forms)

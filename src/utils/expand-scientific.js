@@ -16,7 +16,7 @@
  * expandScientificNotation("1.5e3")   // "1500"
  * expandScientificNotation("1e-3")    // "0.001"
  */
-export function expandScientificNotation (str) {
+export function expandScientificNotation(str) {
   let [mantissa, expStr] = str.toLowerCase().split('e')
   const exp = parseInt(expStr, 10)
 
@@ -36,9 +36,11 @@ export function expandScientificNotation (str) {
 
   if (newDotPosition >= digits.length) {
     return sign + digits + '0'.repeat(newDotPosition - digits.length)
-  } else if (newDotPosition <= 0) {
+  }
+  else if (newDotPosition <= 0) {
     return sign + '0.' + '0'.repeat(-newDotPosition) + digits
-  } else {
+  }
+  else {
     return sign + digits.slice(0, newDotPosition) + '.' + digits.slice(newDotPosition)
   }
 }
@@ -49,7 +51,7 @@ export function expandScientificNotation (str) {
  * @param {number} value - The number to convert
  * @returns {string} Decimal string representation
  */
-export function numberToString (value) {
+export function numberToString(value) {
   const str = value.toString()
   return hasScientificNotation(str) ? expandScientificNotation(str) : str
 }
@@ -60,6 +62,6 @@ export function numberToString (value) {
  * @param {string} str - String to check
  * @returns {boolean} True if string contains 'e' or 'E'
  */
-export function hasScientificNotation (str) {
+export function hasScientificNotation(str) {
   return str.includes('e') || str.includes('E')
 }

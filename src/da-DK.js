@@ -57,7 +57,7 @@ const ORDINAL_SPECIAL = {
   9: 'niende',
   10: 'tiende',
   11: 'ellevte',
-  12: 'tolvte'
+  12: 'tolvte',
 }
 
 // ============================================================================
@@ -78,7 +78,7 @@ const ORE = 'øre' // same singular and plural
  * @param {number} n - Integer in range 0-999
  * @returns {string} Danish words for the segment
  */
-function buildSegment (n) {
+function buildSegment(n) {
   if (n === 0) return ''
 
   const ones = n % 10
@@ -97,16 +97,20 @@ function buildSegment (n) {
 
   if (tensOnes === 0) {
     // Just hundreds
-  } else if (tensOnes < 10) {
+  }
+  else if (tensOnes < 10) {
     // Single digit
     parts.push(ONES[ones])
-  } else if (tensOnes < 20) {
+  }
+  else if (tensOnes < 20) {
     // Teens
     parts.push(TEENS[ones])
-  } else if (ones === 0) {
+  }
+  else if (ones === 0) {
     // Even tens
     parts.push(TENS[tens])
-  } else {
+  }
+  else {
     // Units-before-tens: "enogtyve", "treogfyrre"
     parts.push(ONES_VIGESIMAL[ones] + 'og' + TENS[tens])
   }
@@ -128,7 +132,7 @@ function buildSegment (n) {
  * @param {bigint} n - Non-negative integer to convert
  * @returns {string} Danish words
  */
-function integerToWords (n) {
+function integerToWords(n) {
   if (n === 0n) return ZERO
 
   // Fast path: numbers < 1000 (direct lookup)
@@ -162,7 +166,7 @@ function integerToWords (n) {
  * @param {bigint} n - Number >= 1,000,000
  * @returns {string} Danish words
  */
-function buildLargeNumberWords (n) {
+function buildLargeNumberWords(n) {
   const numStr = n.toString()
   const len = numStr.length
 
@@ -195,10 +199,12 @@ function buildLargeNumberWords (n) {
       if (scaleIndex === 0) {
         // Units segment
         parts.push({ word: segmentWord, type: 'units' })
-      } else if (scaleIndex === 1) {
+      }
+      else if (scaleIndex === 1) {
         // Thousands - compound form
         parts.push({ word: segmentWord + THOUSAND, type: 'thousand' })
-      } else {
+      }
+      else {
         // Millions+ - space-separated, use "en" for 1
         const scaleWord = SCALES[scaleIndex - 2]
         let numWord = segmentWord
@@ -225,7 +231,7 @@ function buildLargeNumberWords (n) {
  * @param {Array<{word: string, type: string}>} parts - Parts with type metadata
  * @returns {string} Joined string
  */
-function joinDanishParts (parts) {
+function joinDanishParts(parts) {
   if (parts.length === 0) return ZERO
   if (parts.length === 1) return parts[0].word
 
@@ -239,7 +245,8 @@ function joinDanishParts (parts) {
       // Thousands followed by units: add "e og"
       result.push(part.word + 'e og ' + nextPart.word)
       i++ // Skip the units part
-    } else if (part.type === 'million') {
+    }
+    else if (part.type === 'million') {
       if (result.length > 0) {
         result.push(' ')
       }
@@ -247,7 +254,8 @@ function joinDanishParts (parts) {
       if (nextPart) {
         result.push(' ')
       }
-    } else {
+    }
+    else {
       if (result.length > 0 && !result[result.length - 1].endsWith(' ')) {
         result.push(' ')
       }
@@ -264,7 +272,7 @@ function joinDanishParts (parts) {
  * @param {string} decimalPart - Decimal digits (without the point)
  * @returns {string} Danish words for decimal part
  */
-function decimalPartToWords (decimalPart) {
+function decimalPartToWords(decimalPart) {
   let result = ''
 
   // Handle leading zeros
@@ -298,7 +306,7 @@ function decimalPartToWords (decimalPart) {
  * toCardinal(1000)     // 'ettusind'
  * toCardinal(1000000)  // 'en millioner'
  */
-function toCardinal (value) {
+function toCardinal(value) {
   const { isNegative, integerPart, decimalPart } = parseCardinalValue(value)
 
   let result = ''
@@ -329,7 +337,7 @@ function toCardinal (value) {
  * @param {bigint} n - Positive integer to convert
  * @returns {string} Danish ordinal words
  */
-function integerToOrdinal (n) {
+function integerToOrdinal(n) {
   // Special forms for 1-12
   if (n >= 1n && n <= 12n) {
     return ORDINAL_SPECIAL[Number(n)]
@@ -353,7 +361,7 @@ function integerToOrdinal (n) {
  * toOrdinal(2)    // 'anden'
  * toOrdinal(21)   // 'enogtyvede'
  */
-function toOrdinal (value) {
+function toOrdinal(value) {
   const integerPart = parseOrdinalValue(value)
   return integerToOrdinal(integerPart)
 }
@@ -377,7 +385,7 @@ function toOrdinal (value) {
  * toCurrency(42)     // 'toogfyrre kroner'
  * toCurrency(1.50)   // 'en krone og halvtreds øre'
  */
-function toCurrency (value) {
+function toCurrency(value) {
   const { isNegative, dollars: kroner, cents: ore } = parseCurrencyValue(value)
 
   let result = ''
@@ -389,7 +397,8 @@ function toCurrency (value) {
   if (kroner > 0n || ore === 0n) {
     if (kroner === 1n) {
       result += 'en ' + KRONE
-    } else {
+    }
+    else {
       result += integerToWords(kroner) + ' ' + KRONER
     }
   }

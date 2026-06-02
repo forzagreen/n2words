@@ -93,10 +93,10 @@ export const cardinal = [
 
   // Combined large number test
   [
-    999_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000n +
-    123_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000n,
-    'nine hundred and ninety-nine vigintillion one hundred and twenty-three novemdecillion'
-  ]
+    999_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000n
+    + 123_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000n,
+    'nine hundred and ninety-nine vigintillion one hundred and twenty-three novemdecillion',
+  ],
 ]
 
 /**
@@ -185,7 +185,7 @@ export const ordinal = [
 
   // BigInt support
   [1_000_000_000_000_000_000n, 'one quintillionth'],
-  [1_000_000_000_000_000_000_000n, 'one sextillionth']
+  [1_000_000_000_000_000_000_000n, 'one sextillionth'],
 ]
 
 /**
@@ -239,5 +239,5 @@ export const currency = [
   ['0.99', 'ninety-nine pence'],
 
   // BigInt (whole pounds only)
-  [1000000000000n, 'one trillion pounds']
+  [1000000000000n, 'one trillion pounds'],
 ]

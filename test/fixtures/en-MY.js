@@ -18,7 +18,7 @@ export const cardinal = [
   [1001, 'one thousand and one'],
   [1000000, 'one million'],
   [-42, 'minus forty-two'],
-  [3.14, 'three point fourteen']
+  [3.14, 'three point fourteen'],
 ]
 
 export const ordinal = [
@@ -29,7 +29,7 @@ export const ordinal = [
   [42, 'forty-second'],
   [100, 'one hundredth'],
   [101, 'one hundred first'],
-  [1000, 'one thousandth']
+  [1000, 'one thousandth'],
 ]
 
 /**
@@ -47,5 +47,5 @@ export const currency = [
   [42.50, 'forty-two ringgit and fifty sen'],
   [-42.50, 'minus forty-two ringgit and fifty sen'],
   [42.50, 'forty-two ringgit fifty sen', { and: false }],
-  [5.00, 'five ringgit']
+  [5.00, 'five ringgit'],
 ]

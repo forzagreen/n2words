@@ -48,7 +48,7 @@ const ORDINAL_SPECIAL = {
   7: 'yeddinci',
   8: 'səkkizinci',
   9: 'doqquzuncu',
-  10: 'onuncu'
+  10: 'onuncu',
 }
 
 // ============================================================================
@@ -67,7 +67,7 @@ const QEPIK = 'qəpik' // subunit (100 qəpik = 1 manat)
  * @param {number} n - The segment value
  * @returns {string} The segment in words
  */
-function buildSegment (n) {
+function buildSegment(n) {
   if (n === 0) return ''
 
   const ones = n % 10
@@ -79,14 +79,16 @@ function buildSegment (n) {
   if (hundredsDigit > 0) {
     if (hundredsDigit === 1) {
       parts.push(HUNDRED)
-    } else {
+    }
+    else {
       parts.push(ONES[hundredsDigit] + ' ' + HUNDRED)
     }
   }
 
   if (tensDigit === 1) {
     parts.push(TEENS[ones])
-  } else {
+  }
+  else {
     if (tensDigit > 1) {
       parts.push(TENS[tensDigit])
     }
@@ -107,7 +109,7 @@ function buildSegment (n) {
  * @param {bigint} n - The integer value
  * @returns {string} The integer in words
  */
-function integerToWords (n) {
+function integerToWords(n) {
   if (n === 0n) return ZERO
 
   if (n < 1000n) {
@@ -122,7 +124,7 @@ function integerToWords (n) {
  * @param {bigint} n - The integer value
  * @returns {string} The number in words
  */
-function buildLargeNumberWords (n) {
+function buildLargeNumberWords(n) {
   const numStr = n.toString()
   const len = numStr.length
 
@@ -151,10 +153,12 @@ function buildLargeNumberWords (n) {
 
       if (scaleIndex === 0) {
         parts.push(buildSegment(segment))
-      } else if (scaleIndex === 1 && segment === 1) {
+      }
+      else if (scaleIndex === 1 && segment === 1) {
         // Omit "bir" before thousand
         parts.push(scaleWord)
-      } else {
+      }
+      else {
         parts.push(buildSegment(segment) + ' ' + scaleWord)
       }
     }
@@ -170,7 +174,7 @@ function buildLargeNumberWords (n) {
  * @param {string} decimalPart - The decimal digits as a string
  * @returns {string} The decimal part in words
  */
-function decimalPartToWords (decimalPart) {
+function decimalPartToWords(decimalPart) {
   let result = ''
   let i = 0
 
@@ -195,7 +199,7 @@ function decimalPartToWords (decimalPart) {
  * @param {number | string | bigint} value - The numeric value to convert
  * @returns {string} The number in Azerbaijani words
  */
-function toCardinal (value) {
+function toCardinal(value) {
   const { isNegative, integerPart, decimalPart } = parseCardinalValue(value)
 
   let result = ''
@@ -222,7 +226,7 @@ function toCardinal (value) {
  * @param {string} word - The cardinal word
  * @returns {string} The appropriate suffix
  */
-function getOrdinalSuffix (word) {
+function getOrdinalSuffix(word) {
   // Azerbaijani vowel harmony: back vowels (a,ı,o,u) vs front vowels (ə,e,i,ö,ü)
   const backVowels = 'aıou'
   const frontVowels = 'əeiöü'
@@ -253,7 +257,7 @@ function getOrdinalSuffix (word) {
  * @param {bigint} n - Positive integer to convert
  * @returns {string} Azerbaijani ordinal words
  */
-function integerToOrdinal (n) {
+function integerToOrdinal(n) {
   // Special forms for 1-10
   if (n >= 1n && n <= 10n) {
     return ORDINAL_SPECIAL[Number(n)]
@@ -278,7 +282,7 @@ function integerToOrdinal (n) {
  * toOrdinal(2)    // 'ikinci'
  * toOrdinal(21)   // 'iyirmibirinci'
  */
-function toOrdinal (value) {
+function toOrdinal(value) {
   const integerPart = parseOrdinalValue(value)
   return integerToOrdinal(integerPart)
 }
@@ -302,7 +306,7 @@ function toOrdinal (value) {
  * toCurrency(1.50)   // 'bir manat əlli qəpik'
  * toCurrency(-5)     // 'mənfi beş manat'
  */
-function toCurrency (value) {
+function toCurrency(value) {
   const { isNegative, dollars: manat, cents: qepik } = parseCurrencyValue(value)
 
   let result = ''

@@ -47,23 +47,27 @@ import { getCanonicalCode, getLanguageName, isInCLDR, isValidLanguageCode, norma
  * @param {string[]} args Command line arguments
  * @returns {{code: string|null, forms: Set<string>, help: boolean}}
  */
-function parseArgs (args) {
+function parseArgs(args) {
   const result = {
     code: null,
     forms: new Set(),
-    help: false
+    help: false,
   }
 
   for (const arg of args) {
     if (arg === '--help' || arg === '-h') {
       result.help = true
-    } else if (arg === '--cardinal') {
+    }
+    else if (arg === '--cardinal') {
       result.forms.add('cardinal')
-    } else if (arg === '--ordinal') {
+    }
+    else if (arg === '--ordinal') {
       result.forms.add('ordinal')
-    } else if (arg === '--currency') {
+    }
+    else if (arg === '--currency') {
       result.forms.add('currency')
-    } else if (!arg.startsWith('-')) {
+    }
+    else if (!arg.startsWith('-')) {
       result.code = arg
     }
   }
@@ -80,10 +84,10 @@ function parseArgs (args) {
  *
  * @returns {Promise<string|null>} Language code from user, or null if cancelled
  */
-async function promptForLanguageCode () {
+async function promptForLanguageCode() {
   const rl = readline.createInterface({
     input: process.stdin,
-    output: process.stdout
+    output: process.stdout,
   })
 
   try {
@@ -99,7 +103,8 @@ async function promptForLanguageCode () {
     }
 
     return trimmed
-  } finally {
+  }
+  finally {
     rl.close()
   }
 }
@@ -110,10 +115,10 @@ async function promptForLanguageCode () {
  * @param {string} code Language code
  * @returns {Promise<string|null>} Language name from user, or null if cancelled
  */
-async function promptForLanguageName (code) {
+async function promptForLanguageName(code) {
   const rl = readline.createInterface({
     input: process.stdin,
-    output: process.stdout
+    output: process.stdout,
   })
 
   try {
@@ -127,7 +132,8 @@ async function promptForLanguageName (code) {
     }
 
     return name.trim()
-  } finally {
+  }
+  finally {
     rl.close()
   }
 }
@@ -138,10 +144,10 @@ async function promptForLanguageName (code) {
  * @param {Set<string>} existingForms Forms already implemented
  * @returns {Promise<Set<string>>} Selected forms
  */
-async function promptForForms (existingForms) {
+async function promptForForms(existingForms) {
   const rl = readline.createInterface({
     input: process.stdin,
-    output: process.stdout
+    output: process.stdout,
   })
 
   const availableForms = ['cardinal', 'ordinal', 'currency'].filter(f => !existingForms.has(f))
@@ -181,7 +187,8 @@ async function promptForForms (existingForms) {
     }
 
     return selectedForms
-  } finally {
+  }
+  finally {
     rl.close()
   }
 }
@@ -196,7 +203,7 @@ async function promptForForms (existingForms) {
  * @param {string} code Language code
  * @returns {string} Function template
  */
-function generateCardinalFunction (code) {
+function generateCardinalFunction(code) {
   return `/**
  * Converts a numeric value to cardinal words.
  *
@@ -219,7 +226,7 @@ function toCardinal (value) {
  * @param {string} code Language code
  * @returns {string} Function template
  */
-function generateOrdinalFunction (code) {
+function generateOrdinalFunction(code) {
   return `/**
  * Converts a positive integer to ordinal words.
  *
@@ -242,7 +249,7 @@ function toOrdinal (value) {
  * @param {string} code Language code
  * @returns {string} Function template
  */
-function generateCurrencyFunction (code) {
+function generateCurrencyFunction(code) {
   return `/**
  * Converts a numeric value to currency words.
  *
@@ -269,23 +276,23 @@ function toCurrency (value, options) {
  * @param {Set<string>} forms Forms to include
  * @returns {string} File content
  */
-function generateLanguageFile (code, name, forms) {
+function generateLanguageFile(code, name, forms) {
   const hasCardinal = forms.has('cardinal')
   const hasOrdinal = forms.has('ordinal')
   const hasCurrency = forms.has('currency')
 
   const importLines = []
   if (hasCardinal) {
-    importLines.push("import { parseCardinalValue } from './utils/parse-cardinal.js'")
+    importLines.push('import { parseCardinalValue } from \'./utils/parse-cardinal.js\'')
   }
   if (hasCurrency) {
-    importLines.push("import { parseCurrencyValue } from './utils/parse-currency.js'")
+    importLines.push('import { parseCurrencyValue } from \'./utils/parse-currency.js\'')
   }
   if (hasOrdinal) {
-    importLines.push("import { parseOrdinalValue } from './utils/parse-ordinal.js'")
+    importLines.push('import { parseOrdinalValue } from \'./utils/parse-ordinal.js\'')
   }
   if (hasCurrency) {
-    importLines.push("import { validateOptions } from './utils/validate-options.js'")
+    importLines.push('import { validateOptions } from \'./utils/validate-options.js\'')
   }
   const imports = importLines.join('\n')
 
@@ -325,7 +332,7 @@ export { ${exports.join(', ')} }
  * @param {Set<string>} forms Forms to include
  * @returns {string} File content
  */
-function generateTestFixture (code, name, forms) {
+function generateTestFixture(code, name, forms) {
   const exports = []
 
   if (forms.has('cardinal')) {
@@ -380,7 +387,7 @@ export const currency = [
  * @param {string} code Language code
  * @param {Set<string>} newForms Forms to add
  */
-function addFormsToExistingFile (code, newForms) {
+function addFormsToExistingFile(code, newForms) {
   const filePath = `./src/${code}.js`
   let content = readFileSync(filePath, 'utf-8')
 
@@ -393,16 +400,16 @@ function addFormsToExistingFile (code, newForms) {
   // Add missing imports
   const newImports = []
   if (newForms.has('cardinal') && !content.includes('parse-cardinal.js')) {
-    newImports.push("import { parseCardinalValue } from './utils/parse-cardinal.js'")
+    newImports.push('import { parseCardinalValue } from \'./utils/parse-cardinal.js\'')
   }
   if (newForms.has('ordinal') && !content.includes('parse-ordinal.js')) {
-    newImports.push("import { parseOrdinalValue } from './utils/parse-ordinal.js'")
+    newImports.push('import { parseOrdinalValue } from \'./utils/parse-ordinal.js\'')
   }
   if (newForms.has('currency') && !content.includes('parse-currency.js')) {
-    newImports.push("import { parseCurrencyValue } from './utils/parse-currency.js'")
+    newImports.push('import { parseCurrencyValue } from \'./utils/parse-currency.js\'')
   }
   if (newForms.has('currency') && !content.includes('validate-options.js')) {
-    newImports.push("import { validateOptions } from './utils/validate-options.js'")
+    newImports.push('import { validateOptions } from \'./utils/validate-options.js\'')
   }
 
   if (newImports.length > 0) {
@@ -411,7 +418,8 @@ function addFormsToExistingFile (code, newForms) {
     if (lastImportIdx !== -1) {
       const endOfLine = content.indexOf('\n', lastImportIdx + 1)
       content = content.slice(0, endOfLine) + '\n' + newImports.join('\n') + content.slice(endOfLine)
-    } else {
+    }
+    else {
       // No existing imports — add at top
       content = newImports.join('\n') + '\n\n' + content
     }
@@ -456,7 +464,7 @@ function addFormsToExistingFile (code, newForms) {
  * @param {string} name Language name
  * @param {Set<string>} newForms Forms to add
  */
-function addFormsToExistingFixture (code, name, newForms) {
+function addFormsToExistingFixture(code, name, newForms) {
   const filePath = `./test/fixtures/${code}.js`
   let content = readFileSync(filePath, 'utf-8')
 
@@ -512,7 +520,7 @@ export const currency = [
 // Main
 // ============================================================================
 
-async function main () {
+async function main() {
   const { code: cliCode, forms: cliFlags, help } = parseArgs(process.argv.slice(2))
 
   if (help) {
@@ -581,7 +589,8 @@ async function main () {
       console.log(chalk.yellow('\nAll requested forms are already implemented.'))
       process.exit(0)
     }
-  } else {
+  }
+  else {
     // Interactive mode
     formsToScaffold = await promptForForms(existingForms)
     if (formsToScaffold.size === 0) {
@@ -618,7 +627,8 @@ async function main () {
     }
     writeFileSync(fixtureFilePath, generateTestFixture(code, languageName, formsToScaffold))
     console.log(chalk.green('✓ Created test fixture'))
-  } else {
+  }
+  else {
     // Add forms to existing files
     console.log(chalk.gray(`\nUpdating ${langFilePath}...`))
     addFormsToExistingFile(code, formsToScaffold)
@@ -642,7 +652,7 @@ async function main () {
   console.log(chalk.gray('3. Run: npm test  (runs the suite and builds types)'))
 }
 
-main().catch(err => {
+main().catch((err) => {
   console.error(chalk.red(err.message))
   process.exit(1)
 })

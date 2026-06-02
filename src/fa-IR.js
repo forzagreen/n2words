@@ -51,7 +51,7 @@ const ORDINAL_ONES = {
   6: 'ششم',
   7: 'هفتم',
   8: 'هشتم',
-  9: 'نهم'
+  9: 'نهم',
 }
 
 // ============================================================================
@@ -70,7 +70,7 @@ const RIAL = 'ریال'
  * @param {bigint} n - Non-negative integer to convert
  * @returns {string} Persian cardinal words
  */
-function integerToWords (n) {
+function integerToWords(n) {
   if (n === 0n) return ZERO
 
   // 1-9
@@ -138,7 +138,7 @@ function integerToWords (n) {
  * @param {string} decimalPart - The fractional digits as a string
  * @returns {string} Persian words for the decimal portion
  */
-function decimalPartToWords (decimalPart) {
+function decimalPartToWords(decimalPart) {
   let result = ''
   let i = 0
 
@@ -163,7 +163,7 @@ function decimalPartToWords (decimalPart) {
  * @param {number | string | bigint} value - The numeric value to convert
  * @returns {string} The number in Persian words
  */
-function toCardinal (value) {
+function toCardinal(value) {
   const { isNegative, integerPart, decimalPart } = parseCardinalValue(value)
 
   let result = ''
@@ -193,7 +193,7 @@ function toCardinal (value) {
  * @param {bigint} n - Positive integer to convert
  * @returns {string} Persian ordinal words
  */
-function integerToOrdinal (n) {
+function integerToOrdinal(n) {
   // Special forms for 1-9
   if (n >= 1n && n <= 9n) {
     return ORDINAL_ONES[Number(n)]
@@ -217,7 +217,7 @@ function integerToOrdinal (n) {
  * toOrdinal(2)    // 'دوم'
  * toOrdinal(10)   // 'دهم'
  */
-function toOrdinal (value) {
+function toOrdinal(value) {
   const integerPart = parseOrdinalValue(value)
   return integerToOrdinal(integerPart)
 }
@@ -242,7 +242,7 @@ function toOrdinal (value) {
  * toCurrency(1000)   // 'هزار ریال'
  * toCurrency(-5)     // 'منفى پنج ریال'
  */
-function toCurrency (value) {
+function toCurrency(value) {
   const { isNegative, dollars: rial } = parseCurrencyValue(value)
 
   let result = ''

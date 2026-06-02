@@ -83,7 +83,7 @@ export const cardinal = [
   [101, 'simtu viena', { gender: 'feminine' }],
   [102, 'simtu divas', { gender: 'feminine' }],
   [1001, 'tūkstotis viens', { gender: 'feminine' }],
-  [1002, 'tūkstotis divi', { gender: 'feminine' }]
+  [1002, 'tūkstotis divi', { gender: 'feminine' }],
 ]
 
 /**
@@ -128,7 +128,7 @@ export const ordinal = [
 
   // Millions
   [1000000, 'miljonais'],
-  [2000000, 'divi miljoni miljonais']
+  [2000000, 'divi miljoni miljonais'],
 ]
 
 /**
@@ -172,5 +172,5 @@ export const currency = [
 
   // Edge cases
   [5.00, 'pieci eiro'],
-  ['5.00', 'pieci eiro']
+  ['5.00', 'pieci eiro'],
 ]

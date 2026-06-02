@@ -42,7 +42,7 @@ const PLURAL_FORMS = {
   6: ['trilion', 'triliony', 'trilionů'], // 10^18
   7: ['triliarda', 'triliardy', 'triliard'], // 10^21
   8: ['kvadrilion', 'kvadriliony', 'kvadrilionů'], // 10^24
-  9: ['kvadriliarda', 'kvadriliardy', 'kvadriliard'] // 10^27
+  9: ['kvadriliarda', 'kvadriliardy', 'kvadriliard'], // 10^27
 }
 
 const ZERO = 'nula'
@@ -86,7 +86,7 @@ const HALER_FORMS = ['haléř', 'haléře', 'haléřů']
  * @param {number} n - Number 0-999
  * @returns {string} Czech words
  */
-function buildSegment (n) {
+function buildSegment(n) {
   if (n === 0) return ''
 
   const ones = n % 10
@@ -104,12 +104,14 @@ function buildSegment (n) {
   if (tens === 1) {
     // Teens
     parts.push(TEENS[ones])
-  } else if (tens >= 2) {
+  }
+  else if (tens >= 2) {
     parts.push(TENS[tens])
     if (ones > 0) {
       parts.push(ONES[ones])
     }
-  } else if (ones > 0) {
+  }
+  else if (ones > 0) {
     parts.push(ONES[ones])
   }
 
@@ -123,7 +125,7 @@ function buildSegment (n) {
  * @param {number} n - Number 0-999
  * @returns {string} Czech words
  */
-function buildSegmentWithHundreds (n) {
+function buildSegmentWithHundreds(n) {
   if (n === 0) return ''
 
   const ones = n % 10
@@ -140,12 +142,14 @@ function buildSegmentWithHundreds (n) {
   // Tens and ones use masculine form
   if (tens === 1) {
     parts.push(TEENS[ones])
-  } else if (tens >= 2) {
+  }
+  else if (tens >= 2) {
     parts.push(TENS[tens])
     if (ones > 0) {
       parts.push(ONES[ones]) // masculine
     }
-  } else if (ones > 0) {
+  }
+  else if (ones > 0) {
     parts.push(ONES[ones]) // masculine
   }
 
@@ -164,7 +168,7 @@ function buildSegmentWithHundreds (n) {
  * @param {string[]} forms - [singular, few, many]
  * @returns {string} The appropriate form
  */
-function pluralize (n, forms) {
+function pluralize(n, forms) {
   if (n === 1n) return forms[0]
 
   const lastDigit = n % 10n
@@ -185,12 +189,14 @@ function pluralize (n, forms) {
  * @param {bigint} integerPart - The integer part of the value
  * @returns {string} The decimal separator word
  */
-function getDecimalSeparator (integerPart) {
+function getDecimalSeparator(integerPart) {
   if (integerPart === 0n || integerPart === 1n) {
     return 'celá'
-  } else if (integerPart >= 2n && integerPart <= 4n) {
+  }
+  else if (integerPart >= 2n && integerPart <= 4n) {
     return 'celé'
-  } else {
+  }
+  else {
     return 'celých'
   }
 }
@@ -205,7 +211,7 @@ function getDecimalSeparator (integerPart) {
  * @param {bigint} n - Non-negative integer to convert
  * @returns {string} Czech words
  */
-function integerToWords (n) {
+function integerToWords(n) {
   if (n === 0n) return ZERO
 
   // Fast path: numbers < 1000
@@ -224,7 +230,8 @@ function integerToWords (n) {
     if (thousands === 1n) {
       // Omit "one" before tisíc
       result = scaleWord
-    } else {
+    }
+    else {
       result = buildSegment(Number(thousands)) + ' ' + scaleWord
     }
 
@@ -247,7 +254,7 @@ function integerToWords (n) {
  * @param {bigint} n - Number >= 1,000,000
  * @returns {string} Czech words
  */
-function buildLargeNumberWords (n) {
+function buildLargeNumberWords(n) {
   // Extract segments using BigInt division (faster than string slicing)
   // Segments stored least-significant first (index 0 = ones, 1 = thousands, etc.)
   const segmentValues = []
@@ -269,7 +276,8 @@ function buildLargeNumberWords (n) {
     if (i === 0) {
       // Units segment (no scale word) - use form with irregular hundreds
       result += buildSegmentWithHundreds(Number(segment))
-    } else {
+    }
+    else {
       // Scale word needed
       const forms = PLURAL_FORMS[i]
       if (forms) {
@@ -278,11 +286,13 @@ function buildLargeNumberWords (n) {
         if (segment === 1n) {
           // Omit "one" before scale words
           result += scaleWord
-        } else {
+        }
+        else {
           // Use masculine form for multiplier before scale words
           result += buildSegment(Number(segment)) + ' ' + scaleWord
         }
-      } else {
+      }
+      else {
         // Fallback for very large scales without defined forms
         result += buildSegment(Number(segment))
       }
@@ -298,7 +308,7 @@ function buildLargeNumberWords (n) {
  * @param {string} decimalPart - Decimal digits (without the point)
  * @returns {string} Czech words for decimal part
  */
-function decimalPartToWords (decimalPart) {
+function decimalPartToWords(decimalPart) {
   let result = ''
 
   // Handle leading zeros
@@ -336,7 +346,7 @@ function decimalPartToWords (decimalPart) {
  * toCardinal(2000)         // 'dva tisíce'
  * toCardinal(5000)         // 'pět tisíc'
  */
-function toCardinal (value) {
+function toCardinal(value) {
   const { isNegative, integerPart, decimalPart } = parseCardinalValue(value)
 
   let result = ''
@@ -365,7 +375,7 @@ function toCardinal (value) {
  * @param {number} n - Number 0-99
  * @returns {string} Ordinal words
  */
-function buildOrdinalTensOnes (n) {
+function buildOrdinalTensOnes(n) {
   if (n === 0) return ''
 
   const onesDigit = n % 10
@@ -392,7 +402,7 @@ function buildOrdinalTensOnes (n) {
  * @param {bigint} n - Positive integer to convert
  * @returns {string} Ordinal Czech words
  */
-function integerToOrdinal (n) {
+function integerToOrdinal(n) {
   if (n < 100n) {
     return buildOrdinalTensOnes(Number(n))
   }
@@ -434,7 +444,7 @@ function integerToOrdinal (n) {
  * @param {bigint} n - Number >= 1,000,000
  * @returns {string} Ordinal Czech words
  */
-function buildLargeOrdinal (n) {
+function buildLargeOrdinal(n) {
   const segmentValues = []
   let temp = n
   while (temp > 0n) {
@@ -460,23 +470,28 @@ function buildLargeOrdinal (n) {
     if (i === 0) {
       if (isLastNonZero) {
         parts.push(integerToOrdinal(segment))
-      } else {
+      }
+      else {
         parts.push(buildSegmentWithHundreds(Number(segment)))
       }
-    } else {
+    }
+    else {
       if (isLastNonZero) {
         if (segment === 1n) {
           parts.push(ORDINAL_SCALES[i - 1] || PLURAL_FORMS[i][0])
-        } else {
+        }
+        else {
           parts.push(buildSegment(Number(segment)) + ' ' + (ORDINAL_SCALES[i - 1] || PLURAL_FORMS[i][0]))
         }
-      } else {
+      }
+      else {
         const forms = PLURAL_FORMS[i]
         if (forms) {
           const scaleWord = pluralize(segment, forms)
           if (segment === 1n) {
             parts.push(scaleWord)
-          } else {
+          }
+          else {
             parts.push(buildSegment(Number(segment)) + ' ' + scaleWord)
           }
         }
@@ -502,7 +517,7 @@ function buildLargeOrdinal (n) {
  * toOrdinal(100)  // 'stý'
  * toOrdinal(1000) // 'tisící'
  */
-function toOrdinal (value) {
+function toOrdinal(value) {
   const integerPart = parseOrdinalValue(value)
   return integerToOrdinal(integerPart)
 }
@@ -525,7 +540,7 @@ function toOrdinal (value) {
  * toCurrency(1.50)   // 'jedna koruna padesát haléřů'
  * toCurrency(-5)     // 'mínus pět korun'
  */
-function toCurrency (value) {
+function toCurrency(value) {
   const { isNegative, dollars: koruny, cents: halere } = parseCurrencyValue(value)
 
   let result = ''

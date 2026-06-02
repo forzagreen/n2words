@@ -26,7 +26,7 @@ const SCALES = [
   'Quintillion', 'Sextillion', 'Septillion', 'Octillion',
   'Nonillion', 'Decillion', 'Undecillion', 'Duodecillion',
   'Tredecillion', 'Quattuordecillion', 'Sexdecillion',
-  'Septendecillion', 'Octodecillion', 'Novemdecillion', 'Vigintillion'
+  'Septendecillion', 'Octodecillion', 'Novemdecillion', 'Vigintillion',
 ]
 
 const HUNDRED = 'trăm'
@@ -63,7 +63,7 @@ const LAM = 'lăm' // 5 in tens position (25, 35, etc.)
  * @param {number} n - Integer in range 0-99
  * @returns {string} Vietnamese words
  */
-function buildBelowHundred (n) {
+function buildBelowHundred(n) {
   if (n === 0) return ONES[0]
   if (n < 10) return ONES[n]
 
@@ -92,7 +92,7 @@ function buildBelowHundred (n) {
  * @param {number} n - Integer in range 0-999
  * @returns {string} Vietnamese words
  */
-function buildSegment (n) {
+function buildSegment(n) {
   if (n === 0) return ''
 
   const hundreds = Math.trunc(n / 100)
@@ -111,10 +111,12 @@ function buildSegment (n) {
         result += ' ' + LE + ' '
         // Use "năm" not "lăm" after lẻ
         result += remainder === 5 ? 'năm' : ONES[remainder]
-      } else {
+      }
+      else {
         result = ONES[remainder]
       }
-    } else {
+    }
+    else {
       // 10-99 after hundreds
       if (result) result += ' '
       result += buildBelowHundred(remainder)
@@ -130,7 +132,7 @@ function buildSegment (n) {
  * @param {number} n - Integer in range 0-99
  * @returns {string} Vietnamese words
  */
-function buildLeSegment (n) {
+function buildLeSegment(n) {
   if (n === 0) return ''
   if (n < 10) {
     // Use "năm" not "lăm" after lẻ
@@ -149,7 +151,7 @@ function buildLeSegment (n) {
  * @param {bigint} n - Non-negative integer to convert
  * @returns {string} Vietnamese words
  */
-function integerToWords (n) {
+function integerToWords(n) {
   if (n === 0n) return ZERO
 
   // Fast path: numbers < 100
@@ -191,7 +193,7 @@ function integerToWords (n) {
  * @param {bigint} n - Number >= 1,000,000
  * @returns {string} Vietnamese words
  */
-function buildLargeNumberWords (n) {
+function buildLargeNumberWords(n) {
   const numStr = n.toString()
   const len = numStr.length
 
@@ -221,7 +223,8 @@ function buildLargeNumberWords (n) {
       if (words) {
         if (scaleIndex > 0) {
           parts.push(words + ' ' + SCALES[scaleIndex])
-        } else {
+        }
+        else {
           parts.push(words)
         }
       }
@@ -259,7 +262,7 @@ function buildLargeNumberWords (n) {
  * @param {string} decimalPart - Decimal digits (without the point)
  * @returns {string} Vietnamese words for decimal part
  */
-function decimalPartToWords (decimalPart) {
+function decimalPartToWords(decimalPart) {
   let result = ''
 
   // Handle leading zeros
@@ -296,7 +299,7 @@ function decimalPartToWords (decimalPart) {
  * toCardinal(101)          // 'một trăm lẻ một'
  * toCardinal(1000000)      // 'một triệu'
  */
-function toCardinal (value) {
+function toCardinal(value) {
   const { isNegative, integerPart, decimalPart } = parseCardinalValue(value)
 
   let result = ''
@@ -327,7 +330,7 @@ function toCardinal (value) {
  * @param {bigint} n - Positive integer to convert
  * @returns {string} Vietnamese ordinal words
  */
-function integerToOrdinal (n) {
+function integerToOrdinal(n) {
   // Special case: 1st is "thứ nhất"
   if (n === 1n) {
     return ORDINAL_PREFIX + ' ' + ORDINAL_ONE
@@ -350,7 +353,7 @@ function integerToOrdinal (n) {
  * toOrdinal(2)    // 'thứ hai'
  * toOrdinal(10)   // 'thứ mười'
  */
-function toOrdinal (value) {
+function toOrdinal(value) {
   const integerPart = parseOrdinalValue(value)
   return integerToOrdinal(integerPart)
 }
@@ -375,7 +378,7 @@ function toOrdinal (value) {
  * toCurrency(1000)   // 'một nghìn đồng'
  * toCurrency(-5)     // 'âm năm đồng'
  */
-function toCurrency (value) {
+function toCurrency(value) {
   const { isNegative, dollars: dong } = parseCurrencyValue(value)
 
   let result = ''

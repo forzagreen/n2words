@@ -78,7 +78,7 @@ const CURRENCY_CONNECTOR = 'con'
  * @param {boolean} feminine - Use feminine forms
  * @returns {string} Spanish word
  */
-function buildSegment (n, feminine) {
+function buildSegment(n, feminine) {
   if (n === 0) return ''
 
   // Special case: exact 100 is "cien" (no gender)
@@ -100,22 +100,27 @@ function buildSegment (n, feminine) {
   // Tens and ones
   if (tensOnes === 0) {
     // Just hundreds
-  } else if (tensOnes < 10) {
+  }
+  else if (tensOnes < 10) {
     // Single digit
     const onesArr = feminine ? ONES_FEM : ONES_MASC
     parts.push(onesArr[tensOnes])
-  } else if (tensOnes < 20) {
+  }
+  else if (tensOnes < 20) {
     // 10-19: teens
     parts.push(TEENS[ones])
-  } else if (tensOnes < 30) {
+  }
+  else if (tensOnes < 30) {
     // 20-29: special twenties
     const twentiesArr = feminine ? TWENTIES_FEM : TWENTIES_MASC
     parts.push(twentiesArr[ones])
-  } else {
+  }
+  else {
     // 30-99: tens y ones
     if (ones === 0) {
       parts.push(TENS[tens])
-    } else {
+    }
+    else {
       const onesArr = feminine ? ONES_FEM : ONES_MASC
       parts.push(TENS[tens] + ' y ' + onesArr[ones])
     }
@@ -135,7 +140,7 @@ function buildSegment (n, feminine) {
  * @param {boolean} feminine - Use feminine forms
  * @returns {string} Spanish words
  */
-function integerToWords (n, feminine) {
+function integerToWords(n, feminine) {
   if (n === 0n) return ZERO
 
   // Fast path: numbers < 1000
@@ -164,23 +169,28 @@ function integerToWords (n, feminine) {
     if (i === 0) {
       // Units segment - use requested gender
       result += buildSegment(Number(segment), feminine)
-    } else if (i === 1) {
+    }
+    else if (i === 1) {
       // Thousands: "mil" not "uno mil"
       if (segment === 1n) {
         result += SCALES[0]
-      } else {
+      }
+      else {
         result += buildSegment(Number(segment), false) + ' ' + SCALES[0]
       }
-    } else {
+    }
+    else {
       // Millions and above: "un millón", "dos millones", etc.
       const scaleIndex = i - 1 // SCALES[1] = millón, SCALES[2] = billón, etc.
       if (scaleIndex >= SCALES.length) {
         // Beyond our scale vocabulary
         result += buildSegment(Number(segment), false)
-      } else if (segment === 1n) {
+      }
+      else if (segment === 1n) {
         // "un millón" not "uno millón"
         result += 'un ' + SCALES[scaleIndex]
-      } else {
+      }
+      else {
         result += buildSegment(Number(segment), false) + ' ' + SCALES_PLURAL[scaleIndex]
       }
     }
@@ -196,7 +206,7 @@ function integerToWords (n, feminine) {
  * @param {boolean} feminine - Use feminine forms
  * @returns {string} Spanish words for decimal part
  */
-function decimalPartToWords (decimalPart, feminine) {
+function decimalPartToWords(decimalPart, feminine) {
   let result = ''
 
   // Handle leading zeros
@@ -232,7 +242,7 @@ function decimalPartToWords (decimalPart, feminine) {
  * toCardinal(21, {gender: 'feminine'})  // 'veintiuna'
  * toCardinal(1000000000)                // 'un billón'
  */
-function toCardinal (value, options) {
+function toCardinal(value, options) {
   options = validateOptions(options)
   const { isNegative, integerPart, decimalPart } = parseCardinalValue(value)
 
@@ -266,7 +276,7 @@ function toCardinal (value, options) {
  * @param {boolean} feminine - Use feminine forms
  * @returns {string} Spanish ordinal word
  */
-function buildOrdinalSegment (n, feminine) {
+function buildOrdinalSegment(n, feminine) {
   if (n === 0) return ''
 
   const ones = n % 10
@@ -283,7 +293,8 @@ function buildOrdinalSegment (n, feminine) {
   if (hundreds > 0) {
     if (hundreds === 1) {
       parts.push(hundredWord)
-    } else {
+    }
+    else {
       const prefixes = ['', '', 'du', 'tri', 'cuadri', 'quin', 'sex', 'septi', 'octi', 'noni']
       parts.push(prefixes[hundreds] + hundredWord)
     }
@@ -309,7 +320,7 @@ function buildOrdinalSegment (n, feminine) {
  * @param {boolean} feminine - Use feminine forms
  * @returns {string} Spanish ordinal words
  */
-function integerToOrdinal (n, feminine) {
+function integerToOrdinal(n, feminine) {
   const thousandWord = feminine ? ORDINAL_THOUSAND_FEM : ORDINAL_THOUSAND_MASC
   const millionWord = feminine ? ORDINAL_MILLION_FEM : ORDINAL_MILLION_MASC
 
@@ -323,11 +334,12 @@ function integerToOrdinal (n, feminine) {
     const thousands = Number(n / 1000n)
     const remainder = Number(n % 1000n)
 
-    let result = ''
+    let result
 
     if (thousands === 1) {
       result = thousandWord
-    } else {
+    }
+    else {
       result = buildOrdinalSegment(thousands, feminine) + ' ' + thousandWord
     }
 
@@ -342,11 +354,12 @@ function integerToOrdinal (n, feminine) {
   const millions = Number(n / 1_000_000n)
   const remainder = n % 1_000_000n
 
-  let result = ''
+  let result
 
   if (millions === 1) {
     result = millionWord
-  } else {
+  }
+  else {
     result = buildOrdinalSegment(millions, feminine) + ' ' + millionWord
   }
 
@@ -372,7 +385,7 @@ function integerToOrdinal (n, feminine) {
  * toOrdinal(1, { gender: 'feminine' })  // 'primera'
  * toOrdinal(21)                         // 'vigésimo primero'
  */
-function toOrdinal (value, options) {
+function toOrdinal(value, options) {
   options = validateOptions(options)
   const integerPart = parseOrdinalValue(value)
 
@@ -405,7 +418,7 @@ function toOrdinal (value, options) {
  * toCurrency(0.99)                   // 'noventa y nueve centavos'
  * toCurrency(42.50, { and: false })  // 'cuarenta y dos dólares cincuenta centavos'
  */
-function toCurrency (value, options) {
+function toCurrency(value, options) {
   options = validateOptions(options)
   const { isNegative, dollars, cents: centavos } = parseCurrencyValue(value)
   const { and: useAnd = true } = options
@@ -418,7 +431,8 @@ function toCurrency (value, options) {
     // Use masculine for dollars, but "un dólar" not "uno dólar"
     if (dollars === 1n) {
       result += 'un ' + DOLAR
-    } else {
+    }
+    else {
       result += integerToWords(dollars, false) + ' ' + DOLARES
     }
   }
@@ -431,7 +445,8 @@ function toCurrency (value, options) {
     // Use masculine for centavos, but "un centavo" not "uno centavo"
     if (centavos === 1n) {
       result += 'un ' + CENTAVO
-    } else {
+    }
+    else {
       result += integerToWords(centavos, false) + ' ' + CENTAVOS
     }
   }

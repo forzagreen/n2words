@@ -52,7 +52,7 @@ const ORDINAL_ONES = {
   9: 'nionde',
   10: 'tionde',
   11: 'elfte',
-  12: 'tolfte'
+  12: 'tolfte',
 }
 
 // ============================================================================
@@ -73,7 +73,7 @@ const ORE = 'öre' // same singular and plural
  *
  * @param {number} n - Integer in range 0-999
  */
-function buildSegment (n) {
+function buildSegment(n) {
   if (n === 0) return { word: '', hasHundred: false, lessThan100: false }
 
   const ones = n % 10
@@ -88,7 +88,8 @@ function buildSegment (n) {
     hasHundred = true
     if (hundreds === 1) {
       parts.push(HUNDRED)
-    } else {
+    }
+    else {
       parts.push(ONES[hundreds] + ' ' + HUNDRED)
     }
   }
@@ -97,22 +98,27 @@ function buildSegment (n) {
   let tensOnesWord = ''
   if (tens === 1) {
     tensOnesWord = TEENS[ones]
-  } else if (tens >= 2) {
+  }
+  else if (tens >= 2) {
     if (ones > 0) {
       tensOnesWord = TENS[tens] + '-' + ONES[ones]
-    } else {
+    }
+    else {
       tensOnesWord = TENS[tens]
     }
-  } else if (ones > 0) {
+  }
+  else if (ones > 0) {
     tensOnesWord = ONES[ones]
   }
 
   // Combine with "och" after hundreds if there's a remainder
   if (hasHundred && tensOnesWord) {
     return { word: parts[0] + ' och ' + tensOnesWord, hasHundred: true, lessThan100: false }
-  } else if (hasHundred) {
+  }
+  else if (hasHundred) {
     return { word: parts[0], hasHundred: true, lessThan100: false }
-  } else {
+  }
+  else {
     return { word: tensOnesWord, hasHundred: false, lessThan100: true }
   }
 }
@@ -127,7 +133,7 @@ function buildSegment (n) {
  * @param {bigint} n - Non-negative integer to convert
  * @returns {string} Swedish words
  */
-function integerToWords (n) {
+function integerToWords(n) {
   if (n === 0n) return ZERO
 
   // Fast path: numbers < 1000
@@ -148,7 +154,8 @@ function integerToWords (n) {
       // Insert "och" if remainder < 100 (doesn't have hundred)
       if (remainderResult.lessThan100) {
         result += ' och ' + remainderResult.word
-      } else {
+      }
+      else {
         result += ' ' + remainderResult.word
       }
     }
@@ -166,7 +173,7 @@ function integerToWords (n) {
  * @param {bigint} n - Number >= 1,000,000
  * @returns {string} Swedish words
  */
-function buildLargeNumberWords (n) {
+function buildLargeNumberWords(n) {
   const numStr = n.toString()
   const len = numStr.length
 
@@ -200,9 +207,10 @@ function buildLargeNumberWords (n) {
         parts.push({
           word: segmentResult.word,
           hasHundred: segmentResult.hasHundred,
-          isScale: false
+          isScale: false,
         })
-      } else {
+      }
+      else {
         // Segment with scale word
         const scaleWord = SCALES[scaleIndex - 1]
 
@@ -211,10 +219,12 @@ function buildLargeNumberWords (n) {
           // Omit "ett" before tusen, use "en" before million+
           if (scaleIndex === 1) {
             segmentWord = '' // Just "tusen"
-          } else {
+          }
+          else {
             segmentWord = 'en' // "en miljon"
           }
-        } else {
+        }
+        else {
           segmentWord = segmentResult.word
         }
 
@@ -239,7 +249,7 @@ function buildLargeNumberWords (n) {
  * @param {Array<{word: string, hasHundred: boolean, isScale: boolean}>} parts - Parts with metadata
  * @returns {string} Joined string
  */
-function joinSwedishParts (parts) {
+function joinSwedishParts(parts) {
   if (parts.length === 0) return ZERO
   if (parts.length === 1) return parts[0].word
 
@@ -269,7 +279,7 @@ function joinSwedishParts (parts) {
  * @param {string} decimalPart - Decimal digits (without the point)
  * @returns {string} Swedish words for decimal part
  */
-function decimalPartToWords (decimalPart) {
+function decimalPartToWords(decimalPart) {
   let result = ''
 
   // Handle leading zeros
@@ -303,7 +313,7 @@ function decimalPartToWords (decimalPart) {
  * toCardinal(101)      // 'hundra och ett'
  * toCardinal(1000000)  // 'en miljon'
  */
-function toCardinal (value) {
+function toCardinal(value) {
   const { isNegative, integerPart, decimalPart } = parseCardinalValue(value)
 
   let result = ''
@@ -334,7 +344,7 @@ function toCardinal (value) {
  * @param {bigint} n - Positive integer to convert
  * @returns {string} Swedish ordinal words
  */
-function integerToOrdinal (n) {
+function integerToOrdinal(n) {
   // Special forms for 1-12
   if (n >= 1n && n <= 12n) {
     return ORDINAL_ONES[Number(n)]
@@ -362,7 +372,7 @@ function integerToOrdinal (n) {
  * toOrdinal(2)    // 'andra'
  * toOrdinal(21)   // 'tjugo-ettde'
  */
-function toOrdinal (value) {
+function toOrdinal(value) {
   const integerPart = parseOrdinalValue(value)
   return integerToOrdinal(integerPart)
 }
@@ -386,7 +396,7 @@ function toOrdinal (value) {
  * toCurrency(42)     // 'fyrtio-två kronor'
  * toCurrency(1.50)   // 'en krona och femtio öre'
  */
-function toCurrency (value) {
+function toCurrency(value) {
   const { isNegative, dollars: kronor, cents: ore } = parseCurrencyValue(value)
 
   let result = ''
@@ -399,7 +409,8 @@ function toCurrency (value) {
     // Use "en" for 1 krona (not "ett")
     if (kronor === 1n) {
       result += 'en ' + KRONA
-    } else {
+    }
+    else {
       result += integerToWords(kronor) + ' ' + KRONOR
     }
   }

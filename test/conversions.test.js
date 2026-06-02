@@ -35,7 +35,7 @@ const FORMS = {
     allowOptions: true,
     inputValidator: isValidCardinalInput,
     inputDescription: 'valid cardinal value',
-    errorCases: null // No standard error cases for cardinal
+    errorCases: null, // No standard error cases for cardinal
   },
   ordinal: {
     functionName: 'toOrdinal',
@@ -45,16 +45,16 @@ const FORMS = {
     errorCases: [
       { input: 0, error: RangeError, desc: 'toOrdinal(0) should throw RangeError' },
       { input: -1, error: RangeError, desc: 'toOrdinal(-1) should throw RangeError' },
-      { input: 1.5, error: RangeError, desc: 'toOrdinal(1.5) should throw RangeError' }
-    ]
+      { input: 1.5, error: RangeError, desc: 'toOrdinal(1.5) should throw RangeError' },
+    ],
   },
   currency: {
     functionName: 'toCurrency',
     allowOptions: true,
     inputValidator: isValidCardinalInput,
     inputDescription: 'valid currency value',
-    errorCases: null
-  }
+    errorCases: null,
+  },
 }
 
 // ============================================================================
@@ -69,7 +69,7 @@ const FORMS = {
  * @param {Object} [options] Options object
  * @returns {string} Canonical key
  */
-function getInputKey (input, options) {
+function getInputKey(input, options) {
   // Normalize to string representation of the number
   const numStr = typeof input === 'bigint' ? input.toString() : String(input)
   // Include options in key to allow same input with different options
@@ -98,21 +98,21 @@ function getInputKey (input, options) {
  * @param {boolean} config.allowOptions Whether options are allowed
  * @returns {{valid: boolean, error?: string, warnings?: string[]}} Validation result
  */
-function validateFixture (testCases, languageCode, form, config) {
+function validateFixture(testCases, languageCode, form, config) {
   const { inputValidator, inputDescription, allowOptions = true } = config
   const warnings = []
 
   if (!Array.isArray(testCases)) {
     return {
       valid: false,
-      error: `Invalid ${form} fixture for ${languageCode}: expected array, got ${typeof testCases}`
+      error: `Invalid ${form} fixture for ${languageCode}: expected array, got ${typeof testCases}`,
     }
   }
 
   if (testCases.length === 0) {
     return {
       valid: false,
-      error: `Empty ${form} fixture for ${languageCode}: must contain at least one test case`
+      error: `Empty ${form} fixture for ${languageCode}: must contain at least one test case`,
     }
   }
 
@@ -125,7 +125,7 @@ function validateFixture (testCases, languageCode, form, config) {
     if (!Array.isArray(testCase)) {
       return {
         valid: false,
-        error: `Invalid test case at index ${i} in ${languageCode} ${form}: expected array, got ${typeof testCase}`
+        error: `Invalid test case at index ${i} in ${languageCode} ${form}: expected array, got ${typeof testCase}`,
       }
     }
 
@@ -135,7 +135,7 @@ function validateFixture (testCases, languageCode, form, config) {
     if (testCase.length < minElements || testCase.length > maxElements) {
       return {
         valid: false,
-        error: `Invalid test case at index ${i} in ${languageCode} ${form}: expected ${minElements}-${maxElements} elements, got ${testCase.length}`
+        error: `Invalid test case at index ${i} in ${languageCode} ${form}: expected ${minElements}-${maxElements} elements, got ${testCase.length}`,
       }
     }
 
@@ -145,7 +145,7 @@ function validateFixture (testCases, languageCode, form, config) {
     if (!inputValidator(input)) {
       return {
         valid: false,
-        error: `Invalid input at index ${i} in ${languageCode} ${form}: expected ${inputDescription}, got ${safeStringify(input)}`
+        error: `Invalid input at index ${i} in ${languageCode} ${form}: expected ${inputDescription}, got ${safeStringify(input)}`,
       }
     }
 
@@ -153,14 +153,14 @@ function validateFixture (testCases, languageCode, form, config) {
     if (typeof expected !== 'string') {
       return {
         valid: false,
-        error: `Invalid expected output at index ${i} in ${languageCode} ${form}: expected string, got ${typeof expected}`
+        error: `Invalid expected output at index ${i} in ${languageCode} ${form}: expected string, got ${typeof expected}`,
       }
     }
 
     if (expected.length === 0) {
       return {
         valid: false,
-        error: `Empty expected output at index ${i} in ${languageCode} ${form}: expected non-empty string`
+        error: `Empty expected output at index ${i} in ${languageCode} ${form}: expected non-empty string`,
       }
     }
 
@@ -169,14 +169,14 @@ function validateFixture (testCases, languageCode, form, config) {
       if (!isPlainObject(options)) {
         return {
           valid: false,
-          error: `Invalid options at index ${i} in ${languageCode} ${form}: expected plain object, got ${typeof options}`
+          error: `Invalid options at index ${i} in ${languageCode} ${form}: expected plain object, got ${typeof options}`,
         }
       }
 
       if (Object.keys(options).length === 0) {
         return {
           valid: false,
-          error: `Empty options object at index ${i} in ${languageCode} ${form}: use undefined instead of {}`
+          error: `Empty options object at index ${i} in ${languageCode} ${form}: use undefined instead of {}`,
         }
       }
     }
@@ -189,14 +189,16 @@ function validateFixture (testCases, languageCode, form, config) {
       if (existing.expected === expected) {
         // Exact duplicate - warning (redundant but not incorrect)
         warnings.push(`Duplicate test case at index ${i} in ${languageCode} ${form}: same as index ${existing.index}`)
-      } else {
+      }
+      else {
         // Conflict - same input, different expected output
         return {
           valid: false,
-          error: `Conflicting test cases in ${languageCode} ${form}: index ${existing.index} expects "${existing.expected}" but index ${i} expects "${expected}" for input ${safeStringify(input)}`
+          error: `Conflicting test cases in ${languageCode} ${form}: index ${existing.index} expects "${existing.expected}" but index ${i} expects "${expected}" for input ${safeStringify(input)}`,
         }
       }
-    } else {
+    }
+    else {
       seenInputs.set(key, { index: i, expected })
     }
   }
@@ -215,7 +217,7 @@ function validateFixture (testCases, languageCode, form, config) {
  * @param {string} functionName Function name to find
  * @returns {string|null} JSDoc block or null if not found
  */
-function getJSDocForFunction (content, functionName) {
+function getJSDocForFunction(content, functionName) {
   const funcPattern = new RegExp(`function\\s+${functionName}\\s*\\(`)
   const funcMatch = funcPattern.exec(content)
   if (!funcMatch) return null
@@ -238,7 +240,7 @@ function getJSDocForFunction (content, functionName) {
  * @param {string} functionName Function name for error messages
  * @returns {{valid: boolean, errors: string[]}} Validation result
  */
-function validateJSDoc (jsdoc, functionName) {
+function validateJSDoc(jsdoc, functionName) {
   const errors = []
 
   if (!jsdoc) {
@@ -271,7 +273,7 @@ function validateJSDoc (jsdoc, functionName) {
  * @param {Array} testCases Test cases
  * @param {string} form Form name for error messages
  */
-function runTestCases (t, fn, testCases, form) {
+function runTestCases(t, fn, testCases, form) {
   for (let i = 0; i < testCases.length; i++) {
     const [input, expected, options] = testCases[i]
 
@@ -281,13 +283,14 @@ function runTestCases (t, fn, testCases, form) {
       t.is(actual, expected,
         `${form} case ${i + 1}/${testCases.length}: ${safeStringify(input)}${
           options ? ` with ${safeStringify(options)}` : ''
-        }`
+        }`,
       )
-    } catch (error) {
+    }
+    catch (error) {
       t.fail(
-        `${form} case ${i + 1}/${testCases.length} threw: ${error.message}\n` +
-        `Input: ${safeStringify(input)}\n` +
-        `Expected: ${expected}`
+        `${form} case ${i + 1}/${testCases.length} threw: ${error.message}\n`
+        + `Input: ${safeStringify(input)}\n`
+        + `Expected: ${expected}`,
       )
     }
   }
@@ -302,7 +305,7 @@ const fixtureFiles = readdirSync('./test/fixtures').filter(f => f.endsWith('.js'
 for (const file of fixtureFiles) {
   const languageCode = file.replace('.js', '')
 
-  test(languageCode, async t => {
+  test(languageCode, async (t) => {
     // Import modules
     const languageModule = await import('../src/' + file)
     const fixtureModule = await import('./fixtures/' + file)
@@ -314,7 +317,7 @@ for (const file of fixtureFiles) {
 
     t.true(
       isValidLanguageCode(languageCode),
-      `${languageCode} should be a valid BCP 47 tag`
+      `${languageCode} should be a valid BCP 47 tag`,
     )
 
     // ========================================================================
@@ -415,7 +418,7 @@ for (const file of fixtureFiles) {
 // Structural Tests
 // ============================================================================
 
-test('all language files have test fixtures', t => {
+test('all language files have test fixtures', (t) => {
   const languageFiles = readdirSync('./src')
     .filter(f => f.endsWith('.js') && !f.startsWith('utils'))
 
@@ -423,7 +426,7 @@ test('all language files have test fixtures', t => {
   t.deepEqual(missingFixtures, [], `Missing test fixtures for: ${missingFixtures.join(', ')}`)
 })
 
-test('all fixture files have language modules', t => {
+test('all fixture files have language modules', (t) => {
   const languageFiles = readdirSync('./src')
     .filter(f => f.endsWith('.js') && !f.startsWith('utils'))
 
@@ -431,7 +434,7 @@ test('all fixture files have language modules', t => {
   t.deepEqual(missingModules, [], `Fixture files without language modules: ${missingModules.join(', ')}`)
 })
 
-test('all language files use valid BCP 47 codes', t => {
+test('all language files use valid BCP 47 codes', (t) => {
   const languageFiles = readdirSync('./src')
     .filter(f => f.endsWith('.js') && !f.startsWith('utils'))
     .map(f => f.replace('.js', ''))

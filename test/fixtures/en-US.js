@@ -93,9 +93,9 @@ export const cardinal = [
 
   // Combined large number test
   [
-    999_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000n +
-    123_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000n,
-    'nine hundred ninety-nine vigintillion one hundred twenty-three novemdecillion'
+    999_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000n
+    + 123_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000n,
+    'nine hundred ninety-nine vigintillion one hundred twenty-three novemdecillion',
   ],
 
   // Hundred-pairing option (colloquial American English)
@@ -125,7 +125,7 @@ export const cardinal = [
 
   // Combined "and" with hundred-pairing
   [1501, 'fifteen hundred and one', { and: true, hundredPairing: true }],
-  [1523, 'fifteen hundred and twenty-three', { and: true, hundredPairing: true }]
+  [1523, 'fifteen hundred and twenty-three', { and: true, hundredPairing: true }],
 ]
 
 /**
@@ -179,7 +179,7 @@ export const currency = [
   ['0.99', 'ninety-nine cents'],
 
   // BigInt (whole dollars only)
-  [1000000000000n, 'one trillion dollars']
+  [1000000000000n, 'one trillion dollars'],
 ]
 
 /**
@@ -268,5 +268,5 @@ export const ordinal = [
 
   // BigInt support
   [1_000_000_000_000_000_000n, 'one quintillionth'],
-  [1_000_000_000_000_000_000_000n, 'one sextillionth']
+  [1_000_000_000_000_000_000_000n, 'one sextillionth'],
 ]

@@ -47,7 +47,7 @@ const config = {
     initCount: 1, // Initial iterations per cycle
     maxTime: 0.5, // Max time per benchmark (seconds) [default: 5]
     minSamples: 10, // Minimum sample runs [default: 5]
-    minTime: 0 // Min time to reduce uncertainty to 1% (seconds)
+    minTime: 0, // Min time to reduce uncertainty to 1% (seconds)
   },
 
   // Performance benchmark --full mode (Benchmark.js defaults)
@@ -58,7 +58,7 @@ const config = {
     initCount: 1, // Initial iterations per cycle
     maxTime: 5, // Max time per benchmark (seconds) [default]
     minSamples: 5, // Minimum sample runs [default]
-    minTime: 0 // Min time to reduce uncertainty to 1% (seconds)
+    minTime: 0, // Min time to reduce uncertainty to 1% (seconds)
   },
 
   // Memory benchmark
@@ -66,7 +66,7 @@ const config = {
     iterations: 20000, // Iterations per measurement round
     rounds: 15, // Measurement rounds (median taken)
     warmupRounds: 3, // Throwaway rounds to stabilize heap
-    warmupIterations: 2000 // Initial warmup iterations
+    warmupIterations: 2000, // Initial warmup iterations
   },
 
   // Memory benchmark --full mode
@@ -74,11 +74,11 @@ const config = {
     iterations: 50000, // More iterations per round
     rounds: 25, // More measurement rounds
     warmupRounds: 5, // More warmup rounds
-    warmupIterations: 5000 // More initial warmup
+    warmupIterations: 5000, // More initial warmup
   },
 
   // History per language
-  maxHistoryPerLang: 10
+  maxHistoryPerLang: 10,
 }
 
 // ============================================================================
@@ -100,7 +100,7 @@ const resultsFile = join(__dirname, 'results.json')
  * @param {string[]} requestedFunctions Function names to include (e.g., ['toCardinal', 'toOrdinal'])
  * @returns {Promise<{name: string, functions: Object<string, Function>} | null>}
  */
-async function loadConverter (langCode, requestedFunctions) {
+async function loadConverter(langCode, requestedFunctions) {
   try {
     const module = await import(`../src/${langCode}.js`)
 
@@ -118,7 +118,8 @@ async function loadConverter (langCode, requestedFunctions) {
     }
 
     return { name: langCode, functions }
-  } catch {
+  }
+  catch {
     // Not found
   }
 
@@ -134,7 +135,7 @@ async function loadConverter (langCode, requestedFunctions) {
  * @param {string} input - Comma-separated values
  * @returns {string[]} Array of trimmed, non-empty values
  */
-function parseCommaSeparated (input) {
+function parseCommaSeparated(input) {
   return input.split(',').map(s => s.trim()).filter(Boolean)
 }
 
@@ -150,10 +151,10 @@ const { values: flags, positionals } = parseArgs({
     history: { type: 'boolean' },
     full: { type: 'boolean' },
     remove: { type: 'string' },
-    help: { type: 'boolean' }
+    help: { type: 'boolean' },
   },
   allowPositionals: true,
-  strict: true
+  strict: true,
 })
 
 if (flags.help) {
@@ -166,12 +167,12 @@ if (flags.help) {
 const requestedLanguages = [
   ...(flags.lang ?? []),
   ...(flags.language ?? []),
-  ...positionals
+  ...positionals,
 ].flatMap(parseCommaSeparated)
 
 const functionInputs = [
   ...(flags.function ?? []),
-  ...(flags.fn ?? [])
+  ...(flags.fn ?? []),
 ].flatMap(parseCommaSeparated)
 
 for (const fn of functionInputs) {
@@ -197,7 +198,8 @@ if (compareResults) {
   if (!data) {
     console.log(chalk.yellow('⚠ No previous results found. Run with --save first.\n'))
     compareResults = false
-  } else {
+  }
+  else {
     // Build previousResults map: { langName: { fnName: latestEntry } }
     previousResults = {}
     const languages = data.languages || {}
@@ -224,11 +226,12 @@ if (compareResults) {
  * Load results data from file.
  * Format: { nextId: N, languages: { en: [...], fr: [...] } }
  */
-function loadResultsData () {
+function loadResultsData() {
   if (!existsSync(resultsFile)) return null
   try {
     return JSON.parse(readFileSync(resultsFile, 'utf8'))
-  } catch {
+  }
+  catch {
     return null
   }
 }
@@ -236,7 +239,7 @@ function loadResultsData () {
 /**
  * Format test value for display.
  */
-function formatTestValue (val) {
+function formatTestValue(val) {
   if (val === config.defaultValue) return 'MAX_SAFE'
   if (val >= 1_000_000_000) return (val / 1_000_000_000).toFixed(0) + 'B'
   if (val >= 1_000_000) return (val / 1_000_000).toFixed(0) + 'M'
@@ -247,12 +250,12 @@ function formatTestValue (val) {
 /**
  * Format timestamp for display.
  */
-function formatDateTime (timestamp) {
+function formatDateTime(timestamp) {
   return new Date(timestamp).toLocaleString('en-US', {
     month: 'short',
     day: 'numeric',
     hour: '2-digit',
-    minute: '2-digit'
+    minute: '2-digit',
   })
 }
 
@@ -307,7 +310,8 @@ if (removeId) {
 
   if (totalRemoved === 1) {
     console.log(chalk.green('✓ Removed 1 entry'))
-  } else {
+  }
+  else {
     console.log(chalk.green(`✓ Removed ${totalRemoved} entries`))
   }
 
@@ -347,9 +351,9 @@ if (showHistory) {
       }
     }
 
-    let headerLine = chalk.gray('ID'.padStart(4)) + ' | ' +
-      chalk.gray('Date & Time'.padEnd(18)) + ' | ' +
-      chalk.gray('Value'.padStart(10))
+    let headerLine = chalk.gray('ID'.padStart(4)) + ' | '
+      + chalk.gray('Date & Time'.padEnd(18)) + ' | '
+      + chalk.gray('Value'.padStart(10))
 
     for (const fnName of fnNames) {
       headerLine += ' | ' + chalk.gray(`${fnName} ops/s`.padStart(16))
@@ -360,9 +364,9 @@ if (showHistory) {
     console.log(chalk.gray('-'.repeat(66 + fnNames.size * 19)))
 
     for (const entry of entries) {
-      let line = chalk.yellow(String(entry.id).padStart(4)) + ' | ' +
-        chalk.gray(formatDateTime(entry.timestamp).padEnd(18)) + ' | ' +
-        chalk.gray(formatTestValue(entry.value).padStart(10))
+      let line = chalk.yellow(String(entry.id).padStart(4)) + ' | '
+        + chalk.gray(formatDateTime(entry.timestamp).padEnd(18)) + ' | '
+        + chalk.gray(formatTestValue(entry.value).padStart(10))
 
       const fnsData = entry.functions || {}
 
@@ -380,7 +384,8 @@ if (showHistory) {
       console.log(line)
     }
     console.log()
-  } else {
+  }
+  else {
     // Multi-language or all languages summary - show latest for each
     const langCodes = requestedLanguages.length > 0
       ? requestedLanguages.filter(lang => languages[lang])
@@ -403,13 +408,13 @@ if (showHistory) {
 
     console.log(chalk.cyan.bold('\n Saved Results Summary\n'))
     console.log(
-      chalk.gray('Language'.padEnd(12)) + ' | ' +
-      chalk.gray('ID'.padStart(4)) + ' | ' +
-      chalk.gray('Runs'.padStart(4)) + ' | ' +
-      chalk.gray('toCardinal'.padStart(12)) + ' | ' +
-      chalk.gray('toOrdinal'.padStart(12)) + ' | ' +
-      chalk.gray('toCurrency'.padStart(12)) + ' | ' +
-      chalk.gray('Last Run'.padStart(18))
+      chalk.gray('Language'.padEnd(12)) + ' | '
+      + chalk.gray('ID'.padStart(4)) + ' | '
+      + chalk.gray('Runs'.padStart(4)) + ' | '
+      + chalk.gray('toCardinal'.padStart(12)) + ' | '
+      + chalk.gray('toOrdinal'.padStart(12)) + ' | '
+      + chalk.gray('toCurrency'.padStart(12)) + ' | '
+      + chalk.gray('Last Run'.padStart(18)),
     )
     console.log(chalk.gray('-'.repeat(93)))
 
@@ -420,13 +425,13 @@ if (showHistory) {
       const currencyHz = fnsData.toCurrency?.hz ? formatOps(fnsData.toCurrency.hz) : '-'
 
       console.log(
-        chalk.gray(entry.name.padEnd(12)) + ' | ' +
-        chalk.yellow(String(entry.id).padStart(4)) + ' | ' +
-        chalk.gray(String(entry.count).padStart(4)) + ' | ' +
-        chalk.white(cardinalHz.padStart(12)) + ' | ' +
-        chalk.white(ordinalHz.padStart(12)) + ' | ' +
-        chalk.white(currencyHz.padStart(12)) + ' | ' +
-        chalk.gray(formatDateTime(entry.timestamp).padStart(18))
+        chalk.gray(entry.name.padEnd(12)) + ' | '
+        + chalk.yellow(String(entry.id).padStart(4)) + ' | '
+        + chalk.gray(String(entry.count).padStart(4)) + ' | '
+        + chalk.white(cardinalHz.padStart(12)) + ' | '
+        + chalk.white(ordinalHz.padStart(12)) + ' | '
+        + chalk.white(currencyHz.padStart(12)) + ' | '
+        + chalk.gray(formatDateTime(entry.timestamp).padStart(18)),
       )
     }
 
@@ -459,12 +464,14 @@ for (const code of languageCodes) {
   const converter = await loadConverter(code, requestedFunctions)
   if (converter) {
     converters.push(converter)
-  } else {
+  }
+  else {
     // Check if language exists but has no matching forms
     const allFnsConverter = await loadConverter(code, KNOWN_FUNCTIONS)
     if (allFnsConverter) {
       console.error(chalk.yellow(`Language ${code} has no ${requestedFunctions.join('/')} support, skipping`))
-    } else {
+    }
+    else {
       console.error(chalk.red(`Language not found: ${code}`))
       console.error(chalk.gray(`  Checked: src/${code}.js`))
       process.exit(1)
@@ -491,7 +498,8 @@ console.log(chalk.cyan.bold('\nBenchmark\n'))
 
 if (requestedLanguages.length > 0) {
   console.log(chalk.gray(`Languages: ${converters.map(c => c.name).join(', ')}`))
-} else {
+}
+else {
   console.log(chalk.gray(`Testing ${converters.length} languages`))
 }
 console.log(chalk.gray(`Functions: ${requestedFunctions.join(', ')}`))
@@ -511,10 +519,10 @@ const displayFunctions = requestedFunctions.filter(f => availableFunctions.has(f
 // Print table header (row-per-function layout)
 const opsColWidth = compareResults ? 25 : 14
 const memColWidth = compareResults ? 18 : 10
-const header = chalk.cyan.bold('Language'.padEnd(12)) +
-  ' │ ' + chalk.cyan.bold('Function'.padEnd(12)) +
-  ' │ ' + chalk.cyan.bold('ops/sec'.padStart(opsColWidth)) +
-  ' │ ' + chalk.cyan.bold('Memory'.padStart(memColWidth))
+const header = chalk.cyan.bold('Language'.padEnd(12))
+  + ' │ ' + chalk.cyan.bold('Function'.padEnd(12))
+  + ' │ ' + chalk.cyan.bold('ops/sec'.padStart(opsColWidth))
+  + ' │ ' + chalk.cyan.bold('Memory'.padStart(memColWidth))
 
 console.log(header)
 const separatorLength = 12 + 15 + opsColWidth + 3 + memColWidth + 3
@@ -549,7 +557,7 @@ if (results.length > 1) {
     if (withFn.length > 0) {
       const fastest = withFn.reduce((max, r) => r.functions[fnName].hz > max.functions[fnName].hz ? r : max)
       const lowestMem = withFn.reduce((min, r) =>
-        r.functions[fnName].memoryPerIter < min.functions[fnName].memoryPerIter ? r : min
+        r.functions[fnName].memoryPerIter < min.functions[fnName].memoryPerIter ? r : min,
       )
       console.log(chalk.green(`${fnName}: fastest ${fastest.name}, lowest mem ${lowestMem.name}`))
     }
@@ -570,7 +578,7 @@ console.log()
  * @param {string[]} functionsToRun Forms to benchmark
  * @returns {Promise<Object>} Result with functions: { cardinal: { hz, rme, memoryPerIter }, ... }
  */
-async function benchmarkLanguage (converter, functionsToRun) {
+async function benchmarkLanguage(converter, functionsToRun) {
   const fnResults = {}
 
   for (const fnName of functionsToRun) {
@@ -590,20 +598,20 @@ async function benchmarkLanguage (converter, functionsToRun) {
       hz: perfResult.hz,
       rme: perfResult.rme,
       runs: perfResult.runs,
-      memoryPerIter
+      memoryPerIter,
     }
   }
 
   return {
     name: converter.name,
-    functions: fnResults
+    functions: fnResults,
   }
 }
 
 /**
  * Run Benchmark.js performance test for a single function.
  */
-function runPerfBenchmark (fn, langName, fnName) {
+function runPerfBenchmark(fn, langName, fnName) {
   return new Promise((resolve) => {
     const suite = new Benchmark.Suite()
 
@@ -619,7 +627,7 @@ function runPerfBenchmark (fn, langName, fnName) {
         resolve({
           hz: bench.hz,
           rme: bench.stats.rme,
-          runs: bench.stats.sample.length
+          runs: bench.stats.sample.length,
         })
       })
       .run()
@@ -635,7 +643,7 @@ function runPerfBenchmark (fn, langName, fnName) {
  * - Triple GC between rounds (thorough cleanup)
  * - Warmup rounds (stabilize heap before measuring)
  */
-function measureMemory (fn) {
+function measureMemory(fn) {
   const memConfig = fullMode ? config.memoryFull : config.memory
   const { iterations, rounds, warmupRounds, warmupIterations } = memConfig
 
@@ -690,7 +698,7 @@ function measureMemory (fn) {
 /**
  * Print result lines (one row per form).
  */
-function printResultLine (result, displayFunctions) {
+function printResultLine(result, displayFunctions) {
   const prev = previousResults?.[result.name]
   const opsColWidth = compareResults ? 25 : 14
   const memColWidth = compareResults ? 18 : 10
@@ -724,10 +732,12 @@ function printResultLine (result, displayFunctions) {
         const hzDiff = ((fnResult.hz - prevForm.hz) / prevForm.hz) * 100
         const hzChange = formatChange(hzDiff)
         opsCol = hzBase.padStart(16) + ' ' + hzChange
-      } else {
+      }
+      else {
         opsCol = hzBase.padStart(16) + ' ' + chalk.gray('(new)'.padStart(8))
       }
-    } else {
+    }
+    else {
       opsCol = chalk.white(`${hz} ${rme}`.padStart(opsColWidth))
     }
 
@@ -741,10 +751,12 @@ function printResultLine (result, displayFunctions) {
         const memDiff = ((fnResult.memoryPerIter - prevForm.bytes) / prevForm.bytes) * 100
         const memChange = formatChange(memDiff, true)
         memCol = mem.padStart(10) + ' ' + memChange
-      } else {
+      }
+      else {
         memCol = mem.padStart(10) + ' ' + chalk.gray('(new)'.padStart(7))
       }
-    } else {
+    }
+    else {
       memCol = chalk.gray(mem.padStart(memColWidth))
     }
 
@@ -758,7 +770,7 @@ function printResultLine (result, displayFunctions) {
  * @param {boolean} inverted If true, negative is good (for memory)
  * @param {number} width Minimum width for alignment (default 8)
  */
-function formatChange (diff, inverted = false, width = 8) {
+function formatChange(diff, inverted = false, width = 8) {
   const sign = diff > 0 ? '+' : ''
   const text = `(${sign}${diff.toFixed(1)}%)`.padStart(width)
 
@@ -774,7 +786,7 @@ function formatChange (diff, inverted = false, width = 8) {
  * Save a single result incrementally (allows killing script early).
  * Format: { nextId: N, languages: { en: [...], fr: [...] } }
  */
-function saveResultIncremental (result) {
+function saveResultIncremental(result) {
   // Load or initialize data
   let data = { nextId: 1, languages: {} }
   if (existsSync(resultsFile)) {
@@ -782,7 +794,8 @@ function saveResultIncremental (result) {
       data = JSON.parse(readFileSync(resultsFile, 'utf8'))
       if (!data.languages) data.languages = {}
       if (!data.nextId) data.nextId = 1
-    } catch {
+    }
+    catch {
       // Corrupted file, start fresh
     }
   }
@@ -801,7 +814,7 @@ function saveResultIncremental (result) {
       formsData[fnName] = {
         hz: fnResult.hz,
         rme: fnResult.rme,
-        bytes: fnResult.memoryPerIter
+        bytes: fnResult.memoryPerIter,
       }
     }
   }
@@ -811,7 +824,7 @@ function saveResultIncremental (result) {
     id: data.nextId++,
     timestamp: runTimestamp,
     value,
-    functions: formsData
+    functions: formsData,
   })
 
   // Prune old entries
@@ -825,7 +838,7 @@ function saveResultIncremental (result) {
   renameSync(tempFile, resultsFile)
 }
 
-function saveResultsIfNeeded () {
+function saveResultsIfNeeded() {
   if (!saveResults) return
   // Results already saved incrementally
   console.log(chalk.blue('✓ Results saved'))
@@ -835,13 +848,13 @@ function saveResultsIfNeeded () {
 // Utilities
 // ============================================================================
 
-function formatOps (hz) {
+function formatOps(hz) {
   if (hz >= 1_000_000) return (hz / 1_000_000).toFixed(1) + 'M'
   if (hz >= 1_000) return (hz / 1_000).toFixed(0) + 'K'
   return hz.toFixed(0)
 }
 
-function formatBytes (bytes) {
+function formatBytes(bytes) {
   const abs = Math.abs(bytes)
   const sign = bytes < 0 ? '-' : ''
 
@@ -850,7 +863,7 @@ function formatBytes (bytes) {
   return sign + (abs / (1024 * 1024)).toFixed(2) + ' MB'
 }
 
-function displayHelp () {
+function displayHelp() {
   console.log(chalk.cyan.bold('\nBenchmark Usage\n'))
   console.log('  ' + chalk.yellow('npm run bench') + ' [languages] [options]\n')
   console.log(chalk.cyan('Options:'))

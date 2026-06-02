@@ -45,20 +45,20 @@ const individualTerserConfig = terser({
     drop_debugger: true,
     ecma: 2020,
     pure_getters: true,
-    toplevel: true // Optimize top-level since we control the entire bundle
+    toplevel: true, // Optimize top-level since we control the entire bundle
   },
   mangle: {
-    toplevel: true // Mangle top-level names (internal functions)
+    toplevel: true, // Mangle top-level names (internal functions)
   },
   format: {
     comments: /^!/,
-    ecma: 2020
-  }
+    ecma: 2020,
+  },
 })
 
 // Base plugins (shared between all bundles)
 const basePlugins = [
-  nodeResolve({ preferBuiltins: false })
+  nodeResolve({ preferBuiltins: false }),
 ]
 
 // ============================================================================
@@ -72,16 +72,16 @@ const languageEsmConfigs = languageCodes.map(langCode => ({
   output: {
     file: `dist/${langCode}.js`,
     format: 'es',
-    banner: `/*! n2words/${langCode} v${pkg.version} | MIT License | github.com/forzagreen/n2words */`
+    banner: `/*! n2words/${langCode} v${pkg.version} | MIT License | github.com/forzagreen/n2words */`,
   },
-  plugins: [...basePlugins, individualTerserConfig]
+  plugins: [...basePlugins, individualTerserConfig],
 }))
 
 /**
  * Build the UMD config for one language. `forms` is the Set of forms the
  * language actually exports (read from the module, not scanned from text).
  */
-function umdConfig (langCode, forms) {
+function umdConfig(langCode, forms) {
   const normalizedName = normalizeCode(langCode)
   const virtualEntryId = `\0virtual:umd:${langCode}`
 
@@ -109,15 +109,15 @@ function umdConfig (langCode, forms) {
       name: 'n2words',
       exports: 'named',
       extend: true,
-      banner: `/*! n2words/${langCode} v${pkg.version} | MIT License | github.com/forzagreen/n2words */`
+      banner: `/*! n2words/${langCode} v${pkg.version} | MIT License | github.com/forzagreen/n2words */`,
     },
     plugins: [
       virtual({
-        [virtualEntryId]: virtualContent
+        [virtualEntryId]: virtualContent,
       }),
       ...basePlugins,
-      individualTerserConfig
-    ]
+      individualTerserConfig,
+    ],
   }
 }
 
@@ -125,11 +125,11 @@ function umdConfig (langCode, forms) {
 // module), then build the UMD entries from real exports.
 export default async () => {
   const languageUmdConfigs = await Promise.all(
-    languageCodes.map(async langCode => umdConfig(langCode, await getExportedForms(langCode)))
+    languageCodes.map(async langCode => umdConfig(langCode, await getExportedForms(langCode))),
   )
 
   return [
     ...languageEsmConfigs,
-    ...languageUmdConfigs
+    ...languageUmdConfigs,
   ]
 }

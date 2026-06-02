@@ -46,7 +46,7 @@ export const cardinal = [
   [1000000000, 'one arab'],
 
   // Kharabs
-  [100000000000, 'one kharab']
+  [100000000000, 'one kharab'],
 ]
 
 /**
@@ -65,7 +65,7 @@ export const ordinal = [
   [100000, 'one lakhth'],
   [100001, 'one lakh first'],
   [10000000, 'one croreth'],
-  [1000000000, 'one arabth']
+  [1000000000, 'one arabth'],
 ]
 
 /**
@@ -102,5 +102,5 @@ export const currency = [
 
   // Edge cases
   [5.00, 'five taka'],
-  ['5.00', 'five taka']
+  ['5.00', 'five taka'],
 ]

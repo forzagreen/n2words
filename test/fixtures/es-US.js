@@ -51,7 +51,7 @@ export const cardinal = [
   [21, 'veintiuna', { gender: 'feminine' }],
   [31, 'treinta y una', { gender: 'feminine' }],
   [101, 'cienta una', { gender: 'feminine' }],
-  [201, 'doscientas una', { gender: 'feminine' }]
+  [201, 'doscientas una', { gender: 'feminine' }],
 ]
 
 /**
@@ -76,7 +76,7 @@ export const ordinal = [
   // Feminine
   [1, 'primera', { gender: 'feminine' }],
   [10, 'décima', { gender: 'feminine' }],
-  [21, 'vigésima primera', { gender: 'feminine' }]
+  [21, 'vigésima primera', { gender: 'feminine' }],
 ]
 
 /**
@@ -120,5 +120,5 @@ export const currency = [
 
   // Large amounts (short scale)
   [1000000000, 'un billón dólares'],
-  [1000000000000, 'un trillón dólares']
+  [1000000000000, 'un trillón dólares'],
 ]

@@ -42,7 +42,7 @@ const PLURAL_FORMS = {
   7: ['tryliard', 'tryliardy', 'tryliardów'],
   8: ['kwadrylion', 'kwadryliony', 'kwadrylionów'],
   9: ['kwaryliard', 'kwadryliardy', 'kwadryliardów'],
-  10: ['kwintylion', 'kwintyliony', 'kwintylionów']
+  10: ['kwintylion', 'kwintyliony', 'kwintylionów'],
 }
 
 const ZERO = 'zero'
@@ -87,7 +87,7 @@ const GROSZ_FORMS = ['grosz', 'grosze', 'groszy']
  * @param {number} n - Segment value
  * @returns {string} Polish word
  */
-function buildSegment (n) {
+function buildSegment(n) {
   if (n === 0) return ''
 
   const ones = n % 10
@@ -105,7 +105,8 @@ function buildSegment (n) {
   if (tens === 1) {
     // Teens (10-19)
     parts.push(TEENS[ones])
-  } else {
+  }
+  else {
     if (tens >= 2) {
       parts.push(TENS[tens])
     }
@@ -122,7 +123,7 @@ function buildSegment (n) {
  * @param {number} n - Segment value
  * @returns {string} Polish word
  */
-function buildSegmentFeminine (n) {
+function buildSegmentFeminine(n) {
   if (n === 0) return ''
 
   const ones = n % 10
@@ -139,7 +140,8 @@ function buildSegmentFeminine (n) {
   // Tens and ones - feminine for ones only
   if (tens === 1) {
     parts.push(TEENS[ones])
-  } else {
+  }
+  else {
     if (tens >= 2) {
       parts.push(TENS[tens])
     }
@@ -163,7 +165,7 @@ function buildSegmentFeminine (n) {
  * @param {string[]} forms - [singular, few, many]
  * @returns {string} Correct plural form
  */
-function pluralize (n, forms) {
+function pluralize(n, forms) {
   if (n === 1n) {
     return forms[0]
   }
@@ -191,7 +193,7 @@ function pluralize (n, forms) {
  * @param {string} gender - Gender for numbers < 1000 ('masculine' or 'feminine')
  * @returns {string} Polish words
  */
-function integerToWords (n, gender) {
+function integerToWords(n, gender) {
   if (n === 0n) return ZERO
 
   // Fast path: numbers < 1000
@@ -210,7 +212,8 @@ function integerToWords (n, gender) {
     if (thousands === 1) {
       // Omit "jeden" before tysiąc
       result = scaleWord
-    } else {
+    }
+    else {
       result = buildSegment(thousands) + ' ' + scaleWord
     }
 
@@ -222,7 +225,7 @@ function integerToWords (n, gender) {
   }
 
   // For numbers >= 1,000,000, use scale decomposition
-  return buildLargeNumberWords(n, gender)
+  return buildLargeNumberWords(n)
 }
 
 /**
@@ -230,10 +233,9 @@ function integerToWords (n, gender) {
  * Uses BigInt division for faster segment extraction.
  *
  * @param {bigint} n - Number >= 1,000,000
- * @param {string} gender - Gender for numbers < 1000 ('masculine' or 'feminine')
  * @returns {string} Polish words
  */
-function buildLargeNumberWords (n, gender) {
+function buildLargeNumberWords(n) {
   // Extract segments using BigInt division (faster than string slicing)
   // Segments stored least-significant first (index 0 = ones, 1 = thousands, etc.)
   const segmentValues = []
@@ -257,7 +259,8 @@ function buildLargeNumberWords (n, gender) {
     if (i === 0) {
       // Units segment
       result += segmentWord
-    } else {
+    }
+    else {
       // Scale word needed
       const forms = PLURAL_FORMS[i]
       if (forms) {
@@ -266,7 +269,8 @@ function buildLargeNumberWords (n, gender) {
         if (segment === 1n) {
           // Omit "jeden" before scale words
           result += scaleWord
-        } else {
+        }
+        else {
           result += segmentWord + ' ' + scaleWord
         }
       }
@@ -283,7 +287,7 @@ function buildLargeNumberWords (n, gender) {
  * @param {string} gender - Gender for numbers < 1000 ('masculine' or 'feminine')
  * @returns {string} Polish words for decimal part
  */
-function decimalPartToWords (decimalPart, gender) {
+function decimalPartToWords(decimalPart, gender) {
   let result = ''
 
   // Handle leading zeros
@@ -323,7 +327,7 @@ function decimalPartToWords (decimalPart, gender) {
  * toCardinal(1000)                       // 'tysiąc'
  * toCardinal(2000)                       // 'dwa tysiące'
  */
-function toCardinal (value, options) {
+function toCardinal(value, options) {
   options = validateOptions(options)
   const { isNegative, integerPart, decimalPart } = parseCardinalValue(value)
 
@@ -356,7 +360,7 @@ function toCardinal (value, options) {
  * @param {number} n - Number 0-99
  * @returns {string} Ordinal words
  */
-function buildOrdinalTensOnes (n) {
+function buildOrdinalTensOnes(n) {
   if (n === 0) return ''
 
   const onesDigit = n % 10
@@ -391,7 +395,7 @@ function buildOrdinalTensOnes (n) {
  * @param {bigint} n - Positive integer to convert
  * @returns {string} Ordinal Polish words
  */
-function integerToOrdinal (n) {
+function integerToOrdinal(n) {
   // Fast path: numbers < 100
   if (n < 100n) {
     return buildOrdinalTensOnes(Number(n))
@@ -443,7 +447,7 @@ function integerToOrdinal (n) {
  * @param {bigint} n - Number >= 1,000,000
  * @returns {string} Ordinal Polish words
  */
-function buildLargeOrdinal (n) {
+function buildLargeOrdinal(n) {
   const numStr = n.toString()
   const len = numStr.length
 
@@ -481,26 +485,31 @@ function buildLargeOrdinal (n) {
         // Units position (no scale)
         if (isLastNonZero) {
           parts.push(integerToOrdinal(BigInt(segment)))
-        } else {
+        }
+        else {
           parts.push(buildSegment(segment))
         }
-      } else {
+      }
+      else {
         // Has scale word
         if (isLastNonZero) {
           // This scale position is the final ordinal
           if (segment === 1) {
             parts.push(ORDINAL_SCALES[scaleIndex - 1])
-          } else {
+          }
+          else {
             // Use cardinal segment + ordinal scale
             parts.push(buildSegment(segment) + ' ' + ORDINAL_SCALES[scaleIndex - 1])
           }
-        } else {
+        }
+        else {
           // Not the final segment: use cardinal
           const forms = PLURAL_FORMS[scaleIndex]
           const scaleWord = forms ? pluralize(BigInt(segment), forms) : ''
           if (segment === 1) {
             parts.push(scaleWord)
-          } else {
+          }
+          else {
             parts.push(buildSegment(segment) + ' ' + scaleWord)
           }
         }
@@ -530,7 +539,7 @@ function buildLargeOrdinal (n) {
  * toOrdinal(100)  // 'setny'
  * toOrdinal(1000) // 'tysięczny'
  */
-function toOrdinal (value) {
+function toOrdinal(value) {
   const integerPart = parseOrdinalValue(value)
   return integerToOrdinal(integerPart)
 }
@@ -553,7 +562,7 @@ function toOrdinal (value) {
  * toCurrency(1.50)   // 'jeden złoty pięćdziesiąt groszy'
  * toCurrency(-5)     // 'minus pięć złotych'
  */
-function toCurrency (value) {
+function toCurrency(value) {
   const { isNegative, dollars: zloty, cents: grosze } = parseCurrencyValue(value)
 
   let result = ''

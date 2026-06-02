@@ -70,7 +70,7 @@ const GERAH_PLURAL = 'גרות'
  * @param {string[]} HUNDREDS_ARR - Hundreds vocabulary
  * @returns {string} Segment word
  */
-function buildScaleSegment (n, andWord, ONES, TEENS, HUNDREDS_ARR) {
+function buildScaleSegment(n, andWord, ONES, TEENS, HUNDREDS_ARR) {
   if (n === 0) return ''
 
   const ones = n % 10
@@ -90,15 +90,18 @@ function buildScaleSegment (n, andWord, ONES, TEENS, HUNDREDS_ARR) {
     const teenWord = TEENS[ones]
     if (result) {
       result += ' ' + andWord + teenWord
-    } else {
+    }
+    else {
       result = teenWord
     }
-  } else {
+  }
+  else {
     // Tens (20-90)
     if (tens >= 2) {
       if (result) {
         result += ' ' + andWord + TENS[tens]
-      } else {
+      }
+      else {
         result = TENS[tens]
       }
     }
@@ -107,7 +110,8 @@ function buildScaleSegment (n, andWord, ONES, TEENS, HUNDREDS_ARR) {
     if (ones > 0) {
       if (result) {
         result += ' ' + andWord + ONES[ones]
-      } else {
+      }
+      else {
         result = ONES[ones]
       }
     }
@@ -127,7 +131,7 @@ function buildScaleSegment (n, andWord, ONES, TEENS, HUNDREDS_ARR) {
  * @param {string[]} HUNDREDS_ARR - Hundreds vocabulary
  * @returns {string} Segment word
  */
-function buildUnitsSegment (n, andWord, ONES, TEENS, HUNDREDS_ARR) {
+function buildUnitsSegment(n, andWord, ONES, TEENS, HUNDREDS_ARR) {
   if (n === 0) return ''
 
   const ones = n % 10
@@ -146,14 +150,17 @@ function buildUnitsSegment (n, andWord, ONES, TEENS, HUNDREDS_ARR) {
     // Teens (10-19)
     if (result) {
       result += ' ' + TEENS[ones]
-    } else {
+    }
+    else {
       result = TEENS[ones]
     }
-  } else {
+  }
+  else {
     if (tens >= 2) {
       if (result) {
         result += ' ' + TENS[tens]
-      } else {
+      }
+      else {
         result = TENS[tens]
       }
     }
@@ -162,7 +169,8 @@ function buildUnitsSegment (n, andWord, ONES, TEENS, HUNDREDS_ARR) {
     if (ones > 0) {
       if (result) {
         result += ' ' + andWord + ONES[ones]
-      } else {
+      }
+      else {
         result = ONES[ones]
       }
     }
@@ -183,7 +191,7 @@ function buildUnitsSegment (n, andWord, ONES, TEENS, HUNDREDS_ARR) {
  * @param {string} andWord - Conjunction word
  * @returns {string} Biblical Hebrew words
  */
-function integerToWords (n, gender, andWord) {
+function integerToWords(n, gender, andWord) {
   if (n === 0n) return ZERO
 
   const isFeminine = gender === 'feminine'
@@ -221,28 +229,34 @@ function integerToWords (n, gender, andWord) {
         // Add "ו" before single-digit units when following scale words
         if (segment <= 9) {
           result += ' ' + andWord + segmentWord
-        } else {
+        }
+        else {
           result += ' ' + segmentWord
         }
-      } else {
+      }
+      else {
         result = segmentWord
       }
-    } else if (i === 1) {
+    }
+    else if (i === 1) {
       // Thousands - special handling for 1-9
       if (segment <= 9) {
         if (result) result += ' '
         result += THOUSANDS_SPECIAL[segment]
-      } else {
+      }
+      else {
         const segmentWord = buildScaleSegment(segment, andWord, ONES, TEENS, HUNDREDS_ARR)
         if (result) result += ' '
         result += segmentWord + ' ' + SCALE[1]
       }
-    } else {
+    }
+    else {
       // Millions and above
       if (segment === 1) {
         if (result) result += ' '
         result += SCALE[i]
-      } else {
+      }
+      else {
         const segmentWord = buildScaleSegment(segment, andWord, ONES, TEENS, HUNDREDS_ARR)
         if (result) result += ' '
         result += segmentWord + ' ' + SCALE_PLURAL[i]
@@ -258,10 +272,9 @@ function integerToWords (n, gender, andWord) {
  *
  * @param {string} decimalPart - Decimal digits (without the point)
  * @param {('masculine'|'feminine')} gender - Grammatical gender
- * @param {string} andWord - Conjunction word
  * @returns {string} Biblical Hebrew words for decimal part
  */
-function decimalPartToWords (decimalPart, gender, andWord) {
+function decimalPartToWords(decimalPart, gender) {
   const ONES = gender === 'feminine' ? ONES_FEM : ONES_MASC
 
   let result = ''
@@ -283,14 +296,14 @@ function decimalPartToWords (decimalPart, gender, andWord) {
  * @param {string} [options.andWord='ו'] - Custom conjunction word
  * @returns {string} The number in Biblical Hebrew words
  */
-function toCardinal (value, options) {
+function toCardinal(value, options) {
   options = validateOptions(options)
   const { isNegative, integerPart, decimalPart } = parseCardinalValue(value)
 
   // Apply option defaults
   const {
     gender = 'masculine',
-    andWord = 'ו'
+    andWord = 'ו',
   } = options
 
   let result = ''
@@ -302,7 +315,7 @@ function toCardinal (value, options) {
   result += integerToWords(integerPart, gender, andWord)
 
   if (decimalPart) {
-    result += ' ' + DECIMAL_SEP + ' ' + decimalPartToWords(decimalPart, gender, andWord)
+    result += ' ' + DECIMAL_SEP + ' ' + decimalPartToWords(decimalPart, gender)
   }
 
   return result
@@ -318,7 +331,7 @@ function toCardinal (value, options) {
  * @param {number} n - Number 0-99
  * @returns {string} Ordinal word
  */
-function buildOrdinalTensOnes (n) {
+function buildOrdinalTensOnes(n) {
   if (n === 0) return ''
   if (n < 10) return ORDINAL_ONES[n]
   if (n < 20) return ORDINAL_TEENS[n - 10]
@@ -340,7 +353,7 @@ function buildOrdinalTensOnes (n) {
  * @param {bigint} n - Non-negative integer to convert
  * @returns {string} Biblical Hebrew ordinal words
  */
-function integerToOrdinal (n) {
+function integerToOrdinal(n) {
   if (n === 0n) return ''
   if (n === 1n) return ORDINAL_ONES[1]
 
@@ -376,7 +389,8 @@ function integerToOrdinal (n) {
     let result
     if (thousands <= 9) {
       result = THOUSANDS_MASC[thousands]
-    } else {
+    }
+    else {
       result = buildScaleSegment(thousands, 'ו', ONES_MASC, TEENS_MASC, HUNDREDS) + ' ' + SCALE[1]
     }
 
@@ -408,7 +422,8 @@ function integerToOrdinal (n) {
   let result
   if (millions === 1) {
     result = SCALE[2]
-  } else {
+  }
+  else {
     result = buildScaleSegment(millions, 'ו', ONES_MASC, TEENS_MASC, HUNDREDS) + ' ' + SCALE_PLURAL[2]
   }
 
@@ -427,7 +442,7 @@ function integerToOrdinal (n) {
  * toOrdinal(1)   // 'ראשון'
  * toOrdinal(21)  // 'עשרים וראשון'
  */
-function toOrdinal (value) {
+function toOrdinal(value) {
   const n = parseOrdinalValue(value)
   return integerToOrdinal(n)
 }
@@ -448,7 +463,7 @@ function toOrdinal (value) {
  * toCurrency(1)     // 'שקל אחד'
  * toCurrency(2.50)  // 'שניים שקלים חמישים גרות'
  */
-function toCurrency (value) {
+function toCurrency(value) {
   const { isNegative, dollars, cents } = parseCurrencyValue(value)
 
   const parts = []
@@ -461,9 +476,11 @@ function toCurrency (value) {
   if (dollars > 0n || cents === 0n) {
     if (dollars === 1n) {
       parts.push(SHEKEL + ' ' + ONES_MASC[1])
-    } else if (dollars === 2n) {
+    }
+    else if (dollars === 2n) {
       parts.push(ONES_MASC[2] + ' ' + SHEKEL_PLURAL)
-    } else {
+    }
+    else {
       const shekelWord = integerToWords(dollars, 'masculine', 'ו')
       parts.push(shekelWord + ' ' + SHEKEL_PLURAL)
     }
@@ -474,7 +491,8 @@ function toCurrency (value) {
     const centNum = Number(cents)
     if (centNum === 1) {
       parts.push(GERAH + ' ' + ONES_FEM[1])
-    } else {
+    }
+    else {
       const gerahWord = integerToWords(cents, 'feminine', 'ו')
       parts.push(gerahWord + ' ' + GERAH_PLURAL)
     }

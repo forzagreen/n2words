@@ -42,7 +42,7 @@ const SCALE_WORDS = ['', THOUSAND, 'milyong', 'bilyong', 'trilyong']
 const ORDINAL_PREFIX = 'ika'
 const ORDINAL_SPECIAL = {
   1: 'una', // first
-  2: 'ikalawa' // second (contracted form)
+  2: 'ikalawa', // second (contracted form)
 }
 
 // ============================================================================
@@ -62,7 +62,7 @@ const VOWELS = ['a', 'e', 'i', 'o', 'u']
  * @param {string} word - Word to append a linker to
  * @returns {string} Word with "ng" or " na" linker appended
  */
-function addLinker (word) {
+function addLinker(word) {
   const lastChar = word[word.length - 1]
   if (VOWELS.includes(lastChar)) {
     return word + 'ng'
@@ -78,7 +78,7 @@ function addLinker (word) {
  * @param {number} n - Value 0-999 to convert to words
  * @returns {string} Filipino words for the segment
  */
-function buildSegment (n) {
+function buildSegment(n) {
   if (n === 0) return ''
 
   const ones = n % 10
@@ -98,21 +98,26 @@ function buildSegment (n) {
 
   if (tensOnes === 0) {
     // Just hundreds
-  } else if (tensOnes < 10) {
+  }
+  else if (tensOnes < 10) {
     // Single digit
     parts.push(ONES[ones])
-  } else if (tensOnes < 20) {
+  }
+  else if (tensOnes < 20) {
     // Teens (10-19)
     parts.push(TEENS[ones])
-  } else if (ones === 0) {
+  }
+  else if (ones === 0) {
     // Even tens (20, 30, 40, etc.)
     parts.push(TENS[tensDigit])
-  } else {
+  }
+  else {
     // Tens + ones
     // limampu (50) gets special linker: "limampung anim" (56)
     if (tensDigit === 5) {
       parts.push(TENS[tensDigit] + 'ng ' + ONES[ones])
-    } else {
+    }
+    else {
       parts.push(TENS[tensDigit] + ' ' + ONES[ones])
     }
   }
@@ -125,7 +130,7 @@ function buildSegment (n) {
  * @param {number} n - Value 0-999 to convert to words
  * @returns {string} Filipino words with a trailing linker
  */
-function buildSegmentWithLinker (n) {
+function buildSegmentWithLinker(n) {
   const segmentWord = buildSegment(n)
   if (!segmentWord) return ''
 
@@ -158,7 +163,7 @@ function buildSegmentWithLinker (n) {
  * @param {bigint} n - Non-negative integer to convert to words
  * @returns {string} Filipino words for the integer
  */
-function integerToWords (n) {
+function integerToWords(n) {
   if (n === 0n) return ZERO
 
   if (n < 1000n) {
@@ -173,7 +178,7 @@ function integerToWords (n) {
  * @param {bigint} n - Number >= 1000
  * @returns {string} Filipino words
  */
-function buildLargeNumberWords (n) {
+function buildLargeNumberWords(n) {
   // Extract segments using BigInt division (faster than string slicing)
   const segmentValues = []
   let temp = n
@@ -195,7 +200,8 @@ function buildLargeNumberWords (n) {
 
     if (i === 0) {
       result += buildSegment(segment)
-    } else {
+    }
+    else {
       // Add linker to segment before scale word
       const segmentWord = buildSegmentWithLinker(segment)
       result += segmentWord + ' ' + scaleWord
@@ -209,7 +215,7 @@ function buildLargeNumberWords (n) {
  * @param {string} decimalPart - Digits after the decimal separator
  * @returns {string} Per-digit Filipino reading of the decimal part
  */
-function decimalPartToWords (decimalPart) {
+function decimalPartToWords(decimalPart) {
   // Per-digit decimal reading
   const digits = []
   for (const char of decimalPart) {
@@ -225,7 +231,7 @@ function decimalPartToWords (decimalPart) {
  * @param {number | string | bigint} value - The numeric value to convert
  * @returns {string} The number in Filipino words
  */
-function toCardinal (value) {
+function toCardinal(value) {
   const { isNegative, integerPart, decimalPart } = parseCardinalValue(value)
 
   let result = ''
@@ -255,7 +261,7 @@ function toCardinal (value) {
  * @param {bigint} n - Positive integer to convert
  * @returns {string} Filipino ordinal words
  */
-function integerToOrdinal (n) {
+function integerToOrdinal(n) {
   // Special forms for 1st and 2nd
   if (n === 1n) return ORDINAL_SPECIAL[1]
   if (n === 2n) return ORDINAL_SPECIAL[2]
@@ -277,7 +283,7 @@ function integerToOrdinal (n) {
  * toOrdinal(2)    // 'ikalawa'
  * toOrdinal(3)    // 'ika-tatlo'
  */
-function toOrdinal (value) {
+function toOrdinal(value) {
   const integerPart = parseOrdinalValue(value)
   return integerToOrdinal(integerPart)
 }
@@ -301,7 +307,7 @@ function toOrdinal (value) {
  * toCurrency(1.50)   // 'isang piso at limampung sentimo'
  * toCurrency(-5)     // 'negatibo limang piso'
  */
-function toCurrency (value) {
+function toCurrency(value) {
   const { isNegative, dollars: pesos, cents: sentimos } = parseCurrencyValue(value)
 
   let result = ''
@@ -315,18 +321,21 @@ function toCurrency (value) {
     const pesoWords = integerToWords(pesos)
     if (pesos === 0n) {
       result += pesoWords + ' ' + PESO
-    } else {
+    }
+    else {
       // Need to add linker to the last word before "piso"
       const lastSpaceIdx = pesoWords.lastIndexOf(' ')
       if (lastSpaceIdx === -1) {
         // Single word
         result += addLinker(pesoWords) + ' ' + PESO
-      } else {
+      }
+      else {
         const prefix = pesoWords.slice(0, lastSpaceIdx + 1)
         const lastWord = pesoWords.slice(lastSpaceIdx + 1)
         if (lastWord.endsWith('ng')) {
           result += pesoWords + ' ' + PESO
-        } else {
+        }
+        else {
           result += prefix + addLinker(lastWord) + ' ' + PESO
         }
       }
@@ -344,12 +353,14 @@ function toCurrency (value) {
     if (lastSpaceIdx === -1) {
       // Single word
       result += addLinker(sentimoWords) + ' ' + SENTIMO
-    } else {
+    }
+    else {
       const prefix = sentimoWords.slice(0, lastSpaceIdx + 1)
       const lastWord = sentimoWords.slice(lastSpaceIdx + 1)
       if (lastWord.endsWith('ng')) {
         result += sentimoWords + ' ' + SENTIMO
-      } else {
+      }
+      else {
         result += prefix + addLinker(lastWord) + ' ' + SENTIMO
       }
     }

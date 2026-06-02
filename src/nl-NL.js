@@ -51,7 +51,7 @@ const CENTEN = 'cent' // Cent doesn't pluralize in written currency
  * @param {boolean} withAnd - Include "en" for values < 13 after hundreds
  * @returns {string} Dutch word (compound, no spaces)
  */
-function buildSegment (n, withAnd) {
+function buildSegment(n, withAnd) {
   if (n === 0) return ''
 
   const ones = n % 10
@@ -65,7 +65,8 @@ function buildSegment (n, withAnd) {
   if (hundreds > 0) {
     if (hundreds === 1) {
       result = HUNDRED
-    } else {
+    }
+    else {
       result = ONES[hundreds] + HUNDRED
     }
   }
@@ -73,25 +74,31 @@ function buildSegment (n, withAnd) {
   // Tens and ones
   if (tensOnes === 0) {
     // Just hundreds
-  } else if (tensOnes < 10) {
+  }
+  else if (tensOnes < 10) {
     // Single digit - add "en" if withAnd and after hundreds
     if (hundreds > 0 && withAnd) {
       result += 'en' + ONES[tensOnes]
-    } else {
+    }
+    else {
       result += ONES[tensOnes]
     }
-  } else if (tensOnes < 20) {
+  }
+  else if (tensOnes < 20) {
     // Teens - add "en" if withAnd and after hundreds and < 13
     if (hundreds > 0 && withAnd && tensOnes < 13) {
       result += 'en' + TEENS[ones]
-    } else {
+    }
+    else {
       result += TEENS[ones]
     }
-  } else {
+  }
+  else {
     // 20-99: Dutch inverts with connector
     if (ones === 0) {
       result += TENS[tens]
-    } else {
+    }
+    else {
       // "ën" if ones ends in 'e' (twee, drie)
       const onesWord = ONES[ones]
       const connector = onesWord.endsWith('e') ? 'ën' : 'en'
@@ -113,7 +120,7 @@ function buildSegment (n, withAnd) {
  * @param {{accentOne: boolean, includeOptionalAnd: boolean, noHundredPairing: boolean}} options - Conversion options
  * @returns {string} Dutch words
  */
-function integerToWords (n, options) {
+function integerToWords(n, options) {
   if (n === 0n) return ZERO
 
   const { accentOne, includeOptionalAnd, noHundredPairing } = options
@@ -144,7 +151,8 @@ function integerToWords (n, options) {
         const lowWord = buildSegment(low, includeOptionalAnd)
         if (includeOptionalAnd && low < 13) {
           result += ' en ' + lowWord
-        } else {
+        }
+        else {
           result += ' ' + lowWord
         }
       }
@@ -161,7 +169,8 @@ function integerToWords (n, options) {
     if (thousands === 1) {
       // "duizend" not "eenduizend"
       result = SCALES[0]
-    } else {
+    }
+    else {
       // Compound: "vijfduizend"
       result = buildSegment(thousands, includeOptionalAnd) + SCALES[0]
     }
@@ -170,7 +179,8 @@ function integerToWords (n, options) {
       const remainderWord = buildSegment(remainder, includeOptionalAnd)
       if (includeOptionalAnd && remainder < 13) {
         result += ' en ' + remainderWord
-      } else {
+      }
+      else {
         result += ' ' + remainderWord
       }
     }
@@ -190,7 +200,7 @@ function integerToWords (n, options) {
  * @param {{accentOne: boolean, includeOptionalAnd: boolean, noHundredPairing: boolean}} options - Conversion options
  * @returns {string} Dutch words
  */
-function buildLargeNumberWords (n, options) {
+function buildLargeNumberWords(n, options) {
   const { includeOptionalAnd } = options
 
   // Extract segments using BigInt division (faster than string slicing)
@@ -216,29 +226,35 @@ function buildLargeNumberWords (n, options) {
       if (result) {
         if (prevWasScale && includeOptionalAnd && segment < 13) {
           result += ' en ' + word
-        } else {
+        }
+        else {
           result += ' ' + word
         }
-      } else {
+      }
+      else {
         result = word
       }
       prevWasScale = false
-    } else if (i === 1) {
+    }
+    else if (i === 1) {
       // Thousands - compound
       if (result) result += ' '
       if (segment === 1) {
         result += SCALES[0]
-      } else {
+      }
+      else {
         result += buildSegment(segment, includeOptionalAnd) + SCALES[0]
       }
       prevWasScale = true
-    } else {
+    }
+    else {
       // Million and above - space around scale
       const scaleWord = SCALES[i - 1]
       if (result) result += ' '
       if (segment === 1) {
         result += 'een ' + scaleWord
-      } else {
+      }
+      else {
         result += buildSegment(segment, includeOptionalAnd) + ' ' + scaleWord
       }
       prevWasScale = true
@@ -255,7 +271,7 @@ function buildLargeNumberWords (n, options) {
  * @param {{accentOne: boolean, includeOptionalAnd: boolean, noHundredPairing: boolean}} options - Conversion options
  * @returns {string} Dutch words for decimal part
  */
-function decimalPartToWords (decimalPart, options) {
+function decimalPartToWords(decimalPart, options) {
   let result = ''
 
   // Handle leading zeros
@@ -298,7 +314,7 @@ function decimalPartToWords (decimalPart, options) {
  * toCardinal(1, {accentOne: false})     // 'een'
  * toCardinal(1104)                      // 'elfhonderd vier'
  */
-function toCardinal (value, options) {
+function toCardinal(value, options) {
   options = validateOptions(options)
   const { isNegative, integerPart, decimalPart } = parseCardinalValue(value)
 
@@ -306,7 +322,7 @@ function toCardinal (value, options) {
   const {
     accentOne = true,
     includeOptionalAnd = false,
-    noHundredPairing = false
+    noHundredPairing = false,
   } = options
 
   const opts = { accentOne, includeOptionalAnd, noHundredPairing }
@@ -341,7 +357,7 @@ const ORDINAL_ONES = ['', 'eerste', 'tweede', 'derde', 'vierde', 'vijfde', 'zesd
  * @param {number} n - The number value (0-99)
  * @returns {string} Ordinal word
  */
-function smallCardinalToOrdinal (cardinalWord, n) {
+function smallCardinalToOrdinal(cardinalWord, n) {
   // Special cases for 1-9
   if (n >= 1 && n <= 9) return ORDINAL_ONES[n]
 
@@ -363,7 +379,7 @@ function smallCardinalToOrdinal (cardinalWord, n) {
  * @param {number} n - Number 0-999
  * @returns {string} Dutch ordinal words
  */
-function buildOrdinalSegment (n) {
+function buildOrdinalSegment(n) {
   if (n === 0) return ''
 
   const hundreds = Math.trunc(n / 100)
@@ -376,10 +392,11 @@ function buildOrdinalSegment (n) {
   }
 
   // Hundreds: need to build prefix + ordinal suffix
-  let prefix = ''
+  let prefix
   if (hundreds === 1) {
     prefix = HUNDRED
-  } else {
+  }
+  else {
     prefix = ONES[hundreds] + HUNDRED
   }
 
@@ -405,7 +422,7 @@ function buildOrdinalSegment (n) {
  * toOrdinal(21)    // 'eenentwintigste'
  * toOrdinal(100)   // 'honderdste'
  */
-function toOrdinal (value) {
+function toOrdinal(value) {
   const n = parseOrdinalValue(value)
 
   // Fast path: 1-9
@@ -432,7 +449,7 @@ function toOrdinal (value) {
  * @param {bigint} n - Non-negative integer >= 1000
  * @returns {string} Dutch ordinal words
  */
-function buildLargeOrdinal (n) {
+function buildLargeOrdinal(n) {
   // Extract segments
   const segments = []
   let temp = n
@@ -466,34 +483,42 @@ function buildLargeOrdinal (n) {
       if (i === 0) {
         // Units segment: use ordinal segment builder
         result += buildOrdinalSegment(segment)
-      } else if (segment === 1 && i > 0) {
+      }
+      else if (segment === 1 && i > 0) {
         // Exact scale: duizendste, miljoenste, etc.
         if (i === 1) {
           result += SCALE_ORDINAL[i]
-        } else {
+        }
+        else {
           result += 'een ' + SCALE_ORDINAL[i]
         }
-      } else {
+      }
+      else {
         // Segment + scale ordinal
         if (i === 1) {
           result += buildSegment(segment, false) + SCALE_ORDINAL[i]
-        } else {
+        }
+        else {
           result += buildSegment(segment, false) + ' ' + SCALE_ORDINAL[i]
         }
       }
-    } else {
+    }
+    else {
       // Higher segments use cardinal form
       if (i === 1) {
         if (segment === 1) {
           result += SCALES[0]
-        } else {
+        }
+        else {
           result += buildSegment(segment, false) + SCALES[0]
         }
-      } else {
+      }
+      else {
         const scaleWord = SCALES[i - 1]
         if (segment === 1) {
           result += 'een ' + scaleWord
-        } else {
+        }
+        else {
           result += buildSegment(segment, false) + ' ' + scaleWord
         }
       }
@@ -520,7 +545,7 @@ function buildLargeOrdinal (n) {
  * toCurrency(1)      // 'één euro'
  * toCurrency(0.01)   // 'één cent'
  */
-function toCurrency (value, options) {
+function toCurrency(value, options) {
   options = validateOptions(options)
   const { isNegative, dollars: euros, cents } = parseCurrencyValue(value)
   const { and = true } = options

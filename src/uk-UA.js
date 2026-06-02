@@ -71,7 +71,7 @@ const SCALE_FORMS = [
   ['квiнтильйон', 'квiнтильйони', 'квiнтильйонiв'],
   ['секстильйон', 'секстильйони', 'секстильйонiв'],
   ['септильйон', 'септильйони', 'септильйонiв'],
-  ['октильйон', 'октильйони', 'октильйонiв']
+  ['октильйон', 'октильйони', 'октильйонiв'],
 ]
 
 // ============================================================================
@@ -85,7 +85,7 @@ const SCALE_FORMS = [
  * @param {string[]} forms - Plural forms [one, few, many]
  * @returns {string} The selected plural form
  */
-function pluralize (n, forms) {
+function pluralize(n, forms) {
   const num = typeof n === 'bigint' ? Number(n) : n
   const lastDigit = num % 10
   const lastTwoDigits = num % 100
@@ -105,7 +105,7 @@ function pluralize (n, forms) {
  * @param {number} n - Number 0-999
  * @returns {string} Segment words
  */
-function buildSegmentMasc (n) {
+function buildSegmentMasc(n) {
   if (n === 0) return ''
 
   const onesDigit = n % 10
@@ -124,7 +124,8 @@ function buildSegmentMasc (n) {
 
   if (tensDigit === 1) {
     parts.push(TEENS[onesDigit])
-  } else if (onesDigit > 0) {
+  }
+  else if (onesDigit > 0) {
     parts.push(ONES_MASC[onesDigit])
   }
 
@@ -137,7 +138,7 @@ function buildSegmentMasc (n) {
  * @param {number} n - Number 0-999
  * @returns {string} Segment words
  */
-function buildSegmentFem (n) {
+function buildSegmentFem(n) {
   if (n === 0) return ''
 
   const onesDigit = n % 10
@@ -156,7 +157,8 @@ function buildSegmentFem (n) {
 
   if (tensDigit === 1) {
     parts.push(TEENS[onesDigit])
-  } else if (onesDigit > 0) {
+  }
+  else if (onesDigit > 0) {
     parts.push(ONES_FEM[onesDigit])
   }
 
@@ -174,7 +176,7 @@ function buildSegmentFem (n) {
  * @param {('masculine'|'feminine')} gender - Grammatical gender
  * @returns {string} The integer in Ukrainian words
  */
-function integerToWords (n, gender) {
+function integerToWords(n, gender) {
   if (n === 0n) return ZERO
 
   if (n < 1000n) {
@@ -191,7 +193,7 @@ function integerToWords (n, gender) {
  * @param {('masculine'|'feminine')} gender - Grammatical gender
  * @returns {string} The integer in Ukrainian words
  */
-function buildLargeNumberWords (n, gender) {
+function buildLargeNumberWords(n, gender) {
   const numStr = n.toString()
   const len = numStr.length
 
@@ -218,7 +220,8 @@ function buildLargeNumberWords (n, gender) {
     if (segment !== 0) {
       if (scaleIndex === 0) {
         parts.push(gender === 'feminine' ? buildSegmentFem(segment) : buildSegmentMasc(segment))
-      } else {
+      }
+      else {
         const scaleForms = SCALE_FORMS[scaleIndex - 1]
         const scaleWord = pluralize(segment, scaleForms)
         // Thousands (scaleIndex=1) are feminine, others masculine
@@ -241,7 +244,7 @@ function buildLargeNumberWords (n, gender) {
  * @param {('masculine'|'feminine')} gender - Grammatical gender
  * @returns {string} The fractional part in Ukrainian words
  */
-function decimalPartToWords (decimalPart, gender) {
+function decimalPartToWords(decimalPart, gender) {
   let result = ''
   let i = 0
 
@@ -268,7 +271,7 @@ function decimalPartToWords (decimalPart, gender) {
  * @param {('masculine'|'feminine')} [options.gender='masculine'] - Grammatical gender
  * @returns {string} The number in Ukrainian words
  */
-function toCardinal (value, options) {
+function toCardinal(value, options) {
   options = validateOptions(options)
   const { isNegative, integerPart, decimalPart } = parseCardinalValue(value)
 
@@ -300,7 +303,7 @@ function toCardinal (value, options) {
  * @param {number} n - Number 0-99
  * @returns {string} Ordinal words
  */
-function buildOrdinalTensOnes (n) {
+function buildOrdinalTensOnes(n) {
   if (n === 0) return ''
 
   const onesDigit = n % 10
@@ -327,7 +330,7 @@ function buildOrdinalTensOnes (n) {
  * @param {bigint} n - Positive integer to convert
  * @returns {string} Ordinal Ukrainian words
  */
-function integerToOrdinal (n) {
+function integerToOrdinal(n) {
   if (n < 100n) {
     return buildOrdinalTensOnes(Number(n))
   }
@@ -369,7 +372,7 @@ function integerToOrdinal (n) {
  * @param {bigint} n - Number >= 1,000,000
  * @returns {string} Ordinal Ukrainian words
  */
-function buildLargeOrdinal (n) {
+function buildLargeOrdinal(n) {
   const numStr = n.toString()
   const len = numStr.length
 
@@ -404,19 +407,23 @@ function buildLargeOrdinal (n) {
       if (scaleIndex === 0) {
         if (isLastNonZero) {
           parts.push(integerToOrdinal(BigInt(segment)))
-        } else {
+        }
+        else {
           parts.push(buildSegmentMasc(segment))
         }
-      } else {
+      }
+      else {
         if (isLastNonZero) {
           if (segment === 1) {
             parts.push(ORDINAL_SCALES[scaleIndex - 1])
-          } else {
+          }
+          else {
             const isFeminine = scaleIndex === 1
             const segmentWord = isFeminine ? buildSegmentFem(segment) : buildSegmentMasc(segment)
             parts.push(segmentWord + ' ' + ORDINAL_SCALES[scaleIndex - 1])
           }
-        } else {
+        }
+        else {
           const scaleForms = SCALE_FORMS[scaleIndex - 1]
           const scaleWord = pluralize(segment, scaleForms)
           const isFeminine = scaleIndex === 1
@@ -447,7 +454,7 @@ function buildLargeOrdinal (n) {
  * toOrdinal(100)  // 'сотий'
  * toOrdinal(1000) // 'тисячний'
  */
-function toOrdinal (value) {
+function toOrdinal(value) {
   const integerPart = parseOrdinalValue(value)
   return integerToOrdinal(integerPart)
 }
@@ -470,7 +477,7 @@ function toOrdinal (value) {
  * toCurrency(1.50)   // 'одна гривня п\'ятдесят копiйок'
  * toCurrency(-5)     // 'мiнус п\'ять гривень'
  */
-function toCurrency (value) {
+function toCurrency(value) {
   const { isNegative, dollars: hryvnia, cents: kopiyky } = parseCurrencyValue(value)
 
   let result = ''

@@ -150,7 +150,7 @@ export const cardinal = [
   [21001, 'douăzeci și una de mii una', { gender: 'feminine' }],
   [1_000_001, 'un milion una', { gender: 'feminine' }],
   [1_000_002, 'un milion două', { gender: 'feminine' }],
-  [2_000_001, 'două milioane una', { gender: 'feminine' }]
+  [2_000_001, 'două milioane una', { gender: 'feminine' }],
 ]
 
 /**
@@ -196,7 +196,7 @@ export const ordinal = [
 
   // Millions
   [1000000, 'al milionulea'],
-  [2000000, 'două milioane al milionulea']
+  [2000000, 'două milioane al milionulea'],
 ]
 
 /**
@@ -238,5 +238,5 @@ export const currency = [
 
   // Edge cases
   [5.00, 'cinci lei'],
-  ['5.00', 'cinci lei']
+  ['5.00', 'cinci lei'],
 ]

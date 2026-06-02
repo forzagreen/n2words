@@ -41,7 +41,7 @@ export const cardinal = [
   [1000001, 'one million and one'],
 
   // Billions
-  [1000000000, 'one billion']
+  [1000000000, 'one billion'],
 ]
 
 /**
@@ -57,7 +57,7 @@ export const ordinal = [
   [100, 'one hundredth'],
   [101, 'one hundred first'],
   [1000, 'one thousandth'],
-  [1000000, 'one millionth']
+  [1000000, 'one millionth'],
 ]
 
 /**
@@ -93,5 +93,5 @@ export const currency = [
 
   // Edge cases
   [5.00, 'five euro'],
-  ['5.00', 'five euro']
+  ['5.00', 'five euro'],
 ]

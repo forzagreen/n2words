@@ -56,7 +56,7 @@ const BELOW_HUNDRED = [
   'ಅರವತ್ತು', 'ಅರವತ್ತೊಂದು', 'ಅರವತ್ತೆರಡು', 'ಅರವತ್ತಮೂರು', 'ಅರವತ್ತನಾಲ್ಕು', 'ಅರವತ್ತೈದು', 'ಅರವತ್ತಾರು', 'ಅರವತ್ತೇಳು', 'ಅರವತ್ತೆಂಟು', 'ಅರವತ್ತೊಂಬತ್ತು',
   'ಎಪ್ಪತ್ತು', 'ಎಪ್ಪತ್ತೊಂದು', 'ಎಪ್ಪತ್ತೆರಡು', 'ಎಪ್ಪತ್ತಮೂರು', 'ಎಪ್ಪತ್ತನಾಲ್ಕು', 'ಎಪ್ಪತ್ತೈದು', 'ಎಪ್ಪತ್ತಾರು', 'ಎಪ್ಪತ್ತೇಳು', 'ಎಪ್ಪತ್ತೆಂಟು', 'ಎಪ್ಪತ್ತೊಂಬತ್ತು',
   'ಎಂಬತ್ತು', 'ಎಂಬತ್ತೊಂದು', 'ಎಂಬತ್ತೆರಡು', 'ಎಂಬತ್ತಮೂರು', 'ಎಂಬತ್ತನಾಲ್ಕು', 'ಎಂಬತ್ತೈದು', 'ಎಂಬತ್ತಾರು', 'ಎಂಬತ್ತೇಳು', 'ಎಂಬತ್ತೆಂಟು', 'ಎಂಬತ್ತೊಂಬತ್ತು',
-  'ತೊಂಬತ್ತು', 'ತೊಂಬತ್ತೊಂದು', 'ತೊಂಬತ್ತೆರಡು', 'ತೊಂಬತ್ತಮೂರು', 'ತೊಂಬತ್ತನಾಲ್ಕು', 'ತೊಂಬತ್ತೈದು', 'ತೊಂಬತ್ತಾರು', 'ತೊಂಬತ್ತೇಳು', 'ತೊಂಬತ್ತೆಂಟು', 'ತೊಂಬತ್ತೊಂಬತ್ತು'
+  'ತೊಂಬತ್ತು', 'ತೊಂಬತ್ತೊಂದು', 'ತೊಂಬತ್ತೆರಡು', 'ತೊಂಬತ್ತಮೂರು', 'ತೊಂಬತ್ತನಾಲ್ಕು', 'ತೊಂಬತ್ತೈದು', 'ತೊಂಬತ್ತಾರು', 'ತೊಂಬತ್ತೇಳು', 'ತೊಂಬತ್ತೆಂಟು', 'ತೊಂಬತ್ತೊಂಬತ್ತು',
 ]
 
 // Scale words: index 0 = units (empty), 1 = thousand, 2 = lakh, 3 = crore, etc.
@@ -72,7 +72,7 @@ const SCALE_WORDS = ['', 'ಸಾವಿರ', 'ಲಕ್ಷ', 'ಕೋಟಿ', 'ಅ
  * @param {number} n - Segment value (0-999)
  * @returns {string} Kannada words for the segment
  */
-function buildSegment (n) {
+function buildSegment(n) {
   if (n === 0) return ''
   if (n < 100) return BELOW_HUNDRED[n]
 
@@ -98,7 +98,7 @@ function buildSegment (n) {
  * @param {bigint} n - Non-negative integer to convert
  * @returns {string} Kannada words
  */
-function integerToWords (n) {
+function integerToWords(n) {
   if (n === 0n) return ZERO
 
   // Fast path: numbers < 1000 (direct lookup)
@@ -124,7 +124,8 @@ function integerToWords (n) {
 
     if (i === 0) {
       words.push(buildSegment(segment))
-    } else {
+    }
+    else {
       words.push(BELOW_HUNDRED[segment])
     }
 
@@ -142,7 +143,7 @@ function integerToWords (n) {
  * @param {string} decimalPart - Digits after the decimal separator
  * @returns {string} Per-digit Kannada words
  */
-function decimalPartToWords (decimalPart) {
+function decimalPartToWords(decimalPart) {
   // Per-digit decimal reading
   const digits = []
   for (const char of decimalPart) {
@@ -158,7 +159,7 @@ function decimalPartToWords (decimalPart) {
  * @param {number | string | bigint} value - The numeric value to convert
  * @returns {string} The number in Kannada words
  */
-function toCardinal (value) {
+function toCardinal(value) {
   const { isNegative, integerPart, decimalPart } = parseCardinalValue(value)
 
   let result = ''
@@ -188,7 +189,7 @@ function toCardinal (value) {
  * @param {bigint} n - Positive integer to convert
  * @returns {string} Kannada ordinal words
  */
-function integerToOrdinal (n) {
+function integerToOrdinal(n) {
   // Special ordinals for 1-6
   if (n >= 1n && n <= 6n) {
     return ORDINAL_SPECIAL[Number(n)]
@@ -212,7 +213,7 @@ function integerToOrdinal (n) {
  * toOrdinal(2)    // 'ಎರಡನೇ'
  * toOrdinal(10)   // 'ಹತ್ತುನೇ'
  */
-function toOrdinal (value) {
+function toOrdinal(value) {
   const integerPart = parseOrdinalValue(value)
   return integerToOrdinal(integerPart)
 }
@@ -234,7 +235,7 @@ function toOrdinal (value) {
  * toCurrency(1)      // 'ಒಂದು ರೂಪಾಯಿ'
  * toCurrency(0.01)   // 'ಒಂದು ಪೈಸೆ'
  */
-function toCurrency (value) {
+function toCurrency(value) {
   const { isNegative, dollars: rupees, cents: paise } = parseCurrencyValue(value)
 
   // Build result

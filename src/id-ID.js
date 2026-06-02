@@ -54,7 +54,7 @@ const RUPIAH = 'rupiah'
  * @param {number} n - The segment value (0-999)
  * @returns {string} The segment in Indonesian words
  */
-function buildSegment (n) {
+function buildSegment(n) {
   if (n === 0) return ''
 
   const onesDigit = n % 10
@@ -67,7 +67,8 @@ function buildSegment (n) {
   if (hundredsDigit > 0) {
     if (hundredsDigit === 1) {
       parts.push('se' + HUNDRED_WORD)
-    } else {
+    }
+    else {
       parts.push(ONES[hundredsDigit] + ' ' + HUNDRED_WORD)
     }
   }
@@ -77,13 +78,17 @@ function buildSegment (n) {
 
   if (tensOnes === 0) {
     // Just hundreds
-  } else if (tensOnes < 10) {
+  }
+  else if (tensOnes < 10) {
     parts.push(ONES[tensOnes])
-  } else if (tensOnes < 20) {
+  }
+  else if (tensOnes < 20) {
     parts.push(TEENS[tensOnes - 10])
-  } else if (onesDigit === 0) {
+  }
+  else if (onesDigit === 0) {
     parts.push(TENS[tensDigit])
-  } else {
+  }
+  else {
     parts.push(TENS[tensDigit] + ' ' + ONES[onesDigit])
   }
 
@@ -100,7 +105,7 @@ function buildSegment (n) {
  * @param {bigint} n - The integer value to convert
  * @returns {string} The integer in Indonesian words
  */
-function integerToWords (n) {
+function integerToWords(n) {
   if (n === 0n) return ZERO
 
   if (n < 1000n) {
@@ -114,7 +119,8 @@ function integerToWords (n) {
     let result
     if (thousands === 1) {
       result = 'se' + THOUSAND_WORD
-    } else {
+    }
+    else {
       result = buildSegment(thousands) + ' ' + THOUSAND_WORD
     }
 
@@ -134,7 +140,7 @@ function integerToWords (n) {
  * @param {bigint} n - The integer value to convert
  * @returns {string} The number in Indonesian words
  */
-function buildLargeNumberWords (n) {
+function buildLargeNumberWords(n) {
   const numStr = n.toString()
   const len = numStr.length
 
@@ -161,13 +167,16 @@ function buildLargeNumberWords (n) {
     if (segment !== 0) {
       if (scaleIndex === 0) {
         parts.push(buildSegment(segment))
-      } else if (scaleIndex === 1) {
+      }
+      else if (scaleIndex === 1) {
         if (segment === 1) {
           parts.push('se' + THOUSAND_WORD)
-        } else {
+        }
+        else {
           parts.push(buildSegment(segment) + ' ' + THOUSAND_WORD)
         }
-      } else {
+      }
+      else {
         // Indonesian: "satu juta" not "sejuta"
         const scaleWord = SCALE_WORDS[scaleIndex - 2]
         parts.push(buildSegment(segment) + ' ' + scaleWord)
@@ -186,7 +195,7 @@ function buildLargeNumberWords (n) {
  * @param {string} decimalPart - The decimal digits as a string
  * @returns {string} The decimal part in Indonesian words
  */
-function decimalPartToWords (decimalPart) {
+function decimalPartToWords(decimalPart) {
   let result = ''
 
   let i = 0
@@ -211,7 +220,7 @@ function decimalPartToWords (decimalPart) {
  * @param {number | string | bigint} value - The numeric value to convert
  * @returns {string} The number in Indonesian words
  */
-function toCardinal (value) {
+function toCardinal(value) {
   const { isNegative, integerPart, decimalPart } = parseCardinalValue(value)
 
   let result = ''
@@ -242,7 +251,7 @@ function toCardinal (value) {
  * @param {bigint} n - Positive integer to convert
  * @returns {string} Indonesian ordinal words
  */
-function integerToOrdinal (n) {
+function integerToOrdinal(n) {
   // Special case: 1st is "pertama"
   if (n === 1n) {
     return ORDINAL_FIRST
@@ -265,7 +274,7 @@ function integerToOrdinal (n) {
  * toOrdinal(2)    // 'kedua'
  * toOrdinal(10)   // 'kesepuluh'
  */
-function toOrdinal (value) {
+function toOrdinal(value) {
   const integerPart = parseOrdinalValue(value)
   return integerToOrdinal(integerPart)
 }
@@ -290,7 +299,7 @@ function toOrdinal (value) {
  * toCurrency(1000)   // 'seribu rupiah'
  * toCurrency(-5)     // 'min lima rupiah'
  */
-function toCurrency (value) {
+function toCurrency(value) {
   const { isNegative, dollars: rupiah } = parseCurrencyValue(value)
 
   let result = ''

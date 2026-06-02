@@ -15,7 +15,7 @@ import { expandScientificNotation, hasScientificNotation } from './expand-scient
  * @throws {TypeError} If value is not number, string, or bigint
  * @throws {RangeError} If value is zero, negative, or has a decimal part
  */
-export function parseOrdinalValue (value) {
+export function parseOrdinalValue(value) {
   const type = typeof value
 
   // BigInt: simplest case
@@ -46,7 +46,7 @@ export function parseOrdinalValue (value) {
   }
 
   throw new TypeError(
-    `Invalid value type: expected number, string, or bigint, received ${type}`
+    `Invalid value type: expected number, string, or bigint, received ${type}`,
   )
 }
 
@@ -57,7 +57,7 @@ export function parseOrdinalValue (value) {
  * @returns {bigint} The positive integer value
  * @throws {RangeError} If string is not a valid positive integer
  */
-function parseOrdinalString (value) {
+function parseOrdinalString(value) {
   const trimmed = value.trim()
 
   if (trimmed.length === 0) {
@@ -96,8 +96,9 @@ function parseOrdinalString (value) {
       throw new RangeError('Ordinals must be positive integers')
     }
     return result
-  } catch (e) {
+  }
+  catch (e) {
     if (e instanceof RangeError) throw e
-    throw new RangeError(`Invalid ordinal format: "${value}"`)
+    throw new RangeError(`Invalid ordinal format: "${value}"`, { cause: e })
   }
 }

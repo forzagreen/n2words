@@ -79,7 +79,7 @@ const CENT = 'Cent'
  * @param {number} n - Number 0-999
  * @returns {string} German words for the segment
  */
-function buildSegment (n) {
+function buildSegment(n) {
   if (n === 0) return ''
 
   const ones = n % 10
@@ -97,14 +97,17 @@ function buildSegment (n) {
   if (tens === 1) {
     // Teens
     result += TEENS[ones]
-  } else if (tens >= 2 && ones > 0) {
+  }
+  else if (tens >= 2 && ones > 0) {
     // Inverted: "einundzwanzig" (one-and-twenty)
     // Use "ein" before "und", not "eins"
     result += (ones === 1 ? EIN : ONES[ones]) + 'und' + TENS[tens]
-  } else if (tens >= 2) {
+  }
+  else if (tens >= 2) {
     // Just tens
     result += TENS[tens]
-  } else if (ones > 0) {
+  }
+  else if (ones > 0) {
     // Just ones (no tens, possibly after hundreds)
     // Use "eins" for standalone/after hundreds
     result += ONES[ones]
@@ -120,7 +123,7 @@ function buildSegment (n) {
  * @param {number} n - Number 0-999
  * @returns {string} German words for thousand context
  */
-function buildSegmentForThousand (n) {
+function buildSegmentForThousand(n) {
   if (n === 0) return ''
   if (n === 1) return EIN // "eintausend"
 
@@ -136,13 +139,17 @@ function buildSegmentForThousand (n) {
 
   if (tens === 1) {
     result += TEENS[ones]
-  } else if (tens >= 2 && ones > 0) {
+  }
+  else if (tens >= 2 && ones > 0) {
     result += (ones === 1 ? EIN : ONES[ones]) + 'und' + TENS[tens]
-  } else if (tens >= 2) {
+  }
+  else if (tens >= 2) {
     result += TENS[tens]
-  } else if (ones > 0 && hundreds > 0) {
+  }
+  else if (ones > 0 && hundreds > 0) {
     result += ONES[ones]
-  } else if (ones > 0) {
+  }
+  else if (ones > 0) {
     result += ONES[ones]
   }
 
@@ -159,7 +166,7 @@ function buildSegmentForThousand (n) {
  * @param {bigint} n - Non-negative integer to convert
  * @returns {string} German words
  */
-function integerToWords (n) {
+function integerToWords(n) {
   if (n === 0n) return ZERO
 
   // Fast path: numbers < 1000
@@ -192,7 +199,7 @@ function integerToWords (n) {
  * @param {bigint} n - Number >= 1,000,000
  * @returns {string} German words
  */
-function buildLargeNumberWords (n) {
+function buildLargeNumberWords(n) {
   const numStr = n.toString()
   const len = numStr.length
 
@@ -222,16 +229,19 @@ function buildLargeNumberWords (n) {
       if (scaleIndex === 0) {
         // Units segment (no scale word)
         parts.push({ words: buildSegment(segment), isScale: false, scaleLevel: 0 })
-      } else if (scaleIndex === 1) {
+      }
+      else if (scaleIndex === 1) {
         // Thousands: compound without space
         const segWords = buildSegmentForThousand(segment)
         parts.push({ words: segWords + SCALES[0], isScale: false, scaleLevel: 1 })
-      } else {
+      }
+      else {
         // Million+ : space around scale word
         let segWords
         if (segment === 1) {
           segWords = 'eine' // "eine Million"
-        } else {
+        }
+        else {
           segWords = buildSegment(segment)
         }
         const scaleWord = segment === 1 ? SCALES[scaleIndex - 1] : SCALES_PLURAL[scaleIndex - 1]
@@ -254,7 +264,7 @@ function buildLargeNumberWords (n) {
  * @param {Array<{words: string, isScale: boolean, scaleLevel: number}>} parts - Parts with metadata
  * @returns {string} Joined string
  */
-function joinGermanParts (parts) {
+function joinGermanParts(parts) {
   if (parts.length === 0) return ZERO
 
   let result = ''
@@ -285,7 +295,7 @@ function joinGermanParts (parts) {
  * @param {string} decimalPart - Decimal digits (without the point)
  * @returns {string} German words for decimal part
  */
-function decimalPartToWords (decimalPart) {
+function decimalPartToWords(decimalPart) {
   let result = ''
 
   // Handle leading zeros
@@ -322,7 +332,7 @@ function decimalPartToWords (decimalPart) {
  * toCardinal(1000)         // 'eintausend'
  * toCardinal(1000000)      // 'eine Million'
  */
-function toCardinal (value) {
+function toCardinal(value) {
   const { isNegative, integerPart, decimalPart } = parseCardinalValue(value)
 
   let result = ''
@@ -353,7 +363,7 @@ function toCardinal (value) {
  * @param {boolean} isFinal - Whether this is the final segment (gets ordinal suffix)
  * @returns {string} German ordinal words for this segment
  */
-function buildOrdinalSegment (n, isFinal) {
+function buildOrdinalSegment(n, isFinal) {
   if (n === 0) return ''
 
   const ones = n % 10
@@ -372,28 +382,35 @@ function buildOrdinalSegment (n, isFinal) {
     // Teens: 10-19
     if (isFinal) {
       result += ORDINAL_TEENS[ones]
-    } else {
+    }
+    else {
       result += TEENS[ones]
     }
-  } else if (tens >= 2 && ones > 0) {
+  }
+  else if (tens >= 2 && ones > 0) {
     // Compound: einundzwanzig → einundzwanzigste
     if (isFinal) {
       result += (ones === 1 ? EIN : ONES[ones]) + 'und' + ORDINAL_TENS[tens]
-    } else {
+    }
+    else {
       result += (ones === 1 ? EIN : ONES[ones]) + 'und' + TENS[tens]
     }
-  } else if (tens >= 2) {
+  }
+  else if (tens >= 2) {
     // Just tens: zwanzig → zwanzigste
     if (isFinal) {
       result += ORDINAL_TENS[tens]
-    } else {
+    }
+    else {
       result += TENS[tens]
     }
-  } else if (ones > 0) {
+  }
+  else if (ones > 0) {
     // Just ones: eins → erste
     if (isFinal) {
       result += ORDINAL_ONES[ones]
-    } else {
+    }
+    else {
       result += ONES[ones]
     }
   }
@@ -412,7 +429,7 @@ function buildOrdinalSegment (n, isFinal) {
  * @param {bigint} n - Positive integer
  * @returns {string} German ordinal words
  */
-function integerToOrdinal (n) {
+function integerToOrdinal(n) {
   // Fast path: numbers < 1000
   if (n < 1000n) {
     return buildOrdinalSegment(Number(n), true)
@@ -442,7 +459,7 @@ function integerToOrdinal (n) {
  * @param {bigint} n - Number >= 1,000,000
  * @returns {string} German ordinal words
  */
-function buildLargeOrdinal (n) {
+function buildLargeOrdinal(n) {
   const numStr = n.toString()
   const len = numStr.length
 
@@ -482,27 +499,32 @@ function buildLargeOrdinal (n) {
       if (scaleIndex === 0) {
         // Units segment
         parts.push({ words: buildOrdinalSegment(segment, true), isScale: false, scaleLevel: 0 })
-      } else if (scaleIndex === 1) {
+      }
+      else if (scaleIndex === 1) {
         // Thousands
         const segWords = buildSegmentForThousand(segment)
         if (isLowestSegment) {
           parts.push({ words: segWords + SCALES[0] + ORDINAL_SUFFIX, isScale: false, scaleLevel: 1 })
-        } else {
+        }
+        else {
           parts.push({ words: segWords + SCALES[0], isScale: false, scaleLevel: 1 })
         }
-      } else {
+      }
+      else {
         // Million+
         let segWords
         if (segment === 1) {
           segWords = 'eine'
-        } else {
+        }
+        else {
           segWords = buildSegment(segment)
         }
         const scaleWord = segment === 1 ? SCALES[scaleIndex - 1] : SCALES_PLURAL[scaleIndex - 1]
         parts.push({ words: segWords, isScale: false, scaleLevel: scaleIndex })
         if (isLowestSegment) {
           parts.push({ words: scaleWord + ORDINAL_SUFFIX, isScale: true, scaleLevel: scaleIndex })
-        } else {
+        }
+        else {
           parts.push({ words: scaleWord, isScale: true, scaleLevel: scaleIndex })
         }
       }
@@ -533,7 +555,7 @@ function buildLargeOrdinal (n) {
  * toOrdinal(100)  // 'einhundertste'
  * toOrdinal(1000) // 'eintausendste'
  */
-function toOrdinal (value) {
+function toOrdinal(value) {
   const integerPart = parseOrdinalValue(value)
   return integerToOrdinal(integerPart)
 }
@@ -559,7 +581,7 @@ function toOrdinal (value) {
  * toCurrency(0.01)                  // 'ein Cent'
  * toCurrency(42.50, { and: false }) // 'zweiundvierzig Euro fünfzig Cent'
  */
-function toCurrency (value, options) {
+function toCurrency(value, options) {
   options = validateOptions(options)
   const { isNegative, dollars: euros, cents } = parseCurrencyValue(value)
   const { and: useAnd = true } = options
@@ -573,7 +595,8 @@ function toCurrency (value, options) {
     // Use "ein" instead of "eins" before Euro
     if (euros === 1n) {
       result += EIN
-    } else {
+    }
+    else {
       result += integerToWords(euros)
     }
     result += ' ' + EURO
@@ -587,7 +610,8 @@ function toCurrency (value, options) {
     // Use "ein" instead of "eins" before Cent
     if (cents === 1n) {
       result += EIN
-    } else {
+    }
+    else {
       result += integerToWords(cents)
     }
     result += ' ' + CENT

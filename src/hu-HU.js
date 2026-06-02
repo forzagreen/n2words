@@ -66,7 +66,7 @@ const WORDS = new Map([
   [3n, 'három'],
   [2n, 'kettő'],
   [1n, 'egy'],
-  [0n, 'nulla']
+  [0n, 'nulla'],
 ])
 
 const ZERO = 'nulla'
@@ -100,7 +100,7 @@ const ORDINAL_SPECIAL = {
   80: 'nyolcvanadik',
   90: 'kilencvenedik',
   100: 'századik',
-  1000: 'ezredik'
+  1000: 'ezredik',
 }
 
 // ============================================================================
@@ -118,7 +118,7 @@ const FILLER = 'fillér' // subunit (rarely used, same singular and plural)
  * @param {bigint} value
  * @returns {string | undefined}
  */
-function wordForScale (value) {
+function wordForScale(value) {
   return WORDS.get(value)
 }
 
@@ -126,7 +126,7 @@ function wordForScale (value) {
  * @param {bigint} n
  * @returns {string}
  */
-function tensToCardinal (n) {
+function tensToCardinal(n) {
   if (WORDS.has(n)) {
     return /** @type {string} */ (WORDS.get(n))
   }
@@ -139,7 +139,7 @@ function tensToCardinal (n) {
  * @param {bigint} n
  * @returns {string}
  */
-function hundredsToCardinal (n) {
+function hundredsToCardinal(n) {
   const hundreds = n / 100n
   let prefix = 'száz'
   if (hundreds !== 1n) {
@@ -153,7 +153,7 @@ function hundredsToCardinal (n) {
  * @param {bigint} n
  * @returns {string}
  */
-function thousandsToCardinal (n) {
+function thousandsToCardinal(n) {
   const thousands = n / 1000n
   let prefix = 'ezer'
   if (thousands !== 1n) {
@@ -173,14 +173,14 @@ const SCALES = [
   1_000_000_000_000_000n,
   1_000_000_000_000n,
   1_000_000_000n,
-  1_000_000n
+  1_000_000n,
 ]
 
 /**
  * @param {bigint} n
  * @returns {string}
  */
-function bigNumberToCardinal (n) {
+function bigNumberToCardinal(n) {
   // Find appropriate scale using BigInt comparison (avoids toString)
   let exp = 1_000_000n
   for (const scale of SCALES) {
@@ -201,7 +201,7 @@ function bigNumberToCardinal (n) {
  * @param {string} [zeroWord]
  * @returns {string}
  */
-function integerToWordsInner (n, zeroWord = ZERO) {
+function integerToWordsInner(n, zeroWord = ZERO) {
   // Normalize to BigInt for consistent comparisons
   if (typeof n !== 'bigint') n = BigInt(n)
 
@@ -230,7 +230,7 @@ function integerToWordsInner (n, zeroWord = ZERO) {
  * @param {bigint} n
  * @returns {string}
  */
-function integerToWords (n) {
+function integerToWords(n) {
   return integerToWordsInner(n, ZERO)
 }
 
@@ -238,7 +238,7 @@ function integerToWords (n) {
  * @param {string} decimalPart
  * @returns {string}
  */
-function decimalPartToWords (decimalPart) {
+function decimalPartToWords(decimalPart) {
   let result = ''
   let i = 0
 
@@ -263,7 +263,7 @@ function decimalPartToWords (decimalPart) {
  * @param {number | string | bigint} value - The numeric value to convert
  * @returns {string} The number in Hungarian words
  */
-function toCardinal (value) {
+function toCardinal(value) {
   const { isNegative, integerPart, decimalPart } = parseCardinalValue(value)
 
   let result = ''
@@ -294,7 +294,7 @@ function toCardinal (value) {
  * @param {bigint} n - Positive integer to convert
  * @returns {string} Hungarian ordinal words
  */
-function integerToOrdinal (n) {
+function integerToOrdinal(n) {
   const num = Number(n)
 
   // Exact special forms
@@ -352,7 +352,7 @@ function integerToOrdinal (n) {
  * toOrdinal(2)    // 'második'
  * toOrdinal(21)   // 'huszonegyedik'
  */
-function toOrdinal (value) {
+function toOrdinal(value) {
   const integerPart = parseOrdinalValue(value)
   return integerToOrdinal(integerPart)
 }
@@ -377,7 +377,7 @@ function toOrdinal (value) {
  * toCurrency(1.50)   // 'egy forint ötven fillér'
  * toCurrency(-5)     // 'mínusz öt forint'
  */
-function toCurrency (value) {
+function toCurrency(value) {
   const { isNegative, dollars: forint, cents: filler } = parseCurrencyValue(value)
 
   let result = ''

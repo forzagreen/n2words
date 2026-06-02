@@ -83,7 +83,7 @@ export const cardinal = [
   [
     1104,
     'duizend honderdenvier',
-    { noHundredPairing: true, includeOptionalAnd: true }
+    { noHundredPairing: true, includeOptionalAnd: true },
   ],
   [1243, 'twaalfhonderd drieënveertig'],
   [1243, 'duizend tweehonderddrieënveertig', { noHundredPairing: true }],
@@ -127,8 +127,8 @@ export const cardinal = [
   [5_200_000_000, 'vijf miljard tweehonderd miljoen'],
   [
     347_625_728_221,
-    'driehonderdzevenenveertig miljard zeshonderdvijfentwintig miljoen' +
-    ' zevenhonderdachtentwintigduizend tweehonderdeenentwintig'
+    'driehonderdzevenenveertig miljard zeshonderdvijfentwintig miljoen'
+    + ' zevenhonderdachtentwintigduizend tweehonderdeenentwintig',
   ],
   [1_000_000_000_000, 'één biljoen'],
   [3_627_000_000_000, 'drie biljoen zeshonderdzevenentwintig miljard'],
@@ -136,16 +136,16 @@ export const cardinal = [
   [100_000_000_000_000, 'honderd biljoen'],
   [
     4_500_072_900_000_111,
-    'vier biljard vijfhonderd biljoen tweeënzeventig miljard negenhonderd' +
-    ' miljoen honderdelf'
+    'vier biljard vijfhonderd biljoen tweeënzeventig miljard negenhonderd'
+    + ' miljoen honderdelf',
   ],
   [
     4_500_072_900_000_111,
-    'vier biljard vijfhonderd biljoen tweeënzeventig miljard negenhonderd' +
-    ' miljoen honderdenelf',
-    { includeOptionalAnd: true }
+    'vier biljard vijfhonderd biljoen tweeënzeventig miljard negenhonderd'
+    + ' miljoen honderdenelf',
+    { includeOptionalAnd: true },
   ],
-  [1_000_000_000_000_000_000n, 'één triljoen']
+  [1_000_000_000_000_000_000n, 'één triljoen'],
 ]
 
 /**
@@ -230,7 +230,7 @@ export const ordinal = [
   [1_000_000_000_000, 'een biljoenste'],
 
   // BigInt support
-  [1_000_000_000_000_000_000n, 'een triljoenste']
+  [1_000_000_000_000_000_000n, 'een triljoenste'],
 ]
 
 /**
@@ -287,5 +287,5 @@ export const currency = [
   ['0.99', 'negenennegentig cent'],
 
   // BigInt (whole euros only)
-  [1000000000000n, 'één biljoen euro']
+  [1000000000000n, 'één biljoen euro'],
 ]

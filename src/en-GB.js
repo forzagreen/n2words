@@ -28,7 +28,7 @@ const SCALES = [
   'quintillion', 'sextillion', 'septillion', 'octillion', 'nonillion',
   'decillion', 'undecillion', 'duodecillion', 'tredecillion', 'quattuordecillion',
   'quindecillion', 'sexdecillion', 'septendecillion', 'octodecillion', 'novemdecillion',
-  'vigintillion'
+  'vigintillion',
 ]
 
 const HUNDRED = 'hundred'
@@ -60,7 +60,7 @@ const segmentResult = { word: '', hasHundred: false }
  * @param {number} n - Number 0-999
  * @returns {{ word: string, hasHundred: boolean }}
  */
-function buildSegment (n) {
+function buildSegment(n) {
   if (n === 0) {
     segmentResult.word = ''
     segmentResult.hasHundred = false
@@ -75,9 +75,11 @@ function buildSegment (n) {
   let tensOnes = ''
   if (tens === 1) {
     tensOnes = TEENS[ones]
-  } else if (tens >= 2) {
+  }
+  else if (tens >= 2) {
     tensOnes = ones > 0 ? TENS[tens] + '-' + ONES[ones] : TENS[tens]
-  } else if (ones > 0) {
+  }
+  else if (ones > 0) {
     tensOnes = ONES[ones]
   }
 
@@ -85,11 +87,13 @@ function buildSegment (n) {
   if (hundreds > 0) {
     if (tensOnes) {
       segmentResult.word = ONES[hundreds] + ' ' + HUNDRED + ' and ' + tensOnes
-    } else {
+    }
+    else {
       segmentResult.word = ONES[hundreds] + ' ' + HUNDRED
     }
     segmentResult.hasHundred = true
-  } else {
+  }
+  else {
     segmentResult.word = tensOnes
     segmentResult.hasHundred = false
   }
@@ -107,7 +111,7 @@ function buildSegment (n) {
  * @param {bigint} n - Non-negative integer to convert
  * @returns {string} English words
  */
-function integerToWords (n) {
+function integerToWords(n) {
   if (n === 0n) return ZERO
 
   // Fast path: numbers < 1000
@@ -142,7 +146,7 @@ function integerToWords (n) {
  * @param {bigint} n - Number >= 1,000,000
  * @returns {string} English words
  */
-function buildLargeNumberWords (n) {
+function buildLargeNumberWords(n) {
   // Extract segments using BigInt division
   // Segments are stored least-significant first (index 0 = ones, 1 = thousands, etc.)
   const segments = []
@@ -185,7 +189,8 @@ function buildLargeNumberWords (n) {
     if (i > 0) {
       result += ' ' + SCALES[i - 1]
       prevWasScale = true
-    } else {
+    }
+    else {
       prevWasScale = false
     }
   }
@@ -199,7 +204,7 @@ function buildLargeNumberWords (n) {
  * @param {string} decimalPart - Decimal digits (without the point)
  * @returns {string} English words for decimal part
  */
-function decimalPartToWords (decimalPart) {
+function decimalPartToWords(decimalPart) {
   let result = ''
 
   // Handle leading zeros
@@ -236,7 +241,7 @@ function decimalPartToWords (decimalPart) {
  * toCardinal(-3.14)        // 'minus three point fourteen'
  * toCardinal('1000000')    // 'one million'
  */
-function toCardinal (value) {
+function toCardinal(value) {
   const { isNegative, integerPart, decimalPart } = parseCardinalValue(value)
 
   let result = ''
@@ -265,7 +270,7 @@ function toCardinal (value) {
  * @param {number} n - Number 0-999
  * @returns {string} Ordinal words for this segment
  */
-function buildOrdinalSegment (n) {
+function buildOrdinalSegment(n) {
   const ones = n % 10
   const tens = Math.trunc(n / 10) % 10
   const hundreds = Math.trunc(n / 100)
@@ -275,15 +280,18 @@ function buildOrdinalSegment (n) {
   if (tens === 1) {
     // Teens: 10-19 → "tenth" through "nineteenth"
     tensOnesOrdinal = ORDINAL_TEENS[ones]
-  } else if (tens >= 2) {
+  }
+  else if (tens >= 2) {
     if (ones > 0) {
       // Compound: "twenty-first", "thirty-second", etc.
       tensOnesOrdinal = TENS[tens] + '-' + ORDINAL_ONES[ones]
-    } else {
+    }
+    else {
       // Round tens: "twentieth", "thirtieth", etc.
       tensOnesOrdinal = ORDINAL_TENS[tens]
     }
-  } else if (ones > 0) {
+  }
+  else if (ones > 0) {
     // Single digit: "first", "second", etc.
     tensOnesOrdinal = ORDINAL_ONES[ones]
   }
@@ -293,7 +301,8 @@ function buildOrdinalSegment (n) {
     if (tensOnesOrdinal) {
       // "one hundred twenty-first"
       return ONES[hundreds] + ' ' + HUNDRED + ' ' + tensOnesOrdinal
-    } else {
+    }
+    else {
       // "one hundredth", "two hundredth", etc.
       return ONES[hundreds] + ' hundredth'
     }
@@ -309,7 +318,7 @@ function buildOrdinalSegment (n) {
  * @param {bigint} n - Positive integer to convert
  * @returns {string} Ordinal English words
  */
-function integerToOrdinal (n) {
+function integerToOrdinal(n) {
   // Fast path: numbers < 1000
   if (n < 1000n) {
     return buildOrdinalSegment(Number(n))
@@ -341,7 +350,7 @@ function integerToOrdinal (n) {
  * @param {bigint} n - Number >= 1,000,000
  * @returns {string} Ordinal English words
  */
-function buildLargeOrdinal (n) {
+function buildLargeOrdinal(n) {
   // Extract segments (least-significant first)
   const segments = []
   let temp = n
@@ -375,11 +384,13 @@ function buildLargeOrdinal (n) {
       if (i === 0) {
         // Units position: use ordinal segment
         result += buildOrdinalSegment(segment)
-      } else {
+      }
+      else {
         // Scale position with no remainder below: "one millionth"
         result += buildSegment(segment).word + ' ' + SCALES[i - 1] + 'th'
       }
-    } else {
+    }
+    else {
       // Non-final segments are cardinal
       result += buildSegment(segment).word
       if (i > 0) {
@@ -409,7 +420,7 @@ function buildLargeOrdinal (n) {
  * toOrdinal(101)  // 'one hundred first'
  * toOrdinal(1000) // 'one thousandth'
  */
-function toOrdinal (value) {
+function toOrdinal(value) {
   const integerPart = parseOrdinalValue(value)
   return integerToOrdinal(integerPart)
 }
@@ -435,7 +446,7 @@ function toOrdinal (value) {
  * toCurrency(0.01)                     // 'one penny'
  * toCurrency(42.50, { and: false })    // 'forty-two pounds fifty pence'
  */
-function toCurrency (value, options) {
+function toCurrency(value, options) {
   options = validateOptions(options)
   const { isNegative, dollars: pounds, cents: pence } = parseCurrencyValue(value)
   const { and: useAnd = true } = options

@@ -71,7 +71,7 @@ export const cardinal = [
   [4_000_000, 'fire million'],
   [10_000_000_000_000, 'ti billion'],
   [100_000_000_000_000, 'en hundre billion'],
-  [1_000_000_000_000_000_000n, 'en kvintillion']
+  [1_000_000_000_000_000_000n, 'en kvintillion'],
 ]
 
 /**
@@ -110,7 +110,7 @@ export const ordinal = [
 
   // Thousands
   [1000, 'en tusende'],
-  [1001, 'en tusen og ende']
+  [1001, 'en tusen og ende'],
 ]
 
 /**
@@ -149,5 +149,5 @@ export const currency = [
 
   // Edge cases
   [5.00, 'fem kroner'],
-  ['5.00', 'fem kroner']
+  ['5.00', 'fem kroner'],
 ]

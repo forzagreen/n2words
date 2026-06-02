@@ -75,7 +75,7 @@ export const cardinal = [
   [1_001_000, '一百萬零一千', { formal: false }],
   [1_111_000, '一百一十一萬一千', { formal: false }],
   [100_000_000, '一億', { formal: false }],
-  [101_000_000, '一億零一百萬', { formal: false }]
+  [101_000_000, '一億零一百萬', { formal: false }],
 ]
 
 /**
@@ -107,7 +107,7 @@ export const ordinal = [
   [101, '第一百零一', { formal: false }],
   [1000, '第一千', { formal: false }],
   [10000, '第一萬', { formal: false }],
-  [100000000, '第一億', { formal: false }]
+  [100000000, '第一億', { formal: false }],
 ]
 
 /**
@@ -157,5 +157,5 @@ export const currency = [
 
   // Edge cases
   [5.00, '伍圓整'],
-  ['5.00', '伍圓整']
+  ['5.00', '伍圓整'],
 ]
