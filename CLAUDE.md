@@ -93,7 +93,7 @@ npm run lint:fix                 # Fix linting issues
 npm run bench                    # All languages
 npm run bench -- en-US           # Single language
 npm run bench -- en-US,fr-FR,de-DE  # Multiple languages
-npm run bench -- --save --compare  # Track changes over time
+npm run bench -- en-US --full    # Longer run (more iterations)
 ```
 
 ## Git Workflow

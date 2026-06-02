@@ -32,8 +32,6 @@
     "**/coverage": true,
     "**/dist": true,
     "**/.nyc_output": true,
-    "**/bench-results.json": true,
-    "**/bench-memory-results.json": true,
     "**/package-lock.json": true,
     "**/.claude": true,
     "**/.cursor": true,
