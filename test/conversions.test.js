@@ -393,10 +393,12 @@ test('all language files use canonical BCP 47 codes', (t) => {
     .filter(f => f.endsWith('.js') && !f.startsWith('utils'))
     .map(f => f.replace('.js', ''))
 
-  // Only flag valid-but-mis-cased codes; invalid codes are the validity test's
-  // concern (and would report a confusing "code → null" here otherwise).
-  const nonCanonicalCodes = languageFiles
-    .filter(code => isValidLanguageCode(code) && code !== getCanonicalCode(code))
-    .map(code => `${code} → ${getCanonicalCode(code)}`)
+  // Only flag valid-but-mis-cased codes; invalid codes (getCanonicalCode is
+  // null) are the validity test's concern, so they're skipped here rather than
+  // reported as a confusing "code → null". Canonicalize once per code.
+  const nonCanonicalCodes = languageFiles.flatMap((code) => {
+    const canonical = getCanonicalCode(code)
+    return canonical && code !== canonical ? [`${code} → ${canonical}`] : []
+  })
   t.deepEqual(nonCanonicalCodes, [], `Non-canonical BCP 47 codes (rename to canonical form): ${nonCanonicalCodes.join(', ')}`)
 })
