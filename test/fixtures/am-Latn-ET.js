@@ -75,7 +75,6 @@ export const cardinal = [
   ['0.5', 'zero netib amist'],
 
   // BigInt
-  [BigInt(999), 'zeteny meto zetena zeteny'],
 ]
 
 /**

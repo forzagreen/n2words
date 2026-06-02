@@ -95,11 +95,10 @@ function getInputKey(input, options) {
  * @param {Function} config.inputValidator Validator function for inputs
  * @param {string} config.inputDescription Description of valid input for error messages
  * @param {boolean} config.allowOptions Whether options are allowed
- * @returns {{valid: boolean, error?: string, warnings?: string[]}} Validation result
+ * @returns {{valid: boolean, error?: string}} Validation result
  */
 function validateFixture(testCases, languageCode, form, config) {
   const { inputValidator, inputDescription, allowOptions = true } = config
-  const warnings = []
 
   if (!Array.isArray(testCases)) {
     return {
@@ -185,24 +184,20 @@ function validateFixture(testCases, languageCode, form, config) {
     const existing = seenInputs.get(key)
 
     if (existing) {
-      if (existing.expected === expected) {
-        // Exact duplicate - warning (redundant but not incorrect)
-        warnings.push(`Duplicate test case at index ${i} in ${languageCode} ${form}: same as index ${existing.index}`)
-      }
-      else {
-        // Conflict - same input, different expected output
-        return {
-          valid: false,
-          error: `Conflicting test cases in ${languageCode} ${form}: index ${existing.index} expects "${existing.expected}" but index ${i} expects "${expected}" for input ${safeStringify(input)}`,
-        }
+      // A repeated input+options is invalid — whether it's an exact duplicate
+      // (same expected, redundant) or a conflict (different expected). Each
+      // input should appear exactly once per form.
+      return {
+        valid: false,
+        error: existing.expected === expected
+          ? `Duplicate test case at index ${i} in ${languageCode} ${form}: same as index ${existing.index}`
+          : `Conflicting test cases in ${languageCode} ${form}: index ${existing.index} expects "${existing.expected}" but index ${i} expects "${expected}" for input ${safeStringify(input)}`,
       }
     }
-    else {
-      seenInputs.set(key, { index: i, expected })
-    }
+    seenInputs.set(key, { index: i, expected })
   }
 
-  return { valid: true, warnings: warnings.length > 0 ? warnings : undefined }
+  return { valid: true }
 }
 
 // ============================================================================
@@ -275,11 +270,6 @@ function planFormChecks(t, file, languageCode, formName, config, fn, fixtureData
   if (!validation.valid) {
     checks.push(() => t.fail(validation.error))
     return checks
-  }
-
-  // Log any warnings (e.g., duplicate test cases). Logs are not assertions.
-  for (const warning of validation.warnings ?? []) {
-    t.log(`Warning: ${warning}`)
   }
 
   // Conversion tests: one assertion per fixture case (handled in runTestCases).

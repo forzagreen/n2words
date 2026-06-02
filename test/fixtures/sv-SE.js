@@ -99,6 +99,5 @@ export const currency = [
   [-42.50, 'minus fyrtio-två kronor och femtio öre'],
 
   // Edge cases
-  [5.00, 'fem kronor'],
   ['5.00', 'fem kronor'],
 ]

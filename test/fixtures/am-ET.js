@@ -74,7 +74,6 @@ export const cardinal = [
   ['0.5', 'ዜሮ ነጥብ አምስት'],
 
   // BigInt
-  [BigInt(999), 'ዘጠኝ መቶ ዘጠና ዘጠኝ'],
 ]
 
 /**

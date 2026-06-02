@@ -172,11 +172,9 @@ export const currency = [
   // Edge cases: .00 cents should show dollars only
   [5.00, 'five dollars'],
   ['5.00', 'five dollars'],
-  [100.00, 'one hundred dollars'],
 
   // String inputs
   ['42.50', 'forty-two dollars and fifty cents'],
-  ['0.99', 'ninety-nine cents'],
 
   // BigInt (whole dollars only)
   [1000000000000n, 'one trillion dollars'],

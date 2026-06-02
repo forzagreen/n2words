@@ -143,6 +143,5 @@ export const currency = [
   [-1000, 'min seribu rupiah'],
 
   // Edge cases (decimals rounded)
-  [5.00, 'lima rupiah'],
   ['5.00', 'lima rupiah'],
 ]

@@ -147,6 +147,5 @@ export const currency = [
   [-42.50, 'mínusz negyvenkettő forint ötven fillér'],
 
   // Edge cases
-  [5.00, 'öt forint'],
   ['5.00', 'öt forint'],
 ]

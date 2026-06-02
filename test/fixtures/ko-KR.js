@@ -141,6 +141,5 @@ export const currency = [
   [-1000, '마이너스 천원'],
 
   // Edge cases (decimals rounded)
-  [5.00, '오원'],
   ['5.00', '오원'],
 ]

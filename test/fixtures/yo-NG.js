@@ -198,6 +198,5 @@ export const currency = [
   [-42.50, 'àìní èjì lé lógójì náírà àti àádọ́ta kọ́bọ̀'],
 
   // Edge cases
-  [5.00, 'àrùn náírà'],
   ['5.00', 'àrùn náírà'],
 ]

@@ -232,11 +232,9 @@ export const currency = [
   // Edge cases: .00 pence should show pounds only
   [5.00, 'five pounds'],
   ['5.00', 'five pounds'],
-  [100.00, 'one hundred pounds'],
 
   // String inputs
   ['42.50', 'forty-two pounds and fifty pence'],
-  ['0.99', 'ninety-nine pence'],
 
   // BigInt (whole pounds only)
   [1000000000000n, 'one trillion pounds'],

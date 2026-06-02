@@ -132,6 +132,5 @@ export const currency = [
   [-42.50, 'minus shilingi arobaini na mbili na senti hamsini'],
 
   // Edge cases
-  [5.00, 'shilingi tano'],
   ['5.00', 'shilingi tano'],
 ]

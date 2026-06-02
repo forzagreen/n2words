@@ -171,6 +171,5 @@ export const currency = [
   [-42.50, 'mīnus četrdesmit divi eiro piecdesmit centu'],
 
   // Edge cases
-  [5.00, 'pieci eiro'],
   ['5.00', 'pieci eiro'],
 ]

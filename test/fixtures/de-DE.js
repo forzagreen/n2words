@@ -209,11 +209,9 @@ export const currency = [
   // Edge cases: .00 cents should show euros only
   [5.00, 'fünf Euro'],
   ['5.00', 'fünf Euro'],
-  [100.00, 'einhundert Euro'],
 
   // String inputs
   ['42.50', 'zweiundvierzig Euro und fünfzig Cent'],
-  ['0.99', 'neunundneunzig Cent'],
 
   // BigInt (whole euros only)
   [1000000000000n, 'eine Billion Euro'],

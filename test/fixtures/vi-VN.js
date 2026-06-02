@@ -150,6 +150,5 @@ export const currency = [
   [-1000, 'âm một nghìn đồng'],
 
   // Edge cases (decimals rounded)
-  [5.00, 'năm đồng'],
   ['5.00', 'năm đồng'],
 ]

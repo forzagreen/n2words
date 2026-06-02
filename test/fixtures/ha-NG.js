@@ -92,8 +92,6 @@ export const cardinal = [
   ['10.25', 'goma digo biyu biyar'],
 
   // BigInt
-  [BigInt(999), 'tara ɗari tis\'in da tara'],
-  [BigInt(1000000), 'ɗaya miliyan'],
 ]
 
 /**
@@ -172,6 +170,5 @@ export const currency = [
   [-42.50, 'babu arba\'in da biyu naira da hamsin kobo'],
 
   // Edge cases
-  [5.00, 'biyar naira'],
   ['5.00', 'biyar naira'],
 ]
