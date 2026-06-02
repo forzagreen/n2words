@@ -246,7 +246,7 @@ test('parses negative bigint', (t) => {
 
 test('handles negative zero as zero', (t) => {
   const result = parseCardinalValue(-0)
-  t.is(result.isNegative, false)
+  t.false(result.isNegative)
   t.is(result.integerPart, 0n)
 })
 
@@ -256,49 +256,49 @@ test('handles negative zero as zero', (t) => {
 
 test('parses decimal number', (t) => {
   const result = parseCardinalValue(3.14)
-  t.is(result.isNegative, false)
+  t.false(result.isNegative)
   t.is(result.integerPart, 3n)
   t.is(result.decimalPart, '14')
 })
 
 test('parses decimal string', (t) => {
   const result = parseCardinalValue('3.14')
-  t.is(result.isNegative, false)
+  t.false(result.isNegative)
   t.is(result.integerPart, 3n)
   t.is(result.decimalPart, '14')
 })
 
 test('parses negative decimal', (t) => {
   const result = parseCardinalValue(-3.14)
-  t.is(result.isNegative, true)
+  t.true(result.isNegative)
   t.is(result.integerPart, 3n)
   t.is(result.decimalPart, '14')
 })
 
 test('parses decimal less than 1', (t) => {
   const result = parseCardinalValue(0.5)
-  t.is(result.isNegative, false)
+  t.false(result.isNegative)
   t.is(result.integerPart, 0n)
   t.is(result.decimalPart, '5')
 })
 
 test('parses string with trailing decimal', (t) => {
   const result = parseCardinalValue('42.')
-  t.is(result.isNegative, false)
+  t.false(result.isNegative)
   t.is(result.integerPart, 42n)
   t.is(result.decimalPart, '')
 })
 
 test('parses string with decimal zeros', (t) => {
   const result = parseCardinalValue('42.00')
-  t.is(result.isNegative, false)
+  t.false(result.isNegative)
   t.is(result.integerPart, 42n)
   t.is(result.decimalPart, '00')
 })
 
 test('handles very small decimals', (t) => {
   const result = parseCardinalValue(0.000001)
-  t.is(result.isNegative, false)
+  t.false(result.isNegative)
   t.is(result.integerPart, 0n)
   t.is(result.decimalPart, '000001')
 })
@@ -309,53 +309,53 @@ test('handles very small decimals', (t) => {
 
 test('expands positive scientific notation', (t) => {
   const result = parseCardinalValue(1e21)
-  t.is(result.isNegative, false)
+  t.false(result.isNegative)
   t.is(result.integerPart, 1000000000000000000000n)
   t.is(result.decimalPart, undefined)
 })
 
 test('expands scientific notation string', (t) => {
   const result = parseCardinalValue('1e21')
-  t.is(result.isNegative, false)
+  t.false(result.isNegative)
   t.is(result.integerPart, 1000000000000000000000n)
 })
 
 test('expands uppercase E notation', (t) => {
   const result = parseCardinalValue('1E21')
-  t.is(result.isNegative, false)
+  t.false(result.isNegative)
   t.is(result.integerPart, 1000000000000000000000n)
 })
 
 test('expands negative exponent to decimal', (t) => {
   const result = parseCardinalValue(1e-3)
-  t.is(result.isNegative, false)
+  t.false(result.isNegative)
   t.is(result.integerPart, 0n)
   t.is(result.decimalPart, '001')
 })
 
 test('expands scientific with decimal mantissa', (t) => {
   const result = parseCardinalValue('1.5e3')
-  t.is(result.isNegative, false)
+  t.false(result.isNegative)
   t.is(result.integerPart, 1500n)
   t.is(result.decimalPart, undefined)
 })
 
 test('handles negative scientific notation', (t) => {
   const result = parseCardinalValue(-1e21)
-  t.is(result.isNegative, true)
+  t.true(result.isNegative)
   t.is(result.integerPart, 1000000000000000000000n)
 })
 
 test('handles negative number with negative exponent', (t) => {
   const result = parseCardinalValue(-1e-7)
-  t.is(result.isNegative, true)
+  t.true(result.isNegative)
   t.is(result.integerPart, 0n)
   t.is(result.decimalPart, '0000001')
 })
 
 test('handles negative string with negative exponent', (t) => {
   const result = parseCardinalValue('-1.5e-3')
-  t.is(result.isNegative, true)
+  t.true(result.isNegative)
   t.is(result.integerPart, 0n)
   t.is(result.decimalPart, '0015')
 })
@@ -366,27 +366,27 @@ test('handles negative string with negative exponent', (t) => {
 
 test('handles MAX_SAFE_INTEGER', (t) => {
   const result = parseCardinalValue(Number.MAX_SAFE_INTEGER)
-  t.is(result.isNegative, false)
+  t.false(result.isNegative)
   t.is(result.integerPart, BigInt(Number.MAX_SAFE_INTEGER))
 })
 
 test('handles MIN_SAFE_INTEGER', (t) => {
   const result = parseCardinalValue(Number.MIN_SAFE_INTEGER)
-  t.is(result.isNegative, true)
+  t.true(result.isNegative)
   t.is(result.integerPart, BigInt(-Number.MIN_SAFE_INTEGER))
 })
 
 test('handles large bigint', (t) => {
   const large = 123456789012345678901234567890n
   const result = parseCardinalValue(large)
-  t.is(result.isNegative, false)
+  t.false(result.isNegative)
   t.is(result.integerPart, large)
 })
 
 test('handles negative large bigint', (t) => {
   const large = -123456789012345678901234567890n
   const result = parseCardinalValue(large)
-  t.is(result.isNegative, true)
+  t.true(result.isNegative)
   t.is(result.integerPart, 123456789012345678901234567890n)
 })
 
@@ -408,14 +408,14 @@ test('parses one', (t) => {
 
 test('handles shorthand decimal notation', (t) => {
   const result = parseCardinalValue('-.5')
-  t.is(result.isNegative, true)
+  t.true(result.isNegative)
   t.is(result.integerPart, 0n)
   t.is(result.decimalPart, '5')
 })
 
 test('handles leading dot notation', (t) => {
   const result = parseCardinalValue('.5')
-  t.is(result.isNegative, false)
+  t.false(result.isNegative)
   t.is(result.integerPart, 0n)
   t.is(result.decimalPart, '5')
 })
