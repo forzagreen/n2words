@@ -10,14 +10,11 @@
  *   npm run bench -- en-US,fr-FR,de-DE         # Multiple languages
  *   npm run bench -- --fn toCardinal           # toCardinal only
  *   npm run bench -- --fn toOrdinal            # toOrdinal only
- *   npm run bench -- --save --compare          # Track changes over time
+ *   npm run bench -- --full                    # Full accuracy mode
  */
-import Benchmark from 'benchmark'
-import { existsSync, writeFileSync, readFileSync, renameSync } from 'node:fs'
+import { Bench } from 'tinybench'
 import { parseArgs } from 'node:util'
 import chalk from 'chalk'
-import { join, dirname } from 'node:path'
-import { fileURLToPath } from 'node:url'
 import { getLanguageCodes } from '../test/helpers/language-helpers.js'
 
 // ============================================================================
@@ -38,27 +35,18 @@ const config = {
   // Default test value (can be overridden with --value)
   defaultValue: Number.MAX_SAFE_INTEGER,
 
-  // Performance benchmark (Benchmark.js)
-  // See: https://benchmarkjs.com/docs#options
+  // Performance benchmark (tinybench)
+  // See: https://github.com/tinylibs/tinybench
+  // `time` is in milliseconds; `iterations` is the minimum run count.
   perf: {
-    async: false, // Run async
-    defer: false, // Benchmark is deferred (async via deferred.resolve())
-    delay: 0.005, // Delay between test cycles (seconds)
-    initCount: 1, // Initial iterations per cycle
-    maxTime: 0.5, // Max time per benchmark (seconds) [default: 5]
-    minSamples: 10, // Minimum sample runs [default: 5]
-    minTime: 0, // Min time to reduce uncertainty to 1% (seconds)
+    time: 500, // Max time per benchmark (ms)
+    iterations: 10, // Minimum sample runs
   },
 
-  // Performance benchmark --full mode (Benchmark.js defaults)
+  // Performance benchmark --full mode (run longer / more iterations)
   perfFull: {
-    async: false, // Run async
-    defer: false, // Benchmark is deferred (async via deferred.resolve())
-    delay: 0.005, // Delay between test cycles (seconds)
-    initCount: 1, // Initial iterations per cycle
-    maxTime: 5, // Max time per benchmark (seconds) [default]
-    minSamples: 5, // Minimum sample runs [default]
-    minTime: 0, // Min time to reduce uncertainty to 1% (seconds)
+    time: 5000, // Max time per benchmark (ms)
+    iterations: 100, // Minimum sample runs
   },
 
   // Memory benchmark
@@ -76,18 +64,7 @@ const config = {
     warmupRounds: 5, // More warmup rounds
     warmupIterations: 5000, // More initial warmup
   },
-
-  // History per language
-  maxHistoryPerLang: 10,
 }
-
-// ============================================================================
-// Paths
-// ============================================================================
-
-// Store results in project directory (gitignored)
-const __dirname = dirname(fileURLToPath(import.meta.url))
-const resultsFile = join(__dirname, 'results.json')
 
 // ============================================================================
 // Converter Loading
@@ -146,57 +123,12 @@ const { values: flags, positionals } = parseArgs({
     function: { type: 'string', multiple: true },
     fn: { type: 'string', multiple: true },
     value: { type: 'string' },
-    save: { type: 'boolean' },
-    compare: { type: 'boolean' },
-    history: { type: 'boolean' },
     full: { type: 'boolean' },
-    remove: { type: 'string' },
     help: { type: 'boolean' },
   },
   allowPositionals: true,
   strict: true,
 })
-
-// ============================================================================
-// History Display & Remove
-// ============================================================================
-
-/**
- * Load results data from file.
- * Format: { nextId: N, languages: { en: [...], fr: [...] } }
- */
-function loadResultsData() {
-  if (!existsSync(resultsFile)) return null
-  try {
-    return JSON.parse(readFileSync(resultsFile, 'utf8'))
-  }
-  catch {
-    return null
-  }
-}
-
-/**
- * Format test value for display.
- */
-function formatTestValue(val) {
-  if (val === config.defaultValue) return 'MAX_SAFE'
-  if (val >= 1_000_000_000) return (val / 1_000_000_000).toFixed(0) + 'B'
-  if (val >= 1_000_000) return (val / 1_000_000).toFixed(0) + 'M'
-  if (val >= 1_000) return (val / 1_000).toFixed(0) + 'K'
-  return String(val)
-}
-
-/**
- * Format timestamp for display.
- */
-function formatDateTime(timestamp) {
-  return new Date(timestamp).toLocaleString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  })
-}
 
 // ============================================================================
 // Benchmark Functions
@@ -240,29 +172,26 @@ async function benchmarkLanguage(converter, functionsToRun) {
 }
 
 /**
- * Run Benchmark.js performance test for a single function.
+ * Run tinybench performance test for a single function.
  */
-function runPerfBenchmark(fn, langName, fnName) {
-  return new Promise((resolve) => {
-    const suite = new Benchmark.Suite()
+async function runPerfBenchmark(fn, langName, fnName) {
+  const benchOptions = fullMode ? config.perfFull : config.perf
 
-    const benchOptions = fullMode ? config.perfFull : config.perf
+  const b = new Bench(benchOptions)
 
-    suite.add(`${langName}.${fnName}`, () => {
-      fn(value)
-    }, benchOptions)
-
-    suite
-      .on('complete', function () {
-        const bench = this[0]
-        resolve({
-          hz: bench.hz,
-          rme: bench.stats.rme,
-          runs: bench.stats.sample.length,
-        })
-      })
-      .run()
+  b.add(`${langName}.${fnName}`, () => {
+    fn(value)
   })
+
+  await b.run()
+
+  // tinybench exposes per-task stats under `throughput` (ops/sec) and `latency`.
+  const r = b.tasks[0].result
+  return {
+    hz: r.throughput.mean,
+    rme: r.throughput.rme,
+    runs: r.throughput.samplesCount,
+  }
 }
 
 /**
@@ -330,9 +259,8 @@ function measureMemory(fn) {
  * Print result lines (one row per form).
  */
 function printResultLine(result, displayFunctions) {
-  const prev = previousResults?.[result.name]
-  const opsColWidth = compareResults ? 25 : 14
-  const memColWidth = compareResults ? 18 : 10
+  const opsColWidth = 14
+  const memColWidth = 10
 
   let isFirstRow = true
 
@@ -354,125 +282,14 @@ function printResultLine(result, displayFunctions) {
     // ops/sec
     const hz = formatOps(fnResult.hz)
     const rme = `(±${fnResult.rme.toFixed(1)}%)`
-    let opsCol
-
-    if (compareResults && previousResults) {
-      const hzBase = `${hz} ${rme}`
-      const prevForm = prev?.[fnName]
-      if (prevForm?.hz) {
-        const hzDiff = ((fnResult.hz - prevForm.hz) / prevForm.hz) * 100
-        const hzChange = formatChange(hzDiff)
-        opsCol = hzBase.padStart(16) + ' ' + hzChange
-      }
-      else {
-        opsCol = hzBase.padStart(16) + ' ' + chalk.gray('(new)'.padStart(8))
-      }
-    }
-    else {
-      opsCol = chalk.white(`${hz} ${rme}`.padStart(opsColWidth))
-    }
+    const opsCol = chalk.white(`${hz} ${rme}`.padStart(opsColWidth))
 
     // Memory
     const mem = formatBytes(fnResult.memoryPerIter)
-    let memCol
-
-    if (compareResults && previousResults) {
-      const prevForm = prev?.[fnName]
-      if (prevForm?.bytes) {
-        const memDiff = ((fnResult.memoryPerIter - prevForm.bytes) / prevForm.bytes) * 100
-        const memChange = formatChange(memDiff, true)
-        memCol = mem.padStart(10) + ' ' + memChange
-      }
-      else {
-        memCol = mem.padStart(10) + ' ' + chalk.gray('(new)'.padStart(7))
-      }
-    }
-    else {
-      memCol = chalk.gray(mem.padStart(memColWidth))
-    }
+    const memCol = chalk.gray(mem.padStart(memColWidth))
 
     console.log(`${langCol} │ ${fnCol} │ ${opsCol} │ ${memCol}`)
   }
-}
-
-/**
- * Format a percentage change with color.
- * @param {number} diff Percentage change
- * @param {boolean} inverted If true, negative is good (for memory)
- * @param {number} width Minimum width for alignment (default 8)
- */
-function formatChange(diff, inverted = false, width = 8) {
-  const sign = diff > 0 ? '+' : ''
-  const text = `(${sign}${diff.toFixed(1)}%)`.padStart(width)
-
-  if (Math.abs(diff) < 0.5) {
-    return chalk.gray(text)
-  }
-
-  const isGood = inverted ? diff < 0 : diff > 0
-  return isGood ? chalk.green(text) : chalk.red(text)
-}
-
-/**
- * Save a single result incrementally (allows killing script early).
- * Format: { nextId: N, languages: { en: [...], fr: [...] } }
- */
-function saveResultIncremental(result) {
-  // Load or initialize data
-  let data = { nextId: 1, languages: {} }
-  if (existsSync(resultsFile)) {
-    try {
-      data = JSON.parse(readFileSync(resultsFile, 'utf8'))
-      if (!data.languages) data.languages = {}
-      if (!data.nextId) data.nextId = 1
-    }
-    catch {
-      // Corrupted file, start fresh
-    }
-  }
-
-  const langName = result.name
-
-  // Initialize language array if needed
-  if (!data.languages[langName]) {
-    data.languages[langName] = []
-  }
-
-  // Build forms data for storage
-  const formsData = {}
-  for (const [fnName, fnResult] of Object.entries(result.functions)) {
-    if (fnResult) {
-      formsData[fnName] = {
-        hz: fnResult.hz,
-        rme: fnResult.rme,
-        bytes: fnResult.memoryPerIter,
-      }
-    }
-  }
-
-  // Add new entry
-  data.languages[langName].push({
-    id: data.nextId++,
-    timestamp: runTimestamp,
-    value,
-    functions: formsData,
-  })
-
-  // Prune old entries
-  if (data.languages[langName].length > config.maxHistoryPerLang) {
-    data.languages[langName] = data.languages[langName].slice(-config.maxHistoryPerLang)
-  }
-
-  // Write atomically
-  const tempFile = resultsFile + '.tmp'
-  writeFileSync(tempFile, JSON.stringify(data, null, 2))
-  renameSync(tempFile, resultsFile)
-}
-
-function saveResultsIfNeeded() {
-  if (!saveResults) return
-  // Results already saved incrementally
-  console.log(chalk.blue('✓ Results saved'))
 }
 
 // ============================================================================
@@ -503,10 +320,6 @@ function displayHelp() {
   console.log('  ' + chalk.yellow('--function') + ' <fn>     Function(s) to benchmark: ' + KNOWN_FUNCTIONS.join(', ') + ' (default: all)')
   console.log('  ' + chalk.yellow('--value') + ' <number>    Test value (default: Number.MAX_SAFE_INTEGER)')
   console.log('  ' + chalk.yellow('--full') + '              Full mode with max iterations (slower, more accurate)')
-  console.log('  ' + chalk.yellow('--save') + '              Save results to history')
-  console.log('  ' + chalk.yellow('--compare') + '           Compare with previous run')
-  console.log('  ' + chalk.yellow('--history') + '           Show saved results (all or single language)')
-  console.log('  ' + chalk.yellow('--remove') + ' <id>       Remove history entry by ID (comma-separated for multiple)')
   console.log('  ' + chalk.yellow('--help') + '              Display this help\n')
   console.log(chalk.cyan('Examples:'))
   console.log('  ' + chalk.gray('npm run bench                                   # All languages, all functions'))
@@ -515,12 +328,7 @@ function displayHelp() {
   console.log('  ' + chalk.gray('npm run bench -- --fn toCardinal                # toCardinal only'))
   console.log('  ' + chalk.gray('npm run bench -- --fn toOrdinal                 # toOrdinal only'))
   console.log('  ' + chalk.gray('npm run bench -- en-US --function toCardinal    # Single lang, single fn'))
-  console.log('  ' + chalk.gray('npm run bench -- --full                         # Full accuracy mode'))
-  console.log('  ' + chalk.gray('npm run bench -- --save --compare               # Track changes'))
-  console.log('  ' + chalk.gray('npm run bench -- --history                      # Summary of all saved'))
-  console.log('  ' + chalk.gray('npm run bench -- en-US --history                # History for one lang'))
-  console.log('  ' + chalk.gray('npm run bench -- --remove 5                     # Remove entry by ID'))
-  console.log('  ' + chalk.gray('npm run bench -- --remove 1,2,3                 # Remove multiple\n'))
+  console.log('  ' + chalk.gray('npm run bench -- --full                         # Full accuracy mode\n'))
 }
 
 // ============================================================================
@@ -530,11 +338,7 @@ function displayHelp() {
 // Declared at module scope so the helper functions defined above (which are
 // invoked from main()) can close over them. Assigned inside main().
 let value
-let saveResults
-let compareResults
-let previousResults
 let fullMode
-let runTimestamp
 
 // ============================================================================
 // Orchestration
@@ -570,236 +374,7 @@ async function main() {
 
   const requestedFunctions = functionInputs.length > 0 ? functionInputs : [...KNOWN_FUNCTIONS]
   value = flags.value ?? config.defaultValue
-  saveResults = flags.save ?? false
-  compareResults = flags.compare ?? false
-  const showHistory = flags.history ?? false
   fullMode = flags.full ?? false
-  const removeId = flags.remove ?? null
-  previousResults = null
-
-  // Load previous results if comparing
-  if (compareResults) {
-    const data = loadResultsData()
-    if (!data) {
-      console.log(chalk.yellow('⚠ No previous results found. Run with --save first.\n'))
-      compareResults = false
-    }
-    else {
-      // Build previousResults map: { langName: { fnName: latestEntry } }
-      previousResults = {}
-      const languages = data.languages || {}
-      for (const [lang, entries] of Object.entries(languages)) {
-        // Find most recent entry with matching test value
-        const matching = entries.filter(e => e.value === value)
-        if (matching.length > 0) {
-          const latest = matching[matching.length - 1]
-          previousResults[lang] = latest.functions || {}
-        }
-      }
-      if (Object.keys(previousResults).length === 0) {
-        console.log(chalk.yellow(`⚠ No previous results found for value ${value.toLocaleString()}.\n`))
-        compareResults = false
-      }
-    }
-  }
-
-  // Handle --remove (accepts single ID or comma-separated IDs)
-  if (removeId) {
-    const data = loadResultsData()
-    if (!data) {
-      console.error(chalk.red('No history found.\n'))
-      process.exitCode = 1
-      return
-    }
-
-    const idsToRemove = removeId.split(',').map(id => parseInt(id.trim(), 10)).filter(id => !isNaN(id))
-
-    if (idsToRemove.length === 0) {
-      console.error(chalk.red('Invalid ID format. Use numeric IDs (e.g., --remove 5 or --remove 1,2,3)\n'))
-      process.exitCode = 1
-      return
-    }
-
-    let totalRemoved = 0
-    const notFound = []
-    const languages = data.languages || {}
-
-    for (const id of idsToRemove) {
-      let found = false
-
-      for (const [lang, entries] of Object.entries(languages)) {
-        const before = entries.length
-        languages[lang] = entries.filter(e => e.id !== id)
-        if (languages[lang].length < before) {
-          found = true
-          totalRemoved++
-        }
-
-        // Remove language if empty
-        if (languages[lang].length === 0) {
-          delete languages[lang]
-        }
-      }
-
-      if (!found) notFound.push(id)
-    }
-
-    if (totalRemoved === 0) {
-      console.error(chalk.red(`No entries found matching IDs: ${idsToRemove.join(', ')}\n`))
-      process.exitCode = 1
-      return
-    }
-
-    // Save
-    const tempFile = resultsFile + '.tmp'
-    writeFileSync(tempFile, JSON.stringify(data, null, 2))
-    renameSync(tempFile, resultsFile)
-
-    if (totalRemoved === 1) {
-      console.log(chalk.green('✓ Removed 1 entry'))
-    }
-    else {
-      console.log(chalk.green(`✓ Removed ${totalRemoved} entries`))
-    }
-
-    if (notFound.length > 0) {
-      console.log(chalk.yellow(`⚠ Not found: ${notFound.join(', ')}`))
-    }
-    console.log()
-    return
-  }
-
-  if (showHistory) {
-    const data = loadResultsData()
-    if (!data) {
-      console.error(chalk.red('No history found. Run with --save first.\n'))
-      process.exitCode = 1
-      return
-    }
-
-    const languages = data.languages || {}
-
-    // Single language history
-    if (requestedLanguages.length === 1) {
-      const langCode = requestedLanguages[0]
-      const entries = languages[langCode] || []
-
-      if (entries.length === 0) {
-        console.error(chalk.red(`No history found for: ${langCode}\n`))
-        process.exitCode = 1
-        return
-      }
-
-      console.log(chalk.cyan.bold(`\n History for ${langCode}:\n`))
-
-      // Build header based on functions in data
-      const fnNames = new Set()
-      for (const entry of entries) {
-        if (entry.functions) {
-          Object.keys(entry.functions).forEach(k => fnNames.add(k))
-        }
-      }
-
-      let headerLine = chalk.gray('ID'.padStart(4)) + ' | '
-        + chalk.gray('Date & Time'.padEnd(18)) + ' | '
-        + chalk.gray('Value'.padStart(10))
-
-      for (const fnName of fnNames) {
-        headerLine += ' | ' + chalk.gray(`${fnName} ops/s`.padStart(16))
-      }
-      headerLine += ' | ' + chalk.gray('Memory'.padStart(10))
-
-      console.log(headerLine)
-      console.log(chalk.gray('-'.repeat(66 + fnNames.size * 19)))
-
-      for (const entry of entries) {
-        let line = chalk.yellow(String(entry.id).padStart(4)) + ' | '
-          + chalk.gray(formatDateTime(entry.timestamp).padEnd(18)) + ' | '
-          + chalk.gray(formatTestValue(entry.value).padStart(10))
-
-        const fnsData = entry.functions || {}
-
-        for (const fnName of fnNames) {
-          const fnData = fnsData[fnName]
-          const hz = fnData?.hz ? formatOps(fnData.hz) : '-'
-          line += ' | ' + chalk.white(hz.padStart(16))
-        }
-
-        // Show memory from first available function
-        const firstFn = Object.values(fnsData)[0]
-        const mem = firstFn?.bytes ? formatBytes(firstFn.bytes) : '-'
-        line += ' | ' + chalk.gray(mem.padStart(10))
-
-        console.log(line)
-      }
-      console.log()
-    }
-    else {
-      // Multi-language or all languages summary - show latest for each
-      const langCodes = requestedLanguages.length > 0
-        ? requestedLanguages.filter(lang => languages[lang])
-        : Object.keys(languages).sort()
-
-      if (langCodes.length === 0) {
-        console.error(chalk.red('No history found.\n'))
-        process.exitCode = 1
-        return
-      }
-
-      // Get latest entry for each language (with entry count)
-      const summaries = []
-      for (const lang of langCodes) {
-        const entries = languages[lang]
-        if (entries && entries.length > 0) {
-          const latest = entries[entries.length - 1]
-          summaries.push({ name: lang, count: entries.length, ...latest })
-        }
-      }
-
-      console.log(chalk.cyan.bold('\n Saved Results Summary\n'))
-      console.log(
-        chalk.gray('Language'.padEnd(12)) + ' | '
-        + chalk.gray('ID'.padStart(4)) + ' | '
-        + chalk.gray('Runs'.padStart(4)) + ' | '
-        + chalk.gray('toCardinal'.padStart(12)) + ' | '
-        + chalk.gray('toOrdinal'.padStart(12)) + ' | '
-        + chalk.gray('toCurrency'.padStart(12)) + ' | '
-        + chalk.gray('Last Run'.padStart(18)),
-      )
-      console.log(chalk.gray('-'.repeat(93)))
-
-      for (const entry of summaries) {
-        const fnsData = entry.functions || {}
-        const cardinalHz = fnsData.toCardinal?.hz ? formatOps(fnsData.toCardinal.hz) : '-'
-        const ordinalHz = fnsData.toOrdinal?.hz ? formatOps(fnsData.toOrdinal.hz) : '-'
-        const currencyHz = fnsData.toCurrency?.hz ? formatOps(fnsData.toCurrency.hz) : '-'
-
-        console.log(
-          chalk.gray(entry.name.padEnd(12)) + ' | '
-          + chalk.yellow(String(entry.id).padStart(4)) + ' | '
-          + chalk.gray(String(entry.count).padStart(4)) + ' | '
-          + chalk.white(cardinalHz.padStart(12)) + ' | '
-          + chalk.white(ordinalHz.padStart(12)) + ' | '
-          + chalk.white(currencyHz.padStart(12)) + ' | '
-          + chalk.gray(formatDateTime(entry.timestamp).padStart(18)),
-        )
-      }
-
-      // Summary stats
-      console.log(chalk.gray('-'.repeat(93)))
-      for (const fnName of KNOWN_FUNCTIONS) {
-        const withFn = summaries.filter(e => e.functions?.[fnName]?.hz)
-        if (withFn.length > 0) {
-          const fastest = withFn.reduce((max, e) => e.functions[fnName].hz > max.functions[fnName].hz ? e : max)
-          const slowest = withFn.reduce((min, e) => e.functions[fnName].hz < min.functions[fnName].hz ? e : min)
-          console.log(chalk.green(`Fastest ${fnName}: ${fastest.name} (${formatOps(fastest.functions[fnName].hz)})`))
-          console.log(chalk.yellow(`Slowest ${fnName}: ${slowest.name} (${formatOps(slowest.functions[fnName].hz)})`))
-        }
-      }
-      console.log()
-    }
-    return
-  }
 
   // ==========================================================================
   // Load Converters
@@ -869,8 +444,8 @@ async function main() {
   const displayFunctions = requestedFunctions.filter(f => availableFunctions.has(f))
 
   // Print table header (row-per-function layout)
-  const opsColWidth = compareResults ? 25 : 14
-  const memColWidth = compareResults ? 18 : 10
+  const opsColWidth = 14
+  const memColWidth = 10
   const header = chalk.cyan.bold('Language'.padEnd(12))
     + ' │ ' + chalk.cyan.bold('Function'.padEnd(12))
     + ' │ ' + chalk.cyan.bold('ops/sec'.padStart(opsColWidth))
@@ -884,18 +459,12 @@ async function main() {
   // Benchmark Execution
   // ==========================================================================
 
-  // Track timestamp for incremental saves
-  runTimestamp = new Date().toISOString()
-
   const results = []
 
   for (const converter of converters) {
     const result = await benchmarkLanguage(converter, displayFunctions)
     results.push(result)
     printResultLine(result, displayFunctions)
-    if (saveResults) {
-      saveResultIncremental(result)
-    }
   }
 
   // Print footer
@@ -916,7 +485,6 @@ async function main() {
     }
   }
 
-  saveResultsIfNeeded()
   console.log()
 }
 
