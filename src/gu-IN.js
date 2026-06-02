@@ -68,7 +68,6 @@ const SCALE_WORDS = ['', 'હજાર', 'લાખ', 'કરોડ', 'અબજ
 
 /**
  * Builds words for a 0-999 segment.
- *
  * @param {number} n - Segment value (0-999)
  * @returns {string} Gujarati words for the segment
  */
@@ -94,7 +93,6 @@ function buildSegment(n) {
  *
  * Uses BigInt modulo for segment extraction (faster than string slicing).
  * South Asian 3-2-2 grouping: first 3 digits, then groups of 2.
- *
  * @param {bigint} n - Non-negative integer to convert
  * @returns {string} Gujarati words
  */
@@ -139,7 +137,6 @@ function integerToWords(n) {
 
 /**
  * Converts the fractional digits to per-digit Gujarati words.
- *
  * @param {string} decimalPart - Decimal digits as a string
  * @returns {string} Gujarati words for each digit
  */
@@ -155,7 +152,6 @@ function decimalPartToWords(decimalPart) {
 
 /**
  * Converts a numeric value to Gujarati words.
- *
  * @param {number | string | bigint} value - The numeric value to convert
  * @returns {string} The number in Gujarati words
  */
@@ -185,7 +181,6 @@ function toCardinal(value) {
  * Converts a positive integer to Gujarati ordinal words.
  *
  * Gujarati ordinals: First 6 are irregular, then add -મું suffix.
- *
  * @param {bigint} n - Positive integer to convert
  * @returns {string} Gujarati ordinal words
  */
@@ -202,12 +197,10 @@ function integerToOrdinal(n) {
 
 /**
  * Converts a numeric value to Gujarati ordinal words.
- *
  * @param {number | string | bigint} value - The numeric value to convert (positive integer)
  * @returns {string} The number as ordinal words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {RangeError} If value is negative, zero, or has a decimal part
- *
  * @example
  * toOrdinal(1)    // 'પહેલું'
  * toOrdinal(2)    // 'બીજું'
@@ -224,12 +217,10 @@ function toOrdinal(value) {
 
 /**
  * Converts a numeric value to Gujarati currency words (Indian Rupee).
- *
  * @param {number | string | bigint} value - The currency amount to convert
  * @returns {string} The amount in Gujarati currency words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {Error} If value is not a valid number format
- *
  * @example
  * toCurrency(42.50)  // 'બેતાળીસ રૂપિયા પચાસ પૈસા'
  * toCurrency(1)      // 'એક રૂપિયો'

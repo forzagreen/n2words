@@ -115,7 +115,6 @@ function buildSegment(n, withAnd) {
 
 /**
  * Converts a non-negative integer to Dutch words.
- *
  * @param {bigint} n - Non-negative integer to convert
  * @param {{accentOne: boolean, includeOptionalAnd: boolean, noHundredPairing: boolean}} options - Conversion options
  * @returns {string} Dutch words
@@ -126,7 +125,10 @@ function integerToWords(n, options) {
   const { accentOne, includeOptionalAnd, noHundredPairing } = options
 
   // Apply één/een replacement
-  /** @param {string} word */
+  /**
+   * @param {string} word The word to apply accent replacement to
+   * @returns {string} The word with "een" replaced by "één" when accentOne is set
+   */
   const applyAccent = (word) => {
     if (accentOne) {
       return word.replace(/\been\b/g, 'één')
@@ -195,7 +197,6 @@ function integerToWords(n, options) {
 /**
  * Builds words for numbers >= 1,000,000.
  * Uses BigInt division for faster segment extraction (4x faster than string slicing).
- *
  * @param {bigint} n - Number >= 1,000,000
  * @param {{accentOne: boolean, includeOptionalAnd: boolean, noHundredPairing: boolean}} options - Conversion options
  * @returns {string} Dutch words
@@ -266,7 +267,6 @@ function buildLargeNumberWords(n, options) {
 
 /**
  * Converts decimal digits to Dutch words.
- *
  * @param {string} decimalPart - Decimal digits (without the point)
  * @param {{accentOne: boolean, includeOptionalAnd: boolean, noHundredPairing: boolean}} options - Conversion options
  * @returns {string} Dutch words for decimal part
@@ -298,16 +298,14 @@ function decimalPartToWords(decimalPart, options) {
  *
  * This is the main public API. It accepts any valid numeric input
  * (number, string, or bigint) and handles parsing internally.
- *
  * @param {number | string | bigint} value - The numeric value to convert
- * @param {Object} [options] - Optional configuration
- * @param {boolean} [options.accentOne=true] - Use "één" instead of "een"
- * @param {boolean} [options.includeOptionalAnd=false] - Include "en" before small numbers
- * @param {boolean} [options.noHundredPairing=false] - Disable hundred pairing (1104→duizend honderdvier)
+ * @param {object} [options] - Optional configuration
+ * @param {boolean} [options.accentOne] - Use "één" instead of "een"
+ * @param {boolean} [options.includeOptionalAnd] - Include "en" before small numbers
+ * @param {boolean} [options.noHundredPairing] - Disable hundred pairing (1104→duizend honderdvier)
  * @returns {string} The number in Dutch words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {Error} If value is not a valid number format
- *
  * @example
  * toCardinal(21)                        // 'eenentwintig'
  * toCardinal(1)                         // 'één'
@@ -352,7 +350,6 @@ const ORDINAL_ONES = ['', 'eerste', 'tweede', 'derde', 'vierde', 'vijfde', 'zesd
 /**
  * Converts a small cardinal to ordinal.
  * Rules: 1-19 add -de (except eerste, derde, achtste), 20+ add -ste
- *
  * @param {string} cardinalWord - Cardinal word
  * @param {number} n - The number value (0-99)
  * @returns {string} Ordinal word
@@ -375,7 +372,6 @@ function smallCardinalToOrdinal(cardinalWord, n) {
 
 /**
  * Builds ordinal words for 0-999.
- *
  * @param {number} n - Number 0-999
  * @returns {string} Dutch ordinal words
  */
@@ -413,10 +409,8 @@ function buildOrdinalSegment(n) {
 
 /**
  * Converts a number to Dutch ordinal words.
- *
  * @param {number | string | bigint} value - The number to convert
  * @returns {string} Dutch ordinal words
- *
  * @example
  * toOrdinal(1)     // 'eerste'
  * toOrdinal(21)    // 'eenentwintigste'
@@ -445,7 +439,6 @@ function toOrdinal(value) {
 
 /**
  * Builds ordinal words for large numbers.
- *
  * @param {bigint} n - Non-negative integer >= 1000
  * @returns {string} Dutch ordinal words
  */
@@ -534,12 +527,10 @@ function buildLargeOrdinal(n) {
 
 /**
  * Converts a number to Dutch currency words (Euro).
- *
  * @param {number | string | bigint} value - The amount to convert
- * @param {Object} [options]
- * @param {boolean} [options.and=true] - Include "en" between euros and cents
+ * @param {object} [options] Optional configuration
+ * @param {boolean} [options.and] - Include "en" between euros and cents
  * @returns {string} Dutch currency words
- *
  * @example
  * toCurrency(42.50)  // 'tweeënveertig euro en vijftig cent'
  * toCurrency(1)      // 'één euro'

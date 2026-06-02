@@ -80,7 +80,6 @@ const SCALE_FORMS = [
 
 /**
  * Builds segment word for 0-999 (masculine form).
- *
  * @param {number} n - Segment value (0-999)
  * @returns {string} Segment words
  */
@@ -117,7 +116,6 @@ function buildSegment(n) {
 
 /**
  * Builds segment word for 0-999 (feminine form - only differs in ones).
- *
  * @param {number} n - Segment value (0-999)
  * @returns {string} Segment words
  */
@@ -161,7 +159,6 @@ function buildSegmentFeminine(n) {
  * - Singular: ends in 1 (except 11)
  * - Plural: ends in 2-9 (except 12-19)
  * - Genitive: 0, 10-19, or ends in 0
- *
  * @param {number} n - The segment value
  * @param {string[]} forms - [singular, plural, genitive]
  * @returns {string} The appropriate form
@@ -197,7 +194,6 @@ function pluralize(n, forms) {
 
 /**
  * Converts a non-negative integer to Lithuanian words.
- *
  * @param {bigint} n - Non-negative integer to convert
  * @param {string} gender - Gender for numbers < 1000 ('masculine' or 'feminine')
  * @returns {string} Lithuanian words
@@ -219,7 +215,6 @@ function integerToWords(n, gender) {
 
 /**
  * Builds words for numbers >= 1000.
- *
  * @param {bigint} n - Number >= 1000
  * @returns {string} Lithuanian words
  */
@@ -272,7 +267,6 @@ function buildLargeNumberWords(n) {
 
 /**
  * Converts decimal digits to Lithuanian words.
- *
  * @param {string} decimalPart - Decimal digits (without the point)
  * @param {string} gender - Gender for numbers < 1000 ('masculine' or 'feminine')
  * @returns {string} Lithuanian words for decimal part
@@ -300,14 +294,12 @@ function decimalPartToWords(decimalPart, gender) {
 
 /**
  * Converts a numeric value to Lithuanian words.
- *
  * @param {number | string | bigint} value - The numeric value to convert
- * @param {Object} [options] - Conversion options
- * @param {string} [options.gender='masculine'] - Gender for numbers < 1000
+ * @param {object} [options] - Conversion options
+ * @param {string} [options.gender] - Gender for numbers < 1000
  * @returns {string} The number in Lithuanian words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {Error} If value is not a valid number format
- *
  * @example
  * toCardinal(42)                          // 'keturiasdešimt du'
  * toCardinal(1, { gender: 'feminine' })   // 'viena'
@@ -341,7 +333,6 @@ function toCardinal(value, options) {
 
 /**
  * Builds ordinal for a 0-99 segment when it's the final (ordinal) part.
- *
  * @param {number} n - Number 0-99
  * @returns {string} Ordinal words
  */
@@ -368,7 +359,6 @@ function buildOrdinalTensOnes(n) {
 
 /**
  * Converts a positive integer to Lithuanian ordinal words (masculine nominative).
- *
  * @param {bigint} n - Positive integer to convert
  * @returns {string} Ordinal Lithuanian words
  */
@@ -414,7 +404,6 @@ function integerToOrdinal(n) {
 
 /**
  * Builds ordinal words for numbers >= 1,000,000.
- *
  * @param {bigint} n - Number >= 1,000,000
  * @returns {string} Ordinal Lithuanian words
  */
@@ -486,12 +475,10 @@ function buildLargeOrdinal(n) {
 
 /**
  * Converts a numeric value to Lithuanian ordinal words (masculine nominative).
- *
  * @param {number | string | bigint} value - The numeric value to convert (must be a positive integer)
  * @returns {string} The number as ordinal words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {RangeError} If value is negative, zero, or has a decimal part
- *
  * @example
  * toOrdinal(1)    // 'pirmas'
  * toOrdinal(2)    // 'antras'
@@ -510,12 +497,10 @@ function toOrdinal(value) {
 
 /**
  * Converts a numeric value to Lithuanian currency words (Euro).
- *
  * @param {number | string | bigint} value - The currency amount to convert
  * @returns {string} The amount in Lithuanian currency words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {Error} If value is not a valid number format
- *
  * @example
  * toCurrency(42)     // 'keturiasdešimt du eurai'
  * toCurrency(1)      // 'vienas euras'

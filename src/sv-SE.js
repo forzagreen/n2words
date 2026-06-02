@@ -70,8 +70,8 @@ const ORE = 'öre' // same singular and plural
 /**
  * Builds segment word for 0-999.
  * Returns object with word and metadata for "och" logic.
- *
  * @param {number} n - Integer in range 0-999
+ * @returns {{word: string, hasHundred: boolean, lessThan100: boolean}} Segment word with "och" metadata
  */
 function buildSegment(n) {
   if (n === 0) return { word: '', hasHundred: false, lessThan100: false }
@@ -129,7 +129,6 @@ function buildSegment(n) {
 
 /**
  * Converts a non-negative integer to Swedish words.
- *
  * @param {bigint} n - Non-negative integer to convert
  * @returns {string} Swedish words
  */
@@ -169,7 +168,6 @@ function integerToWords(n) {
 
 /**
  * Builds words for numbers >= 1,000,000.
- *
  * @param {bigint} n - Number >= 1,000,000
  * @returns {string} Swedish words
  */
@@ -245,7 +243,6 @@ function buildLargeNumberWords(n) {
 /**
  * Joins parts with Swedish "och" rules.
  * Insert "och" before final segment if it follows a scale word and doesn't have "hundra".
- *
  * @param {Array<{word: string, hasHundred: boolean, isScale: boolean}>} parts - Parts with metadata
  * @returns {string} Joined string
  */
@@ -275,7 +272,6 @@ function joinSwedishParts(parts) {
 
 /**
  * Converts decimal digits to Swedish words.
- *
  * @param {string} decimalPart - Decimal digits (without the point)
  * @returns {string} Swedish words for decimal part
  */
@@ -302,12 +298,10 @@ function decimalPartToWords(decimalPart) {
 
 /**
  * Converts a numeric value to Swedish words.
- *
  * @param {number | string | bigint} value - The numeric value to convert
  * @returns {string} The number in Swedish words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {Error} If value is not a valid number format
- *
  * @example
  * toCardinal(42)       // 'fyrtio-två'
  * toCardinal(101)      // 'hundra och ett'
@@ -340,7 +334,6 @@ function toCardinal(value) {
  *
  * Swedish ordinals: första (1st), andra (2nd), tredje (3rd), etc.
  * Most use cardinal + de suffix, with special forms 1-12.
- *
  * @param {bigint} n - Positive integer to convert
  * @returns {string} Swedish ordinal words
  */
@@ -361,12 +354,10 @@ function integerToOrdinal(n) {
 
 /**
  * Converts a numeric value to Swedish ordinal words.
- *
  * @param {number | string | bigint} value - The numeric value to convert (positive integer)
  * @returns {string} The number as ordinal words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {RangeError} If value is negative, zero, or has a decimal part
- *
  * @example
  * toOrdinal(1)    // 'första'
  * toOrdinal(2)    // 'andra'
@@ -385,12 +376,10 @@ function toOrdinal(value) {
  * Converts a numeric value to Swedish currency words (Swedish Krona).
  *
  * Uses krona/kronor and öre (100 öre = 1 krona).
- *
  * @param {number | string | bigint} value - The currency amount to convert
  * @returns {string} The amount in Swedish currency words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {Error} If value is not a valid number format
- *
  * @example
  * toCurrency(1)      // 'en krona'
  * toCurrency(42)     // 'fyrtio-två kronor'

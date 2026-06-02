@@ -55,9 +55,8 @@ const segmentResult = { word: '', hasHundred: false }
 
 /**
  * Builds words for a 0-999 segment (British-style with "and" after hundreds).
- *
  * @param {number} n - Number 0-999
- * @returns {{ word: string, hasHundred: boolean }}
+ * @returns {{ word: string, hasHundred: boolean }} The segment words and whether a hundreds place was present
  */
 function buildSegment(n) {
   if (n === 0) {
@@ -106,7 +105,6 @@ function buildSegment(n) {
 
 /**
  * Converts a non-negative integer to English words.
- *
  * @param {bigint} n - Non-negative integer to convert
  * @returns {string} English words
  */
@@ -140,7 +138,6 @@ function integerToWords(n) {
 
 /**
  * Builds words for numbers >= 1,000,000.
- *
  * @param {bigint} n - Number >= 1,000,000
  * @returns {string} English words
  */
@@ -191,7 +188,6 @@ function buildLargeNumberWords(n) {
 
 /**
  * Converts decimal digits to English words.
- *
  * @param {string} decimalPart - Decimal digits (without the point)
  * @returns {string} English words for decimal part
  */
@@ -216,12 +212,10 @@ function decimalPartToWords(decimalPart) {
 
 /**
  * Converts a numeric value to Australian English words.
- *
  * @param {number | string | bigint} value - The numeric value to convert
  * @returns {string} The number in English words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {Error} If value is not a valid number format
- *
  * @example
  * toCardinal(42)           // 'forty-two'
  * toCardinal(101)          // 'one hundred and one'
@@ -251,7 +245,6 @@ function toCardinal(value) {
 
 /**
  * Builds ordinal words for a 0-999 segment.
- *
  * @param {number} n - Number 0-999
  * @returns {string} Ordinal words for this segment
  */
@@ -290,7 +283,6 @@ function buildOrdinalSegment(n) {
 
 /**
  * Converts a positive integer to ordinal words.
- *
  * @param {bigint} n - Positive integer to convert
  * @returns {string} Ordinal English words
  */
@@ -316,7 +308,6 @@ function integerToOrdinal(n) {
 
 /**
  * Builds ordinal words for numbers >= 1,000,000.
- *
  * @param {bigint} n - Number >= 1,000,000
  * @returns {string} Ordinal English words
  */
@@ -367,12 +358,10 @@ function buildLargeOrdinal(n) {
 
 /**
  * Converts a numeric value to Australian English ordinal words.
- *
  * @param {number | string | bigint} value - The numeric value to convert (must be a positive integer)
  * @returns {string} The number as ordinal words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {RangeError} If value is negative, zero, or has a decimal part
- *
  * @example
  * toOrdinal(1)    // 'first'
  * toOrdinal(42)   // 'forty-second'
@@ -389,14 +378,12 @@ function toOrdinal(value) {
 
 /**
  * Converts a numeric value to Australian English currency words.
- *
  * @param {number | string | bigint} value - The currency amount to convert
- * @param {Object} [options] - Optional configuration
- * @param {boolean} [options.and=true] - Use "and" between dollars and cents
+ * @param {object} [options] - Optional configuration
+ * @param {boolean} [options.and] - Use "and" between dollars and cents
  * @returns {string} The amount in Australian English currency words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {Error} If value is not a valid number format
- *
  * @example
  * toCurrency(42.50)                    // 'forty-two dollars and fifty cents'
  * toCurrency(1)                        // 'one dollar'

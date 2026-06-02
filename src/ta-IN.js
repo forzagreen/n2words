@@ -76,7 +76,6 @@ const SCALE_WORDS = ['', 'ஆயிரம்', 'லட்சம்', 'கோட�
 
 /**
  * Builds words for a 0-999 segment.
- *
  * @param {number} n - Number 0-999
  * @returns {string} Tamil words for the segment
  */
@@ -104,7 +103,6 @@ function buildSegment(n) {
  *
  * Uses BigInt modulo for segment extraction (faster than string slicing).
  * South Asian 3-2-2 grouping: first 3 digits, then groups of 2.
- *
  * @param {bigint} n - Non-negative integer to convert
  * @returns {string} Tamil words
  */
@@ -151,7 +149,6 @@ function integerToWords(n) {
 
 /**
  * Converts the decimal portion of a number to Tamil words (per-digit reading).
- *
  * @param {string} decimalPart - The fractional digits as a string
  * @returns {string} Tamil words for each decimal digit
  */
@@ -167,7 +164,6 @@ function decimalPartToWords(decimalPart) {
 
 /**
  * Converts a numeric value to Tamil words.
- *
  * @param {number | string | bigint} value - The numeric value to convert
  * @returns {string} The number in Tamil words
  */
@@ -197,7 +193,6 @@ function toCardinal(value) {
  * Converts a positive integer to Tamil ordinal words.
  *
  * Tamil ordinals: First has special form, 2-6 have special suffixes, then -ஆவது suffix.
- *
  * @param {bigint} n - Positive integer to convert
  * @returns {string} Tamil ordinal words
  */
@@ -214,12 +209,10 @@ function integerToOrdinal(n) {
 
 /**
  * Converts a numeric value to Tamil ordinal words.
- *
  * @param {number | string | bigint} value - The numeric value to convert (positive integer)
  * @returns {string} The number as ordinal words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {RangeError} If value is negative, zero, or has a decimal part
- *
  * @example
  * toOrdinal(1)    // 'முதல்'
  * toOrdinal(2)    // 'இரண்டாவது'
@@ -236,12 +229,10 @@ function toOrdinal(value) {
 
 /**
  * Converts a numeric value to Tamil currency words (Indian Rupee).
- *
  * @param {number | string | bigint} value - The currency amount to convert
  * @returns {string} The amount in Tamil currency words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {Error} If value is not a valid number format
- *
  * @example
  * toCurrency(42.50)  // 'நாற்பத்திரண்டு ரூபாய் ஐம்பது பைசா'
  * toCurrency(1)      // 'ஒன்று ரூபாய்'

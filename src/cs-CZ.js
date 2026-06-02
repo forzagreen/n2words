@@ -82,7 +82,6 @@ const HALER_FORMS = ['haléř', 'haléře', 'haléřů']
 
 /**
  * Builds segment word for 0-999 (masculine, default form).
- *
  * @param {number} n - Number 0-999
  * @returns {string} Czech words
  */
@@ -121,7 +120,6 @@ function buildSegment(n) {
 /**
  * Builds segment word for 0-999 with feminine hundreds.
  * Hundreds use irregular forms (dvě stě, tři sta) but ones remain masculine.
- *
  * @param {number} n - Number 0-999
  * @returns {string} Czech words
  */
@@ -163,7 +161,6 @@ function buildSegmentWithHundreds(n) {
 /**
  * Czech pluralization: 1 = singular, 2-4 = few, else = many.
  * Teens (11-19) always use "many" form.
- *
  * @param {bigint} n - The number
  * @param {string[]} forms - [singular, few, many]
  * @returns {string} The appropriate form
@@ -185,7 +182,6 @@ function pluralize(n, forms) {
 /**
  * Gets the decimal separator word based on integer part.
  * celá (0-1), celé (2-4), celých (5+)
- *
  * @param {bigint} integerPart - The integer part of the value
  * @returns {string} The decimal separator word
  */
@@ -207,7 +203,6 @@ function getDecimalSeparator(integerPart) {
 
 /**
  * Converts a non-negative integer to Czech words.
- *
  * @param {bigint} n - Non-negative integer to convert
  * @returns {string} Czech words
  */
@@ -250,7 +245,6 @@ function integerToWords(n) {
 /**
  * Builds words for numbers >= 1,000,000.
  * Uses BigInt division for faster segment extraction.
- *
  * @param {bigint} n - Number >= 1,000,000
  * @returns {string} Czech words
  */
@@ -304,7 +298,6 @@ function buildLargeNumberWords(n) {
 
 /**
  * Converts decimal digits to Czech words.
- *
  * @param {string} decimalPart - Decimal digits (without the point)
  * @returns {string} Czech words for decimal part
  */
@@ -334,12 +327,10 @@ function decimalPartToWords(decimalPart) {
  *
  * This is the main public API. It accepts any valid numeric input
  * (number, string, or bigint) and handles parsing internally.
- *
  * @param {number | string | bigint} value - The numeric value to convert
  * @returns {string} The number in Czech words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {Error} If value is not a valid number format
- *
  * @example
  * toCardinal(21)           // 'dvacet jedna'
  * toCardinal(1000)         // 'tisíc'
@@ -371,7 +362,6 @@ function toCardinal(value) {
 
 /**
  * Builds ordinal for a 0-99 segment when it's the final (ordinal) part.
- *
  * @param {number} n - Number 0-99
  * @returns {string} Ordinal words
  */
@@ -398,7 +388,6 @@ function buildOrdinalTensOnes(n) {
 
 /**
  * Converts a positive integer to Czech ordinal words (masculine nominative).
- *
  * @param {bigint} n - Positive integer to convert
  * @returns {string} Ordinal Czech words
  */
@@ -440,7 +429,6 @@ function integerToOrdinal(n) {
 
 /**
  * Builds ordinal words for numbers >= 1,000,000.
- *
  * @param {bigint} n - Number >= 1,000,000
  * @returns {string} Ordinal Czech words
  */
@@ -504,12 +492,10 @@ function buildLargeOrdinal(n) {
 
 /**
  * Converts a numeric value to Czech ordinal words (masculine nominative).
- *
  * @param {number | string | bigint} value - The numeric value to convert (must be a positive integer)
  * @returns {string} The number as ordinal words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {RangeError} If value is negative, zero, or has a decimal part
- *
  * @example
  * toOrdinal(1)    // 'první'
  * toOrdinal(2)    // 'druhý'
@@ -528,12 +514,10 @@ function toOrdinal(value) {
 
 /**
  * Converts a numeric value to Czech currency words (Koruna).
- *
  * @param {number | string | bigint} value - The currency amount to convert
  * @returns {string} The amount in Czech currency words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {Error} If value is not a valid number format
- *
  * @example
  * toCurrency(42)     // 'čtyřicet dva koruny'
  * toCurrency(1)      // 'jedna koruna'

@@ -88,7 +88,6 @@ const SCALE_FORMS = [
 
 /**
  * Selects the correct plural form for a count.
- *
  * @param {number | bigint} n - The count
  * @param {string[]} forms - Plural forms [one, few, many]
  * @returns {string} The selected plural form
@@ -109,7 +108,6 @@ function pluralize(n, forms) {
 
 /**
  * Builds the masculine word form for a 0-999 segment.
- *
  * @param {number} n - Number 0-999
  * @returns {string} The segment words
  */
@@ -142,7 +140,6 @@ function buildSegmentMasc(n) {
 
 /**
  * Builds the feminine word form for a 0-999 segment.
- *
  * @param {number} n - Number 0-999
  * @returns {string} The segment words
  */
@@ -179,7 +176,6 @@ function buildSegmentFem(n) {
 
 /**
  * Converts a non-negative integer to Serbian words.
- *
  * @param {bigint} n - The integer to convert
  * @param {('masculine'|'feminine')} gender - Grammatical gender
  * @returns {string} The integer in words
@@ -196,7 +192,6 @@ function integerToWords(n, gender) {
 
 /**
  * Builds words for integers >= 1000 using scale decomposition.
- *
  * @param {bigint} n - The integer to convert (>= 1000)
  * @param {('masculine'|'feminine')} gender - Grammatical gender
  * @returns {string} The integer in words
@@ -247,7 +242,6 @@ function buildLargeNumberWords(n, gender) {
 
 /**
  * Converts the decimal-part digit string to Serbian words.
- *
  * @param {string} decimalPart - The decimal digits as a string
  * @param {('masculine'|'feminine')} gender - Grammatical gender
  * @returns {string} The decimal part in words
@@ -273,10 +267,9 @@ function decimalPartToWords(decimalPart, gender) {
 
 /**
  * Converts a numeric value to Serbian (Cyrillic) words.
- *
  * @param {number | string | bigint} value - The numeric value to convert
- * @param {Object} [options] - Optional configuration
- * @param {('masculine'|'feminine')} [options.gender='masculine'] - Grammatical gender
+ * @param {object} [options] - Optional configuration
+ * @param {('masculine'|'feminine')} [options.gender] - Grammatical gender
  * @returns {string} The number in Serbian Cyrillic words
  */
 function toCardinal(value, options) {
@@ -308,7 +301,6 @@ function toCardinal(value, options) {
 /**
  * Builds ordinal for a 0-99 segment when it's the final (ordinal) part.
  * Returns ordinal form: "први", "двадесет први", etc.
- *
  * @param {number} n - Number 0-99
  * @returns {string} Ordinal words
  */
@@ -343,7 +335,6 @@ function buildOrdinalTensOnes(n) {
  *
  * In Serbian ordinals, only the LAST component becomes ordinal.
  * E.g., 121 = "сто двадесет први" (one hundred twenty first)
- *
  * @param {bigint} n - Positive integer to convert
  * @returns {string} Ordinal Serbian words
  */
@@ -395,7 +386,6 @@ function integerToOrdinal(n) {
 /**
  * Builds ordinal words for numbers >= 1,000,000.
  * All segments except the final one are cardinal; final segment is ordinal.
- *
  * @param {bigint} n - Number >= 1,000,000
  * @returns {string} Ordinal Serbian words
  */
@@ -475,12 +465,10 @@ function buildLargeOrdinal(n) {
 
 /**
  * Converts a numeric value to Serbian ordinal words (masculine nominative).
- *
  * @param {number | string | bigint} value - The numeric value to convert (must be a positive integer)
  * @returns {string} The number as ordinal words (e.g., "први", "четрдесет други")
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {RangeError} If value is negative, zero, or has a decimal part
- *
  * @example
  * toOrdinal(1)    // 'први'
  * toOrdinal(2)    // 'други'
@@ -501,14 +489,12 @@ function toOrdinal(value) {
 
 /**
  * Converts a numeric value to Serbian currency words (Serbian Dinar).
- *
  * @param {number | string | bigint} value - The currency amount to convert
- * @param {Object} [options] - Optional configuration
- * @param {boolean} [options.and=true] - Use "и" between dinars and para
+ * @param {object} [options] - Optional configuration
+ * @param {boolean} [options.and] - Use "и" between dinars and para
  * @returns {string} The amount in Serbian currency words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {Error} If value is not a valid number format
- *
  * @example
  * toCurrency(42.50)                    // 'четрдесет два динара и педесет пара'
  * toCurrency(1)                        // 'један динар'

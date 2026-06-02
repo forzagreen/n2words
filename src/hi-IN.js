@@ -68,7 +68,6 @@ const SCALE_WORDS = ['', 'हज़ार', 'लाख', 'करोड़', 'अ
 
 /**
  * Builds words for a 0-999 segment.
- *
  * @param {number} n - Number 0-999
  * @returns {string} Hindi words for the segment
  */
@@ -94,7 +93,6 @@ function buildSegment(n) {
  *
  * Uses BigInt modulo for segment extraction (faster than string slicing).
  * South Asian 3-2-2 grouping: first 3 digits, then groups of 2.
- *
  * @param {bigint} n - Non-negative integer to convert
  * @returns {string} Hindi words
  */
@@ -147,7 +145,6 @@ function integerToWords(n) {
 
 /**
  * Converts the decimal-part digit string to Hindi words.
- *
  * @param {string} decimalPart - The digits after the decimal separator
  * @returns {string} Hindi words for the decimal part
  */
@@ -172,7 +169,6 @@ function decimalPartToWords(decimalPart) {
 
 /**
  * Converts a numeric value to Hindi words.
- *
  * @param {number | string | bigint} value - The numeric value to convert
  * @returns {string} The number in Hindi words
  */
@@ -202,7 +198,6 @@ function toCardinal(value) {
  * Converts a positive integer to Hindi ordinal words.
  *
  * Hindi ordinals: First 6 are irregular, then add -वाँ suffix.
- *
  * @param {bigint} n - Positive integer to convert
  * @returns {string} Hindi ordinal words
  */
@@ -219,12 +214,10 @@ function integerToOrdinal(n) {
 
 /**
  * Converts a numeric value to Hindi ordinal words.
- *
  * @param {number | string | bigint} value - The numeric value to convert (positive integer)
  * @returns {string} The number as ordinal words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {RangeError} If value is negative, zero, or has a decimal part
- *
  * @example
  * toOrdinal(1)    // 'पहला'
  * toOrdinal(2)    // 'दूसरा'
@@ -242,12 +235,10 @@ function toOrdinal(value) {
 
 /**
  * Converts a numeric value to Hindi currency words (Indian Rupee).
- *
  * @param {number | string | bigint} value - The currency amount to convert
  * @returns {string} The amount in Hindi currency words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {Error} If value is not a valid number format
- *
  * @example
  * toCurrency(42.50)  // 'बयालीस रुपये पचास पैसे'
  * toCurrency(1)      // 'एक रुपया'

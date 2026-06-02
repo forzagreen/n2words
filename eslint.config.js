@@ -7,6 +7,7 @@ import n from 'eslint-plugin-n'
 import importX from 'eslint-plugin-import-x'
 import ava from 'eslint-plugin-ava'
 import comments from '@eslint-community/eslint-plugin-eslint-comments/configs'
+import jsdoc from 'eslint-plugin-jsdoc'
 import globals from 'globals'
 
 // Flat config (ESLint 10). Built on ESLint's own recommended rules + @stylistic
@@ -45,6 +46,16 @@ export default defineConfig([
       compat.configs['flat/recommended'],
       esx.configs['flat/restrict-to-es2022'],
     ],
+  },
+
+  // JSDoc correctness on shipped source — JSDoc is the type source for the
+  // generated .d.ts, so its accuracy is enforced. Full recommended set for
+  // JS-type-checked-via-JSDoc (matches our checkJs setup), at error level,
+  // adopted as-published with no rule disables.
+  {
+    name: 'n2words/src-jsdoc',
+    files: ['src/**/*.js'],
+    extends: [jsdoc.configs['flat/recommended-typescript-flavor-error']],
   },
 
   // Tests run on the CI Node matrix (down to the engines floor), so n checks

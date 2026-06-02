@@ -67,7 +67,6 @@ const SCALE_WORDS = ['', 'ਹਜ਼ਾਰ', 'ਲੱਖ', 'ਕਰੋੜ', 'ਅਰ
 
 /**
  * Builds words for a 0-999 segment.
- *
  * @param {number} n - Segment value (0-999)
  * @returns {string} Punjabi words for the segment
  */
@@ -93,7 +92,6 @@ function buildSegment(n) {
  *
  * Uses BigInt modulo for segment extraction (faster than string slicing).
  * South Asian 3-2-2 grouping: first 3 digits, then groups of 2.
- *
  * @param {bigint} n - Non-negative integer to convert
  * @returns {string} Punjabi words
  */
@@ -138,7 +136,6 @@ function integerToWords(n) {
 
 /**
  * Converts the fractional digit string to Punjabi words.
- *
  * @param {string} decimalPart - Digits after the decimal point
  * @returns {string} Punjabi words for the decimal part
  */
@@ -163,7 +160,6 @@ function decimalPartToWords(decimalPart) {
 
 /**
  * Converts a numeric value to Punjabi words.
- *
  * @param {number | string | bigint} value - The numeric value to convert
  * @returns {string} The number in Punjabi words
  */
@@ -193,7 +189,6 @@ function toCardinal(value) {
  * Converts a positive integer to Punjabi ordinal words.
  *
  * Punjabi ordinals: First 6 are irregular, then add -ਵਾਂ suffix.
- *
  * @param {bigint} n - Positive integer to convert
  * @returns {string} Punjabi ordinal words
  */
@@ -210,12 +205,10 @@ function integerToOrdinal(n) {
 
 /**
  * Converts a numeric value to Punjabi ordinal words.
- *
  * @param {number | string | bigint} value - The numeric value to convert (positive integer)
  * @returns {string} The number as ordinal words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {RangeError} If value is negative, zero, or has a decimal part
- *
  * @example
  * toOrdinal(1)    // 'ਪਹਿਲਾ'
  * toOrdinal(2)    // 'ਦੂਜਾ'
@@ -233,12 +226,10 @@ function toOrdinal(value) {
 
 /**
  * Converts a numeric value to Punjabi currency words (Indian Rupee).
- *
  * @param {number | string | bigint} value - The currency amount to convert
  * @returns {string} The amount in Punjabi currency words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {Error} If value is not a valid number format
- *
  * @example
  * toCurrency(42.50)  // 'ਬਿਆਲੀ ਰੁਪਏ ਪੰਜਾਹ ਪੈਸੇ'
  * toCurrency(1)      // 'ਇੱਕ ਰੁਪਇਆ'

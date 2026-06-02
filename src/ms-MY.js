@@ -51,7 +51,6 @@ const SEN = 'sen'
 
 /**
  * Builds the words for a number segment (0-999).
- *
  * @param {number} n - Integer segment in range 0-999
  * @returns {string} The segment in Malay words
  */
@@ -102,7 +101,6 @@ function buildSegment(n) {
 
 /**
  * Converts a non-negative integer to Malay words.
- *
  * @param {bigint} n - Non-negative integer to convert
  * @returns {string} The integer in Malay words
  */
@@ -137,7 +135,6 @@ function integerToWords(n) {
 
 /**
  * Builds words for large numbers (>= 1,000,000) using scale words.
- *
  * @param {bigint} n - Integer to convert (>= 1,000,000)
  * @returns {string} The integer in Malay words
  */
@@ -197,7 +194,6 @@ function buildLargeNumberWords(n) {
 
 /**
  * Converts the decimal part (digit string) to Malay words.
- *
  * @param {string} decimalPart - Decimal digits as a string
  * @returns {string} The decimal digits in Malay words
  */
@@ -222,7 +218,6 @@ function decimalPartToWords(decimalPart) {
 
 /**
  * Converts a numeric value to Malay words.
- *
  * @param {number | string | bigint} value - The numeric value to convert
  * @returns {string} The number in Malay words
  */
@@ -253,7 +248,6 @@ function toCardinal(value) {
  *
  * Malay ordinals use "ke-" prefix + cardinal number.
  * Special case: "pertama" for 1st (not "kesatu").
- *
  * @param {bigint} n - Positive integer to convert
  * @returns {string} Malay ordinal words
  */
@@ -269,12 +263,10 @@ function integerToOrdinal(n) {
 
 /**
  * Converts a numeric value to Malay ordinal words.
- *
  * @param {number | string | bigint} value - The numeric value to convert (positive integer)
  * @returns {string} The number as ordinal words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {RangeError} If value is negative, zero, or has a decimal part
- *
  * @example
  * toOrdinal(1)    // 'pertama'
  * toOrdinal(2)    // 'kedua'
@@ -293,12 +285,10 @@ function toOrdinal(value) {
  * Converts a numeric value to Malay currency words (Ringgit).
  *
  * Malaysian Ringgit uses sen as subunit (100 sen = 1 ringgit).
- *
  * @param {number | string | bigint} value - The currency amount to convert
  * @returns {string} The amount in Malay currency words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {Error} If value is not a valid number format
- *
  * @example
  * toCurrency(42)     // 'empat puluh dua ringgit'
  * toCurrency(1.50)   // 'satu ringgit lima puluh sen'

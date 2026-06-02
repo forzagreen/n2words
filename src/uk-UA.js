@@ -80,7 +80,6 @@ const SCALE_FORMS = [
 
 /**
  * Selects the correct plural form for a count.
- *
  * @param {number | bigint} n - The count
  * @param {string[]} forms - Plural forms [one, few, many]
  * @returns {string} The selected plural form
@@ -101,7 +100,6 @@ function pluralize(n, forms) {
 
 /**
  * Builds the masculine words for a 0-999 segment.
- *
  * @param {number} n - Number 0-999
  * @returns {string} Segment words
  */
@@ -134,7 +132,6 @@ function buildSegmentMasc(n) {
 
 /**
  * Builds the feminine words for a 0-999 segment.
- *
  * @param {number} n - Number 0-999
  * @returns {string} Segment words
  */
@@ -171,7 +168,6 @@ function buildSegmentFem(n) {
 
 /**
  * Converts a non-negative integer to Ukrainian words.
- *
  * @param {bigint} n - The integer to convert
  * @param {('masculine'|'feminine')} gender - Grammatical gender
  * @returns {string} The integer in Ukrainian words
@@ -188,7 +184,6 @@ function integerToWords(n, gender) {
 
 /**
  * Builds Ukrainian words for numbers >= 1000.
- *
  * @param {bigint} n - The integer to convert
  * @param {('masculine'|'feminine')} gender - Grammatical gender
  * @returns {string} The integer in Ukrainian words
@@ -239,7 +234,6 @@ function buildLargeNumberWords(n, gender) {
 
 /**
  * Converts a decimal fractional string to Ukrainian words.
- *
  * @param {string} decimalPart - The fractional digits
  * @param {('masculine'|'feminine')} gender - Grammatical gender
  * @returns {string} The fractional part in Ukrainian words
@@ -265,10 +259,9 @@ function decimalPartToWords(decimalPart, gender) {
 
 /**
  * Converts a numeric value to Ukrainian words.
- *
  * @param {number | string | bigint} value - The numeric value to convert
- * @param {Object} [options] - Optional configuration
- * @param {('masculine'|'feminine')} [options.gender='masculine'] - Grammatical gender
+ * @param {object} [options] - Optional configuration
+ * @param {('masculine'|'feminine')} [options.gender] - Grammatical gender
  * @returns {string} The number in Ukrainian words
  */
 function toCardinal(value, options) {
@@ -299,7 +292,6 @@ function toCardinal(value, options) {
 
 /**
  * Builds ordinal for a 0-99 segment when it's the final (ordinal) part.
- *
  * @param {number} n - Number 0-99
  * @returns {string} Ordinal words
  */
@@ -326,7 +318,6 @@ function buildOrdinalTensOnes(n) {
 
 /**
  * Converts a positive integer to Ukrainian ordinal words (masculine nominative).
- *
  * @param {bigint} n - Positive integer to convert
  * @returns {string} Ordinal Ukrainian words
  */
@@ -368,7 +359,6 @@ function integerToOrdinal(n) {
 
 /**
  * Builds ordinal words for numbers >= 1,000,000.
- *
  * @param {bigint} n - Number >= 1,000,000
  * @returns {string} Ordinal Ukrainian words
  */
@@ -441,12 +431,10 @@ function buildLargeOrdinal(n) {
 
 /**
  * Converts a numeric value to Ukrainian ordinal words (masculine nominative).
- *
  * @param {number | string | bigint} value - The numeric value to convert (must be a positive integer)
  * @returns {string} The number as ordinal words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {RangeError} If value is negative, zero, or has a decimal part
- *
  * @example
  * toOrdinal(1)    // 'перший'
  * toOrdinal(2)    // 'другий'
@@ -465,12 +453,10 @@ function toOrdinal(value) {
 
 /**
  * Converts a numeric value to Ukrainian currency words (Hryvnia).
- *
  * @param {number | string | bigint} value - The currency amount to convert
  * @returns {string} The amount in Ukrainian currency words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {Error} If value is not a valid number format
- *
  * @example
  * toCurrency(42)     // 'сорок двi гривнi'
  * toCurrency(1)      // 'одна гривня'

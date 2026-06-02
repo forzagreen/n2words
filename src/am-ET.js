@@ -58,8 +58,8 @@ const SCALE_WORDS = ['', THOUSAND, 'ሚሊዮን', 'ቢሊዮን']
 // ============================================================================
 
 /**
- * @param {number} n
- * @returns {string}
+ * @param {number} n The three-digit segment value (0-999) to convert.
+ * @returns {string} The segment in Amharic words.
  */
 function buildSegment(n) {
   if (n === 0) return ''
@@ -95,8 +95,8 @@ function buildSegment(n) {
 // ============================================================================
 
 /**
- * @param {bigint} n
- * @returns {string}
+ * @param {bigint} n The non-negative integer to convert.
+ * @returns {string} The integer in Amharic words.
  */
 function integerToWords(n) {
   if (n === 0n) return ZERO
@@ -109,8 +109,8 @@ function integerToWords(n) {
 }
 
 /**
- * @param {bigint} n
- * @returns {string}
+ * @param {bigint} n The integer (>= 1000) to convert using scale words.
+ * @returns {string} The integer in Amharic words.
  */
 function buildLargeNumberWords(n) {
   const numStr = n.toString()
@@ -154,8 +154,8 @@ function buildLargeNumberWords(n) {
 }
 
 /**
- * @param {string} decimalPart
- * @returns {string}
+ * @param {string} decimalPart The digit string after the decimal point.
+ * @returns {string} The decimal digits read individually in Amharic words.
  */
 function decimalPartToWords(decimalPart) {
   // Per-digit decimal reading
@@ -169,7 +169,6 @@ function decimalPartToWords(decimalPart) {
 
 /**
  * Converts a numeric value to Amharic words.
- *
  * @param {number | string | bigint} value - The numeric value to convert
  * @returns {string} The number in Amharic words
  */
@@ -200,7 +199,6 @@ function toCardinal(value) {
  *
  * In Amharic, ordinals are formed by adding -ኛ suffix to the cardinal.
  * Special case: 1 = አንደኛ (not አንድኛ)
- *
  * @param {bigint} n - Positive integer to convert
  * @returns {string} Amharic ordinal words
  */
@@ -220,12 +218,10 @@ function integerToOrdinal(n) {
  *
  * Amharic ordinals: add -ኛ suffix to cardinal.
  * Special case: 1 → አንደኛ
- *
  * @param {number | string | bigint} value - The numeric value to convert (positive integer)
  * @returns {string} The number as ordinal words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {RangeError} If value is negative, zero, or has a decimal part
- *
  * @example
  * toOrdinal(1)    // 'አንደኛ'
  * toOrdinal(2)    // 'ሁለትኛ'
@@ -243,12 +239,10 @@ function toOrdinal(value) {
 
 /**
  * Converts a numeric value to Amharic currency words (Ethiopian Birr).
- *
  * @param {number | string | bigint} value - The currency amount to convert
  * @returns {string} The amount in Amharic currency words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {Error} If value is not a valid number format
- *
  * @example
  * toCurrency(42.50)  // 'አርባ ሁለት ብር ሃምሳ ሳንቲም'
  * toCurrency(1)      // 'አንድ ብር'

@@ -56,9 +56,8 @@ const segmentResult = { word: '', hasHundred: false }
 
 /**
  * Builds words for a 0-999 segment.
- *
  * @param {number} n - Number 0-999
- * @returns {{ word: string, hasHundred: boolean }}
+ * @returns {{ word: string, hasHundred: boolean }} The segment words and whether it includes a hundreds place
  */
 function buildSegment(n) {
   if (n === 0) {
@@ -107,7 +106,6 @@ function buildSegment(n) {
 
 /**
  * Converts a non-negative integer to English words.
- *
  * @param {bigint} n - Non-negative integer to convert
  * @returns {string} English words
  */
@@ -142,7 +140,6 @@ function integerToWords(n) {
 /**
  * Builds words for numbers >= 1,000,000.
  * Uses BigInt division for faster segment extraction.
- *
  * @param {bigint} n - Number >= 1,000,000
  * @returns {string} English words
  */
@@ -200,7 +197,6 @@ function buildLargeNumberWords(n) {
 
 /**
  * Converts decimal digits to English words.
- *
  * @param {string} decimalPart - Decimal digits (without the point)
  * @returns {string} English words for decimal part
  */
@@ -230,12 +226,10 @@ function decimalPartToWords(decimalPart) {
  *
  * This is the main public API. It accepts any valid numeric input
  * (number, string, or bigint) and handles parsing internally.
- *
  * @param {number | string | bigint} value - The numeric value to convert
  * @returns {string} The number in English words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {Error} If value is not a valid number format
- *
  * @example
  * toCardinal(42)           // 'forty-two'
  * toCardinal(-3.14)        // 'minus three point fourteen'
@@ -266,7 +260,6 @@ function toCardinal(value) {
 /**
  * Builds ordinal words for a 0-999 segment (final segment only).
  * Returns ordinal form: "first", "twenty-third", "one hundred forty-fifth"
- *
  * @param {number} n - Number 0-999
  * @returns {string} Ordinal words for this segment
  */
@@ -314,7 +307,6 @@ function buildOrdinalSegment(n) {
 /**
  * Converts a positive integer to ordinal words.
  * Generates ordinals directly without string manipulation.
- *
  * @param {bigint} n - Positive integer to convert
  * @returns {string} Ordinal English words
  */
@@ -346,7 +338,6 @@ function integerToOrdinal(n) {
 /**
  * Builds ordinal words for numbers >= 1,000,000.
  * All segments except the final one are cardinal; final segment is ordinal.
- *
  * @param {bigint} n - Number >= 1,000,000
  * @returns {string} Ordinal English words
  */
@@ -404,12 +395,10 @@ function buildLargeOrdinal(n) {
 
 /**
  * Converts a numeric value to British English ordinal words.
- *
  * @param {number | string | bigint} value - The numeric value to convert (must be a positive integer)
  * @returns {string} The number as ordinal words (e.g., "first", "forty-second")
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {RangeError} If value is negative, zero, or has a decimal part
- *
  * @example
  * toOrdinal(1)    // 'first'
  * toOrdinal(2)    // 'second'
@@ -431,14 +420,12 @@ function toOrdinal(value) {
 
 /**
  * Converts a numeric value to British English currency words.
- *
  * @param {number | string | bigint} value - The currency amount to convert
- * @param {Object} [options] - Optional configuration
- * @param {boolean} [options.and=true] - Use "and" between pounds and pence (e.g., "one pound and fifty pence")
+ * @param {object} [options] - Optional configuration
+ * @param {boolean} [options.and] - Use "and" between pounds and pence (e.g., "one pound and fifty pence")
  * @returns {string} The amount in British English currency words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {Error} If value is not a valid number format
- *
  * @example
  * toCurrency(42.50)                    // 'forty-two pounds and fifty pence'
  * toCurrency(1)                        // 'one pound'

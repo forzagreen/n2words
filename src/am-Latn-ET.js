@@ -59,7 +59,6 @@ const SCALE_WORDS = ['', THOUSAND, 'miliyon', 'billiyon']
 
 /**
  * Builds the words for a 3-digit segment (0-999).
- *
  * @param {number} n - Segment value (0-999)
  * @returns {string} The segment in Amharic (Latin) words
  */
@@ -98,7 +97,6 @@ function buildSegment(n) {
 
 /**
  * Converts a non-negative integer to Amharic (Latin script) words.
- *
  * @param {bigint} n - Non-negative integer to convert
  * @returns {string} The integer in Amharic (Latin) words
  */
@@ -114,7 +112,6 @@ function integerToWords(n) {
 
 /**
  * Builds the words for a number of 1000 or greater using short-scale grouping.
- *
  * @param {bigint} n - Integer of 1000 or greater
  * @returns {string} The number in Amharic (Latin) words
  */
@@ -161,7 +158,6 @@ function buildLargeNumberWords(n) {
 
 /**
  * Reads the decimal part digit by digit.
- *
  * @param {string} decimalPart - The fractional digits as a string
  * @returns {string} The decimal digits in Amharic (Latin) words
  */
@@ -177,7 +173,6 @@ function decimalPartToWords(decimalPart) {
 
 /**
  * Converts a numeric value to Amharic (Latin script) words.
- *
  * @param {number | string | bigint} value - The numeric value to convert
  * @returns {string} The number in Amharic Latin words
  */
@@ -208,7 +203,6 @@ function toCardinal(value) {
  *
  * In Amharic, ordinals are formed by adding -nya suffix to the cardinal.
  * Special case: 1 = andenya
- *
  * @param {bigint} n - Positive integer to convert
  * @returns {string} Amharic (Latin) ordinal words
  */
@@ -225,12 +219,10 @@ function integerToOrdinal(n) {
 
 /**
  * Converts a numeric value to Amharic (Latin script) ordinal words.
- *
  * @param {number | string | bigint} value - The numeric value to convert (positive integer)
  * @returns {string} The number as ordinal words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {RangeError} If value is negative, zero, or has a decimal part
- *
  * @example
  * toOrdinal(1)    // 'andenya'
  * toOrdinal(2)    // 'huletnya'
@@ -247,12 +239,10 @@ function toOrdinal(value) {
 
 /**
  * Converts a numeric value to Amharic (Latin script) currency words (Ethiopian Birr).
- *
  * @param {number | string | bigint} value - The currency amount to convert
  * @returns {string} The amount in Amharic (Latin) currency words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {Error} If value is not a valid number format
- *
  * @example
  * toCurrency(42.50)  // 'arba hulet birr hamsa santim'
  * toCurrency(1)      // 'and birr'

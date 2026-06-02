@@ -76,7 +76,6 @@ const HALALA_PLURAL_11 = 'هللة'
  * Convert a 3-digit group to words.
  * Returns a clean string with no leading/trailing spaces.
  * Arabic "و" (and) is attached to following word: "مائة وخمسة" not "مائة و خمسة"
- *
  * @param {number} groupNumber - The 3-digit group value (0-999)
  * @param {number} groupLevel - The scale level of this group (0 = units, 1 = thousands, ...)
  * @param {bigint} fullNumber - The full number being converted
@@ -140,7 +139,6 @@ function segmentToWords(groupNumber, groupLevel, fullNumber, ones) {
 
 /**
  * Convert a non-negative integer to Arabic words.
- *
  * @param {bigint} n - The non-negative integer to convert
  * @param {string} gender - 'masculine' or 'feminine'
  * @returns {string} The number rendered as words
@@ -199,7 +197,6 @@ function integerToWords(n, gender) {
 
 /**
  * Convert the fractional digits of a number to Arabic words.
- *
  * @param {string} decimalPart - The decimal digits (after the separator)
  * @param {string} gender - 'masculine' or 'feminine'
  * @returns {string} The decimal part rendered as words
@@ -223,13 +220,11 @@ function decimalPartToWords(decimalPart, gender) {
 
 /**
  * Converts a numeric value to Arabic words.
- *
  * @param {number | string | bigint} value - The numeric value to convert
- * @param {Object} [options] - Optional configuration
- * @param {('masculine'|'feminine')} [options.gender='masculine'] - Grammatical gender
+ * @param {object} [options] - Optional configuration
+ * @param {('masculine'|'feminine')} [options.gender] - Grammatical gender
  * @param {string} [options.negativeWord] - Custom word for negative numbers
  * @returns {string} The number in Arabic words
- *
  * @example
  * toCardinal(1)                        // 'واحد'
  * toCardinal(1, {gender: 'feminine'})  // 'واحدة'
@@ -268,7 +263,6 @@ function toCardinal(value, options) {
  * Gets the Arabic ordinal form for a number.
  *
  * Arabic ordinals 1-10 have special forms, beyond 10 use cardinal + position.
- *
  * @param {bigint} n - Positive integer to convert
  * @param {string} gender - 'masculine' or 'feminine'
  * @returns {string} Arabic ordinal words
@@ -288,14 +282,12 @@ function integerToOrdinal(n, gender) {
 
 /**
  * Converts a numeric value to Arabic ordinal words.
- *
  * @param {number | string | bigint} value - The numeric value to convert (positive integer)
- * @param {Object} [options] - Optional configuration
- * @param {('masculine'|'feminine')} [options.gender='masculine'] - Grammatical gender
+ * @param {object} [options] - Optional configuration
+ * @param {('masculine'|'feminine')} [options.gender] - Grammatical gender
  * @returns {string} The number as ordinal words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {RangeError} If value is negative, zero, or has a decimal part
- *
  * @example
  * toOrdinal(1)                        // 'الأول'
  * toOrdinal(1, {gender: 'feminine'})  // 'الأولى'
@@ -320,7 +312,6 @@ function toOrdinal(value, options) {
  * - 2: dual
  * - 3-10: plural form 1
  * - 11+: plural form 2 (different ending)
- *
  * @param {bigint} n - The riyal count
  * @returns {string} The appropriate riyal word form
  */
@@ -333,7 +324,6 @@ function getRiyalForm(n) {
 
 /**
  * Gets the appropriate halala word form based on number.
- *
  * @param {bigint} n - The halala count
  * @returns {string} The appropriate halala word form
  */
@@ -346,12 +336,10 @@ function getHalalaForm(n) {
 
 /**
  * Converts a numeric value to Arabic currency words (Saudi Riyal).
- *
  * @param {number | string | bigint} value - The currency amount to convert
  * @returns {string} The amount in Arabic currency words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {Error} If value is not a valid number format
- *
  * @example
  * toCurrency(42.50)  // 'اثنان وأربعون ريالاً وخمسون هللة'
  * toCurrency(1)      // 'ريال واحد'

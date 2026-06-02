@@ -227,7 +227,6 @@ function decimalPartToWords(decimalPart) {
 
 /**
  * Converts a numeric value to Filipino words.
- *
  * @param {number | string | bigint} value - The numeric value to convert
  * @returns {string} The number in Filipino words
  */
@@ -257,7 +256,6 @@ function toCardinal(value) {
  * Converts a non-negative integer to Filipino ordinal words.
  *
  * Filipino ordinals: una (1st), ikalawa (2nd), then ika- + cardinal.
- *
  * @param {bigint} n - Positive integer to convert
  * @returns {string} Filipino ordinal words
  */
@@ -272,12 +270,10 @@ function integerToOrdinal(n) {
 
 /**
  * Converts a numeric value to Filipino ordinal words.
- *
  * @param {number | string | bigint} value - The numeric value to convert (positive integer)
  * @returns {string} The number as ordinal words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {RangeError} If value is negative, zero, or has a decimal part
- *
  * @example
  * toOrdinal(1)    // 'una'
  * toOrdinal(2)    // 'ikalawa'
@@ -296,12 +292,10 @@ function toOrdinal(value) {
  * Converts a numeric value to Filipino currency words (Philippine Peso).
  *
  * Uses piso (peso) and sentimo (centavo).
- *
  * @param {number | string | bigint} value - The currency amount to convert
  * @returns {string} The amount in Filipino currency words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {Error} If value is not a valid number format
- *
  * @example
  * toCurrency(42)     // 'apatnapu dalawang piso'
  * toCurrency(1.50)   // 'isang piso at limampung sentimo'

@@ -44,8 +44,8 @@ const BAHT_ONLY = 'ถ้วน' // "exactly" suffix when no satang
 // ============================================================================
 
 /**
- * @param {number} n
- * @returns {string}
+ * @param {number} n A value below one million to convert.
+ * @returns {string} The number in Thai words.
  */
 function convertBelowMillion(n) {
   if (n === 0) return ''
@@ -111,8 +111,8 @@ function convertBelowMillion(n) {
 }
 
 /**
- * @param {bigint} n
- * @returns {number[]}
+ * @param {bigint} n The integer to split into million-based groups.
+ * @returns {number[]} The groups in most-significant-first order.
  */
 function splitMillionGroups(n) {
   const groups = []
@@ -129,8 +129,8 @@ function splitMillionGroups(n) {
 }
 
 /**
- * @param {bigint} n
- * @returns {string}
+ * @param {bigint} n The integer to convert.
+ * @returns {string} The integer in Thai words.
  */
 function integerToWords(n) {
   if (n === 0n) return ZERO
@@ -153,8 +153,8 @@ function integerToWords(n) {
 }
 
 /**
- * @param {string} decimalPart
- * @returns {string}
+ * @param {string} decimalPart The fractional digits to read.
+ * @returns {string} The decimal digits in Thai words.
  */
 function decimalPartToWords(decimalPart) {
   // Per-digit decimal reading
@@ -168,7 +168,6 @@ function decimalPartToWords(decimalPart) {
 
 /**
  * Converts a numeric value to Thai words.
- *
  * @param {number | string | bigint} value - The numeric value to convert
  * @returns {string} The number in Thai words
  */
@@ -198,7 +197,6 @@ function toCardinal(value) {
  * Converts a non-negative integer to Thai ordinal words.
  *
  * Thai ordinals use "ที่" prefix + cardinal number.
- *
  * @param {bigint} n - Positive integer to convert
  * @returns {string} Thai ordinal words
  */
@@ -208,12 +206,10 @@ function integerToOrdinal(n) {
 
 /**
  * Converts a numeric value to Thai ordinal words.
- *
  * @param {number | string | bigint} value - The numeric value to convert (positive integer)
  * @returns {string} The number as ordinal words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {RangeError} If value is negative, zero, or has a decimal part
- *
  * @example
  * toOrdinal(1)    // 'ที่หนึ่ง'
  * toOrdinal(2)    // 'ที่สอง'
@@ -233,12 +229,10 @@ function toOrdinal(value) {
  *
  * Thai Baht uses satang as subunit (100 satang = 1 baht).
  * When whole amounts, adds "ถ้วน" (exactly) suffix.
- *
  * @param {number | string | bigint} value - The currency amount to convert
  * @returns {string} The amount in Thai currency words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {Error} If value is not a valid number format
- *
  * @example
  * toCurrency(42)     // 'สี่สิบสองบาทถ้วน'
  * toCurrency(1.50)   // 'หนึ่งบาทห้าสิบสตางค์'

@@ -60,7 +60,6 @@ const CENTIMES = 'centimes'
 /**
  * Builds segment word for 0-999.
  * Returns object with { word, endsWithCents, endsWithVingts } for pluralization handling.
- *
  * @param {number} n - Segment value (0-999)
  * @returns {{ word: string, endsWithCents: boolean, endsWithVingts: boolean }} Segment words and pluralization flags
  */
@@ -168,7 +167,6 @@ function buildSegment(n) {
 
 /**
  * Gets scale word for French long scale with -ard pattern.
- *
  * @param {number} scaleIndex - Scale level (1 = thousand, 2 = million, etc.)
  * @param {bigint} segment - Segment value for pluralization
  * @returns {string} Scale word
@@ -198,7 +196,6 @@ function getScaleWord(scaleIndex, segment) {
 
 /**
  * Converts a non-negative integer to French words.
- *
  * @param {bigint} n - Non-negative integer to convert
  * @param {boolean} withHyphen - Whether to use hyphen separators
  * @returns {string} French words
@@ -250,7 +247,6 @@ function integerToWords(n, withHyphen = false) {
 
 /**
  * Builds words for numbers >= 1,000,000.
- *
  * @param {bigint} n - Number >= 1,000,000
  * @param {boolean} withHyphen - Whether to use hyphen separators
  * @returns {string} French words
@@ -326,7 +322,6 @@ function buildLargeNumberWords(n, withHyphen) {
 
 /**
  * Converts decimal digits to French words.
- *
  * @param {string} decimalPart - Decimal digits (without the point)
  * @param {boolean} withHyphen - Whether to use hyphen separators
  * @returns {string} French words for decimal part
@@ -358,14 +353,12 @@ function decimalPartToWords(decimalPart, withHyphen) {
  *
  * This is the main public API. It accepts any valid numeric input
  * (number, string, or bigint) and handles parsing internally.
- *
  * @param {number | string | bigint} value - The numeric value to convert
- * @param {Object} [options] - Optional configuration
- * @param {boolean} [options.withHyphenSeparator=false] - Use hyphens between all words
+ * @param {object} [options] - Optional configuration
+ * @param {boolean} [options.withHyphenSeparator] - Use hyphens between all words
  * @returns {string} The number in French words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {Error} If value is not a valid number format
- *
  * @example
  * toCardinal(21)           // 'vingt et un'
  * toCardinal(80)           // 'quatre-vingts'
@@ -405,7 +398,6 @@ function toCardinal(value, options) {
  * - Drop final -e before adding -ième (quatre → quatrième)
  * - cinq → cinquième (add -u- before -ième)
  * - neuf → neuvième (f → v before -ième)
- *
  * @param {string} cardinalWord - Cardinal word to convert
  * @returns {string} Ordinal form
  */
@@ -447,7 +439,6 @@ function cardinalToOrdinal(cardinalWord) {
 
 /**
  * Converts a positive integer to French ordinal words.
- *
  * @param {bigint} n - Positive integer
  * @returns {string} French ordinal words
  */
@@ -467,12 +458,10 @@ function integerToOrdinal(n) {
  *
  * French ordinals: premier (1st), then cardinal + ième.
  * Special rules: quatre→quatrième, cinq→cinquième, neuf→neuvième.
- *
  * @param {number | string | bigint} value - The numeric value to convert (positive integer)
  * @returns {string} The number as ordinal words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {RangeError} If value is negative, zero, or has a decimal part
- *
  * @example
  * toOrdinal(1)    // 'premier'
  * toOrdinal(2)    // 'deuxième'
@@ -494,14 +483,12 @@ function toOrdinal(value) {
 
 /**
  * Converts a numeric value to French currency words (Euro).
- *
  * @param {number | string | bigint} value - The currency amount to convert
- * @param {Object} [options] - Optional configuration
- * @param {boolean} [options.and=true] - Use "et" between euros and centimes
+ * @param {object} [options] - Optional configuration
+ * @param {boolean} [options.and] - Use "et" between euros and centimes
  * @returns {string} The amount in French currency words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {Error} If value is not a valid number format
- *
  * @example
  * toCurrency(42.50)                 // 'quarante-deux euros et cinquante centimes'
  * toCurrency(1)                     // 'un euro'

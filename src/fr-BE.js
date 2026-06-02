@@ -58,7 +58,6 @@ const CENTIMES = 'centimes'
 
 /**
  * Builds the words for a 0-999 segment.
- *
  * @param {number} n - Segment value (0-999)
  * @returns {{word: string, endsWithCents: boolean, endsWithVingts: boolean}} Segment words and flags
  */
@@ -161,7 +160,6 @@ function buildSegment(n) {
 
 /**
  * Returns the scale word (mille, million, milliard, ...) for a scale index.
- *
  * @param {number} scaleIndex - Scale group index
  * @param {bigint} segment - Segment value used to decide pluralization
  * @returns {string} The scale word
@@ -189,9 +187,8 @@ function getScaleWord(scaleIndex, segment) {
 
 /**
  * Converts a non-negative integer to Belgian French cardinal words.
- *
  * @param {bigint} n - Non-negative integer
- * @param {boolean} [withHyphen=false] - Use hyphens between words
+ * @param {boolean} [withHyphen] - Use hyphens between words
  * @returns {string} The integer in Belgian French words
  */
 function integerToWords(n, withHyphen = false) {
@@ -236,7 +233,6 @@ function integerToWords(n, withHyphen = false) {
 
 /**
  * Builds words for large integers (>= 1,000,000) using scale groups.
- *
  * @param {bigint} n - Integer value (>= 1,000,000)
  * @param {boolean} withHyphen - Use hyphens between words
  * @returns {string} The integer in Belgian French words
@@ -306,7 +302,6 @@ function buildLargeNumberWords(n, withHyphen) {
 
 /**
  * Converts the decimal part digits to words (leading zeros spoken as zéro).
- *
  * @param {string} decimalPart - Decimal digits as a string
  * @param {boolean} withHyphen - Use hyphens between words
  * @returns {string} The decimal part in Belgian French words
@@ -333,10 +328,9 @@ function decimalPartToWords(decimalPart, withHyphen) {
 
 /**
  * Converts a numeric value to Belgian French words.
- *
  * @param {number | string | bigint} value - The numeric value to convert
- * @param {Object} [options] - Optional configuration
- * @param {boolean} [options.withHyphenSeparator=false] - Use hyphens between words
+ * @param {object} [options] - Optional configuration
+ * @param {boolean} [options.withHyphenSeparator] - Use hyphens between words
  * @returns {string} The number in Belgian French words
  */
 function toCardinal(value, options) {
@@ -373,7 +367,6 @@ function toCardinal(value, options) {
  * - Drop final -e before adding -ième (quatre → quatrième)
  * - cinq → cinquième (add -u- before -ième)
  * - neuf → neuvième (f → v before -ième)
- *
  * @param {string} cardinalWord - Cardinal word to convert
  * @returns {string} Ordinal form
  */
@@ -415,7 +408,6 @@ function cardinalToOrdinal(cardinalWord) {
 
 /**
  * Converts a positive integer to Belgian French ordinal words.
- *
  * @param {bigint} n - Positive integer
  * @returns {string} Belgian French ordinal words
  */
@@ -435,12 +427,10 @@ function integerToOrdinal(n) {
  *
  * Belgian French ordinals: premier (1st), then cardinal + ième.
  * Special rules: quatre→quatrième, cinq→cinquième, neuf→neuvième.
- *
  * @param {number | string | bigint} value - The numeric value to convert (positive integer)
  * @returns {string} The number as ordinal words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {RangeError} If value is negative, zero, or has a decimal part
- *
  * @example
  * toOrdinal(1)    // 'premier'
  * toOrdinal(2)    // 'deuxième'
@@ -458,14 +448,12 @@ function toOrdinal(value) {
 
 /**
  * Converts a numeric value to Belgian French currency words (Euro).
- *
  * @param {number | string | bigint} value - The currency amount to convert
- * @param {Object} [options] - Optional configuration
- * @param {boolean} [options.and=true] - Use "et" between euros and centimes
+ * @param {object} [options] - Optional configuration
+ * @param {boolean} [options.and] - Use "et" between euros and centimes
  * @returns {string} The amount in Belgian French currency words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {Error} If value is not a valid number format
- *
  * @example
  * toCurrency(42.50)                 // 'quarante-deux euros et cinquante centimes'
  * toCurrency(1)                     // 'un euro'

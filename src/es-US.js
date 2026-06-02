@@ -135,7 +135,6 @@ function buildSegment(n, feminine) {
 
 /**
  * Converts a non-negative integer to Spanish words (short scale).
- *
  * @param {bigint} n - Non-negative integer to convert
  * @param {boolean} feminine - Use feminine forms
  * @returns {string} Spanish words
@@ -201,7 +200,6 @@ function integerToWords(n, feminine) {
 
 /**
  * Converts decimal digits to Spanish words.
- *
  * @param {string} decimalPart - Decimal digits (without the point)
  * @param {boolean} feminine - Use feminine forms
  * @returns {string} Spanish words for decimal part
@@ -229,14 +227,12 @@ function decimalPartToWords(decimalPart, feminine) {
 
 /**
  * Converts a numeric value to Spanish words (US short scale).
- *
  * @param {number | string | bigint} value - The numeric value to convert
- * @param {Object} [options] - Optional configuration
- * @param {('masculine'|'feminine')} [options.gender='masculine'] - Grammatical gender
+ * @param {object} [options] - Optional configuration
+ * @param {('masculine'|'feminine')} [options.gender] - Grammatical gender
  * @returns {string} The number in Spanish words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {Error} If value is not a valid number format
- *
  * @example
  * toCardinal(21)                        // 'veintiuno'
  * toCardinal(21, {gender: 'feminine'})  // 'veintiuna'
@@ -271,7 +267,6 @@ function toCardinal(value, options) {
 
 /**
  * Builds ordinal word for a 0-999 segment.
- *
  * @param {number} n - Segment value 0-999
  * @param {boolean} feminine - Use feminine forms
  * @returns {string} Spanish ordinal word
@@ -315,7 +310,6 @@ function buildOrdinalSegment(n, feminine) {
 
 /**
  * Converts a positive integer to Spanish ordinal words.
- *
  * @param {bigint} n - Positive integer to convert
  * @param {boolean} feminine - Use feminine forms
  * @returns {string} Spanish ordinal words
@@ -372,14 +366,12 @@ function integerToOrdinal(n, feminine) {
 
 /**
  * Converts a numeric value to Spanish ordinal words.
- *
  * @param {number | string | bigint} value - The positive integer to convert
- * @param {Object} [options] - Optional configuration
- * @param {('masculine'|'feminine')} [options.gender='masculine'] - Grammatical gender
+ * @param {object} [options] - Optional configuration
+ * @param {('masculine'|'feminine')} [options.gender] - Grammatical gender
  * @returns {string} The number in Spanish ordinal words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {Error} If value is not a positive integer
- *
  * @example
  * toOrdinal(1)                          // 'primero'
  * toOrdinal(1, { gender: 'feminine' })  // 'primera'
@@ -404,14 +396,12 @@ function toOrdinal(value, options) {
  *
  * US Dollar uses masculine gender for dólares (el dólar)
  * and masculine for centavos (el centavo).
- *
  * @param {number | string | bigint} value - The currency amount to convert
- * @param {Object} [options] - Optional configuration
- * @param {boolean} [options.and=true] - Use "con" between dollars and cents
+ * @param {object} [options] - Optional configuration
+ * @param {boolean} [options.and] - Use "con" between dollars and cents
  * @returns {string} The amount in Spanish US Dollar currency words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {Error} If value is not a valid number format
- *
  * @example
  * toCurrency(42.50)                  // 'cuarenta y dos dólares con cincuenta centavos'
  * toCurrency(1)                      // 'un dólar'

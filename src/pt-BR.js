@@ -62,8 +62,8 @@ const DEFAULT_CURRENCY_WORDS = { major: ['unidade', 'unidades'], minor: ['centav
 /**
  * Builds segment word for 0-999 with Portuguese "e" rules.
  * Returns the word and whether it's an exact hundred (for "cem" handling).
- *
  * @param {number} n - Number 0-999
+ * @returns {{word: string, isExactHundred: boolean, startsWithHundreds?: boolean}} The segment word and hundred-related flags
  */
 function buildSegment(n) {
   if (n === 0) return { word: '', isExactHundred: false }
@@ -142,7 +142,6 @@ const SCALE_WORDS_PLURAL = [
 
 /**
  * Converts a non-negative integer to Portuguese words.
- *
  * @param {bigint} n - Non-negative integer to convert
  * @returns {string} Portuguese words
  */
@@ -189,7 +188,6 @@ function integerToWords(n) {
 /**
  * Builds words for numbers >= 1,000,000.
  * Uses BigInt division for faster segment extraction.
- *
  * @param {bigint} n - Number >= 1,000,000
  * @returns {string} Portuguese words
  */
@@ -261,7 +259,6 @@ function buildLargeNumberWords(n) {
 
 /**
  * Converts decimal digits to Portuguese words.
- *
  * @param {string} decimalPart - Decimal digits (without the point)
  * @returns {string} Portuguese words for decimal part
  */
@@ -288,7 +285,6 @@ function decimalPartToWords(decimalPart) {
 
 /**
  * Converts a numeric value to Portuguese words.
- *
  * @param {number | string | bigint} value - The numeric value to convert
  * @returns {string} The number in Portuguese words
  */
@@ -316,7 +312,6 @@ function toCardinal(value) {
 
 /**
  * Builds ordinal words for 0-999.
- *
  * @param {number} n - Number 0-999
  * @returns {string} Portuguese ordinal words
  */
@@ -354,7 +349,6 @@ function buildOrdinalSegment(n) {
 
 /**
  * Builds ordinal words for large numbers.
- *
  * @param {bigint} n - Non-negative integer
  * @returns {string} Portuguese ordinal words
  */
@@ -432,7 +426,6 @@ function buildLargeOrdinal(n) {
 
 /**
  * Converts a number to Portuguese ordinal words.
- *
  * @param {number | string | bigint} value - The number to convert
  * @returns {string} Portuguese ordinal words
  */
@@ -474,13 +467,11 @@ function toOrdinal(value) {
 
 /**
  * Converts a number to Brazilian Portuguese currency words.
- *
  * @param {number | string | bigint} value - The amount to convert
- * @param {Object} [options]
- * @param {boolean} [options.and=true] - Include "e" between major and minor units
+ * @param {object} [options] Currency formatting options
+ * @param {boolean} [options.and] - Include "e" between major and minor units
  * @param {string} [options.currency] - Currency code (e.g., 'BRL', 'USD')
  * @returns {string} Brazilian Portuguese currency words
- *
  * @example
  * toCurrency(42.50)                    // 'quarenta e dois reais e cinquenta centavos'
  * toCurrency(42.50, {currency: 'USD'}) // 'quarenta e dois dólares e cinquenta centavos'

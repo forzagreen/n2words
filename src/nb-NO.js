@@ -69,7 +69,6 @@ const ORE = 'øre' // same singular and plural
 /**
  * Builds segment word for 0-999.
  * Returns object with word and hasHundred flag.
- *
  * @param {number} n - Integer 0-999
  * @returns {{word: string, hasHundred: boolean}} Segment word and hundred flag
  */
@@ -125,7 +124,6 @@ function buildSegment(n) {
 
 /**
  * Converts a non-negative integer to Norwegian Bokmål words.
- *
  * @param {bigint} n - Non-negative integer to convert
  * @returns {string} Norwegian words
  */
@@ -164,7 +162,6 @@ function integerToWords(n) {
 
 /**
  * Builds words for numbers >= 1,000,000.
- *
  * @param {bigint} n - Number >= 1,000,000
  * @returns {string} Norwegian words
  */
@@ -221,7 +218,6 @@ function buildLargeNumberWords(n) {
 
 /**
  * Joins parts with Norwegian spacing and comma rules.
- *
  * @param {Array<{word: string, hasHundred: boolean, type: string}>} parts - Parts with type metadata
  * @returns {string} Joined string
  */
@@ -267,7 +263,6 @@ function joinNorwegianParts(parts) {
 
 /**
  * Converts decimal digits to Norwegian words.
- *
  * @param {string} decimalPart - Decimal digits (without the point)
  * @returns {string} Norwegian words for decimal part
  */
@@ -294,12 +289,10 @@ function decimalPartToWords(decimalPart) {
 
 /**
  * Converts a numeric value to Norwegian Bokmål words.
- *
  * @param {number | string | bigint} value - The numeric value to convert
  * @returns {string} The number in Norwegian words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {Error} If value is not a valid number format
- *
  * @example
  * toCardinal(21)       // 'tjue-en'
  * toCardinal(101)      // 'en hundre og en'
@@ -335,7 +328,6 @@ function toCardinal(value) {
  * Teens (13-19): drop -en and add -ende (tretten → trettende)
  * Numbers ending in 'en' (one): replace with 'ende' (tjue-en → tjue-ende)
  * Numbers ending in 9 (ni): add 'ede' (nitti-ni → nitti-niede)
- *
  * @param {bigint} n - Positive integer to convert
  * @returns {string} Norwegian ordinal words
  */
@@ -372,12 +364,10 @@ function integerToOrdinal(n) {
 
 /**
  * Converts a numeric value to Norwegian Bokmål ordinal words.
- *
  * @param {number | string | bigint} value - The numeric value to convert (positive integer)
  * @returns {string} The number as ordinal words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {RangeError} If value is negative, zero, or has a decimal part
- *
  * @example
  * toOrdinal(1)    // 'første'
  * toOrdinal(2)    // 'andre'
@@ -396,12 +386,10 @@ function toOrdinal(value) {
  * Converts a numeric value to Norwegian currency words (Norwegian Krone).
  *
  * Uses krone/kroner and øre (100 øre = 1 krone).
- *
  * @param {number | string | bigint} value - The currency amount to convert
  * @returns {string} The amount in Norwegian currency words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {Error} If value is not a valid number format
- *
  * @example
  * toCurrency(1)      // 'en krone'
  * toCurrency(42)     // 'førti-to kroner'

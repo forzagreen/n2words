@@ -115,16 +115,16 @@ const FILLER = 'fillér' // subunit (rarely used, same singular and plural)
 // ============================================================================
 
 /**
- * @param {bigint} value
- * @returns {string | undefined}
+ * @param {bigint} value The scale or vocabulary key to look up
+ * @returns {string | undefined} The Hungarian word for the key, or undefined if absent
  */
 function wordForScale(value) {
   return WORDS.get(value)
 }
 
 /**
- * @param {bigint} n
- * @returns {string}
+ * @param {bigint} n The integer (under 100) to convert
+ * @returns {string} The number in Hungarian words
  */
 function tensToCardinal(n) {
   if (WORDS.has(n)) {
@@ -136,8 +136,8 @@ function tensToCardinal(n) {
 }
 
 /**
- * @param {bigint} n
- * @returns {string}
+ * @param {bigint} n The integer (under 1000) to convert
+ * @returns {string} The number in Hungarian words
  */
 function hundredsToCardinal(n) {
   const hundreds = n / 100n
@@ -150,8 +150,8 @@ function hundredsToCardinal(n) {
 }
 
 /**
- * @param {bigint} n
- * @returns {string}
+ * @param {bigint} n The integer (under one million) to convert
+ * @returns {string} The number in Hungarian words
  */
 function thousandsToCardinal(n) {
   const thousands = n / 1000n
@@ -177,8 +177,8 @@ const SCALES = [
 ]
 
 /**
- * @param {bigint} n
- * @returns {string}
+ * @param {bigint} n The integer (one million or greater) to convert
+ * @returns {string} The number in Hungarian words
  */
 function bigNumberToCardinal(n) {
   // Find appropriate scale using BigInt comparison (avoids toString)
@@ -197,9 +197,9 @@ function bigNumberToCardinal(n) {
 }
 
 /**
- * @param {bigint} n
- * @param {string} [zeroWord]
- * @returns {string}
+ * @param {bigint} n The integer to convert
+ * @param {string} [zeroWord] The word to use for zero (empty string in compound contexts)
+ * @returns {string} The number in Hungarian words
  */
 function integerToWordsInner(n, zeroWord = ZERO) {
   // Normalize to BigInt for consistent comparisons
@@ -227,16 +227,16 @@ function integerToWordsInner(n, zeroWord = ZERO) {
 }
 
 /**
- * @param {bigint} n
- * @returns {string}
+ * @param {bigint} n The integer to convert
+ * @returns {string} The number in Hungarian words
  */
 function integerToWords(n) {
   return integerToWordsInner(n, ZERO)
 }
 
 /**
- * @param {string} decimalPart
- * @returns {string}
+ * @param {string} decimalPart The decimal digits (after the separator) to convert
+ * @returns {string} The decimal digits in Hungarian words
  */
 function decimalPartToWords(decimalPart) {
   let result = ''
@@ -259,7 +259,6 @@ function decimalPartToWords(decimalPart) {
 
 /**
  * Converts a numeric value to Hungarian words.
- *
  * @param {number | string | bigint} value - The numeric value to convert
  * @returns {string} The number in Hungarian words
  */
@@ -290,7 +289,6 @@ function toCardinal(value) {
  *
  * Hungarian ordinals: első (1st), második (2nd), harmadik (3rd), etc.
  * 1-10 have special forms, others use cardinal + -dik/-edik/-adik/-ödik suffix.
- *
  * @param {bigint} n - Positive integer to convert
  * @returns {string} Hungarian ordinal words
  */
@@ -341,12 +339,10 @@ function integerToOrdinal(n) {
 
 /**
  * Converts a numeric value to Hungarian ordinal words.
- *
  * @param {number | string | bigint} value - The numeric value to convert (positive integer)
  * @returns {string} The number as ordinal words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {RangeError} If value is negative, zero, or has a decimal part
- *
  * @example
  * toOrdinal(1)    // 'első'
  * toOrdinal(2)    // 'második'
@@ -366,12 +362,10 @@ function toOrdinal(value) {
  *
  * Uses forint (no plural form needed in Hungarian).
  * Fillér (1/100) is rarely used but included for completeness.
- *
  * @param {number | string | bigint} value - The currency amount to convert
  * @returns {string} The amount in Hungarian currency words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {Error} If value is not a valid number format
- *
  * @example
  * toCurrency(42)     // 'negyvenkettő forint'
  * toCurrency(1.50)   // 'egy forint ötven fillér'

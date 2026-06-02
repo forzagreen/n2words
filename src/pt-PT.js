@@ -51,8 +51,8 @@ const CENTIMOS = 'cêntimos'
 /**
  * Builds segment word for 0-999 with Portuguese "e" rules.
  * Returns the word and whether it's an exact hundred (for "cem" handling).
- *
  * @param {number} n - Number 0-999
+ * @returns {{ word: string, isExactHundred: boolean, startsWithHundreds?: boolean }} The segment word and "e"/"cem" handling flags
  */
 function buildSegment(n) {
   if (n === 0) return { word: '', isExactHundred: false }
@@ -131,7 +131,6 @@ const SCALE_WORDS_PLURAL = [
 
 /**
  * Converts a non-negative integer to Portuguese words.
- *
  * @param {bigint} n - Non-negative integer to convert
  * @returns {string} Portuguese words
  */
@@ -178,7 +177,6 @@ function integerToWords(n) {
 /**
  * Builds words for numbers >= 1,000,000.
  * Uses BigInt division for faster segment extraction.
- *
  * @param {bigint} n - Number >= 1,000,000
  * @returns {string} Portuguese words
  */
@@ -252,7 +250,6 @@ function buildLargeNumberWords(n) {
 
 /**
  * Converts decimal digits to Portuguese words.
- *
  * @param {string} decimalPart - Decimal digits (without the point)
  * @returns {string} Portuguese words for decimal part
  */
@@ -282,12 +279,10 @@ function decimalPartToWords(decimalPart) {
  *
  * This is the main public API. It accepts any valid numeric input
  * (number, string, or bigint) and handles parsing internally.
- *
  * @param {number | string | bigint} value - The numeric value to convert
  * @returns {string} The number in Portuguese words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {Error} If value is not a valid number format
- *
  * @example
  * toCardinal(21)           // 'vinte e um'
  * toCardinal(100)          // 'cem'
@@ -317,7 +312,6 @@ function toCardinal(value) {
 
 /**
  * Builds ordinal words for 0-999.
- *
  * @param {number} n - Number 0-999
  * @returns {string} Portuguese ordinal words
  */
@@ -355,7 +349,6 @@ function buildOrdinalSegment(n) {
 
 /**
  * Builds ordinal words for large numbers.
- *
  * @param {bigint} n - Non-negative integer
  * @returns {string} Portuguese ordinal words
  */
@@ -433,10 +426,8 @@ function buildLargeOrdinal(n) {
 
 /**
  * Converts a number to Portuguese ordinal words.
- *
  * @param {number | string | bigint} value - The number to convert
  * @returns {string} Portuguese ordinal words
- *
  * @example
  * toOrdinal(1)     // 'primeiro'
  * toOrdinal(21)    // 'vigésimo primeiro'
@@ -480,12 +471,10 @@ function toOrdinal(value) {
 
 /**
  * Converts a number to Portuguese currency words (Euro).
- *
  * @param {number | string | bigint} value - The amount to convert
- * @param {Object} [options]
- * @param {boolean} [options.and=true] - Include "e" between euros and cents
+ * @param {object} [options] Currency formatting options
+ * @param {boolean} [options.and] - Include "e" between euros and cents
  * @returns {string} Portuguese currency words
- *
  * @example
  * toCurrency(42.50)  // 'quarenta e dois euros e cinquenta cêntimos'
  * toCurrency(1)      // 'um euro'

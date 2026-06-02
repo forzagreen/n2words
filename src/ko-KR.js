@@ -51,7 +51,6 @@ const WON = '원'
 /**
  * Builds segment word for 0-9999 (4-digit myriad segment).
  * Korean omits "일" before 십, 백, 천.
- *
  * @param {number} n - Segment value (0-9999)
  * @returns {string} Korean words for the segment
  */
@@ -109,7 +108,6 @@ function buildSegment(n) {
 
 /**
  * Converts a non-negative integer to Korean words.
- *
  * @param {bigint} n - Non-negative integer to convert
  * @returns {string} Korean words
  */
@@ -128,7 +126,6 @@ function integerToWords(n) {
 /**
  * Builds words for numbers >= 10000.
  * Uses myriad (만) grouping - 4 digits per segment.
- *
  * @param {bigint} n - Number >= 10000
  * @returns {string} Korean words
  */
@@ -189,7 +186,6 @@ function buildLargeNumberWords(n) {
  * Joins parts with Korean spacing rules.
  * - Concatenate without spaces within segments
  * - Space after scale words before next number
- *
  * @param {Array<{word: string, isScale: boolean}>} parts - Parts with isScale metadata
  * @returns {string} Joined string
  */
@@ -216,7 +212,6 @@ function joinKoreanParts(parts) {
 
 /**
  * Converts decimal digits to Korean words.
- *
  * @param {string} decimalPart - Decimal digits (without the point)
  * @returns {string} Korean words for decimal part (space-separated)
  */
@@ -241,12 +236,10 @@ function decimalPartToWords(decimalPart) {
 
 /**
  * Converts a numeric value to Korean words.
- *
  * @param {number | string | bigint} value - The numeric value to convert
  * @returns {string} The number in Korean words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {Error} If value is not a valid number format
- *
  * @example
  * toCardinal(21)         // '이십일'
  * toCardinal(10000)      // '만'
@@ -279,7 +272,6 @@ function toCardinal(value) {
  * Converts a non-negative integer to Korean ordinal words.
  *
  * Korean ordinals use "제" prefix + Sino-Korean numeral.
- *
  * @param {bigint} n - Positive integer to convert
  * @returns {string} Korean ordinal words
  */
@@ -289,12 +281,10 @@ function integerToOrdinal(n) {
 
 /**
  * Converts a numeric value to Korean ordinal words.
- *
  * @param {number | string | bigint} value - The numeric value to convert (positive integer)
  * @returns {string} The number as ordinal words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {RangeError} If value is negative, zero, or has a decimal part
- *
  * @example
  * toOrdinal(1)    // '제일'
  * toOrdinal(2)    // '제이'
@@ -314,12 +304,10 @@ function toOrdinal(value) {
  *
  * Korean Won has no subunit (jeon are historical).
  * Amounts are rounded to whole won.
- *
  * @param {number | string | bigint} value - The currency amount to convert
  * @returns {string} The amount in Korean currency words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {Error} If value is not a valid number format
- *
  * @example
  * toCurrency(42)     // '사십이원'
  * toCurrency(1000)   // '천원'

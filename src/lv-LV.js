@@ -83,8 +83,8 @@ const SCALE_FORMS = [
  * Builds segment word for 0-999 (masculine form).
  * Does NOT include special handling for segment=1 (omitOneBeforeScale).
  * That's handled at join time.
- *
  * @param {number} n - Segment value 0-999
+ * @returns {string} The segment in Latvian words
  */
 function buildSegment(n) {
   if (n === 0) return ''
@@ -130,8 +130,8 @@ function buildSegment(n) {
 
 /**
  * Builds segment word for 0-999 (feminine form - only differs in ones).
- *
  * @param {number} n - Segment value 0-999
+ * @returns {string} The segment in Latvian words
  */
 function buildSegmentFeminine(n) {
   if (n === 0) return ''
@@ -180,7 +180,6 @@ function buildSegmentFeminine(n) {
  * Latvian pluralization - simpler than Slavic.
  * Singular: ends in 1 (except 11)
  * Plural: everything else
- *
  * @param {number} n - The segment value
  * @param {string[]} forms - [singular, plural, genitive]
  * @returns {string} The appropriate form
@@ -201,7 +200,6 @@ function pluralize(n, forms) {
 /**
  * Latvian currency pluralization.
  * Uses genitive for 0, 10-19, and multiples of 10.
- *
  * @param {number} n - The segment value
  * @param {string[]} forms - [singular, plural, genitive]
  * @returns {string} The appropriate form
@@ -237,7 +235,6 @@ function pluralizeCurrency(n, forms) {
 
 /**
  * Converts a non-negative integer to Latvian words.
- *
  * @param {bigint} n - Non-negative integer to convert
  * @param {string} gender - Gender for numbers < 1000
  * @returns {string} Latvian words
@@ -258,7 +255,6 @@ function integerToWords(n, gender) {
 
 /**
  * Builds words for numbers >= 1000.
- *
  * @param {bigint} n - Number >= 1000
  * @returns {string} Latvian words
  */
@@ -318,7 +314,6 @@ function buildLargeNumberWords(n) {
 
 /**
  * Converts decimal digits to Latvian words.
- *
  * @param {string} decimalPart - Decimal digits (without the point)
  * @param {string} gender - Gender for numbers < 1000
  * @returns {string} Latvian words for decimal part
@@ -346,14 +341,12 @@ function decimalPartToWords(decimalPart, gender) {
 
 /**
  * Converts a numeric value to Latvian words.
- *
  * @param {number | string | bigint} value - The numeric value to convert
- * @param {Object} [options] - Conversion options
- * @param {string} [options.gender='masculine'] - Gender for numbers < 1000
+ * @param {object} [options] - Conversion options
+ * @param {string} [options.gender] - Gender for numbers < 1000
  * @returns {string} The number in Latvian words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {Error} If value is not a valid number format
- *
  * @example
  * toCardinal(42)                          // 'četrdesmit divi'
  * toCardinal(1, { gender: 'feminine' })   // 'viena'
@@ -387,7 +380,6 @@ function toCardinal(value, options) {
 
 /**
  * Builds ordinal for a 0-99 segment when it's the final (ordinal) part.
- *
  * @param {number} n - Number 0-99
  * @returns {string} Ordinal words
  */
@@ -414,7 +406,6 @@ function buildOrdinalTensOnes(n) {
 
 /**
  * Converts a positive integer to Latvian ordinal words (masculine nominative).
- *
  * @param {bigint} n - Positive integer to convert
  * @returns {string} Ordinal Latvian words
  */
@@ -466,7 +457,6 @@ function integerToOrdinal(n) {
 
 /**
  * Builds ordinal words for numbers >= 1,000,000.
- *
  * @param {bigint} n - Number >= 1,000,000
  * @returns {string} Ordinal Latvian words
  */
@@ -543,12 +533,10 @@ function buildLargeOrdinal(n) {
 
 /**
  * Converts a numeric value to Latvian ordinal words (masculine nominative).
- *
  * @param {number | string | bigint} value - The numeric value to convert (must be a positive integer)
  * @returns {string} The number as ordinal words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {RangeError} If value is negative, zero, or has a decimal part
- *
  * @example
  * toOrdinal(1)    // 'pirmais'
  * toOrdinal(2)    // 'otrais'
@@ -567,12 +555,10 @@ function toOrdinal(value) {
 
 /**
  * Converts a numeric value to Latvian currency words (Euro).
- *
  * @param {number | string | bigint} value - The currency amount to convert
  * @returns {string} The amount in Latvian currency words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {Error} If value is not a valid number format
- *
  * @example
  * toCurrency(42)     // 'četrdesmit divi eiro'
  * toCurrency(1)      // 'viens eiro'

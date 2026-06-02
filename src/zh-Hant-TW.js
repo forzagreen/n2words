@@ -68,9 +68,8 @@ const YUAN_COMMON = '元'
 
 /**
  * Converts a non-negative integer to Traditional Chinese words.
- *
  * @param {bigint} n - The integer value to convert
- * @param {boolean} [formal=true] - Use formal/financial numerals
+ * @param {boolean} [formal] - Use formal/financial numerals
  * @returns {string} The integer in Traditional Chinese words
  */
 function integerToWords(n, formal = true) {
@@ -83,8 +82,8 @@ function integerToWords(n, formal = true) {
 
   // Convert number below 萬 (10,000)
   /**
-   * @param {bigint} value
-   * @returns {string}
+   * @param {bigint} value The number below 10,000 to convert
+   * @returns {string} The number in Traditional Chinese words
    */
   function convertBelowWan(value) {
     if (value === 0n) return ''
@@ -141,8 +140,8 @@ function integerToWords(n, formal = true) {
 
   // Convert number below 億 (100 million)
   /**
-   * @param {bigint} value
-   * @returns {string}
+   * @param {bigint} value The number below 100,000,000 to convert
+   * @returns {string} The number in Traditional Chinese words
    */
   function convertBelowYi(value) {
     if (value === 0n) return ''
@@ -199,9 +198,8 @@ function integerToWords(n, formal = true) {
 
 /**
  * Converts each digit of a decimal string to Traditional Chinese words.
- *
  * @param {string} decimalString - The decimal digits to convert
- * @param {boolean} [formal=true] - Use formal/financial numerals
+ * @param {boolean} [formal] - Use formal/financial numerals
  * @returns {string[]} The decimal digits as Traditional Chinese words
  */
 function decimalDigitsToWords(decimalString, formal = true) {
@@ -215,10 +213,9 @@ function decimalDigitsToWords(decimalString, formal = true) {
 
 /**
  * Converts a numeric value to Traditional Chinese words.
- *
  * @param {number | string | bigint} value - The numeric value to convert
- * @param {Object} [options] - Optional configuration
- * @param {boolean} [options.formal=true] - Use formal/financial numerals
+ * @param {object} [options] - Optional configuration
+ * @param {boolean} [options.formal] - Use formal/financial numerals
  * @returns {string} The number in Traditional Chinese words
  */
 function toCardinal(value, options) {
@@ -251,7 +248,6 @@ function toCardinal(value, options) {
  * Converts a non-negative integer to Traditional Chinese ordinal words.
  *
  * Traditional Chinese ordinals use "第" prefix + cardinal number.
- *
  * @param {bigint} n - Positive integer to convert
  * @param {boolean} formal - Use formal/financial numerals
  * @returns {string} Traditional Chinese ordinal words
@@ -262,14 +258,12 @@ function integerToOrdinal(n, formal = true) {
 
 /**
  * Converts a numeric value to Traditional Chinese ordinal words.
- *
  * @param {number | string | bigint} value - The numeric value to convert (positive integer)
- * @param {Object} [options] - Optional configuration
- * @param {boolean} [options.formal=true] - Use formal/financial numerals
+ * @param {object} [options] - Optional configuration
+ * @param {boolean} [options.formal] - Use formal/financial numerals
  * @returns {string} The number as ordinal words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {RangeError} If value is negative, zero, or has a decimal part
- *
  * @example
  * toOrdinal(1)                    // '第壹'
  * toOrdinal(2)                    // '第貳'
@@ -291,14 +285,12 @@ function toOrdinal(value, options) {
  *
  * Uses 圓 (yuan), 角 (jiao, 1/10), 分 (fen, 1/100).
  * Formal writing adds 整 (zheng) for whole amounts.
- *
  * @param {number | string | bigint} value - The currency amount to convert
- * @param {Object} [options] - Optional configuration
- * @param {boolean} [options.formal=true] - Use formal/financial numerals
+ * @param {object} [options] - Optional configuration
+ * @param {boolean} [options.formal] - Use formal/financial numerals
  * @returns {string} The amount in Traditional Chinese currency words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {Error} If value is not a valid number format
- *
  * @example
  * toCurrency(42)                    // '肆拾貳圓整'
  * toCurrency(1.50)                  // '壹圓伍角整'

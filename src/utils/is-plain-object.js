@@ -6,9 +6,8 @@
  * - Object.create(null): null-prototype object
  *
  * This excludes arrays, class instances, Map, Set, and other object types.
- *
- * @param {*} value Value to check
- * @returns {boolean} True if value is a plain object
+ * @param {unknown} value Value to check
+ * @returns {value is object} True if value is a plain object
  */
 export function isPlainObject(value) {
   if (value === null || typeof value !== 'object') return false

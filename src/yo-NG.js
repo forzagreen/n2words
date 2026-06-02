@@ -138,7 +138,6 @@ const KOBO = 'kọ́bọ̀'
 
 /**
  * Builds word for numbers 0-99
- *
  * @param {number} n - Integer in the range 0-99
  * @returns {string} Yoruba words for the number
  */
@@ -175,7 +174,6 @@ function buildUnder100(n) {
 
 /**
  * Converts hundreds (100-999)
- *
  * @param {number} n - Integer in the range 0-999
  * @returns {string} Yoruba words for the number
  */
@@ -219,7 +217,6 @@ function convertHundreds(n) {
 
 /**
  * Converts a non-negative integer to Yoruba words.
- *
  * @param {bigint} n - Non-negative integer to convert
  * @returns {string} Yoruba words
  */
@@ -299,7 +296,6 @@ function integerToWords(n) {
 
 /**
  * Converts decimal digits to Yoruba words.
- *
  * @param {string} decimalPart - Decimal digits
  * @returns {string} Yoruba words for decimal
  */
@@ -316,7 +312,6 @@ function decimalPartToWords(decimalPart) {
 
 /**
  * Converts a numeric value to Yoruba words.
- *
  * @param {number | string | bigint} value - The numeric value to convert
  * @returns {string} The number in Yoruba words
  */
@@ -346,7 +341,6 @@ function toCardinal(value) {
  * Converts a non-negative integer to Yoruba ordinal words.
  *
  * Yoruba ordinals: àkọ́kọ́ (1st), ìkejì (2nd), ìkẹta (3rd), ìkẹrin (4th), etc.
- *
  * @param {bigint} n - Positive integer to convert
  * @returns {string} Yoruba ordinal words
  */
@@ -361,12 +355,10 @@ function integerToOrdinal(n) {
 
 /**
  * Converts a numeric value to Yoruba ordinal words.
- *
  * @param {number | string | bigint} value - The numeric value to convert (positive integer)
  * @returns {string} The number as ordinal words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {RangeError} If value is negative, zero, or has a decimal part
- *
  * @example
  * toOrdinal(1)    // 'àkọ́kọ́'
  * toOrdinal(2)    // 'ìkejì'
@@ -385,12 +377,10 @@ function toOrdinal(value) {
  * Converts a numeric value to Yoruba currency words (Nigerian Naira).
  *
  * Uses náírà (naira) and kọ́bọ̀ (kobo).
- *
  * @param {number | string | bigint} value - The currency amount to convert
  * @returns {string} The amount in Yoruba currency words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {Error} If value is not a valid number format
- *
  * @example
  * toCurrency(42)     // 'èjì lé lógójì náírà'
  * toCurrency(1.50)   // 'ọ̀kan náírà àti àádọ́ta kọ́bọ̀'

@@ -69,13 +69,12 @@ const ZHENG = '整'
 
 /**
  * Convert number below 万 (10,000) to words using direct string concatenation.
- *
- * @param {bigint} value
- * @param {string[]} ones
- * @param {string} ten
- * @param {string} hundred
- * @param {string} thousand
- * @returns {string}
+ * @param {bigint} value The integer (0-9999) to convert
+ * @param {string[]} ones Digit words for 0-9
+ * @param {string} ten Word for the tens place
+ * @param {string} hundred Word for the hundreds place
+ * @param {string} thousand Word for the thousands place
+ * @returns {string} The number in words
  */
 function convertBelowWan(value, ones, ten, hundred, thousand) {
   if (value === 0n) return ''
@@ -126,13 +125,12 @@ function convertBelowWan(value, ones, ten, hundred, thousand) {
 
 /**
  * Convert number below 亿 (100 million) to words.
- *
- * @param {bigint} value
- * @param {string[]} ones
- * @param {string} ten
- * @param {string} hundred
- * @param {string} thousand
- * @returns {string}
+ * @param {bigint} value The integer to convert
+ * @param {string[]} ones Digit words for 0-9
+ * @param {string} ten Word for the tens place
+ * @param {string} hundred Word for the hundreds place
+ * @param {string} thousand Word for the thousands place
+ * @returns {string} The number in words
  */
 function convertBelowYi(value, ones, ten, hundred, thousand) {
   if (value === 0n) return ''
@@ -157,10 +155,9 @@ function convertBelowYi(value, ones, ten, hundred, thousand) {
 
 /**
  * Convert an integer to Simplified Chinese words.
- *
- * @param {bigint} n
- * @param {boolean} [formal]
- * @returns {string}
+ * @param {bigint} n The integer to convert
+ * @param {boolean} [formal] Use formal/financial numerals
+ * @returns {string} The integer in Simplified Chinese words
  */
 function integerToWords(n, formal = true) {
   if (n === 0n) return ZERO
@@ -190,10 +187,9 @@ function integerToWords(n, formal = true) {
 
 /**
  * Convert decimal digits to words using direct concatenation.
- *
- * @param {string} decimalString
- * @param {string[]} ones
- * @returns {string}
+ * @param {string} decimalString The decimal digits to convert
+ * @param {string[]} ones Digit words for 0-9
+ * @returns {string} The decimal digits in words
  */
 function decimalDigitsToWords(decimalString, ones) {
   let result = ''
@@ -205,10 +201,9 @@ function decimalDigitsToWords(decimalString, ones) {
 
 /**
  * Converts a numeric value to Simplified Chinese words.
- *
  * @param {number | string | bigint} value - The numeric value to convert
- * @param {Object} [options] - Optional configuration
- * @param {boolean} [options.formal=true] - Use formal/financial numerals
+ * @param {object} [options] - Optional configuration
+ * @param {boolean} [options.formal] - Use formal/financial numerals
  * @returns {string} The number in Simplified Chinese words
  */
 function toCardinal(value, options) {
@@ -238,7 +233,6 @@ function toCardinal(value, options) {
  * Converts a positive integer to Simplified Chinese ordinal words.
  *
  * Chinese ordinals: 第 prefix + cardinal number.
- *
  * @param {bigint} n - Positive integer to convert
  * @param {boolean} formal - Use formal numerals
  * @returns {string} Simplified Chinese ordinal words
@@ -249,14 +243,12 @@ function integerToOrdinal(n, formal) {
 
 /**
  * Converts a numeric value to Simplified Chinese ordinal words.
- *
  * @param {number | string | bigint} value - The numeric value to convert (positive integer)
- * @param {Object} [options] - Optional configuration
- * @param {boolean} [options.formal=true] - Use formal/financial numerals
+ * @param {object} [options] - Optional configuration
+ * @param {boolean} [options.formal] - Use formal/financial numerals
  * @returns {string} The number as ordinal words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {RangeError} If value is negative, zero, or has a decimal part
- *
  * @example
  * toOrdinal(1)                    // '第壹'
  * toOrdinal(1, { formal: false }) // '第一'
@@ -275,14 +267,12 @@ function toOrdinal(value, options) {
 
 /**
  * Converts a numeric value to Simplified Chinese currency words (Yuan/Renminbi).
- *
  * @param {number | string | bigint} value - The currency amount to convert
- * @param {Object} [options] - Optional configuration
- * @param {boolean} [options.formal=true] - Use formal/financial numerals
+ * @param {object} [options] - Optional configuration
+ * @param {boolean} [options.formal] - Use formal/financial numerals
  * @returns {string} The amount in Simplified Chinese currency words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {Error} If value is not a valid number format
- *
  * @example
  * toCurrency(42.50)                    // '肆拾贰圆伍角整'
  * toCurrency(1)                        // '壹圆整'
