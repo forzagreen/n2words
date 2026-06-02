@@ -1,7 +1,7 @@
 import test from 'ava'
 import { readdirSync } from 'node:fs'
 import { isPlainObject } from '../src/utils/is-plain-object.js'
-import { isValidLanguageCode } from './helpers/language-naming.js'
+import { getCanonicalCode, isValidLanguageCode } from './helpers/language-naming.js'
 import { isValidCardinalInput, isValidOrdinalInput, safeStringify } from './helpers/value-utils.js'
 
 /**
@@ -382,4 +382,21 @@ test('all language files use valid BCP 47 codes', (t) => {
 
   const invalidCodes = languageFiles.filter(code => !isValidLanguageCode(code))
   t.deepEqual(invalidCodes, [], `Invalid BCP 47 codes: ${invalidCodes.join(', ')}`)
+})
+
+test('all language files use canonical BCP 47 codes', (t) => {
+  // Validity (above) accepts non-canonical casing: Intl.getCanonicalLocales
+  // treats 'en-us' and 'zh-hans-cn' as valid. The project convention is the
+  // canonical form (en-US, zh-Hans-CN), which lang:add produces. Guard against
+  // a manually-added, mis-cased file slipping past the validity gate.
+  const languageFiles = readdirSync('./src')
+    .filter(f => f.endsWith('.js') && !f.startsWith('utils'))
+    .map(f => f.replace('.js', ''))
+
+  // Only flag valid-but-mis-cased codes; invalid codes are the validity test's
+  // concern (and would report a confusing "code → null" here otherwise).
+  const nonCanonicalCodes = languageFiles
+    .filter(code => isValidLanguageCode(code) && code !== getCanonicalCode(code))
+    .map(code => `${code} → ${getCanonicalCode(code)}`)
+  t.deepEqual(nonCanonicalCodes, [], `Non-canonical BCP 47 codes (rename to canonical form): ${nonCanonicalCodes.join(', ')}`)
 })
