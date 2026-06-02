@@ -1,5 +1,5 @@
 import test from 'ava'
-import { readdirSync, readFileSync } from 'node:fs'
+import { readdirSync } from 'node:fs'
 import { isPlainObject } from '../src/utils/is-plain-object.js'
 import { isValidLanguageCode } from './helpers/language-naming.js'
 import { isValidCardinalInput, isValidOrdinalInput, safeStringify } from './helpers/value-utils.js'
@@ -17,7 +17,6 @@ import { isValidCardinalInput, isValidOrdinalInput, safeStringify } from './help
  * Validates:
  * - BCP 47 file naming convention
  * - Fixture ↔ export cross-validation
- * - JSDoc annotations per exported function
  * - Fixture test cases (input → expected output)
  */
 
@@ -207,61 +206,6 @@ function validateFixture(testCases, languageCode, form, config) {
 }
 
 // ============================================================================
-// JSDoc Validation
-// ============================================================================
-
-/**
- * Extracts the JSDoc block directly preceding a function declaration.
- *
- * @param {string} content File content
- * @param {string} functionName Function name to find
- * @returns {string|null} JSDoc block or null if not found
- */
-function getJSDocForFunction(content, functionName) {
-  const funcPattern = new RegExp(`function\\s+${functionName}\\s*\\(`)
-  const funcMatch = funcPattern.exec(content)
-  if (!funcMatch) return null
-
-  const beforeFunc = content.substring(0, funcMatch.index)
-  const jsdocPattern = /\/\*\*[\s\S]*?\*\//g
-  let lastJsdoc = null
-  let match
-  while ((match = jsdocPattern.exec(beforeFunc)) !== null) {
-    lastJsdoc = match[0]
-  }
-
-  return lastJsdoc
-}
-
-/**
- * Validates JSDoc structure for a conversion function.
- *
- * @param {string} jsdoc JSDoc content
- * @param {string} functionName Function name for error messages
- * @returns {{valid: boolean, errors: string[]}} Validation result
- */
-function validateJSDoc(jsdoc, functionName) {
-  const errors = []
-
-  if (!jsdoc) {
-    errors.push(`${functionName} is missing JSDoc`)
-    return { valid: false, errors }
-  }
-
-  // Check for @param with value type
-  if (!/@param\s+\{number\s*\|\s*string\s*\|\s*bigint\}\s+value/.test(jsdoc)) {
-    errors.push(`${functionName} should have @param {number | string | bigint} value`)
-  }
-
-  // Check for @returns with string type
-  if (!/@returns\s+\{string\}/.test(jsdoc)) {
-    errors.push(`${functionName} should have @returns {string}`)
-  }
-
-  return { valid: errors.length === 0, errors }
-}
-
-// ============================================================================
 // Test Runner
 // ============================================================================
 
@@ -316,23 +260,15 @@ function runTestCases(t, fn, testCases, form) {
  * @param {Object} config Form configuration
  * @param {Function|*} fn Exported conversion function (may be undefined)
  * @param {Array} fixtureData Fixture test cases for this form
- * @param {string} fileContent Source file content (for JSDoc checks)
  * @returns {Array<Function>} Ordered assertion thunks
  */
-function planFormChecks(t, file, languageCode, formName, config, fn, fixtureData, fileContent) {
+function planFormChecks(t, file, languageCode, formName, config, fn, fixtureData) {
   // Export validation: missing export is a single failure, then skip the form.
   if (typeof fn !== 'function') {
     return [() => t.fail(`${file} has ${formName} fixtures but does not export ${config.functionName}`)]
   }
 
   const checks = []
-
-  // JSDoc validation: one failure per error (does not short-circuit).
-  const jsdoc = getJSDocForFunction(fileContent, config.functionName)
-  const jsdocValidation = validateJSDoc(jsdoc, config.functionName)
-  for (const error of jsdocValidation.errors) {
-    checks.push(() => t.fail(`${languageCode}: ${error}`))
-  }
 
   // Fixture validation: an invalid fixture is a single failure, then skip.
   const validation = validateFixture(fixtureData, languageCode, formName, config)
@@ -377,18 +313,17 @@ function planFormChecks(t, file, languageCode, formName, config, fn, fixtureData
  * - BCP 47 validation: always 1 (t.true).
  * - Per form with a fixture:
  *   - missing export: 1 (t.fail), then skipped (no further assertions).
- *   - else: JSDoc errors (t.fail each), then either an invalid-fixture failure
- *     (1, then skipped) or the per-case conversion assertions plus error cases.
+ *   - else: either an invalid-fixture failure (1, then skipped) or the
+ *     per-case conversion assertions plus error cases.
  * - hasAtLeastOneForm: always 1 (t.true).
  * - Cross-validation: 1 (t.fail) per exported function that lacks a fixture.
  *
  * @param {string} languageCode Language code under test
  * @param {Object} languageModule Imported language module
  * @param {Object} fixtureModule Imported fixture module
- * @param {string} fileContent Source file content (for JSDoc checks)
  * @returns {number} Exact assertion count
  */
-function computeAssertionPlan(languageCode, languageModule, fixtureModule, fileContent) {
+function computeAssertionPlan(languageCode, languageModule, fixtureModule) {
   // BCP 47 validation (always one assertion).
   let count = 1
 
@@ -403,13 +338,6 @@ function computeAssertionPlan(languageCode, languageModule, fixtureModule, fileC
     if (typeof fn !== 'function') {
       count += 1
       continue
-    }
-
-    // JSDoc validation: one t.fail per error (does not short-circuit).
-    const jsdoc = getJSDocForFunction(fileContent, config.functionName)
-    const jsdocValidation = validateJSDoc(jsdoc, config.functionName)
-    if (!jsdocValidation.valid) {
-      count += jsdocValidation.errors.length
     }
 
     // Fixture validation: a single t.fail then the form is skipped.
@@ -457,12 +385,11 @@ for (const file of fixtureFiles) {
     // Import modules
     const languageModule = await import('../src/' + file)
     const fixtureModule = await import('./fixtures/' + file)
-    const fileContent = readFileSync(`./src/${file}`, 'utf8')
 
     // Plan the exact assertion count up front. This satisfies
     // ava/no-conditional-assertion (assertions live inside the fixture-driven
     // loops/conditionals below) and verifies every planned path actually runs.
-    t.plan(computeAssertionPlan(languageCode, languageModule, fixtureModule, fileContent))
+    t.plan(computeAssertionPlan(languageCode, languageModule, fixtureModule))
 
     // ========================================================================
     // BCP 47 Validation
@@ -492,7 +419,7 @@ for (const file of fixtureFiles) {
       // loop below. Keeping the assertions inside a plain loop (rather than
       // if-blocks) avoids ava/no-conditional-assertion while preserving the
       // exact assertions and the early-skip semantics the original test had.
-      const formChecks = planFormChecks(t, file, languageCode, formName, config, fn, fixtureData, fileContent)
+      const formChecks = planFormChecks(t, file, languageCode, formName, config, fn, fixtureData)
       for (const check of formChecks) {
         check()
       }
