@@ -57,15 +57,13 @@ export default defineConfig([
   },
 
   // Dev CLIs (scripts, bench, root configs) run on the .nvmrc Node (24), not
-  // the published library's floor — so n targets 24 there. They also
-  // legitimately call process.exit (CLIs), so that rule is off for them.
+  // the published library's floor — so n targets 24 there.
   {
     name: 'n2words/dev-cli',
     files: ['scripts/**/*.js', 'bench/**/*.js', '*.js'],
     languageOptions: { globals: globals.node },
     extends: [n.configs['flat/recommended-module']],
     settings: { n: { version: '>=24.0.0' } },
-    rules: { 'n/no-process-exit': 'off' },
   },
 
   // AVA test hygiene (no committed .only, sane assertions, etc.).
@@ -73,15 +71,6 @@ export default defineConfig([
     name: 'n2words/ava-tests',
     files: ['test/**/*.test.js'],
     extends: [ava.configs.recommended],
-  },
-
-  // conversions.test.js is a data-driven suite: it asserts inside fixture
-  // loops by design (with a non-empty-fixture guard), which is the idiomatic
-  // shape for table tests — not an accidental conditional assertion.
-  {
-    name: 'n2words/data-driven-tests',
-    files: ['test/conversions.test.js'],
-    rules: { 'ava/no-conditional-assertion': 'off' },
   },
 
   // This config imports flat-config plugins via their default export

@@ -157,67 +157,6 @@ const { values: flags, positionals } = parseArgs({
   strict: true,
 })
 
-if (flags.help) {
-  displayHelp()
-  process.exit(0)
-}
-
-// `--lang` / `--language` are aliases; positionals also feed languages.
-// Each occurrence may itself be comma-separated, so flatten through parseCommaSeparated.
-const requestedLanguages = [
-  ...(flags.lang ?? []),
-  ...(flags.language ?? []),
-  ...positionals,
-].flatMap(parseCommaSeparated)
-
-const functionInputs = [
-  ...(flags.function ?? []),
-  ...(flags.fn ?? []),
-].flatMap(parseCommaSeparated)
-
-for (const fn of functionInputs) {
-  if (!KNOWN_FUNCTIONS.includes(fn)) {
-    console.error(chalk.red(`Unknown function: ${fn}`))
-    console.error(chalk.gray(`Known functions: ${KNOWN_FUNCTIONS.join(', ')}`))
-    process.exit(1)
-  }
-}
-
-const requestedFunctions = functionInputs.length > 0 ? functionInputs : [...KNOWN_FUNCTIONS]
-const value = flags.value ?? config.defaultValue
-const saveResults = flags.save ?? false
-let compareResults = flags.compare ?? false
-const showHistory = flags.history ?? false
-const fullMode = flags.full ?? false
-const removeId = flags.remove ?? null
-let previousResults = null
-
-// Load previous results if comparing
-if (compareResults) {
-  const data = loadResultsData()
-  if (!data) {
-    console.log(chalk.yellow('⚠ No previous results found. Run with --save first.\n'))
-    compareResults = false
-  }
-  else {
-    // Build previousResults map: { langName: { fnName: latestEntry } }
-    previousResults = {}
-    const languages = data.languages || {}
-    for (const [lang, entries] of Object.entries(languages)) {
-      // Find most recent entry with matching test value
-      const matching = entries.filter(e => e.value === value)
-      if (matching.length > 0) {
-        const latest = matching[matching.length - 1]
-        previousResults[lang] = latest.functions || {}
-      }
-    }
-    if (Object.keys(previousResults).length === 0) {
-      console.log(chalk.yellow(`⚠ No previous results found for value ${value.toLocaleString()}.\n`))
-      compareResults = false
-    }
-  }
-}
-
 // ============================================================================
 // History Display & Remove
 // ============================================================================
@@ -258,314 +197,6 @@ function formatDateTime(timestamp) {
     minute: '2-digit',
   })
 }
-
-// Handle --remove (accepts single ID or comma-separated IDs)
-if (removeId) {
-  const data = loadResultsData()
-  if (!data) {
-    console.error(chalk.red('No history found.\n'))
-    process.exit(1)
-  }
-
-  const idsToRemove = removeId.split(',').map(id => parseInt(id.trim(), 10)).filter(id => !isNaN(id))
-
-  if (idsToRemove.length === 0) {
-    console.error(chalk.red('Invalid ID format. Use numeric IDs (e.g., --remove 5 or --remove 1,2,3)\n'))
-    process.exit(1)
-  }
-
-  let totalRemoved = 0
-  const notFound = []
-  const languages = data.languages || {}
-
-  for (const id of idsToRemove) {
-    let found = false
-
-    for (const [lang, entries] of Object.entries(languages)) {
-      const before = entries.length
-      languages[lang] = entries.filter(e => e.id !== id)
-      if (languages[lang].length < before) {
-        found = true
-        totalRemoved++
-      }
-
-      // Remove language if empty
-      if (languages[lang].length === 0) {
-        delete languages[lang]
-      }
-    }
-
-    if (!found) notFound.push(id)
-  }
-
-  if (totalRemoved === 0) {
-    console.error(chalk.red(`No entries found matching IDs: ${idsToRemove.join(', ')}\n`))
-    process.exit(1)
-  }
-
-  // Save
-  const tempFile = resultsFile + '.tmp'
-  writeFileSync(tempFile, JSON.stringify(data, null, 2))
-  renameSync(tempFile, resultsFile)
-
-  if (totalRemoved === 1) {
-    console.log(chalk.green('✓ Removed 1 entry'))
-  }
-  else {
-    console.log(chalk.green(`✓ Removed ${totalRemoved} entries`))
-  }
-
-  if (notFound.length > 0) {
-    console.log(chalk.yellow(`⚠ Not found: ${notFound.join(', ')}`))
-  }
-  console.log()
-  process.exit(0)
-}
-
-if (showHistory) {
-  const data = loadResultsData()
-  if (!data) {
-    console.error(chalk.red('No history found. Run with --save first.\n'))
-    process.exit(1)
-  }
-
-  const languages = data.languages || {}
-
-  // Single language history
-  if (requestedLanguages.length === 1) {
-    const langCode = requestedLanguages[0]
-    const entries = languages[langCode] || []
-
-    if (entries.length === 0) {
-      console.error(chalk.red(`No history found for: ${langCode}\n`))
-      process.exit(1)
-    }
-
-    console.log(chalk.cyan.bold(`\n History for ${langCode}:\n`))
-
-    // Build header based on functions in data
-    const fnNames = new Set()
-    for (const entry of entries) {
-      if (entry.functions) {
-        Object.keys(entry.functions).forEach(k => fnNames.add(k))
-      }
-    }
-
-    let headerLine = chalk.gray('ID'.padStart(4)) + ' | '
-      + chalk.gray('Date & Time'.padEnd(18)) + ' | '
-      + chalk.gray('Value'.padStart(10))
-
-    for (const fnName of fnNames) {
-      headerLine += ' | ' + chalk.gray(`${fnName} ops/s`.padStart(16))
-    }
-    headerLine += ' | ' + chalk.gray('Memory'.padStart(10))
-
-    console.log(headerLine)
-    console.log(chalk.gray('-'.repeat(66 + fnNames.size * 19)))
-
-    for (const entry of entries) {
-      let line = chalk.yellow(String(entry.id).padStart(4)) + ' | '
-        + chalk.gray(formatDateTime(entry.timestamp).padEnd(18)) + ' | '
-        + chalk.gray(formatTestValue(entry.value).padStart(10))
-
-      const fnsData = entry.functions || {}
-
-      for (const fnName of fnNames) {
-        const fnData = fnsData[fnName]
-        const hz = fnData?.hz ? formatOps(fnData.hz) : '-'
-        line += ' | ' + chalk.white(hz.padStart(16))
-      }
-
-      // Show memory from first available function
-      const firstFn = Object.values(fnsData)[0]
-      const mem = firstFn?.bytes ? formatBytes(firstFn.bytes) : '-'
-      line += ' | ' + chalk.gray(mem.padStart(10))
-
-      console.log(line)
-    }
-    console.log()
-  }
-  else {
-    // Multi-language or all languages summary - show latest for each
-    const langCodes = requestedLanguages.length > 0
-      ? requestedLanguages.filter(lang => languages[lang])
-      : Object.keys(languages).sort()
-
-    if (langCodes.length === 0) {
-      console.error(chalk.red('No history found.\n'))
-      process.exit(1)
-    }
-
-    // Get latest entry for each language (with entry count)
-    const summaries = []
-    for (const lang of langCodes) {
-      const entries = languages[lang]
-      if (entries && entries.length > 0) {
-        const latest = entries[entries.length - 1]
-        summaries.push({ name: lang, count: entries.length, ...latest })
-      }
-    }
-
-    console.log(chalk.cyan.bold('\n Saved Results Summary\n'))
-    console.log(
-      chalk.gray('Language'.padEnd(12)) + ' | '
-      + chalk.gray('ID'.padStart(4)) + ' | '
-      + chalk.gray('Runs'.padStart(4)) + ' | '
-      + chalk.gray('toCardinal'.padStart(12)) + ' | '
-      + chalk.gray('toOrdinal'.padStart(12)) + ' | '
-      + chalk.gray('toCurrency'.padStart(12)) + ' | '
-      + chalk.gray('Last Run'.padStart(18)),
-    )
-    console.log(chalk.gray('-'.repeat(93)))
-
-    for (const entry of summaries) {
-      const fnsData = entry.functions || {}
-      const cardinalHz = fnsData.toCardinal?.hz ? formatOps(fnsData.toCardinal.hz) : '-'
-      const ordinalHz = fnsData.toOrdinal?.hz ? formatOps(fnsData.toOrdinal.hz) : '-'
-      const currencyHz = fnsData.toCurrency?.hz ? formatOps(fnsData.toCurrency.hz) : '-'
-
-      console.log(
-        chalk.gray(entry.name.padEnd(12)) + ' | '
-        + chalk.yellow(String(entry.id).padStart(4)) + ' | '
-        + chalk.gray(String(entry.count).padStart(4)) + ' | '
-        + chalk.white(cardinalHz.padStart(12)) + ' | '
-        + chalk.white(ordinalHz.padStart(12)) + ' | '
-        + chalk.white(currencyHz.padStart(12)) + ' | '
-        + chalk.gray(formatDateTime(entry.timestamp).padStart(18)),
-      )
-    }
-
-    // Summary stats
-    console.log(chalk.gray('-'.repeat(93)))
-    for (const fnName of KNOWN_FUNCTIONS) {
-      const withFn = summaries.filter(e => e.functions?.[fnName]?.hz)
-      if (withFn.length > 0) {
-        const fastest = withFn.reduce((max, e) => e.functions[fnName].hz > max.functions[fnName].hz ? e : max)
-        const slowest = withFn.reduce((min, e) => e.functions[fnName].hz < min.functions[fnName].hz ? e : min)
-        console.log(chalk.green(`Fastest ${fnName}: ${fastest.name} (${formatOps(fastest.functions[fnName].hz)})`))
-        console.log(chalk.yellow(`Slowest ${fnName}: ${slowest.name} (${formatOps(slowest.functions[fnName].hz)})`))
-      }
-    }
-    console.log()
-  }
-  process.exit(0)
-}
-
-// ============================================================================
-// Load Converters
-// ============================================================================
-
-const languageCodes = requestedLanguages.length > 0
-  ? requestedLanguages
-  : getLanguageCodes()
-
-const converters = []
-for (const code of languageCodes) {
-  const converter = await loadConverter(code, requestedFunctions)
-  if (converter) {
-    converters.push(converter)
-  }
-  else {
-    // Check if language exists but has no matching forms
-    const allFnsConverter = await loadConverter(code, KNOWN_FUNCTIONS)
-    if (allFnsConverter) {
-      console.error(chalk.yellow(`Language ${code} has no ${requestedFunctions.join('/')} support, skipping`))
-    }
-    else {
-      console.error(chalk.red(`Language not found: ${code}`))
-      console.error(chalk.gray(`  Checked: src/${code}.js`))
-      process.exit(1)
-    }
-  }
-}
-
-if (converters.length === 0) {
-  console.error(chalk.red('No languages found with requested functions'))
-  process.exit(1)
-}
-
-// ============================================================================
-// Display Header
-// ============================================================================
-
-// Warn if GC is not exposed (memory measurements will be unreliable)
-if (!global.gc) {
-  console.log(chalk.yellow('⚠ Memory measurements require --expose-gc flag'))
-  console.log(chalk.gray('  Run: node --expose-gc bench/index.js\n'))
-}
-
-console.log(chalk.cyan.bold('\nBenchmark\n'))
-
-if (requestedLanguages.length > 0) {
-  console.log(chalk.gray(`Languages: ${converters.map(c => c.name).join(', ')}`))
-}
-else {
-  console.log(chalk.gray(`Testing ${converters.length} languages`))
-}
-console.log(chalk.gray(`Functions: ${requestedFunctions.join(', ')}`))
-console.log(chalk.gray(`Test value: ${value.toLocaleString()}`))
-if (fullMode) {
-  console.log(chalk.cyan('Full mode: maximum iterations'))
-}
-console.log()
-
-// Determine which functions to show (based on what's actually available)
-const availableFunctions = new Set()
-for (const converter of converters) {
-  Object.keys(converter.functions).forEach(f => availableFunctions.add(f))
-}
-const displayFunctions = requestedFunctions.filter(f => availableFunctions.has(f))
-
-// Print table header (row-per-function layout)
-const opsColWidth = compareResults ? 25 : 14
-const memColWidth = compareResults ? 18 : 10
-const header = chalk.cyan.bold('Language'.padEnd(12))
-  + ' │ ' + chalk.cyan.bold('Function'.padEnd(12))
-  + ' │ ' + chalk.cyan.bold('ops/sec'.padStart(opsColWidth))
-  + ' │ ' + chalk.cyan.bold('Memory'.padStart(memColWidth))
-
-console.log(header)
-const separatorLength = 12 + 15 + opsColWidth + 3 + memColWidth + 3
-console.log(chalk.gray('─'.repeat(separatorLength)))
-
-// ============================================================================
-// Benchmark Execution
-// ============================================================================
-
-// Track timestamp for incremental saves
-const runTimestamp = new Date().toISOString()
-
-const results = []
-
-for (const converter of converters) {
-  const result = await benchmarkLanguage(converter, displayFunctions)
-  results.push(result)
-  printResultLine(result, displayFunctions)
-  if (saveResults) {
-    saveResultIncremental(result)
-  }
-}
-
-// Print footer
-console.log(chalk.gray('─'.repeat(separatorLength)))
-
-// Summary
-if (results.length > 1) {
-  // Find fastest and lowest memory for each function
-  for (const fnName of displayFunctions) {
-    const withFn = results.filter(r => r.functions[fnName]?.hz)
-    if (withFn.length > 0) {
-      const fastest = withFn.reduce((max, r) => r.functions[fnName].hz > max.functions[fnName].hz ? r : max)
-      const lowestMem = withFn.reduce((min, r) =>
-        r.functions[fnName].memoryPerIter < min.functions[fnName].memoryPerIter ? r : min,
-      )
-      console.log(chalk.green(`${fnName}: fastest ${fastest.name}, lowest mem ${lowestMem.name}`))
-    }
-  }
-}
-
-saveResultsIfNeeded()
-console.log()
 
 // ============================================================================
 // Benchmark Functions
@@ -891,3 +522,402 @@ function displayHelp() {
   console.log('  ' + chalk.gray('npm run bench -- --remove 5                     # Remove entry by ID'))
   console.log('  ' + chalk.gray('npm run bench -- --remove 1,2,3                 # Remove multiple\n'))
 }
+
+// ============================================================================
+// Shared State
+// ============================================================================
+//
+// Declared at module scope so the helper functions defined above (which are
+// invoked from main()) can close over them. Assigned inside main().
+let value
+let saveResults
+let compareResults
+let previousResults
+let fullMode
+let runTimestamp
+
+// ============================================================================
+// Orchestration
+// ============================================================================
+
+async function main() {
+  if (flags.help) {
+    displayHelp()
+    return
+  }
+
+  // `--lang` / `--language` are aliases; positionals also feed languages.
+  // Each occurrence may itself be comma-separated, so flatten through parseCommaSeparated.
+  const requestedLanguages = [
+    ...(flags.lang ?? []),
+    ...(flags.language ?? []),
+    ...positionals,
+  ].flatMap(parseCommaSeparated)
+
+  const functionInputs = [
+    ...(flags.function ?? []),
+    ...(flags.fn ?? []),
+  ].flatMap(parseCommaSeparated)
+
+  for (const fn of functionInputs) {
+    if (!KNOWN_FUNCTIONS.includes(fn)) {
+      console.error(chalk.red(`Unknown function: ${fn}`))
+      console.error(chalk.gray(`Known functions: ${KNOWN_FUNCTIONS.join(', ')}`))
+      process.exitCode = 1
+      return
+    }
+  }
+
+  const requestedFunctions = functionInputs.length > 0 ? functionInputs : [...KNOWN_FUNCTIONS]
+  value = flags.value ?? config.defaultValue
+  saveResults = flags.save ?? false
+  compareResults = flags.compare ?? false
+  const showHistory = flags.history ?? false
+  fullMode = flags.full ?? false
+  const removeId = flags.remove ?? null
+  previousResults = null
+
+  // Load previous results if comparing
+  if (compareResults) {
+    const data = loadResultsData()
+    if (!data) {
+      console.log(chalk.yellow('⚠ No previous results found. Run with --save first.\n'))
+      compareResults = false
+    }
+    else {
+      // Build previousResults map: { langName: { fnName: latestEntry } }
+      previousResults = {}
+      const languages = data.languages || {}
+      for (const [lang, entries] of Object.entries(languages)) {
+        // Find most recent entry with matching test value
+        const matching = entries.filter(e => e.value === value)
+        if (matching.length > 0) {
+          const latest = matching[matching.length - 1]
+          previousResults[lang] = latest.functions || {}
+        }
+      }
+      if (Object.keys(previousResults).length === 0) {
+        console.log(chalk.yellow(`⚠ No previous results found for value ${value.toLocaleString()}.\n`))
+        compareResults = false
+      }
+    }
+  }
+
+  // Handle --remove (accepts single ID or comma-separated IDs)
+  if (removeId) {
+    const data = loadResultsData()
+    if (!data) {
+      console.error(chalk.red('No history found.\n'))
+      process.exitCode = 1
+      return
+    }
+
+    const idsToRemove = removeId.split(',').map(id => parseInt(id.trim(), 10)).filter(id => !isNaN(id))
+
+    if (idsToRemove.length === 0) {
+      console.error(chalk.red('Invalid ID format. Use numeric IDs (e.g., --remove 5 or --remove 1,2,3)\n'))
+      process.exitCode = 1
+      return
+    }
+
+    let totalRemoved = 0
+    const notFound = []
+    const languages = data.languages || {}
+
+    for (const id of idsToRemove) {
+      let found = false
+
+      for (const [lang, entries] of Object.entries(languages)) {
+        const before = entries.length
+        languages[lang] = entries.filter(e => e.id !== id)
+        if (languages[lang].length < before) {
+          found = true
+          totalRemoved++
+        }
+
+        // Remove language if empty
+        if (languages[lang].length === 0) {
+          delete languages[lang]
+        }
+      }
+
+      if (!found) notFound.push(id)
+    }
+
+    if (totalRemoved === 0) {
+      console.error(chalk.red(`No entries found matching IDs: ${idsToRemove.join(', ')}\n`))
+      process.exitCode = 1
+      return
+    }
+
+    // Save
+    const tempFile = resultsFile + '.tmp'
+    writeFileSync(tempFile, JSON.stringify(data, null, 2))
+    renameSync(tempFile, resultsFile)
+
+    if (totalRemoved === 1) {
+      console.log(chalk.green('✓ Removed 1 entry'))
+    }
+    else {
+      console.log(chalk.green(`✓ Removed ${totalRemoved} entries`))
+    }
+
+    if (notFound.length > 0) {
+      console.log(chalk.yellow(`⚠ Not found: ${notFound.join(', ')}`))
+    }
+    console.log()
+    return
+  }
+
+  if (showHistory) {
+    const data = loadResultsData()
+    if (!data) {
+      console.error(chalk.red('No history found. Run with --save first.\n'))
+      process.exitCode = 1
+      return
+    }
+
+    const languages = data.languages || {}
+
+    // Single language history
+    if (requestedLanguages.length === 1) {
+      const langCode = requestedLanguages[0]
+      const entries = languages[langCode] || []
+
+      if (entries.length === 0) {
+        console.error(chalk.red(`No history found for: ${langCode}\n`))
+        process.exitCode = 1
+        return
+      }
+
+      console.log(chalk.cyan.bold(`\n History for ${langCode}:\n`))
+
+      // Build header based on functions in data
+      const fnNames = new Set()
+      for (const entry of entries) {
+        if (entry.functions) {
+          Object.keys(entry.functions).forEach(k => fnNames.add(k))
+        }
+      }
+
+      let headerLine = chalk.gray('ID'.padStart(4)) + ' | '
+        + chalk.gray('Date & Time'.padEnd(18)) + ' | '
+        + chalk.gray('Value'.padStart(10))
+
+      for (const fnName of fnNames) {
+        headerLine += ' | ' + chalk.gray(`${fnName} ops/s`.padStart(16))
+      }
+      headerLine += ' | ' + chalk.gray('Memory'.padStart(10))
+
+      console.log(headerLine)
+      console.log(chalk.gray('-'.repeat(66 + fnNames.size * 19)))
+
+      for (const entry of entries) {
+        let line = chalk.yellow(String(entry.id).padStart(4)) + ' | '
+          + chalk.gray(formatDateTime(entry.timestamp).padEnd(18)) + ' | '
+          + chalk.gray(formatTestValue(entry.value).padStart(10))
+
+        const fnsData = entry.functions || {}
+
+        for (const fnName of fnNames) {
+          const fnData = fnsData[fnName]
+          const hz = fnData?.hz ? formatOps(fnData.hz) : '-'
+          line += ' | ' + chalk.white(hz.padStart(16))
+        }
+
+        // Show memory from first available function
+        const firstFn = Object.values(fnsData)[0]
+        const mem = firstFn?.bytes ? formatBytes(firstFn.bytes) : '-'
+        line += ' | ' + chalk.gray(mem.padStart(10))
+
+        console.log(line)
+      }
+      console.log()
+    }
+    else {
+      // Multi-language or all languages summary - show latest for each
+      const langCodes = requestedLanguages.length > 0
+        ? requestedLanguages.filter(lang => languages[lang])
+        : Object.keys(languages).sort()
+
+      if (langCodes.length === 0) {
+        console.error(chalk.red('No history found.\n'))
+        process.exitCode = 1
+        return
+      }
+
+      // Get latest entry for each language (with entry count)
+      const summaries = []
+      for (const lang of langCodes) {
+        const entries = languages[lang]
+        if (entries && entries.length > 0) {
+          const latest = entries[entries.length - 1]
+          summaries.push({ name: lang, count: entries.length, ...latest })
+        }
+      }
+
+      console.log(chalk.cyan.bold('\n Saved Results Summary\n'))
+      console.log(
+        chalk.gray('Language'.padEnd(12)) + ' | '
+        + chalk.gray('ID'.padStart(4)) + ' | '
+        + chalk.gray('Runs'.padStart(4)) + ' | '
+        + chalk.gray('toCardinal'.padStart(12)) + ' | '
+        + chalk.gray('toOrdinal'.padStart(12)) + ' | '
+        + chalk.gray('toCurrency'.padStart(12)) + ' | '
+        + chalk.gray('Last Run'.padStart(18)),
+      )
+      console.log(chalk.gray('-'.repeat(93)))
+
+      for (const entry of summaries) {
+        const fnsData = entry.functions || {}
+        const cardinalHz = fnsData.toCardinal?.hz ? formatOps(fnsData.toCardinal.hz) : '-'
+        const ordinalHz = fnsData.toOrdinal?.hz ? formatOps(fnsData.toOrdinal.hz) : '-'
+        const currencyHz = fnsData.toCurrency?.hz ? formatOps(fnsData.toCurrency.hz) : '-'
+
+        console.log(
+          chalk.gray(entry.name.padEnd(12)) + ' | '
+          + chalk.yellow(String(entry.id).padStart(4)) + ' | '
+          + chalk.gray(String(entry.count).padStart(4)) + ' | '
+          + chalk.white(cardinalHz.padStart(12)) + ' | '
+          + chalk.white(ordinalHz.padStart(12)) + ' | '
+          + chalk.white(currencyHz.padStart(12)) + ' | '
+          + chalk.gray(formatDateTime(entry.timestamp).padStart(18)),
+        )
+      }
+
+      // Summary stats
+      console.log(chalk.gray('-'.repeat(93)))
+      for (const fnName of KNOWN_FUNCTIONS) {
+        const withFn = summaries.filter(e => e.functions?.[fnName]?.hz)
+        if (withFn.length > 0) {
+          const fastest = withFn.reduce((max, e) => e.functions[fnName].hz > max.functions[fnName].hz ? e : max)
+          const slowest = withFn.reduce((min, e) => e.functions[fnName].hz < min.functions[fnName].hz ? e : min)
+          console.log(chalk.green(`Fastest ${fnName}: ${fastest.name} (${formatOps(fastest.functions[fnName].hz)})`))
+          console.log(chalk.yellow(`Slowest ${fnName}: ${slowest.name} (${formatOps(slowest.functions[fnName].hz)})`))
+        }
+      }
+      console.log()
+    }
+    return
+  }
+
+  // ==========================================================================
+  // Load Converters
+  // ==========================================================================
+
+  const languageCodes = requestedLanguages.length > 0
+    ? requestedLanguages
+    : getLanguageCodes()
+
+  const converters = []
+  for (const code of languageCodes) {
+    const converter = await loadConverter(code, requestedFunctions)
+    if (converter) {
+      converters.push(converter)
+    }
+    else {
+      // Check if language exists but has no matching forms
+      const allFnsConverter = await loadConverter(code, KNOWN_FUNCTIONS)
+      if (allFnsConverter) {
+        console.error(chalk.yellow(`Language ${code} has no ${requestedFunctions.join('/')} support, skipping`))
+      }
+      else {
+        console.error(chalk.red(`Language not found: ${code}`))
+        console.error(chalk.gray(`  Checked: src/${code}.js`))
+        process.exitCode = 1
+        return
+      }
+    }
+  }
+
+  if (converters.length === 0) {
+    console.error(chalk.red('No languages found with requested functions'))
+    process.exitCode = 1
+    return
+  }
+
+  // ==========================================================================
+  // Display Header
+  // ==========================================================================
+
+  // Warn if GC is not exposed (memory measurements will be unreliable)
+  if (!global.gc) {
+    console.log(chalk.yellow('⚠ Memory measurements require --expose-gc flag'))
+    console.log(chalk.gray('  Run: node --expose-gc bench/index.js\n'))
+  }
+
+  console.log(chalk.cyan.bold('\nBenchmark\n'))
+
+  if (requestedLanguages.length > 0) {
+    console.log(chalk.gray(`Languages: ${converters.map(c => c.name).join(', ')}`))
+  }
+  else {
+    console.log(chalk.gray(`Testing ${converters.length} languages`))
+  }
+  console.log(chalk.gray(`Functions: ${requestedFunctions.join(', ')}`))
+  console.log(chalk.gray(`Test value: ${value.toLocaleString()}`))
+  if (fullMode) {
+    console.log(chalk.cyan('Full mode: maximum iterations'))
+  }
+  console.log()
+
+  // Determine which functions to show (based on what's actually available)
+  const availableFunctions = new Set()
+  for (const converter of converters) {
+    Object.keys(converter.functions).forEach(f => availableFunctions.add(f))
+  }
+  const displayFunctions = requestedFunctions.filter(f => availableFunctions.has(f))
+
+  // Print table header (row-per-function layout)
+  const opsColWidth = compareResults ? 25 : 14
+  const memColWidth = compareResults ? 18 : 10
+  const header = chalk.cyan.bold('Language'.padEnd(12))
+    + ' │ ' + chalk.cyan.bold('Function'.padEnd(12))
+    + ' │ ' + chalk.cyan.bold('ops/sec'.padStart(opsColWidth))
+    + ' │ ' + chalk.cyan.bold('Memory'.padStart(memColWidth))
+
+  console.log(header)
+  const separatorLength = 12 + 15 + opsColWidth + 3 + memColWidth + 3
+  console.log(chalk.gray('─'.repeat(separatorLength)))
+
+  // ==========================================================================
+  // Benchmark Execution
+  // ==========================================================================
+
+  // Track timestamp for incremental saves
+  runTimestamp = new Date().toISOString()
+
+  const results = []
+
+  for (const converter of converters) {
+    const result = await benchmarkLanguage(converter, displayFunctions)
+    results.push(result)
+    printResultLine(result, displayFunctions)
+    if (saveResults) {
+      saveResultIncremental(result)
+    }
+  }
+
+  // Print footer
+  console.log(chalk.gray('─'.repeat(separatorLength)))
+
+  // Summary
+  if (results.length > 1) {
+    // Find fastest and lowest memory for each function
+    for (const fnName of displayFunctions) {
+      const withFn = results.filter(r => r.functions[fnName]?.hz)
+      if (withFn.length > 0) {
+        const fastest = withFn.reduce((max, r) => r.functions[fnName].hz > max.functions[fnName].hz ? r : max)
+        const lowestMem = withFn.reduce((min, r) =>
+          r.functions[fnName].memoryPerIter < min.functions[fnName].memoryPerIter ? r : min,
+        )
+        console.log(chalk.green(`${fnName}: fastest ${fastest.name}, lowest mem ${lowestMem.name}`))
+      }
+    }
+  }
+
+  saveResultsIfNeeded()
+  console.log()
+}
+
+await main()

@@ -542,7 +542,7 @@ async function main() {
     console.log(chalk.gray('  npm run lang:add -- ko-KR --ordinal              # Ordinal only'))
     console.log(chalk.gray('  npm run lang:add -- ko-KR --currency             # Currency only'))
     console.log(chalk.gray('  npm run lang:add -- ko-KR --cardinal --ordinal   # Multiple forms'))
-    process.exit(0)
+    return
   }
 
   // Get language code (from CLI or prompt)
@@ -550,7 +550,8 @@ async function main() {
   if (!code) {
     code = await promptForLanguageCode()
     if (!code) {
-      process.exit(1)
+      process.exitCode = 1
+      return
     }
   }
 
@@ -558,7 +559,8 @@ async function main() {
   if (!isValidLanguageCode(code)) {
     console.error(chalk.red(`Error: Invalid BCP 47 language tag: ${code}`))
     console.log(chalk.gray('\nExamples: en-US, fr-FR, zh-Hans-CN, sr-Latn-RS, fr-BE'))
-    process.exit(1)
+    process.exitCode = 1
+    return
   }
 
   // Canonicalize the code (e.g. cy-gb -> cy-GB) so the filename, export
@@ -585,14 +587,14 @@ async function main() {
     formsToScaffold = new Set([...cliFlags].filter(f => !existingForms.has(f)))
     if (formsToScaffold.size === 0) {
       console.log(chalk.yellow('\nAll requested forms are already implemented.'))
-      process.exit(0)
+      return
     }
   }
   else {
     // Interactive mode
     formsToScaffold = await promptForForms(existingForms)
     if (formsToScaffold.size === 0) {
-      process.exit(0)
+      return
     }
   }
 
@@ -602,7 +604,8 @@ async function main() {
   if (!isInCLDR(code)) {
     const userProvidedName = await promptForLanguageName(code)
     if (userProvidedName === null) {
-      process.exit(1)
+      process.exitCode = 1
+      return
     }
     languageName = userProvidedName
   }
@@ -652,5 +655,5 @@ async function main() {
 
 main().catch((err) => {
   console.error(chalk.red(err.message))
-  process.exit(1)
+  process.exitCode = 1
 })

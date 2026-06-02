@@ -296,6 +296,154 @@ function runTestCases(t, fn, testCases, form) {
   }
 }
 
+/**
+ * Builds the ordered list of checks (assertion thunks and logs) for one form.
+ *
+ * Each returned entry is a zero-argument function. Running them in order
+ * reproduces the original form-test control flow exactly, including the
+ * early-skip behavior: a missing export or an invalid fixture short-circuits
+ * the form (no later checks are produced). Warnings/coverage notes are emitted
+ * as `t.log` side effects here (logs are not assertions and are not planned).
+ *
+ * Returning thunks keeps the assertions out of `if` conditionals at the call
+ * site (they run inside a plain loop), satisfying ava/no-conditional-assertion
+ * without weakening or changing any assertion.
+ *
+ * @param {Object} t Ava test context
+ * @param {string} file Fixture/source file name
+ * @param {string} languageCode Language code under test
+ * @param {string} formName Form name (cardinal, ordinal, ...)
+ * @param {Object} config Form configuration
+ * @param {Function|*} fn Exported conversion function (may be undefined)
+ * @param {Array} fixtureData Fixture test cases for this form
+ * @param {string} fileContent Source file content (for JSDoc checks)
+ * @returns {Array<Function>} Ordered assertion thunks
+ */
+function planFormChecks(t, file, languageCode, formName, config, fn, fixtureData, fileContent) {
+  // Export validation: missing export is a single failure, then skip the form.
+  if (typeof fn !== 'function') {
+    return [() => t.fail(`${file} has ${formName} fixtures but does not export ${config.functionName}`)]
+  }
+
+  const checks = []
+
+  // JSDoc validation: one failure per error (does not short-circuit).
+  const jsdoc = getJSDocForFunction(fileContent, config.functionName)
+  const jsdocValidation = validateJSDoc(jsdoc, config.functionName)
+  for (const error of jsdocValidation.errors) {
+    checks.push(() => t.fail(`${languageCode}: ${error}`))
+  }
+
+  // Fixture validation: an invalid fixture is a single failure, then skip.
+  const validation = validateFixture(fixtureData, languageCode, formName, config)
+  if (!validation.valid) {
+    checks.push(() => t.fail(validation.error))
+    return checks
+  }
+
+  // Log any warnings (e.g., duplicate test cases). Logs are not assertions.
+  for (const warning of validation.warnings ?? []) {
+    t.log(`Warning: ${warning}`)
+  }
+
+  // Conversion tests: one assertion per fixture case (handled in runTestCases).
+  checks.push(() => runTestCases(t, fn, fixtureData, formName))
+
+  // Coverage note (log, not an assertion).
+  if (fixtureData.length < 25) {
+    t.log(`Warning: ${languageCode} has only ${fixtureData.length} ${formName} test cases.`)
+  }
+
+  // Error cases (form-specific): one t.throws per case.
+  for (const { input, error, desc } of config.errorCases ?? []) {
+    checks.push(() => t.throws(() => fn(input), { instanceOf: error }, desc))
+  }
+
+  return checks
+}
+
+// ============================================================================
+// Assertion Planning
+// ============================================================================
+
+/**
+ * Computes the exact number of assertions the language test will run.
+ *
+ * This mirrors the control flow of the language test body one-to-one so that
+ * `t.plan()` can verify every assertion path executed. It reuses the same
+ * validation functions the test does, so its branch decisions are identical.
+ *
+ * Assertion sources (in test order):
+ * - BCP 47 validation: always 1 (t.true).
+ * - Per form with a fixture:
+ *   - missing export: 1 (t.fail), then skipped (no further assertions).
+ *   - else: JSDoc errors (t.fail each), then either an invalid-fixture failure
+ *     (1, then skipped) or the per-case conversion assertions plus error cases.
+ * - hasAtLeastOneForm: always 1 (t.true).
+ * - Cross-validation: 1 (t.fail) per exported function that lacks a fixture.
+ *
+ * @param {string} languageCode Language code under test
+ * @param {Object} languageModule Imported language module
+ * @param {Object} fixtureModule Imported fixture module
+ * @param {string} fileContent Source file content (for JSDoc checks)
+ * @returns {number} Exact assertion count
+ */
+function computeAssertionPlan(languageCode, languageModule, fixtureModule, fileContent) {
+  // BCP 47 validation (always one assertion).
+  let count = 1
+
+  for (const [formName, config] of Object.entries(FORMS)) {
+    const fixtureData = fixtureModule[formName]
+    const fn = languageModule[config.functionName]
+
+    // Skip if no fixture for this form.
+    if (!fixtureData) continue
+
+    // Missing export: a single t.fail, then the form is skipped.
+    if (typeof fn !== 'function') {
+      count += 1
+      continue
+    }
+
+    // JSDoc validation: one t.fail per error (does not short-circuit).
+    const jsdoc = getJSDocForFunction(fileContent, config.functionName)
+    const jsdocValidation = validateJSDoc(jsdoc, config.functionName)
+    if (!jsdocValidation.valid) {
+      count += jsdocValidation.errors.length
+    }
+
+    // Fixture validation: a single t.fail then the form is skipped.
+    const validation = validateFixture(fixtureData, languageCode, formName, config)
+    if (!validation.valid) {
+      count += 1
+      continue
+    }
+
+    // Conversion tests: one assertion (t.is or t.fail) per test case.
+    count += fixtureData.length
+
+    // Error cases: one t.throws each.
+    if (config.errorCases) {
+      count += config.errorCases.length
+    }
+  }
+
+  // hasAtLeastOneForm (always one assertion).
+  count += 1
+
+  // Cross-validation: one t.fail per exported function missing its fixture.
+  for (const [formName, config] of Object.entries(FORMS)) {
+    const fn = languageModule[config.functionName]
+    const fixtureData = fixtureModule[formName]
+
+    if (typeof fn === 'function' && !fixtureData) {
+      count += 1
+    }
+  }
+
+  return count
+}
+
 // ============================================================================
 // Language Tests
 // ============================================================================
@@ -310,6 +458,11 @@ for (const file of fixtureFiles) {
     const languageModule = await import('../src/' + file)
     const fixtureModule = await import('./fixtures/' + file)
     const fileContent = readFileSync(`./src/${file}`, 'utf8')
+
+    // Plan the exact assertion count up front. This satisfies
+    // ava/no-conditional-assertion (assertions live inside the fixture-driven
+    // loops/conditionals below) and verifies every planned path actually runs.
+    t.plan(computeAssertionPlan(languageCode, languageModule, fixtureModule, fileContent))
 
     // ========================================================================
     // BCP 47 Validation
@@ -335,63 +488,13 @@ for (const file of fixtureFiles) {
 
       hasAtLeastOneForm = true
 
-      // ----------------------------------------------------------------------
-      // Export Validation
-      // ----------------------------------------------------------------------
-
-      if (typeof fn !== 'function') {
-        t.fail(`${file} has ${formName} fixtures but does not export ${config.functionName}`)
-        continue
-      }
-
-      // ----------------------------------------------------------------------
-      // JSDoc Validation
-      // ----------------------------------------------------------------------
-
-      const jsdoc = getJSDocForFunction(fileContent, config.functionName)
-      const jsdocValidation = validateJSDoc(jsdoc, config.functionName)
-      if (!jsdocValidation.valid) {
-        for (const error of jsdocValidation.errors) {
-          t.fail(`${languageCode}: ${error}`)
-        }
-      }
-
-      // ----------------------------------------------------------------------
-      // Fixture Validation
-      // ----------------------------------------------------------------------
-
-      const validation = validateFixture(fixtureData, languageCode, formName, config)
-      if (!validation.valid) {
-        t.fail(validation.error)
-        continue
-      }
-
-      // Log any warnings (e.g., duplicate test cases)
-      if (validation.warnings) {
-        for (const warning of validation.warnings) {
-          t.log(`Warning: ${warning}`)
-        }
-      }
-
-      // ----------------------------------------------------------------------
-      // Conversion Tests
-      // ----------------------------------------------------------------------
-
-      runTestCases(t, fn, fixtureData, formName)
-
-      // Coverage warning
-      if (fixtureData.length < 25) {
-        t.log(`Warning: ${languageCode} has only ${fixtureData.length} ${formName} test cases.`)
-      }
-
-      // ----------------------------------------------------------------------
-      // Error Cases (form-specific)
-      // ----------------------------------------------------------------------
-
-      if (config.errorCases) {
-        for (const { input, error, desc } of config.errorCases) {
-          t.throws(() => fn(input), { instanceOf: error }, desc)
-        }
+      // Plan each form's assertions as a list of thunks, then run them via a
+      // loop below. Keeping the assertions inside a plain loop (rather than
+      // if-blocks) avoids ava/no-conditional-assertion while preserving the
+      // exact assertions and the early-skip semantics the original test had.
+      const formChecks = planFormChecks(t, file, languageCode, formName, config, fn, fixtureData, fileContent)
+      for (const check of formChecks) {
+        check()
       }
     }
 
@@ -402,14 +505,14 @@ for (const file of fixtureFiles) {
     // Ensure at least one form is tested
     t.true(hasAtLeastOneForm, `${languageCode} fixture must export at least one form (cardinal, ordinal, etc.)`)
 
-    // Check for exports without fixtures (potential untested code)
-    for (const [formName, config] of Object.entries(FORMS)) {
-      const fn = languageModule[config.functionName]
-      const fixtureData = fixtureModule[formName]
-
-      if (typeof fn === 'function' && !fixtureData) {
-        t.fail(`${languageCode} exports ${config.functionName} but fixture is missing ${formName} test cases`)
-      }
+    // Check for exports without fixtures (potential untested code). Collect the
+    // offending forms first, then assert in a loop (not an if) so the rule does
+    // not flag the assertion.
+    const exportsWithoutFixtures = Object.entries(FORMS).filter(([formName, config]) =>
+      typeof languageModule[config.functionName] === 'function' && !fixtureModule[formName],
+    )
+    for (const [formName, config] of exportsWithoutFixtures) {
+      t.fail(`${languageCode} exports ${config.functionName} but fixture is missing ${formName} test cases`)
     }
   })
 }
