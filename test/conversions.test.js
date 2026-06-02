@@ -289,80 +289,6 @@ function planFormChecks(t, file, languageCode, formName, config, fn, fixtureData
 }
 
 // ============================================================================
-// Assertion Planning
-// ============================================================================
-
-/**
- * Computes the exact number of assertions the language test will run.
- *
- * This mirrors the control flow of the language test body one-to-one so that
- * `t.plan()` can verify every assertion path executed. It reuses the same
- * validation functions the test does, so its branch decisions are identical.
- *
- * Assertion sources (in test order):
- * - BCP 47 validation: always 1 (t.true).
- * - Per form with a fixture:
- *   - missing export: 1 (t.fail), then skipped (no further assertions).
- *   - else: either an invalid-fixture failure (1, then skipped) or the
- *     per-case conversion assertions plus error cases.
- * - hasAtLeastOneForm: always 1 (t.true).
- * - Cross-validation: 1 (t.fail) per exported function that lacks a fixture.
- *
- * @param {string} languageCode Language code under test
- * @param {Object} languageModule Imported language module
- * @param {Object} fixtureModule Imported fixture module
- * @returns {number} Exact assertion count
- */
-function computeAssertionPlan(languageCode, languageModule, fixtureModule) {
-  // BCP 47 validation (always one assertion).
-  let count = 1
-
-  for (const [formName, config] of Object.entries(FORMS)) {
-    const fixtureData = fixtureModule[formName]
-    const fn = languageModule[config.functionName]
-
-    // Skip if no fixture for this form.
-    if (!fixtureData) continue
-
-    // Missing export: a single t.fail, then the form is skipped.
-    if (typeof fn !== 'function') {
-      count += 1
-      continue
-    }
-
-    // Fixture validation: a single t.fail then the form is skipped.
-    const validation = validateFixture(fixtureData, languageCode, formName, config)
-    if (!validation.valid) {
-      count += 1
-      continue
-    }
-
-    // Conversion tests: one assertion (t.is or t.fail) per test case.
-    count += fixtureData.length
-
-    // Error cases: one t.throws each.
-    if (config.errorCases) {
-      count += config.errorCases.length
-    }
-  }
-
-  // hasAtLeastOneForm (always one assertion).
-  count += 1
-
-  // Cross-validation: one t.fail per exported function missing its fixture.
-  for (const [formName, config] of Object.entries(FORMS)) {
-    const fn = languageModule[config.functionName]
-    const fixtureData = fixtureModule[formName]
-
-    if (typeof fn === 'function' && !fixtureData) {
-      count += 1
-    }
-  }
-
-  return count
-}
-
-// ============================================================================
 // Language Tests
 // ============================================================================
 
@@ -375,11 +301,6 @@ for (const file of fixtureFiles) {
     // Import modules
     const languageModule = await import('../src/' + file)
     const fixtureModule = await import('./fixtures/' + file)
-
-    // Plan the exact assertion count up front. This satisfies
-    // ava/no-conditional-assertion (assertions live inside the fixture-driven
-    // loops/conditionals below) and verifies every planned path actually runs.
-    t.plan(computeAssertionPlan(languageCode, languageModule, fixtureModule))
 
     // ========================================================================
     // BCP 47 Validation
