@@ -230,7 +230,7 @@ test('handles negative string with negative exponent', (t) => {
 
 test('handles MAX_SAFE_INTEGER', (t) => {
   const result = parseCurrencyValue(Number.MAX_SAFE_INTEGER)
-  t.is(result.isNegative, false)
+  t.false(result.isNegative)
   t.is(result.dollars, BigInt(Number.MAX_SAFE_INTEGER))
   t.is(result.cents, 0n)
 })
