@@ -56,7 +56,7 @@ const ORDINAL_SCALES = [
   'trilioniti',
   'trilijarditi',
   'kvadrilioniti',
-  'kvadrilijarditi'
+  'kvadrilijarditi',
 ]
 
 // ============================================================================
@@ -79,7 +79,7 @@ const SCALE_FORMS = [
   ['trilion', 'triliona', 'triliona'],
   ['trilijarda', 'trilijarde', 'trilijarda'],
   ['kvadrilion', 'kvadriliona', 'kvadriliona'],
-  ['kvadrilijarda', 'kvadrilijarde', 'kvadrilijarda']
+  ['kvadrilijarda', 'kvadrilijarde', 'kvadrilijarda'],
 ]
 
 // ============================================================================
@@ -93,7 +93,7 @@ const SCALE_FORMS = [
  * @param {string[]} forms - Plural forms [one, few, many]
  * @returns {string} The selected plural form
  */
-function pluralize (n, forms) {
+function pluralize(n, forms) {
   const num = typeof n === 'bigint' ? Number(n) : n
   const lastDigit = num % 10
   const lastTwoDigits = num % 100
@@ -113,7 +113,7 @@ function pluralize (n, forms) {
  * @param {number} n - Segment value 0-999
  * @returns {string} The segment words
  */
-function buildSegmentMasc (n) {
+function buildSegmentMasc(n) {
   if (n === 0) return ''
 
   const onesDigit = n % 10
@@ -132,7 +132,8 @@ function buildSegmentMasc (n) {
 
   if (tensDigit === 1) {
     parts.push(TEENS[onesDigit])
-  } else if (onesDigit > 0) {
+  }
+  else if (onesDigit > 0) {
     parts.push(ONES_MASC[onesDigit])
   }
 
@@ -145,7 +146,7 @@ function buildSegmentMasc (n) {
  * @param {number} n - Segment value 0-999
  * @returns {string} The segment words
  */
-function buildSegmentFem (n) {
+function buildSegmentFem(n) {
   if (n === 0) return ''
 
   const onesDigit = n % 10
@@ -164,7 +165,8 @@ function buildSegmentFem (n) {
 
   if (tensDigit === 1) {
     parts.push(TEENS[onesDigit])
-  } else if (onesDigit > 0) {
+  }
+  else if (onesDigit > 0) {
     parts.push(ONES_FEM[onesDigit])
   }
 
@@ -182,7 +184,7 @@ function buildSegmentFem (n) {
  * @param {('masculine'|'feminine')} gender - Grammatical gender
  * @returns {string} The integer in Serbian words
  */
-function integerToWords (n, gender) {
+function integerToWords(n, gender) {
   if (n === 0n) return ZERO
 
   if (n < 1000n) {
@@ -199,7 +201,7 @@ function integerToWords (n, gender) {
  * @param {('masculine'|'feminine')} gender - Grammatical gender
  * @returns {string} The number in Serbian words
  */
-function buildLargeNumberWords (n, gender) {
+function buildLargeNumberWords(n, gender) {
   const numStr = n.toString()
   const len = numStr.length
 
@@ -226,7 +228,8 @@ function buildLargeNumberWords (n, gender) {
     if (segment !== 0) {
       if (scaleIndex === 0) {
         parts.push(gender === 'feminine' ? buildSegmentFem(segment) : buildSegmentMasc(segment))
-      } else {
+      }
+      else {
         const scaleForms = SCALE_FORMS[scaleIndex - 1]
         const scaleWord = pluralize(segment, scaleForms)
         // Thousands (scaleIndex=1) are feminine, others masculine
@@ -249,7 +252,7 @@ function buildLargeNumberWords (n, gender) {
  * @param {('masculine'|'feminine')} gender - Grammatical gender
  * @returns {string} The decimal part in Serbian words
  */
-function decimalPartToWords (decimalPart, gender) {
+function decimalPartToWords(decimalPart, gender) {
   let result = ''
   let i = 0
 
@@ -276,7 +279,7 @@ function decimalPartToWords (decimalPart, gender) {
  * @param {('masculine'|'feminine')} [options.gender='masculine'] - Grammatical gender
  * @returns {string} The number in Serbian Latin words
  */
-function toCardinal (value, options) {
+function toCardinal(value, options) {
   options = validateOptions(options)
   const { isNegative, integerPart, decimalPart } = parseCardinalValue(value)
 
@@ -309,7 +312,7 @@ function toCardinal (value, options) {
  * @param {number} n - Number 0-99
  * @returns {string} Ordinal words
  */
-function buildOrdinalTensOnes (n) {
+function buildOrdinalTensOnes(n) {
   if (n === 0) return ''
 
   const onesDigit = n % 10
@@ -344,7 +347,7 @@ function buildOrdinalTensOnes (n) {
  * @param {bigint} n - Positive integer to convert
  * @returns {string} Ordinal Serbian words
  */
-function integerToOrdinal (n) {
+function integerToOrdinal(n) {
   // Fast path: numbers < 100
   if (n < 100n) {
     return buildOrdinalTensOnes(Number(n))
@@ -396,7 +399,7 @@ function integerToOrdinal (n) {
  * @param {bigint} n - Number >= 1,000,000
  * @returns {string} Ordinal Serbian words
  */
-function buildLargeOrdinal (n) {
+function buildLargeOrdinal(n) {
   const numStr = n.toString()
   const len = numStr.length
 
@@ -434,22 +437,26 @@ function buildLargeOrdinal (n) {
         // Units position (no scale)
         if (isLastNonZero) {
           parts.push(integerToOrdinal(BigInt(segment)))
-        } else {
+        }
+        else {
           parts.push(buildSegmentMasc(segment))
         }
-      } else {
+      }
+      else {
         // Has scale word
         if (isLastNonZero) {
           // This scale position is the final ordinal
           if (segment === 1) {
             parts.push(ORDINAL_SCALES[scaleIndex - 1])
-          } else {
+          }
+          else {
             // Use cardinal segment + ordinal scale
             const isFeminine = scaleIndex === 1 // thousands are feminine
             const segmentWord = isFeminine ? buildSegmentFem(segment) : buildSegmentMasc(segment)
             parts.push(segmentWord + ' ' + ORDINAL_SCALES[scaleIndex - 1])
           }
-        } else {
+        }
+        else {
           // Not the final segment: use cardinal
           const scaleForms = SCALE_FORMS[scaleIndex - 1]
           const scaleWord = pluralize(segment, scaleForms)
@@ -483,7 +490,7 @@ function buildLargeOrdinal (n) {
  * toOrdinal(100)  // 'stoti'
  * toOrdinal(1000) // 'hiljaditi'
  */
-function toOrdinal (value) {
+function toOrdinal(value) {
   const integerPart = parseOrdinalValue(value)
   return integerToOrdinal(integerPart)
 }
@@ -509,7 +516,7 @@ function toOrdinal (value) {
  * toCurrency(0.01)                     // 'jedna para'
  * toCurrency(42.50, { and: false })    // 'četrdeset dva dinara pedeset para'
  */
-function toCurrency (value, options) {
+function toCurrency(value, options) {
   options = validateOptions(options)
   const { isNegative, dollars: dinars, cents: para } = parseCurrencyValue(value)
   const { and: useAnd = true } = options

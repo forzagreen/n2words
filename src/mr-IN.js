@@ -56,7 +56,7 @@ const BELOW_HUNDRED = [
   'साठ', 'एकसष्ठ', 'बासष्ठ', 'त्रेसष्ठ', 'चौसष्ठ', 'पासष्ठ', 'सहासष्ठ', 'सदुसष्ठ', 'अडुसष्ठ', 'एकोणसत्तर',
   'सत्तर', 'एकाहत्तर', 'बाहत्तर', 'त्र्याहत्तर', 'चौऱ्याहत्तर', 'पंच्याहत्तर', 'शहात्तर', 'सत्याहत्तर', 'अठ्ठ्याहत्तर', 'एकोणऐंशी',
   'ऐंशी', 'एक्याऐंशी', 'ब्याऐंशी', 'त्र्याऐंशी', 'चौऱ्याऐंशी', 'पंच्याऐंशी', 'शहाऐंशी', 'सत्याऐंशी', 'अठ्ठ्याऐंशी', 'एकोणनव्वद',
-  'नव्वद', 'एक्याण्णव', 'ब्याण्णव', 'त्र्याण्णव', 'चौऱ्याण्णव', 'पंच्याण्णव', 'शहाण्णव', 'सत्याण्णव', 'अठ्ठ्याण्णव', 'नव्याण्णव'
+  'नव्वद', 'एक्याण्णव', 'ब्याण्णव', 'त्र्याण्णव', 'चौऱ्याण्णव', 'पंच्याण्णव', 'शहाण्णव', 'सत्याण्णव', 'अठ्ठ्याण्णव', 'नव्याण्णव',
 ]
 
 // Scale words: index 0 = units (empty), 1 = thousand, 2 = lakh, 3 = crore, etc.
@@ -72,7 +72,7 @@ const SCALE_WORDS = ['', 'हजार', 'लाख', 'कोटी', 'अब्
  * @param {number} n - Segment value (0-999)
  * @returns {string} Marathi words for the segment
  */
-function buildSegment (n) {
+function buildSegment(n) {
   if (n === 0) return ''
   if (n < 100) return BELOW_HUNDRED[n]
 
@@ -98,7 +98,7 @@ function buildSegment (n) {
  * @param {bigint} n - Non-negative integer to convert
  * @returns {string} Marathi words
  */
-function integerToWords (n) {
+function integerToWords(n) {
   if (n === 0n) return ZERO
 
   // Fast path: numbers < 1000 (direct lookup)
@@ -124,7 +124,8 @@ function integerToWords (n) {
 
     if (i === 0) {
       words.push(buildSegment(segment))
-    } else {
+    }
+    else {
       words.push(BELOW_HUNDRED[segment])
     }
 
@@ -142,7 +143,7 @@ function integerToWords (n) {
  * @param {string} decimalPart - Decimal digit string
  * @returns {string} Marathi words for each digit
  */
-function decimalPartToWords (decimalPart) {
+function decimalPartToWords(decimalPart) {
   // Per-digit decimal reading
   const digits = []
   for (const char of decimalPart) {
@@ -158,7 +159,7 @@ function decimalPartToWords (decimalPart) {
  * @param {number | string | bigint} value - The numeric value to convert
  * @returns {string} The number in Marathi words
  */
-function toCardinal (value) {
+function toCardinal(value) {
   const { isNegative, integerPart, decimalPart } = parseCardinalValue(value)
 
   let result = ''
@@ -188,7 +189,7 @@ function toCardinal (value) {
  * @param {bigint} n - Positive integer to convert
  * @returns {string} Marathi ordinal words
  */
-function integerToOrdinal (n) {
+function integerToOrdinal(n) {
   // Special ordinals for 1-6
   if (n >= 1n && n <= 6n) {
     return ORDINAL_SPECIAL[Number(n)]
@@ -213,7 +214,7 @@ function integerToOrdinal (n) {
  * toOrdinal(3)    // 'तिसरा'
  * toOrdinal(10)   // 'दहावा'
  */
-function toOrdinal (value) {
+function toOrdinal(value) {
   const integerPart = parseOrdinalValue(value)
   return integerToOrdinal(integerPart)
 }
@@ -235,7 +236,7 @@ function toOrdinal (value) {
  * toCurrency(1)      // 'एक रुपया'
  * toCurrency(0.01)   // 'एक पैसा'
  */
-function toCurrency (value) {
+function toCurrency(value) {
   const { isNegative, dollars: rupees, cents: paise } = parseCurrencyValue(value)
 
   // Build result

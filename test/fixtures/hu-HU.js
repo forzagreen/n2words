@@ -72,7 +72,7 @@ export const cardinal = [
   [4_000_000, 'négymillió'],
   [10_000_000_000_000, 'tízbillió'],
   [100_000_000_000_000, 'százbillió'],
-  [1_000_000_000_000_000_000n, 'egytrillió']
+  [1_000_000_000_000_000_000n, 'egytrillió'],
 ]
 
 /**
@@ -109,7 +109,7 @@ export const ordinal = [
 
   // Thousands
   [1000, 'ezredik'],
-  [1001, 'ezeregyedik']
+  [1001, 'ezeregyedik'],
 ]
 
 /**
@@ -148,5 +148,5 @@ export const currency = [
 
   // Edge cases
   [5.00, 'öt forint'],
-  ['5.00', 'öt forint']
+  ['5.00', 'öt forint'],
 ]

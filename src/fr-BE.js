@@ -62,7 +62,7 @@ const CENTIMES = 'centimes'
  * @param {number} n - Segment value (0-999)
  * @returns {{word: string, endsWithCents: boolean, endsWithVingts: boolean}} Segment words and flags
  */
-function buildSegment (n) {
+function buildSegment(n) {
   if (n === 0) return { word: '', endsWithCents: false, endsWithVingts: false }
 
   const tensOnes = n % 100
@@ -76,11 +76,13 @@ function buildSegment (n) {
   if (hundreds > 0) {
     if (hundreds === 1) {
       parts.push(HUNDRED)
-    } else {
+    }
+    else {
       if (tensOnes === 0) {
         parts.push(ONES[hundreds] + ' ' + HUNDRED + 's')
         endsWithCents = true
-      } else {
+      }
+      else {
         parts.push(ONES[hundreds] + ' ' + HUNDRED)
       }
     }
@@ -89,49 +91,63 @@ function buildSegment (n) {
   // Tens and ones - Belgian pattern
   if (tensOnes === 0) {
     // Just hundreds
-  } else if (tensOnes < 10) {
+  }
+  else if (tensOnes < 10) {
     parts.push(ONES[tensOnes])
-  } else if (tensOnes < 17) {
+  }
+  else if (tensOnes < 17) {
     parts.push(TEENS[tensOnes - 10])
-  } else if (tensOnes < 20) {
+  }
+  else if (tensOnes < 20) {
     parts.push(TEENS[tensOnes - 10])
-  } else if (tensOnes < 70) {
+  }
+  else if (tensOnes < 70) {
     // 20-69: standard pattern
     const t = Math.trunc(tensOnes / 10)
     const o = tensOnes % 10
     if (o === 0) {
       parts.push(TENS[t])
-    } else if (o === 1) {
+    }
+    else if (o === 1) {
       parts.push(TENS[t] + ' et ' + ONES[1])
-    } else {
+    }
+    else {
       parts.push(TENS[t] + '-' + ONES[o])
     }
-  } else if (tensOnes < 80) {
+  }
+  else if (tensOnes < 80) {
     // 70-79: septante pattern (Belgian)
     const o = tensOnes % 10
     if (o === 0) {
       parts.push('septante')
-    } else if (o === 1) {
+    }
+    else if (o === 1) {
       parts.push('septante et ' + ONES[1])
-    } else {
+    }
+    else {
       parts.push('septante-' + ONES[o])
     }
-  } else if (tensOnes === 80) {
+  }
+  else if (tensOnes === 80) {
     // 80: quatre-vingts (same as standard)
     parts.push('quatre-vingts')
     endsWithVingts = true
-  } else if (tensOnes < 90) {
+  }
+  else if (tensOnes < 90) {
     // 81-89: quatre-vingt-X (same as standard)
     const remainder = tensOnes - 80
     parts.push('quatre-vingt-' + ONES[remainder])
-  } else {
+  }
+  else {
     // 90-99: nonante pattern (Belgian)
     const o = tensOnes % 10
     if (o === 0) {
       parts.push('nonante')
-    } else if (o === 1) {
+    }
+    else if (o === 1) {
       parts.push('nonante et ' + ONES[1])
-    } else {
+    }
+    else {
       parts.push('nonante-' + ONES[o])
     }
   }
@@ -150,7 +166,7 @@ function buildSegment (n) {
  * @param {bigint} segment - Segment value used to decide pluralization
  * @returns {string} The scale word
  */
-function getScaleWord (scaleIndex, segment) {
+function getScaleWord(scaleIndex, segment) {
   if (scaleIndex === 1) return THOUSAND
 
   if (scaleIndex % 2 === 0) {
@@ -158,7 +174,8 @@ function getScaleWord (scaleIndex, segment) {
     const baseWord = SCALES[arrayIndex]
     if (!baseWord) return ''
     return segment > 1n ? baseWord + 's' : baseWord
-  } else {
+  }
+  else {
     const arrayIndex = ((scaleIndex - 1) / 2) - 1
     const ardWord = SCALES_ARD[arrayIndex]
     if (!ardWord) return THOUSAND
@@ -177,7 +194,7 @@ function getScaleWord (scaleIndex, segment) {
  * @param {boolean} [withHyphen=false] - Use hyphens between words
  * @returns {string} The integer in Belgian French words
  */
-function integerToWords (n, withHyphen = false) {
+function integerToWords(n, withHyphen = false) {
   if (n === 0n) return ZERO
 
   if (n < 1000n) {
@@ -192,7 +209,8 @@ function integerToWords (n, withHyphen = false) {
     let result
     if (thousands === 1) {
       result = THOUSAND
-    } else {
+    }
+    else {
       const { word: thousandsWord, endsWithCents, endsWithVingts } = buildSegment(thousands)
       let adjustedWord = thousandsWord
       if (endsWithCents || endsWithVingts) {
@@ -223,7 +241,7 @@ function integerToWords (n, withHyphen = false) {
  * @param {boolean} withHyphen - Use hyphens between words
  * @returns {string} The integer in Belgian French words
  */
-function buildLargeNumberWords (n, withHyphen) {
+function buildLargeNumberWords(n, withHyphen) {
   const numStr = n.toString()
   const len = numStr.length
 
@@ -253,10 +271,12 @@ function buildLargeNumberWords (n, withHyphen) {
 
       if (scaleIndex === 0) {
         parts.push(segWords)
-      } else if (scaleIndex === 1) {
+      }
+      else if (scaleIndex === 1) {
         if (segment === 1) {
           parts.push(THOUSAND)
-        } else {
+        }
+        else {
           let adjustedWord = segWords
           if (endsWithCents || endsWithVingts) {
             adjustedWord = segWords.slice(0, -1)
@@ -264,7 +284,8 @@ function buildLargeNumberWords (n, withHyphen) {
           parts.push(adjustedWord)
           parts.push(scaleWord)
         }
-      } else {
+      }
+      else {
         parts.push(segWords)
         parts.push(scaleWord)
       }
@@ -290,7 +311,7 @@ function buildLargeNumberWords (n, withHyphen) {
  * @param {boolean} withHyphen - Use hyphens between words
  * @returns {string} The decimal part in Belgian French words
  */
-function decimalPartToWords (decimalPart, withHyphen) {
+function decimalPartToWords(decimalPart, withHyphen) {
   let result = ''
   const sep = withHyphen ? '-' : ' '
 
@@ -318,7 +339,7 @@ function decimalPartToWords (decimalPart, withHyphen) {
  * @param {boolean} [options.withHyphenSeparator=false] - Use hyphens between words
  * @returns {string} The number in Belgian French words
  */
-function toCardinal (value, options) {
+function toCardinal(value, options) {
   options = validateOptions(options)
   const { isNegative, integerPart, decimalPart } = parseCardinalValue(value)
 
@@ -356,7 +377,7 @@ function toCardinal (value, options) {
  * @param {string} cardinalWord - Cardinal word to convert
  * @returns {string} Ordinal form
  */
-function cardinalToOrdinal (cardinalWord) {
+function cardinalToOrdinal(cardinalWord) {
   // Handle special endings
   if (cardinalWord.endsWith('cinq')) {
     // cinq → cinquième (add 'u')
@@ -370,16 +391,16 @@ function cardinalToOrdinal (cardinalWord) {
 
   // Drop plural -s from cents/vingts/millions/etc. (quatre-vingts → quatre-vingtième)
   // Note: "trois", "six" also end in s but that's not a plural
-  if (cardinalWord.endsWith('cents') ||
-      cardinalWord.endsWith('vingts') ||
-      cardinalWord.endsWith('millions') ||
-      cardinalWord.endsWith('milliards') ||
-      cardinalWord.endsWith('billions') ||
-      cardinalWord.endsWith('billiards') ||
-      cardinalWord.endsWith('trillions') ||
-      cardinalWord.endsWith('trilliards') ||
-      cardinalWord.endsWith('quadrillions') ||
-      cardinalWord.endsWith('quadrilliards')) {
+  if (cardinalWord.endsWith('cents')
+    || cardinalWord.endsWith('vingts')
+    || cardinalWord.endsWith('millions')
+    || cardinalWord.endsWith('milliards')
+    || cardinalWord.endsWith('billions')
+    || cardinalWord.endsWith('billiards')
+    || cardinalWord.endsWith('trillions')
+    || cardinalWord.endsWith('trilliards')
+    || cardinalWord.endsWith('quadrillions')
+    || cardinalWord.endsWith('quadrilliards')) {
     return cardinalWord.slice(0, -1) + ORDINAL_SUFFIX
   }
 
@@ -398,7 +419,7 @@ function cardinalToOrdinal (cardinalWord) {
  * @param {bigint} n - Positive integer
  * @returns {string} Belgian French ordinal words
  */
-function integerToOrdinal (n) {
+function integerToOrdinal(n) {
   // Special case: 1 → premier
   if (n === 1n) {
     return PREMIER
@@ -426,7 +447,7 @@ function integerToOrdinal (n) {
  * toOrdinal(70)   // 'septantième'
  * toOrdinal(90)   // 'nonantième'
  */
-function toOrdinal (value) {
+function toOrdinal(value) {
   const integerPart = parseOrdinalValue(value)
   return integerToOrdinal(integerPart)
 }
@@ -452,7 +473,7 @@ function toOrdinal (value) {
  * toCurrency(0.01)                  // 'un centime'
  * toCurrency(42.50, { and: false }) // 'quarante-deux euros cinquante centimes'
  */
-function toCurrency (value, options) {
+function toCurrency(value, options) {
   options = validateOptions(options)
   const { isNegative, dollars: euros, cents: centimes } = parseCurrencyValue(value)
   const { and: useAnd = true } = options

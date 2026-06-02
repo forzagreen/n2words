@@ -96,7 +96,7 @@ export const cardinal = [
   [5_000_000_000_000_000_000_000n, 'pět triliard'],
   [1_000_000_000_000_000_000_000_000n, 'kvadrilion'],
   [2_000_000_000_000_000_000_000_000n, 'dva kvadriliony'],
-  [5_000_000_000_000_000_000_000_000n, 'pět kvadrilionů']
+  [5_000_000_000_000_000_000_000_000n, 'pět kvadrilionů'],
 ]
 
 /**
@@ -148,7 +148,7 @@ export const ordinal = [
 
   // Millions
   [1000000, 'miliontý'],
-  [2000000, 'dva miliontý']
+  [2000000, 'dva miliontý'],
 ]
 
 /**
@@ -192,5 +192,5 @@ export const currency = [
 
   // Edge cases
   [5.00, 'pět korun'],
-  ['5.00', 'pět korun']
+  ['5.00', 'pět korun'],
 ]

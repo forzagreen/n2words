@@ -57,7 +57,7 @@ export const cardinal = [
   [2_000_000, 'dua juta'],
   [12_345_678, 'dua belas juta tiga ratus empat puluh lima ribu enam ratus tujuh puluh lapan'],
   [1_000_000_000, 'sebilion'],
-  [1_000_000_000_000n, 'setrilion']
+  [1_000_000_000_000n, 'setrilion'],
 ]
 
 /**
@@ -102,7 +102,7 @@ export const ordinal = [
   [1001, 'keseribu satu'],
 
   // Millions
-  [1000000, 'kesejuta']
+  [1000000, 'kesejuta'],
 ]
 
 /**
@@ -139,5 +139,5 @@ export const currency = [
 
   // Edge cases
   [5.00, 'lima ringgit'],
-  ['5.00', 'lima ringgit']
+  ['5.00', 'lima ringgit'],
 ]

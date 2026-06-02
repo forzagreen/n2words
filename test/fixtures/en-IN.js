@@ -112,7 +112,7 @@ export const cardinal = [
   [100000000000000n, 'ten neel'],
   [1000000000000000n, 'one padma'],
   [10000000000000000n, 'ten padma'],
-  [100000000000000000n, 'one shankh']
+  [100000000000000000n, 'one shankh'],
 ]
 
 /**
@@ -192,7 +192,7 @@ export const ordinal = [
 
   // Arabs
   [1000000000, 'one arabth'],
-  [1000000001, 'one arab first']
+  [1000000001, 'one arab first'],
 ]
 
 /**
@@ -254,5 +254,5 @@ export const currency = [
   ['0.99', 'ninety-nine paise'],
 
   // BigInt (whole rupees only)
-  [100000000000n, 'one kharab rupees']
+  [100000000000n, 'one kharab rupees'],
 ]

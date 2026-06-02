@@ -43,7 +43,7 @@ const ORDINAL_ONES = {
   6: 'wa sita',
   7: 'wa saba',
   8: 'wa nane',
-  9: 'wa tisa'
+  9: 'wa tisa',
 }
 const ORDINAL_PREFIX = 'wa'
 
@@ -62,7 +62,7 @@ const CENT = 'senti'
  * @param {number} n
  * @returns {string}
  */
-function wordsUnder100 (n) {
+function wordsUnder100(n) {
   if (n < 10) return ONES[n]
   if (n === 10) return TENS[10]
   if (n < 20) {
@@ -79,7 +79,7 @@ function wordsUnder100 (n) {
  * @param {number} n
  * @returns {string}
  */
-function wordsUnder1000 (n) {
+function wordsUnder1000(n) {
   if (n < 100) return wordsUnder100(n)
   if (n === 100) return 'mia moja'
   const hundreds = Math.trunc(n / 100)
@@ -91,7 +91,8 @@ function wordsUnder1000 (n) {
   if (rest > 0) {
     if (rest < 10) {
       parts.push('na ' + ONES[rest])
-    } else {
+    }
+    else {
       parts.push(wordsUnder100(rest))
     }
   }
@@ -103,7 +104,7 @@ function wordsUnder1000 (n) {
  * @param {bigint} n
  * @returns {number[]}
  */
-function extractSegments (n) {
+function extractSegments(n) {
   const segments = []
   let temp = n
   while (temp > 0n) {
@@ -117,7 +118,7 @@ function extractSegments (n) {
  * @param {bigint} n
  * @returns {string}
  */
-function integerToWords (n) {
+function integerToWords(n) {
   if (n === 0n) return ZERO
 
   // segments stored least-significant first: [ones, thousands, millions, ...]
@@ -133,13 +134,16 @@ function integerToWords (n) {
       // Units segment
       if (val < 10 && parts.length > 0) {
         parts.push('na ' + ONES[val])
-      } else if (val === 100 && parts.length > 0) {
+      }
+      else if (val === 100 && parts.length > 0) {
         // In compound numbers (e.g., 1100 -> 'elfu moja mia'), use 'mia' not 'mia moja'
         parts.push('mia')
-      } else {
+      }
+      else {
         parts.push(wordsUnder1000(val))
       }
-    } else {
+    }
+    else {
       // Scale segments: 'elfu moja', 'milioni mbili'
       const unit = (val === 1) ? 'moja' : wordsUnder1000(val)
       parts.push(SCALE_WORDS[scaleIndex] + ' ' + unit)
@@ -153,7 +157,7 @@ function integerToWords (n) {
  * @param {string} decimalPart
  * @returns {string}
  */
-function decimalPartToWords (decimalPart) {
+function decimalPartToWords(decimalPart) {
   let result = ''
   let i = 0
 
@@ -178,7 +182,7 @@ function decimalPartToWords (decimalPart) {
  * @param {number | string | bigint} value - The numeric value to convert
  * @returns {string} The number in Swahili words
  */
-function toCardinal (value) {
+function toCardinal(value) {
   const { isNegative, integerPart, decimalPart } = parseCardinalValue(value)
 
   let result = ''
@@ -208,7 +212,7 @@ function toCardinal (value) {
  * @param {bigint} n - Positive integer to convert
  * @returns {string} Swahili ordinal words
  */
-function integerToOrdinal (n) {
+function integerToOrdinal(n) {
   // Special forms for 1-9
   if (n >= 1n && n <= 9n) {
     return ORDINAL_ONES[Number(n)]
@@ -231,7 +235,7 @@ function integerToOrdinal (n) {
  * toOrdinal(2)    // 'wa pili'
  * toOrdinal(10)   // 'wa kumi'
  */
-function toOrdinal (value) {
+function toOrdinal(value) {
   const integerPart = parseOrdinalValue(value)
   return integerToOrdinal(integerPart)
 }
@@ -255,7 +259,7 @@ function toOrdinal (value) {
  * toCurrency(1.50)   // 'shilingi moja na senti hamsini'
  * toCurrency(-5)     // 'minus shilingi tano'
  */
-function toCurrency (value) {
+function toCurrency(value) {
   const { isNegative, dollars: shillings, cents: senti } = parseCurrencyValue(value)
 
   let result = ''

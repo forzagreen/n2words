@@ -40,7 +40,7 @@ const SCALES = [
   '阿僧祇', // 10^56 (asōgi)
   '那由他', // 10^60 (nayuta)
   '不可思議', // 10^64 (fukashigi)
-  '無量大数' // 10^68 (muryōtaisū)
+  '無量大数', // 10^68 (muryōtaisū)
 ]
 
 const ZERO = '零'
@@ -80,7 +80,7 @@ const THOUSAND = '千'
  * @param {number} n - Segment value (0-9999)
  * @returns {string} Japanese kanji words for the segment
  */
-function buildSegment (n) {
+function buildSegment(n) {
   if (n === 0) return ''
 
   const ones = n % 10
@@ -94,7 +94,8 @@ function buildSegment (n) {
   if (thousands > 0) {
     if (thousands === 1) {
       result += THOUSAND
-    } else {
+    }
+    else {
       result += ONES[thousands] + THOUSAND
     }
   }
@@ -103,7 +104,8 @@ function buildSegment (n) {
   if (hundreds > 0) {
     if (hundreds === 1) {
       result += HUNDRED
-    } else {
+    }
+    else {
       result += ONES[hundreds] + HUNDRED
     }
   }
@@ -112,7 +114,8 @@ function buildSegment (n) {
   if (tens > 0) {
     if (tens === 1) {
       result += TEN
-    } else {
+    }
+    else {
       result += ONES[tens] + TEN
     }
   }
@@ -135,7 +138,7 @@ function buildSegment (n) {
  * @param {bigint} n - Non-negative integer to convert
  * @returns {string} Japanese kanji words
  */
-function integerToWords (n) {
+function integerToWords(n) {
   if (n === 0n) return ZERO
 
   // Fast path: numbers < 10000
@@ -152,7 +155,8 @@ function integerToWords (n) {
     let result
     if (man === 1) {
       result = '一' + SCALES[0] // 一万
-    } else {
+    }
+    else {
       result = buildSegment(man) + SCALES[0]
     }
 
@@ -174,7 +178,7 @@ function integerToWords (n) {
  * @param {bigint} n - Number >= 100,000,000
  * @returns {string} Japanese kanji words
  */
-function buildLargeNumberWords (n) {
+function buildLargeNumberWords(n) {
   // Extract segments using BigInt modulo (faster than string slicing)
   // Segments stored least-significant first (index 0 = units, 1 = 万, etc.)
   const segments = []
@@ -195,10 +199,12 @@ function buildLargeNumberWords (n) {
       // For scales >= 万, we need 一 before scale word when segment is 1
       if (segment === 1) {
         result += '一' + SCALES[i - 1]
-      } else {
+      }
+      else {
         result += buildSegment(segment) + SCALES[i - 1]
       }
-    } else {
+    }
+    else {
       // Units segment (no scale word)
       result += buildSegment(segment)
     }
@@ -213,14 +219,15 @@ function buildLargeNumberWords (n) {
  * @param {string} decimalPart - Decimal digits (without the point)
  * @returns {string} Japanese kanji words for decimal part
  */
-function decimalPartToWords (decimalPart) {
+function decimalPartToWords(decimalPart) {
   let result = ''
 
   for (let i = 0; i < decimalPart.length; i++) {
     const digit = parseInt(decimalPart[i], 10)
     if (digit === 0) {
       result += ZERO
-    } else {
+    }
+    else {
       result += ONES[digit]
     }
   }
@@ -244,7 +251,7 @@ function decimalPartToWords (decimalPart) {
  * toCardinal(10000)        // '一万'
  * toCardinal(100000000)    // '一億'
  */
-function toCardinal (value) {
+function toCardinal(value) {
   const { isNegative, integerPart, decimalPart } = parseCardinalValue(value)
 
   let result = ''
@@ -274,7 +281,7 @@ function toCardinal (value) {
  * @param {bigint} n - Positive integer to convert
  * @returns {string} Japanese ordinal words
  */
-function integerToOrdinal (n) {
+function integerToOrdinal(n) {
   return ORDINAL_PREFIX + integerToWords(n)
 }
 
@@ -291,7 +298,7 @@ function integerToOrdinal (n) {
  * toOrdinal(10)   // '第十'
  * toOrdinal(100)  // '第百'
  */
-function toOrdinal (value) {
+function toOrdinal(value) {
   const integerPart = parseOrdinalValue(value)
   return integerToOrdinal(integerPart)
 }
@@ -317,7 +324,7 @@ function toOrdinal (value) {
  * toCurrency(0.50)   // '五十銭'
  * toCurrency(42.50)  // '四十二円五十銭'
  */
-function toCurrency (value) {
+function toCurrency(value) {
   const { isNegative, dollars: yen, cents: sen } = parseCurrencyValue(value)
 
   // Build result

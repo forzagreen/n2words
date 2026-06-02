@@ -72,7 +72,7 @@ export const cardinal = [
   [4_000_000, 'bốn triệu'],
   [10_000_000_000_000, 'mười nghìn tỷ'],
   [100_000_000_000_000, 'một trăm nghìn tỷ'],
-  [1_000_000_000_000_000_000n, 'một Quintillion']
+  [1_000_000_000_000_000_000n, 'một Quintillion'],
 ]
 
 /**
@@ -119,7 +119,7 @@ export const ordinal = [
   [1001, 'thứ một nghìn lẻ một'],
 
   // Millions
-  [1000000, 'thứ một triệu']
+  [1000000, 'thứ một triệu'],
 ]
 
 /**
@@ -151,5 +151,5 @@ export const currency = [
 
   // Edge cases (decimals rounded)
   [5.00, 'năm đồng'],
-  ['5.00', 'năm đồng']
+  ['5.00', 'năm đồng'],
 ]

@@ -20,10 +20,11 @@
  * isValidLanguageCode('zh-Hans-CN')  // true
  * isValidLanguageCode('invalid')  // false
  */
-export function isValidLanguageCode (code) {
+export function isValidLanguageCode(code) {
   try {
     return Intl.getCanonicalLocales(code).length > 0
-  } catch {
+  }
+  catch {
     return false
   }
 }
@@ -38,11 +39,12 @@ export function isValidLanguageCode (code) {
  * getCanonicalCode('zh-hans-cn')  // 'zh-Hans-CN' (case-corrected)
  * getCanonicalCode('invalid')  // null
  */
-export function getCanonicalCode (code) {
+export function getCanonicalCode(code) {
   try {
     const canonical = Intl.getCanonicalLocales(code)
     return canonical.length > 0 ? canonical[0] : null
-  } catch {
+  }
+  catch {
     return null
   }
 }
@@ -58,7 +60,7 @@ export function getCanonicalCode (code) {
  * normalizeCode('zh-Hans-CN')  // 'zhHansCN'
  * normalizeCode('fr-BE')       // 'frBE'
  */
-export function normalizeCode (code) {
+export function normalizeCode(code) {
   return code.replace(/-([a-zA-Z])/g, (_, letter) => letter.toUpperCase())
 }
 
@@ -76,13 +78,14 @@ export function normalizeCode (code) {
  * getLanguageName('zh-Hans-CN')  // 'Simplified Chinese (China)'
  * getLanguageName('hbo')      // null (not in CLDR)
  */
-export function getLanguageName (code) {
+export function getLanguageName(code) {
   try {
     const displayNames = new Intl.DisplayNames(['en'], { type: 'language' })
     const name = displayNames.of(code)
     // Intl.DisplayNames returns the code itself if not found
     return name && name !== code ? name : null
-  } catch {
+  }
+  catch {
     return null
   }
 }
@@ -99,6 +102,6 @@ export function getLanguageName (code) {
  * isInCLDR('en')   // true
  * isInCLDR('hbo')  // false (valid BCP 47 but not in CLDR)
  */
-export function isInCLDR (code) {
+export function isInCLDR(code) {
   return getLanguageName(code) !== null
 }

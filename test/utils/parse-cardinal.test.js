@@ -18,17 +18,17 @@ import { parseCardinalValue } from '../../src/utils/parse-cardinal.js'
 // Valid Types (number, string, bigint)
 // ============================================================================
 
-test('accepts number type', t => {
+test('accepts number type', (t) => {
   const result = parseCardinalValue(42)
   t.deepEqual(result, { isNegative: false, integerPart: 42n })
 })
 
-test('accepts string type', t => {
+test('accepts string type', (t) => {
   const result = parseCardinalValue('42')
   t.deepEqual(result, { isNegative: false, integerPart: 42n })
 })
 
-test('accepts bigint type', t => {
+test('accepts bigint type', (t) => {
   const result = parseCardinalValue(42n)
   t.deepEqual(result, { isNegative: false, integerPart: 42n })
 })
@@ -37,114 +37,114 @@ test('accepts bigint type', t => {
 // Invalid Types - Must Reject Everything Except number, string, bigint
 // ============================================================================
 
-test('rejects null', t => {
+test('rejects null', (t) => {
   const error = t.throws(() => parseCardinalValue(null), { instanceOf: TypeError })
   t.regex(error.message, /Invalid value type/)
 })
 
-test('rejects undefined', t => {
+test('rejects undefined', (t) => {
   const error = t.throws(() => parseCardinalValue(undefined), { instanceOf: TypeError })
   t.regex(error.message, /Invalid value type/)
 })
 
-test('rejects boolean true', t => {
+test('rejects boolean true', (t) => {
   const error = t.throws(() => parseCardinalValue(true), { instanceOf: TypeError })
   t.regex(error.message, /Invalid value type/)
 })
 
-test('rejects boolean false', t => {
+test('rejects boolean false', (t) => {
   const error = t.throws(() => parseCardinalValue(false), { instanceOf: TypeError })
   t.regex(error.message, /Invalid value type/)
 })
 
-test('rejects plain object', t => {
+test('rejects plain object', (t) => {
   const error = t.throws(() => parseCardinalValue({}), { instanceOf: TypeError })
   t.regex(error.message, /Invalid value type/)
 })
 
-test('rejects object with valueOf', t => {
+test('rejects object with valueOf', (t) => {
   // Objects with valueOf should NOT be auto-converted
   const error = t.throws(() => parseCardinalValue({ valueOf: () => 42 }), { instanceOf: TypeError })
   t.regex(error.message, /Invalid value type/)
 })
 
-test('rejects object with toString', t => {
+test('rejects object with toString', (t) => {
   // Objects with toString should NOT be auto-converted
   const error = t.throws(() => parseCardinalValue({ toString: () => '42' }), { instanceOf: TypeError })
   t.regex(error.message, /Invalid value type/)
 })
 
-test('rejects array', t => {
+test('rejects array', (t) => {
   const error = t.throws(() => parseCardinalValue([42]), { instanceOf: TypeError })
   t.regex(error.message, /Invalid value type/)
 })
 
-test('rejects empty array', t => {
+test('rejects empty array', (t) => {
   const error = t.throws(() => parseCardinalValue([]), { instanceOf: TypeError })
   t.regex(error.message, /Invalid value type/)
 })
 
-test('rejects symbol', t => {
+test('rejects symbol', (t) => {
   const error = t.throws(() => parseCardinalValue(Symbol('test')), { instanceOf: TypeError })
   t.regex(error.message, /Invalid value type/)
 })
 
-test('rejects function', t => {
+test('rejects function', (t) => {
   const error = t.throws(() => parseCardinalValue(() => 42), { instanceOf: TypeError })
   t.regex(error.message, /Invalid value type/)
 })
 
-test('rejects arrow function', t => {
+test('rejects arrow function', (t) => {
   const error = t.throws(() => parseCardinalValue(() => {}), { instanceOf: TypeError })
   t.regex(error.message, /Invalid value type/)
 })
 
-test('rejects Date object', t => {
+test('rejects Date object', (t) => {
   const error = t.throws(() => parseCardinalValue(new Date()), { instanceOf: TypeError })
   t.regex(error.message, /Invalid value type/)
 })
 
-test('rejects RegExp', t => {
+test('rejects RegExp', (t) => {
   const error = t.throws(() => parseCardinalValue(/\d+/), { instanceOf: TypeError })
   t.regex(error.message, /Invalid value type/)
 })
 
-test('rejects Map', t => {
+test('rejects Map', (t) => {
   const error = t.throws(() => parseCardinalValue(new Map()), { instanceOf: TypeError })
   t.regex(error.message, /Invalid value type/)
 })
 
-test('rejects Set', t => {
+test('rejects Set', (t) => {
   const error = t.throws(() => parseCardinalValue(new Set()), { instanceOf: TypeError })
   t.regex(error.message, /Invalid value type/)
 })
 
-test('rejects Error object', t => {
+test('rejects Error object', (t) => {
   const error = t.throws(() => parseCardinalValue(new Error('test')), { instanceOf: TypeError })
   t.regex(error.message, /Invalid value type/)
 })
 
-test('rejects Promise', t => {
+test('rejects Promise', (t) => {
   const error = t.throws(() => parseCardinalValue(Promise.resolve(42)), { instanceOf: TypeError })
   t.regex(error.message, /Invalid value type/)
 })
 
-test('rejects Number object wrapper', t => {
+test('rejects Number object wrapper', (t) => {
   // new Number(42) is an object, not a primitive number
-  const error = t.throws(() => parseCardinalValue(new Number(42)), { instanceOf: TypeError }) // eslint-disable-line no-new-wrappers
+  const error = t.throws(() => parseCardinalValue(new Number(42)), { instanceOf: TypeError })
   t.regex(error.message, /Invalid value type/)
 })
 
-test('rejects String object wrapper', t => {
+test('rejects String object wrapper', (t) => {
   // new String('42') is an object, not a primitive string
-  const error = t.throws(() => parseCardinalValue(new String('42')), { instanceOf: TypeError }) // eslint-disable-line no-new-wrappers
+  const error = t.throws(() => parseCardinalValue(new String('42')), { instanceOf: TypeError })
   t.regex(error.message, /Invalid value type/)
 })
 
-test('rejects class instance', t => {
+test('rejects class instance', (t) => {
   class MyNumber {
-    constructor (value) { this.value = value }
-    valueOf () { return this.value }
+    constructor(value) { this.value = value }
+    valueOf() { return this.value }
   }
   const error = t.throws(() => parseCardinalValue(new MyNumber(42)), { instanceOf: TypeError })
   t.regex(error.message, /Invalid value type/)
@@ -154,17 +154,17 @@ test('rejects class instance', t => {
 // Invalid Number Values (NaN, Infinity)
 // ============================================================================
 
-test('rejects NaN', t => {
+test('rejects NaN', (t) => {
   const error = t.throws(() => parseCardinalValue(NaN), { instanceOf: RangeError })
   t.is(error.message, 'Number must be finite (NaN and Infinity are not supported)')
 })
 
-test('rejects Infinity', t => {
+test('rejects Infinity', (t) => {
   const error = t.throws(() => parseCardinalValue(Infinity), { instanceOf: RangeError })
   t.is(error.message, 'Number must be finite (NaN and Infinity are not supported)')
 })
 
-test('rejects negative Infinity', t => {
+test('rejects negative Infinity', (t) => {
   const error = t.throws(() => parseCardinalValue(-Infinity), { instanceOf: RangeError })
   t.is(error.message, 'Number must be finite (NaN and Infinity are not supported)')
 })
@@ -173,39 +173,39 @@ test('rejects negative Infinity', t => {
 // Invalid String Values
 // ============================================================================
 
-test('rejects empty string', t => {
+test('rejects empty string', (t) => {
   const error = t.throws(() => parseCardinalValue(''), { instanceOf: RangeError })
   t.is(error.message, 'Invalid number format: ""')
 })
 
-test('rejects whitespace-only string', t => {
+test('rejects whitespace-only string', (t) => {
   const error = t.throws(() => parseCardinalValue('   '), { instanceOf: RangeError })
   t.is(error.message, 'Invalid number format: "   "')
 })
 
-test('rejects non-numeric string', t => {
+test('rejects non-numeric string', (t) => {
   const error = t.throws(() => parseCardinalValue('abc'), { instanceOf: RangeError })
   t.is(error.message, 'Invalid number format: "abc"')
 })
 
-test('rejects string with letters mixed in', t => {
+test('rejects string with letters mixed in', (t) => {
   const error = t.throws(() => parseCardinalValue('12abc34'), { instanceOf: RangeError })
   t.is(error.message, 'Invalid number format: "12abc34"')
 })
 
-test('accepts hex string (parsed via Number)', t => {
+test('accepts hex string (parsed via Number)', (t) => {
   // 0xFF = 255 in decimal
   const result = parseCardinalValue('0xFF')
   t.deepEqual(result, { isNegative: false, integerPart: 255n })
 })
 
-test('accepts binary string (parsed via Number)', t => {
+test('accepts binary string (parsed via Number)', (t) => {
   // 0b101 = 5 in decimal
   const result = parseCardinalValue('0b101')
   t.deepEqual(result, { isNegative: false, integerPart: 5n })
 })
 
-test('accepts octal string (parsed via Number)', t => {
+test('accepts octal string (parsed via Number)', (t) => {
   // 0o777 = 511 in decimal
   const result = parseCardinalValue('0o777')
   t.deepEqual(result, { isNegative: false, integerPart: 511n })
@@ -215,12 +215,12 @@ test('accepts octal string (parsed via Number)', t => {
 // Valid String Parsing
 // ============================================================================
 
-test('trims whitespace from string', t => {
+test('trims whitespace from string', (t) => {
   const result = parseCardinalValue('  42  ')
   t.deepEqual(result, { isNegative: false, integerPart: 42n })
 })
 
-test('handles string with leading zeros', t => {
+test('handles string with leading zeros', (t) => {
   const result = parseCardinalValue('00042')
   t.deepEqual(result, { isNegative: false, integerPart: 42n })
 })
@@ -229,22 +229,22 @@ test('handles string with leading zeros', t => {
 // Negative Number Parsing
 // ============================================================================
 
-test('parses negative number', t => {
+test('parses negative number', (t) => {
   const result = parseCardinalValue(-42)
   t.deepEqual(result, { isNegative: true, integerPart: 42n })
 })
 
-test('parses negative string', t => {
+test('parses negative string', (t) => {
   const result = parseCardinalValue('-42')
   t.deepEqual(result, { isNegative: true, integerPart: 42n })
 })
 
-test('parses negative bigint', t => {
+test('parses negative bigint', (t) => {
   const result = parseCardinalValue(-42n)
   t.deepEqual(result, { isNegative: true, integerPart: 42n })
 })
 
-test('handles negative zero as zero', t => {
+test('handles negative zero as zero', (t) => {
   const result = parseCardinalValue(-0)
   t.is(result.isNegative, false)
   t.is(result.integerPart, 0n)
@@ -254,49 +254,49 @@ test('handles negative zero as zero', t => {
 // Decimal Parsing
 // ============================================================================
 
-test('parses decimal number', t => {
+test('parses decimal number', (t) => {
   const result = parseCardinalValue(3.14)
   t.is(result.isNegative, false)
   t.is(result.integerPart, 3n)
   t.is(result.decimalPart, '14')
 })
 
-test('parses decimal string', t => {
+test('parses decimal string', (t) => {
   const result = parseCardinalValue('3.14')
   t.is(result.isNegative, false)
   t.is(result.integerPart, 3n)
   t.is(result.decimalPart, '14')
 })
 
-test('parses negative decimal', t => {
+test('parses negative decimal', (t) => {
   const result = parseCardinalValue(-3.14)
   t.is(result.isNegative, true)
   t.is(result.integerPart, 3n)
   t.is(result.decimalPart, '14')
 })
 
-test('parses decimal less than 1', t => {
+test('parses decimal less than 1', (t) => {
   const result = parseCardinalValue(0.5)
   t.is(result.isNegative, false)
   t.is(result.integerPart, 0n)
   t.is(result.decimalPart, '5')
 })
 
-test('parses string with trailing decimal', t => {
+test('parses string with trailing decimal', (t) => {
   const result = parseCardinalValue('42.')
   t.is(result.isNegative, false)
   t.is(result.integerPart, 42n)
   t.is(result.decimalPart, '')
 })
 
-test('parses string with decimal zeros', t => {
+test('parses string with decimal zeros', (t) => {
   const result = parseCardinalValue('42.00')
   t.is(result.isNegative, false)
   t.is(result.integerPart, 42n)
   t.is(result.decimalPart, '00')
 })
 
-test('handles very small decimals', t => {
+test('handles very small decimals', (t) => {
   const result = parseCardinalValue(0.000001)
   t.is(result.isNegative, false)
   t.is(result.integerPart, 0n)
@@ -307,53 +307,53 @@ test('handles very small decimals', t => {
 // Scientific Notation
 // ============================================================================
 
-test('expands positive scientific notation', t => {
+test('expands positive scientific notation', (t) => {
   const result = parseCardinalValue(1e21)
   t.is(result.isNegative, false)
   t.is(result.integerPart, 1000000000000000000000n)
   t.is(result.decimalPart, undefined)
 })
 
-test('expands scientific notation string', t => {
+test('expands scientific notation string', (t) => {
   const result = parseCardinalValue('1e21')
   t.is(result.isNegative, false)
   t.is(result.integerPart, 1000000000000000000000n)
 })
 
-test('expands uppercase E notation', t => {
+test('expands uppercase E notation', (t) => {
   const result = parseCardinalValue('1E21')
   t.is(result.isNegative, false)
   t.is(result.integerPart, 1000000000000000000000n)
 })
 
-test('expands negative exponent to decimal', t => {
+test('expands negative exponent to decimal', (t) => {
   const result = parseCardinalValue(1e-3)
   t.is(result.isNegative, false)
   t.is(result.integerPart, 0n)
   t.is(result.decimalPart, '001')
 })
 
-test('expands scientific with decimal mantissa', t => {
+test('expands scientific with decimal mantissa', (t) => {
   const result = parseCardinalValue('1.5e3')
   t.is(result.isNegative, false)
   t.is(result.integerPart, 1500n)
   t.is(result.decimalPart, undefined)
 })
 
-test('handles negative scientific notation', t => {
+test('handles negative scientific notation', (t) => {
   const result = parseCardinalValue(-1e21)
   t.is(result.isNegative, true)
   t.is(result.integerPart, 1000000000000000000000n)
 })
 
-test('handles negative number with negative exponent', t => {
+test('handles negative number with negative exponent', (t) => {
   const result = parseCardinalValue(-1e-7)
   t.is(result.isNegative, true)
   t.is(result.integerPart, 0n)
   t.is(result.decimalPart, '0000001')
 })
 
-test('handles negative string with negative exponent', t => {
+test('handles negative string with negative exponent', (t) => {
   const result = parseCardinalValue('-1.5e-3')
   t.is(result.isNegative, true)
   t.is(result.integerPart, 0n)
@@ -364,26 +364,26 @@ test('handles negative string with negative exponent', t => {
 // Large Number Handling
 // ============================================================================
 
-test('handles MAX_SAFE_INTEGER', t => {
+test('handles MAX_SAFE_INTEGER', (t) => {
   const result = parseCardinalValue(Number.MAX_SAFE_INTEGER)
   t.is(result.isNegative, false)
   t.is(result.integerPart, BigInt(Number.MAX_SAFE_INTEGER))
 })
 
-test('handles MIN_SAFE_INTEGER', t => {
+test('handles MIN_SAFE_INTEGER', (t) => {
   const result = parseCardinalValue(Number.MIN_SAFE_INTEGER)
   t.is(result.isNegative, true)
   t.is(result.integerPart, BigInt(-Number.MIN_SAFE_INTEGER))
 })
 
-test('handles large bigint', t => {
+test('handles large bigint', (t) => {
   const large = 123456789012345678901234567890n
   const result = parseCardinalValue(large)
   t.is(result.isNegative, false)
   t.is(result.integerPart, large)
 })
 
-test('handles negative large bigint', t => {
+test('handles negative large bigint', (t) => {
   const large = -123456789012345678901234567890n
   const result = parseCardinalValue(large)
   t.is(result.isNegative, true)
@@ -394,33 +394,33 @@ test('handles negative large bigint', t => {
 // Edge Cases
 // ============================================================================
 
-test('parses zero', t => {
+test('parses zero', (t) => {
   t.deepEqual(parseCardinalValue(0), { isNegative: false, integerPart: 0n })
   t.deepEqual(parseCardinalValue('0'), { isNegative: false, integerPart: 0n })
   t.deepEqual(parseCardinalValue(0n), { isNegative: false, integerPart: 0n })
 })
 
-test('parses one', t => {
+test('parses one', (t) => {
   t.deepEqual(parseCardinalValue(1), { isNegative: false, integerPart: 1n })
   t.deepEqual(parseCardinalValue('1'), { isNegative: false, integerPart: 1n })
   t.deepEqual(parseCardinalValue(1n), { isNegative: false, integerPart: 1n })
 })
 
-test('handles shorthand decimal notation', t => {
+test('handles shorthand decimal notation', (t) => {
   const result = parseCardinalValue('-.5')
   t.is(result.isNegative, true)
   t.is(result.integerPart, 0n)
   t.is(result.decimalPart, '5')
 })
 
-test('handles leading dot notation', t => {
+test('handles leading dot notation', (t) => {
   const result = parseCardinalValue('.5')
   t.is(result.isNegative, false)
   t.is(result.integerPart, 0n)
   t.is(result.decimalPart, '5')
 })
 
-test('preserves decimal precision', t => {
+test('preserves decimal precision', (t) => {
   const result = parseCardinalValue(3.141592653589793)
   t.is(result.integerPart, 3n)
   t.true(result.decimalPart.startsWith('14159265358979'))

@@ -63,7 +63,7 @@ const SCALE_WORDS = ['', THOUSAND, 'miliyon', 'billiyon']
  * @param {number} n - Segment value (0-999)
  * @returns {string} The segment in Amharic (Latin) words
  */
-function buildSegment (n) {
+function buildSegment(n) {
   if (n === 0) return ''
 
   const ones = n % 10
@@ -79,7 +79,8 @@ function buildSegment (n) {
 
   if (tensDigit === 1) {
     parts.push(TEENS[ones])
-  } else {
+  }
+  else {
     if (tensDigit > 1) {
       parts.push(TENS[tensDigit])
     }
@@ -101,7 +102,7 @@ function buildSegment (n) {
  * @param {bigint} n - Non-negative integer to convert
  * @returns {string} The integer in Amharic (Latin) words
  */
-function integerToWords (n) {
+function integerToWords(n) {
   if (n === 0n) return ZERO
 
   if (n < 1000n) {
@@ -117,7 +118,7 @@ function integerToWords (n) {
  * @param {bigint} n - Integer of 1000 or greater
  * @returns {string} The number in Amharic (Latin) words
  */
-function buildLargeNumberWords (n) {
+function buildLargeNumberWords(n) {
   const numStr = n.toString()
   const len = numStr.length
 
@@ -146,7 +147,8 @@ function buildLargeNumberWords (n) {
 
       if (scaleIndex === 0) {
         parts.push(buildSegment(segment))
-      } else {
+      }
+      else {
         parts.push(buildSegment(segment) + ' ' + scaleWord)
       }
     }
@@ -163,7 +165,7 @@ function buildLargeNumberWords (n) {
  * @param {string} decimalPart - The fractional digits as a string
  * @returns {string} The decimal digits in Amharic (Latin) words
  */
-function decimalPartToWords (decimalPart) {
+function decimalPartToWords(decimalPart) {
   // Per-digit decimal reading
   const digits = []
   for (const char of decimalPart) {
@@ -179,7 +181,7 @@ function decimalPartToWords (decimalPart) {
  * @param {number | string | bigint} value - The numeric value to convert
  * @returns {string} The number in Amharic Latin words
  */
-function toCardinal (value) {
+function toCardinal(value) {
   const { isNegative, integerPart, decimalPart } = parseCardinalValue(value)
 
   let result = ''
@@ -210,7 +212,7 @@ function toCardinal (value) {
  * @param {bigint} n - Positive integer to convert
  * @returns {string} Amharic (Latin) ordinal words
  */
-function integerToOrdinal (n) {
+function integerToOrdinal(n) {
   // Special case: 1 → andenya
   if (n === 1n) {
     return FIRST
@@ -234,7 +236,7 @@ function integerToOrdinal (n) {
  * toOrdinal(2)    // 'huletnya'
  * toOrdinal(10)   // 'asirnya'
  */
-function toOrdinal (value) {
+function toOrdinal(value) {
   const integerPart = parseOrdinalValue(value)
   return integerToOrdinal(integerPart)
 }
@@ -256,7 +258,7 @@ function toOrdinal (value) {
  * toCurrency(1)      // 'and birr'
  * toCurrency(0.01)   // 'and santim'
  */
-function toCurrency (value) {
+function toCurrency(value) {
   const { isNegative, dollars: birr, cents: santim } = parseCurrencyValue(value)
 
   // Build result

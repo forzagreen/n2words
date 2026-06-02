@@ -115,7 +115,7 @@ export const cardinal = [
   [1_000_000_000_001, 'bir trilyon bir'],
   [10_000_000_000_000, 'on trilyon'],
   [100_000_000_000_000, 'yüz trilyon'],
-  [1_000_000_000_000_000_000n, 'bir kentilyon']
+  [1_000_000_000_000_000_000n, 'bir kentilyon'],
 ]
 
 /**
@@ -152,7 +152,7 @@ export const ordinal = [
 
   // Thousands
   [1000, 'bininci'],
-  [1001, 'binbirinci']
+  [1001, 'binbirinci'],
 ]
 
 /**
@@ -191,5 +191,5 @@ export const currency = [
 
   // Edge cases
   [5.00, 'beş lira'],
-  ['5.00', 'beş lira']
+  ['5.00', 'beş lira'],
 ]

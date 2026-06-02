@@ -55,7 +55,7 @@ const BELOW_HUNDRED = [
   'అరవై', 'అరవై ఒకటి', 'అరవై రెండు', 'అరవై మూడు', 'అరవై నాలుగు', 'అరవై ఐదు', 'అరవై ఆరు', 'అరవై ఏడు', 'అరవై ఎనిమిది', 'అరవై తొమ్మిది',
   'డెబ్బై', 'డెబ్బై ఒకటి', 'డెబ్బై రెండు', 'డెబ్బై మూడు', 'డెబ్బై నాలుగు', 'డెబ్బై ఐదు', 'డెబ్బై ఆరు', 'డెబ్బై ఏడు', 'డెబ్బై ఎనిమిది', 'డెబ్బై తొమ్మిది',
   'ఎనభై', 'ఎనభై ఒకటి', 'ఎనభై రెండు', 'ఎనభై మూడు', 'ఎనభై నాలుగు', 'ఎనభై ఐదు', 'ఎనభై ఆరు', 'ఎనభై ఏడు', 'ఎనభై ఎనిమిది', 'ఎనభై తొమ్మిది',
-  'తొంభై', 'తొంభై ఒకటి', 'తొంభై రెండు', 'తొంభై మూడు', 'తొంభై నాలుగు', 'తొంభై ఐదు', 'తొంభై ఆరు', 'తొంభై ఏడు', 'తొంభై ఎనిమిది', 'తొంభై తొమ్మిది'
+  'తొంభై', 'తొంభై ఒకటి', 'తొంభై రెండు', 'తొంభై మూడు', 'తొంభై నాలుగు', 'తొంభై ఐదు', 'తొంభై ఆరు', 'తొంభై ఏడు', 'తొంభై ఎనిమిది', 'తొంభై తొమ్మిది',
 ]
 
 const HUNDREDS = ['', 'వంద', 'రెండు వందలు', 'మూడు వందలు', 'నాలుగు వందలు', 'ఐదు వందలు', 'ఆరు వందలు', 'ఏడు వందలు', 'ఎనిమిది వందలు', 'తొమ్మిది వందలు']
@@ -76,7 +76,7 @@ const SCALE_WORDS = ['', 'వెయ్యి', 'లక్ష', 'కోటి', '
  * @param {number} n - Segment value (0-999)
  * @returns {string} Telugu words for the segment
  */
-function buildSegment (n) {
+function buildSegment(n) {
   if (n === 0) return ''
   if (n < 100) return BELOW_HUNDRED[n]
 
@@ -102,7 +102,7 @@ function buildSegment (n) {
  * @param {bigint} n - Non-negative integer to convert
  * @returns {string} Telugu words
  */
-function integerToWords (n) {
+function integerToWords(n) {
   if (n === 0n) return ZERO
 
   // Fast path: numbers < 1000 (direct lookup)
@@ -128,7 +128,8 @@ function integerToWords (n) {
 
     if (i === 0) {
       words.push(buildSegment(segment))
-    } else {
+    }
+    else {
       // Use 'ఒక' for 1 at scale positions
       const groupWords = (segment === 1) ? 'ఒక' : BELOW_HUNDRED[segment]
       words.push(groupWords)
@@ -148,7 +149,7 @@ function integerToWords (n) {
  * @param {string} decimalPart - Fractional digits as a string
  * @returns {string} Telugu words for each digit
  */
-function decimalPartToWords (decimalPart) {
+function decimalPartToWords(decimalPart) {
   // Per-digit decimal reading
   const digits = []
   for (const char of decimalPart) {
@@ -164,7 +165,7 @@ function decimalPartToWords (decimalPart) {
  * @param {number | string | bigint} value - The numeric value to convert
  * @returns {string} The number in Telugu words
  */
-function toCardinal (value) {
+function toCardinal(value) {
   const { isNegative, integerPart, decimalPart } = parseCardinalValue(value)
 
   let result = ''
@@ -194,7 +195,7 @@ function toCardinal (value) {
  * @param {bigint} n - Positive integer to convert
  * @returns {string} Telugu ordinal words
  */
-function integerToOrdinal (n) {
+function integerToOrdinal(n) {
   // Special ordinals for 1-6
   if (n >= 1n && n <= 6n) {
     return ORDINAL_SPECIAL[Number(n)]
@@ -218,7 +219,7 @@ function integerToOrdinal (n) {
  * toOrdinal(2)    // 'రెండవ'
  * toOrdinal(10)   // 'పదివ'
  */
-function toOrdinal (value) {
+function toOrdinal(value) {
   const integerPart = parseOrdinalValue(value)
   return integerToOrdinal(integerPart)
 }
@@ -240,7 +241,7 @@ function toOrdinal (value) {
  * toCurrency(1)      // 'ఒకటి రూపాయి'
  * toCurrency(0.01)   // 'ఒకటి పైసా'
  */
-function toCurrency (value) {
+function toCurrency(value) {
   const { isNegative, dollars: rupees, cents: paise } = parseCurrencyValue(value)
 
   // Build result

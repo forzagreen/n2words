@@ -64,7 +64,7 @@ const TETRI = 'თეთრი'
  * @param {number} n - Number 0-99
  * @returns {string} Georgian word
  */
-function buildTens (n) {
+function buildTens(n) {
   if (n < 10) return ONES[n]
   if (n < 20) return TEENS[n - 10]
 
@@ -89,7 +89,7 @@ function buildTens (n) {
  * @param {number} n - Number 0-999
  * @returns {{full: string, stem: string}} Georgian words
  */
-function buildSegment (n) {
+function buildSegment(n) {
   if (n === 0) return { full: '', stem: '' }
   if (n < 100) {
     const word = buildTens(n)
@@ -106,7 +106,8 @@ function buildSegment (n) {
   let hundredWord
   if (hundreds === 1) {
     hundredWord = remainder > 0 ? HUNDRED_STEM : HUNDRED
-  } else {
+  }
+  else {
     hundredWord = HUNDRED_PREFIXES[hundreds] + (remainder > 0 ? HUNDRED_STEM : HUNDRED)
   }
 
@@ -133,7 +134,7 @@ function buildSegment (n) {
  * @param {bigint} n - Non-negative integer to convert
  * @returns {string} Georgian words
  */
-function integerToWords (n) {
+function integerToWords(n) {
   if (n === 0n) return ZERO
 
   // Fast path: numbers < 1000
@@ -151,7 +152,8 @@ function integerToWords (n) {
     if (thousands === 1) {
       // "ათასი" not "ერთი ათასი"
       result = remainder > 0 ? THOUSAND_STEM : THOUSAND
-    } else {
+    }
+    else {
       // Use stem form before ათასი
       const { stem: thousandsPart } = buildSegment(thousands)
       result = thousandsPart + ' ' + (remainder > 0 ? THOUSAND_STEM : THOUSAND)
@@ -175,7 +177,7 @@ function integerToWords (n) {
  * @param {bigint} n - Number >= 1,000,000
  * @returns {string} Georgian words
  */
-function buildLargeNumberWords (n) {
+function buildLargeNumberWords(n) {
   const numStr = n.toString()
   const len = numStr.length
 
@@ -206,23 +208,27 @@ function buildLargeNumberWords (n) {
         // Units (no scale)
         const { full } = buildSegment(segment)
         parts.push(full)
-      } else if (scaleIndex === 1) {
+      }
+      else if (scaleIndex === 1) {
         // Thousands - check if there's a remainder
         const hasRemainder = segments.slice(i + 1).some(s => s !== 0)
         const thousandWord = hasRemainder ? THOUSAND_STEM : THOUSAND
 
         if (segment === 1) {
           parts.push(thousandWord)
-        } else {
+        }
+        else {
           const { stem } = buildSegment(segment)
           parts.push(stem + ' ' + thousandWord)
         }
-      } else {
+      }
+      else {
         // Million and above
         const scaleWord = SCALES[scaleIndex] || SCALES[SCALES.length - 1]
         if (segment === 1) {
           parts.push('ერთი ' + scaleWord)
-        } else {
+        }
+        else {
           const { full } = buildSegment(segment)
           parts.push(full + ' ' + scaleWord)
         }
@@ -241,7 +247,7 @@ function buildLargeNumberWords (n) {
  * @param {string} decimalPart - Decimal digits (without the point)
  * @returns {string} Georgian words for decimal part
  */
-function decimalPartToWords (decimalPart) {
+function decimalPartToWords(decimalPart) {
   let result = ''
 
   // Handle leading zeros
@@ -278,7 +284,7 @@ function decimalPartToWords (decimalPart) {
  * toCardinal(100)          // 'ასი'
  * toCardinal(1000)         // 'ათასი'
  */
-function toCardinal (value) {
+function toCardinal(value) {
   const { isNegative, integerPart, decimalPart } = parseCardinalValue(value)
 
   let result = ''
@@ -309,7 +315,7 @@ function toCardinal (value) {
  * @param {bigint} n - Non-negative integer to convert
  * @returns {string} Georgian ordinal words
  */
-function integerToOrdinal (n) {
+function integerToOrdinal(n) {
   if (n === 0n) return ''
   if (n <= 9n) return ORDINAL_ONES[Number(n)]
 
@@ -321,7 +327,8 @@ function integerToOrdinal (n) {
   let stem
   if (lastChar === 'ი' || lastChar === 'ა') {
     stem = cardinal.slice(0, -1)
-  } else {
+  }
+  else {
     stem = cardinal
   }
 
@@ -341,7 +348,7 @@ function integerToOrdinal (n) {
  * toOrdinal(10)  // 'მეათე'
  * toOrdinal(21)  // 'მეოცდაერთე'
  */
-function toOrdinal (value) {
+function toOrdinal(value) {
   const n = parseOrdinalValue(value)
   return integerToOrdinal(n)
 }
@@ -362,7 +369,7 @@ function toOrdinal (value) {
  * toCurrency(1)     // 'ერთი ლარი'
  * toCurrency(2.50)  // 'ორი ლარი ორმოცდაათი თეთრი'
  */
-function toCurrency (value) {
+function toCurrency(value) {
   const { isNegative, dollars, cents } = parseCurrencyValue(value)
 
   const parts = []

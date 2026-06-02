@@ -83,7 +83,7 @@ export const cardinal = [
   [1001, 'одна тисяча одна', { gender: 'feminine' }],
   [1002, 'одна тисяча двi', { gender: 'feminine' }],
   [2001, 'двi тисячi одна', { gender: 'feminine' }],
-  [2002, 'двi тисячi двi', { gender: 'feminine' }]
+  [2002, 'двi тисячi двi', { gender: 'feminine' }],
 ]
 
 /**
@@ -128,7 +128,7 @@ export const ordinal = [
   [2000, 'двi тисячний'],
 
   // Large numbers
-  [1000000, 'мiльйонний']
+  [1000000, 'мiльйонний'],
 ]
 
 /**
@@ -174,5 +174,5 @@ export const currency = [
 
   // Edge cases
   [5.00, 'п\'ять гривень'],
-  ['5.00', 'п\'ять гривень']
+  ['5.00', 'п\'ять гривень'],
 ]

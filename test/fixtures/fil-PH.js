@@ -51,7 +51,7 @@ export const cardinal = [
   [-1000, 'negatibo isang libong'],
   ['3.14', 'tatlo punto isa apat'],
   ['0.5', 'zero punto lima'],
-  ['10.05', 'sampu punto zero lima']
+  ['10.05', 'sampu punto zero lima'],
 ]
 
 /**
@@ -92,7 +92,7 @@ export const ordinal = [
 
   // Thousands
   [1000, 'ika-isang libong'],
-  [1001, 'ika-isang libong isa']
+  [1001, 'ika-isang libong isa'],
 ]
 
 /**
@@ -132,5 +132,5 @@ export const currency = [
 
   // Edge cases
   [5.00, 'limang piso'],
-  ['5.00', 'limang piso']
+  ['5.00', 'limang piso'],
 ]

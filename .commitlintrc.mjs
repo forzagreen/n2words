@@ -65,7 +65,7 @@ const PROJECT_SCOPES = [
 
   // Infrastructure
   'release', // Version bumps, release preparation
-  'scripts' // scripts/* - contributor tooling
+  'scripts', // scripts/* - contributor tooling
 ]
 
 /**
@@ -80,7 +80,7 @@ const LANGUAGE_CODE_PATTERN = /^[a-z]{2,3}(-[A-Z][a-z]{3,4})?(-[A-Z]{2})?$/
  *
  * @returns {{ valid: boolean, error?: string }}
  */
-function validateScope (scope) {
+function validateScope(scope) {
   // Project scopes must be lowercase
   if (PROJECT_SCOPES.includes(scope)) {
     return { valid: true }
@@ -106,7 +106,7 @@ function validateScope (scope) {
 
   return {
     valid: false,
-    error: `Invalid scope "${scope}". Use a project area (${PROJECT_SCOPES.slice(0, 5).join(', ')}, ...) or BCP 47 language code (en-US, en-GB, zh-Hans-CN)`
+    error: `Invalid scope "${scope}". Use a project area (${PROJECT_SCOPES.slice(0, 5).join(', ')}, ...) or BCP 47 language code (en-US, en-GB, zh-Hans-CN)`,
   }
 }
 
@@ -128,9 +128,9 @@ export default {
           if (result.valid) return [true]
 
           return [false, result.error]
-        }
-      }
-    }
+        },
+      },
+    },
   ],
 
   rules: {
@@ -154,8 +154,8 @@ export default {
         'refactor', // Code restructuring
         'revert', // Revert previous commit
         'style', // Formatting/whitespace
-        'test' // Test changes
-      ]
+        'test', // Test changes
+      ],
     ],
     'type-case': [2, 'always', 'lower-case'],
     'type-empty': [2, 'never'],
@@ -174,7 +174,7 @@ export default {
     'subject-case': [
       2,
       'never',
-      ['sentence-case', 'start-case', 'pascal-case', 'upper-case']
+      ['sentence-case', 'start-case', 'pascal-case', 'upper-case'],
     ],
     'subject-full-stop': [2, 'never', '.'],
 
@@ -189,6 +189,6 @@ export default {
     'body-leading-blank': [2, 'always'],
     'body-max-line-length': [0], // Disabled - URLs can be long
     'footer-leading-blank': [2, 'always'],
-    'footer-max-line-length': [0] // Disabled - URLs can be long
-  }
+    'footer-max-line-length': [0], // Disabled - URLs can be long
+  },
 }

@@ -73,7 +73,7 @@ const YUAN_COMMON = '元'
  * @param {boolean} [formal=true] - Use formal/financial numerals
  * @returns {string} The integer in Traditional Chinese words
  */
-function integerToWords (n, formal = true) {
+function integerToWords(n, formal = true) {
   if (n === 0n) return ZERO
 
   const ones = formal ? ONES_FORMAL : ONES_COMMON
@@ -86,7 +86,7 @@ function integerToWords (n, formal = true) {
    * @param {bigint} value
    * @returns {string}
    */
-  function convertBelowWan (value) {
+  function convertBelowWan(value) {
     if (value === 0n) return ''
 
     const parts = []
@@ -106,11 +106,11 @@ function integerToWords (n, formal = true) {
     if (hundredsVal > 0n) {
       if (needsZero) {
         parts.push(ZERO)
-        needsZero = false
       }
       parts.push(ones[Number(hundredsVal)] + hundred)
       needsZero = hundredsRemainder > 0n && hundredsRemainder < 10n
-    } else if (thousandsVal > 0n && hundredsRemainder > 0n) {
+    }
+    else if (thousandsVal > 0n && hundredsRemainder > 0n) {
       needsZero = true
     }
 
@@ -123,7 +123,8 @@ function integerToWords (n, formal = true) {
         needsZero = false
       }
       parts.push(ones[Number(tensVal)] + ten)
-    } else if ((hundredsVal > 0n || thousandsVal > 0n) && onesVal > 0n) {
+    }
+    else if ((hundredsVal > 0n || thousandsVal > 0n) && onesVal > 0n) {
       needsZero = true
     }
 
@@ -143,7 +144,7 @@ function integerToWords (n, formal = true) {
    * @param {bigint} value
    * @returns {string}
    */
-  function convertBelowYi (value) {
+  function convertBelowYi(value) {
     if (value === 0n) return ''
 
     const parts = []
@@ -163,7 +164,8 @@ function integerToWords (n, formal = true) {
         }
         parts.push(convertBelowWan(wanRemainder))
       }
-    } else {
+    }
+    else {
       parts.push(convertBelowWan(value))
     }
 
@@ -187,7 +189,8 @@ function integerToWords (n, formal = true) {
       }
       parts.push(convertBelowYi(yiRemainder))
     }
-  } else {
+  }
+  else {
     parts.push(convertBelowYi(n))
   }
 
@@ -201,7 +204,7 @@ function integerToWords (n, formal = true) {
  * @param {boolean} [formal=true] - Use formal/financial numerals
  * @returns {string[]} The decimal digits as Traditional Chinese words
  */
-function decimalDigitsToWords (decimalString, formal = true) {
+function decimalDigitsToWords(decimalString, formal = true) {
   const ones = formal ? ONES_FORMAL : ONES_COMMON
   const words = []
   for (const char of decimalString) {
@@ -218,7 +221,7 @@ function decimalDigitsToWords (decimalString, formal = true) {
  * @param {boolean} [options.formal=true] - Use formal/financial numerals
  * @returns {string} The number in Traditional Chinese words
  */
-function toCardinal (value, options) {
+function toCardinal(value, options) {
   options = validateOptions(options)
   const { isNegative, integerPart, decimalPart } = parseCardinalValue(value)
 
@@ -253,7 +256,7 @@ function toCardinal (value, options) {
  * @param {boolean} formal - Use formal/financial numerals
  * @returns {string} Traditional Chinese ordinal words
  */
-function integerToOrdinal (n, formal = true) {
+function integerToOrdinal(n, formal = true) {
   return ORDINAL_PREFIX + integerToWords(n, formal)
 }
 
@@ -272,7 +275,7 @@ function integerToOrdinal (n, formal = true) {
  * toOrdinal(2)                    // '第貳'
  * toOrdinal(1, { formal: false }) // '第一'
  */
-function toOrdinal (value, options) {
+function toOrdinal(value, options) {
   options = validateOptions(options)
   const integerPart = parseOrdinalValue(value)
   const { formal = true } = options
@@ -301,7 +304,7 @@ function toOrdinal (value, options) {
  * toCurrency(1.50)                  // '壹圓伍角整'
  * toCurrency(42, { formal: false }) // '四十二元整'
  */
-function toCurrency (value, options) {
+function toCurrency(value, options) {
   options = validateOptions(options)
   const { isNegative, dollars: yuan, cents } = parseCurrencyValue(value)
   const { formal = true } = options
@@ -337,10 +340,12 @@ function toCurrency (value, options) {
       result += ZERO
     }
     result += ones[Number(fen)] + FEN_FORMAL
-  } else if (jiao > 0n) {
+  }
+  else if (jiao > 0n) {
     // Has jiao but no fen - add 整
     result += ZHENG_FORMAL
-  } else {
+  }
+  else {
     // Whole yuan only - add 整
     result += ZHENG_FORMAL
   }

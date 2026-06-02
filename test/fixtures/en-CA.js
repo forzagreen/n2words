@@ -54,7 +54,7 @@ export const cardinal = [
 
   // Note: Round thousands outside 1100-9999 range use standard form
   [1000, 'one thousand', { hundredPairing: true }],
-  [10000, 'ten thousand', { hundredPairing: true }]
+  [10000, 'ten thousand', { hundredPairing: true }],
 ]
 
 /**
@@ -70,7 +70,7 @@ export const ordinal = [
   [100, 'one hundredth'],
   [101, 'one hundred first'],
   [1000, 'one thousandth'],
-  [1000000, 'one millionth']
+  [1000000, 'one millionth'],
 ]
 
 /**
@@ -105,5 +105,5 @@ export const currency = [
 
   // Edge cases
   [5.00, 'five dollars'],
-  ['5.00', 'five dollars']
+  ['5.00', 'five dollars'],
 ]

@@ -22,13 +22,13 @@ import { parseOrdinalValue } from '../../src/utils/parse-ordinal.js'
  * safeStringify({ a: 1n })    // '{"a":"1n"}'
  * safeStringify([1, 2n, 3])   // '[1,"2n",3]'
  */
-export function safeStringify (value) {
+export function safeStringify(value) {
   if (typeof value === 'bigint') {
     return value.toString() + 'n'
   }
   if (typeof value === 'object' && value !== null) {
     return JSON.stringify(value, (_key, val) =>
-      typeof val === 'bigint' ? val.toString() + 'n' : val
+      typeof val === 'bigint' ? val.toString() + 'n' : val,
     )
   }
   return JSON.stringify(value)
@@ -40,11 +40,12 @@ export function safeStringify (value) {
  * @param {*} value Value to check
  * @returns {boolean} True if value is valid cardinal input
  */
-export function isValidCardinalInput (value) {
+export function isValidCardinalInput(value) {
   try {
     parseCardinalValue(value)
     return true
-  } catch {
+  }
+  catch {
     return false
   }
 }
@@ -56,11 +57,12 @@ export function isValidCardinalInput (value) {
  * @param {*} value Value to check
  * @returns {boolean} True if value is valid ordinal input
  */
-export function isValidOrdinalInput (value) {
+export function isValidOrdinalInput(value) {
   try {
     parseOrdinalValue(value)
     return true
-  } catch {
+  }
+  catch {
     return false
   }
 }

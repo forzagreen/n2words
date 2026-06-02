@@ -71,7 +71,7 @@ export const cardinal = [
   [4_000_000, 'empat juta'],
   [10_000_000_000_000, 'sepuluh triliun'],
   [100_000_000_000_000, 'seratus triliun'],
-  [1_000_000_000_000_000_000n, 'satu kuantiliun']
+  [1_000_000_000_000_000_000n, 'satu kuantiliun'],
 ]
 
 /**
@@ -116,7 +116,7 @@ export const ordinal = [
   [1001, 'keseribu satu'],
 
   // Millions
-  [1000000, 'kesatu juta']
+  [1000000, 'kesatu juta'],
 ]
 
 /**
@@ -144,5 +144,5 @@ export const currency = [
 
   // Edge cases (decimals rounded)
   [5.00, 'lima rupiah'],
-  ['5.00', 'lima rupiah']
+  ['5.00', 'lima rupiah'],
 ]

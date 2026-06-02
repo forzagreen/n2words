@@ -77,7 +77,7 @@ const ZHENG = '整'
  * @param {string} thousand
  * @returns {string}
  */
-function convertBelowWan (value, ones, ten, hundred, thousand) {
+function convertBelowWan(value, ones, ten, hundred, thousand) {
   if (value === 0n) return ''
 
   let result = ''
@@ -98,7 +98,8 @@ function convertBelowWan (value, ones, ten, hundred, thousand) {
     if (needsZero) result += ZERO
     result += ones[Number(hundredsVal)] + hundred
     needsZero = hundredsRemainder > 0n && hundredsRemainder < 10n
-  } else if (thousandsVal > 0n && hundredsRemainder > 0n) {
+  }
+  else if (thousandsVal > 0n && hundredsRemainder > 0n) {
     needsZero = true
   }
 
@@ -109,7 +110,8 @@ function convertBelowWan (value, ones, ten, hundred, thousand) {
     if (needsZero) result += ZERO
     result += ones[Number(tensVal)] + ten
     needsZero = false
-  } else if ((hundredsVal > 0n || thousandsVal > 0n) && onesVal > 0n) {
+  }
+  else if ((hundredsVal > 0n || thousandsVal > 0n) && onesVal > 0n) {
     needsZero = true
   }
 
@@ -132,7 +134,7 @@ function convertBelowWan (value, ones, ten, hundred, thousand) {
  * @param {string} thousand
  * @returns {string}
  */
-function convertBelowYi (value, ones, ten, hundred, thousand) {
+function convertBelowYi(value, ones, ten, hundred, thousand) {
   if (value === 0n) return ''
 
   if (value >= 10_000n) {
@@ -160,7 +162,7 @@ function convertBelowYi (value, ones, ten, hundred, thousand) {
  * @param {boolean} [formal]
  * @returns {string}
  */
-function integerToWords (n, formal = true) {
+function integerToWords(n, formal = true) {
   if (n === 0n) return ZERO
 
   const ones = formal ? ONES_FORMAL : ONES_COMMON
@@ -193,7 +195,7 @@ function integerToWords (n, formal = true) {
  * @param {string[]} ones
  * @returns {string}
  */
-function decimalDigitsToWords (decimalString, ones) {
+function decimalDigitsToWords(decimalString, ones) {
   let result = ''
   for (let i = 0; i < decimalString.length; i++) {
     result += ones[Number(decimalString[i])]
@@ -209,7 +211,7 @@ function decimalDigitsToWords (decimalString, ones) {
  * @param {boolean} [options.formal=true] - Use formal/financial numerals
  * @returns {string} The number in Simplified Chinese words
  */
-function toCardinal (value, options) {
+function toCardinal(value, options) {
   options = validateOptions(options)
   const { isNegative, integerPart, decimalPart } = parseCardinalValue(value)
 
@@ -241,7 +243,7 @@ function toCardinal (value, options) {
  * @param {boolean} formal - Use formal numerals
  * @returns {string} Simplified Chinese ordinal words
  */
-function integerToOrdinal (n, formal) {
+function integerToOrdinal(n, formal) {
   return ORDINAL_PREFIX + integerToWords(n, formal)
 }
 
@@ -260,7 +262,7 @@ function integerToOrdinal (n, formal) {
  * toOrdinal(1, { formal: false }) // '第一'
  * toOrdinal(10)                   // '第壹拾'
  */
-function toOrdinal (value, options) {
+function toOrdinal(value, options) {
   options = validateOptions(options)
   const integerPart = parseOrdinalValue(value)
   const { formal = true } = options
@@ -287,7 +289,7 @@ function toOrdinal (value, options) {
  * toCurrency(0.05)                     // '伍分'
  * toCurrency(42.50, { formal: false }) // '四十二元五角整'
  */
-function toCurrency (value, options) {
+function toCurrency(value, options) {
   options = validateOptions(options)
   const { isNegative, dollars: yuan, cents } = parseCurrencyValue(value)
   const { formal = true } = options
@@ -311,7 +313,8 @@ function toCurrency (value, options) {
   // Jiao part (1/10)
   if (jiao > 0n) {
     result += ones[Number(jiao)] + JIAO
-  } else if (yuan > 0n && fen > 0n) {
+  }
+  else if (yuan > 0n && fen > 0n) {
     // Need zero placeholder between yuan and fen
     result += ZERO
   }
@@ -319,7 +322,8 @@ function toCurrency (value, options) {
   // Fen part (1/100)
   if (fen > 0n) {
     result += ones[Number(fen)] + FEN
-  } else if (yuan > 0n || jiao > 0n) {
+  }
+  else if (yuan > 0n || jiao > 0n) {
     // Add 整 (zheng) to indicate whole amount
     result += ZHENG
   }

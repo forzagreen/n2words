@@ -30,23 +30,23 @@ export const cardinal = [
   // Tens (20-90) - Arabic loanwords
   [20, 'ashirin'],
   [30, 'talatin'],
-  [40, "arba'in"],
+  [40, 'arba\'in'],
   [50, 'hamsin'],
   [60, 'sittin'],
-  [70, "saba'in"],
+  [70, 'saba\'in'],
   [80, 'tamanin'],
-  [90, "tis'in"],
+  [90, 'tis\'in'],
 
   // Compound numbers (21-99) - tens + "da" + unit
   [21, 'ashirin da ɗaya'],
   [25, 'ashirin da biyar'],
   [32, 'talatin da biyu'],
-  [44, "arba'in da huɗu"],
+  [44, 'arba\'in da huɗu'],
   [57, 'hamsin da bakwai'],
   [63, 'sittin da uku'],
-  [78, "saba'in da takwas"],
+  [78, 'saba\'in da takwas'],
   [86, 'tamanin da shida'],
-  [99, "tis'in da tara"],
+  [99, 'tis\'in da tara'],
 
   // Hundreds - implicit one for 100
   [100, 'ɗari'],
@@ -58,7 +58,7 @@ export const cardinal = [
   [200, 'biyu ɗari'],
   [300, 'uku ɗari'],
   [500, 'biyar ɗari'],
-  [999, "tara ɗari tis'in da tara"],
+  [999, 'tara ɗari tis\'in da tara'],
 
   // Thousands - implicit one for 1000
   [1000, 'dubu'],
@@ -68,7 +68,7 @@ export const cardinal = [
   [2000, 'biyu dubu'],
   [5000, 'biyar dubu'],
   [10000, 'goma dubu'],
-  [12345, "sha biyu dubu uku ɗari arba'in da biyar"],
+  [12345, 'sha biyu dubu uku ɗari arba\'in da biyar'],
   [100000, 'ɗari dubu'],
 
   // Millions
@@ -83,7 +83,7 @@ export const cardinal = [
   // Negative numbers
   [-1, 'babu ɗaya'],
   [-5, 'babu biyar'],
-  [-42, "babu arba'in da biyu"],
+  [-42, 'babu arba\'in da biyu'],
   [-100, 'babu ɗari'],
 
   // Decimals - per-digit after separator
@@ -92,8 +92,8 @@ export const cardinal = [
   ['10.25', 'goma digo biyu biyar'],
 
   // BigInt
-  [BigInt(999), "tara ɗari tis'in da tara"],
-  [BigInt(1000000), 'ɗaya miliyan']
+  [BigInt(999), 'tara ɗari tis\'in da tara'],
+  [BigInt(1000000), 'ɗaya miliyan'],
 ]
 
 /**
@@ -124,8 +124,8 @@ export const ordinal = [
   [20, 'na ashirin'],
   [21, 'na ashirin da ɗaya'],
   [30, 'na talatin'],
-  [42, "na arba'in da biyu"],
-  [99, "na tis'in da tara"],
+  [42, 'na arba\'in da biyu'],
+  [99, 'na tis\'in da tara'],
 
   // Hundreds
   [100, 'na ɗari'],
@@ -134,7 +134,7 @@ export const ordinal = [
 
   // Thousands
   [1000, 'na dubu'],
-  [1001, 'na dubu da ɗaya']
+  [1001, 'na dubu da ɗaya'],
 ]
 
 /**
@@ -151,7 +151,7 @@ export const currency = [
   [5, 'biyar naira'],
   [10, 'goma naira'],
   [21, 'ashirin da ɗaya naira'],
-  [42, "arba'in da biyu naira"],
+  [42, 'arba\'in da biyu naira'],
   [100, 'ɗari naira'],
   [1000, 'dubu naira'],
 
@@ -159,19 +159,19 @@ export const currency = [
   [0.01, 'ɗaya kobo'],
   [0.25, 'ashirin da biyar kobo'],
   [0.50, 'hamsin kobo'],
-  [0.99, "tis'in da tara kobo"],
+  [0.99, 'tis\'in da tara kobo'],
 
   // Naira and kobo
   [1.01, 'ɗaya naira da ɗaya kobo'],
   [1.50, 'ɗaya naira da hamsin kobo'],
-  [42.50, "arba'in da biyu naira da hamsin kobo"],
-  [100.99, "ɗari naira da tis'in da tara kobo"],
+  [42.50, 'arba\'in da biyu naira da hamsin kobo'],
+  [100.99, 'ɗari naira da tis\'in da tara kobo'],
 
   // Negative amounts
   [-1, 'babu ɗaya naira'],
-  [-42.50, "babu arba'in da biyu naira da hamsin kobo"],
+  [-42.50, 'babu arba\'in da biyu naira da hamsin kobo'],
 
   // Edge cases
   [5.00, 'biyar naira'],
-  ['5.00', 'biyar naira']
+  ['5.00', 'biyar naira'],
 ]

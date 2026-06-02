@@ -71,7 +71,7 @@ const SCALE_FORMS = [
   ['kvintilijonas', 'kvintilijonai', 'kvintilijonų'],
   ['sikstilijonas', 'sikstilijonai', 'sikstilijonų'],
   ['septilijonas', 'septilijonai', 'septilijonų'],
-  ['oktilijonas', 'oktilijonai', 'oktilijonų']
+  ['oktilijonas', 'oktilijonai', 'oktilijonų'],
 ]
 
 // ============================================================================
@@ -84,7 +84,7 @@ const SCALE_FORMS = [
  * @param {number} n - Segment value (0-999)
  * @returns {string} Segment words
  */
-function buildSegment (n) {
+function buildSegment(n) {
   if (n === 0) return ''
 
   const ones = n % 10
@@ -107,7 +107,8 @@ function buildSegment (n) {
   // Teens or ones
   if (tens === 1) {
     parts.push(TEENS[ones])
-  } else if (ones > 0) {
+  }
+  else if (ones > 0) {
     parts.push(ONES_MASC[ones])
   }
 
@@ -120,7 +121,7 @@ function buildSegment (n) {
  * @param {number} n - Segment value (0-999)
  * @returns {string} Segment words
  */
-function buildSegmentFeminine (n) {
+function buildSegmentFeminine(n) {
   if (n === 0) return ''
 
   const ones = n % 10
@@ -143,7 +144,8 @@ function buildSegmentFeminine (n) {
   // Teens or ones - feminine for ones only
   if (tens === 1) {
     parts.push(TEENS[ones])
-  } else if (ones > 0) {
+  }
+  else if (ones > 0) {
     parts.push(ONES_FEM[ones])
   }
 
@@ -164,7 +166,7 @@ function buildSegmentFeminine (n) {
  * @param {string[]} forms - [singular, plural, genitive]
  * @returns {string} The appropriate form
  */
-function pluralize (n, forms) {
+function pluralize(n, forms) {
   if (n === 0) return forms[2]
 
   const lastDigit = n % 10
@@ -200,7 +202,7 @@ function pluralize (n, forms) {
  * @param {string} gender - Gender for numbers < 1000 ('masculine' or 'feminine')
  * @returns {string} Lithuanian words
  */
-function integerToWords (n, gender) {
+function integerToWords(n, gender) {
   if (n === 0n) return ZERO
 
   // Fast path: numbers < 1000
@@ -212,17 +214,16 @@ function integerToWords (n, gender) {
   // For numbers >= 1000, feminine only applies to final segment if < 1000
   // But the fixture shows feminine NOT applying for n >= 1000
   // So we use masculine for all segments when n >= 1000
-  return buildLargeNumberWords(n, gender)
+  return buildLargeNumberWords(n)
 }
 
 /**
  * Builds words for numbers >= 1000.
  *
  * @param {bigint} n - Number >= 1000
- * @param {string} gender - Gender for numbers < 1000 ('masculine' or 'feminine')
  * @returns {string} Lithuanian words
  */
-function buildLargeNumberWords (n, gender) {
+function buildLargeNumberWords(n) {
   const numStr = n.toString()
   const len = numStr.length
 
@@ -254,7 +255,8 @@ function buildLargeNumberWords (n, gender) {
       if (scaleIndex === 0) {
         // Units segment - use masculine (feminine doesn't apply when n >= 1000)
         parts.push(segmentWord)
-      } else {
+      }
+      else {
         // Segment with scale word
         const scaleForms = SCALE_FORMS[scaleIndex - 1]
         const scaleWord = pluralize(segment, scaleForms)
@@ -275,7 +277,7 @@ function buildLargeNumberWords (n, gender) {
  * @param {string} gender - Gender for numbers < 1000 ('masculine' or 'feminine')
  * @returns {string} Lithuanian words for decimal part
  */
-function decimalPartToWords (decimalPart, gender) {
+function decimalPartToWords(decimalPart, gender) {
   let result = ''
 
   // Handle leading zeros
@@ -311,7 +313,7 @@ function decimalPartToWords (decimalPart, gender) {
  * toCardinal(1, { gender: 'feminine' })   // 'viena'
  * toCardinal(1000000)                     // 'vienas milijonas'
  */
-function toCardinal (value, options) {
+function toCardinal(value, options) {
   options = validateOptions(options)
   const { isNegative, integerPart, decimalPart } = parseCardinalValue(value)
 
@@ -343,7 +345,7 @@ function toCardinal (value, options) {
  * @param {number} n - Number 0-99
  * @returns {string} Ordinal words
  */
-function buildOrdinalTensOnes (n) {
+function buildOrdinalTensOnes(n) {
   if (n === 0) return ''
 
   const onesDigit = n % 10
@@ -370,7 +372,7 @@ function buildOrdinalTensOnes (n) {
  * @param {bigint} n - Positive integer to convert
  * @returns {string} Ordinal Lithuanian words
  */
-function integerToOrdinal (n) {
+function integerToOrdinal(n) {
   if (n < 100n) {
     return buildOrdinalTensOnes(Number(n))
   }
@@ -416,7 +418,7 @@ function integerToOrdinal (n) {
  * @param {bigint} n - Number >= 1,000,000
  * @returns {string} Ordinal Lithuanian words
  */
-function buildLargeOrdinal (n) {
+function buildLargeOrdinal(n) {
   const numStr = n.toString()
   const len = numStr.length
 
@@ -451,20 +453,24 @@ function buildLargeOrdinal (n) {
       if (scaleIndex === 0) {
         if (isLastNonZero) {
           parts.push(integerToOrdinal(BigInt(segment)))
-        } else {
+        }
+        else {
           parts.push(buildSegment(segment))
         }
-      } else {
+      }
+      else {
         if (isLastNonZero) {
           if (segment === 1) {
             parts.push(ORDINAL_SCALES[scaleIndex - 1])
-          } else {
+          }
+          else {
             // For 2+, include cardinal scale word before ordinal
             const scaleForms = SCALE_FORMS[scaleIndex - 1]
             const cardinalScaleWord = pluralize(segment, scaleForms)
             parts.push(buildSegment(segment) + ' ' + cardinalScaleWord + ' ' + ORDINAL_SCALES[scaleIndex - 1])
           }
-        } else {
+        }
+        else {
           const scaleForms = SCALE_FORMS[scaleIndex - 1]
           const scaleWord = pluralize(segment, scaleForms)
           parts.push(buildSegment(segment) + ' ' + scaleWord)
@@ -493,7 +499,7 @@ function buildLargeOrdinal (n) {
  * toOrdinal(100)  // 'šimtasis'
  * toOrdinal(1000) // 'tūkstantasis'
  */
-function toOrdinal (value) {
+function toOrdinal(value) {
   const integerPart = parseOrdinalValue(value)
   return integerToOrdinal(integerPart)
 }
@@ -516,7 +522,7 @@ function toOrdinal (value) {
  * toCurrency(1.50)   // 'vienas euras penkiasdešimt centų'
  * toCurrency(-5)     // 'minus penki eurai'
  */
-function toCurrency (value) {
+function toCurrency(value) {
   const { isNegative, dollars: euros, cents } = parseCurrencyValue(value)
 
   let result = ''

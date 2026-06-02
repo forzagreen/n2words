@@ -49,7 +49,7 @@ const CURRENCIES = {
   USD: { major: ['dólar', 'dólares'], minor: ['centavo', 'centavos'] },
   EUR: { major: ['euro', 'euros'], minor: ['centavo', 'centavos'] }, // No Brasil é comum falar "centavos de euro"
   GBP: { major: ['libra', 'libras'], minor: ['pêni', 'pence'] },
-  JPY: { major: ['iene', 'ienes'], minor: ['sen', 'sen'] } // Iene não tem subdivisão usada no dia a dia
+  JPY: { major: ['iene', 'ienes'], minor: ['sen', 'sen'] }, // Iene não tem subdivisão usada no dia a dia
 }
 
 // Fallback para caso o usuário passe uma moeda não mapeada (ex: 'CAD')
@@ -65,7 +65,7 @@ const DEFAULT_CURRENCY_WORDS = { major: ['unidade', 'unidades'], minor: ['centav
  *
  * @param {number} n - Number 0-999
  */
-function buildSegment (n) {
+function buildSegment(n) {
   if (n === 0) return { word: '', isExactHundred: false }
 
   // Special case: exact 100 is "cem"
@@ -86,14 +86,17 @@ function buildSegment (n) {
   if (tens === 1) {
     // Teens (10-19)
     parts.push(TEENS[ones])
-  } else if (tens >= 2) {
+  }
+  else if (tens >= 2) {
     if (ones > 0) {
       // Tens + ones with "e": "vinte e um"
       parts.push(TENS[tens] + ' e ' + ONES[ones])
-    } else {
+    }
+    else {
       parts.push(TENS[tens])
     }
-  } else if (ones > 0) {
+  }
+  else if (ones > 0) {
     parts.push(ONES[ones])
   }
 
@@ -118,7 +121,7 @@ const SCALE_WORDS_SINGULAR = [
   'quatrilhão', // 5: 10^15
   'quintilhão', // 6: 10^18
   'sextilhão', // 7: 10^21
-  'setilhão' // 8: 10^24
+  'setilhão', // 8: 10^24
 ]
 
 const SCALE_WORDS_PLURAL = [
@@ -130,7 +133,7 @@ const SCALE_WORDS_PLURAL = [
   'quatrilhões', // 5: 10^15
   'quintilhões', // 6: 10^18
   'sextilhões', // 7: 10^21
-  'setilhões' // 8: 10^24
+  'setilhões', // 8: 10^24
 ]
 
 // ============================================================================
@@ -143,7 +146,7 @@ const SCALE_WORDS_PLURAL = [
  * @param {bigint} n - Non-negative integer to convert
  * @returns {string} Portuguese words
  */
-function integerToWords (n) {
+function integerToWords(n) {
   if (n === 0n) return ZERO
 
   // Fast path: numbers < 1000
@@ -160,7 +163,8 @@ function integerToWords (n) {
     if (thousands === 1) {
       // "mil" not "um mil"
       result = THOUSAND
-    } else {
+    }
+    else {
       result = buildSegment(thousands).word + ' ' + THOUSAND
     }
 
@@ -169,7 +173,8 @@ function integerToWords (n) {
       // REGRA DO "E": Menor que 100 OU Centena Exata (ex: 500)
       if (!remainderResult.startsWithHundreds || remainderResult.isExactHundred) {
         result += ' e ' + remainderResult.word
-      } else {
+      }
+      else {
         result += ' ' + remainderResult.word
       }
     }
@@ -188,7 +193,7 @@ function integerToWords (n) {
  * @param {bigint} n - Number >= 1,000,000
  * @returns {string} Portuguese words
  */
-function buildLargeNumberWords (n) {
+function buildLargeNumberWords(n) {
   // Extract segments using BigInt division
   const segments = []
   let temp = n
@@ -227,20 +232,24 @@ function buildLargeNumberWords (n) {
       // Units segment
       result += segmentResult.word
       prevWasScale = false
-    } else if (i === 1) {
+    }
+    else if (i === 1) {
       // Thousands
       if (segment === 1) {
         result += THOUSAND
-      } else {
+      }
+      else {
         result += segmentResult.word + ' ' + THOUSAND
       }
       prevWasScale = true
-    } else {
+    }
+    else {
       // Million and above
       const scaleWord = segment === 1 ? SCALE_WORDS_SINGULAR[i] : SCALE_WORDS_PLURAL[i]
       if (segment === 1) {
         result += 'um ' + scaleWord
-      } else {
+      }
+      else {
         result += segmentResult.word + ' ' + scaleWord
       }
       prevWasScale = true
@@ -256,7 +265,7 @@ function buildLargeNumberWords (n) {
  * @param {string} decimalPart - Decimal digits (without the point)
  * @returns {string} Portuguese words for decimal part
  */
-function decimalPartToWords (decimalPart) {
+function decimalPartToWords(decimalPart) {
   let result = ''
 
   // Handle leading zeros
@@ -283,7 +292,7 @@ function decimalPartToWords (decimalPart) {
  * @param {number | string | bigint} value - The numeric value to convert
  * @returns {string} The number in Portuguese words
  */
-function toCardinal (value) {
+function toCardinal(value) {
   const { isNegative, integerPart, decimalPart } = parseCardinalValue(value)
 
   let result = ''
@@ -311,7 +320,7 @@ function toCardinal (value) {
  * @param {number} n - Number 0-999
  * @returns {string} Portuguese ordinal words
  */
-function buildOrdinalSegment (n) {
+function buildOrdinalSegment(n) {
   if (n === 0) return ''
 
   const ones = n % 10
@@ -329,12 +338,14 @@ function buildOrdinalSegment (n) {
   if (tens === 1) {
     // 10-19: use teens array (décimo, décimo primeiro, etc.)
     parts.push(ORDINAL_TEENS[ones])
-  } else if (tens >= 2) {
+  }
+  else if (tens >= 2) {
     parts.push(ORDINAL_TENS[tens])
     if (ones > 0) {
       parts.push(ORDINAL_ONES[ones])
     }
-  } else if (ones > 0) {
+  }
+  else if (ones > 0) {
     parts.push(ORDINAL_ONES[ones])
   }
 
@@ -347,7 +358,7 @@ function buildOrdinalSegment (n) {
  * @param {bigint} n - Non-negative integer
  * @returns {string} Portuguese ordinal words
  */
-function buildLargeOrdinal (n) {
+function buildLargeOrdinal(n) {
   // Extract segments
   const segments = []
   let temp = n
@@ -381,28 +392,35 @@ function buildLargeOrdinal (n) {
       if (i === 0) {
         // Units: just ordinal
         result += buildOrdinalSegment(segment)
-      } else if (segment === 1 && i > 0) {
+      }
+      else if (segment === 1 && i > 0) {
         // Exact scale: "milésimo", "milionésimo", etc.
         result += SCALE_ORDINAL[i]
-      } else {
+      }
+      else {
         // Segment + scale ordinal
         result += buildOrdinalSegment(segment) + ' ' + SCALE_ORDINAL[i]
       }
-    } else {
+    }
+    else {
       // Higher segments use cardinal form
       if (i === 0) {
         result += buildSegment(segment).word
-      } else if (i === 1) {
+      }
+      else if (i === 1) {
         if (segment === 1) {
           result += THOUSAND
-        } else {
+        }
+        else {
           result += buildSegment(segment).word + ' ' + THOUSAND
         }
-      } else {
+      }
+      else {
         const scaleWord = segment === 1 ? SCALE_WORDS_SINGULAR[i] : SCALE_WORDS_PLURAL[i]
         if (segment === 1) {
           result += 'um ' + scaleWord
-        } else {
+        }
+        else {
           result += buildSegment(segment).word + ' ' + scaleWord
         }
       }
@@ -418,7 +436,7 @@ function buildLargeOrdinal (n) {
  * @param {number | string | bigint} value - The number to convert
  * @returns {string} Portuguese ordinal words
  */
-function toOrdinal (value) {
+function toOrdinal(value) {
   const n = parseOrdinalValue(value)
 
   // Fast path: 1-9
@@ -467,7 +485,7 @@ function toOrdinal (value) {
  * toCurrency(42.50)                    // 'quarenta e dois reais e cinquenta centavos'
  * toCurrency(42.50, {currency: 'USD'}) // 'quarenta e dois dólares e cinquenta centavos'
  */
-function toCurrency (value, options) {
+function toCurrency(value, options) {
   options = validateOptions(options)
   const { isNegative, dollars: majorUnits, cents: minorUnits } = parseCurrencyValue(value)
   const { and = true } = options
@@ -481,7 +499,8 @@ function toCurrency (value, options) {
       // augment the type locally rather than widen the project's lib.
       const localeInfo = /** @type {Intl.Locale & { getCurrencies(): string[] }} */ (new Intl.Locale('pt-BR'))
       currencyCode = localeInfo.getCurrencies?.()[0]
-    } catch (e) {
+    }
+    catch {
       // Ignora erro em ambientes antigos (fallback garantido abaixo)
     }
     currencyCode = currencyCode || 'BRL' // Padrão absoluto para o Brasil
@@ -491,7 +510,7 @@ function toCurrency (value, options) {
   // 2. Busca os nomes no dicionário ou usa o fallback genérico
   const currencyWords = CURRENCIES[currencyCode] || {
     major: [currencyCode, currencyCode],
-    minor: DEFAULT_CURRENCY_WORDS.minor
+    minor: DEFAULT_CURRENCY_WORDS.minor,
   }
 
   let result = ''
@@ -525,7 +544,8 @@ function toCurrency (value, options) {
     // Ignora adicionar unidade de centavos se a moeda não os tiver (ex: JPY onde minor é string vazia)
     if (minorUnit === '') {
       result += minorText
-    } else {
+    }
+    else {
       result += minorText + ' ' + minorUnit
     }
   }

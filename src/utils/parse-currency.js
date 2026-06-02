@@ -15,7 +15,7 @@ import { expandScientificNotation, hasScientificNotation, numberToString } from 
  * @throws {TypeError} If value is not number, string, or bigint
  * @throws {RangeError} If value is not finite
  */
-export function parseCurrencyValue (value) {
+export function parseCurrencyValue(value) {
   const type = typeof value
 
   // BigInt: whole dollars only
@@ -45,7 +45,7 @@ export function parseCurrencyValue (value) {
   }
 
   throw new TypeError(
-    `Invalid value type: expected number, string, or bigint, received ${type}`
+    `Invalid value type: expected number, string, or bigint, received ${type}`,
   )
 }
 
@@ -55,7 +55,7 @@ export function parseCurrencyValue (value) {
  * @param {string} value - The string to parse
  * @returns {{isNegative: boolean, dollars: bigint, cents: bigint}}
  */
-function parseCurrencyString (value) {
+function parseCurrencyString(value) {
   let str = value.trim()
 
   if (str.length === 0 || Number.isNaN(Number(str))) {
@@ -86,6 +86,6 @@ function parseCurrencyString (value) {
   return {
     isNegative,
     dollars: BigInt(dollarStr),
-    cents: BigInt(centStr)
+    cents: BigInt(centStr),
   }
 }

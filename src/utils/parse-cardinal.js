@@ -16,7 +16,7 @@ import { expandScientificNotation, hasScientificNotation, numberToString } from 
  * @throws {TypeError} If value is not number, string, or bigint
  * @throws {RangeError} If value is not finite
  */
-export function parseCardinalValue (value) {
+export function parseCardinalValue(value) {
   const type = typeof value
 
   // BigInt: simplest case
@@ -45,7 +45,7 @@ export function parseCardinalValue (value) {
   }
 
   throw new TypeError(
-    `Invalid value type: expected number, string, or bigint, received ${type}`
+    `Invalid value type: expected number, string, or bigint, received ${type}`,
   )
 }
 
@@ -55,7 +55,7 @@ export function parseCardinalValue (value) {
  * @param {string} value - The string to normalize
  * @returns {string} The normalized numeric string
  */
-function normalizeString (value) {
+function normalizeString(value) {
   const trimmed = value.trim()
   if (trimmed.length === 0 || Number.isNaN(Number(trimmed))) {
     throw new RangeError(`Invalid number format: "${value}"`)
@@ -69,7 +69,7 @@ function normalizeString (value) {
  * @param {string} str - The normalized numeric string
  * @returns {{isNegative: boolean, integerPart: bigint, decimalPart?: string}}
  */
-function parseNumericString (str) {
+function parseNumericString(str) {
   const isNegative = str[0] === '-'
   if (isNegative) str = str.slice(1)
 

@@ -11,5 +11,5 @@ export default {
   globs: ['**/*.md'],
 
   // Ignore dependencies and auto-generated files
-  ignores: ['node_modules', 'CHANGELOG.md']
+  ignores: ['node_modules', 'CHANGELOG.md'],
 }

@@ -55,7 +55,7 @@ const WON = '원'
  * @param {number} n - Segment value (0-9999)
  * @returns {string} Korean words for the segment
  */
-function buildSegment (n) {
+function buildSegment(n) {
   if (n === 0) return ''
 
   const ones = n % 10
@@ -69,7 +69,8 @@ function buildSegment (n) {
   if (thousands > 0) {
     if (thousands === 1) {
       result += THOUSAND
-    } else {
+    }
+    else {
       result += ONES[thousands] + THOUSAND
     }
   }
@@ -78,7 +79,8 @@ function buildSegment (n) {
   if (hundreds > 0) {
     if (hundreds === 1) {
       result += HUNDRED
-    } else {
+    }
+    else {
       result += ONES[hundreds] + HUNDRED
     }
   }
@@ -87,7 +89,8 @@ function buildSegment (n) {
   if (tens > 0) {
     if (tens === 1) {
       result += TEN
-    } else {
+    }
+    else {
       result += ONES[tens] + TEN
     }
   }
@@ -110,7 +113,7 @@ function buildSegment (n) {
  * @param {bigint} n - Non-negative integer to convert
  * @returns {string} Korean words
  */
-function integerToWords (n) {
+function integerToWords(n) {
   if (n === 0n) return ZERO
 
   // Fast path: numbers < 10000
@@ -129,7 +132,7 @@ function integerToWords (n) {
  * @param {bigint} n - Number >= 10000
  * @returns {string} Korean words
  */
-function buildLargeNumberWords (n) {
+function buildLargeNumberWords(n) {
   const numStr = n.toString()
   const len = numStr.length
 
@@ -159,14 +162,16 @@ function buildLargeNumberWords (n) {
       if (scaleIndex === 0) {
         // Units segment (no scale word)
         parts.push({ word: buildSegment(segment), isScale: false })
-      } else {
+      }
+      else {
         // Segment with scale word
         const scaleWord = SCALES[scaleIndex - 1]
 
         // Korean omits segment when it's 1 before scale words
         if (segment === 1) {
           parts.push({ word: scaleWord, isScale: true })
-        } else {
+        }
+        else {
           parts.push({ word: buildSegment(segment), isScale: false })
           parts.push({ word: scaleWord, isScale: true })
         }
@@ -188,7 +193,7 @@ function buildLargeNumberWords (n) {
  * @param {Array<{word: string, isScale: boolean}>} parts - Parts with isScale metadata
  * @returns {string} Joined string
  */
-function joinKoreanParts (parts) {
+function joinKoreanParts(parts) {
   if (parts.length === 0) return ZERO
   if (parts.length === 1) return parts[0].word
 
@@ -215,7 +220,7 @@ function joinKoreanParts (parts) {
  * @param {string} decimalPart - Decimal digits (without the point)
  * @returns {string} Korean words for decimal part (space-separated)
  */
-function decimalPartToWords (decimalPart) {
+function decimalPartToWords(decimalPart) {
   const parts = []
 
   // Handle leading zeros
@@ -247,7 +252,7 @@ function decimalPartToWords (decimalPart) {
  * toCardinal(10000)      // '만'
  * toCardinal(1000000)    // '백만'
  */
-function toCardinal (value) {
+function toCardinal(value) {
   const { isNegative, integerPart, decimalPart } = parseCardinalValue(value)
 
   const parts = []
@@ -278,7 +283,7 @@ function toCardinal (value) {
  * @param {bigint} n - Positive integer to convert
  * @returns {string} Korean ordinal words
  */
-function integerToOrdinal (n) {
+function integerToOrdinal(n) {
   return ORDINAL_PREFIX + integerToWords(n)
 }
 
@@ -295,7 +300,7 @@ function integerToOrdinal (n) {
  * toOrdinal(2)    // '제이'
  * toOrdinal(10)   // '제십'
  */
-function toOrdinal (value) {
+function toOrdinal(value) {
   const integerPart = parseOrdinalValue(value)
   return integerToOrdinal(integerPart)
 }
@@ -320,7 +325,7 @@ function toOrdinal (value) {
  * toCurrency(1000)   // '천원'
  * toCurrency(-5)     // '마이너스 오원'
  */
-function toCurrency (value) {
+function toCurrency(value) {
   const { isNegative, dollars: won } = parseCurrencyValue(value)
 
   let result = ''

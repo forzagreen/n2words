@@ -54,7 +54,7 @@ const CENTIMOS = 'cêntimos'
  *
  * @param {number} n - Number 0-999
  */
-function buildSegment (n) {
+function buildSegment(n) {
   if (n === 0) return { word: '', isExactHundred: false }
 
   // Special case: exact 100 is "cem"
@@ -75,14 +75,17 @@ function buildSegment (n) {
   if (tens === 1) {
     // Teens (10-19)
     parts.push(TEENS[ones])
-  } else if (tens >= 2) {
+  }
+  else if (tens >= 2) {
     if (ones > 0) {
       // Tens + ones with "e": "vinte e um"
       parts.push(TENS[tens] + ' e ' + ONES[ones])
-    } else {
+    }
+    else {
       parts.push(TENS[tens])
     }
-  } else if (ones > 0) {
+  }
+  else if (ones > 0) {
     parts.push(ONES[ones])
   }
 
@@ -107,7 +110,7 @@ const SCALE_WORDS_SINGULAR = [
   'mil biliões', // 5: 10^15 (compound)
   'trilião', // 6: 10^18
   'mil triliões', // 7: 10^21 (compound)
-  'quatrilião' // 8: 10^24
+  'quatrilião', // 8: 10^24
 ]
 
 const SCALE_WORDS_PLURAL = [
@@ -119,7 +122,7 @@ const SCALE_WORDS_PLURAL = [
   'mil biliões', // 5: 10^15 (compound, same)
   'triliões', // 6: 10^18
   'mil triliões', // 7: 10^21 (compound, same)
-  'quatriliões' // 8: 10^24
+  'quatriliões', // 8: 10^24
 ]
 
 // ============================================================================
@@ -132,7 +135,7 @@ const SCALE_WORDS_PLURAL = [
  * @param {bigint} n - Non-negative integer to convert
  * @returns {string} Portuguese words
  */
-function integerToWords (n) {
+function integerToWords(n) {
   if (n === 0n) return ZERO
 
   // Fast path: numbers < 1000
@@ -149,7 +152,8 @@ function integerToWords (n) {
     if (thousands === 1) {
       // "mil" not "um mil"
       result = THOUSAND
-    } else {
+    }
+    else {
       result = buildSegment(thousands).word + ' ' + THOUSAND
     }
 
@@ -158,7 +162,8 @@ function integerToWords (n) {
       // Insert "e" before remainder if it doesn't start with hundreds (< 100)
       if (!remainderResult.startsWithHundreds) {
         result += ' e ' + remainderResult.word
-      } else {
+      }
+      else {
         result += ' ' + remainderResult.word
       }
     }
@@ -177,7 +182,7 @@ function integerToWords (n) {
  * @param {bigint} n - Number >= 1,000,000
  * @returns {string} Portuguese words
  */
-function buildLargeNumberWords (n) {
+function buildLargeNumberWords(n) {
   // Extract segments using BigInt division
   // Segments stored least-significant first (index 0 = ones, 1 = thousands, etc.)
   const segments = []
@@ -218,20 +223,24 @@ function buildLargeNumberWords (n) {
       // Units segment
       result += segmentResult.word
       prevWasScale = false
-    } else if (i === 1) {
+    }
+    else if (i === 1) {
       // Thousands
       if (segment === 1) {
         result += THOUSAND
-      } else {
+      }
+      else {
         result += segmentResult.word + ' ' + THOUSAND
       }
       prevWasScale = true
-    } else {
+    }
+    else {
       // Million and above - use scale arrays
       const scaleWord = segment === 1 ? SCALE_WORDS_SINGULAR[i] : SCALE_WORDS_PLURAL[i]
       if (segment === 1) {
         result += 'um ' + scaleWord
-      } else {
+      }
+      else {
         result += segmentResult.word + ' ' + scaleWord
       }
       prevWasScale = true
@@ -247,7 +256,7 @@ function buildLargeNumberWords (n) {
  * @param {string} decimalPart - Decimal digits (without the point)
  * @returns {string} Portuguese words for decimal part
  */
-function decimalPartToWords (decimalPart) {
+function decimalPartToWords(decimalPart) {
   let result = ''
 
   // Handle leading zeros
@@ -284,7 +293,7 @@ function decimalPartToWords (decimalPart) {
  * toCardinal(100)          // 'cem'
  * toCardinal(1000000)      // 'um milhão'
  */
-function toCardinal (value) {
+function toCardinal(value) {
   const { isNegative, integerPart, decimalPart } = parseCardinalValue(value)
 
   let result = ''
@@ -312,7 +321,7 @@ function toCardinal (value) {
  * @param {number} n - Number 0-999
  * @returns {string} Portuguese ordinal words
  */
-function buildOrdinalSegment (n) {
+function buildOrdinalSegment(n) {
   if (n === 0) return ''
 
   const ones = n % 10
@@ -330,12 +339,14 @@ function buildOrdinalSegment (n) {
   if (tens === 1) {
     // 10-19: use teens array (décimo, décimo primeiro, etc.)
     parts.push(ORDINAL_TEENS[ones])
-  } else if (tens >= 2) {
+  }
+  else if (tens >= 2) {
     parts.push(ORDINAL_TENS[tens])
     if (ones > 0) {
       parts.push(ORDINAL_ONES[ones])
     }
-  } else if (ones > 0) {
+  }
+  else if (ones > 0) {
     parts.push(ORDINAL_ONES[ones])
   }
 
@@ -348,7 +359,7 @@ function buildOrdinalSegment (n) {
  * @param {bigint} n - Non-negative integer
  * @returns {string} Portuguese ordinal words
  */
-function buildLargeOrdinal (n) {
+function buildLargeOrdinal(n) {
   // Extract segments
   const segments = []
   let temp = n
@@ -382,28 +393,35 @@ function buildLargeOrdinal (n) {
       if (i === 0) {
         // Units: just ordinal
         result += buildOrdinalSegment(segment)
-      } else if (segment === 1 && i > 0) {
+      }
+      else if (segment === 1 && i > 0) {
         // Exact scale: "milésimo", "milionésimo", etc.
         result += SCALE_ORDINAL[i]
-      } else {
+      }
+      else {
         // Segment + scale ordinal
         result += buildOrdinalSegment(segment) + ' ' + SCALE_ORDINAL[i]
       }
-    } else {
+    }
+    else {
       // Higher segments use cardinal form
       if (i === 0) {
         result += buildSegment(segment).word
-      } else if (i === 1) {
+      }
+      else if (i === 1) {
         if (segment === 1) {
           result += THOUSAND
-        } else {
+        }
+        else {
           result += buildSegment(segment).word + ' ' + THOUSAND
         }
-      } else {
+      }
+      else {
         const scaleWord = segment === 1 ? SCALE_WORDS_SINGULAR[i] : SCALE_WORDS_PLURAL[i]
         if (segment === 1) {
           result += 'um ' + scaleWord
-        } else {
+        }
+        else {
           result += buildSegment(segment).word + ' ' + scaleWord
         }
       }
@@ -424,7 +442,7 @@ function buildLargeOrdinal (n) {
  * toOrdinal(21)    // 'vigésimo primeiro'
  * toOrdinal(100)   // 'centésimo'
  */
-function toOrdinal (value) {
+function toOrdinal(value) {
   const n = parseOrdinalValue(value)
 
   // Fast path: 1-9
@@ -473,7 +491,7 @@ function toOrdinal (value) {
  * toCurrency(1)      // 'um euro'
  * toCurrency(0.01)   // 'um cêntimo'
  */
-function toCurrency (value, options) {
+function toCurrency(value, options) {
   options = validateOptions(options)
   const { isNegative, dollars: euros, cents } = parseCurrencyValue(value)
   const { and = true } = options

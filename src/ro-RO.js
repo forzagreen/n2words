@@ -62,7 +62,7 @@ const SCALE_META = [
   { singular: 'cvintilion', plural: 'cvintilioane', article: 'un', feminine: false, needsDe: true },
   { singular: 'sextilion', plural: 'sextilioane', article: 'un', feminine: false, needsDe: true },
   { singular: 'septilion', plural: 'septilioane', article: 'un', feminine: false, needsDe: true },
-  { singular: 'octilion', plural: 'octilioane', article: 'un', feminine: false, needsDe: true }
+  { singular: 'octilion', plural: 'octilioane', article: 'un', feminine: false, needsDe: true },
 ]
 
 // ============================================================================
@@ -76,7 +76,7 @@ const SCALE_META = [
  * @param {boolean} [feminine] - Use feminine forms
  * @param {boolean} [masculineTeens] - Use masculine teen forms
  */
-function spellUnder100 (n, feminine = false, masculineTeens = false) {
+function spellUnder100(n, feminine = false, masculineTeens = false) {
   if (n === 0) return ''
   if (n < 10) {
     return feminine ? ONES_FEM[n] : ONES_MASC[n]
@@ -100,7 +100,7 @@ function spellUnder100 (n, feminine = false, masculineTeens = false) {
  * @param {boolean} [feminine] - Use feminine forms
  * @param {boolean} [masculineTeens] - Use masculine teen forms
  */
-function spellUnder1000 (n, feminine = false, masculineTeens = false) {
+function spellUnder1000(n, feminine = false, masculineTeens = false) {
   if (n === 0) return ''
   if (n < 100) return spellUnder100(n, feminine, masculineTeens)
 
@@ -119,7 +119,7 @@ function spellUnder1000 (n, feminine = false, masculineTeens = false) {
  * @param {number} segment - Three-digit segment value (1-999)
  * @param {number} scaleIndex - Scale position (1 = thousands, 2 = millions, ...)
  */
-function buildScalePhrase (segment, scaleIndex) {
+function buildScalePhrase(segment, scaleIndex) {
   const meta = SCALE_META[scaleIndex - 1]
   if (!meta) return spellUnder1000(segment, true)
 
@@ -153,7 +153,7 @@ function buildScalePhrase (segment, scaleIndex) {
  * @param {string | {gender?: string}} gender - Gender for numbers ('feminine'/'masculine')
  * @returns {string} Romanian words
  */
-function integerToWords (n, gender) {
+function integerToWords(n, gender) {
   if (n === 0n) return ZERO
 
   // Fast path: numbers < 1000
@@ -173,7 +173,7 @@ function integerToWords (n, gender) {
  * @param {string | {gender?: string}} gender - Gender for numbers ('feminine'/'masculine')
  * @returns {string} Romanian words
  */
-function buildLargeNumberWords (n, gender) {
+function buildLargeNumberWords(n, gender) {
   // Extract segments using BigInt division (faster than string slicing)
   // Segments stored least-significant first (index 0 = ones, 1 = thousands, etc.)
   const segmentValues = []
@@ -195,14 +195,16 @@ function buildLargeNumberWords (n, gender) {
       // Units segment - use gender from options
       const feminine = gender === 'feminine'
       segmentWords = spellUnder1000(segment, feminine)
-    } else {
+    }
+    else {
       // Scale segment
       segmentWords = buildScalePhrase(segment, i)
     }
 
     if (result && segmentWords) {
       result += ' ' + segmentWords
-    } else if (segmentWords) {
+    }
+    else if (segmentWords) {
       result = segmentWords
     }
   }
@@ -217,7 +219,7 @@ function buildLargeNumberWords (n, gender) {
  * @param {string} decimalPart - Decimal digits (without the point)
  * @returns {string} Romanian words for decimal part
  */
-function decimalPartToWords (decimalPart) {
+function decimalPartToWords(decimalPart) {
   let result = ''
   let i = 0
 
@@ -235,7 +237,8 @@ function decimalPartToWords (decimalPart) {
     const n = BigInt(remainder)
     if (n < 1000n) {
       result += spellUnder1000(Number(n), false, true)
-    } else {
+    }
+    else {
       result += integerToWords(n, { gender: 'masculine' })
     }
   }
@@ -258,7 +261,7 @@ function decimalPartToWords (decimalPart) {
  * toCardinal(1, { gender: 'feminine' }) // 'una'
  * toCardinal(1000)                      // 'o mie'
  */
-function toCardinal (value, options) {
+function toCardinal(value, options) {
   options = validateOptions(options)
   const { isNegative, integerPart, decimalPart } = parseCardinalValue(value)
 
@@ -290,7 +293,7 @@ function toCardinal (value, options) {
  * @param {number} n - Number 0-99
  * @returns {string} Ordinal word
  */
-function buildOrdinalTensOnes (n) {
+function buildOrdinalTensOnes(n) {
   if (n === 0) return ''
   if (n < 10) return ORDINAL_ONES[n]
   if (n < 20) return ORDINAL_TEENS[n - 10]
@@ -311,7 +314,7 @@ function buildOrdinalTensOnes (n) {
  * @param {bigint} n - Non-negative integer to convert
  * @returns {string} Romanian ordinal words
  */
-function integerToOrdinal (n) {
+function integerToOrdinal(n) {
   if (n === 0n) return ''
   if (n === 1n) return ORDINAL_ONES[1]
 
@@ -347,7 +350,8 @@ function integerToOrdinal (n) {
     let result
     if (thousands === 1) {
       result = 'o mie'
-    } else {
+    }
+    else {
       result = buildScalePhrase(thousands, 1)
     }
 
@@ -379,7 +383,8 @@ function integerToOrdinal (n) {
   let result
   if (millions === 1) {
     result = 'un milion'
-  } else {
+  }
+  else {
     result = buildScalePhrase(millions, 2)
   }
 
@@ -398,7 +403,7 @@ function integerToOrdinal (n) {
  * toOrdinal(1)   // 'primul'
  * toOrdinal(21)  // 'douăzeci și primul'
  */
-function toOrdinal (value) {
+function toOrdinal(value) {
   const n = parseOrdinalValue(value)
   return integerToOrdinal(n)
 }
@@ -419,7 +424,7 @@ function toOrdinal (value) {
  * toCurrency(1)     // 'un leu'
  * toCurrency(2.50)  // 'doi lei cincizeci de bani'
  */
-function toCurrency (value) {
+function toCurrency(value) {
   const { isNegative, dollars, cents } = parseCurrencyValue(value)
 
   const parts = []
@@ -432,7 +437,8 @@ function toCurrency (value) {
   if (dollars > 0n || cents === 0n) {
     if (dollars === 1n) {
       parts.push('un ' + LEU_SINGULAR)
-    } else {
+    }
+    else {
       const leuWord = integerToWords(dollars, 'masculine')
       parts.push(leuWord + ' ' + LEU_PLURAL)
     }
@@ -443,10 +449,12 @@ function toCurrency (value) {
     const centNum = Number(cents)
     if (centNum === 1) {
       parts.push('un ' + BAN_SINGULAR)
-    } else if (centNum >= 20) {
+    }
+    else if (centNum >= 20) {
       const banWord = spellUnder100(centNum, false)
       parts.push(banWord + ' de ' + BAN_PLURAL)
-    } else {
+    }
+    else {
       const banWord = spellUnder100(centNum, false)
       parts.push(banWord + ' ' + BAN_PLURAL)
     }

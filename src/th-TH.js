@@ -47,7 +47,7 @@ const BAHT_ONLY = 'ถ้วน' // "exactly" suffix when no satang
  * @param {number} n
  * @returns {string}
  */
-function convertBelowMillion (n) {
+function convertBelowMillion(n) {
   if (n === 0) return ''
 
   let value = n
@@ -71,7 +71,8 @@ function convertBelowMillion (n) {
   if (tenThousands > 0) {
     if (tenThousands === 1) {
       parts.push('หนึ่งหมื่น')
-    } else {
+    }
+    else {
       parts.push(ONES[tenThousands - 1] + 'หมื่น')
     }
   }
@@ -87,9 +88,11 @@ function convertBelowMillion (n) {
   if (tens > 0) {
     if (tens === 1) {
       parts.push('สิบ')
-    } else if (tens === 2) {
+    }
+    else if (tens === 2) {
       parts.push('ยี่สิบ')
-    } else {
+    }
+    else {
       parts.push(ONES[tens - 1] + 'สิบ')
     }
   }
@@ -98,7 +101,8 @@ function convertBelowMillion (n) {
     const hasHigher = hundredThousands > 0 || tenThousands > 0 || thousands > 0 || hundreds > 0 || tens > 0
     if (ones === 1 && (tens > 0 || hasHigher)) {
       parts.push('เอ็ด')
-    } else {
+    }
+    else {
       parts.push(ONES[ones - 1])
     }
   }
@@ -110,7 +114,7 @@ function convertBelowMillion (n) {
  * @param {bigint} n
  * @returns {number[]}
  */
-function splitMillionGroups (n) {
+function splitMillionGroups(n) {
   const groups = []
   let remaining = n
 
@@ -128,7 +132,7 @@ function splitMillionGroups (n) {
  * @param {bigint} n
  * @returns {string}
  */
-function integerToWords (n) {
+function integerToWords(n) {
   if (n === 0n) return ZERO
 
   const groups = splitMillionGroups(n)
@@ -152,7 +156,7 @@ function integerToWords (n) {
  * @param {string} decimalPart
  * @returns {string}
  */
-function decimalPartToWords (decimalPart) {
+function decimalPartToWords(decimalPart) {
   // Per-digit decimal reading
   const digits = []
   for (const char of decimalPart) {
@@ -168,7 +172,7 @@ function decimalPartToWords (decimalPart) {
  * @param {number | string | bigint} value - The numeric value to convert
  * @returns {string} The number in Thai words
  */
-function toCardinal (value) {
+function toCardinal(value) {
   const { isNegative, integerPart, decimalPart } = parseCardinalValue(value)
 
   let result = ''
@@ -198,7 +202,7 @@ function toCardinal (value) {
  * @param {bigint} n - Positive integer to convert
  * @returns {string} Thai ordinal words
  */
-function integerToOrdinal (n) {
+function integerToOrdinal(n) {
   return ORDINAL_PREFIX + integerToWords(n)
 }
 
@@ -215,7 +219,7 @@ function integerToOrdinal (n) {
  * toOrdinal(2)    // 'ที่สอง'
  * toOrdinal(10)   // 'ที่สิบ'
  */
-function toOrdinal (value) {
+function toOrdinal(value) {
   const integerPart = parseOrdinalValue(value)
   return integerToOrdinal(integerPart)
 }
@@ -240,7 +244,7 @@ function toOrdinal (value) {
  * toCurrency(1.50)   // 'หนึ่งบาทห้าสิบสตางค์'
  * toCurrency(-5)     // 'ลบห้าบาทถ้วน'
  */
-function toCurrency (value) {
+function toCurrency(value) {
   const { isNegative, dollars: baht, cents: satang } = parseCurrencyValue(value)
 
   let result = ''
@@ -256,7 +260,8 @@ function toCurrency (value) {
   if (satang > 0n) {
     result += integerToWords(satang)
     result += SATANG
-  } else {
+  }
+  else {
     result += BAHT_ONLY
   }
 

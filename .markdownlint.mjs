@@ -49,5 +49,5 @@ export default {
 
   // MD030 - Spaces after list markers
   // Enforce single space after list markers
-  MD030: { ul_single: 1, ul_multi: 1, ol_single: 1, ol_multi: 1 }
+  MD030: { ul_single: 1, ul_multi: 1, ol_single: 1, ol_multi: 1 },
 }

@@ -53,7 +53,7 @@ const BELOW_HUNDRED = [
   'ষাট', 'একষট্টি', 'বাষট্টি', 'তেষট্টি', 'চৌষট্টি', 'পঁয়ষট্টি', 'ছেষট্টি', 'সাতষট্টি', 'আটষট্টি', 'ঊনসত্তর',
   'সত্তর', 'একাত্তর', 'বাহাত্তর', 'তেহাত্তর', 'চুয়াত্তর', 'পঁচাত্তর', 'ছিয়াত্তর', 'সাতাত্তর', 'আটাত্তর', 'উনআশি',
   'আশি', 'একাশি', 'বিরাশি', 'তিরাশি', 'চুরাশি', 'পঁচাশি', 'ছিয়াশি', 'সাতাশি', 'আটাশি', 'উননব্বই',
-  'নব্বই', 'একানব্বই', 'বিরানব্বই', 'তিরানব্বই', 'চুরানব্বই', 'পঁচানব্বই', 'ছিয়ানব্বই', 'সাতানব্বই', 'আটানব্বই', 'নিরানব্বই'
+  'নব্বই', 'একানব্বই', 'বিরানব্বই', 'তিরানব্বই', 'চুরানব্বই', 'পঁচানব্বই', 'ছিয়ানব্বই', 'সাতানব্বই', 'আটানব্বই', 'নিরানব্বই',
 ]
 
 // Scale words: index 0 = units (empty), 1 = thousand, 2 = lakh, 3 = crore, etc.
@@ -69,7 +69,7 @@ const SCALE_WORDS = ['', 'হাজার', 'লাখ', 'কোটি', 'আর
  * @param {number} n - Segment value in the range 0-999
  * @returns {string} Bengali words for the segment
  */
-function buildSegment (n) {
+function buildSegment(n) {
   if (n === 0) return ''
   if (n < 100) return BELOW_HUNDRED[n]
 
@@ -95,7 +95,7 @@ function buildSegment (n) {
  * @param {bigint} n - Non-negative integer to convert
  * @returns {string} Bengali words
  */
-function integerToWords (n) {
+function integerToWords(n) {
   if (n === 0n) return ZERO
 
   // Fast path: numbers < 1000 (direct lookup)
@@ -127,7 +127,8 @@ function integerToWords (n) {
     if (i === 0) {
       // First segment (units place) can be 0-999
       words.push(buildSegment(segment))
-    } else {
+    }
+    else {
       // Other segments are 0-99
       words.push(BELOW_HUNDRED[segment])
     }
@@ -147,7 +148,7 @@ function integerToWords (n) {
  * @param {string} decimalPart - The fractional digits (e.g. '05')
  * @returns {string} Bengali words for the decimal part
  */
-function decimalPartToWords (decimalPart) {
+function decimalPartToWords(decimalPart) {
   let result = ''
   let i = 0
 
@@ -172,7 +173,7 @@ function decimalPartToWords (decimalPart) {
  * @param {number | string | bigint} value - The numeric value to convert
  * @returns {string} The number in Bengali words
  */
-function toCardinal (value) {
+function toCardinal(value) {
   const { isNegative, integerPart, decimalPart } = parseCardinalValue(value)
 
   let result = ''
@@ -202,7 +203,7 @@ function toCardinal (value) {
  * @param {bigint} n - Positive integer to convert
  * @returns {string} Bengali ordinal words
  */
-function integerToOrdinal (n) {
+function integerToOrdinal(n) {
   // Special ordinals for 1-6
   if (n >= 1n && n <= 6n) {
     return ORDINAL_SPECIAL[Number(n)]
@@ -227,7 +228,7 @@ function integerToOrdinal (n) {
  * toOrdinal(3)    // 'তৃতীয়'
  * toOrdinal(10)   // 'দশতম'
  */
-function toOrdinal (value) {
+function toOrdinal(value) {
   const integerPart = parseOrdinalValue(value)
   return integerToOrdinal(integerPart)
 }
@@ -249,7 +250,7 @@ function toOrdinal (value) {
  * toCurrency(1)      // 'এক টাকা'
  * toCurrency(0.01)   // 'এক পয়সা'
  */
-function toCurrency (value) {
+function toCurrency(value) {
   const { isNegative, dollars: taka, cents: paisa } = parseCurrencyValue(value)
 
   // Build result

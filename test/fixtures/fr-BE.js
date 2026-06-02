@@ -96,7 +96,7 @@ export const cardinal = [
   [91, 'nonante-et-un', { withHyphenSeparator: true }],
   [142, 'cent-quarante-deux', { withHyphenSeparator: true }],
   [1243, 'mille-deux-cent-quarante-trois', { withHyphenSeparator: true }],
-  [21_602, 'vingt-et-un-mille-six-cent-deux', { withHyphenSeparator: true }]
+  [21_602, 'vingt-et-un-mille-six-cent-deux', { withHyphenSeparator: true }],
 ]
 
 /**
@@ -163,7 +163,7 @@ export const ordinal = [
 
   // Larger numbers
   [1_000_000, 'un millionième'],
-  [2_000_000, 'deux millionième']
+  [2_000_000, 'deux millionième'],
 ]
 
 /**
@@ -211,5 +211,5 @@ export const currency = [
 
   // Edge cases
   [5.00, 'cinq euros'],
-  ['5.00', 'cinq euros']
+  ['5.00', 'cinq euros'],
 ]

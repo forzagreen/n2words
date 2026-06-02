@@ -76,7 +76,7 @@ const CENTESIMI = 'centesimi'
  * @param {number} n - Number 0-999 to convert
  * @returns {string} Segment word
  */
-function buildSegment (n) {
+function buildSegment(n) {
   if (n === 0) return ''
 
   const ones = n % 10
@@ -92,7 +92,8 @@ function buildSegment (n) {
     if (tens === 8 || (tens === 0 && ones === 8)) {
       // Remove final 'o' from hundreds: cento→cent, duecento→duecent, etc.
       result = HUNDREDS[hundreds].slice(0, -1)
-    } else {
+    }
+    else {
       result = HUNDREDS[hundreds]
     }
   }
@@ -100,28 +101,35 @@ function buildSegment (n) {
   // Tens and ones
   if (tens === 0 && ones === 0) {
     // Nothing more (just hundreds)
-  } else if (tens === 1) {
+  }
+  else if (tens === 1) {
     // Teens: 10-19
     result += TEENS[ones]
-  } else if (tens >= 2) {
+  }
+  else if (tens >= 2) {
     // 20-99: handle elision for uno (1) and otto (8)
     if (ones === 1 || ones === 8) {
       // Use stem form: vent + uno = ventuno, vent + otto = ventotto
       result += TENS_STEM[tens] + ONES[ones]
-    } else if (ones === 3) {
+    }
+    else if (ones === 3) {
       // Final tre becomes tré
       result += TENS[tens] + 'tré'
-    } else if (ones > 0) {
+    }
+    else if (ones > 0) {
       result += TENS[tens] + ONES[ones]
-    } else {
+    }
+    else {
       result += TENS[tens]
     }
-  } else if (ones > 0) {
+  }
+  else if (ones > 0) {
     // 1-9 (tens === 0)
     if (ones === 3 && hundreds > 0) {
       // centotré, duecentotré, etc.
       result += 'tré'
-    } else {
+    }
+    else {
       result += ONES[ones]
     }
   }
@@ -136,7 +144,7 @@ function buildSegment (n) {
  * @param {number} n - Number 0-999 to convert
  * @returns {string} Segment word
  */
-function buildSegmentForScale (n) {
+function buildSegmentForScale(n) {
   if (n === 0) return ''
   if (n === 1) return 'un' // "un milione" not "uno milione"
   return buildSegment(n)
@@ -149,7 +157,7 @@ function buildSegmentForScale (n) {
  * @param {number} n - Number of thousands 1-999
  * @returns {string} Thousands word
  */
-function buildThousands (n) {
+function buildThousands(n) {
   if (n === 0) return ''
   if (n === 1) return THOUSAND_SINGULAR // "mille"
 
@@ -167,7 +175,7 @@ function buildThousands (n) {
  * Gets singular scale word for index.
  * @param {number} scaleIndex - 2=million, 3=billion, etc.
  */
-function getScaleWordSingular (scaleIndex) {
+function getScaleWordSingular(scaleIndex) {
   if (scaleIndex < 2) return ''
   const prefixIndex = Math.trunc((scaleIndex - 2) / 2)
   const isIardo = (scaleIndex - 2) % 2 === 1
@@ -180,7 +188,7 @@ function getScaleWordSingular (scaleIndex) {
  * Gets plural scale word for index.
  * @param {number} scaleIndex - 2=million, 3=billion, etc.
  */
-function getScaleWordPlural (scaleIndex) {
+function getScaleWordPlural(scaleIndex) {
   if (scaleIndex < 2) return ''
   const prefixIndex = Math.trunc((scaleIndex - 2) / 2)
   const isIardo = (scaleIndex - 2) % 2 === 1
@@ -199,7 +207,7 @@ function getScaleWordPlural (scaleIndex) {
  * @param {bigint} n - Non-negative integer to convert
  * @returns {string} Italian words
  */
-function integerToWords (n) {
+function integerToWords(n) {
   if (n === 0n) return ZERO
 
   // Fast path: numbers < 1000
@@ -230,7 +238,7 @@ function integerToWords (n) {
  * @param {bigint} n - Number >= 1,000,000
  * @returns {string} Italian words
  */
-function buildLargeNumberWords (n) {
+function buildLargeNumberWords(n) {
   const parts = []
   let remaining = n
 
@@ -259,10 +267,12 @@ function buildLargeNumberWords (n) {
         ? getScaleWordSingular(scaleIndex)
         : getScaleWordPlural(scaleIndex)
       parts.push(segmentWords + ' ' + scaleWord)
-    } else if (scaleIndex === 1) {
+    }
+    else if (scaleIndex === 1) {
       // Thousands
       parts.push(buildThousands(segNum))
-    } else {
+    }
+    else {
       // Units (scaleIndex === 0): just the segment
       parts.push(buildSegment(segNum))
     }
@@ -278,7 +288,7 @@ function buildLargeNumberWords (n) {
  * @param {string[]} parts - Parts to join
  * @returns {string} Joined string
  */
-function joinPartsWithConnector (parts) {
+function joinPartsWithConnector(parts) {
   const len = parts.length
   if (len === 0) return ''
   if (len === 1) return parts[0]
@@ -308,7 +318,7 @@ function joinPartsWithConnector (parts) {
  * @param {string} decimalPart - Decimal digits (without the point)
  * @returns {string} Italian words for decimal part
  */
-function decimalPartToWords (decimalPart) {
+function decimalPartToWords(decimalPart) {
   let result = ''
 
   // Handle leading zeros
@@ -347,7 +357,7 @@ function decimalPartToWords (decimalPart) {
  * toCardinal(2000)         // 'duemila'
  * toCardinal(1000000)      // 'un milione'
  */
-function toCardinal (value) {
+function toCardinal(value) {
   const { isNegative, integerPart, decimalPart } = parseCardinalValue(value)
 
   let result = ''
@@ -375,7 +385,7 @@ function toCardinal (value) {
  * @param {string} cardinalWord - Cardinal word to convert
  * @returns {string} Ordinal form
  */
-function cardinalToOrdinal (cardinalWord) {
+function cardinalToOrdinal(cardinalWord) {
   // Handle accented 'é' at end (tré → tre + esimo = treesimo)
   if (cardinalWord.endsWith('é')) {
     return cardinalWord.slice(0, -1) + 'e' + ORDINAL_SUFFIX
@@ -414,7 +424,7 @@ function cardinalToOrdinal (cardinalWord) {
  * @param {bigint} n - Positive integer
  * @returns {string} Italian ordinal words (masculine form)
  */
-function integerToOrdinal (n) {
+function integerToOrdinal(n) {
   // Special cases: 1-10 have irregular forms
   if (n <= 10n) {
     return ORDINAL_ONES[Number(n)]
@@ -444,7 +454,7 @@ function integerToOrdinal (n) {
  * toOrdinal(100)  // 'centesimo'
  * toOrdinal(1000) // 'millesimo'
  */
-function toOrdinal (value) {
+function toOrdinal(value) {
   const integerPart = parseOrdinalValue(value)
   return integerToOrdinal(integerPart)
 }
@@ -470,7 +480,7 @@ function toOrdinal (value) {
  * toCurrency(0.01)                  // 'un centesimo'
  * toCurrency(42.50, { and: false }) // 'quarantadue euro cinquanta centesimi'
  */
-function toCurrency (value, options) {
+function toCurrency(value, options) {
   options = validateOptions(options)
   const { isNegative, dollars: euros, cents: centesimi } = parseCurrencyValue(value)
   const { and: useAnd = true } = options
@@ -484,7 +494,8 @@ function toCurrency (value, options) {
     // Use "un" for 1 euro instead of "uno"
     if (euros === 1n) {
       result += 'un'
-    } else {
+    }
+    else {
       result += integerToWords(euros)
     }
     // Euro is invariable (doesn't change for plural in Italian)
@@ -499,7 +510,8 @@ function toCurrency (value, options) {
     // Use "un" for 1 centesimo instead of "uno"
     if (centesimi === 1n) {
       result += 'un'
-    } else {
+    }
+    else {
       result += integerToWords(centesimi)
     }
     result += ' ' + (centesimi === 1n ? CENTESIMO : CENTESIMI)

@@ -75,7 +75,7 @@ export const cardinal = [
   ['0.5', 'zero netib amist'],
 
   // BigInt
-  [BigInt(999), 'zeteny meto zetena zeteny']
+  [BigInt(999), 'zeteny meto zetena zeteny'],
 ]
 
 /**
@@ -117,7 +117,7 @@ export const ordinal = [
   [2000, 'hulet shinya'],
 
   // Larger
-  [1_000_000, 'and miliyonnya']
+  [1_000_000, 'and miliyonnya'],
 ]
 
 /**
@@ -152,5 +152,5 @@ export const currency = [
 
   // Edge cases
   [5.00, 'amist birr'],
-  ['5.00', 'amist birr']
+  ['5.00', 'amist birr'],
 ]

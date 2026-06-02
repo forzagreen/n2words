@@ -50,7 +50,7 @@ const ORDINAL_SPECIAL = {
   7: 'yedinci',
   8: 'sekizinci',
   9: 'dokuzuncu',
-  10: 'onuncu'
+  10: 'onuncu',
 }
 
 // ============================================================================
@@ -72,7 +72,7 @@ const KURUS = 'kuruş' // subunit (100 kuruş = 1 lira)
  * @param {string} [separator=' '] - Separator between words
  * @returns {string} Segment words
  */
-function buildSegment (n, separator = ' ') {
+function buildSegment(n, separator = ' ') {
   if (n === 0) return ''
 
   const ones = n % 10
@@ -85,7 +85,8 @@ function buildSegment (n, separator = ' ') {
   if (hundreds > 0) {
     if (hundreds === 1) {
       parts.push(HUNDRED)
-    } else {
+    }
+    else {
       parts.push(ONES[hundreds] + separator + HUNDRED)
     }
   }
@@ -95,13 +96,17 @@ function buildSegment (n, separator = ' ') {
 
   if (tensOnes === 0) {
     // Just hundreds
-  } else if (tensOnes < 10) {
+  }
+  else if (tensOnes < 10) {
     parts.push(ONES[ones])
-  } else if (tensOnes < 20) {
+  }
+  else if (tensOnes < 20) {
     parts.push(TEENS[ones].replace(' ', separator))
-  } else if (ones === 0) {
+  }
+  else if (ones === 0) {
     parts.push(TENS[tens])
-  } else {
+  }
+  else {
     parts.push(TENS[tens] + separator + ONES[ones])
   }
 
@@ -119,7 +124,7 @@ function buildSegment (n, separator = ' ') {
  * @param {boolean} dropSpaces - Remove spaces for compound form
  * @returns {string} Turkish words
  */
-function integerToWords (n, dropSpaces) {
+function integerToWords(n, dropSpaces) {
   if (n === 0n) return ZERO
 
   const sep = dropSpaces ? '' : ' '
@@ -138,7 +143,8 @@ function integerToWords (n, dropSpaces) {
     let result
     if (thousands === 1) {
       result = THOUSAND
-    } else {
+    }
+    else {
       result = buildSegment(thousands, sep) + sep + THOUSAND
     }
 
@@ -160,7 +166,7 @@ function integerToWords (n, dropSpaces) {
  * @param {boolean} dropSpaces - Remove spaces for compound form
  * @returns {string} Turkish words
  */
-function buildLargeNumberWords (n, dropSpaces) {
+function buildLargeNumberWords(n, dropSpaces) {
   const sep = dropSpaces ? '' : ' '
 
   const numStr = n.toString()
@@ -194,14 +200,17 @@ function buildLargeNumberWords (n, dropSpaces) {
       if (scaleIndex === 0) {
         // Units segment
         parts.push(segmentWord)
-      } else if (scaleIndex === 1) {
+      }
+      else if (scaleIndex === 1) {
         // Thousands - omit "bir" before bin
         if (segment === 1) {
           parts.push(THOUSAND)
-        } else {
+        }
+        else {
           parts.push(segmentWord + sep + THOUSAND)
         }
-      } else {
+      }
+      else {
         // Millions+ - "bir" is kept before scale words
         const scaleWord = SCALES[scaleIndex - 2]
         parts.push(segmentWord + sep + scaleWord)
@@ -221,7 +230,7 @@ function buildLargeNumberWords (n, dropSpaces) {
  * @param {boolean} dropSpaces - Remove spaces for compound form
  * @returns {string} Turkish words for decimal part
  */
-function decimalPartToWords (decimalPart, dropSpaces) {
+function decimalPartToWords(decimalPart, dropSpaces) {
   const sep = dropSpaces ? '' : ' '
   let result = ''
 
@@ -258,7 +267,7 @@ function decimalPartToWords (decimalPart, dropSpaces) {
  * toCardinal(21, { dropSpaces: true })  // 'yirmibir'
  * toCardinal(1000)                      // 'bin'
  */
-function toCardinal (value, options) {
+function toCardinal(value, options) {
   options = validateOptions(options)
   const { isNegative, integerPart, decimalPart } = parseCardinalValue(value)
 
@@ -290,7 +299,7 @@ function toCardinal (value, options) {
  * @param {string} word - The cardinal word
  * @returns {string} The appropriate suffix
  */
-function getOrdinalSuffix (word) {
+function getOrdinalSuffix(word) {
   // Turkish vowel harmony: back vowels (a,ı,o,u) vs front vowels (e,i,ö,ü)
   // Find last vowel to determine suffix
   const backVowels = 'aıou'
@@ -322,7 +331,7 @@ function getOrdinalSuffix (word) {
  * @param {bigint} n - Positive integer to convert
  * @returns {string} Turkish ordinal words
  */
-function integerToOrdinal (n) {
+function integerToOrdinal(n) {
   // Special forms for 1-10
   if (n >= 1n && n <= 10n) {
     return ORDINAL_SPECIAL[Number(n)]
@@ -347,7 +356,7 @@ function integerToOrdinal (n) {
  * toOrdinal(2)    // 'ikinci'
  * toOrdinal(21)   // 'yirmibirinci'
  */
-function toOrdinal (value) {
+function toOrdinal(value) {
   const integerPart = parseOrdinalValue(value)
   return integerToOrdinal(integerPart)
 }
@@ -371,7 +380,7 @@ function toOrdinal (value) {
  * toCurrency(1.50)   // 'bir lira elli kuruş'
  * toCurrency(-5)     // 'eksi beş lira'
  */
-function toCurrency (value) {
+function toCurrency(value) {
   const { isNegative, dollars: lira, cents: kurus } = parseCurrencyValue(value)
 
   let result = ''

@@ -79,7 +79,7 @@ export const cardinal = [
   [4_000_000, 'quattro milioni'],
   [10_000_000_000_000, 'dieci bilioni'],
   [100_000_000_000_000, 'cento bilioni'],
-  [1_000_000_000_000_000_000n, 'un trilione']
+  [1_000_000_000_000_000_000n, 'un trilione'],
 ]
 
 /**
@@ -162,7 +162,7 @@ export const ordinal = [
   [1_000_000_000_000, 'un bilionesimo'],
 
   // BigInt support
-  [1_000_000_000_000_000_000n, 'un trilionesimo']
+  [1_000_000_000_000_000_000n, 'un trilionesimo'],
 ]
 
 /**
@@ -219,5 +219,5 @@ export const currency = [
   ['0.99', 'novantanove centesimi'],
 
   // BigInt (whole euros only)
-  [1000000000000n, 'un bilione euro']
+  [1000000000000n, 'un bilione euro'],
 ]

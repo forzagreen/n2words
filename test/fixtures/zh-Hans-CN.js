@@ -42,7 +42,7 @@ export const cardinal = [
   [22_222_222_222, '贰佰贰拾贰亿贰仟贰佰贰拾贰万贰仟贰佰贰拾贰'],
   [
     222_222_222_222_222,
-    '贰佰贰拾贰万贰仟贰佰贰拾贰亿贰仟贰佰贰拾贰万贰仟贰佰贰拾贰'
+    '贰佰贰拾贰万贰仟贰佰贰拾贰亿贰仟贰佰贰拾贰万贰仟贰佰贰拾贰',
   ],
 
   // Common/everyday numerals (explicit opt-out)
@@ -79,12 +79,12 @@ export const cardinal = [
   [
     222_222_222_222_222,
     '二百二十二万二千二百二十二亿二千二百二十二万二千二百二十二',
-    { formal: false }
+    { formal: false },
   ],
   [5.5, '五点五', { formal: false }],
   [0.007, '零点零零七', { formal: false }],
   [17.42, '一十七点四二', { formal: false }],
-  [-17.42, '负一十七点四二', { formal: false }]
+  [-17.42, '负一十七点四二', { formal: false }],
 ]
 
 /**
@@ -116,7 +116,7 @@ export const ordinal = [
   [101, '第一百零一', { formal: false }],
   [1000, '第一千', { formal: false }],
   [10000, '第一万', { formal: false }],
-  [100000000, '第一亿', { formal: false }]
+  [100000000, '第一亿', { formal: false }],
 ]
 
 /**
@@ -166,5 +166,5 @@ export const currency = [
 
   // Edge cases
   [5.00, '伍圆整'],
-  ['5.00', '伍圆整']
+  ['5.00', '伍圆整'],
 ]

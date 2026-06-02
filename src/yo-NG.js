@@ -36,7 +36,7 @@ const ONES = [
   'èje', // 7
   'ẹ̀jọ', // 8
   'ẹ̀sán', // 9
-  'ẹ̀wá' // 10
+  'ẹ̀wá', // 10
 ]
 
 // Numbers 11-14 (additive: X + 10, using "lá")
@@ -45,7 +45,7 @@ const TEENS_ADD = [
   'ọ̀kànlá', // 11 = 1 + 10
   'èjìlá', // 12 = 2 + 10
   'ẹ̀talá', // 13 = 3 + 10
-  'ẹ̀rinlá' // 14 = 4 + 10
+  'ẹ̀rinlá', // 14 = 4 + 10
 ]
 
 // Numbers 15-19 (subtractive: 20 - X, using "dín")
@@ -54,7 +54,7 @@ const TEENS_SUB = [
   'ẹ̀rìndínlógún', // 16 = 20 - 4
   'ẹ̀tadínlógún', // 17 = 20 - 3
   'èjìdínlógún', // 18 = 20 - 2
-  'ọ̀kàndínlógún' // 19 = 20 - 1
+  'ọ̀kàndínlógún', // 19 = 20 - 1
 ]
 
 // Decades (base-20 structure)
@@ -70,7 +70,7 @@ const DECADES = {
   70: 'àádọ́rin', // 70 = 80 - 10
   80: 'ogórin', // 80 = 20 × 4
   90: 'àádọ́rùn', // 90 = 100 - 10
-  100: 'ọgọ́rùn' // 100 = 20 × 5
+  100: 'ọgọ́rùn', // 100 = 20 × 5
 }
 
 // Prefixes for adding to decades (lé lógún, lé lọgbọ̀n, etc.)
@@ -84,7 +84,7 @@ const DECADE_ADD_SUFFIX = {
   70: 'láàádọ́rin',
   80: 'lógórin',
   90: 'láàádọ́rùn',
-  100: 'lọ́gọ́rùn'
+  100: 'lọ́gọ́rùn',
 }
 
 // Prefixes for subtracting from decades (dín lógójì, etc.)
@@ -98,7 +98,7 @@ const DECADE_SUB_SUFFIX = {
   70: 'dínláàádọ́rin',
   80: 'dínlógórin',
   90: 'dínláàádọ́rùn',
-  100: 'dínlọ́gọ́rùn'
+  100: 'dínlọ́gọ́rùn',
 }
 
 // Scale words
@@ -142,7 +142,7 @@ const KOBO = 'kọ́bọ̀'
  * @param {number} n - Integer in the range 0-99
  * @returns {string} Yoruba words for the number
  */
-function buildUnder100 (n) {
+function buildUnder100(n) {
   if (n === 0) return ''
   if (n <= 10) return ONES[n]
 
@@ -179,7 +179,7 @@ function buildUnder100 (n) {
  * @param {number} n - Integer in the range 0-999
  * @returns {string} Yoruba words for the number
  */
-function convertHundreds (n) {
+function convertHundreds(n) {
   if (n < 100) return buildUnder100(n)
 
   const hundreds = Math.trunc(n / 100)
@@ -198,11 +198,14 @@ function convertHundreds (n) {
   // Build hundreds
   if (hundreds === 1) {
     result = HUNDRED
-  } else if (hundreds === 2) {
+  }
+  else if (hundreds === 2) {
     result = TWO_HUNDRED
-  } else if (hundreds === 4) {
+  }
+  else if (hundreds === 4) {
     result = FOUR_HUNDRED
-  } else {
+  }
+  else {
     // Other hundreds: X ọgọ́rùn
     result = ONES[hundreds] + ' ' + HUNDRED
   }
@@ -220,7 +223,7 @@ function convertHundreds (n) {
  * @param {bigint} n - Non-negative integer to convert
  * @returns {string} Yoruba words
  */
-function integerToWords (n) {
+function integerToWords(n) {
   if (n === 0n) return ZERO
 
   // Fast path: numbers < 100
@@ -243,7 +246,8 @@ function integerToWords (n) {
     remaining = remaining % 1_000_000n
     if (millions === 1n) {
       parts.push(MILLION + ' kan')
-    } else {
+    }
+    else {
       parts.push(MILLION + ' ' + integerToWords(millions))
     }
   }
@@ -255,13 +259,17 @@ function integerToWords (n) {
 
     if (thousands === 1n) {
       parts.push(THOUSAND + ' kan')
-    } else if (thousands === 10n) {
+    }
+    else if (thousands === 10n) {
       parts.push(TEN_THOUSAND)
-    } else if (thousands === 20n) {
+    }
+    else if (thousands === 20n) {
       parts.push(TWENTY_THOUSAND)
-    } else if (thousands < 100n) {
+    }
+    else if (thousands < 100n) {
       parts.push(THOUSAND + ' ' + buildUnder100(Number(thousands)))
-    } else {
+    }
+    else {
       parts.push(THOUSAND + ' ' + convertHundreds(Number(thousands)))
     }
   }
@@ -271,13 +279,16 @@ function integerToWords (n) {
     if (remaining < 100n) {
       if (parts.length > 0) {
         parts.push(AND + ' ' + buildUnder100(Number(remaining)))
-      } else {
+      }
+      else {
         parts.push(buildUnder100(Number(remaining)))
       }
-    } else {
+    }
+    else {
       if (parts.length > 0) {
         parts.push(AND + ' ' + convertHundreds(Number(remaining)))
-      } else {
+      }
+      else {
         parts.push(convertHundreds(Number(remaining)))
       }
     }
@@ -292,7 +303,7 @@ function integerToWords (n) {
  * @param {string} decimalPart - Decimal digits
  * @returns {string} Yoruba words for decimal
  */
-function decimalPartToWords (decimalPart) {
+function decimalPartToWords(decimalPart) {
   const parts = []
 
   for (const digit of decimalPart) {
@@ -309,7 +320,7 @@ function decimalPartToWords (decimalPart) {
  * @param {number | string | bigint} value - The numeric value to convert
  * @returns {string} The number in Yoruba words
  */
-function toCardinal (value) {
+function toCardinal(value) {
   const { isNegative, integerPart, decimalPart } = parseCardinalValue(value)
 
   let result = ''
@@ -339,7 +350,7 @@ function toCardinal (value) {
  * @param {bigint} n - Positive integer to convert
  * @returns {string} Yoruba ordinal words
  */
-function integerToOrdinal (n) {
+function integerToOrdinal(n) {
   // Special forms
   if (n === 1n) return ORDINAL_FIRST
   if (n === 2n) return ORDINAL_SECOND
@@ -361,7 +372,7 @@ function integerToOrdinal (n) {
  * toOrdinal(2)    // 'ìkejì'
  * toOrdinal(3)    // 'ìkẹẹ̀ta'
  */
-function toOrdinal (value) {
+function toOrdinal(value) {
   const integerPart = parseOrdinalValue(value)
   return integerToOrdinal(integerPart)
 }
@@ -385,7 +396,7 @@ function toOrdinal (value) {
  * toCurrency(1.50)   // 'ọ̀kan náírà àti àádọ́ta kọ́bọ̀'
  * toCurrency(-5)     // 'àìní àrùn náírà'
  */
-function toCurrency (value) {
+function toCurrency(value) {
   const { isNegative, dollars: naira, cents: kobo } = parseCurrencyValue(value)
 
   let result = ''

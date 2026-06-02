@@ -57,7 +57,7 @@ export const cardinal = [
   [2_000_000, 'milioni mbili'],
   [12_345_678, 'milioni kumi na mbili elfu mia tatu arobaini na tano mia sita sabini na nane'],
   [1_000_000_000, 'bilioni moja'],
-  [1_000_000_000_000n, 'trilioni moja']
+  [1_000_000_000_000n, 'trilioni moja'],
 ]
 
 /**
@@ -94,7 +94,7 @@ export const ordinal = [
 
   // Thousands
   [1000, 'wa elfu moja'],
-  [1001, 'wa elfu moja na moja']
+  [1001, 'wa elfu moja na moja'],
 ]
 
 /**
@@ -133,5 +133,5 @@ export const currency = [
 
   // Edge cases
   [5.00, 'shilingi tano'],
-  ['5.00', 'shilingi tano']
+  ['5.00', 'shilingi tano'],
 ]

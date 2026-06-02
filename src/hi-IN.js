@@ -56,7 +56,7 @@ const BELOW_HUNDRED = [
   'साठ', 'इकसठ', 'बासठ', 'तिरसठ', 'चौंसठ', 'पैंसठ', 'छियासठ', 'सड़सठ', 'अड़सठ', 'उनहत्तर',
   'सत्तर', 'इकहत्तर', 'बहत्तर', 'तिहत्तर', 'चौहत्तर', 'पचहत्तर', 'छिहत्तर', 'सतहत्तर', 'अठहत्तर', 'उन्यासी',
   'अस्सी', 'इक्यासी', 'बयासी', 'तिरासी', 'चौरासी', 'पचासी', 'छियासी', 'सत्तासी', 'अट्ठासी', 'नवासी',
-  'नब्बे', 'इक्यानवे', 'बानवे', 'तिरानवे', 'चौरानवे', 'पचानवे', 'छियानवे', 'सत्तानवे', 'अट्ठानवे', 'निन्यानवे'
+  'नब्बे', 'इक्यानवे', 'बानवे', 'तिरानवे', 'चौरानवे', 'पचानवे', 'छियानवे', 'सत्तानवे', 'अट्ठानवे', 'निन्यानवे',
 ]
 
 // Scale words: index 0 = units (empty), 1 = thousand, 2 = lakh, 3 = crore, etc.
@@ -72,7 +72,7 @@ const SCALE_WORDS = ['', 'हज़ार', 'लाख', 'करोड़', 'अ
  * @param {number} n - Number 0-999
  * @returns {string} Hindi words for the segment
  */
-function buildSegment (n) {
+function buildSegment(n) {
   if (n === 0) return ''
   if (n < 100) return BELOW_HUNDRED[n]
 
@@ -98,7 +98,7 @@ function buildSegment (n) {
  * @param {bigint} n - Non-negative integer to convert
  * @returns {string} Hindi words
  */
-function integerToWords (n) {
+function integerToWords(n) {
   if (n === 0n) return ZERO
 
   // Fast path: numbers < 1000
@@ -130,7 +130,8 @@ function integerToWords (n) {
     if (i === 0) {
       // First segment (units place) can be 0-999
       words.push(buildSegment(segment))
-    } else {
+    }
+    else {
       // Other segments are 0-99
       words.push(BELOW_HUNDRED[segment])
     }
@@ -150,7 +151,7 @@ function integerToWords (n) {
  * @param {string} decimalPart - The digits after the decimal separator
  * @returns {string} Hindi words for the decimal part
  */
-function decimalPartToWords (decimalPart) {
+function decimalPartToWords(decimalPart) {
   let result = ''
   let i = 0
 
@@ -175,7 +176,7 @@ function decimalPartToWords (decimalPart) {
  * @param {number | string | bigint} value - The numeric value to convert
  * @returns {string} The number in Hindi words
  */
-function toCardinal (value) {
+function toCardinal(value) {
   const { isNegative, integerPart, decimalPart } = parseCardinalValue(value)
 
   let result = ''
@@ -205,7 +206,7 @@ function toCardinal (value) {
  * @param {bigint} n - Positive integer to convert
  * @returns {string} Hindi ordinal words
  */
-function integerToOrdinal (n) {
+function integerToOrdinal(n) {
   // Special ordinals for 1-6
   if (n >= 1n && n <= 6n) {
     return ORDINAL_SPECIAL[Number(n)]
@@ -230,7 +231,7 @@ function integerToOrdinal (n) {
  * toOrdinal(3)    // 'तीसरा'
  * toOrdinal(10)   // 'दसवाँ'
  */
-function toOrdinal (value) {
+function toOrdinal(value) {
   const integerPart = parseOrdinalValue(value)
   return integerToOrdinal(integerPart)
 }
@@ -252,7 +253,7 @@ function toOrdinal (value) {
  * toCurrency(1)      // 'एक रुपया'
  * toCurrency(0.01)   // 'एक पैसा'
  */
-function toCurrency (value) {
+function toCurrency(value) {
   const { isNegative, dollars: rupees, cents: paise } = parseCurrencyValue(value)
 
   // Build result
