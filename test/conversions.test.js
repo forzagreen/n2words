@@ -236,9 +236,10 @@ function runTestCases(t, fn, testCases, form) {
 }
 
 /**
- * Minimum fixture cases required per form. The corpus floor is currently 8;
- * gating at 5 fails nothing today but trips a new or regressed fixture that
- * drops below a real smoke test (more than a token value or two).
+ * Minimum fixture cases required per form — a low, deliberate floor that
+ * demands more than a token value or two (a real smoke test) without pinning
+ * languages to an arbitrary count. Acts as a tripwire: a new or regressed
+ * fixture that drops below it fails the build.
  */
 const MIN_TEST_CASES_PER_FORM = 5
 
