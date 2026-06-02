@@ -130,7 +130,6 @@ function buildSegment(n) {
 
 /**
  * Converts a non-negative integer to Georgian words.
- *
  * @param {bigint} n - Non-negative integer to convert
  * @returns {string} Georgian words
  */
@@ -173,7 +172,6 @@ function integerToWords(n) {
 
 /**
  * Builds words for numbers >= 1,000,000.
- *
  * @param {bigint} n - Number >= 1,000,000
  * @returns {string} Georgian words
  */
@@ -243,7 +241,6 @@ function buildLargeNumberWords(n) {
 
 /**
  * Converts decimal digits to Georgian words.
- *
  * @param {string} decimalPart - Decimal digits (without the point)
  * @returns {string} Georgian words for decimal part
  */
@@ -273,12 +270,10 @@ function decimalPartToWords(decimalPart) {
  *
  * This is the main public API. It accepts any valid numeric input
  * (number, string, or bigint) and handles parsing internally.
- *
  * @param {number | string | bigint} value - The numeric value to convert
  * @returns {string} The number in Georgian words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {Error} If value is not a valid number format
- *
  * @example
  * toCardinal(21)           // 'ოცდაერთი'
  * toCardinal(100)          // 'ასი'
@@ -311,7 +306,6 @@ function toCardinal(value) {
  * Georgian ordinals are formed by:
  * - 1-9: special forms (პირველი, მეორე, მესამე, etc.)
  * - 10+: მე- prefix + cardinal + -ე suffix
- *
  * @param {bigint} n - Non-negative integer to convert
  * @returns {string} Georgian ordinal words
  */
@@ -337,12 +331,10 @@ function integerToOrdinal(n) {
 
 /**
  * Converts a numeric value to Georgian ordinal words.
- *
  * @param {number | string | bigint} value - The numeric value to convert
  * @returns {string} The ordinal in Georgian words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {Error} If value is not a positive integer
- *
  * @example
  * toOrdinal(1)   // 'პირველი'
  * toOrdinal(10)  // 'მეათე'
@@ -359,12 +351,10 @@ function toOrdinal(value) {
 
 /**
  * Converts a numeric value to Georgian Lari currency words.
- *
  * @param {number | string | bigint} value - The numeric value to convert
  * @returns {string} The currency in Georgian words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {Error} If value is not a valid number format
- *
  * @example
  * toCurrency(1)     // 'ერთი ლარი'
  * toCurrency(2.50)  // 'ორი ლარი ორმოცდაათი თეთრი'

@@ -62,7 +62,7 @@ const segmentResult = { word: '', hasHundred: false }
 
 /**
  * @param {number} n - Number 0-999
- * @returns {{ word: string, hasHundred: boolean }}
+ * @returns {{ word: string, hasHundred: boolean }} The segment words and whether it contains a hundreds part
  */
 function buildSegment(n) {
   if (n === 0) {
@@ -210,7 +210,6 @@ function decimalPartToWords(decimalPart) {
 
 /**
  * Converts a numeric value to Singaporean English words.
- *
  * @param {number | string | bigint} value - The numeric value to convert
  * @returns {string} The number in English words
  * @throws {TypeError} If value is not a valid numeric type
@@ -350,7 +349,6 @@ function buildLargeOrdinal(n) {
 
 /**
  * Converts a numeric value to Singaporean English ordinal words.
- *
  * @param {number | string | bigint} value - The numeric value to convert (must be a positive integer)
  * @returns {string} The number as ordinal words (e.g., "first", "forty-second")
  */
@@ -365,7 +363,6 @@ function toOrdinal(value) {
 
 /**
  * Converts a numeric value to Singaporean English currency words.
- *
  * @param {number | string | bigint} value - The currency amount to convert
  * @param {{ and?: boolean }} [options] - Optional configuration
  * @returns {string} The amount in Singaporean English currency words

@@ -62,7 +62,8 @@ const SEN = 'sen'
 const segmentResult = { word: '', hasHundred: false }
 
 /**
- * @param {number} n
+ * @param {number} n The 0-999 segment to convert.
+ * @returns {{word: string, hasHundred: boolean}} The segment in words and whether it includes a hundreds part.
  */
 function buildSegment(n) {
   if (n === 0) {
@@ -108,7 +109,8 @@ function buildSegment(n) {
 // ============================================================================
 
 /**
- * @param {bigint} n
+ * @param {bigint} n The non-negative integer to convert.
+ * @returns {string} The integer in English words.
  */
 function integerToWords(n) {
   if (n === 0n) return ZERO
@@ -136,7 +138,8 @@ function integerToWords(n) {
 }
 
 /**
- * @param {bigint} n
+ * @param {bigint} n The integer of one million or greater to convert.
+ * @returns {string} The integer in English words.
  */
 function buildLargeNumberWords(n) {
   const segments = []
@@ -184,7 +187,8 @@ function buildLargeNumberWords(n) {
 }
 
 /**
- * @param {string} decimalPart
+ * @param {string} decimalPart The fractional digits after the decimal point.
+ * @returns {string} The decimal digits in English words.
  */
 function decimalPartToWords(decimalPart) {
   let result = ''
@@ -207,7 +211,6 @@ function decimalPartToWords(decimalPart) {
 
 /**
  * Converts a numeric value to Malaysian English words.
- *
  * @param {number | string | bigint} value - The numeric value to convert
  * @returns {string} The number in English words
  * @throws {TypeError} If value is not a valid numeric type
@@ -236,7 +239,8 @@ function toCardinal(value) {
 // ============================================================================
 
 /**
- * @param {number} n
+ * @param {number} n The 0-999 segment to convert.
+ * @returns {string} The segment as an ordinal in English words.
  */
 function buildOrdinalSegment(n) {
   const ones = n % 10
@@ -272,7 +276,8 @@ function buildOrdinalSegment(n) {
 }
 
 /**
- * @param {bigint} n
+ * @param {bigint} n The non-negative integer to convert.
+ * @returns {string} The integer as an ordinal in English words.
  */
 function integerToOrdinal(n) {
   if (n < 1000n) {
@@ -295,7 +300,8 @@ function integerToOrdinal(n) {
 }
 
 /**
- * @param {bigint} n
+ * @param {bigint} n The integer of one million or greater to convert.
+ * @returns {string} The integer as an ordinal in English words.
  */
 function buildLargeOrdinal(n) {
   const segments = []
@@ -343,8 +349,8 @@ function buildLargeOrdinal(n) {
 }
 
 /**
- * @param {number | string | bigint} value
- * @returns {string}
+ * @param {number | string | bigint} value The numeric value to convert.
+ * @returns {string} The number as an ordinal in English words.
  */
 function toOrdinal(value) {
   const integerPart = parseOrdinalValue(value)
@@ -356,9 +362,9 @@ function toOrdinal(value) {
 // ============================================================================
 
 /**
- * @param {number | string | bigint} value
- * @param {{and?: boolean}} [options]
- * @returns {string}
+ * @param {number | string | bigint} value The numeric value to convert.
+ * @param {{and?: boolean}} [options] Formatting options, such as whether to join ringgit and sen with "and".
+ * @returns {string} The amount in Malaysian ringgit and sen in English words.
  */
 function toCurrency(value, options) {
   options = validateOptions(options)

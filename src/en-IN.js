@@ -51,9 +51,8 @@ const segmentResult = { word: '', hasHundred: false }
 
 /**
  * Builds words for a 0-999 segment (British-style with "and" after hundreds).
- *
  * @param {number} n - Number 0-999
- * @returns {{ word: string, hasHundred: boolean }}
+ * @returns {{ word: string, hasHundred: boolean }} The segment words and whether a hundred was included
  */
 function buildSegment(n) {
   if (n === 0) {
@@ -98,9 +97,8 @@ function buildSegment(n) {
 
 /**
  * Builds words for a 0-99 segment (no hundreds).
- *
  * @param {number} n - Number 0-99
- * @returns {string}
+ * @returns {string} The segment in words
  */
 function buildSmallSegment(n) {
   if (n === 0) return ''
@@ -126,7 +124,6 @@ function buildSmallSegment(n) {
  *
  * Uses BigInt modulo for segment extraction.
  * South Asian 3-2-2 grouping: first 3 digits, then groups of 2.
- *
  * @param {bigint} n - Non-negative integer to convert
  * @returns {string} English words
  */
@@ -183,7 +180,6 @@ function integerToWords(n) {
 
 /**
  * Converts decimal digits to English words.
- *
  * @param {string} decimalPart - Decimal digits (without the point)
  * @returns {string} English words for decimal part
  */
@@ -210,12 +206,10 @@ function decimalPartToWords(decimalPart) {
 
 /**
  * Converts a numeric value to English words using Indian numbering.
- *
  * @param {number | string | bigint} value - The numeric value to convert
  * @returns {string} The number in English words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {Error} If value is not a valid number format
- *
  * @example
  * toCardinal(42)           // 'forty-two'
  * toCardinal(100000)       // 'one lakh'
@@ -246,7 +240,6 @@ function toCardinal(value) {
 
 /**
  * Builds ordinal words for a 0-999 segment (final segment only).
- *
  * @param {number} n - Number 0-999
  * @returns {string} Ordinal words for this segment
  */
@@ -287,7 +280,6 @@ function buildOrdinalSegment(n) {
 
 /**
  * Converts a positive integer to ordinal words using Indian numbering.
- *
  * @param {bigint} n - Positive integer to convert
  * @returns {string} Ordinal English words
  */
@@ -357,12 +349,10 @@ function integerToOrdinal(n) {
 
 /**
  * Converts a numeric value to English ordinal words using Indian numbering.
- *
  * @param {number | string | bigint} value - The numeric value to convert (must be a positive integer)
  * @returns {string} The number as ordinal words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {RangeError} If value is negative, zero, or has a decimal part
- *
  * @example
  * toOrdinal(1)       // 'first'
  * toOrdinal(100000)  // 'one lakhth'
@@ -379,14 +369,12 @@ function toOrdinal(value) {
 
 /**
  * Converts a numeric value to Indian English currency words.
- *
  * @param {number | string | bigint} value - The currency amount to convert
- * @param {Object} [options] - Optional configuration
- * @param {boolean} [options.and=true] - Use "and" between rupees and paise
+ * @param {object} [options] - Optional configuration
+ * @param {boolean} [options.and] - Use "and" between rupees and paise
  * @returns {string} The amount in Indian English currency words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {Error} If value is not a valid number format
- *
  * @example
  * toCurrency(42.50)                    // 'forty-two rupees and fifty paise'
  * toCurrency(100000)                   // 'one lakh rupees'

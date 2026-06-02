@@ -75,7 +75,6 @@ const CENT = 'Cent'
 /**
  * Builds segment word for 0-999 (standalone form, uses "eins").
  * German inverts ones and tens: "einundzwanzig" = one-and-twenty
- *
  * @param {number} n - Number 0-999
  * @returns {string} German words for the segment
  */
@@ -119,7 +118,6 @@ function buildSegment(n) {
 /**
  * Builds segment word for use before "tausend".
  * Uses "ein" instead of "eins" for 1.
- *
  * @param {number} n - Number 0-999
  * @returns {string} German words for thousand context
  */
@@ -162,7 +160,6 @@ function buildSegmentForThousand(n) {
 
 /**
  * Converts a non-negative integer to German words.
- *
  * @param {bigint} n - Non-negative integer to convert
  * @returns {string} German words
  */
@@ -195,7 +192,6 @@ function integerToWords(n) {
 
 /**
  * Builds words for numbers >= 1,000,000.
- *
  * @param {bigint} n - Number >= 1,000,000
  * @returns {string} German words
  */
@@ -260,7 +256,6 @@ function buildLargeNumberWords(n) {
 /**
  * Joins parts with German spacing rules.
  * Spaces only around million+ scale words.
- *
  * @param {Array<{words: string, isScale: boolean, scaleLevel: number}>} parts - Parts with metadata
  * @returns {string} Joined string
  */
@@ -291,7 +286,6 @@ function joinGermanParts(parts) {
 
 /**
  * Converts decimal digits to German words.
- *
  * @param {string} decimalPart - Decimal digits (without the point)
  * @returns {string} German words for decimal part
  */
@@ -321,12 +315,10 @@ function decimalPartToWords(decimalPart) {
  *
  * This is the main public API. It accepts any valid numeric input
  * (number, string, or bigint) and handles parsing internally.
- *
  * @param {number | string | bigint} value - The numeric value to convert
  * @returns {string} The number in German words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {Error} If value is not a valid number format
- *
  * @example
  * toCardinal(21)           // 'einundzwanzig'
  * toCardinal(1000)         // 'eintausend'
@@ -358,7 +350,6 @@ function toCardinal(value) {
  * Builds ordinal segment for 0-999.
  * Only the final component becomes ordinal.
  * Uses -te for 1-19, -ste for 20+.
- *
  * @param {number} n - Number 0-999
  * @param {boolean} isFinal - Whether this is the final segment (gets ordinal suffix)
  * @returns {string} German ordinal words for this segment
@@ -425,7 +416,6 @@ function buildOrdinalSegment(n, isFinal) {
 
 /**
  * Converts integer to German ordinal words.
- *
  * @param {bigint} n - Positive integer
  * @returns {string} German ordinal words
  */
@@ -455,7 +445,6 @@ function integerToOrdinal(n) {
 
 /**
  * Builds ordinal words for numbers >= 1,000,000.
- *
  * @param {bigint} n - Number >= 1,000,000
  * @returns {string} German ordinal words
  */
@@ -541,12 +530,10 @@ function buildLargeOrdinal(n) {
  *
  * German ordinals add -te for 1-19 and -ste for 20+.
  * Irregular forms: erste (1st), dritte (3rd), siebte (7th), achte (8th).
- *
  * @param {number | string | bigint} value - The numeric value to convert (positive integer)
  * @returns {string} The number as ordinal words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {RangeError} If value is negative, zero, or has a decimal part
- *
  * @example
  * toOrdinal(1)    // 'erste'
  * toOrdinal(2)    // 'zweite'
@@ -566,14 +553,12 @@ function toOrdinal(value) {
 
 /**
  * Converts a numeric value to German currency words (Euro).
- *
  * @param {number | string | bigint} value - The currency amount to convert
- * @param {Object} [options] - Optional configuration
- * @param {boolean} [options.and=true] - Use "und" between euros and cents
+ * @param {object} [options] - Optional configuration
+ * @param {boolean} [options.and] - Use "und" between euros and cents
  * @returns {string} The amount in German currency words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {Error} If value is not a valid number format
- *
  * @example
  * toCurrency(42.50)                 // 'zweiundvierzig Euro und fünfzig Cent'
  * toCurrency(1)                     // 'ein Euro'

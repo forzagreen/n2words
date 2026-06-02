@@ -62,10 +62,9 @@ const segmentResult = { word: '', hasHundred: false }
 
 /**
  * Builds words for a 0-999 segment.
- *
  * @param {number} n - Number 0-999
  * @param {boolean} useAnd - Whether to use "and" after hundreds
- * @returns {{ word: string, hasHundred: boolean }}
+ * @returns {{ word: string, hasHundred: boolean }} The segment words and whether a hundreds place was used
  */
 function buildSegment(n, useAnd) {
   if (n === 0) {
@@ -115,7 +114,6 @@ function buildSegment(n, useAnd) {
 
 /**
  * Converts a non-negative integer to English words.
- *
  * @param {bigint} n - Non-negative integer to convert
  * @param {boolean} hundredPairing - Use hundred-pairing for 1100-9999
  * @param {boolean} useAnd - Use "and" after hundreds and before final segment
@@ -177,7 +175,6 @@ function integerToWords(n, hundredPairing, useAnd) {
 /**
  * Builds words for numbers >= 1,000,000.
  * Uses BigInt division for faster segment extraction.
- *
  * @param {bigint} n - Number >= 1,000,000
  * @param {boolean} useAnd - Use "and" after hundreds and before final segment
  * @returns {string} English words
@@ -238,7 +235,6 @@ function buildLargeNumberWords(n, useAnd) {
 
 /**
  * Converts decimal digits to English words.
- *
  * @param {string} decimalPart - Decimal digits (without the point)
  * @param {boolean} useAnd - Use "and" in number conversion
  * @returns {string} English words for decimal part
@@ -269,15 +265,13 @@ function decimalPartToWords(decimalPart, useAnd) {
  *
  * This is the main public API. It accepts any valid numeric input
  * (number, string, or bigint) and handles parsing internally.
- *
  * @param {number | string | bigint} value - The numeric value to convert
- * @param {Object} [options] - Optional configuration
- * @param {boolean} [options.hundredPairing=false] - Use hundred-pairing for 1100-9999 (e.g., "fifteen hundred" instead of "one thousand five hundred")
- * @param {boolean} [options.and=false] - Use "and" after hundreds and before final small numbers (e.g., "one hundred and one" instead of "one hundred one")
+ * @param {object} [options] - Optional configuration
+ * @param {boolean} [options.hundredPairing] - Use hundred-pairing for 1100-9999 (e.g., "fifteen hundred" instead of "one thousand five hundred")
+ * @param {boolean} [options.and] - Use "and" after hundreds and before final small numbers (e.g., "one hundred and one" instead of "one hundred one")
  * @returns {string} The number in American English words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {Error} If value is not a valid number format
- *
  * @example
  * toCardinal(42)                            // 'forty-two'
  * toCardinal(101)                           // 'one hundred one'
@@ -314,7 +308,6 @@ function toCardinal(value, options) {
 /**
  * Builds ordinal words for a 0-999 segment (final segment only).
  * Returns ordinal form: "first", "twenty-third", "one hundred forty-fifth"
- *
  * @param {number} n - Number 0-999
  * @returns {string} Ordinal words for this segment
  */
@@ -362,7 +355,6 @@ function buildOrdinalSegment(n) {
 /**
  * Converts a positive integer to ordinal words.
  * Generates ordinals directly without string manipulation.
- *
  * @param {bigint} n - Positive integer to convert
  * @returns {string} Ordinal English words
  */
@@ -394,7 +386,6 @@ function integerToOrdinal(n) {
 /**
  * Builds ordinal words for numbers >= 1,000,000.
  * All segments except the final one are cardinal; final segment is ordinal.
- *
  * @param {bigint} n - Number >= 1,000,000
  * @returns {string} Ordinal English words
  */
@@ -452,12 +443,10 @@ function buildLargeOrdinal(n) {
 
 /**
  * Converts a numeric value to American English ordinal words.
- *
  * @param {number | string | bigint} value - The numeric value to convert (must be a positive integer)
  * @returns {string} The number as ordinal words (e.g., "first", "forty-second")
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {RangeError} If value is negative, zero, or has a decimal part
- *
  * @example
  * toOrdinal(1)    // 'first'
  * toOrdinal(2)    // 'second'
@@ -479,14 +468,12 @@ function toOrdinal(value) {
 
 /**
  * Converts a numeric value to American English currency words.
- *
  * @param {number | string | bigint} value - The currency amount to convert
- * @param {Object} [options] - Optional configuration
- * @param {boolean} [options.and=true] - Use "and" between dollars and cents (e.g., "one dollar and fifty cents")
+ * @param {object} [options] - Optional configuration
+ * @param {boolean} [options.and] - Use "and" between dollars and cents (e.g., "one dollar and fifty cents")
  * @returns {string} The amount in American English currency words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {Error} If value is not a valid number format
- *
  * @example
  * toCurrency(42.50)                    // 'forty-two dollars and fifty cents'
  * toCurrency(1)                        // 'one dollar'

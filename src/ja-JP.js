@@ -76,7 +76,6 @@ const THOUSAND = '千'
 /**
  * Builds segment word for 0-9999 with 一 omission rules.
  * - Omit 一 before 十, 百, 千
- *
  * @param {number} n - Segment value (0-9999)
  * @returns {string} Japanese kanji words for the segment
  */
@@ -134,7 +133,6 @@ function buildSegment(n) {
 
 /**
  * Converts a non-negative integer to Japanese words.
- *
  * @param {bigint} n - Non-negative integer to convert
  * @returns {string} Japanese kanji words
  */
@@ -174,7 +172,6 @@ function integerToWords(n) {
 /**
  * Builds words for numbers >= 100,000,000.
  * Uses BigInt modulo for 4-digit (myriad) segment extraction.
- *
  * @param {bigint} n - Number >= 100,000,000
  * @returns {string} Japanese kanji words
  */
@@ -215,7 +212,6 @@ function buildLargeNumberWords(n) {
 
 /**
  * Converts decimal digits to Japanese words (digit by digit).
- *
  * @param {string} decimalPart - Decimal digits (without the point)
  * @returns {string} Japanese kanji words for decimal part
  */
@@ -240,12 +236,10 @@ function decimalPartToWords(decimalPart) {
  *
  * This is the main public API. It accepts any valid numeric input
  * (number, string, or bigint) and handles parsing internally.
- *
  * @param {number | string | bigint} value - The numeric value to convert
  * @returns {string} The number in Japanese kanji words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {Error} If value is not a valid number format
- *
  * @example
  * toCardinal(42)           // '四十二'
  * toCardinal(10000)        // '一万'
@@ -277,7 +271,6 @@ function toCardinal(value) {
  * Converts a positive integer to Japanese ordinal words.
  *
  * Japanese ordinals: 第 prefix + cardinal number.
- *
  * @param {bigint} n - Positive integer to convert
  * @returns {string} Japanese ordinal words
  */
@@ -287,12 +280,10 @@ function integerToOrdinal(n) {
 
 /**
  * Converts a numeric value to Japanese ordinal words.
- *
  * @param {number | string | bigint} value - The numeric value to convert (positive integer)
  * @returns {string} The number as ordinal words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {RangeError} If value is negative, zero, or has a decimal part
- *
  * @example
  * toOrdinal(1)    // '第一'
  * toOrdinal(10)   // '第十'
@@ -312,12 +303,10 @@ function toOrdinal(value) {
  *
  * Note: Sen (銭, 1/100 yen) is included for completeness but is rarely used
  * in modern Japan. Most transactions are in whole yen.
- *
  * @param {number | string | bigint} value - The currency amount to convert
  * @returns {string} The amount in Japanese currency words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {Error} If value is not a valid number format
- *
  * @example
  * toCurrency(42)     // '四十二円'
  * toCurrency(1)      // '一円'

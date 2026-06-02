@@ -66,7 +66,6 @@ const CENT_SINGULAR = 'sentti'
 /**
  * Builds segment word for 0-999.
  * Omits "yksi" before "sata" (hundred).
- *
  * @param {number} n - Integer 0-999 to convert
  * @returns {string} Finnish words for the segment
  */
@@ -118,7 +117,6 @@ function buildSegment(n) {
 
 /**
  * Converts a non-negative integer to Finnish words.
- *
  * @param {bigint} n - Non-negative integer to convert
  * @returns {string} Finnish words
  */
@@ -157,7 +155,6 @@ function integerToWords(n) {
 
 /**
  * Builds words for numbers >= 1,000,000.
- *
  * @param {bigint} n - Number >= 1,000,000
  * @returns {string} Finnish words
  */
@@ -218,7 +215,6 @@ function buildLargeNumberWords(n) {
 
 /**
  * Converts decimal digits to Finnish words (per-digit).
- *
  * @param {string} decimalPart - Decimal digits (without the point)
  * @returns {string} Finnish words for decimal part
  */
@@ -240,12 +236,10 @@ function decimalPartToWords(decimalPart) {
 
 /**
  * Converts a numeric value to Finnish words.
- *
  * @param {number | string | bigint} value - The numeric value to convert
  * @returns {string} The number in Finnish words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {Error} If value is not a valid number format
- *
  * @example
  * toCardinal(21)       // 'kaksikymmentäyksi'
  * toCardinal(1000)     // 'tuhat'
@@ -276,7 +270,6 @@ function toCardinal(value) {
 /**
  * Builds ordinal segment for 0-99.
  * Finnish ordinals have special forms.
- *
  * @param {number} n - Integer 0-99 to convert
  * @returns {string} Finnish ordinal words for the segment
  */
@@ -302,7 +295,6 @@ function buildOrdinalSegment(n) {
  *
  * Finnish ordinals: ensimmäinen (1st), toinen (2nd), kolmas (3rd), etc.
  * For larger numbers, use cardinal + ordinal ending.
- *
  * @param {bigint} n - Positive integer to convert
  * @returns {string} Finnish ordinal words
  */
@@ -325,12 +317,10 @@ function integerToOrdinal(n) {
 
 /**
  * Converts a numeric value to Finnish ordinal words.
- *
  * @param {number | string | bigint} value - The numeric value to convert (positive integer)
  * @returns {string} The number as ordinal words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {RangeError} If value is negative, zero, or has a decimal part
- *
  * @example
  * toOrdinal(1)    // 'ensimmäinen'
  * toOrdinal(2)    // 'toinen'
@@ -351,12 +341,10 @@ function toOrdinal(value) {
  *
  * Euro uses sentti as subunit (100 senttiä = 1 euro).
  * Finnish has singular/plural: 1 euro vs 2 euroa, 1 sentti vs 2 senttiä.
- *
  * @param {number | string | bigint} value - The currency amount to convert
  * @returns {string} The amount in Finnish currency words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {Error} If value is not a valid number format
- *
  * @example
  * toCurrency(1)      // 'yksi euro'
  * toCurrency(42)     // 'neljäkymmentäkaksi euroa'

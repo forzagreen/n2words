@@ -59,7 +59,6 @@ const LAM = 'lăm' // 5 in tens position (25, 35, etc.)
 
 /**
  * Builds word for 0-99 with special forms (mốt, lăm).
- *
  * @param {number} n - Integer in range 0-99
  * @returns {string} Vietnamese words
  */
@@ -88,7 +87,6 @@ function buildBelowHundred(n) {
 
 /**
  * Builds segment word for 0-999.
- *
  * @param {number} n - Integer in range 0-999
  * @returns {string} Vietnamese words
  */
@@ -128,7 +126,6 @@ function buildSegment(n) {
 
 /**
  * Builds "lẻ" prefixed word for small remainders (1-99) after scale words.
- *
  * @param {number} n - Integer in range 0-99
  * @returns {string} Vietnamese words
  */
@@ -147,7 +144,6 @@ function buildLeSegment(n) {
 
 /**
  * Converts a non-negative integer to Vietnamese words.
- *
  * @param {bigint} n - Non-negative integer to convert
  * @returns {string} Vietnamese words
  */
@@ -189,7 +185,6 @@ function integerToWords(n) {
 
 /**
  * Builds words for numbers >= 1,000,000.
- *
  * @param {bigint} n - Number >= 1,000,000
  * @returns {string} Vietnamese words
  */
@@ -258,7 +253,6 @@ function buildLargeNumberWords(n) {
 
 /**
  * Converts decimal digits to Vietnamese words.
- *
  * @param {string} decimalPart - Decimal digits (without the point)
  * @returns {string} Vietnamese words for decimal part
  */
@@ -288,12 +282,10 @@ function decimalPartToWords(decimalPart) {
  *
  * This is the main public API. It accepts any valid numeric input
  * (number, string, or bigint) and handles parsing internally.
- *
  * @param {number | string | bigint} value - The numeric value to convert
  * @returns {string} The number in Vietnamese words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {Error} If value is not a valid number format
- *
  * @example
  * toCardinal(42)           // 'bốn mươi hai'
  * toCardinal(101)          // 'một trăm lẻ một'
@@ -326,7 +318,6 @@ function toCardinal(value) {
  *
  * Vietnamese ordinals use "thứ" prefix + cardinal number.
  * Special case: "thứ nhất" for 1st (not "thứ một").
- *
  * @param {bigint} n - Positive integer to convert
  * @returns {string} Vietnamese ordinal words
  */
@@ -342,12 +333,10 @@ function integerToOrdinal(n) {
 
 /**
  * Converts a numeric value to Vietnamese ordinal words.
- *
  * @param {number | string | bigint} value - The numeric value to convert (positive integer)
  * @returns {string} The number as ordinal words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {RangeError} If value is negative, zero, or has a decimal part
- *
  * @example
  * toOrdinal(1)    // 'thứ nhất'
  * toOrdinal(2)    // 'thứ hai'
@@ -367,12 +356,10 @@ function toOrdinal(value) {
  *
  * Vietnamese Dong has no subunit in modern usage (xu are historical).
  * Amounts are rounded to whole đồng.
- *
  * @param {number | string | bigint} value - The currency amount to convert
  * @returns {string} The amount in Vietnamese currency words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {Error} If value is not a valid number format
- *
  * @example
  * toCurrency(42)     // 'bốn mươi hai đồng'
  * toCurrency(1000)   // 'một nghìn đồng'

@@ -58,7 +58,6 @@ const CENT_FORMS = ['λεπτό', 'λεπτά'] // Singular, plural
 
 /**
  * Builds segment word for 0-999.
- *
  * @param {number} n - Number 0-999
  * @returns {string} Greek words for the segment
  */
@@ -104,7 +103,6 @@ function buildSegment(n) {
 
 /**
  * Converts a non-negative integer to Greek words.
- *
  * @param {bigint} n - Non-negative integer to convert
  * @returns {string} Greek words
  */
@@ -143,7 +141,6 @@ function integerToWords(n) {
 
 /**
  * Builds words for numbers >= 1,000,000.
- *
  * @param {bigint} n - Number >= 1,000,000
  * @returns {string} Greek words
  */
@@ -209,7 +206,6 @@ function buildLargeNumberWords(n) {
 
 /**
  * Converts decimal digits to Greek words (per-digit).
- *
  * @param {string} decimalPart - Decimal digits (without the point)
  * @returns {string} Greek words for decimal part
  */
@@ -231,12 +227,10 @@ function decimalPartToWords(decimalPart) {
 
 /**
  * Converts a numeric value to Greek words.
- *
  * @param {number | string | bigint} value - The numeric value to convert
  * @returns {string} The number in Greek words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {Error} If value is not a valid number format
- *
  * @example
  * toCardinal(21)       // 'είκοσι ένα'
  * toCardinal(1000)     // 'χίλια'
@@ -266,7 +260,6 @@ function toCardinal(value) {
 
 /**
  * Builds ordinal for tens and ones (0-99).
- *
  * @param {number} n - Number 0-99
  * @returns {string} Ordinal word
  */
@@ -286,7 +279,6 @@ function buildOrdinalTensOnes(n) {
 
 /**
  * Converts a non-negative integer to Greek ordinal words.
- *
  * @param {bigint} n - Non-negative integer to convert
  * @returns {string} Greek ordinal words
  */
@@ -369,12 +361,10 @@ function integerToOrdinal(n) {
 
 /**
  * Converts a numeric value to Greek ordinal words.
- *
  * @param {number | string | bigint} value - The numeric value to convert
  * @returns {string} The ordinal in Greek words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {Error} If value is not a positive integer
- *
  * @example
  * toOrdinal(1)   // 'πρώτος'
  * toOrdinal(21)  // 'εικοστός πρώτος'
@@ -390,12 +380,10 @@ function toOrdinal(value) {
 
 /**
  * Converts a numeric value to Greek Euro currency words.
- *
  * @param {number | string | bigint} value - The numeric value to convert
  * @returns {string} The currency in Greek words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {Error} If value is not a valid number format
- *
  * @example
  * toCurrency(1)     // 'ένα ευρώ'
  * toCurrency(2.50)  // 'δύο ευρώ πενήντα λεπτά'

@@ -72,7 +72,6 @@ const CENTESIMI = 'centesimi'
  * - Tens ending in vowel + uno/otto → drop tens vowel: ventuno, ventotto
  * - Hundreds cento + otto/ottanta → centotto, centottanta (drop 'o')
  * - Final 'tre' in compounds becomes 'tré': ventitré, trentatré
- *
  * @param {number} n - Number 0-999 to convert
  * @returns {string} Segment word
  */
@@ -140,7 +139,6 @@ function buildSegment(n) {
 /**
  * Builds segment word with "un" for scale context (millions, billions).
  * Same as buildSegment but returns "un" for 1 instead of "uno".
- *
  * @param {number} n - Number 0-999 to convert
  * @returns {string} Segment word
  */
@@ -153,7 +151,6 @@ function buildSegmentForScale(n) {
 /**
  * Builds thousands word for 1-999 thousand.
  * Handles elision: tre + mila = tremila (no accent), otto + mila = ottomila
- *
  * @param {number} n - Number of thousands 1-999
  * @returns {string} Thousands word
  */
@@ -174,6 +171,7 @@ function buildThousands(n) {
 /**
  * Gets singular scale word for index.
  * @param {number} scaleIndex - 2=million, 3=billion, etc.
+ * @returns {string} Singular scale word
  */
 function getScaleWordSingular(scaleIndex) {
   if (scaleIndex < 2) return ''
@@ -187,6 +185,7 @@ function getScaleWordSingular(scaleIndex) {
 /**
  * Gets plural scale word for index.
  * @param {number} scaleIndex - 2=million, 3=billion, etc.
+ * @returns {string} Plural scale word
  */
 function getScaleWordPlural(scaleIndex) {
   if (scaleIndex < 2) return ''
@@ -203,7 +202,6 @@ function getScaleWordPlural(scaleIndex) {
 
 /**
  * Converts a non-negative integer to Italian words.
- *
  * @param {bigint} n - Non-negative integer to convert
  * @returns {string} Italian words
  */
@@ -234,7 +232,6 @@ function integerToWords(n) {
 
 /**
  * Builds words for numbers >= 1,000,000.
- *
  * @param {bigint} n - Number >= 1,000,000
  * @returns {string} Italian words
  */
@@ -284,7 +281,6 @@ function buildLargeNumberWords(n) {
 /**
  * Joins parts with Italian connector rules.
  * Uses "e" before simple (non-compound) final segment.
- *
  * @param {string[]} parts - Parts to join
  * @returns {string} Joined string
  */
@@ -314,7 +310,6 @@ function joinPartsWithConnector(parts) {
 
 /**
  * Converts decimal digits to Italian words.
- *
  * @param {string} decimalPart - Decimal digits (without the point)
  * @returns {string} Italian words for decimal part
  */
@@ -344,12 +339,10 @@ function decimalPartToWords(decimalPart) {
  *
  * This is the main public API. It accepts any valid numeric input
  * (number, string, or bigint) and handles parsing internally.
- *
  * @param {number | string | bigint} value - The numeric value to convert
  * @returns {string} The number in Italian words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {Error} If value is not a valid number format
- *
  * @example
  * toCardinal(28)           // 'ventotto'
  * toCardinal(23)           // 'ventitré'
@@ -381,7 +374,6 @@ function toCardinal(value) {
 
 /**
  * Converts a cardinal word to ordinal form by dropping final vowel and adding -esimo.
- *
  * @param {string} cardinalWord - Cardinal word to convert
  * @returns {string} Ordinal form
  */
@@ -420,7 +412,6 @@ function cardinalToOrdinal(cardinalWord) {
 
 /**
  * Converts a positive integer to Italian ordinal words.
- *
  * @param {bigint} n - Positive integer
  * @returns {string} Italian ordinal words (masculine form)
  */
@@ -440,12 +431,10 @@ function integerToOrdinal(n) {
  *
  * Italian ordinals: primo, secondo, terzo... (1-10 irregular)
  * For 11+: cardinal word (drop final vowel) + -esimo
- *
  * @param {number | string | bigint} value - The numeric value to convert (positive integer)
  * @returns {string} The number as ordinal words (masculine form)
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {RangeError} If value is negative, zero, or has a decimal part
- *
  * @example
  * toOrdinal(1)    // 'primo'
  * toOrdinal(2)    // 'secondo'
@@ -465,14 +454,12 @@ function toOrdinal(value) {
 
 /**
  * Converts a numeric value to Italian currency words (Euro).
- *
  * @param {number | string | bigint} value - The currency amount to convert
- * @param {Object} [options] - Optional configuration
- * @param {boolean} [options.and=true] - Use "e" between euros and centesimi
+ * @param {object} [options] - Optional configuration
+ * @param {boolean} [options.and] - Use "e" between euros and centesimi
  * @returns {string} The amount in Italian currency words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {Error} If value is not a valid number format
- *
  * @example
  * toCurrency(42.50)                 // 'quarantadue euro e cinquanta centesimi'
  * toCurrency(1)                     // 'un euro'

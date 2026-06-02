@@ -50,7 +50,6 @@ const RUPIAH = 'rupiah'
 
 /**
  * Builds the Indonesian words for a 1-3 digit segment (0-999).
- *
  * @param {number} n - The segment value (0-999)
  * @returns {string} The segment in Indonesian words
  */
@@ -101,7 +100,6 @@ function buildSegment(n) {
 
 /**
  * Converts a non-negative integer to Indonesian words.
- *
  * @param {bigint} n - The integer value to convert
  * @returns {string} The integer in Indonesian words
  */
@@ -136,7 +134,6 @@ function integerToWords(n) {
 
 /**
  * Builds Indonesian words for large numbers (1,000,000 and above).
- *
  * @param {bigint} n - The integer value to convert
  * @returns {string} The number in Indonesian words
  */
@@ -191,7 +188,6 @@ function buildLargeNumberWords(n) {
 
 /**
  * Converts the decimal-part digit string to Indonesian words.
- *
  * @param {string} decimalPart - The decimal digits as a string
  * @returns {string} The decimal part in Indonesian words
  */
@@ -216,7 +212,6 @@ function decimalPartToWords(decimalPart) {
 
 /**
  * Converts a numeric value to Indonesian words.
- *
  * @param {number | string | bigint} value - The numeric value to convert
  * @returns {string} The number in Indonesian words
  */
@@ -247,7 +242,6 @@ function toCardinal(value) {
  *
  * Indonesian ordinals use "ke-" prefix + cardinal number.
  * Special case: "pertama" for 1st (not "kesatu").
- *
  * @param {bigint} n - Positive integer to convert
  * @returns {string} Indonesian ordinal words
  */
@@ -263,12 +257,10 @@ function integerToOrdinal(n) {
 
 /**
  * Converts a numeric value to Indonesian ordinal words.
- *
  * @param {number | string | bigint} value - The numeric value to convert (positive integer)
  * @returns {string} The number as ordinal words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {RangeError} If value is negative, zero, or has a decimal part
- *
  * @example
  * toOrdinal(1)    // 'pertama'
  * toOrdinal(2)    // 'kedua'
@@ -288,12 +280,10 @@ function toOrdinal(value) {
  *
  * Indonesian Rupiah has no subunit in modern usage (sen are historical).
  * Amounts are rounded to whole rupiah.
- *
  * @param {number | string | bigint} value - The currency amount to convert
  * @returns {string} The amount in Indonesian currency words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {Error} If value is not a valid number format
- *
  * @example
  * toCurrency(42)     // 'empat puluh dua rupiah'
  * toCurrency(1000)   // 'seribu rupiah'

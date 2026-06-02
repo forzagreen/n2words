@@ -68,7 +68,6 @@ const SCALE_WORDS = ['', 'ಸಾವಿರ', 'ಲಕ್ಷ', 'ಕೋಟಿ', 'ಅ
 
 /**
  * Builds words for a 0-999 segment.
- *
  * @param {number} n - Segment value (0-999)
  * @returns {string} Kannada words for the segment
  */
@@ -94,7 +93,6 @@ function buildSegment(n) {
  *
  * Uses BigInt modulo for segment extraction (faster than string slicing).
  * South Asian 3-2-2 grouping: first 3 digits, then groups of 2.
- *
  * @param {bigint} n - Non-negative integer to convert
  * @returns {string} Kannada words
  */
@@ -139,7 +137,6 @@ function integerToWords(n) {
 
 /**
  * Reads a decimal-fraction digit string per-digit in Kannada.
- *
  * @param {string} decimalPart - Digits after the decimal separator
  * @returns {string} Per-digit Kannada words
  */
@@ -155,7 +152,6 @@ function decimalPartToWords(decimalPart) {
 
 /**
  * Converts a numeric value to Kannada words.
- *
  * @param {number | string | bigint} value - The numeric value to convert
  * @returns {string} The number in Kannada words
  */
@@ -185,7 +181,6 @@ function toCardinal(value) {
  * Converts a positive integer to Kannada ordinal words.
  *
  * Kannada ordinals: First 6 are special, then add -ನೇ suffix.
- *
  * @param {bigint} n - Positive integer to convert
  * @returns {string} Kannada ordinal words
  */
@@ -202,12 +197,10 @@ function integerToOrdinal(n) {
 
 /**
  * Converts a numeric value to Kannada ordinal words.
- *
  * @param {number | string | bigint} value - The numeric value to convert (positive integer)
  * @returns {string} The number as ordinal words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {RangeError} If value is negative, zero, or has a decimal part
- *
  * @example
  * toOrdinal(1)    // 'ಮೊದಲನೇ'
  * toOrdinal(2)    // 'ಎರಡನೇ'
@@ -224,12 +217,10 @@ function toOrdinal(value) {
 
 /**
  * Converts a numeric value to Kannada currency words (Indian Rupee).
- *
  * @param {number | string | bigint} value - The currency amount to convert
  * @returns {string} The amount in Kannada currency words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {Error} If value is not a valid number format
- *
  * @example
  * toCurrency(42.50)  // 'ನಲವತ್ತೆರಡು ರೂಪಾಯಿಗಳು ಐವತ್ತು ಪೈಸೆಗಳು'
  * toCurrency(1)      // 'ಒಂದು ರೂಪಾಯಿ'

@@ -66,7 +66,6 @@ const RIAL = 'ریال'
 
 /**
  * Converts a non-negative integer to Persian cardinal words.
- *
  * @param {bigint} n - Non-negative integer to convert
  * @returns {string} Persian cardinal words
  */
@@ -134,7 +133,6 @@ function integerToWords(n) {
 
 /**
  * Converts the fractional digits of a number to Persian words.
- *
  * @param {string} decimalPart - The fractional digits as a string
  * @returns {string} Persian words for the decimal portion
  */
@@ -159,7 +157,6 @@ function decimalPartToWords(decimalPart) {
 
 /**
  * Converts a numeric value to Persian words.
- *
  * @param {number | string | bigint} value - The numeric value to convert
  * @returns {string} The number in Persian words
  */
@@ -189,7 +186,6 @@ function toCardinal(value) {
  * Converts a non-negative integer to Persian ordinal words.
  *
  * Persian ordinals: اول (1st), دوم (2nd), سوم (3rd), then cardinal + م suffix.
- *
  * @param {bigint} n - Positive integer to convert
  * @returns {string} Persian ordinal words
  */
@@ -206,12 +202,10 @@ function integerToOrdinal(n) {
 
 /**
  * Converts a numeric value to Persian ordinal words.
- *
  * @param {number | string | bigint} value - The numeric value to convert (positive integer)
  * @returns {string} The number as ordinal words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {RangeError} If value is negative, zero, or has a decimal part
- *
  * @example
  * toOrdinal(1)    // 'اول'
  * toOrdinal(2)    // 'دوم'
@@ -231,12 +225,10 @@ function toOrdinal(value) {
  *
  * Iranian Rial has no subunit in modern usage.
  * (Historically dinar was 1/100 rial, but not used today)
- *
  * @param {number | string | bigint} value - The currency amount to convert
  * @returns {string} The amount in Persian currency words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {Error} If value is not a valid number format
- *
  * @example
  * toCurrency(42)     // 'چهل و دو ریال'
  * toCurrency(1000)   // 'هزار ریال'

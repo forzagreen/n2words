@@ -67,9 +67,8 @@ const KURUS = 'kuruş' // subunit (100 kuruş = 1 lira)
 /**
  * Builds segment word for 0-999.
  * Omits "bir" before "yüz" (hundred).
- *
  * @param {number} n - Segment value (0-999)
- * @param {string} [separator=' '] - Separator between words
+ * @param {string} [separator] - Separator between words
  * @returns {string} Segment words
  */
 function buildSegment(n, separator = ' ') {
@@ -119,7 +118,6 @@ function buildSegment(n, separator = ' ') {
 
 /**
  * Converts a non-negative integer to Turkish words.
- *
  * @param {bigint} n - Non-negative integer to convert
  * @param {boolean} dropSpaces - Remove spaces for compound form
  * @returns {string} Turkish words
@@ -161,7 +159,6 @@ function integerToWords(n, dropSpaces) {
 
 /**
  * Builds words for numbers >= 1,000,000.
- *
  * @param {bigint} n - Number >= 1,000,000
  * @param {boolean} dropSpaces - Remove spaces for compound form
  * @returns {string} Turkish words
@@ -225,7 +222,6 @@ function buildLargeNumberWords(n, dropSpaces) {
 
 /**
  * Converts decimal digits to Turkish words.
- *
  * @param {string} decimalPart - Decimal digits (without the point)
  * @param {boolean} dropSpaces - Remove spaces for compound form
  * @returns {string} Turkish words for decimal part
@@ -254,14 +250,12 @@ function decimalPartToWords(decimalPart, dropSpaces) {
 
 /**
  * Converts a numeric value to Turkish words.
- *
  * @param {number | string | bigint} value - The numeric value to convert
- * @param {Object} [options] - Conversion options
- * @param {boolean} [options.dropSpaces=false] - Remove spaces for compound form
+ * @param {object} [options] - Conversion options
+ * @param {boolean} [options.dropSpaces] - Remove spaces for compound form
  * @returns {string} The number in Turkish words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {Error} If value is not a valid number format
- *
  * @example
  * toCardinal(21)                        // 'yirmi bir'
  * toCardinal(21, { dropSpaces: true })  // 'yirmibir'
@@ -327,7 +321,6 @@ function getOrdinalSuffix(word) {
  *
  * Turkish ordinals: birinci (1st), ikinci (2nd), üçüncü (3rd), etc.
  * Uses vowel harmony for suffix selection.
- *
  * @param {bigint} n - Positive integer to convert
  * @returns {string} Turkish ordinal words
  */
@@ -345,12 +338,10 @@ function integerToOrdinal(n) {
 
 /**
  * Converts a numeric value to Turkish ordinal words.
- *
  * @param {number | string | bigint} value - The numeric value to convert (positive integer)
  * @returns {string} The number as ordinal words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {RangeError} If value is negative, zero, or has a decimal part
- *
  * @example
  * toOrdinal(1)    // 'birinci'
  * toOrdinal(2)    // 'ikinci'
@@ -369,12 +360,10 @@ function toOrdinal(value) {
  * Converts a numeric value to Turkish currency words (Turkish Lira).
  *
  * Uses lira and kuruş (100 kuruş = 1 lira).
- *
  * @param {number | string | bigint} value - The currency amount to convert
  * @returns {string} The amount in Turkish currency words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {Error} If value is not a valid number format
- *
  * @example
  * toCurrency(42)     // 'kırk iki lira'
  * toCurrency(1.50)   // 'bir lira elli kuruş'

@@ -65,7 +65,6 @@ const SCALE_WORDS = ['', 'হাজার', 'লাখ', 'কোটি', 'আর
 
 /**
  * Builds words for a 0-999 segment.
- *
  * @param {number} n - Segment value in the range 0-999
  * @returns {string} Bengali words for the segment
  */
@@ -91,7 +90,6 @@ function buildSegment(n) {
  *
  * Uses BigInt modulo for segment extraction (faster than string slicing).
  * South Asian 3-2-2 grouping: first 3 digits, then groups of 2.
- *
  * @param {bigint} n - Non-negative integer to convert
  * @returns {string} Bengali words
  */
@@ -144,7 +142,6 @@ function integerToWords(n) {
 
 /**
  * Converts the fractional digits string to Bengali words.
- *
  * @param {string} decimalPart - The fractional digits (e.g. '05')
  * @returns {string} Bengali words for the decimal part
  */
@@ -169,7 +166,6 @@ function decimalPartToWords(decimalPart) {
 
 /**
  * Converts a numeric value to Bengali words.
- *
  * @param {number | string | bigint} value - The numeric value to convert
  * @returns {string} The number in Bengali words
  */
@@ -199,7 +195,6 @@ function toCardinal(value) {
  * Converts a positive integer to Bengali ordinal words.
  *
  * Bengali ordinals: First 6 are irregular, then add -তম suffix.
- *
  * @param {bigint} n - Positive integer to convert
  * @returns {string} Bengali ordinal words
  */
@@ -216,12 +211,10 @@ function integerToOrdinal(n) {
 
 /**
  * Converts a numeric value to Bengali ordinal words.
- *
  * @param {number | string | bigint} value - The numeric value to convert (positive integer)
  * @returns {string} The number as ordinal words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {RangeError} If value is negative, zero, or has a decimal part
- *
  * @example
  * toOrdinal(1)    // 'প্রথম'
  * toOrdinal(2)    // 'দ্বিতীয়'
@@ -239,12 +232,10 @@ function toOrdinal(value) {
 
 /**
  * Converts a numeric value to Bengali currency words (Bangladeshi Taka).
- *
  * @param {number | string | bigint} value - The currency amount to convert
  * @returns {string} The amount in Bengali currency words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {Error} If value is not a valid number format
- *
  * @example
  * toCurrency(42.50)  // 'বেয়াল্লিশ টাকা পঞ্চাশ পয়সা'
  * toCurrency(1)      // 'এক টাকা'

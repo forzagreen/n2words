@@ -60,9 +60,8 @@ const KOBO = 'kobo'
  * Build segment for 0-999 with Hausa patterns.
  * Hausa uses reversed order for hundreds: "biyu ɗari" (200)
  * And "da" connector for ones: "ashirin da ɗaya" (21)
- *
  * @param {number} n - Integer segment value (0-999)
- * @returns {string}
+ * @returns {string} The segment in Hausa words
  */
 function buildSegment(n) {
   if (n === 0) return ''
@@ -121,7 +120,7 @@ function buildSegment(n) {
 
 /**
  * @param {bigint} n - Non-negative integer value
- * @returns {string}
+ * @returns {string} The integer in Hausa words
  */
 function integerToWords(n) {
   if (n === 0n) return ZERO
@@ -135,9 +134,8 @@ function integerToWords(n) {
 
 /**
  * Checks if a word is a single digit (1-9).
- *
  * @param {string} word - Word to test
- * @returns {boolean}
+ * @returns {boolean} True if the word is a single digit (1-9)
  */
 function isSingleDigit(word) {
   return ONES.slice(1).includes(word)
@@ -145,7 +143,7 @@ function isSingleDigit(word) {
 
 /**
  * @param {bigint} n - Integer value of 1000 or greater
- * @returns {string}
+ * @returns {string} The number in Hausa words
  */
 function buildLargeNumberWords(n) {
   const numStr = n.toString()
@@ -226,7 +224,7 @@ function buildLargeNumberWords(n) {
 
 /**
  * @param {string} decimalPart - Digit string of the fractional part
- * @returns {string}
+ * @returns {string} The fractional digits in Hausa words
  */
 function decimalPartToWords(decimalPart) {
   // Per-digit decimal reading
@@ -240,7 +238,6 @@ function decimalPartToWords(decimalPart) {
 
 /**
  * Converts a numeric value to Hausa words.
- *
  * @param {number | string | bigint} value - The numeric value to convert
  * @returns {string} The number in Hausa words
  */
@@ -270,7 +267,6 @@ function toCardinal(value) {
  * Converts a non-negative integer to Hausa ordinal words.
  *
  * Hausa ordinals: na farko (1st), na biyu (2nd), na uku (3rd), etc.
- *
  * @param {bigint} n - Positive integer to convert
  * @returns {string} Hausa ordinal words
  */
@@ -284,12 +280,10 @@ function integerToOrdinal(n) {
 
 /**
  * Converts a numeric value to Hausa ordinal words.
- *
  * @param {number | string | bigint} value - The numeric value to convert (positive integer)
  * @returns {string} The number as ordinal words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {RangeError} If value is negative, zero, or has a decimal part
- *
  * @example
  * toOrdinal(1)    // 'na farko'
  * toOrdinal(2)    // 'na biyu'
@@ -308,12 +302,10 @@ function toOrdinal(value) {
  * Converts a numeric value to Hausa currency words (Nigerian Naira).
  *
  * Uses naira and kobo (100 kobo = 1 naira).
- *
  * @param {number | string | bigint} value - The currency amount to convert
  * @returns {string} The amount in Hausa currency words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {Error} If value is not a valid number format
- *
  * @example
  * toCurrency(42)     // 'arba'in da biyu naira'
  * toCurrency(1.50)   // 'ɗaya naira da hamsin kobo'

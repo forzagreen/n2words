@@ -62,7 +62,6 @@ const GERAH_PLURAL = 'גרות'
 /**
  * Builds segment word for scale segments (thousands, millions, etc.).
  * "ו" is added before tens and ones when following hundreds.
- *
  * @param {number} n - Segment value (0-999)
  * @param {string} andWord - Conjunction word
  * @param {string[]} ONES - Ones vocabulary
@@ -123,7 +122,6 @@ function buildScaleSegment(n, andWord, ONES, TEENS, HUNDREDS_ARR) {
 /**
  * Builds segment word for units segment (no scale word).
  * "ו" is only added before the final ones digit.
- *
  * @param {number} n - Segment value (0-999)
  * @param {string} andWord - Conjunction word
  * @param {string[]} ONES - Ones vocabulary
@@ -185,7 +183,6 @@ function buildUnitsSegment(n, andWord, ONES, TEENS, HUNDREDS_ARR) {
 
 /**
  * Converts a non-negative integer to Biblical Hebrew words.
- *
  * @param {bigint} n - Non-negative integer to convert
  * @param {('masculine'|'feminine')} gender - Grammatical gender
  * @param {string} andWord - Conjunction word
@@ -269,7 +266,6 @@ function integerToWords(n, gender, andWord) {
 
 /**
  * Converts decimal digits to Biblical Hebrew words (digit by digit).
- *
  * @param {string} decimalPart - Decimal digits (without the point)
  * @param {('masculine'|'feminine')} gender - Grammatical gender
  * @returns {string} Biblical Hebrew words for decimal part
@@ -289,11 +285,10 @@ function decimalPartToWords(decimalPart, gender) {
 
 /**
  * Converts a numeric value to Biblical Hebrew words.
- *
  * @param {number | string | bigint} value - The numeric value to convert
- * @param {Object} [options] - Optional configuration
- * @param {('masculine'|'feminine')} [options.gender='masculine'] - Grammatical gender
- * @param {string} [options.andWord='ו'] - Custom conjunction word
+ * @param {object} [options] - Optional configuration
+ * @param {('masculine'|'feminine')} [options.gender] - Grammatical gender
+ * @param {string} [options.andWord] - Custom conjunction word
  * @returns {string} The number in Biblical Hebrew words
  */
 function toCardinal(value, options) {
@@ -327,7 +322,6 @@ function toCardinal(value, options) {
 
 /**
  * Builds ordinal for tens and ones (0-99).
- *
  * @param {number} n - Number 0-99
  * @returns {string} Ordinal word
  */
@@ -349,7 +343,6 @@ function buildOrdinalTensOnes(n) {
 
 /**
  * Converts a non-negative integer to Biblical Hebrew ordinal words.
- *
  * @param {bigint} n - Non-negative integer to convert
  * @returns {string} Biblical Hebrew ordinal words
  */
@@ -432,12 +425,10 @@ function integerToOrdinal(n) {
 
 /**
  * Converts a numeric value to Biblical Hebrew ordinal words.
- *
  * @param {number | string | bigint} value - The numeric value to convert
  * @returns {string} The ordinal in Biblical Hebrew words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {Error} If value is not a positive integer
- *
  * @example
  * toOrdinal(1)   // 'ראשון'
  * toOrdinal(21)  // 'עשרים וראשון'
@@ -453,12 +444,10 @@ function toOrdinal(value) {
 
 /**
  * Converts a numeric value to Biblical Hebrew Shekel currency words.
- *
  * @param {number | string | bigint} value - The numeric value to convert
  * @returns {string} The currency in Biblical Hebrew words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {Error} If value is not a valid number format
- *
  * @example
  * toCurrency(1)     // 'שקל אחד'
  * toCurrency(2.50)  // 'שניים שקלים חמישים גרות'

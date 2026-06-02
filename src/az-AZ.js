@@ -195,7 +195,6 @@ function decimalPartToWords(decimalPart) {
 
 /**
  * Converts a numeric value to Azerbaijani words.
- *
  * @param {number | string | bigint} value - The numeric value to convert
  * @returns {string} The number in Azerbaijani words
  */
@@ -253,7 +252,6 @@ function getOrdinalSuffix(word) {
  *
  * Azerbaijani ordinals: birinci (1st), ikinci (2nd), üçüncü (3rd), etc.
  * Uses vowel harmony for suffix selection.
- *
  * @param {bigint} n - Positive integer to convert
  * @returns {string} Azerbaijani ordinal words
  */
@@ -271,12 +269,10 @@ function integerToOrdinal(n) {
 
 /**
  * Converts a numeric value to Azerbaijani ordinal words.
- *
  * @param {number | string | bigint} value - The numeric value to convert (positive integer)
  * @returns {string} The number as ordinal words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {RangeError} If value is negative, zero, or has a decimal part
- *
  * @example
  * toOrdinal(1)    // 'birinci'
  * toOrdinal(2)    // 'ikinci'
@@ -295,12 +291,10 @@ function toOrdinal(value) {
  * Converts a numeric value to Azerbaijani currency words (Manat).
  *
  * Uses manat and qəpik (100 qəpik = 1 manat).
- *
  * @param {number | string | bigint} value - The currency amount to convert
  * @returns {string} The amount in Azerbaijani currency words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {Error} If value is not a valid number format
- *
  * @example
  * toCurrency(42)     // 'qırx iki manat'
  * toCurrency(1.50)   // 'bir manat əlli qəpik'

@@ -9,7 +9,6 @@ import { expandScientificNotation, hasScientificNotation } from './expand-scient
 /**
  * Parses a value for ordinal conversion.
  * Ordinals require positive integers only (no zero, negatives, or decimals).
- *
  * @param {number|string|bigint} value - The value to parse
  * @returns {bigint} The positive integer value
  * @throws {TypeError} If value is not number, string, or bigint
@@ -52,7 +51,6 @@ export function parseOrdinalValue(value) {
 
 /**
  * Parses a string for ordinal conversion.
- *
  * @param {string} value - The string to parse
  * @returns {bigint} The positive integer value
  * @throws {RangeError} If string is not a valid positive integer

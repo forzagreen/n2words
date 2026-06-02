@@ -160,7 +160,6 @@ function buildSegmentFeminine(n) {
 /**
  * Polish pluralization: 1 = singular, 2-4 = few, else = many.
  * Special case: 11-19 always use many form.
- *
  * @param {bigint} n - Number to pluralize
  * @param {string[]} forms - [singular, few, many]
  * @returns {string} Correct plural form
@@ -188,7 +187,6 @@ function pluralize(n, forms) {
 
 /**
  * Converts a non-negative integer to Polish words.
- *
  * @param {bigint} n - Non-negative integer to convert
  * @param {string} gender - Gender for numbers < 1000 ('masculine' or 'feminine')
  * @returns {string} Polish words
@@ -231,7 +229,6 @@ function integerToWords(n, gender) {
 /**
  * Builds words for numbers >= 1,000,000.
  * Uses BigInt division for faster segment extraction.
- *
  * @param {bigint} n - Number >= 1,000,000
  * @returns {string} Polish words
  */
@@ -282,7 +279,6 @@ function buildLargeNumberWords(n) {
 
 /**
  * Converts decimal digits to Polish words.
- *
  * @param {string} decimalPart - Decimal digits (without the point)
  * @param {string} gender - Gender for numbers < 1000 ('masculine' or 'feminine')
  * @returns {string} Polish words for decimal part
@@ -313,14 +309,12 @@ function decimalPartToWords(decimalPart, gender) {
  *
  * This is the main public API. It accepts any valid numeric input
  * (number, string, or bigint) and handles parsing internally.
- *
  * @param {number | string | bigint} value - The numeric value to convert
- * @param {Object} [options] - Conversion options
- * @param {string} [options.gender='masculine'] - Gender for numbers < 1000
+ * @param {object} [options] - Conversion options
+ * @param {string} [options.gender] - Gender for numbers < 1000
  * @returns {string} The number in Polish words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {Error} If value is not a valid number format
- *
  * @example
  * toCardinal(1)                          // 'jeden'
  * toCardinal(1, { gender: 'feminine' })  // 'jedna'
@@ -356,7 +350,6 @@ function toCardinal(value, options) {
 /**
  * Builds ordinal for a 0-99 segment when it's the final (ordinal) part.
  * Returns ordinal form: "pierwszy", "dwudziesty pierwszy", etc.
- *
  * @param {number} n - Number 0-99
  * @returns {string} Ordinal words
  */
@@ -391,7 +384,6 @@ function buildOrdinalTensOnes(n) {
  *
  * In Polish ordinals, only the LAST component becomes ordinal.
  * E.g., 121 = "sto dwudziesty pierwszy" (one hundred twenty-first)
- *
  * @param {bigint} n - Positive integer to convert
  * @returns {string} Ordinal Polish words
  */
@@ -443,7 +435,6 @@ function integerToOrdinal(n) {
 /**
  * Builds ordinal words for numbers >= 1,000,000.
  * All segments except the final one are cardinal; final segment is ordinal.
- *
  * @param {bigint} n - Number >= 1,000,000
  * @returns {string} Ordinal Polish words
  */
@@ -524,12 +515,10 @@ function buildLargeOrdinal(n) {
 
 /**
  * Converts a numeric value to Polish ordinal words (masculine nominative).
- *
  * @param {number | string | bigint} value - The numeric value to convert (must be a positive integer)
  * @returns {string} The number as ordinal words (e.g., "pierwszy", "czterdziesty drugi")
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {RangeError} If value is negative, zero, or has a decimal part
- *
  * @example
  * toOrdinal(1)    // 'pierwszy'
  * toOrdinal(2)    // 'drugi'
@@ -550,12 +539,10 @@ function toOrdinal(value) {
 
 /**
  * Converts a numeric value to Polish currency words (Polish Złoty).
- *
  * @param {number | string | bigint} value - The currency amount to convert
  * @returns {string} The amount in Polish currency words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {Error} If value is not a valid number format
- *
  * @example
  * toCurrency(42)     // 'czterdzieści dwa złote'
  * toCurrency(1)      // 'jeden złoty'

@@ -74,7 +74,6 @@ const ORE = 'øre' // same singular and plural
 
 /**
  * Builds segment word for 0-999.
- *
  * @param {number} n - Integer in range 0-999
  * @returns {string} Danish words for the segment
  */
@@ -128,7 +127,6 @@ function buildSegment(n) {
 
 /**
  * Converts a non-negative integer to Danish words.
- *
  * @param {bigint} n - Non-negative integer to convert
  * @returns {string} Danish words
  */
@@ -162,7 +160,6 @@ function integerToWords(n) {
 
 /**
  * Builds words for numbers >= 1,000,000.
- *
  * @param {bigint} n - Number >= 1,000,000
  * @returns {string} Danish words
  */
@@ -227,7 +224,6 @@ function buildLargeNumberWords(n) {
  * Joins parts with Danish spacing rules.
  * - After thousands with remainder: "tusinde og"
  * - Millions are space-separated
- *
  * @param {Array<{word: string, type: string}>} parts - Parts with type metadata
  * @returns {string} Joined string
  */
@@ -268,7 +264,6 @@ function joinDanishParts(parts) {
 
 /**
  * Converts decimal digits to Danish words.
- *
  * @param {string} decimalPart - Decimal digits (without the point)
  * @returns {string} Danish words for decimal part
  */
@@ -295,12 +290,10 @@ function decimalPartToWords(decimalPart) {
 
 /**
  * Converts a numeric value to Danish words.
- *
  * @param {number | string | bigint} value - The numeric value to convert
  * @returns {string} The number in Danish words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {Error} If value is not a valid number format
- *
  * @example
  * toCardinal(21)       // 'enogtyve'
  * toCardinal(1000)     // 'ettusind'
@@ -333,7 +326,6 @@ function toCardinal(value) {
  *
  * Danish ordinals: første (1st), anden (2nd), tredje (3rd), etc.
  * 1-12 have special forms, others use cardinal + -de/-nde suffix.
- *
  * @param {bigint} n - Positive integer to convert
  * @returns {string} Danish ordinal words
  */
@@ -350,12 +342,10 @@ function integerToOrdinal(n) {
 
 /**
  * Converts a numeric value to Danish ordinal words.
- *
  * @param {number | string | bigint} value - The numeric value to convert (positive integer)
  * @returns {string} The number as ordinal words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {RangeError} If value is negative, zero, or has a decimal part
- *
  * @example
  * toOrdinal(1)    // 'første'
  * toOrdinal(2)    // 'anden'
@@ -374,12 +364,10 @@ function toOrdinal(value) {
  * Converts a numeric value to Danish currency words (Danish Krone).
  *
  * Uses krone/kroner and øre (100 øre = 1 krone).
- *
  * @param {number | string | bigint} value - The currency amount to convert
  * @returns {string} The amount in Danish currency words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {Error} If value is not a valid number format
- *
  * @example
  * toCurrency(1)      // 'en krone'
  * toCurrency(42)     // 'toogfyrre kroner'

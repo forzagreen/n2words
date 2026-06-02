@@ -63,9 +63,8 @@ const segmentResult = { word: '', hasHundred: false }
 
 /**
  * Builds words for a 0-999 segment.
- *
  * @param {number} n - Number 0-999
- * @returns {{ word: string, hasHundred: boolean }}
+ * @returns {{ word: string, hasHundred: boolean }} The segment words and whether a hundreds part is present
  */
 function buildSegment(n) {
   if (n === 0) {
@@ -114,7 +113,6 @@ function buildSegment(n) {
 
 /**
  * Converts a non-negative integer to English words.
- *
  * @param {bigint} n - Non-negative integer to convert
  * @returns {string} English words
  */
@@ -148,7 +146,6 @@ function integerToWords(n) {
 
 /**
  * Builds words for numbers >= 1,000,000.
- *
  * @param {bigint} n - Number >= 1,000,000
  * @returns {string} English words
  */
@@ -199,7 +196,6 @@ function buildLargeNumberWords(n) {
 
 /**
  * Converts decimal digits to English words.
- *
  * @param {string} decimalPart - Decimal digits (without the point)
  * @returns {string} English words for decimal part
  */
@@ -224,7 +220,6 @@ function decimalPartToWords(decimalPart) {
 
 /**
  * Converts a numeric value to New Zealand English words.
- *
  * @param {number | string | bigint} value - The numeric value to convert
  * @returns {string} The number in English words
  * @throws {TypeError} If value is not a valid numeric type
@@ -254,7 +249,6 @@ function toCardinal(value) {
 
 /**
  * Builds ordinal words for a 0-999 segment.
- *
  * @param {number} n - Number 0-999
  * @returns {string} Ordinal words
  */
@@ -293,7 +287,6 @@ function buildOrdinalSegment(n) {
 
 /**
  * Converts a non-negative integer to English ordinal words.
- *
  * @param {bigint} n - Non-negative integer to convert
  * @returns {string} English ordinal words
  */
@@ -319,7 +312,6 @@ function integerToOrdinal(n) {
 
 /**
  * Builds ordinal words for numbers >= 1,000,000.
- *
  * @param {bigint} n - Number >= 1,000,000
  * @returns {string} English ordinal words
  */
@@ -370,7 +362,6 @@ function buildLargeOrdinal(n) {
 
 /**
  * Converts a numeric value to New Zealand English ordinal words.
- *
  * @param {number | string | bigint} value - The numeric value to convert (positive integer)
  * @returns {string} The number as ordinal words
  * @throws {TypeError} If value is not a valid numeric type
@@ -387,7 +378,6 @@ function toOrdinal(value) {
 
 /**
  * Converts a numeric value to New Zealand English currency words (New Zealand Dollar).
- *
  * @param {number | string | bigint} value - The currency amount to convert
  * @param {{and?: boolean}} [options] - Optional configuration
  * @returns {string} The amount in New Zealand English currency words

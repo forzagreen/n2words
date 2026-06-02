@@ -59,8 +59,8 @@ const CENT = 'senti'
 // ============================================================================
 
 /**
- * @param {number} n
- * @returns {string}
+ * @param {number} n The integer (0-99) to convert
+ * @returns {string} The number in Swahili words
  */
 function wordsUnder100(n) {
   if (n < 10) return ONES[n]
@@ -76,8 +76,8 @@ function wordsUnder100(n) {
 }
 
 /**
- * @param {number} n
- * @returns {string}
+ * @param {number} n The integer (0-999) to convert
+ * @returns {string} The number in Swahili words
  */
 function wordsUnder1000(n) {
   if (n < 100) return wordsUnder100(n)
@@ -101,8 +101,8 @@ function wordsUnder1000(n) {
 }
 
 /**
- * @param {bigint} n
- * @returns {number[]}
+ * @param {bigint} n The integer to split into 3-digit segments
+ * @returns {number[]} The segments, least-significant first
  */
 function extractSegments(n) {
   const segments = []
@@ -115,8 +115,8 @@ function extractSegments(n) {
 }
 
 /**
- * @param {bigint} n
- * @returns {string}
+ * @param {bigint} n The integer to convert
+ * @returns {string} The number in Swahili words
  */
 function integerToWords(n) {
   if (n === 0n) return ZERO
@@ -154,8 +154,8 @@ function integerToWords(n) {
 }
 
 /**
- * @param {string} decimalPart
- * @returns {string}
+ * @param {string} decimalPart The digits after the decimal point
+ * @returns {string} The decimal digits in Swahili words
  */
 function decimalPartToWords(decimalPart) {
   let result = ''
@@ -178,7 +178,6 @@ function decimalPartToWords(decimalPart) {
 
 /**
  * Converts a numeric value to Swahili words.
- *
  * @param {number | string | bigint} value - The numeric value to convert
  * @returns {string} The number in Swahili words
  */
@@ -208,7 +207,6 @@ function toCardinal(value) {
  * Converts a non-negative integer to Swahili ordinal words.
  *
  * Swahili ordinals: wa kwanza (1st), wa pili (2nd), wa tatu (3rd), etc.
- *
  * @param {bigint} n - Positive integer to convert
  * @returns {string} Swahili ordinal words
  */
@@ -224,12 +222,10 @@ function integerToOrdinal(n) {
 
 /**
  * Converts a numeric value to Swahili ordinal words.
- *
  * @param {number | string | bigint} value - The numeric value to convert (positive integer)
  * @returns {string} The number as ordinal words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {RangeError} If value is negative, zero, or has a decimal part
- *
  * @example
  * toOrdinal(1)    // 'wa kwanza'
  * toOrdinal(2)    // 'wa pili'
@@ -248,12 +244,10 @@ function toOrdinal(value) {
  * Converts a numeric value to Swahili currency words (Kenyan Shilling).
  *
  * Uses shilingi and senti (100 senti = 1 shilingi).
- *
  * @param {number | string | bigint} value - The currency amount to convert
  * @returns {string} The amount in Swahili currency words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {Error} If value is not a valid number format
- *
  * @example
  * toCurrency(42)     // 'shilingi arobaini na mbili'
  * toCurrency(1.50)   // 'shilingi moja na senti hamsini'

@@ -137,7 +137,6 @@ function buildSegment(n, feminine) {
 
 /**
  * Gets scale word for Spanish compound long scale.
- *
  * @param {number} scaleIndex - Scale level (1 = thousand, 2 = million, etc.)
  * @param {bigint} segment - Segment value for pluralization
  * @returns {string} Scale word
@@ -168,7 +167,6 @@ function getScaleWord(scaleIndex, segment) {
 
 /**
  * Converts a non-negative integer to Spanish words.
- *
  * @param {bigint} n - Non-negative integer to convert
  * @param {boolean} feminine - Use feminine forms
  * @returns {string} Spanish words
@@ -217,7 +215,6 @@ function integerToWords(n, feminine) {
 /**
  * Builds words for numbers >= 1,000,000.
  * Uses BigInt division for faster segment extraction.
- *
  * @param {bigint} n - Number >= 1,000,000
  * @param {boolean} feminine - Use feminine forms
  * @returns {string} Spanish words
@@ -284,7 +281,6 @@ function buildLargeNumberWords(n, feminine) {
 
 /**
  * Converts decimal digits to Spanish words.
- *
  * @param {string} decimalPart - Decimal digits (without the point)
  * @param {boolean} feminine - Use feminine forms
  * @returns {string} Spanish words for decimal part
@@ -312,14 +308,12 @@ function decimalPartToWords(decimalPart, feminine) {
 
 /**
  * Converts a numeric value to Spanish words (long scale).
- *
  * @param {number | string | bigint} value - The numeric value to convert
- * @param {Object} [options] - Optional configuration
- * @param {('masculine'|'feminine')} [options.gender='masculine'] - Grammatical gender
+ * @param {object} [options] - Optional configuration
+ * @param {('masculine'|'feminine')} [options.gender] - Grammatical gender
  * @returns {string} The number in Spanish words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {Error} If value is not a valid number format
- *
  * @example
  * toCardinal(21)                        // 'veintiuno'
  * toCardinal(21, {gender: 'feminine'})  // 'veintiuna'
@@ -354,7 +348,6 @@ function toCardinal(value, options) {
 
 /**
  * Builds ordinal word for a 0-999 segment.
- *
  * @param {number} n - Segment value 0-999
  * @param {boolean} feminine - Use feminine forms
  * @returns {string} Spanish ordinal word
@@ -398,7 +391,6 @@ function buildOrdinalSegment(n, feminine) {
 
 /**
  * Converts a positive integer to Spanish ordinal words.
- *
  * @param {bigint} n - Positive integer to convert
  * @param {boolean} feminine - Use feminine forms
  * @returns {string} Spanish ordinal words
@@ -455,14 +447,12 @@ function integerToOrdinal(n, feminine) {
 
 /**
  * Converts a numeric value to Spanish ordinal words.
- *
  * @param {number | string | bigint} value - The positive integer to convert
- * @param {Object} [options] - Optional configuration
- * @param {('masculine'|'feminine')} [options.gender='masculine'] - Grammatical gender
+ * @param {object} [options] - Optional configuration
+ * @param {('masculine'|'feminine')} [options.gender] - Grammatical gender
  * @returns {string} The number in Spanish ordinal words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {Error} If value is not a positive integer
- *
  * @example
  * toOrdinal(1)                          // 'primero'
  * toOrdinal(1, { gender: 'feminine' })  // 'primera'
@@ -487,14 +477,12 @@ function toOrdinal(value, options) {
  *
  * Mexican currency uses masculine gender for pesos (el peso)
  * and masculine for centavos (el centavo).
- *
  * @param {number | string | bigint} value - The currency amount to convert
- * @param {Object} [options] - Optional configuration
- * @param {boolean} [options.and=true] - Use "con" between pesos and centavos
+ * @param {object} [options] - Optional configuration
+ * @param {boolean} [options.and] - Use "con" between pesos and centavos
  * @returns {string} The amount in Mexican currency words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {Error} If value is not a valid number format
- *
  * @example
  * toCurrency(42.50)                  // 'cuarenta y dos pesos con cincuenta centavos'
  * toCurrency(1)                      // 'un peso'

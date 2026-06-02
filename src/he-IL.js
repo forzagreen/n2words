@@ -59,7 +59,6 @@ const AGORA_PLURAL = 'אגורות'
 /**
  * Builds segment word for scale segments (thousands, millions, etc.).
  * "ו" is added before tens and ones when following hundreds.
- *
  * @param {number} n - Segment value (0-999)
  * @param {string} andWord - Conjunction word
  * @returns {string} Hebrew words for the segment
@@ -117,7 +116,6 @@ function buildScaleSegment(n, andWord) {
 /**
  * Builds segment word for units segment (no scale word).
  * "ו" is only added before the final ones digit.
- *
  * @param {number} n - Segment value (0-999)
  * @param {string} andWord - Conjunction word
  * @returns {string} Hebrew words for the segment
@@ -176,7 +174,6 @@ function buildUnitsSegment(n, andWord) {
 
 /**
  * Converts a non-negative integer to Hebrew words.
- *
  * @param {bigint} n - Non-negative integer to convert
  * @param {string} andWord - Conjunction word
  * @returns {string} Hebrew words
@@ -251,7 +248,6 @@ function integerToWords(n, andWord) {
 
 /**
  * Converts decimal digits to Hebrew words (digit by digit).
- *
  * @param {string} decimalPart - Decimal digits (without the point)
  * @returns {string} Hebrew words for decimal part
  */
@@ -269,10 +265,9 @@ function decimalPartToWords(decimalPart) {
 
 /**
  * Converts a numeric value to Modern Hebrew words.
- *
  * @param {number | string | bigint} value - The numeric value to convert
- * @param {Object} [options] - Optional configuration
- * @param {string} [options.andWord='ו'] - Custom conjunction word
+ * @param {object} [options] - Optional configuration
+ * @param {string} [options.andWord] - Custom conjunction word
  * @returns {string} The number in Modern Hebrew words
  */
 function toCardinal(value, options) {
@@ -303,7 +298,6 @@ function toCardinal(value, options) {
 
 /**
  * Builds ordinal for tens and ones (0-99).
- *
  * @param {number} n - Number 0-99
  * @returns {string} Ordinal word
  */
@@ -325,7 +319,6 @@ function buildOrdinalTensOnes(n) {
 
 /**
  * Converts a non-negative integer to Hebrew ordinal words.
- *
  * @param {bigint} n - Non-negative integer to convert
  * @returns {string} Hebrew ordinal words
  */
@@ -419,12 +412,10 @@ function integerToOrdinal(n) {
 
 /**
  * Converts a numeric value to Hebrew ordinal words.
- *
  * @param {number | string | bigint} value - The numeric value to convert
  * @returns {string} The ordinal in Hebrew words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {Error} If value is not a positive integer
- *
  * @example
  * toOrdinal(1)   // 'ראשון'
  * toOrdinal(21)  // 'עשרים וראשון'
@@ -440,7 +431,6 @@ function toOrdinal(value) {
 
 /**
  * Builds segment word for currency (masculine forms).
- *
  * @param {number} n - Segment value (0-999)
  * @returns {string} Hebrew words for the segment (masculine form)
  */
@@ -496,7 +486,6 @@ function buildCurrencySegment(n) {
 
 /**
  * Converts a non-negative integer to Hebrew currency words (masculine).
- *
  * @param {bigint} n - Non-negative integer to convert
  * @returns {string} Hebrew words (masculine form)
  */
@@ -516,12 +505,10 @@ function integerToCurrencyWords(n) {
 
 /**
  * Converts a numeric value to Hebrew New Israeli Shekel currency words.
- *
  * @param {number | string | bigint} value - The numeric value to convert
  * @returns {string} The currency in Hebrew words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {Error} If value is not a valid number format
- *
  * @example
  * toCurrency(1)     // 'שקל אחד'
  * toCurrency(2.50)  // 'שניים שקלים חמישים אגורות'

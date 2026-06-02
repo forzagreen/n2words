@@ -71,10 +71,10 @@ const SCALE_META = [
 
 /**
  * Spells number under 100.
- *
  * @param {number} n - Number 0-99
  * @param {boolean} [feminine] - Use feminine forms
  * @param {boolean} [masculineTeens] - Use masculine teen forms
+ * @returns {string} The number 0-99 in words
  */
 function spellUnder100(n, feminine = false, masculineTeens = false) {
   if (n === 0) return ''
@@ -95,10 +95,10 @@ function spellUnder100(n, feminine = false, masculineTeens = false) {
 
 /**
  * Spells number under 1000.
- *
  * @param {number} n - Number 0-999
  * @param {boolean} [feminine] - Use feminine forms
  * @param {boolean} [masculineTeens] - Use masculine teen forms
+ * @returns {string} The number 0-999 in words
  */
 function spellUnder1000(n, feminine = false, masculineTeens = false) {
   if (n === 0) return ''
@@ -115,9 +115,9 @@ function spellUnder1000(n, feminine = false, masculineTeens = false) {
 /**
  * Builds scale word with proper pluralization and "de" insertion.
  * Romanian always uses feminine forms (două, not doi) when counting scale words.
- *
  * @param {number} segment - Three-digit segment value (1-999)
  * @param {number} scaleIndex - Scale position (1 = thousands, 2 = millions, ...)
+ * @returns {string} The scale phrase in words
  */
 function buildScalePhrase(segment, scaleIndex) {
   const meta = SCALE_META[scaleIndex - 1]
@@ -148,7 +148,6 @@ function buildScalePhrase(segment, scaleIndex) {
 
 /**
  * Converts a non-negative integer to Romanian words.
- *
  * @param {bigint} n - Non-negative integer to convert
  * @param {string | {gender?: string}} gender - Gender for numbers ('feminine'/'masculine')
  * @returns {string} Romanian words
@@ -168,7 +167,6 @@ function integerToWords(n, gender) {
 /**
  * Builds words for numbers >= 1000.
  * Uses BigInt division for faster segment extraction.
- *
  * @param {bigint} n - Number >= 1000
  * @param {string | {gender?: string}} gender - Gender for numbers ('feminine'/'masculine')
  * @returns {string} Romanian words
@@ -215,7 +213,6 @@ function buildLargeNumberWords(n, gender) {
 /**
  * Converts decimal digits to Romanian words.
  * Decimals always use masculine forms.
- *
  * @param {string} decimalPart - Decimal digits (without the point)
  * @returns {string} Romanian words for decimal part
  */
@@ -248,14 +245,12 @@ function decimalPartToWords(decimalPart) {
 
 /**
  * Converts a numeric value to Romanian words.
- *
  * @param {number | string | bigint} value - The numeric value to convert
- * @param {Object} [options] - Conversion options
- * @param {string} [options.gender='masculine'] - Gender for numbers
+ * @param {object} [options] - Conversion options
+ * @param {string} [options.gender] - Gender for numbers
  * @returns {string} The number in Romanian words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {Error} If value is not a valid number format
- *
  * @example
  * toCardinal(21)                        // 'douăzeci și unu'
  * toCardinal(1, { gender: 'feminine' }) // 'una'
@@ -289,7 +284,6 @@ function toCardinal(value, options) {
 
 /**
  * Builds ordinal for tens and ones (0-99).
- *
  * @param {number} n - Number 0-99
  * @returns {string} Ordinal word
  */
@@ -310,7 +304,6 @@ function buildOrdinalTensOnes(n) {
 
 /**
  * Converts a non-negative integer to Romanian ordinal words.
- *
  * @param {bigint} n - Non-negative integer to convert
  * @returns {string} Romanian ordinal words
  */
@@ -393,12 +386,10 @@ function integerToOrdinal(n) {
 
 /**
  * Converts a numeric value to Romanian ordinal words.
- *
  * @param {number | string | bigint} value - The numeric value to convert
  * @returns {string} The ordinal in Romanian words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {Error} If value is not a positive integer
- *
  * @example
  * toOrdinal(1)   // 'primul'
  * toOrdinal(21)  // 'douăzeci și primul'
@@ -414,12 +405,10 @@ function toOrdinal(value) {
 
 /**
  * Converts a numeric value to Romanian Leu currency words.
- *
  * @param {number | string | bigint} value - The numeric value to convert
  * @returns {string} The currency in Romanian words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {Error} If value is not a valid number format
- *
  * @example
  * toCurrency(1)     // 'un leu'
  * toCurrency(2.50)  // 'doi lei cincizeci de bani'

@@ -9,9 +9,8 @@ import { expandScientificNotation, hasScientificNotation, numberToString } from 
 /**
  * Parses a value for currency conversion.
  * Returns dollars and cents as separate bigints, plus negative flag.
- *
  * @param {number|string|bigint} value - The value to parse
- * @returns {{isNegative: boolean, dollars: bigint, cents: bigint}}
+ * @returns {{isNegative: boolean, dollars: bigint, cents: bigint}} The parsed dollars and cents with a negative flag.
  * @throws {TypeError} If value is not number, string, or bigint
  * @throws {RangeError} If value is not finite
  */
@@ -51,9 +50,8 @@ export function parseCurrencyValue(value) {
 
 /**
  * Parses a string for currency conversion.
- *
  * @param {string} value - The string to parse
- * @returns {{isNegative: boolean, dollars: bigint, cents: bigint}}
+ * @returns {{isNegative: boolean, dollars: bigint, cents: bigint}} The parsed dollars and cents with a negative flag.
  */
 function parseCurrencyString(value) {
   let str = value.trim()

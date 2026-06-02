@@ -10,9 +10,8 @@ import { expandScientificNotation, hasScientificNotation, numberToString } from 
 /**
  * Parses a value for cardinal conversion.
  * Cardinals accept any numeric value: integers, decimals, negatives.
- *
  * @param {number|string|bigint} value - The value to parse
- * @returns {{isNegative: boolean, integerPart: bigint, decimalPart?: string}}
+ * @returns {{isNegative: boolean, integerPart: bigint, decimalPart?: string}} The parsed cardinal components
  * @throws {TypeError} If value is not number, string, or bigint
  * @throws {RangeError} If value is not finite
  */
@@ -51,7 +50,6 @@ export function parseCardinalValue(value) {
 
 /**
  * Validates and normalizes a string numeric input.
- *
  * @param {string} value - The string to normalize
  * @returns {string} The normalized numeric string
  */
@@ -65,9 +63,8 @@ function normalizeString(value) {
 
 /**
  * Parses a normalized numeric string into components.
- *
  * @param {string} str - The normalized numeric string
- * @returns {{isNegative: boolean, integerPart: bigint, decimalPart?: string}}
+ * @returns {{isNegative: boolean, integerPart: bigint, decimalPart?: string}} The parsed numeric components
  */
 function parseNumericString(str) {
   const isNegative = str[0] === '-'
