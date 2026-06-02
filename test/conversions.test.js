@@ -236,13 +236,20 @@ function runTestCases(t, fn, testCases, form) {
 }
 
 /**
- * Builds the ordered list of checks (assertion thunks and logs) for one form.
+ * Minimum fixture cases required per form — a low, deliberate floor that
+ * demands more than a token value or two (a real smoke test) without pinning
+ * languages to an arbitrary count. Acts as a tripwire: a new or regressed
+ * fixture that drops below it fails the build.
+ */
+const MIN_TEST_CASES_PER_FORM = 5
+
+/**
+ * Builds the ordered list of checks (assertion thunks) for one form.
  *
  * Each returned entry is a zero-argument function. Running them in order
  * reproduces the original form-test control flow exactly, including the
  * early-skip behavior: a missing export or an invalid fixture short-circuits
- * the form (no later checks are produced). Warnings/coverage notes are emitted
- * as `t.log` side effects here (logs are not assertions and are not planned).
+ * the form (no later checks are produced).
  *
  * Returning thunks keeps the assertions out of `if` conditionals at the call
  * site (they run inside a plain loop), satisfying ava/no-conditional-assertion
@@ -275,10 +282,11 @@ function planFormChecks(t, file, languageCode, formName, config, fn, fixtureData
   // Conversion tests: one assertion per fixture case (handled in runTestCases).
   checks.push(() => runTestCases(t, fn, fixtureData, formName))
 
-  // Coverage note (log, not an assertion).
-  if (fixtureData.length < 25) {
-    t.log(`Warning: ${languageCode} has only ${fixtureData.length} ${formName} test cases.`)
-  }
+  // Coverage floor: every form must exercise more than a token value or two.
+  checks.push(() => t.true(
+    fixtureData.length >= MIN_TEST_CASES_PER_FORM,
+    `${languageCode} ${formName} has only ${fixtureData.length} test cases (minimum ${MIN_TEST_CASES_PER_FORM})`,
+  ))
 
   // Error cases (form-specific): one t.throws per case.
   for (const { input, error, desc } of config.errorCases ?? []) {
