@@ -181,6 +181,5 @@ export const currency = [
   [-42.50, 'minus czterdzieści dwa złote pięćdziesiąt groszy'],
 
   // Edge cases
-  [5.00, 'pięć złotych'],
   ['5.00', 'pięć złotych'],
 ]

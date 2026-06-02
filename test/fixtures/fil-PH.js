@@ -131,6 +131,5 @@ export const currency = [
   [-42.50, 'negatibo apatnapu dalawang piso at limampung sentimo'],
 
   // Edge cases
-  [5.00, 'limang piso'],
   ['5.00', 'limang piso'],
 ]

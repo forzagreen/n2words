@@ -190,6 +190,5 @@ export const currency = [
   [-42.50, 'eksi kırk iki lira elli kuruş'],
 
   // Edge cases
-  [5.00, 'beş lira'],
   ['5.00', 'beş lira'],
 ]

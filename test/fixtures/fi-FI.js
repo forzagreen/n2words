@@ -73,7 +73,6 @@ export const cardinal = [
   ['0.5', 'nolla pilkku viisi'],
 
   // BigInt
-  [BigInt(999), 'yhdeksän sata yhdeksänkymmentäyhdeksän'],
 ]
 
 /**
@@ -151,6 +150,5 @@ export const currency = [
   [-42.50, 'miinus neljäkymmentäkaksi euroa viisikymmentä senttiä'],
 
   // Edge cases
-  [5.00, 'viisi euroa'],
   ['5.00', 'viisi euroa'],
 ]

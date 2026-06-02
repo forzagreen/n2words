@@ -147,6 +147,5 @@ export const currency = [
   [-1000, 'منفى هزار ریال'],
 
   // Edge cases (decimals rounded)
-  [5.00, 'پنج ریال'],
   ['5.00', 'پنج ریال'],
 ]

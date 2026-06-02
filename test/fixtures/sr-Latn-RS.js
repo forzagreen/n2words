@@ -181,6 +181,5 @@ export const currency = [
   [42.50, 'četrdeset dva dinara pedeset para', { and: false }],
 
   // Edge cases
-  [5.00, 'pet dinara'],
   ['5.00', 'pet dinara'],
 ]

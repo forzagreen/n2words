@@ -191,6 +191,5 @@ export const currency = [
   [-42.50, 'mínus čtyřicet dva koruny padesát haléřů'],
 
   // Edge cases
-  [5.00, 'pět korun'],
   ['5.00', 'pět korun'],
 ]

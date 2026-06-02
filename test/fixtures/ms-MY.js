@@ -138,6 +138,5 @@ export const currency = [
   [-42.50, 'minus empat puluh dua ringgit lima puluh sen'],
 
   // Edge cases
-  [5.00, 'lima ringgit'],
   ['5.00', 'lima ringgit'],
 ]

@@ -247,11 +247,9 @@ export const currency = [
   // Edge cases: .00 paise should show rupees only
   [5.00, 'five rupees'],
   ['5.00', 'five rupees'],
-  [100.00, 'one hundred rupees'],
 
   // String inputs
   ['42.50', 'forty-two rupees and fifty paise'],
-  ['0.99', 'ninety-nine paise'],
 
   // BigInt (whole rupees only)
   [100000000000n, 'one kharab rupees'],

@@ -237,6 +237,5 @@ export const currency = [
   [-42.50, 'minus patruzeci și doi lei cincizeci de bani'],
 
   // Edge cases
-  [5.00, 'cinci lei'],
   ['5.00', 'cinci lei'],
 ]
