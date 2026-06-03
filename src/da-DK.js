@@ -39,6 +39,13 @@ const DECIMAL_SEP = 'komma'
 // Long scale: millioner, millarder, billioner, etc.
 const SCALES = ['millioner', 'millarder', 'billioner', 'billarder', 'trillioner', 'trillarder', 'quadrillioner', 'quadrillarder']
 
+// Supported magnitude ceiling (checked at the public entry points). Segments
+// are [units, thousands, then one per SCALES entry], so cardinals span at most
+// SCALES.length + 2 groups of 3 digits — they must stay below 10^30. Ordinals
+// and currency build on the cardinal, so they share the same ceiling.
+const MAX_CARDINAL_EXPONENT = (SCALES.length + 2) * 3
+const MAX_CARDINAL = 10n ** BigInt(MAX_CARDINAL_EXPONENT)
+
 // ============================================================================
 // Ordinal Vocabulary
 // ============================================================================
@@ -183,14 +190,8 @@ function buildLargeNumberWords(n) {
     pos += segmentSize
   }
 
-  // Past the largest named scale word the number cannot be spelled. Segments
-  // are [units, thousands, then one per SCALES entry], so the ceiling is
-  // SCALES.length + 2 segments (10^30 - 1). Throw rather than emit "undefined".
-  if (segments.length > SCALES.length + 2) {
-    throw tooLargeError((SCALES.length + 2) * 3)
-  }
-
   // Convert segments to words with scale tracking
+  // Callers guard the magnitude (MAX_CARDINAL) before reaching here.
   // scaleIndex: 0 = units, 1 = thousands, 2 = millions, etc.
   const parts = []
   let scaleIndex = segments.length - 1
@@ -297,6 +298,11 @@ function decimalPartToWords(decimalPart) {
  */
 function toCardinal(value) {
   const { isNegative, integerPart, decimalPart } = parseCardinalValue(value)
+  // Both the integer part and the decimal's significant digits are spelled via
+  // the scale builder, so both must clear the ceiling.
+  if (integerPart >= MAX_CARDINAL || (decimalPart && BigInt(decimalPart) >= MAX_CARDINAL)) {
+    throw tooLargeError(MAX_CARDINAL_EXPONENT)
+  }
 
   let result = ''
 
@@ -349,6 +355,7 @@ function integerToOrdinal(n) {
  */
 function toOrdinal(value) {
   const integerPart = parseOrdinalValue(value)
+  if (integerPart >= MAX_CARDINAL) throw tooLargeError(MAX_CARDINAL_EXPONENT)
   return integerToOrdinal(integerPart)
 }
 
@@ -371,6 +378,7 @@ function toOrdinal(value) {
  */
 function toCurrency(value) {
   const { isNegative, dollars: kroner, cents: ore } = parseCurrencyValue(value)
+  if (kroner >= MAX_CARDINAL) throw tooLargeError(MAX_CARDINAL_EXPONENT)
 
   let result = ''
   if (isNegative) {
