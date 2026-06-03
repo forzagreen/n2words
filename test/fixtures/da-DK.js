@@ -69,6 +69,11 @@ export const cardinal = [
   [1_000_000, 'en millioner'],
   [1_000_001, 'en millioner et'],
   [4_000_000, 'fire millioner'],
+  // Numbers spanning multiple scale groups (regression: these used to emit a
+  // double space between groups — see joinDanishParts).
+  [1_001_000_000, 'en millarder en millioner'],
+  [1_001_001, 'en millioner ettusinde og et'],
+  [2_000_002_000_000n, 'to billioner to millioner'],
   [10_000_000_000_000, 'ti billioner'],
   [100_000_000_000_000, 'ethundrede billioner'],
   [1_000_000_000_000_000_000n, 'en trillioner'],

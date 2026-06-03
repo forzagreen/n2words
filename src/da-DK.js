@@ -182,6 +182,15 @@ function buildLargeNumberWords(n) {
     pos += segmentSize
   }
 
+  // Past the largest named scale word the number cannot be spelled. Segments
+  // are [units, thousands, then one per SCALES entry], so the ceiling is
+  // SCALES.length + 2 segments (10^30 - 1). Throw rather than emit "undefined".
+  if (segments.length > SCALES.length + 2) {
+    throw new RangeError(
+      `da-DK cannot convert numbers >= 10^${(SCALES.length + 2) * 3} (largest supported scale word exceeded)`,
+    )
+  }
+
   // Convert segments to words with scale tracking
   // scaleIndex: 0 = units, 1 = thousands, 2 = millions, etc.
   const parts = []
@@ -229,37 +238,25 @@ function buildLargeNumberWords(n) {
  */
 function joinDanishParts(parts) {
   if (parts.length === 0) return ZERO
-  if (parts.length === 1) return parts[0].word
 
-  const result = []
+  const tokens = []
 
   for (let i = 0; i < parts.length; i++) {
     const part = parts[i]
     const nextPart = parts[i + 1]
 
     if (part.type === 'thousand' && nextPart && nextPart.type === 'units') {
-      // Thousands followed by units: add "e og"
-      result.push(part.word + 'e og ' + nextPart.word)
-      i++ // Skip the units part
-    }
-    else if (part.type === 'million') {
-      if (result.length > 0) {
-        result.push(' ')
-      }
-      result.push(part.word)
-      if (nextPart) {
-        result.push(' ')
-      }
+      // Thousands directly followed by the units segment: compound "…tusinde og …"
+      tokens.push(part.word + 'e og ' + nextPart.word)
+      i++ // consumed the units part
     }
     else {
-      if (result.length > 0 && !result[result.length - 1].endsWith(' ')) {
-        result.push(' ')
-      }
-      result.push(part.word)
+      tokens.push(part.word)
     }
   }
 
-  return result.join('')
+  // Every remaining boundary (between scale groups) is a single space.
+  return tokens.join(' ')
 }
 
 /**
