@@ -376,7 +376,11 @@ function decimalPartToWords(decimalPart, withHyphen) {
 function toCardinal(value, options) {
   options = validateOptions(options)
   const { isNegative, integerPart, decimalPart } = parseCardinalValue(value)
-  if (integerPart >= MAX_CARDINAL) throw tooLargeError(MAX_CARDINAL_EXPONENT)
+  // Both the integer part and the decimal's significant digits are spelled via
+  // the scale builder, so both must clear the ceiling.
+  if (integerPart >= MAX_CARDINAL || (decimalPart && BigInt(decimalPart) >= MAX_CARDINAL)) {
+    throw tooLargeError(MAX_CARDINAL_EXPONENT)
+  }
 
   // Apply option defaults
   const { withHyphenSeparator = false } = options

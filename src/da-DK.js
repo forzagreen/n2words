@@ -298,7 +298,11 @@ function decimalPartToWords(decimalPart) {
  */
 function toCardinal(value) {
   const { isNegative, integerPart, decimalPart } = parseCardinalValue(value)
-  if (integerPart >= MAX_CARDINAL) throw tooLargeError(MAX_CARDINAL_EXPONENT)
+  // Both the integer part and the decimal's significant digits are spelled via
+  // the scale builder, so both must clear the ceiling.
+  if (integerPart >= MAX_CARDINAL || (decimalPart && BigInt(decimalPart) >= MAX_CARDINAL)) {
+    throw tooLargeError(MAX_CARDINAL_EXPONENT)
+  }
 
   let result = ''
 
