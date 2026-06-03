@@ -68,15 +68,23 @@ export const cardinal = [
   [9539, 'nitusinde og femhundrede og niogtredive'],
   [1_000_000, 'en millioner'],
   [1_000_001, 'en millioner et'],
-  [4_000_000, 'fire millioner'],
-  // Numbers spanning multiple scale groups (regression: these used to emit a
-  // double space between groups — see joinDanishParts).
-  [1_001_000_000, 'en millarder en millioner'],
+  // Multi-scale-group numbers (regression: these used to emit a double space
+  // between groups — see joinDanishParts).
   [1_001_001, 'en millioner ettusinde og et'],
+  [4_000_000, 'fire millioner'],
+  [1_001_000_000, 'en millarder en millioner'],
   [2_000_002_000_000n, 'to billioner to millioner'],
   [10_000_000_000_000, 'ti billioner'],
   [100_000_000_000_000, 'ethundrede billioner'],
   [1_000_000_000_000_000_000n, 'en trillioner'],
+]
+
+/**
+ * Out-of-range inputs that must throw (scale ceiling: da-DK names scales up to
+ * 10^30 - 1, beyond which all three forms throw rather than emit "undefined").
+ */
+export const cardinalErrors = [
+  [10n ** 30n, RangeError],
 ]
 
 /**
@@ -118,6 +126,11 @@ export const ordinal = [
   [1001, 'ettusinde og etde'],
 ]
 
+/** Ordinals share the cardinal scale ceiling. */
+export const ordinalErrors = [
+  [10n ** 30n, RangeError],
+]
+
 /**
  * Currency test cases (Danish Krone)
  * Format: [input, expected_output, options?]
@@ -154,4 +167,9 @@ export const currency = [
 
   // Edge cases
   ['5.00', 'fem kroner'],
+]
+
+/** Currency shares the cardinal scale ceiling. */
+export const currencyErrors = [
+  [10n ** 30n, RangeError],
 ]
