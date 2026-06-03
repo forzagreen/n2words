@@ -20,6 +20,7 @@
 import { parseCardinalValue } from './utils/parse-cardinal.js'
 import { parseCurrencyValue } from './utils/parse-currency.js'
 import { parseOrdinalValue } from './utils/parse-ordinal.js'
+import { tooLargeError } from './utils/too-large-error.js'
 import { validateOptions } from './utils/validate-options.js'
 
 // ============================================================================
@@ -182,8 +183,10 @@ function integerToWords(n, feminine) {
       // Millions and above: "un millón", "dos millones", etc.
       const scaleIndex = i - 1 // SCALES[1] = millón, SCALES[2] = billón, etc.
       if (scaleIndex >= SCALES.length) {
-        // Beyond our scale vocabulary
-        result += buildSegment(Number(segment), false)
+        // Beyond our scale vocabulary: emitting the segment without its scale
+        // would silently drop the magnitude (10^60 -> "uno"). Throw instead.
+        // SCALES covers units + 10^3..10^18, so the ceiling is 10^21 - 1.
+        throw tooLargeError((SCALES.length + 1) * 3)
       }
       else if (segment === 1n) {
         // "un millón" not "uno millón"
@@ -315,6 +318,12 @@ function buildOrdinalSegment(n, feminine) {
  * @returns {string} Spanish ordinal words
  */
 function integerToOrdinal(n, feminine) {
+  // Ordinal scale words stop at "millonésimo" (10^6); the millions multiplier
+  // is built with buildOrdinalSegment (0-999), so support ends below 10^9.
+  if (n >= 1_000_000_000n) {
+    throw tooLargeError(9)
+  }
+
   const thousandWord = feminine ? ORDINAL_THOUSAND_FEM : ORDINAL_THOUSAND_MASC
   const millionWord = feminine ? ORDINAL_MILLION_FEM : ORDINAL_MILLION_MASC
 

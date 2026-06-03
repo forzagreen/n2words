@@ -20,6 +20,7 @@
 import { parseCardinalValue } from './utils/parse-cardinal.js'
 import { parseCurrencyValue } from './utils/parse-currency.js'
 import { parseOrdinalValue } from './utils/parse-ordinal.js'
+import { tooLargeError } from './utils/too-large-error.js'
 import { validateOptions } from './utils/validate-options.js'
 
 // ============================================================================
@@ -229,6 +230,14 @@ function buildLargeNumberWords(n, feminine) {
     temp = temp / 1000n
   }
 
+  // Past the largest named scale (mil cuatrillones, 10^30 - 1) the lookup runs
+  // out. Each SCALES entry spans two segment indices (X and "mil X"), so the
+  // ceiling is 2 * SCALES.length + 2 segments. Throw rather than emit "un …".
+  const maxSegments = 2 * SCALES.length + 2
+  if (segmentValues.length > maxSegments) {
+    throw tooLargeError(maxSegments * 3)
+  }
+
   // Build result string directly
   let result = ''
 
@@ -396,6 +405,12 @@ function buildOrdinalSegment(n, feminine) {
  * @returns {string} Spanish ordinal words
  */
 function integerToOrdinal(n, feminine) {
+  // Ordinal scale words stop at "millonésimo" (10^6); the millions multiplier
+  // is built with buildOrdinalSegment (0-999), so support ends below 10^9.
+  if (n >= 1_000_000_000n) {
+    throw tooLargeError(9)
+  }
+
   const thousandWord = feminine ? ORDINAL_THOUSAND_FEM : ORDINAL_THOUSAND_MASC
   const millionWord = feminine ? ORDINAL_MILLION_FEM : ORDINAL_MILLION_MASC
 
