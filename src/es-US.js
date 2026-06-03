@@ -46,6 +46,15 @@ const HUNDREDS_FEM = ['', 'cienta', 'doscientas', 'trescientas', 'cuatrocientas'
 const SCALES = ['mil', 'millón', 'billón', 'trillón', 'cuatrillón', 'quintillón']
 const SCALES_PLURAL = ['mil', 'millones', 'billones', 'trillones', 'cuatrillones', 'quintillones']
 
+// Supported magnitude ceilings (checked at the public entry points). Short
+// scale: SCALES covers 10^3..10^18, plus the units group, so cardinals span at
+// most SCALES.length + 1 groups of 3 digits (below 10^21). Ordinals are bounded
+// lower: the millions multiplier uses buildOrdinalSegment (0-999), so n < 10^9.
+const MAX_CARDINAL_EXPONENT = (SCALES.length + 1) * 3
+const MAX_CARDINAL = 10n ** BigInt(MAX_CARDINAL_EXPONENT)
+const MAX_ORDINAL_EXPONENT = 9
+const MAX_ORDINAL = 10n ** BigInt(MAX_ORDINAL_EXPONENT)
+
 const ZERO = 'cero'
 const NEGATIVE = 'menos'
 const DECIMAL_SEP = 'punto'
@@ -181,14 +190,9 @@ function integerToWords(n, feminine) {
     }
     else {
       // Millions and above: "un millón", "dos millones", etc.
+      // Callers guard the magnitude (MAX_CARDINAL) so scaleIndex stays in range.
       const scaleIndex = i - 1 // SCALES[1] = millón, SCALES[2] = billón, etc.
-      if (scaleIndex >= SCALES.length) {
-        // Beyond our scale vocabulary: emitting the segment without its scale
-        // would silently drop the magnitude (10^60 -> "uno"). Throw instead.
-        // SCALES covers units + 10^3..10^18, so the ceiling is 10^21 - 1.
-        throw tooLargeError((SCALES.length + 1) * 3)
-      }
-      else if (segment === 1n) {
+      if (segment === 1n) {
         // "un millón" not "uno millón"
         result += 'un ' + SCALES[scaleIndex]
       }
@@ -244,6 +248,7 @@ function decimalPartToWords(decimalPart, feminine) {
 function toCardinal(value, options) {
   options = validateOptions(options)
   const { isNegative, integerPart, decimalPart } = parseCardinalValue(value)
+  if (integerPart >= MAX_CARDINAL) throw tooLargeError(MAX_CARDINAL_EXPONENT)
 
   // Apply option defaults
   const { gender = 'masculine' } = options
@@ -318,12 +323,6 @@ function buildOrdinalSegment(n, feminine) {
  * @returns {string} Spanish ordinal words
  */
 function integerToOrdinal(n, feminine) {
-  // Ordinal scale words stop at "millonésimo" (10^6); the millions multiplier
-  // is built with buildOrdinalSegment (0-999), so support ends below 10^9.
-  if (n >= 1_000_000_000n) {
-    throw tooLargeError(9)
-  }
-
   const thousandWord = feminine ? ORDINAL_THOUSAND_FEM : ORDINAL_THOUSAND_MASC
   const millionWord = feminine ? ORDINAL_MILLION_FEM : ORDINAL_MILLION_MASC
 
@@ -389,6 +388,7 @@ function integerToOrdinal(n, feminine) {
 function toOrdinal(value, options) {
   options = validateOptions(options)
   const integerPart = parseOrdinalValue(value)
+  if (integerPart >= MAX_ORDINAL) throw tooLargeError(MAX_ORDINAL_EXPONENT)
 
   const { gender = 'masculine' } = options
   const feminine = gender === 'feminine'
@@ -420,6 +420,7 @@ function toOrdinal(value, options) {
 function toCurrency(value, options) {
   options = validateOptions(options)
   const { isNegative, dollars, cents: centavos } = parseCurrencyValue(value)
+  if (dollars >= MAX_CARDINAL) throw tooLargeError(MAX_CARDINAL_EXPONENT)
   const { and: useAnd = true } = options
 
   let result = ''
