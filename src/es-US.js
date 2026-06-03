@@ -20,6 +20,7 @@
 import { parseCardinalValue } from './utils/parse-cardinal.js'
 import { parseCurrencyValue } from './utils/parse-currency.js'
 import { parseOrdinalValue } from './utils/parse-ordinal.js'
+import { tooLargeError } from './utils/too-large-error.js'
 import { validateOptions } from './utils/validate-options.js'
 
 // ============================================================================
@@ -44,6 +45,15 @@ const HUNDREDS_FEM = ['', 'cienta', 'doscientas', 'trescientas', 'cuatrocientas'
 // Scale words (short scale - each scale is 10^3 apart)
 const SCALES = ['mil', 'millón', 'billón', 'trillón', 'cuatrillón', 'quintillón']
 const SCALES_PLURAL = ['mil', 'millones', 'billones', 'trillones', 'cuatrillones', 'quintillones']
+
+// Supported magnitude ceilings (checked at the public entry points). Short
+// scale: SCALES covers 10^3..10^18, plus the units group, so cardinals span at
+// most SCALES.length + 1 groups of 3 digits (below 10^21). Ordinals are bounded
+// lower: the millions multiplier uses buildOrdinalSegment (0-999), so n < 10^9.
+const MAX_CARDINAL_EXPONENT = (SCALES.length + 1) * 3
+const MAX_CARDINAL = 10n ** BigInt(MAX_CARDINAL_EXPONENT)
+const MAX_ORDINAL_EXPONENT = 9
+const MAX_ORDINAL = 10n ** BigInt(MAX_ORDINAL_EXPONENT)
 
 const ZERO = 'cero'
 const NEGATIVE = 'menos'
@@ -180,12 +190,9 @@ function integerToWords(n, feminine) {
     }
     else {
       // Millions and above: "un millón", "dos millones", etc.
+      // Callers guard the magnitude (MAX_CARDINAL) so scaleIndex stays in range.
       const scaleIndex = i - 1 // SCALES[1] = millón, SCALES[2] = billón, etc.
-      if (scaleIndex >= SCALES.length) {
-        // Beyond our scale vocabulary
-        result += buildSegment(Number(segment), false)
-      }
-      else if (segment === 1n) {
+      if (segment === 1n) {
         // "un millón" not "uno millón"
         result += 'un ' + SCALES[scaleIndex]
       }
@@ -241,6 +248,7 @@ function decimalPartToWords(decimalPart, feminine) {
 function toCardinal(value, options) {
   options = validateOptions(options)
   const { isNegative, integerPart, decimalPart } = parseCardinalValue(value)
+  if (integerPart >= MAX_CARDINAL) throw tooLargeError(MAX_CARDINAL_EXPONENT)
 
   // Apply option defaults
   const { gender = 'masculine' } = options
@@ -380,6 +388,7 @@ function integerToOrdinal(n, feminine) {
 function toOrdinal(value, options) {
   options = validateOptions(options)
   const integerPart = parseOrdinalValue(value)
+  if (integerPart >= MAX_ORDINAL) throw tooLargeError(MAX_ORDINAL_EXPONENT)
 
   const { gender = 'masculine' } = options
   const feminine = gender === 'feminine'
@@ -411,6 +420,7 @@ function toOrdinal(value, options) {
 function toCurrency(value, options) {
   options = validateOptions(options)
   const { isNegative, dollars, cents: centavos } = parseCurrencyValue(value)
+  if (dollars >= MAX_CARDINAL) throw tooLargeError(MAX_CARDINAL_EXPONENT)
   const { and: useAnd = true } = options
 
   let result = ''
