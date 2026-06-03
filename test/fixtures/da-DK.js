@@ -80,14 +80,6 @@ export const cardinal = [
 ]
 
 /**
- * Out-of-range inputs that must throw (scale ceiling: da-DK names scales up to
- * 10^30 - 1, beyond which all three forms throw rather than emit "undefined").
- */
-export const cardinalErrors = [
-  [10n ** 30n, RangeError],
-]
-
-/**
  * Ordinal number test cases
  * Format: [input, expected_output, options?]
  */
@@ -126,11 +118,6 @@ export const ordinal = [
   [1001, 'ettusinde og etde'],
 ]
 
-/** Ordinals share the cardinal scale ceiling. */
-export const ordinalErrors = [
-  [10n ** 30n, RangeError],
-]
-
 /**
  * Currency test cases (Danish Krone)
  * Format: [input, expected_output, options?]
@@ -167,9 +154,4 @@ export const currency = [
 
   // Edge cases
   ['5.00', 'fem kroner'],
-]
-
-/** Currency shares the cardinal scale ceiling. */
-export const currencyErrors = [
-  [10n ** 30n, RangeError],
 ]

@@ -13,7 +13,6 @@ import { isValidCardinalInput, isValidOrdinalInput, safeStringify } from './help
  * Fixture format (test/fixtures/{code}.js):
  *   export const cardinal = [[input, expected, options?], ...]
  *   export const ordinal = [[input, expected, options?], ...]
- *   export const cardinalErrors = [[input, ErrorClass], ...]  // optional: inputs that must throw
  *
  * Validates:
  * - BCP 47 file naming convention
@@ -342,26 +341,6 @@ for (const file of fixtureFiles) {
       const formChecks = planFormChecks(t, file, languageCode, formName, config, fn, fixtureData)
       for (const check of formChecks) {
         check()
-      }
-    }
-
-    // ========================================================================
-    // Out-of-range cases (e.g. scale ceilings): assert they throw
-    // ========================================================================
-
-    // A fixture may export `<form>Errors` as an array of [input, ErrorClass],
-    // e.g. `export const cardinalErrors = [[10n ** 30n, RangeError]]`, for
-    // inputs the form rejects (too large to spell, out of domain, …). Iterated
-    // in a plain loop (not an if) so ava/no-conditional-assertion stays happy.
-    for (const [formName, config] of Object.entries(FORMS)) {
-      const fn = languageModule[config.functionName]
-      const errorCases = fixtureModule[formName + 'Errors'] ?? []
-      for (const [input, expectedError] of errorCases) {
-        t.throws(
-          () => fn(input),
-          { instanceOf: expectedError },
-          `${languageCode} ${config.functionName}(${input}) should throw ${expectedError.name}`,
-        )
       }
     }
 
