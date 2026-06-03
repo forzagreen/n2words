@@ -14,6 +14,7 @@
 import { parseCardinalValue } from './utils/parse-cardinal.js'
 import { parseCurrencyValue } from './utils/parse-currency.js'
 import { parseOrdinalValue } from './utils/parse-ordinal.js'
+import { tooLargeError } from './utils/too-large-error.js'
 
 // ============================================================================
 // Vocabulary (module-level constants)
@@ -186,9 +187,7 @@ function buildLargeNumberWords(n) {
   // are [units, thousands, then one per SCALES entry], so the ceiling is
   // SCALES.length + 2 segments (10^30 - 1). Throw rather than emit "undefined".
   if (segments.length > SCALES.length + 2) {
-    throw new RangeError(
-      `da-DK cannot convert numbers >= 10^${(SCALES.length + 2) * 3} (largest supported scale word exceeded)`,
-    )
+    throw tooLargeError((SCALES.length + 2) * 3)
   }
 
   // Convert segments to words with scale tracking
