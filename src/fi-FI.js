@@ -14,6 +14,7 @@
 import { parseCardinalValue } from './utils/parse-cardinal.js'
 import { parseCurrencyValue } from './utils/parse-currency.js'
 import { parseOrdinalValue } from './utils/parse-ordinal.js'
+import { tooLargeError } from './utils/too-large-error.js'
 
 // ============================================================================
 // Vocabulary (module-level constants)
@@ -35,6 +36,14 @@ const DECIMAL_SEP = 'pilkku'
 
 // Long scale
 const SCALES = ['miljoona', 'miljardi', 'biljoona', 'triljoona']
+
+// Supported magnitude ceiling (checked at the public entry points). SCALES is
+// indexed [scaleIndex - 2] (units and thousands separate), so the ceiling is
+// 10^((SCALES.length + 2) * 3) = 10^18. Ordinal (cardinal + suffix) and currency
+// build on the cardinal, so they share it. Decimals are read digit-by-digit
+// (no ceiling).
+const MAX_CARDINAL_EXPONENT = (SCALES.length + 2) * 3
+const MAX_CARDINAL = 10n ** BigInt(MAX_CARDINAL_EXPONENT)
 
 // ============================================================================
 // Ordinal Vocabulary
@@ -247,6 +256,7 @@ function decimalPartToWords(decimalPart) {
  */
 function toCardinal(value) {
   const { isNegative, integerPart, decimalPart } = parseCardinalValue(value)
+  if (integerPart >= MAX_CARDINAL) throw tooLargeError(MAX_CARDINAL_EXPONENT)
 
   let result = ''
 
@@ -329,6 +339,7 @@ function integerToOrdinal(n) {
  */
 function toOrdinal(value) {
   const integerPart = parseOrdinalValue(value)
+  if (integerPart >= MAX_CARDINAL) throw tooLargeError(MAX_CARDINAL_EXPONENT)
   return integerToOrdinal(integerPart)
 }
 
@@ -352,6 +363,7 @@ function toOrdinal(value) {
  */
 function toCurrency(value) {
   const { isNegative, dollars: euros, cents } = parseCurrencyValue(value)
+  if (euros >= MAX_CARDINAL) throw tooLargeError(MAX_CARDINAL_EXPONENT)
 
   let result = ''
   if (isNegative) {
