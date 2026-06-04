@@ -14,6 +14,7 @@
 import { parseCardinalValue } from './utils/parse-cardinal.js'
 import { parseCurrencyValue } from './utils/parse-currency.js'
 import { parseOrdinalValue } from './utils/parse-ordinal.js'
+import { tooLargeError } from './utils/too-large-error.js'
 import { validateOptions } from './utils/validate-options.js'
 
 // ============================================================================
@@ -38,6 +39,16 @@ const HUNDREDS_FEM = ['', 'מאה', 'מאתיים', 'שלש מאות', 'ארבע
 // Scale words (index 1 = thousands, 2 = millions, etc.)
 const SCALE = ['', 'אלף', 'מיליון', 'מיליארד', 'טריליון', 'קוודרליון', 'קווינטיליון']
 const SCALE_PLURAL = ['', 'אלפים', 'מיליונים', 'מיליארדים', 'טריליונים', 'קוודרליונים', 'קווינטיליונים']
+
+// Supported magnitude ceilings (checked at the public entry points). Cardinal
+// SCALE reaches index SCALE.length-1 (10^18), so cardinals/currency must stay
+// below 10^(SCALE.length * 3) = 10^21. Ordinals are bounded lower: past 10^6
+// the millions multiplier is built with buildScaleSegment (0-999), so n must
+// stay below 10^9. Decimals are read digit-by-digit (no ceiling).
+const MAX_CARDINAL_EXPONENT = SCALE.length * 3
+const MAX_CARDINAL = 10n ** BigInt(MAX_CARDINAL_EXPONENT)
+const MAX_ORDINAL_EXPONENT = 9
+const MAX_ORDINAL = 10n ** BigInt(MAX_ORDINAL_EXPONENT)
 
 const ZERO = 'אפס'
 const NEGATIVE = 'מינוס'
@@ -294,6 +305,7 @@ function decimalPartToWords(decimalPart, gender) {
 function toCardinal(value, options) {
   options = validateOptions(options)
   const { isNegative, integerPart, decimalPart } = parseCardinalValue(value)
+  if (integerPart >= MAX_CARDINAL) throw tooLargeError(MAX_CARDINAL_EXPONENT)
 
   // Apply option defaults
   const {
@@ -435,6 +447,7 @@ function integerToOrdinal(n) {
  */
 function toOrdinal(value) {
   const n = parseOrdinalValue(value)
+  if (n >= MAX_ORDINAL) throw tooLargeError(MAX_ORDINAL_EXPONENT)
   return integerToOrdinal(n)
 }
 
@@ -454,6 +467,7 @@ function toOrdinal(value) {
  */
 function toCurrency(value) {
   const { isNegative, dollars, cents } = parseCurrencyValue(value)
+  if (dollars >= MAX_CARDINAL) throw tooLargeError(MAX_CARDINAL_EXPONENT)
 
   const parts = []
 
