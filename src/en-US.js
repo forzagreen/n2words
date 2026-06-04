@@ -20,6 +20,7 @@
 import { parseCardinalValue } from './utils/parse-cardinal.js'
 import { parseCurrencyValue } from './utils/parse-currency.js'
 import { parseOrdinalValue } from './utils/parse-ordinal.js'
+import { tooLargeError } from './utils/too-large-error.js'
 import { validateOptions } from './utils/validate-options.js'
 
 // ============================================================================
@@ -37,6 +38,9 @@ const SCALES = [
   'quindecillion', 'sexdecillion', 'septendecillion', 'octodecillion', 'novemdecillion',
   'vigintillion',
 ]
+
+const MAX_CARDINAL_EXPONENT = (SCALES.length + 1) * 3
+const MAX_CARDINAL = 10n ** BigInt(MAX_CARDINAL_EXPONENT)
 const HUNDRED = 'hundred'
 const ZERO = 'zero'
 const NEGATIVE = 'minus'
@@ -282,6 +286,11 @@ function decimalPartToWords(decimalPart, useAnd) {
 function toCardinal(value, options) {
   options = validateOptions(options)
   const { isNegative, integerPart, decimalPart } = parseCardinalValue(value)
+  // Both the integer part and the decimal's significant digits are spelled via
+  // the scale builder, so both must clear the ceiling.
+  if (integerPart >= MAX_CARDINAL || (decimalPart && BigInt(decimalPart) >= MAX_CARDINAL)) {
+    throw tooLargeError(MAX_CARDINAL_EXPONENT)
+  }
 
   // Extract options with defaults
   const { hundredPairing = false, and: useAnd = false } = options
@@ -459,6 +468,7 @@ function buildLargeOrdinal(n) {
  */
 function toOrdinal(value) {
   const integerPart = parseOrdinalValue(value)
+  if (integerPart >= MAX_CARDINAL) throw tooLargeError(MAX_CARDINAL_EXPONENT)
   return integerToOrdinal(integerPart)
 }
 
@@ -483,6 +493,7 @@ function toOrdinal(value) {
 function toCurrency(value, options) {
   options = validateOptions(options)
   const { isNegative, dollars, cents } = parseCurrencyValue(value)
+  if (dollars >= MAX_CARDINAL) throw tooLargeError(MAX_CARDINAL_EXPONENT)
   const { and: useAnd = true } = options
 
   // Build result

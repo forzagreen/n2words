@@ -13,6 +13,7 @@
 import { parseCardinalValue } from './utils/parse-cardinal.js'
 import { parseCurrencyValue } from './utils/parse-currency.js'
 import { parseOrdinalValue } from './utils/parse-ordinal.js'
+import { tooLargeError } from './utils/too-large-error.js'
 import { validateOptions } from './utils/validate-options.js'
 
 // ============================================================================
@@ -25,6 +26,10 @@ const TENS = ['', '', 'twenty', 'thirty', 'forty', 'fifty', 'sixty', 'seventy', 
 
 // Indian numbering scales: 10^3, 10^5, 10^7, 10^9, 10^11, 10^13, 10^15, 10^17
 const SCALES = ['thousand', 'lakh', 'crore', 'arab', 'kharab', 'neel', 'padma', 'shankh']
+
+// 3-2-2 grouping: a 3-digit base segment then 2 digits per Indian scale word.
+const MAX_CARDINAL_EXPONENT = 3 + 2 * SCALES.length
+const MAX_CARDINAL = 10n ** BigInt(MAX_CARDINAL_EXPONENT)
 
 const HUNDRED = 'hundred'
 const ZERO = 'zero'
@@ -218,6 +223,11 @@ function decimalPartToWords(decimalPart) {
  */
 function toCardinal(value) {
   const { isNegative, integerPart, decimalPart } = parseCardinalValue(value)
+  // Both the integer part and the decimal's significant digits are spelled via
+  // the scale builder, so both must clear the ceiling.
+  if (integerPart >= MAX_CARDINAL || (decimalPart && BigInt(decimalPart) >= MAX_CARDINAL)) {
+    throw tooLargeError(MAX_CARDINAL_EXPONENT)
+  }
 
   let result = ''
 
@@ -360,6 +370,7 @@ function integerToOrdinal(n) {
  */
 function toOrdinal(value) {
   const integerPart = parseOrdinalValue(value)
+  if (integerPart >= MAX_CARDINAL) throw tooLargeError(MAX_CARDINAL_EXPONENT)
   return integerToOrdinal(integerPart)
 }
 
@@ -385,6 +396,7 @@ function toOrdinal(value) {
 function toCurrency(value, options) {
   options = validateOptions(options)
   const { isNegative, dollars: rupees, cents: paise } = parseCurrencyValue(value)
+  if (rupees >= MAX_CARDINAL) throw tooLargeError(MAX_CARDINAL_EXPONENT)
   const { and: useAnd = true } = options
 
   // Build result
