@@ -306,11 +306,13 @@ function decimalPartToWords(decimalPart, gender) {
 }
 
 // Supported magnitude ceilings (checked at the public entry points). PLURAL_FORMS
-// is keyed 1..N (units separate), so cardinal/currency reach 10^((keys + 1) * 3)
-// = 10^33; the shorter ORDINAL_SCALES bounds ordinals at 10^((length + 1) * 3) =
-// 10^24. (Past the cardinal ceiling the fraction would spell silently-wrong, so
-// the decimal is guarded too.)
-const MAX_CARDINAL_EXPONENT = (Object.keys(PLURAL_FORMS).length + 1) * 3
+// is keyed by scale level (1 = thousands, …), units separate, so cardinal/
+// currency reach 10^((maxScaleKey + 1) * 3) = 10^33; the shorter ORDINAL_SCALES
+// bounds ordinals at 10^((length + 1) * 3) = 10^24. (Past the cardinal ceiling
+// the fraction would spell silently-wrong, so the decimal is guarded too.)
+// Derive from the max numeric key (robust to gaps / non-scale keys).
+const MAX_SCALE_KEY = Math.max(...Object.keys(PLURAL_FORMS).map(Number))
+const MAX_CARDINAL_EXPONENT = (MAX_SCALE_KEY + 1) * 3
 const MAX_CARDINAL = 10n ** BigInt(MAX_CARDINAL_EXPONENT)
 const MAX_ORDINAL_EXPONENT = (ORDINAL_SCALES.length + 1) * 3
 const MAX_ORDINAL = 10n ** BigInt(MAX_ORDINAL_EXPONENT)
