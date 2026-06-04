@@ -13,6 +13,7 @@
 import { parseCardinalValue } from './utils/parse-cardinal.js'
 import { parseCurrencyValue } from './utils/parse-currency.js'
 import { parseOrdinalValue } from './utils/parse-ordinal.js'
+import { tooLargeError } from './utils/too-large-error.js'
 
 // ============================================================================
 // Vocabulary (module-level constants)
@@ -42,6 +43,11 @@ const SCALES = [
   '不可思議', // 10^64 (fukashigi)
   '無量大数', // 10^68 (muryōtaisū)
 ]
+
+// Myriad (4-digit) grouping: each scale word covers a power of 10,000, so the
+// table reaches 10^(4 * SCALES.length); the next group has no scale word.
+const MAX_CARDINAL_EXPONENT = (SCALES.length + 1) * 4
+const MAX_CARDINAL = 10n ** BigInt(MAX_CARDINAL_EXPONENT)
 
 const ZERO = '零'
 const NEGATIVE = 'マイナス'
@@ -247,6 +253,8 @@ function decimalPartToWords(decimalPart) {
  */
 function toCardinal(value) {
   const { isNegative, integerPart, decimalPart } = parseCardinalValue(value)
+  // The fraction is spelled digit by digit, so only the integer part has a ceiling.
+  if (integerPart >= MAX_CARDINAL) throw tooLargeError(MAX_CARDINAL_EXPONENT)
 
   let result = ''
 
@@ -291,6 +299,8 @@ function integerToOrdinal(n) {
  */
 function toOrdinal(value) {
   const integerPart = parseOrdinalValue(value)
+  // Ordinals prefix the cardinal speller, so they share its ceiling.
+  if (integerPart >= MAX_CARDINAL) throw tooLargeError(MAX_CARDINAL_EXPONENT)
   return integerToOrdinal(integerPart)
 }
 
@@ -315,6 +325,7 @@ function toOrdinal(value) {
  */
 function toCurrency(value) {
   const { isNegative, dollars: yen, cents: sen } = parseCurrencyValue(value)
+  if (yen >= MAX_CARDINAL) throw tooLargeError(MAX_CARDINAL_EXPONENT)
 
   // Build result
   let result = ''

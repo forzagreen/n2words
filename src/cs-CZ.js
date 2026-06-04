@@ -14,6 +14,7 @@
 import { parseCardinalValue } from './utils/parse-cardinal.js'
 import { parseCurrencyValue } from './utils/parse-currency.js'
 import { parseOrdinalValue } from './utils/parse-ordinal.js'
+import { tooLargeError } from './utils/too-large-error.js'
 
 // ============================================================================
 // Vocabulary (module-level constants)
@@ -44,6 +45,11 @@ const PLURAL_FORMS = {
   8: ['kvadrilion', 'kvadriliony', 'kvadrilionů'], // 10^24
   9: ['kvadriliarda', 'kvadriliardy', 'kvadriliard'], // 10^27
 }
+
+// PLURAL_FORMS is keyed by 1000-power; past its largest key the builder drops the
+// scale word (cardinal) or dereferences undefined (ordinal), so cap there.
+const MAX_CARDINAL_EXPONENT = 3 * (Math.max(...Object.keys(PLURAL_FORMS).map(Number)) + 1)
+const MAX_CARDINAL = 10n ** BigInt(MAX_CARDINAL_EXPONENT)
 
 const ZERO = 'nula'
 const NEGATIVE = 'mínus'
@@ -339,6 +345,11 @@ function decimalPartToWords(decimalPart) {
  */
 function toCardinal(value) {
   const { isNegative, integerPart, decimalPart } = parseCardinalValue(value)
+  // Both the integer part and the decimal's significant digits are spelled via
+  // the scale builder, so both must clear the ceiling.
+  if (integerPart >= MAX_CARDINAL || (decimalPart && BigInt(decimalPart) >= MAX_CARDINAL)) {
+    throw tooLargeError(MAX_CARDINAL_EXPONENT)
+  }
 
   let result = ''
 
@@ -505,6 +516,8 @@ function buildLargeOrdinal(n) {
  */
 function toOrdinal(value) {
   const integerPart = parseOrdinalValue(value)
+  // Ordinals reuse the cardinal scale table, so they share its ceiling.
+  if (integerPart >= MAX_CARDINAL) throw tooLargeError(MAX_CARDINAL_EXPONENT)
   return integerToOrdinal(integerPart)
 }
 
@@ -526,6 +539,7 @@ function toOrdinal(value) {
  */
 function toCurrency(value) {
   const { isNegative, dollars: koruny, cents: halere } = parseCurrencyValue(value)
+  if (koruny >= MAX_CARDINAL) throw tooLargeError(MAX_CARDINAL_EXPONENT)
 
   let result = ''
   if (isNegative) {
