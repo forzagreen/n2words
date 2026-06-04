@@ -13,6 +13,7 @@
 import { parseCardinalValue } from './utils/parse-cardinal.js'
 import { parseCurrencyValue } from './utils/parse-currency.js'
 import { parseOrdinalValue } from './utils/parse-ordinal.js'
+import { tooLargeError } from './utils/too-large-error.js'
 import { validateOptions } from './utils/validate-options.js'
 
 // ============================================================================
@@ -73,6 +74,16 @@ const SCALE_FORMS = [
   ['septilijonas', 'septilijonai', 'septilijonų'],
   ['oktilijonas', 'oktilijonai', 'oktilijonų'],
 ]
+
+// Supported magnitude ceilings (checked at the public entry points). Both
+// tables are indexed [scaleIndex - 1] (units separate), so the cardinal/
+// currency ceiling is 10^((SCALE_FORMS.length + 1) * 3) = 10^30, and the
+// shorter ORDINAL_SCALES bounds ordinals at 10^((ORDINAL_SCALES.length + 1) *
+// 3) = 10^15.
+const MAX_CARDINAL_EXPONENT = (SCALE_FORMS.length + 1) * 3
+const MAX_CARDINAL = 10n ** BigInt(MAX_CARDINAL_EXPONENT)
+const MAX_ORDINAL_EXPONENT = (ORDINAL_SCALES.length + 1) * 3
+const MAX_ORDINAL = 10n ** BigInt(MAX_ORDINAL_EXPONENT)
 
 // ============================================================================
 // Segment Building
@@ -308,6 +319,11 @@ function decimalPartToWords(decimalPart, gender) {
 function toCardinal(value, options) {
   options = validateOptions(options)
   const { isNegative, integerPart, decimalPart } = parseCardinalValue(value)
+  // Both the integer part and the decimal's significant digits are spelled via
+  // the scale builder, so both must clear the ceiling.
+  if (integerPart >= MAX_CARDINAL || (decimalPart && BigInt(decimalPart) >= MAX_CARDINAL)) {
+    throw tooLargeError(MAX_CARDINAL_EXPONENT)
+  }
 
   // Apply option defaults
   const { gender = 'masculine' } = options
@@ -488,6 +504,7 @@ function buildLargeOrdinal(n) {
  */
 function toOrdinal(value) {
   const integerPart = parseOrdinalValue(value)
+  if (integerPart >= MAX_ORDINAL) throw tooLargeError(MAX_ORDINAL_EXPONENT)
   return integerToOrdinal(integerPart)
 }
 
@@ -509,6 +526,7 @@ function toOrdinal(value) {
  */
 function toCurrency(value) {
   const { isNegative, dollars: euros, cents } = parseCurrencyValue(value)
+  if (euros >= MAX_CARDINAL) throw tooLargeError(MAX_CARDINAL_EXPONENT)
 
   let result = ''
   if (isNegative) {
