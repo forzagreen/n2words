@@ -12,6 +12,7 @@
 import { parseCardinalValue } from './utils/parse-cardinal.js'
 import { parseCurrencyValue } from './utils/parse-currency.js'
 import { parseOrdinalValue } from './utils/parse-ordinal.js'
+import { tooLargeError } from './utils/too-large-error.js'
 
 // ============================================================================
 // Vocabulary (module-level constants)
@@ -28,6 +29,11 @@ const SCALES = [
   'Tredecillion', 'Quattuordecillion', 'Sexdecillion',
   'Septendecillion', 'Octodecillion', 'Novemdecillion', 'Vigintillion',
 ]
+
+// 3-digit grouping with SCALES[0] = '' (units); the table reaches
+// 10^(3 * (SCALES.length - 1)), so values from 10^(3 * SCALES.length) up have no scale word.
+const MAX_CARDINAL_EXPONENT = 3 * SCALES.length
+const MAX_CARDINAL = 10n ** BigInt(MAX_CARDINAL_EXPONENT)
 
 const HUNDRED = 'trăm'
 const ZERO = 'không'
@@ -293,6 +299,11 @@ function decimalPartToWords(decimalPart) {
  */
 function toCardinal(value) {
   const { isNegative, integerPart, decimalPart } = parseCardinalValue(value)
+  // Both the integer part and the decimal's significant digits are spelled via
+  // the scale builder, so both must clear the ceiling.
+  if (integerPart >= MAX_CARDINAL || (decimalPart && BigInt(decimalPart) >= MAX_CARDINAL)) {
+    throw tooLargeError(MAX_CARDINAL_EXPONENT)
+  }
 
   let result = ''
 
@@ -344,6 +355,8 @@ function integerToOrdinal(n) {
  */
 function toOrdinal(value) {
   const integerPart = parseOrdinalValue(value)
+  // Ordinals are built from the cardinal speller, so they share its ceiling.
+  if (integerPart >= MAX_CARDINAL) throw tooLargeError(MAX_CARDINAL_EXPONENT)
   return integerToOrdinal(integerPart)
 }
 
@@ -367,6 +380,7 @@ function toOrdinal(value) {
  */
 function toCurrency(value) {
   const { isNegative, dollars: dong } = parseCurrencyValue(value)
+  if (dong >= MAX_CARDINAL) throw tooLargeError(MAX_CARDINAL_EXPONENT)
 
   let result = ''
   if (isNegative) {
