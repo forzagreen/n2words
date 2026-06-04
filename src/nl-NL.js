@@ -16,6 +16,7 @@
 import { parseCardinalValue } from './utils/parse-cardinal.js'
 import { parseCurrencyValue } from './utils/parse-currency.js'
 import { parseOrdinalValue } from './utils/parse-ordinal.js'
+import { tooLargeError } from './utils/too-large-error.js'
 import { validateOptions } from './utils/validate-options.js'
 
 // ============================================================================
@@ -30,6 +31,20 @@ const HUNDRED = 'honderd'
 
 // Scale words (long scale with -ard forms)
 const SCALES = ['duizend', 'miljoen', 'miljard', 'biljoen', 'biljard', 'triljoen', 'triljard', 'quadriljoen', 'quadriljard']
+
+// Scale ordinal words. Module-scope so its length can derive the ordinal
+// ceiling and so it isn't rebuilt on every call.
+const SCALE_ORDINAL = ['', 'duizendste', 'miljoenste', 'miljardste', 'biljoenste', 'biljardste', 'triljoenste']
+
+// Supported magnitude ceilings (checked at the public entry points). SCALES is
+// indexed [scaleIndex - 1] from 'duizend' (10^3), so cardinals/currency reach
+// 10^((SCALES.length + 1) * 3) = 10^30. The ordinal of a number whose lowest
+// non-zero group is a scale group uses the shorter SCALE_ORDINAL, so ordinals
+// are bounded at 10^(SCALE_ORDINAL.length * 3) = 10^21.
+const MAX_CARDINAL_EXPONENT = (SCALES.length + 1) * 3
+const MAX_CARDINAL = 10n ** BigInt(MAX_CARDINAL_EXPONENT)
+const MAX_ORDINAL_EXPONENT = SCALE_ORDINAL.length * 3
+const MAX_ORDINAL = 10n ** BigInt(MAX_ORDINAL_EXPONENT)
 
 const ZERO = 'nul'
 const NEGATIVE = 'min'
@@ -315,6 +330,11 @@ function decimalPartToWords(decimalPart, options) {
 function toCardinal(value, options) {
   options = validateOptions(options)
   const { isNegative, integerPart, decimalPart } = parseCardinalValue(value)
+  // Both the integer part and the decimal's significant digits are spelled via
+  // the scale builder, so both must clear the ceiling.
+  if (integerPart >= MAX_CARDINAL || (decimalPart && BigInt(decimalPart) >= MAX_CARDINAL)) {
+    throw tooLargeError(MAX_CARDINAL_EXPONENT)
+  }
 
   // Apply option defaults
   const {
@@ -418,6 +438,7 @@ function buildOrdinalSegment(n) {
  */
 function toOrdinal(value) {
   const n = parseOrdinalValue(value)
+  if (n >= MAX_ORDINAL) throw tooLargeError(MAX_ORDINAL_EXPONENT)
 
   // Fast path: 1-9
   if (n < 10n) return ORDINAL_ONES[Number(n)]
@@ -459,9 +480,6 @@ function buildLargeOrdinal(n) {
       break
     }
   }
-
-  // Scale ordinal words
-  const SCALE_ORDINAL = ['', 'duizendste', 'miljoenste', 'miljardste', 'biljoenste', 'biljardste', 'triljoenste']
 
   let result = ''
 
@@ -539,6 +557,7 @@ function buildLargeOrdinal(n) {
 function toCurrency(value, options) {
   options = validateOptions(options)
   const { isNegative, dollars: euros, cents } = parseCurrencyValue(value)
+  if (euros >= MAX_CARDINAL) throw tooLargeError(MAX_CARDINAL_EXPONENT)
   const { and = true } = options
 
   let result = ''
