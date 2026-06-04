@@ -13,6 +13,7 @@
 import { parseCardinalValue } from './utils/parse-cardinal.js'
 import { parseCurrencyValue } from './utils/parse-currency.js'
 import { parseOrdinalValue } from './utils/parse-ordinal.js'
+import { tooLargeError } from './utils/too-large-error.js'
 
 // ============================================================================
 // Vocabulary
@@ -32,6 +33,10 @@ const DECIMAL_SEP = 'punto'
 
 // Short scale with linker
 const SCALE_WORDS = ['', THOUSAND, 'milyong', 'bilyong', 'trilyong']
+
+// Supported magnitude ceiling (checked at the public entry points), derived from the scale table.
+const MAX_CARDINAL_EXPONENT = SCALE_WORDS.length * 3
+const MAX_CARDINAL = 10n ** BigInt(MAX_CARDINAL_EXPONENT)
 
 // ============================================================================
 // Ordinal Vocabulary
@@ -232,6 +237,7 @@ function decimalPartToWords(decimalPart) {
  */
 function toCardinal(value) {
   const { isNegative, integerPart, decimalPart } = parseCardinalValue(value)
+  if (integerPart >= MAX_CARDINAL) throw tooLargeError(MAX_CARDINAL_EXPONENT)
 
   let result = ''
 
@@ -281,6 +287,7 @@ function integerToOrdinal(n) {
  */
 function toOrdinal(value) {
   const integerPart = parseOrdinalValue(value)
+  if (integerPart >= MAX_CARDINAL) throw tooLargeError(MAX_CARDINAL_EXPONENT)
   return integerToOrdinal(integerPart)
 }
 
@@ -303,6 +310,7 @@ function toOrdinal(value) {
  */
 function toCurrency(value) {
   const { isNegative, dollars: pesos, cents: sentimos } = parseCurrencyValue(value)
+  if (pesos >= MAX_CARDINAL) throw tooLargeError(MAX_CARDINAL_EXPONENT)
 
   let result = ''
   if (isNegative) {

@@ -13,6 +13,7 @@
 import { parseCardinalValue } from './utils/parse-cardinal.js'
 import { parseCurrencyValue } from './utils/parse-currency.js'
 import { parseOrdinalValue } from './utils/parse-ordinal.js'
+import { tooLargeError } from './utils/too-large-error.js'
 
 // ============================================================================
 // Vocabulary
@@ -25,6 +26,10 @@ const TENS = ['', '', 'dua puluh', 'tiga puluh', 'empat puluh', 'lima puluh', 'e
 const HUNDRED_WORD = 'ratus'
 const THOUSAND_WORD = 'ribu'
 const SCALE_WORDS = ['juta', 'miliar', 'triliun', 'kuadriliun', 'kuantiliun', 'sekstiliun', 'septiliun', 'oktiliun', 'noniliun', 'desiliun']
+
+// Supported magnitude ceiling (checked at the public entry points), derived from the scale table.
+const MAX_CARDINAL_EXPONENT = (SCALE_WORDS.length + 2) * 3
+const MAX_CARDINAL = 10n ** BigInt(MAX_CARDINAL_EXPONENT)
 
 const ZERO = 'nol'
 const NEGATIVE = 'min'
@@ -217,6 +222,9 @@ function decimalPartToWords(decimalPart) {
  */
 function toCardinal(value) {
   const { isNegative, integerPart, decimalPart } = parseCardinalValue(value)
+  if (integerPart >= MAX_CARDINAL || (decimalPart && BigInt(decimalPart) >= MAX_CARDINAL)) {
+    throw tooLargeError(MAX_CARDINAL_EXPONENT)
+  }
 
   let result = ''
 
@@ -268,6 +276,7 @@ function integerToOrdinal(n) {
  */
 function toOrdinal(value) {
   const integerPart = parseOrdinalValue(value)
+  if (integerPart >= MAX_CARDINAL) throw tooLargeError(MAX_CARDINAL_EXPONENT)
   return integerToOrdinal(integerPart)
 }
 
@@ -291,6 +300,7 @@ function toOrdinal(value) {
  */
 function toCurrency(value) {
   const { isNegative, dollars: rupiah } = parseCurrencyValue(value)
+  if (rupiah >= MAX_CARDINAL) throw tooLargeError(MAX_CARDINAL_EXPONENT)
 
   let result = ''
   if (isNegative) {
