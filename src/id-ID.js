@@ -13,7 +13,8 @@
 import { parseCardinalValue } from './utils/parse-cardinal.js'
 import { parseCurrencyValue } from './utils/parse-currency.js'
 import { parseOrdinalValue } from './utils/parse-ordinal.js'
-import { exceedsMax, western } from './utils/scale.js'
+import { exceedsMax } from './utils/exceeds-max.js'
+import { western } from './utils/scale.js'
 import { tooLargeError } from './utils/too-large-error.js'
 
 // ============================================================================
