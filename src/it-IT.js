@@ -15,7 +15,7 @@
 import { parseCardinalValue } from './utils/parse-cardinal.js'
 import { parseCurrencyValue } from './utils/parse-currency.js'
 import { parseOrdinalValue } from './utils/parse-ordinal.js'
-import { longScalePrefix } from './utils/scale.js'
+import { longScale } from './utils/scale.js'
 import { tooLargeError } from './utils/too-large-error.js'
 import { validateOptions } from './utils/validate-options.js'
 
@@ -46,12 +46,12 @@ const SCALE_PREFIXES = ['m', 'b', 'tr', 'quadr', 'quint', 'sest', 'sett', 'ott',
 
 // Long scale: each prefix yields an -ilione (10^6k) and an -iliardo (10^6k+3),
 // so the table spans 6 powers of ten per prefix; past it the scale word is empty.
-// Cardinal, ordinal, and currency share this ceiling; each is exported per form
-// so the forms split cleanly later and the gate/docs read each as a fact.
-export const cardinalMaxExponent = longScalePrefix(SCALE_PREFIXES.length)
-export const ordinalMaxExponent = longScalePrefix(SCALE_PREFIXES.length)
-export const currencyMaxExponent = longScalePrefix(SCALE_PREFIXES.length)
-const MAX_CARDINAL = 10n ** BigInt(cardinalMaxExponent)
+// Each form's maximum supported value (a bigint), derived from the prefix table
+// so it can't drift. Exported per form so they split cleanly and the gate/docs
+// read each as a fact. it-IT shares one ceiling across all three forms.
+export const cardinalMax = longScale(SCALE_PREFIXES.length)
+export const ordinalMax = longScale(SCALE_PREFIXES.length)
+export const currencyMax = longScale(SCALE_PREFIXES.length)
 
 // ============================================================================
 // Ordinal Vocabulary
@@ -365,8 +365,8 @@ function toCardinal(value) {
   const { isNegative, integerPart, decimalPart } = parseCardinalValue(value)
   // Both the integer part and the decimal's significant digits are spelled via
   // the scale builder, so both must clear the ceiling.
-  if (integerPart >= MAX_CARDINAL || (decimalPart && BigInt(decimalPart) >= MAX_CARDINAL)) {
-    throw tooLargeError(cardinalMaxExponent)
+  if (integerPart >= cardinalMax || (decimalPart && BigInt(decimalPart) >= cardinalMax)) {
+    throw tooLargeError(cardinalMax)
   }
 
   let result = ''
@@ -462,7 +462,7 @@ function integerToOrdinal(n) {
 function toOrdinal(value) {
   const integerPart = parseOrdinalValue(value)
   // Ordinals are derived from the cardinal speller, so they share its ceiling.
-  if (integerPart >= MAX_CARDINAL) throw tooLargeError(ordinalMaxExponent)
+  if (integerPart >= ordinalMax) throw tooLargeError(ordinalMax)
   return integerToOrdinal(integerPart)
 }
 
@@ -488,7 +488,7 @@ function toOrdinal(value) {
 function toCurrency(value, options) {
   options = validateOptions(options)
   const { isNegative, dollars: euros, cents: centesimi } = parseCurrencyValue(value)
-  if (euros >= MAX_CARDINAL) throw tooLargeError(currencyMaxExponent)
+  if (euros >= currencyMax) throw tooLargeError(currencyMax)
   const { and: useAnd = true } = options
 
   // Build result

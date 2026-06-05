@@ -11,17 +11,26 @@
  */
 
 /**
- * Builds the RangeError thrown when a value exceeds the largest scale word a
+ * Builds the RangeError thrown when a value exceeds the largest magnitude a
  * language can express.
- * @param {number} maxExponent The language can express values up to
- *   `10^maxExponent - 1`; values `>= 10^maxExponent` throw this error.
+ * @param {bigint | number} limit The ceiling value (bigint) — the smallest
+ *   value the form refuses — or, for legacy call sites, its base-10 exponent.
  * @returns {RangeError} A RangeError with a uniform, descriptive message.
  * @example
- * if (segments.length > SCALES.length + 2) throw tooLargeError(30)
- * // RangeError: Number too large to convert: the largest supported value is 10^30 - 1
+ * throw tooLargeError(10n ** 30n) // ... largest supported value is 10^30 - 1
+ * throw tooLargeError(30)         // (legacy) identical message
  */
-export function tooLargeError(maxExponent) {
-  return new RangeError(
-    `Number too large to convert: the largest supported value is 10^${maxExponent} - 1`,
-  )
+export function tooLargeError(limit) {
+  let largest
+  if (typeof limit === 'bigint') {
+    // Show "10^N - 1" when the ceiling is an exact power of ten (every decimal
+    // system); otherwise the raw maximum, so the message stays honest for a
+    // future non-decimal ceiling (e.g. a vigesimal 20^k).
+    const exponent = limit.toString().length - 1
+    largest = limit === 10n ** BigInt(exponent) ? `10^${exponent} - 1` : `${limit - 1n}`
+  }
+  else {
+    largest = `10^${limit} - 1`
+  }
+  return new RangeError(`Number too large to convert: the largest supported value is ${largest}`)
 }

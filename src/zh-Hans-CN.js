@@ -13,6 +13,7 @@
 import { parseCardinalValue } from './utils/parse-cardinal.js'
 import { parseCurrencyValue } from './utils/parse-currency.js'
 import { parseOrdinalValue } from './utils/parse-ordinal.js'
+import { bounded } from './utils/scale.js'
 import { tooLargeError } from './utils/too-large-error.js'
 import { validateOptions } from './utils/validate-options.js'
 
@@ -41,12 +42,11 @@ const YI_WORD = '亿' // 100,000,000
 // itself only valid below 亿. So the ceiling is 亿² = 10^16. Ordinal (第 +
 // cardinal) and currency build on the cardinal, so they share it. Decimals are
 // spelled digit-by-digit, so they have no ceiling.
-// No scale table — bounded by the convertBelowYi recursion (亿² = 10^16). Hand-
-// declared (no helper fits) and verified by the gate. The three forms share it.
-export const cardinalMaxExponent = 16
-export const ordinalMaxExponent = 16
-export const currencyMaxExponent = 16
-const MAX_CARDINAL = 10n ** BigInt(cardinalMaxExponent)
+// No scale table — bounded by the convertBelowYi recursion (亿² = 10^16),
+// declared via the escape hatch and verified by the gate. The three forms share it.
+export const cardinalMax = bounded(16)
+export const ordinalMax = bounded(16)
+export const currencyMax = bounded(16)
 
 const ZERO = '零'
 const NEGATIVE = '负'
@@ -222,7 +222,7 @@ function decimalDigitsToWords(decimalString, ones) {
 function toCardinal(value, options) {
   options = validateOptions(options)
   const { isNegative, integerPart, decimalPart } = parseCardinalValue(value)
-  if (integerPart >= MAX_CARDINAL) throw tooLargeError(cardinalMaxExponent)
+  if (integerPart >= cardinalMax) throw tooLargeError(cardinalMax)
 
   // Apply option defaults
   const { formal = true } = options
@@ -271,7 +271,7 @@ function integerToOrdinal(n, formal) {
 function toOrdinal(value, options) {
   options = validateOptions(options)
   const integerPart = parseOrdinalValue(value)
-  if (integerPart >= MAX_CARDINAL) throw tooLargeError(ordinalMaxExponent)
+  if (integerPart >= ordinalMax) throw tooLargeError(ordinalMax)
   const { formal = true } = options
   return integerToOrdinal(integerPart, formal)
 }
@@ -297,7 +297,7 @@ function toOrdinal(value, options) {
 function toCurrency(value, options) {
   options = validateOptions(options)
   const { isNegative, dollars: yuan, cents } = parseCurrencyValue(value)
-  if (yuan >= MAX_CARDINAL) throw tooLargeError(currencyMaxExponent)
+  if (yuan >= currencyMax) throw tooLargeError(currencyMax)
   const { formal = true } = options
 
   const ones = formal ? ONES_FORMAL : ONES_COMMON

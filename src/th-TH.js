@@ -19,9 +19,9 @@ import { UNBOUNDED } from './utils/scale.js'
 // Thai spells large numbers by repeating ล้าน (10^6), so every form is
 // magnitude-preserving with no fixed ceiling. Declared per form so the gate
 // switches to its injectivity check and the docs read "no fixed limit".
-export const cardinalMaxExponent = UNBOUNDED
-export const ordinalMaxExponent = UNBOUNDED
-export const currencyMaxExponent = UNBOUNDED
+export const cardinalMax = UNBOUNDED
+export const ordinalMax = UNBOUNDED
+export const currencyMax = UNBOUNDED
 
 // ============================================================================
 // Vocabulary

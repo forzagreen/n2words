@@ -1,66 +1,64 @@
 /**
- * Scale-range helpers.
+ * Scale-range helpers — pure.
  *
- * The conversion contract requires every form to declare its maximum supported
- * magnitude as an exported `*MaxExponent` (the largest n for which the form is
- * well-formed is 10^exponent - 1; at 10^exponent and above it throws RangeError;
- * `UNBOUNDED` means no fixed limit). The gate and the docs read that fact; the
- * guard reads it too.
+ * Each form declares its maximum supported value as a bigint export
+ * (`cardinalMax`, `ordinalMax`, `currencyMax`): the smallest value the form
+ * refuses, so the largest it converts is that minus one. `UNBOUNDED` (null)
+ * means no fixed limit.
  *
- * These helpers derive the exponent from a language's own scale table so the
- * number can't drift from the vocabulary. A language whose shape fits none of
- * them just writes the expression inline or declares a literal (verified by the
- * gate either way) — the helpers are convenience, not a requirement.
+ * These helpers derive that bigint from a language's own scale-table size, so
+ * the ceiling tracks the vocabulary and can't drift. A language whose shape
+ * fits none of them declares the value directly (`bounded(n)` or a literal
+ * bigint). They are pure arithmetic — every check (boundary, gaps, injectivity)
+ * lives in the gate, never here.
  */
 
-/** Sentinel for forms with no fixed ceiling (recursive/compounding spellers). */
-export const UNBOUNDED = Infinity
+/** No fixed ceiling — recursive/compounding spellers (th-TH, fa-IR, …). */
+export const UNBOUNDED = null
 
 /**
- * 3-digit grouping with a scale array that starts at "thousand"
- * (e.g. `['thousand', 'million', …]`). en-US, de-DE, ru-RU, …
+ * 3-digit grouping, scale array starting at "thousand" (en-US, de-DE, ru-RU, …).
  * @param {number} scaleCount Number of scale words in the table
- * @returns {number} Max exponent: 10^((scaleCount + 1) * 3) - 1 is the largest value
+ * @returns {bigint} The first unsupported value (10^((scaleCount + 1) * 3))
  */
 export function western(scaleCount) {
-  return (scaleCount + 1) * 3
+  return 10n ** BigInt((scaleCount + 1) * 3)
 }
 
 /**
- * Myriad (4-digit) grouping — a scale word per power of 10,000. ja-JP, ko-KR.
+ * Myriad (4-digit) grouping — one scale word per power of 10,000 (ja-JP, ko-KR).
  * @param {number} scaleCount Number of scale words in the table
- * @returns {number} Max exponent
+ * @returns {bigint} The first unsupported value
  */
 export function myriad(scaleCount) {
-  return (scaleCount + 1) * 4
+  return 10n ** BigInt((scaleCount + 1) * 4)
 }
 
 /**
  * South Asian 3-2-2 grouping: a 3-digit base segment then 2 digits per scale
  * word, with the table's index 0 reserved for the (empty) units slot.
  * @param {number} wordCount Length of the scale-word table (including the units slot)
- * @returns {number} Max exponent
+ * @returns {bigint} The first unsupported value
  */
 export function indian(wordCount) {
-  return 3 + 2 * (wordCount - 1)
+  return 10n ** BigInt(3 + 2 * (wordCount - 1))
 }
 
 /**
- * Long scale built from a base scale array (each entry yields an -illion and an
- * -illiard). es-*, fr-*.
- * @param {number} baseCount Number of base scale words
- * @returns {number} Max exponent
+ * Long scale — each unit (a base scale word, or a prefix) yields two levels
+ * (-illion / -illiard), spanning 6 powers of ten. es-*, fr-*, it-IT.
+ * @param {number} unitCount Number of base scale words or prefixes
+ * @returns {bigint} The first unsupported value (10^(6 * (unitCount + 1)))
  */
-export function longScale(baseCount) {
-  return (2 * baseCount + 2) * 3
+export function longScale(unitCount) {
+  return 10n ** BigInt(6 * (unitCount + 1))
 }
 
 /**
- * Long scale built from prefixes (each prefix yields an -ilione and an -iliardo,
- * spanning 6 powers of ten). it-IT.
- * @param {number} prefixCount Number of scale prefixes
- * @returns {number} Max exponent
+ * Escape hatch: a structural bound given as its base-10 exponent (zh: `bounded(16)`).
+ * @param {number} exponent The base-10 exponent of the ceiling
+ * @returns {bigint} 10^exponent
  */
-export function longScalePrefix(prefixCount) {
-  return 6 * (prefixCount + 1)
+export function bounded(exponent) {
+  return 10n ** BigInt(exponent)
 }
