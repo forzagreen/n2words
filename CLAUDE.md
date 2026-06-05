@@ -25,8 +25,9 @@ src/
 
 ## Language File Pattern
 
-Every language exports all three forms: `toCardinal`, `toOrdinal`, `toCurrency`. Each must
-uphold the **conversion contract** (enforced by `test/contract.test.js`): for *any* input,
+A language exports one, two, or all three forms — `toCardinal`, `toOrdinal`, `toCurrency`
+(at least one; forms are added incrementally, so export only what you implement). Each form
+it exports must uphold the **conversion contract** (enforced by `test/contract.test.js`): for *any* input,
 return a well-formed string **or** throw `RangeError` — never malformed output. Past the
 largest scale word your tables can name, throw `tooLargeError(maxExponent)` — don't invent
 vocabulary. Derive the ceiling from the scale table so it can't drift, and guard at the
@@ -99,11 +100,11 @@ function toCardinal (value, options) {
 npm run lang:add -- <code>  # Creates stub + fixture + type tests
 ```
 
-Then: implement all three forms (`toCardinal`, `toOrdinal`, `toCurrency`) in `src/{code}.js` — **including the scale-ceiling guards** (see Language File Pattern) — add cases to `test/fixtures/{code}.js`, run `npm test`.
+Then: implement the form(s) you're adding (`toCardinal`, `toOrdinal`, and/or `toCurrency` — at least one) in `src/{code}.js` — **including the scale-ceiling guards** (see Language File Pattern) — add cases to `test/fixtures/{code}.js`, run `npm test`.
 
 A new language must clear three enforced gates (in `test/`):
 
-- **Contract** (`contract.test.js`): every form returns a well-formed string or throws `RangeError` for any input.
+- **Contract** (`contract.test.js`): every exported form returns a well-formed string or throws `RangeError` for any input.
 - **Coverage** (`conversions.test.js`): ≥5 fixture cases per form.
 - **Canonical code** (`conversions.test.js`): the filename is canonical BCP 47 (`en-US`, not `en-us`).
 
