@@ -17,7 +17,7 @@
 - **Multiple Forms** — Cardinal ("forty-two"), ordinal ("forty-second"), and currency ("forty-two dollars")
 - **70+ Languages** — European, Asian, Middle Eastern, African, and regional variants
 - **Zero Dependencies** — Works everywhere: Node.js, browsers, Deno, Bun
-- **BigInt Support** — Handle arbitrarily large numbers without precision loss
+- **BigInt Support** — Accepts `bigint` (and numeric-string) input, so large values keep full precision
 - **Type-Safe** — Full TypeScript support with generated `.d.ts` declarations
 
 ## Quick Start
@@ -52,7 +52,9 @@ toOrdinal(1234)       // 'one thousand two hundred thirty-fourth'
 toCurrency(1234.56)   // 'one thousand two hundred thirty-four dollars and fifty-six cents'
 ```
 
-All languages support all three forms. See [LANGUAGES.md](LANGUAGES.md) for details.
+Each language implements one or more of these forms — see [LANGUAGES.md](LANGUAGES.md) for per-language coverage.
+
+> **Range:** each form spells values up to the largest scale word it knows, then throws a `RangeError` rather than inventing vocabulary — and the ceiling varies by language *and* form (e.g. `es-ES` cardinals reach 10^30 − 1, ordinals only 10^9 − 1). Cardinal and currency accept negatives and decimals; ordinal is positive integers only.
 
 ## Usage
 
