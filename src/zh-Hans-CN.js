@@ -13,7 +13,7 @@
 import { parseCardinalValue } from './utils/parse-cardinal.js'
 import { parseCurrencyValue } from './utils/parse-currency.js'
 import { parseOrdinalValue } from './utils/parse-ordinal.js'
-import { bounded } from './utils/scale.js'
+import { bounded, exceedsMax } from './utils/scale.js'
 import { tooLargeError } from './utils/too-large-error.js'
 import { validateOptions } from './utils/validate-options.js'
 
@@ -222,7 +222,7 @@ function decimalDigitsToWords(decimalString, ones) {
 function toCardinal(value, options) {
   options = validateOptions(options)
   const { isNegative, integerPart, decimalPart } = parseCardinalValue(value)
-  if (integerPart >= cardinalMax) throw tooLargeError(cardinalMax)
+  if (exceedsMax(integerPart, cardinalMax)) throw tooLargeError(cardinalMax)
 
   // Apply option defaults
   const { formal = true } = options
@@ -271,7 +271,7 @@ function integerToOrdinal(n, formal) {
 function toOrdinal(value, options) {
   options = validateOptions(options)
   const integerPart = parseOrdinalValue(value)
-  if (integerPart >= ordinalMax) throw tooLargeError(ordinalMax)
+  if (exceedsMax(integerPart, ordinalMax)) throw tooLargeError(ordinalMax)
   const { formal = true } = options
   return integerToOrdinal(integerPart, formal)
 }
@@ -297,7 +297,7 @@ function toOrdinal(value, options) {
 function toCurrency(value, options) {
   options = validateOptions(options)
   const { isNegative, dollars: yuan, cents } = parseCurrencyValue(value)
-  if (yuan >= currencyMax) throw tooLargeError(currencyMax)
+  if (exceedsMax(yuan, currencyMax)) throw tooLargeError(currencyMax)
   const { formal = true } = options
 
   const ones = formal ? ONES_FORMAL : ONES_COMMON
