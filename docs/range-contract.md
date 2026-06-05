@@ -50,7 +50,7 @@ if (exceedsMax(integerPart, ordinalMax))               throw tooLargeError(ordin
 if (exceedsMax(dollars,     currencyMax))              throw tooLargeError(currencyMax)
 ```
 
-`exceedsMax(value, max, fraction?)` is a pure boolean compare (the language throws):
+`exceedsMax(value, max, fraction?)` (`src/utils/exceeds-max.js`) is a pure boolean compare (the language throws):
 
 - a `max` of `null` (unbounded) is never exceeded;
 - pass `fraction` (the decimal digit string) **only** when the fraction is spelled
