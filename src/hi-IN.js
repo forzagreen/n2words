@@ -14,6 +14,7 @@
 import { parseCardinalValue } from './utils/parse-cardinal.js'
 import { parseCurrencyValue } from './utils/parse-currency.js'
 import { parseOrdinalValue } from './utils/parse-ordinal.js'
+import { tooLargeError } from './utils/too-large-error.js'
 
 // ============================================================================
 // Vocabulary
@@ -61,6 +62,12 @@ const BELOW_HUNDRED = [
 
 // Scale words: index 0 = units (empty), 1 = thousand, 2 = lakh, 3 = crore, etc.
 const SCALE_WORDS = ['', 'हज़ार', 'लाख', 'करोड़', 'अरब', 'खरब', 'नील', 'पद्म', 'शंख']
+
+// 3-2-2 Indian grouping: a 3-digit base segment, then 2 digits per scale word
+// (SCALE_WORDS[0] = '' is the units slot). Past the table the scale word is
+// dropped, which collapses the magnitude — so cap there.
+const MAX_CARDINAL_EXPONENT = 3 + 2 * (SCALE_WORDS.length - 1)
+const MAX_CARDINAL = 10n ** BigInt(MAX_CARDINAL_EXPONENT)
 
 // ============================================================================
 // Segment Building
@@ -174,6 +181,11 @@ function decimalPartToWords(decimalPart) {
  */
 function toCardinal(value) {
   const { isNegative, integerPart, decimalPart } = parseCardinalValue(value)
+  // Both the integer part and the decimal's significant digits are spelled via
+  // the scale builder, so both must clear the ceiling.
+  if (integerPart >= MAX_CARDINAL || (decimalPart && BigInt(decimalPart) >= MAX_CARDINAL)) {
+    throw tooLargeError(MAX_CARDINAL_EXPONENT)
+  }
 
   let result = ''
 
@@ -226,6 +238,8 @@ function integerToOrdinal(n) {
  */
 function toOrdinal(value) {
   const integerPart = parseOrdinalValue(value)
+  // Ordinals build on the cardinal speller, so they share its ceiling.
+  if (integerPart >= MAX_CARDINAL) throw tooLargeError(MAX_CARDINAL_EXPONENT)
   return integerToOrdinal(integerPart)
 }
 
@@ -246,6 +260,7 @@ function toOrdinal(value) {
  */
 function toCurrency(value) {
   const { isNegative, dollars: rupees, cents: paise } = parseCurrencyValue(value)
+  if (rupees >= MAX_CARDINAL) throw tooLargeError(MAX_CARDINAL_EXPONENT)
 
   // Build result
   let result = ''
