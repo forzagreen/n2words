@@ -14,6 +14,14 @@
 import { parseCardinalValue } from './utils/parse-cardinal.js'
 import { parseCurrencyValue } from './utils/parse-currency.js'
 import { parseOrdinalValue } from './utils/parse-ordinal.js'
+import { UNBOUNDED } from './utils/scale.js'
+
+// Thai spells large numbers by repeating ล้าน (10^6), so every form is
+// magnitude-preserving with no fixed ceiling. Declared per form so the gate
+// switches to its injectivity check and the docs read "no fixed limit".
+export const cardinalMax = UNBOUNDED
+export const ordinalMax = UNBOUNDED
+export const currencyMax = UNBOUNDED
 
 // ============================================================================
 // Vocabulary
