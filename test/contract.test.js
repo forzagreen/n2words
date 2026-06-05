@@ -6,9 +6,13 @@ import { readdirSync } from 'node:fs'
  * Conversion contract gate (the "gate" of the scale-ceiling fix-then-gate work).
  *
  * Every language module is held to one universal property: for ANY input, each
- * form returns a well-formed string OR throws a RangeError — never malformed
- * output (`"undefined"`, leading/trailing/doubled spaces, `[object …]`) and
- * never a raw crash (e.g. a TypeError from indexing past a scale table).
+ * form it exports returns a well-formed string OR throws a RangeError — never
+ * malformed output (`"undefined"`, leading/trailing/doubled spaces, `[object …]`)
+ * and never a raw crash (e.g. a TypeError from indexing past a scale table).
+ *
+ * Forms are added incrementally — a language may ship any subset of the three —
+ * so each form is gated only when it's actually exported (a language must export
+ * at least one, matching conversions.test.js).
  *
  * The property needs no per-language configuration, and the suite is built by
  * scanning `src/` — so a newly added `src/{code}.js` is gated automatically with
@@ -75,45 +79,34 @@ for (const file of languageFiles) {
   test(`${code} upholds the conversion contract`, async (t) => {
     const { toCardinal, toOrdinal, toCurrency } = await import('../src/' + file)
 
-    // Cardinal — any integer magnitude (negatives, zero, far past the ceiling).
-    t.notThrows(() => fc.assert(
-      fc.property(fc.bigInt({ min: -WIDE, max: WIDE }), n => upholdsContract(toCardinal, n)),
-      RUN,
-    ), `${code} toCardinal (integer)`)
+    // Collect a property per exported form (built only when the form exists, so a
+    // partial-form language isn't called on functions it doesn't ship). Assertions
+    // run in the loop below — keeping them out of the conditionals above.
+    const checks = []
 
-    // Cardinal — decimal strings with a full (possibly huge, possibly negative)
-    // integer part plus a fraction, so the gate exercises both the integer and the
-    // fraction clauses of the ceiling guard together. The fraction is spelled via
-    // the scale builder in some languages and digit-by-digit in others.
-    t.notThrows(() => fc.assert(
-      fc.property(
+    if (typeof toCardinal === 'function') {
+      // Cardinal — any integer magnitude (negatives, zero, far past the ceiling).
+      checks.push([`${code} toCardinal (integer)`, fc.property(
+        fc.bigInt({ min: -WIDE, max: WIDE }), n => upholdsContract(toCardinal, n),
+      )])
+
+      // Cardinal — decimal strings with a full (possibly huge, possibly negative)
+      // integer part plus a fraction, so the gate exercises both the integer and the
+      // fraction clauses of the ceiling guard together. The fraction is spelled via
+      // the scale builder in some languages and digit-by-digit in others.
+      checks.push([`${code} toCardinal (decimal)`, fc.property(
         fc.boolean(),
         fc.bigInt({ min: 0n, max: WIDE }),
         fc.bigInt({ min: 0n, max: WIDE }),
         (negative, intPart, fraction) =>
           upholdsContract(toCardinal, `${negative ? '-' : ''}${intPart}.${fraction}`),
-      ),
-      RUN,
-    ), `${code} toCardinal (decimal)`)
+      )])
 
-    // Ordinal — positive integers only.
-    t.notThrows(() => fc.assert(
-      fc.property(fc.bigInt({ min: 1n, max: WIDE }), n => upholdsContract(toOrdinal, n)),
-      RUN,
-    ), `${code} toOrdinal`)
-
-    // Currency — any integer amount.
-    t.notThrows(() => fc.assert(
-      fc.property(fc.bigInt({ min: -WIDE, max: WIDE }), n => upholdsContract(toCurrency, n)),
-      RUN,
-    ), `${code} toCurrency`)
-
-    // Type-equivalence — 42, '42', and 42n must yield the same outcome: the same
-    // well-formed string, or the same rejection. outcome() also re-checks the
-    // contract, so a consistent-but-invalid result (a TypeError crash or a
-    // malformed string shared by all three input types) fails here too.
-    t.notThrows(() => fc.assert(
-      fc.property(fc.maxSafeInteger(), (n) => {
+      // Type-equivalence — 42, '42', and 42n must yield the same outcome: the same
+      // well-formed string, or the same rejection. outcome() also re-checks the
+      // contract, so a consistent-but-invalid result (a TypeError crash or a
+      // malformed string shared by all three input types) fails here too.
+      checks.push([`${code} type-equivalence`, fc.property(fc.maxSafeInteger(), (n) => {
         const outcome = (input) => {
           let result
           try {
@@ -135,8 +128,26 @@ for (const file of languageFiles) {
           throw new Error(`type mismatch for ${n}: ${fromNumber} | ${fromString} | ${fromBigInt}`)
         }
         return true
-      }),
-      RUN,
-    ), `${code} type-equivalence`)
+      })])
+    }
+
+    if (typeof toOrdinal === 'function') {
+      // Ordinal — positive integers only.
+      checks.push([`${code} toOrdinal`, fc.property(
+        fc.bigInt({ min: 1n, max: WIDE }), n => upholdsContract(toOrdinal, n),
+      )])
+    }
+
+    if (typeof toCurrency === 'function') {
+      // Currency — any integer amount.
+      checks.push([`${code} toCurrency`, fc.property(
+        fc.bigInt({ min: -WIDE, max: WIDE }), n => upholdsContract(toCurrency, n),
+      )])
+    }
+
+    t.true(checks.length > 0, `${code} exports no conversion form`)
+    for (const [label, property] of checks) {
+      t.notThrows(() => fc.assert(property, RUN), label)
+    }
   })
 }
