@@ -12,6 +12,7 @@
 import { parseCardinalValue } from './utils/parse-cardinal.js'
 import { parseCurrencyValue } from './utils/parse-currency.js'
 import { parseOrdinalValue } from './utils/parse-ordinal.js'
+import { exceedsMax, western } from './utils/scale.js'
 import { tooLargeError } from './utils/too-large-error.js'
 
 // ============================================================================
@@ -37,8 +38,9 @@ const SCALE_WORDS = ['', THOUSAND, 'milyon', 'milyar', 'trilyon', 'katrilyon', '
 // below 10^(SCALE_WORDS.length * 3) = 10^21. Ordinal builds on the cardinal
 // (integerToWords + suffix) and currency too, so all three share the ceiling —
 // and the decimal is also spelled via integerToWords, so it's guarded as well.
-const MAX_CARDINAL_EXPONENT = SCALE_WORDS.length * 3
-const MAX_CARDINAL = 10n ** BigInt(MAX_CARDINAL_EXPONENT)
+export const cardinalMax = western(SCALE_WORDS.length - 1)
+export const ordinalMax = western(SCALE_WORDS.length - 1)
+export const currencyMax = western(SCALE_WORDS.length - 1)
 
 // ============================================================================
 // Ordinal Vocabulary
@@ -211,9 +213,7 @@ function toCardinal(value) {
   const { isNegative, integerPart, decimalPart } = parseCardinalValue(value)
   // Both the integer part and the decimal's significant digits are spelled via
   // the scale builder, so both must clear the ceiling.
-  if (integerPart >= MAX_CARDINAL || (decimalPart && BigInt(decimalPart) >= MAX_CARDINAL)) {
-    throw tooLargeError(MAX_CARDINAL_EXPONENT)
-  }
+  if (exceedsMax(integerPart, cardinalMax, decimalPart)) throw tooLargeError(cardinalMax)
 
   let result = ''
 
@@ -297,7 +297,7 @@ function toOrdinal(value) {
   // Ordinal builds on the cardinal (integerToWords + suffix), so it shares the
   // ceiling — past it the cardinal's trailing-space artifact would be hidden by
   // the space-stripping and emit a silently-wrong ordinal.
-  if (integerPart >= MAX_CARDINAL) throw tooLargeError(MAX_CARDINAL_EXPONENT)
+  if (exceedsMax(integerPart, ordinalMax)) throw tooLargeError(ordinalMax)
   return integerToOrdinal(integerPart)
 }
 
@@ -320,7 +320,7 @@ function toOrdinal(value) {
  */
 function toCurrency(value) {
   const { isNegative, dollars: manat, cents: qepik } = parseCurrencyValue(value)
-  if (manat >= MAX_CARDINAL) throw tooLargeError(MAX_CARDINAL_EXPONENT)
+  if (exceedsMax(manat, currencyMax)) throw tooLargeError(currencyMax)
 
   let result = ''
   if (isNegative) {

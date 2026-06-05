@@ -12,6 +12,7 @@
 import { parseCardinalValue } from './utils/parse-cardinal.js'
 import { parseCurrencyValue } from './utils/parse-currency.js'
 import { parseOrdinalValue } from './utils/parse-ordinal.js'
+import { exceedsMax, western } from './utils/scale.js'
 import { tooLargeError } from './utils/too-large-error.js'
 import { validateOptions } from './utils/validate-options.js'
 
@@ -40,8 +41,9 @@ const SCALES = ['milyon', 'milyar', 'trilyon', 'katrilyon', 'kentilyon']
 // 10^((SCALES.length + 2) * 3) = 10^21. Ordinal (integerToWords + suffix),
 // currency, and the decimal all route through the cardinal builder, so all
 // share the ceiling.
-const MAX_CARDINAL_EXPONENT = (SCALES.length + 2) * 3
-const MAX_CARDINAL = 10n ** BigInt(MAX_CARDINAL_EXPONENT)
+export const cardinalMax = western(SCALES.length + 1)
+export const ordinalMax = western(SCALES.length + 1)
+export const currencyMax = western(SCALES.length + 1)
 
 // ============================================================================
 // Ordinal Vocabulary
@@ -276,9 +278,7 @@ function toCardinal(value, options) {
   const { isNegative, integerPart, decimalPart } = parseCardinalValue(value)
   // Both the integer part and the decimal's significant digits are spelled via
   // the scale builder, so both must clear the ceiling.
-  if (integerPart >= MAX_CARDINAL || (decimalPart && BigInt(decimalPart) >= MAX_CARDINAL)) {
-    throw tooLargeError(MAX_CARDINAL_EXPONENT)
-  }
+  if (exceedsMax(integerPart, cardinalMax, decimalPart)) throw tooLargeError(cardinalMax)
 
   // Apply option defaults
   const { dropSpaces = false } = options
@@ -364,7 +364,7 @@ function integerToOrdinal(n) {
  */
 function toOrdinal(value) {
   const integerPart = parseOrdinalValue(value)
-  if (integerPart >= MAX_CARDINAL) throw tooLargeError(MAX_CARDINAL_EXPONENT)
+  if (exceedsMax(integerPart, ordinalMax)) throw tooLargeError(ordinalMax)
   return integerToOrdinal(integerPart)
 }
 
@@ -387,7 +387,7 @@ function toOrdinal(value) {
  */
 function toCurrency(value) {
   const { isNegative, dollars: lira, cents: kurus } = parseCurrencyValue(value)
-  if (lira >= MAX_CARDINAL) throw tooLargeError(MAX_CARDINAL_EXPONENT)
+  if (exceedsMax(lira, currencyMax)) throw tooLargeError(currencyMax)
 
   let result = ''
   if (isNegative) {
