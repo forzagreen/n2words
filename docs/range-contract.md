@@ -7,8 +7,8 @@ silent-magnitude-collapse bug class structurally catchable — with no per-langu
 test code.
 
 > Status: introduced as a proof on `en-US`, `it-IT`, `zh-Hans-CN`, `th-TH`
-> (one of each structural kind). The rest of the languages are migrated to it
-> family by family; the gate covers each one the moment it declares a `*Max`.
+> (one of each structural kind). The remaining languages are migrated to it
+> family by family, and the gate covers each one the moment it declares a `*Max`.
 
 ## The fact: a bigint `*Max` per form
 

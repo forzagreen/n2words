@@ -47,8 +47,10 @@ function checkForm(fn, max) {
   // so two magnitudes would collide — which this catches with no table knowledge.
   const top = max === null ? 330 : max.toString().length - 1
   const seen = new Map()
+  let magnitude = 1n
   for (let e = 1; e < top; e++) {
-    const out = fn(10n ** BigInt(e))
+    magnitude *= 10n // 10^e, built iteratively to avoid re-exponentiating each step
+    const out = fn(magnitude)
     if (!isWellFormed(out)) throw new Error(`10^${e} malformed: ${render(out)}`)
     if (seen.has(out)) throw new Error(`magnitude collapse — 10^${e} spells the same as 10^${seen.get(out)}: ${render(out)}`)
     seen.set(out, e)
