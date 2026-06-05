@@ -31,13 +31,19 @@ function isWellFormed(value) {
     && !/undefined|NaN|\[object/.test(value)
 }
 
+/** Renders any conversion result for an error message without itself throwing. */
+function render(value) {
+  return typeof value === 'string' ? JSON.stringify(value) : `${typeof value}: ${String(value)}`
+}
+
 /** Throws unless `fn` upholds the contract implied by its declared `exponent`. */
 function checkForm(fn, exponent) {
+  if (typeof fn !== 'function') return // existence is asserted directly in the test below
   if (exponent === Infinity) {
     const seen = new Set()
     for (const k of [10, 20, 40, 80, 160, 320]) {
       const out = fn(10n ** BigInt(k))
-      if (!isWellFormed(out)) throw new Error(`10^${k} malformed: ${JSON.stringify(out)}`)
+      if (!isWellFormed(out)) throw new Error(`10^${k} malformed: ${render(out)}`)
       if (seen.has(out)) throw new Error(`not injective — 10^${k} collides (silent collapse)`)
       seen.add(out)
     }
@@ -49,11 +55,16 @@ function checkForm(fn, exponent) {
     fn(max)
   }
   catch (error) {
-    threw = error instanceof RangeError
+    // Only a RangeError satisfies the contract; surface anything else (a TypeError
+    // crash, etc.) instead of mislabelling it "did not throw RangeError".
+    if (!(error instanceof RangeError)) {
+      throw new Error(`threw ${error.constructor.name} (not RangeError) at 10^${exponent}: ${error.message}`, { cause: error })
+    }
+    threw = true
   }
   if (!threw) throw new Error(`did not throw RangeError at the declared ceiling 10^${exponent}`)
   const below = fn(max - 1n)
-  if (!isWellFormed(below)) throw new Error(`malformed at 10^${exponent} - 1: ${JSON.stringify(below)}`)
+  if (!isWellFormed(below)) throw new Error(`malformed at 10^${exponent} - 1: ${render(below)}`)
 }
 
 // Pre-load modules so we register a test only for languages that declare a range.
@@ -68,6 +79,7 @@ for (const { code, mod, declared } of languages) {
   test(`${code} upholds its declared range`, (t) => {
     for (const [form, fnName] of declared) {
       const exponent = mod[`${form}MaxExponent`]
+      t.is(typeof mod[fnName], 'function', `${code} declares ${form}MaxExponent but doesn't export ${fnName}()`)
       t.notThrows(() => checkForm(mod[fnName], exponent), `${code} ${form} @ 10^${exponent}`)
     }
   })
