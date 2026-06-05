@@ -15,6 +15,7 @@
 import { parseCardinalValue } from './utils/parse-cardinal.js'
 import { parseCurrencyValue } from './utils/parse-currency.js'
 import { parseOrdinalValue } from './utils/parse-ordinal.js'
+import { exceedsMax, western } from './utils/scale.js'
 import { tooLargeError } from './utils/too-large-error.js'
 
 // ============================================================================
@@ -45,8 +46,9 @@ const SCALES = ['', '', 'მილიონი', 'მილიარდი', '�
 // 3-digit grouping; the table tops out at sextillion. Past it the builder clamps
 // to the last scale word (`SCALES[scaleIndex] || SCALES[SCALES.length - 1]`),
 // silently collapsing the magnitude — so cap there.
-const MAX_CARDINAL_EXPONENT = 3 * SCALES.length
-const MAX_CARDINAL = 10n ** BigInt(MAX_CARDINAL_EXPONENT)
+export const cardinalMax = western(SCALES.length - 1)
+export const ordinalMax = western(SCALES.length - 1)
+export const currencyMax = western(SCALES.length - 1)
 
 const ZERO = 'ნული'
 const NEGATIVE = 'მინუს'
@@ -290,9 +292,7 @@ function toCardinal(value) {
   const { isNegative, integerPart, decimalPart } = parseCardinalValue(value)
   // Both the integer part and the decimal's significant digits are spelled via
   // the scale builder, so both must clear the ceiling.
-  if (integerPart >= MAX_CARDINAL || (decimalPart && BigInt(decimalPart) >= MAX_CARDINAL)) {
-    throw tooLargeError(MAX_CARDINAL_EXPONENT)
-  }
+  if (exceedsMax(integerPart, cardinalMax, decimalPart)) throw tooLargeError(cardinalMax)
 
   let result = ''
 
@@ -355,7 +355,7 @@ function integerToOrdinal(n) {
 function toOrdinal(value) {
   const n = parseOrdinalValue(value)
   // Ordinals build on the cardinal speller, so they share its ceiling.
-  if (n >= MAX_CARDINAL) throw tooLargeError(MAX_CARDINAL_EXPONENT)
+  if (exceedsMax(n, ordinalMax)) throw tooLargeError(ordinalMax)
   return integerToOrdinal(n)
 }
 
@@ -375,7 +375,7 @@ function toOrdinal(value) {
  */
 function toCurrency(value) {
   const { isNegative, dollars, cents } = parseCurrencyValue(value)
-  if (dollars >= MAX_CARDINAL) throw tooLargeError(MAX_CARDINAL_EXPONENT)
+  if (exceedsMax(dollars, currencyMax)) throw tooLargeError(currencyMax)
 
   const parts = []
 

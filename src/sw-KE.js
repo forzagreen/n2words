@@ -12,6 +12,7 @@
 import { parseCardinalValue } from './utils/parse-cardinal.js'
 import { parseCurrencyValue } from './utils/parse-currency.js'
 import { parseOrdinalValue } from './utils/parse-ordinal.js'
+import { exceedsMax, western } from './utils/scale.js'
 import { tooLargeError } from './utils/too-large-error.js'
 
 // ============================================================================
@@ -25,8 +26,9 @@ const TENS = { 10: 'kumi', 20: 'ishirini', 30: 'thelathini', 40: 'arobaini', 50:
 const SCALE_WORDS = ['', 'elfu', 'milioni', 'bilioni', 'trilioni', 'kwadrilioni', 'kwintilioni']
 
 // Supported magnitude ceiling (checked at the public entry points), derived from the scale table.
-const MAX_CARDINAL_EXPONENT = SCALE_WORDS.length * 3
-const MAX_CARDINAL = 10n ** BigInt(MAX_CARDINAL_EXPONENT)
+export const cardinalMax = western(SCALE_WORDS.length - 1)
+export const ordinalMax = western(SCALE_WORDS.length - 1)
+export const currencyMax = western(SCALE_WORDS.length - 1)
 
 const ZERO = 'sifuri'
 const NEGATIVE = 'minus'
@@ -188,9 +190,7 @@ function decimalPartToWords(decimalPart) {
  */
 function toCardinal(value) {
   const { isNegative, integerPart, decimalPart } = parseCardinalValue(value)
-  if (integerPart >= MAX_CARDINAL || (decimalPart && BigInt(decimalPart) >= MAX_CARDINAL)) {
-    throw tooLargeError(MAX_CARDINAL_EXPONENT)
-  }
+  if (exceedsMax(integerPart, cardinalMax, decimalPart)) throw tooLargeError(cardinalMax)
 
   let result = ''
 
@@ -241,7 +241,7 @@ function integerToOrdinal(n) {
  */
 function toOrdinal(value) {
   const integerPart = parseOrdinalValue(value)
-  if (integerPart >= MAX_CARDINAL) throw tooLargeError(MAX_CARDINAL_EXPONENT)
+  if (exceedsMax(integerPart, ordinalMax)) throw tooLargeError(ordinalMax)
   return integerToOrdinal(integerPart)
 }
 
@@ -264,7 +264,7 @@ function toOrdinal(value) {
  */
 function toCurrency(value) {
   const { isNegative, dollars: shillings, cents: senti } = parseCurrencyValue(value)
-  if (shillings >= MAX_CARDINAL) throw tooLargeError(MAX_CARDINAL_EXPONENT)
+  if (exceedsMax(shillings, currencyMax)) throw tooLargeError(currencyMax)
 
   let result = ''
   if (isNegative) {
