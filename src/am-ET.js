@@ -14,6 +14,8 @@
 import { parseCardinalValue } from './utils/parse-cardinal.js'
 import { parseCurrencyValue } from './utils/parse-currency.js'
 import { parseOrdinalValue } from './utils/parse-ordinal.js'
+import { exceedsMax } from './utils/exceeds-max.js'
+import { western } from './utils/scale.js'
 import { tooLargeError } from './utils/too-large-error.js'
 
 // ============================================================================
@@ -58,8 +60,9 @@ const SCALE_WORDS = ['', THOUSAND, 'ሚሊዮን', 'ቢሊዮን']
 // reaches index SCALE_WORDS.length-1 (ቢሊዮን, 10^9), so values must stay below
 // 10^(SCALE_WORDS.length * 3) = 10^12. Ordinal and currency build on the
 // cardinal, so they share it. Decimals are read digit-by-digit (no ceiling).
-const MAX_CARDINAL_EXPONENT = SCALE_WORDS.length * 3
-const MAX_CARDINAL = 10n ** BigInt(MAX_CARDINAL_EXPONENT)
+export const cardinalMax = western(SCALE_WORDS.length - 1)
+export const ordinalMax = western(SCALE_WORDS.length - 1)
+export const currencyMax = western(SCALE_WORDS.length - 1)
 
 // ============================================================================
 // Precomputed Lookup Table
@@ -182,7 +185,7 @@ function decimalPartToWords(decimalPart) {
  */
 function toCardinal(value) {
   const { isNegative, integerPart, decimalPart } = parseCardinalValue(value)
-  if (integerPart >= MAX_CARDINAL) throw tooLargeError(MAX_CARDINAL_EXPONENT)
+  if (exceedsMax(integerPart, cardinalMax)) throw tooLargeError(cardinalMax)
 
   let result = ''
 
@@ -239,7 +242,7 @@ function integerToOrdinal(n) {
  */
 function toOrdinal(value) {
   const integerPart = parseOrdinalValue(value)
-  if (integerPart >= MAX_CARDINAL) throw tooLargeError(MAX_CARDINAL_EXPONENT)
+  if (exceedsMax(integerPart, ordinalMax)) throw tooLargeError(ordinalMax)
   return integerToOrdinal(integerPart)
 }
 
@@ -261,7 +264,7 @@ function toOrdinal(value) {
  */
 function toCurrency(value) {
   const { isNegative, dollars: birr, cents: santim } = parseCurrencyValue(value)
-  if (birr >= MAX_CARDINAL) throw tooLargeError(MAX_CARDINAL_EXPONENT)
+  if (exceedsMax(birr, currencyMax)) throw tooLargeError(currencyMax)
 
   // Build result
   let result = ''
