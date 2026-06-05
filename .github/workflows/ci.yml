@@ -55,7 +55,7 @@ jobs:
       - name: Lint
         run: npm run lint
 
-      # Strict checkJs over src (tsconfig.typecheck.json, noEmit) — fast type
+      # Strict checkJs over src (tsconfig.build.json, noEmit) — fast type
       # gate that fails in the cheap lint job before the test matrix. The
       # shipped declarations are independently gated by build:types
       # (checkJs + noEmitOnError) in the test job and prepack.
@@ -101,7 +101,7 @@ jobs:
 
       - name: Check coverage thresholds
         if: ${{ matrix.coverage }}
-        run: npx c8 check-coverage --lines 90 --functions 90 --branches 85 --statements 90
+        run: npm run coverage:check
 
       - name: Generate coverage summary
         if: ${{ matrix.coverage }}

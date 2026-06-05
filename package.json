@@ -75,6 +75,7 @@
     "clean:dist": "rimraf dist",
     "clean:types": "rimraf \"src/**/*.d.ts\" --glob",
     "coverage": "c8 node --run test:unit",
+    "coverage:check": "c8 check-coverage",
     "docs:languages": "node scripts/generate-languages-md.js",
     "lang:add": "node scripts/add-language.js",
     "lint": "node --run lint:js && node --run lint:md",
@@ -111,7 +112,11 @@
       "lcov",
       "text",
       "json-summary"
-    ]
+    ],
+    "lines": 90,
+    "statements": 90,
+    "functions": 90,
+    "branches": 85
   },
   "lint-staged": {
     "*.{js,cjs,mjs}": [
