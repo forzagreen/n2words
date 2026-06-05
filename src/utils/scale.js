@@ -9,29 +9,13 @@
  * These helpers derive that bigint from a language's own scale-table size, so
  * the ceiling tracks the vocabulary and can't drift. A language whose shape
  * fits none of them declares the value directly (`bounded(n)` or a literal
- * bigint). They are pure — derivations and one comparison (`exceedsMax`) the
- * entry guards use. Nothing here throws; the language throws, and the
- * verification checks (boundary, gaps, injectivity) live in the gate.
+ * bigint). They only *produce* a max — the range check that consumes one lives
+ * in exceeds-max.js, and the verification checks (boundary, gaps, injectivity)
+ * live in the gate. Nothing here throws.
  */
 
 /** No fixed ceiling — recursive/compounding spellers (th-TH, fa-IR, …). */
 export const UNBOUNDED = null
-
-/**
- * Whether a parsed value is out of a form's range — pure; the caller throws.
- * Pass `fraction` (the decimal digit string) only when the fraction is spelled
- * via the scale builder; digit-by-digit forms omit it so long fractions stay
- * valid. A `max` of `null` (unbounded) is never exceeded.
- * @param {bigint} value The integer magnitude to test (integer part, dollars, …)
- * @param {bigint | null} max The form's ceiling, or null for no limit
- * @param {string} [fraction] The decimal digit string, when integer-spelled
- * @returns {boolean} true if `value` — or its integer-spelled fraction — exceeds `max`
- */
-export function exceedsMax(value, max, fraction) {
-  if (max === null) return false
-  if (value >= max) return true
-  return fraction ? BigInt(fraction) >= max : false
-}
 
 /**
  * 3-digit grouping, scale array starting at "thousand" (en-US, de-DE, ru-RU, …).
