@@ -13,9 +13,8 @@
 import { parseCardinalValue } from './utils/parse-cardinal.js'
 import { parseCurrencyValue } from './utils/parse-currency.js'
 import { parseOrdinalValue } from './utils/parse-ordinal.js'
-import { exceedsMax } from './utils/exceeds-max.js'
+import { checkMax } from './utils/check-max.js'
 import { western } from './utils/scale.js'
-import { tooLargeError } from './utils/too-large-error.js'
 
 // ============================================================================
 // Vocabulary
@@ -240,7 +239,7 @@ function decimalPartToWords(decimalPart) {
  */
 function toCardinal(value) {
   const { isNegative, integerPart, decimalPart } = parseCardinalValue(value)
-  if (exceedsMax(integerPart, cardinalMax)) throw tooLargeError(cardinalMax)
+  checkMax(integerPart, cardinalMax)
 
   let result = ''
 
@@ -290,7 +289,7 @@ function integerToOrdinal(n) {
  */
 function toOrdinal(value) {
   const integerPart = parseOrdinalValue(value)
-  if (exceedsMax(integerPart, ordinalMax)) throw tooLargeError(ordinalMax)
+  checkMax(integerPart, ordinalMax)
   return integerToOrdinal(integerPart)
 }
 
@@ -313,7 +312,7 @@ function toOrdinal(value) {
  */
 function toCurrency(value) {
   const { isNegative, dollars: pesos, cents: sentimos } = parseCurrencyValue(value)
-  if (exceedsMax(pesos, currencyMax)) throw tooLargeError(currencyMax)
+  checkMax(pesos, currencyMax)
 
   let result = ''
   if (isNegative) {

@@ -9,9 +9,9 @@
  * These helpers derive that bigint from a language's own scale-table size, so
  * the ceiling tracks the vocabulary and can't drift. A language whose shape
  * fits none of them declares the value directly (`bounded(n)` or a literal
- * bigint). They only *produce* a max — the range check that consumes one lives
- * in exceeds-max.js, and the verification checks (boundary, gaps, injectivity)
- * live in the gate. Nothing here throws.
+ * bigint). They only *produce* a max — the range check that consumes one
+ * (`checkMax`) lives in check-max.js, and the verification checks (boundary,
+ * gaps, injectivity) live in the gate. Nothing here throws.
  */
 
 /** No fixed ceiling — recursive/compounding spellers (th-TH, fa-IR, …). */

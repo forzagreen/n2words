@@ -15,9 +15,8 @@
 import { parseCardinalValue } from './utils/parse-cardinal.js'
 import { parseCurrencyValue } from './utils/parse-currency.js'
 import { parseOrdinalValue } from './utils/parse-ordinal.js'
-import { exceedsMax } from './utils/exceeds-max.js'
+import { checkMax } from './utils/check-max.js'
 import { western } from './utils/scale.js'
-import { tooLargeError } from './utils/too-large-error.js'
 import { validateOptions } from './utils/validate-options.js'
 
 // ============================================================================
@@ -240,7 +239,7 @@ function decimalPartToWords(decimalPart, gender) {
 function toCardinal(value, options) {
   options = validateOptions(options)
   const { isNegative, integerPart, decimalPart } = parseCardinalValue(value)
-  if (exceedsMax(integerPart, cardinalMax, decimalPart)) throw tooLargeError(cardinalMax)
+  checkMax(integerPart, cardinalMax, decimalPart)
 
   // Apply option defaults
   const {
@@ -305,7 +304,7 @@ function integerToOrdinal(n, gender) {
 function toOrdinal(value, options) {
   options = validateOptions(options)
   const integerPart = parseOrdinalValue(value)
-  if (exceedsMax(integerPart, ordinalMax)) throw tooLargeError(ordinalMax)
+  checkMax(integerPart, ordinalMax)
   const { gender = 'masculine' } = options
   return integerToOrdinal(integerPart, gender)
 }
@@ -357,7 +356,7 @@ function getHalalaForm(n) {
  */
 function toCurrency(value) {
   const { isNegative, dollars: riyals, cents: halalas } = parseCurrencyValue(value)
-  if (exceedsMax(riyals, currencyMax)) throw tooLargeError(currencyMax)
+  checkMax(riyals, currencyMax)
 
   // Build result
   let result = ''
