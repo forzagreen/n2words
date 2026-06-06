@@ -317,9 +317,10 @@ function formatOptionsTable(options) {
  *
  * @param {string[]} codes Array of language codes
  * @param {Map<string, Set<string>>} forms Code -> set of exported forms
+ * @param {Map<string, Record<string, bigint|null|undefined>>} mods Code -> module namespace (for the *Max range exports)
  * @returns {string} Markdown content
  */
-function generateMarkdown(codes, forms) {
+function generateMarkdown(codes, forms, mods) {
   const hasOrdinal = code => forms.get(code).has('ordinal')
   const hasCurrency = code => forms.get(code).has('currency')
 
@@ -340,20 +341,21 @@ function generateMarkdown(codes, forms) {
   const langRows = codes.map((code) => {
     const name = getDisplayName(code)
     const anchor = optionAnchors.get(code)
+    const mod = mods.get(code)
 
-    // Link to options section when language has options for that form
-    const linked = `[✓*](#${anchor})`
-    const cardinalCol = hasCardinalOptions(code) ? linked : '✓'
-
-    let ordinalCol = ''
-    if (hasOrdinal(code)) {
-      ordinalCol = hasOrdinalOptions(code) ? linked : '✓'
+    // Each form column shows that form's ceiling — the largest value it converts
+    // (`10^N - 1`, matching the RangeError), or `∞` when unbounded. A trailing *
+    // links to the language's options. Every finite *Max is an exact power of ten.
+    const cell = (max, hasOpts) => {
+      let range = '✓' // fallback: form present but no *Max declared (shouldn't happen)
+      if (max === null) range = '∞'
+      else if (max !== undefined) range = `10^${max.toString().length - 1} - 1`
+      return hasOpts ? `${range} [*](#${anchor})` : range
     }
 
-    let currencyCol = ''
-    if (hasCurrency(code)) {
-      currencyCol = hasCurrencyOptions(code) ? linked : '✓'
-    }
+    const cardinalCol = cell(mod.cardinalMax, hasCardinalOptions(code))
+    const ordinalCol = hasOrdinal(code) ? cell(mod.ordinalMax, hasOrdinalOptions(code)) : ''
+    const currencyCol = hasCurrency(code) ? cell(mod.currencyMax, hasCurrencyOptions(code)) : ''
 
     return `|\`${code}\`|${name}|${cardinalCol}|${ordinalCol}|${currencyCol}|`
   })
@@ -382,6 +384,8 @@ Language codes follow [IETF BCP 47](https://tools.ietf.org/html/bcp47) standards
 |Code|Language|Cardinal|Ordinal|Currency|
 |----|--------|:------:|:-----:|:------:|
 ${langRows.join('\n')}
+
+Each form column shows the largest value it converts (\`10^N - 1\`), \`∞\` when unbounded, or blank when the form isn't supported.
 
 \\* Has options — click to jump to that language's options.
 
@@ -423,8 +427,11 @@ async function main() {
   const forms = new Map(
     await Promise.all(codes.map(async code => [code, await getExportedForms(code)])),
   )
+  const mods = new Map(
+    await Promise.all(codes.map(async code => [code, await import(`../src/${code}.js`)])),
+  )
   optionsIndex = buildOptionsIndex(codes)
-  const markdown = generateMarkdown(codes, forms)
+  const markdown = generateMarkdown(codes, forms, mods)
 
   writeFileSync('./LANGUAGES.md', markdown)
   console.log(`✓ Generated LANGUAGES.md (${codes.length} languages)`)
