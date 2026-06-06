@@ -14,7 +14,8 @@
 import { parseCardinalValue } from './utils/parse-cardinal.js'
 import { parseCurrencyValue } from './utils/parse-currency.js'
 import { parseOrdinalValue } from './utils/parse-ordinal.js'
-import { tooLargeError } from './utils/too-large-error.js'
+import { checkMax } from './utils/check-max.js'
+import { indian } from './utils/scale.js'
 
 // ============================================================================
 // Vocabulary
@@ -70,8 +71,9 @@ const SCALE_WORDS = ['', 'వెయ్యి', 'లక్ష', 'కోటి', '
 // 3-2-2 Indian grouping: a 3-digit base segment, then 2 digits per scale word
 // (SCALE_WORDS[0] = '' is the units slot). Past the table the scale word is
 // dropped, which collapses the magnitude — so cap there.
-const MAX_CARDINAL_EXPONENT = 3 + 2 * (SCALE_WORDS.length - 1)
-const MAX_CARDINAL = 10n ** BigInt(MAX_CARDINAL_EXPONENT)
+export const cardinalMax = indian(SCALE_WORDS.length)
+export const ordinalMax = indian(SCALE_WORDS.length)
+export const currencyMax = indian(SCALE_WORDS.length)
 
 // ============================================================================
 // Segment Building
@@ -171,7 +173,7 @@ function decimalPartToWords(decimalPart) {
 function toCardinal(value) {
   const { isNegative, integerPart, decimalPart } = parseCardinalValue(value)
   // The fraction is spelled digit by digit, so only the integer part has a ceiling.
-  if (integerPart >= MAX_CARDINAL) throw tooLargeError(MAX_CARDINAL_EXPONENT)
+  checkMax(integerPart, cardinalMax)
 
   let result = ''
 
@@ -224,7 +226,7 @@ function integerToOrdinal(n) {
 function toOrdinal(value) {
   const integerPart = parseOrdinalValue(value)
   // Ordinals build on the cardinal speller, so they share its ceiling.
-  if (integerPart >= MAX_CARDINAL) throw tooLargeError(MAX_CARDINAL_EXPONENT)
+  checkMax(integerPart, ordinalMax)
   return integerToOrdinal(integerPart)
 }
 
@@ -245,7 +247,7 @@ function toOrdinal(value) {
  */
 function toCurrency(value) {
   const { isNegative, dollars: rupees, cents: paise } = parseCurrencyValue(value)
-  if (rupees >= MAX_CARDINAL) throw tooLargeError(MAX_CARDINAL_EXPONENT)
+  checkMax(rupees, currencyMax)
 
   // Build result
   let result = ''
