@@ -43,7 +43,9 @@ import { parseOrdinalValue } from './utils/parse-ordinal.js'
 import { checkMax } from './utils/check-max.js'
 import { western } from './utils/scale.js' // pick the helper matching your grouping
 
-// Each form's ceiling, derived from your own table (see scale.js for the helpers).
+// Each form's ceiling, derived from your own table. western(n) treats n as the
+// count of scale words above units — pass SCALES.length when the table starts at
+// "thousand", or SCALES.length - 1 when index 0 is an empty units slot (see scale.js).
 export const cardinalMax = western(SCALES.length) // smallest value the form refuses
 export const ordinalMax = western(SCALES.length)  // often lower — derive separately if so
 export const currencyMax = western(SCALES.length) // usually shares the cardinal ceiling
