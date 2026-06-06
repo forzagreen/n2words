@@ -204,15 +204,16 @@ async function promptForForms(existingForms) {
 function generateCardinalFunction(code) {
   return `/**
  * Converts a numeric value to cardinal words.
+ *
  * @param {number | string | bigint} value - The numeric value to convert
+ * @returns {string} The number in words
  */
-function toCardinal(value) {
+function toCardinal (value) {
   const { integerPart, decimalPart } = parseCardinalValue(value)
   checkMax(integerPart, cardinalMax, decimalPart) // drop decimalPart if decimals are spelled digit-by-digit
 
   // parseCardinalValue also returns isNegative — apply it when you build the words.
-  // TODO: build and return the words from integerPart (bigint), the sign, and decimalPart
-  //       (then add a JSDoc @returns {string})
+  // TODO: build the words from integerPart (bigint), the sign, and decimalPart
   throw new Error('${code} cardinal not yet implemented')
 }`
 }
@@ -226,15 +227,16 @@ function toCardinal(value) {
 function generateOrdinalFunction(code) {
   return `/**
  * Converts a positive integer to ordinal words.
+ *
  * @param {number | string | bigint} value - Positive integer to convert
+ * @returns {string} The ordinal in words
  * @throws {RangeError} If value is not a positive integer
  */
-function toOrdinal(value) {
+function toOrdinal (value) {
   const integerPart = parseOrdinalValue(value)
   checkMax(integerPart, ordinalMax)
 
   // TODO: build and return the ordinal words for integerPart (positive integers only)
-  //       (then add a JSDoc @returns {string})
   throw new Error('${code} ordinal not yet implemented')
 }`
 }
@@ -248,17 +250,19 @@ function toOrdinal(value) {
 function generateCurrencyFunction(code) {
   return `/**
  * Converts a numeric value to currency words.
+ *
  * @param {number | string | bigint} value - The currency amount to convert
+ * @param {Object} [options] - Optional configuration
+ * @returns {string} The amount in currency words
  */
-function toCurrency(value) {
+function toCurrency (value, options) {
+  options = validateOptions(options)
   const { dollars } = parseCurrencyValue(value)
   checkMax(dollars, currencyMax)
 
   // parseCurrencyValue also returns isNegative and cents — use them when you build the words.
-  // TODO: build and return the words from dollars (bigint) and cents, applying the sign
-  //       (then add a JSDoc @returns {string})
+  // TODO: build the words from dollars (bigint) and cents, applying the sign
   // TODO: define this locale's currency vocabulary (major/minor unit names)
-  // TODO: if this currency takes options, add (value, options) + validateOptions — see CLAUDE.md
   throw new Error('${code} currency not yet implemented')
 }`
 }
@@ -318,6 +322,9 @@ function generateLanguageFile(code, name, forms) {
     importLines.push('import { parseOrdinalValue } from \'./utils/parse-ordinal.js\'')
   }
   importLines.push('import { UNBOUNDED } from \'./utils/scale.js\'')
+  if (hasCurrency) {
+    importLines.push('import { validateOptions } from \'./utils/validate-options.js\'')
+  }
   const imports = importLines.join('\n')
 
   const header = `// TODO: Implement number-to-words conversion for ${name} (${code})
@@ -433,6 +440,9 @@ function addFormsToExistingFile(code, newForms) {
   }
   if (newForms.has('currency') && !content.includes('parse-currency.js')) {
     newImports.push('import { parseCurrencyValue } from \'./utils/parse-currency.js\'')
+  }
+  if (newForms.has('currency') && !content.includes('validate-options.js')) {
+    newImports.push('import { validateOptions } from \'./utils/validate-options.js\'')
   }
   // Every scaffolded guard needs checkMax; every placeholder ceiling needs
   // UNBOUNDED. checkMax is its own module; UNBOUNDED shares scale.js, so fold it
