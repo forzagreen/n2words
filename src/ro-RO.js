@@ -13,7 +13,8 @@
 import { parseCardinalValue } from './utils/parse-cardinal.js'
 import { parseCurrencyValue } from './utils/parse-currency.js'
 import { parseOrdinalValue } from './utils/parse-ordinal.js'
-import { tooLargeError } from './utils/too-large-error.js'
+import { checkMax } from './utils/check-max.js'
+import { bounded, western } from './utils/scale.js'
 import { validateOptions } from './utils/validate-options.js'
 
 // ============================================================================
@@ -69,10 +70,9 @@ const SCALE_META = [
 // Cardinal scale words run thousand..octilion; past SCALE_META the builder drops
 // the scale word. The ordinal spells its millions multiplier via spellUnder1000
 // (0-999), so it overflows once that multiplier reaches 1000 — n must stay below 10^9.
-const MAX_CARDINAL_EXPONENT = 3 * (SCALE_META.length + 1)
-const MAX_CARDINAL = 10n ** BigInt(MAX_CARDINAL_EXPONENT)
-const MAX_ORDINAL_EXPONENT = 9
-const MAX_ORDINAL = 10n ** BigInt(MAX_ORDINAL_EXPONENT)
+export const cardinalMax = western(SCALE_META.length)
+export const ordinalMax = bounded(9)
+export const currencyMax = western(SCALE_META.length)
 
 // ============================================================================
 // Helper Functions
@@ -270,9 +270,7 @@ function toCardinal(value, options) {
   const { isNegative, integerPart, decimalPart } = parseCardinalValue(value)
   // Both the integer part and the decimal's significant digits are spelled via
   // the scale builder, so both must clear the ceiling.
-  if (integerPart >= MAX_CARDINAL || (decimalPart && BigInt(decimalPart) >= MAX_CARDINAL)) {
-    throw tooLargeError(MAX_CARDINAL_EXPONENT)
-  }
+  checkMax(integerPart, cardinalMax, decimalPart)
 
   // Apply option defaults
   const { gender = 'masculine' } = options
@@ -410,7 +408,7 @@ function integerToOrdinal(n) {
  */
 function toOrdinal(value) {
   const n = parseOrdinalValue(value)
-  if (n >= MAX_ORDINAL) throw tooLargeError(MAX_ORDINAL_EXPONENT)
+  checkMax(n, ordinalMax)
   return integerToOrdinal(n)
 }
 
@@ -430,7 +428,7 @@ function toOrdinal(value) {
  */
 function toCurrency(value) {
   const { isNegative, dollars, cents } = parseCurrencyValue(value)
-  if (dollars >= MAX_CARDINAL) throw tooLargeError(MAX_CARDINAL_EXPONENT)
+  checkMax(dollars, currencyMax)
 
   const parts = []
 
