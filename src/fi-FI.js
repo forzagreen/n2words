@@ -14,6 +14,8 @@
 import { parseCardinalValue } from './utils/parse-cardinal.js'
 import { parseCurrencyValue } from './utils/parse-currency.js'
 import { parseOrdinalValue } from './utils/parse-ordinal.js'
+import { exceedsMax } from './utils/exceeds-max.js'
+import { western } from './utils/scale.js'
 import { tooLargeError } from './utils/too-large-error.js'
 
 // ============================================================================
@@ -42,8 +44,9 @@ const SCALES = ['miljoona', 'miljardi', 'biljoona', 'triljoona']
 // 10^((SCALES.length + 2) * 3) = 10^18. Ordinal (cardinal + suffix) and currency
 // build on the cardinal, so they share it. Decimals are read digit-by-digit
 // (no ceiling).
-const MAX_CARDINAL_EXPONENT = (SCALES.length + 2) * 3
-const MAX_CARDINAL = 10n ** BigInt(MAX_CARDINAL_EXPONENT)
+export const cardinalMax = western(SCALES.length + 1)
+export const ordinalMax = western(SCALES.length + 1)
+export const currencyMax = western(SCALES.length + 1)
 
 // ============================================================================
 // Ordinal Vocabulary
@@ -256,7 +259,7 @@ function decimalPartToWords(decimalPart) {
  */
 function toCardinal(value) {
   const { isNegative, integerPart, decimalPart } = parseCardinalValue(value)
-  if (integerPart >= MAX_CARDINAL) throw tooLargeError(MAX_CARDINAL_EXPONENT)
+  if (exceedsMax(integerPart, cardinalMax)) throw tooLargeError(cardinalMax)
 
   let result = ''
 
@@ -339,7 +342,7 @@ function integerToOrdinal(n) {
  */
 function toOrdinal(value) {
   const integerPart = parseOrdinalValue(value)
-  if (integerPart >= MAX_CARDINAL) throw tooLargeError(MAX_CARDINAL_EXPONENT)
+  if (exceedsMax(integerPart, ordinalMax)) throw tooLargeError(ordinalMax)
   return integerToOrdinal(integerPart)
 }
 
@@ -363,7 +366,7 @@ function toOrdinal(value) {
  */
 function toCurrency(value) {
   const { isNegative, dollars: euros, cents } = parseCurrencyValue(value)
-  if (euros >= MAX_CARDINAL) throw tooLargeError(MAX_CARDINAL_EXPONENT)
+  if (exceedsMax(euros, currencyMax)) throw tooLargeError(currencyMax)
 
   let result = ''
   if (isNegative) {
