@@ -13,6 +13,12 @@
 import { parseCardinalValue } from './utils/parse-cardinal.js'
 import { parseCurrencyValue } from './utils/parse-currency.js'
 import { parseOrdinalValue } from './utils/parse-ordinal.js'
+import { UNBOUNDED } from './utils/scale.js'
+
+// No fixed scale ceiling — the speller composes every magnitude.
+export const cardinalMax = UNBOUNDED
+export const ordinalMax = UNBOUNDED
+export const currencyMax = UNBOUNDED
 
 // ============================================================================
 // Vocabulary
