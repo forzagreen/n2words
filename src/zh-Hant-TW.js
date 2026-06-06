@@ -17,7 +17,8 @@
 import { parseCardinalValue } from './utils/parse-cardinal.js'
 import { parseCurrencyValue } from './utils/parse-currency.js'
 import { parseOrdinalValue } from './utils/parse-ordinal.js'
-import { tooLargeError } from './utils/too-large-error.js'
+import { checkMax } from './utils/check-max.js'
+import { bounded } from './utils/scale.js'
 import { validateOptions } from './utils/validate-options.js'
 
 // ============================================================================
@@ -45,8 +46,9 @@ const YI_WORD = '億' // 100,000,000
 // itself only valid below 億. So the ceiling is 億² = 10^16. Ordinal (第 +
 // cardinal) and currency build on the cardinal, so they share it. Decimals are
 // spelled digit-by-digit, so they have no ceiling.
-const MAX_CARDINAL_EXPONENT = 16
-const MAX_CARDINAL = 10n ** BigInt(MAX_CARDINAL_EXPONENT)
+export const cardinalMax = bounded(16)
+export const ordinalMax = bounded(16)
+export const currencyMax = bounded(16)
 
 const ZERO = '零'
 const NEGATIVE = '負'
@@ -230,7 +232,7 @@ function decimalDigitsToWords(decimalString, formal = true) {
 function toCardinal(value, options) {
   options = validateOptions(options)
   const { isNegative, integerPart, decimalPart } = parseCardinalValue(value)
-  if (integerPart >= MAX_CARDINAL) throw tooLargeError(MAX_CARDINAL_EXPONENT)
+  checkMax(integerPart, cardinalMax)
 
   // Apply option defaults
   const { formal = true } = options
@@ -282,7 +284,7 @@ function integerToOrdinal(n, formal = true) {
 function toOrdinal(value, options) {
   options = validateOptions(options)
   const integerPart = parseOrdinalValue(value)
-  if (integerPart >= MAX_CARDINAL) throw tooLargeError(MAX_CARDINAL_EXPONENT)
+  checkMax(integerPart, ordinalMax)
   const { formal = true } = options
   return integerToOrdinal(integerPart, formal)
 }
@@ -310,7 +312,7 @@ function toOrdinal(value, options) {
 function toCurrency(value, options) {
   options = validateOptions(options)
   const { isNegative, dollars: yuan, cents } = parseCurrencyValue(value)
-  if (yuan >= MAX_CARDINAL) throw tooLargeError(MAX_CARDINAL_EXPONENT)
+  checkMax(yuan, currencyMax)
   const { formal = true } = options
 
   const yuanWord = formal ? YUAN_FORMAL : YUAN_COMMON
