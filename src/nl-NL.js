@@ -16,7 +16,8 @@
 import { parseCardinalValue } from './utils/parse-cardinal.js'
 import { parseCurrencyValue } from './utils/parse-currency.js'
 import { parseOrdinalValue } from './utils/parse-ordinal.js'
-import { tooLargeError } from './utils/too-large-error.js'
+import { checkMax } from './utils/check-max.js'
+import { western } from './utils/scale.js'
 import { validateOptions } from './utils/validate-options.js'
 
 // ============================================================================
@@ -41,10 +42,9 @@ const SCALE_ORDINAL = ['', 'duizendste', 'miljoenste', 'miljardste', 'biljoenste
 // 10^((SCALES.length + 1) * 3) = 10^30. The ordinal of a number whose lowest
 // non-zero group is a scale group uses the shorter SCALE_ORDINAL, so ordinals
 // are bounded at 10^(SCALE_ORDINAL.length * 3) = 10^21.
-const MAX_CARDINAL_EXPONENT = (SCALES.length + 1) * 3
-const MAX_CARDINAL = 10n ** BigInt(MAX_CARDINAL_EXPONENT)
-const MAX_ORDINAL_EXPONENT = SCALE_ORDINAL.length * 3
-const MAX_ORDINAL = 10n ** BigInt(MAX_ORDINAL_EXPONENT)
+export const cardinalMax = western(SCALES.length)
+export const ordinalMax = western(SCALE_ORDINAL.length - 1)
+export const currencyMax = western(SCALES.length)
 
 const ZERO = 'nul'
 const NEGATIVE = 'min'
@@ -332,9 +332,7 @@ function toCardinal(value, options) {
   const { isNegative, integerPart, decimalPart } = parseCardinalValue(value)
   // Both the integer part and the decimal's significant digits are spelled via
   // the scale builder, so both must clear the ceiling.
-  if (integerPart >= MAX_CARDINAL || (decimalPart && BigInt(decimalPart) >= MAX_CARDINAL)) {
-    throw tooLargeError(MAX_CARDINAL_EXPONENT)
-  }
+  checkMax(integerPart, cardinalMax, decimalPart)
 
   // Apply option defaults
   const {
@@ -438,7 +436,7 @@ function buildOrdinalSegment(n) {
  */
 function toOrdinal(value) {
   const n = parseOrdinalValue(value)
-  if (n >= MAX_ORDINAL) throw tooLargeError(MAX_ORDINAL_EXPONENT)
+  checkMax(n, ordinalMax)
 
   // Fast path: 1-9
   if (n < 10n) return ORDINAL_ONES[Number(n)]
@@ -557,7 +555,7 @@ function buildLargeOrdinal(n) {
 function toCurrency(value, options) {
   options = validateOptions(options)
   const { isNegative, dollars: euros, cents } = parseCurrencyValue(value)
-  if (euros >= MAX_CARDINAL) throw tooLargeError(MAX_CARDINAL_EXPONENT)
+  checkMax(euros, currencyMax)
   const { and = true } = options
 
   let result = ''

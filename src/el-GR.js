@@ -13,7 +13,8 @@
 import { parseCardinalValue } from './utils/parse-cardinal.js'
 import { parseCurrencyValue } from './utils/parse-currency.js'
 import { parseOrdinalValue } from './utils/parse-ordinal.js'
-import { tooLargeError } from './utils/too-large-error.js'
+import { checkMax } from './utils/check-max.js'
+import { bounded, western } from './utils/scale.js'
 
 // ============================================================================
 // Vocabulary (module-level constants)
@@ -38,10 +39,9 @@ const DECIMAL_SEP = 'κόμμα'
 const SCALES = ['εκατομμύριο', 'δισεκατομμύριο', 'τρισεκατομμύριο']
 
 // Supported magnitude ceiling (checked at the public entry points), derived from the scale table.
-const MAX_CARDINAL_EXPONENT = (SCALES.length + 2) * 3
-const MAX_CARDINAL = 10n ** BigInt(MAX_CARDINAL_EXPONENT)
-const MAX_ORDINAL_EXPONENT = 9
-const MAX_ORDINAL = 10n ** BigInt(MAX_ORDINAL_EXPONENT)
+export const cardinalMax = western(SCALES.length + 1)
+export const ordinalMax = bounded(9)
+export const currencyMax = western(SCALES.length + 1)
 
 // Ordinal vocabulary
 const ORDINAL_ONES = ['', 'πρώτος', 'δεύτερος', 'τρίτος', 'τέταρτος', 'πέμπτος', 'έκτος', 'έβδομος', 'όγδοος', 'ένατος']
@@ -245,7 +245,7 @@ function decimalPartToWords(decimalPart) {
  */
 function toCardinal(value) {
   const { isNegative, integerPart, decimalPart } = parseCardinalValue(value)
-  if (integerPart >= MAX_CARDINAL) throw tooLargeError(MAX_CARDINAL_EXPONENT)
+  checkMax(integerPart, cardinalMax)
 
   let result = ''
 
@@ -379,7 +379,7 @@ function integerToOrdinal(n) {
  */
 function toOrdinal(value) {
   const n = parseOrdinalValue(value)
-  if (n >= MAX_ORDINAL) throw tooLargeError(MAX_ORDINAL_EXPONENT)
+  checkMax(n, ordinalMax)
   return integerToOrdinal(n)
 }
 
@@ -399,7 +399,7 @@ function toOrdinal(value) {
  */
 function toCurrency(value) {
   const { isNegative, dollars, cents } = parseCurrencyValue(value)
-  if (dollars >= MAX_CARDINAL) throw tooLargeError(MAX_CARDINAL_EXPONENT)
+  checkMax(dollars, currencyMax)
 
   const parts = []
 
