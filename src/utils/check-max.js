@@ -12,9 +12,11 @@
  * Throws a `RangeError` when `value` — or its integer-spelled fraction —
  * reaches a form's ceiling (`max`, the smallest value the form refuses).
  *
- * Runs at the entry point: an O(1) short-circuit before any building, allocating
- * nothing on the in-range path. The message renders `10^N - 1` when the ceiling
- * is an exact power of ten, otherwise the raw maximum.
+ * Runs at the entry point: an O(1) short-circuit before any spelling is built —
+ * the in-range path is just the bigint comparison, plus a single
+ * `BigInt(fraction)` parse when an integer-spelled fraction is supplied. The
+ * message renders `10^N - 1` when the ceiling is an exact power of ten,
+ * otherwise the raw maximum.
  * @param {bigint} value The integer magnitude to test (integer part, dollars, …)
  * @param {bigint | null} max The form's ceiling, or `null` for no limit (never throws)
  * @param {string} [fraction] The decimal digit string — pass it **only** when the

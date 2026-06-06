@@ -60,9 +60,10 @@ ceiling, owning the `RangeError` itself.
   via the scale builder (integer-spelled). Digit-by-digit forms and ordinal /
   currency omit it, so long fractions stay valid.
 
-It runs at the entry point — an O(1) short-circuit before any building — and
-allocates nothing on the in-range path. The message renders `10^N - 1` when the
-ceiling is an exact power of ten, otherwise the raw maximum.
+It runs at the entry point — an O(1) short-circuit before any spelling is built;
+the in-range path is just the bigint comparison, plus a single `BigInt(fraction)`
+parse when an integer-spelled fraction is supplied. The message renders
+`10^N - 1` when the ceiling is an exact power of ten, otherwise the raw maximum.
 
 ## The gate: behavioural, in CI (`test/range-contract.test.js`)
 
@@ -89,7 +90,7 @@ property the injectivity sweep enforces, not a structural assertion.
 
 - **The value is a bigint, not an exponent** — base-agnostic, so it stays honest
   for a future non-decimal ceiling; the exponent is a display token only.
-- **Helpers are pure; all checks live in the gate** — the runtime guard stays one
-  precomputed bigint comparison (zero allocation), and verification is CI's job.
+- **Helpers are pure; all checks live in the gate** — the runtime guard stays a
+  comparison against a precomputed bigint ceiling, and verification is CI's job.
 - **The fact is per form, not a combined object** — so the forms split cleanly
   into per-form files later, and a language may ship any subset.
