@@ -204,11 +204,10 @@ async function promptForForms(existingForms) {
 function generateCardinalFunction(code) {
   return `/**
  * Converts a numeric value to cardinal words.
- *
  * @param {number | string | bigint} value - The numeric value to convert
  * @returns {string} The number in words
  */
-function toCardinal (value) {
+function toCardinal(value) {
   const { integerPart, decimalPart } = parseCardinalValue(value)
   checkMax(integerPart, cardinalMax, decimalPart) // drop decimalPart if decimals are spelled digit-by-digit
 
@@ -227,12 +226,11 @@ function toCardinal (value) {
 function generateOrdinalFunction(code) {
   return `/**
  * Converts a positive integer to ordinal words.
- *
  * @param {number | string | bigint} value - Positive integer to convert
  * @returns {string} The ordinal in words
  * @throws {RangeError} If value is not a positive integer
  */
-function toOrdinal (value) {
+function toOrdinal(value) {
   const integerPart = parseOrdinalValue(value)
   checkMax(integerPart, ordinalMax)
 
@@ -250,12 +248,11 @@ function toOrdinal (value) {
 function generateCurrencyFunction(code) {
   return `/**
  * Converts a numeric value to currency words.
- *
  * @param {number | string | bigint} value - The currency amount to convert
- * @param {Object} [options] - Optional configuration
+ * @param {object} [options] - Optional configuration
  * @returns {string} The amount in currency words
  */
-function toCurrency (value, options) {
+function toCurrency(value, options) {
   options = validateOptions(options)
   const { dollars } = parseCurrencyValue(value)
   checkMax(dollars, currencyMax)
