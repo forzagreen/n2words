@@ -209,11 +209,11 @@ function generateCardinalFunction(code) {
  * @returns {string} The number in words
  */
 function toCardinal (value) {
-  // parseCardinalValue(value) -> { isNegative, integerPart: bigint, decimalPart? }
-  // (decimalPart is present only for decimal inputs)
-  parseCardinalValue(value)
+  const { integerPart, decimalPart } = parseCardinalValue(value)
+  checkMax(integerPart, cardinalMax, decimalPart) // drop decimalPart if decimals are spelled digit-by-digit
 
-  // TODO: build the words from integerPart, applying isNegative and decimalPart
+  // parseCardinalValue also returns isNegative — apply it when you build the words.
+  // TODO: build the words from integerPart (bigint), the sign, and decimalPart
   throw new Error('${code} cardinal not yet implemented')
 }`
 }
@@ -233,10 +233,10 @@ function generateOrdinalFunction(code) {
  * @throws {RangeError} If value is not a positive integer
  */
 function toOrdinal (value) {
-  // parseOrdinalValue(value) -> integerPart (bigint, positive integers only)
-  parseOrdinalValue(value)
+  const integerPart = parseOrdinalValue(value)
+  checkMax(integerPart, ordinalMax)
 
-  // TODO: build and return the ordinal words
+  // TODO: build and return the ordinal words for integerPart (positive integers only)
   throw new Error('${code} ordinal not yet implemented')
 }`
 }
@@ -257,13 +257,44 @@ function generateCurrencyFunction(code) {
  */
 function toCurrency (value, options) {
   options = validateOptions(options)
-  // parseCurrencyValue(value) -> { isNegative, dollars: bigint, cents: bigint }
-  parseCurrencyValue(value)
+  const { dollars } = parseCurrencyValue(value)
+  checkMax(dollars, currencyMax)
 
-  // TODO: build the words from dollars and cents, applying isNegative
+  // parseCurrencyValue also returns isNegative and cents — use them when you build the words.
+  // TODO: build the words from dollars (bigint) and cents, applying the sign
   // TODO: define this locale's currency vocabulary (major/minor unit names)
   throw new Error('${code} currency not yet implemented')
 }`
+}
+
+const FORM_ORDER = ['cardinal', 'ordinal', 'currency']
+
+/**
+ * Placeholder `*Max` declaration for a form — the smallest value it refuses.
+ * Scaffolds to `UNBOUNDED` (no ceiling) so the form runs until the author derives
+ * a real one from the scale table.
+ *
+ * @param {string} form Form name ('cardinal' | 'ordinal' | 'currency')
+ * @returns {string} `export const <form>Max = UNBOUNDED`
+ */
+function generateMaxExport(form) {
+  return `export const ${form}Max = UNBOUNDED`
+}
+
+/**
+ * The grouped `*Max` declaration block for a new language, with a TODO pointing
+ * at the scale.js helpers.
+ *
+ * @param {Set<string>} forms Forms to include
+ * @returns {string} Comment + one export per scaffolded form
+ */
+function generateMaxExportsBlock(forms) {
+  const exports = FORM_ORDER.filter(f => forms.has(f)).map(generateMaxExport)
+  return `// TODO: set each form's ceiling — the smallest value it refuses. Use a scale.js
+// helper (western / myriad / indian / longScale / bounded) derived from your scale
+// table, or keep UNBOUNDED for a recursive/compounding speller. The range gate
+// (test/range-contract.test.js) verifies whatever you declare — see docs/range-contract.md.
+${exports.join('\n')}`
 }
 
 /**
@@ -280,6 +311,7 @@ function generateLanguageFile(code, name, forms) {
   const hasCurrency = forms.has('currency')
 
   const importLines = []
+  importLines.push('import { checkMax } from \'./utils/check-max.js\'')
   if (hasCardinal) {
     importLines.push('import { parseCardinalValue } from \'./utils/parse-cardinal.js\'')
   }
@@ -289,6 +321,7 @@ function generateLanguageFile(code, name, forms) {
   if (hasOrdinal) {
     importLines.push('import { parseOrdinalValue } from \'./utils/parse-ordinal.js\'')
   }
+  importLines.push('import { UNBOUNDED } from \'./utils/scale.js\'')
   if (hasCurrency) {
     importLines.push('import { validateOptions } from \'./utils/validate-options.js\'')
   }
@@ -315,6 +348,8 @@ function generateLanguageFile(code, name, forms) {
   return `${imports}
 
 ${header}
+
+${generateMaxExportsBlock(forms)}
 
 ${functions.join('\n\n')}
 
@@ -409,6 +444,23 @@ function addFormsToExistingFile(code, newForms) {
   if (newForms.has('currency') && !content.includes('validate-options.js')) {
     newImports.push('import { validateOptions } from \'./utils/validate-options.js\'')
   }
+  // Every scaffolded guard needs checkMax; every placeholder ceiling needs
+  // UNBOUNDED. checkMax is its own module; UNBOUNDED shares scale.js, so fold it
+  // into an existing scale.js import when there is one instead of duplicating it.
+  if (!content.includes('check-max.js')) {
+    newImports.push('import { checkMax } from \'./utils/check-max.js\'')
+  }
+  if (!/\bUNBOUNDED\b/.test(content)) {
+    if (/from '\.\/utils\/scale\.js'/.test(content)) {
+      content = content.replace(
+        /import \{ ([^}]+) \} from '\.\/utils\/scale\.js'/,
+        (_m, names) => `import { ${names}, UNBOUNDED } from './utils/scale.js'`,
+      )
+    }
+    else {
+      newImports.push('import { UNBOUNDED } from \'./utils/scale.js\'')
+    }
+  }
 
   if (newImports.length > 0) {
     // Insert after the last existing import
@@ -427,24 +479,26 @@ function addFormsToExistingFile(code, newForms) {
   const newExports = []
 
   if (newForms.has('cardinal')) {
-    newFunctions.push('\n' + generateCardinalFunction(code))
+    newFunctions.push(generateCardinalFunction(code))
     newExports.push('toCardinal')
   }
 
   if (newForms.has('ordinal')) {
-    newFunctions.push('\n' + generateOrdinalFunction(code))
+    newFunctions.push(generateOrdinalFunction(code))
     newExports.push('toOrdinal')
   }
 
   if (newForms.has('currency')) {
-    newFunctions.push('\n' + generateCurrencyFunction(code))
+    newFunctions.push(generateCurrencyFunction(code))
     newExports.push('toCurrency')
   }
 
-  // Insert functions before export (re-find since content may have shifted)
+  // Insert the new forms' *Max declarations + functions before the export
+  // statement (re-find since content may have shifted).
   const updatedExportMatch = content.match(/export \{[^}]+\}/)
   const insertPos = content.indexOf(updatedExportMatch[0])
-  content = content.slice(0, insertPos) + newFunctions.join('\n') + '\n\n' + content.slice(insertPos)
+  const insertion = `${generateMaxExportsBlock(newForms)}\n\n${newFunctions.join('\n\n')}\n\n`
+  content = content.slice(0, insertPos) + insertion + content.slice(insertPos)
 
   // Update export statement
   const currentExports = updatedExportMatch[0].match(/\{ ([^}]+) \}/)?.[1].split(',').map(s => s.trim()) || []
@@ -648,9 +702,11 @@ async function main() {
   console.log(chalk.green(`\n✓ Successfully scaffolded ${code} ${isNewLanguage ? 'language' : 'forms'}`))
   console.log(chalk.cyan('\nNext steps:'))
   console.log(chalk.gray(`1. Implement ${langFilePath} (replace the \`throw\` in each form)`))
-  console.log(chalk.gray(`2. Add at least one case per form to ${fixtureFilePath}`))
+  console.log(chalk.gray('2. Set each form\'s *Max ceiling (replace the UNBOUNDED placeholder) —'))
+  console.log(chalk.gray('   a scale.js helper derived from your table, or UNBOUNDED; see docs/range-contract.md'))
+  console.log(chalk.gray(`3. Add at least one case per form to ${fixtureFilePath}`))
   console.log(chalk.gray('   — the suite rejects empty fixtures, so it fails until you do'))
-  console.log(chalk.gray('3. Run: npm test  (runs the suite and builds types)'))
+  console.log(chalk.gray('4. Run: npm test  (runs the suite and builds types)'))
 }
 
 main().catch((err) => {
