@@ -24,8 +24,9 @@ const ONES = ['không', 'một', 'hai', 'ba', 'bốn', 'năm', 'sáu', 'bảy', 
 
 // Scale words indexed by scale level (0 = units, 1 = thousands, etc.)
 // Vietnamese composes large numbers by cycling nghìn/triệu/tỷ and appending
-// another tỷ every three groups. Past tỷ tỷ (10^18) that recursion is rarely
-// used and not firmly fixed, so the table stops there and larger values throw.
+// another tỷ every three groups. The recursion past tỷ tỷ (10^18) is rarely used
+// and not firmly fixed, so the table stops at that scale word rather than invent
+// more; the ceiling then falls where the next one would be needed (see below).
 const SCALES = [
   '', 'nghìn', 'triệu', 'tỷ', 'nghìn tỷ', 'triệu tỷ', 'tỷ tỷ',
 ]
