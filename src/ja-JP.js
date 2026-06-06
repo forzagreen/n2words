@@ -13,7 +13,8 @@
 import { parseCardinalValue } from './utils/parse-cardinal.js'
 import { parseCurrencyValue } from './utils/parse-currency.js'
 import { parseOrdinalValue } from './utils/parse-ordinal.js'
-import { tooLargeError } from './utils/too-large-error.js'
+import { checkMax } from './utils/check-max.js'
+import { myriad } from './utils/scale.js'
 
 // ============================================================================
 // Vocabulary (module-level constants)
@@ -45,9 +46,11 @@ const SCALES = [
 ]
 
 // Myriad (4-digit) grouping: each scale word covers a power of 10,000, so the
-// table reaches 10^(4 * SCALES.length); the next group has no scale word.
-const MAX_CARDINAL_EXPONENT = (SCALES.length + 1) * 4
-const MAX_CARDINAL = 10n ** BigInt(MAX_CARDINAL_EXPONENT)
+// first unsupported value is 10^((SCALES.length + 1) * 4). Ordinals (prefix) and
+// currency build on the cardinal speller, so they share its ceiling.
+export const cardinalMax = myriad(SCALES.length)
+export const ordinalMax = myriad(SCALES.length)
+export const currencyMax = myriad(SCALES.length)
 
 const ZERO = '零'
 const NEGATIVE = 'マイナス'
@@ -254,7 +257,7 @@ function decimalPartToWords(decimalPart) {
 function toCardinal(value) {
   const { isNegative, integerPart, decimalPart } = parseCardinalValue(value)
   // The fraction is spelled digit by digit, so only the integer part has a ceiling.
-  if (integerPart >= MAX_CARDINAL) throw tooLargeError(MAX_CARDINAL_EXPONENT)
+  checkMax(integerPart, cardinalMax)
 
   let result = ''
 
@@ -300,7 +303,7 @@ function integerToOrdinal(n) {
 function toOrdinal(value) {
   const integerPart = parseOrdinalValue(value)
   // Ordinals prefix the cardinal speller, so they share its ceiling.
-  if (integerPart >= MAX_CARDINAL) throw tooLargeError(MAX_CARDINAL_EXPONENT)
+  checkMax(integerPart, ordinalMax)
   return integerToOrdinal(integerPart)
 }
 
@@ -325,7 +328,7 @@ function toOrdinal(value) {
  */
 function toCurrency(value) {
   const { isNegative, dollars: yen, cents: sen } = parseCurrencyValue(value)
-  if (yen >= MAX_CARDINAL) throw tooLargeError(MAX_CARDINAL_EXPONENT)
+  checkMax(yen, currencyMax)
 
   // Build result
   let result = ''

@@ -13,7 +13,8 @@
 import { parseCardinalValue } from './utils/parse-cardinal.js'
 import { parseCurrencyValue } from './utils/parse-currency.js'
 import { parseOrdinalValue } from './utils/parse-ordinal.js'
-import { tooLargeError } from './utils/too-large-error.js'
+import { checkMax } from './utils/check-max.js'
+import { myriad } from './utils/scale.js'
 
 // ============================================================================
 // Vocabulary (module-level constants)
@@ -33,9 +34,12 @@ const DECIMAL_SEP = '점'
 // 만 (10^4), 억 (10^8), 조 (10^12), 경 (10^16), etc.
 const SCALES = ['만', '억', '조', '경', '해', '자', '양']
 
-// Supported magnitude ceiling (checked at the public entry points), derived from the scale table.
-const MAX_CARDINAL_EXPONENT = (SCALES.length + 1) * 4
-const MAX_CARDINAL = 10n ** BigInt(MAX_CARDINAL_EXPONENT)
+// Myriad (4-digit) grouping: each scale word covers a power of 10,000, so the
+// first unsupported value is 10^((SCALES.length + 1) * 4). Ordinals and currency
+// build on the cardinal speller, so they share its ceiling.
+export const cardinalMax = myriad(SCALES.length)
+export const ordinalMax = myriad(SCALES.length)
+export const currencyMax = myriad(SCALES.length)
 
 // ============================================================================
 // Ordinal Vocabulary
@@ -252,9 +256,7 @@ function decimalPartToWords(decimalPart) {
  */
 function toCardinal(value) {
   const { isNegative, integerPart, decimalPart } = parseCardinalValue(value)
-  if (integerPart >= MAX_CARDINAL || (decimalPart && BigInt(decimalPart) >= MAX_CARDINAL)) {
-    throw tooLargeError(MAX_CARDINAL_EXPONENT)
-  }
+  checkMax(integerPart, cardinalMax, decimalPart)
 
   const parts = []
 
@@ -300,7 +302,7 @@ function integerToOrdinal(n) {
  */
 function toOrdinal(value) {
   const integerPart = parseOrdinalValue(value)
-  if (integerPart >= MAX_CARDINAL) throw tooLargeError(MAX_CARDINAL_EXPONENT)
+  checkMax(integerPart, ordinalMax)
   return integerToOrdinal(integerPart)
 }
 
@@ -324,7 +326,7 @@ function toOrdinal(value) {
  */
 function toCurrency(value) {
   const { isNegative, dollars: won } = parseCurrencyValue(value)
-  if (won >= MAX_CARDINAL) throw tooLargeError(MAX_CARDINAL_EXPONENT)
+  checkMax(won, currencyMax)
 
   let result = ''
   if (isNegative) {
