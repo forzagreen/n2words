@@ -12,7 +12,8 @@
 import { parseCardinalValue } from './utils/parse-cardinal.js'
 import { parseCurrencyValue } from './utils/parse-currency.js'
 import { parseOrdinalValue } from './utils/parse-ordinal.js'
-import { tooLargeError } from './utils/too-large-error.js'
+import { checkMax } from './utils/check-max.js'
+import { western } from './utils/scale.js'
 
 // ============================================================================
 // Vocabulary (module-level constants)
@@ -22,18 +23,18 @@ import { tooLargeError } from './utils/too-large-error.js'
 const ONES = ['không', 'một', 'hai', 'ba', 'bốn', 'năm', 'sáu', 'bảy', 'tám', 'chín']
 
 // Scale words indexed by scale level (0 = units, 1 = thousands, etc.)
+// Vietnamese composes large numbers by cycling nghìn/triệu/tỷ and appending
+// another tỷ every three groups. Past tỷ tỷ (10^18) that recursion is rarely
+// used and not firmly fixed, so the table stops there and larger values throw.
 const SCALES = [
-  '', 'nghìn', 'triệu', 'tỷ', 'nghìn tỷ', 'trăm nghìn tỷ',
-  'Quintillion', 'Sextillion', 'Septillion', 'Octillion',
-  'Nonillion', 'Decillion', 'Undecillion', 'Duodecillion',
-  'Tredecillion', 'Quattuordecillion', 'Sexdecillion',
-  'Septendecillion', 'Octodecillion', 'Novemdecillion', 'Vigintillion',
+  '', 'nghìn', 'triệu', 'tỷ', 'nghìn tỷ', 'triệu tỷ', 'tỷ tỷ',
 ]
 
-// 3-digit grouping with SCALES[0] = '' (units); the table reaches
-// 10^(3 * (SCALES.length - 1)), so values from 10^(3 * SCALES.length) up have no scale word.
-const MAX_CARDINAL_EXPONENT = 3 * SCALES.length
-const MAX_CARDINAL = 10n ** BigInt(MAX_CARDINAL_EXPONENT)
+// 3-digit grouping with SCALES[0] = '' (units); the highest scale word is
+// tỷ tỷ at index 6 (10^18), so values from 10^(3 * SCALES.length) up have no scale word.
+export const cardinalMax = western(SCALES.length - 1)
+export const ordinalMax = western(SCALES.length - 1)
+export const currencyMax = western(SCALES.length - 1)
 
 const HUNDRED = 'trăm'
 const ZERO = 'không'
@@ -301,9 +302,7 @@ function toCardinal(value) {
   const { isNegative, integerPart, decimalPart } = parseCardinalValue(value)
   // Both the integer part and the decimal's significant digits are spelled via
   // the scale builder, so both must clear the ceiling.
-  if (integerPart >= MAX_CARDINAL || (decimalPart && BigInt(decimalPart) >= MAX_CARDINAL)) {
-    throw tooLargeError(MAX_CARDINAL_EXPONENT)
-  }
+  checkMax(integerPart, cardinalMax, decimalPart)
 
   let result = ''
 
@@ -356,7 +355,7 @@ function integerToOrdinal(n) {
 function toOrdinal(value) {
   const integerPart = parseOrdinalValue(value)
   // Ordinals are built from the cardinal speller, so they share its ceiling.
-  if (integerPart >= MAX_CARDINAL) throw tooLargeError(MAX_CARDINAL_EXPONENT)
+  checkMax(integerPart, ordinalMax)
   return integerToOrdinal(integerPart)
 }
 
@@ -380,7 +379,7 @@ function toOrdinal(value) {
  */
 function toCurrency(value) {
   const { isNegative, dollars: dong } = parseCurrencyValue(value)
-  if (dong >= MAX_CARDINAL) throw tooLargeError(MAX_CARDINAL_EXPONENT)
+  checkMax(dong, currencyMax)
 
   let result = ''
   if (isNegative) {
