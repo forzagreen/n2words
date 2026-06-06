@@ -343,19 +343,29 @@ function generateMarkdown(codes, forms, mods) {
     const anchor = optionAnchors.get(code)
     const mod = mods.get(code)
 
-    // Each form column shows that form's ceiling — the largest value it converts
-    // (`10^N - 1`, matching the RangeError), or `∞` when unbounded. A trailing *
-    // links to the language's options. Every finite *Max is an exact power of ten.
-    const cell = (max, hasOpts) => {
-      let range = '✓' // fallback: form present but no *Max declared (shouldn't happen)
-      if (max === null) range = '∞'
-      else if (max !== undefined) range = `10^${max.toString().length - 1} - 1`
+    // Each form column shows that form's ceiling — the largest value it converts,
+    // or `∞` when unbounded. A trailing * links to the language's options. Mirrors
+    // checkMax: `10^N - 1` only when the ceiling is an exact power of ten, else the
+    // raw `max - 1`. A missing *Max for an exported form is a contract violation,
+    // so fail loudly rather than paper over it with a check mark.
+    const cell = (max, hasOpts, form) => {
+      let range
+      if (max === null) {
+        range = '∞'
+      }
+      else if (typeof max === 'bigint') {
+        const exponent = max.toString().length - 1
+        range = max === 10n ** BigInt(exponent) ? `10^${exponent} - 1` : `${max - 1n}`
+      }
+      else {
+        throw new Error(`${code} exports ${form} but not ${form}Max — every form must declare its ceiling`)
+      }
       return hasOpts ? `${range} [*](#${anchor})` : range
     }
 
-    const cardinalCol = cell(mod.cardinalMax, hasCardinalOptions(code))
-    const ordinalCol = hasOrdinal(code) ? cell(mod.ordinalMax, hasOrdinalOptions(code)) : ''
-    const currencyCol = hasCurrency(code) ? cell(mod.currencyMax, hasCurrencyOptions(code)) : ''
+    const cardinalCol = cell(mod.cardinalMax, hasCardinalOptions(code), 'cardinal')
+    const ordinalCol = hasOrdinal(code) ? cell(mod.ordinalMax, hasOrdinalOptions(code), 'ordinal') : ''
+    const currencyCol = hasCurrency(code) ? cell(mod.currencyMax, hasCurrencyOptions(code), 'currency') : ''
 
     return `|\`${code}\`|${name}|${cardinalCol}|${ordinalCol}|${currencyCol}|`
   })
