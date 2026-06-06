@@ -116,270 +116,270 @@ toCurrency(value, { optionName: value })
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
-|`hundredPairing`|cardinal|`boolean`|—|Use hundred-pairing for 1100-9999 (e.g., "fifteen hundred" instead of "one thousand five hundred")|
-|`and`|cardinal|`boolean`|—|Use "and" after hundreds and before final small numbers (e.g., "one hundred and one" instead of "one hundred one")|
-|`and`|currency|`boolean`|—|Use "and" between dollars and cents (e.g., "one dollar and fifty cents")|
+|`hundredPairing`|cardinal|`boolean`|`false`|Use hundred-pairing for 1100-9999 (e.g., "fifteen hundred" instead of "one thousand five hundred")|
+|`and`|cardinal|`boolean`|`false`|Use "and" after hundreds and before final small numbers (e.g., "one hundred and one" instead of "one hundred one")|
+|`and`|currency|`boolean`|`true`|Use "and" between dollars and cents (e.g., "one dollar and fifty cents")|
 
 ### Arabic (Saudi Arabia) (`ar-SA`)
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
-|`gender`|cardinal|'masculine' \| 'feminine'|—|Grammatical gender|
-|`negativeWord`|cardinal|`string`|—|Custom word for negative numbers|
-|`gender`|ordinal|'masculine' \| 'feminine'|—|Grammatical gender|
+|`gender`|cardinal|'masculine' \| 'feminine'|`masculine`|Grammatical gender|
+|`negativeWord`|cardinal|`string`|`NEGATIVE`|Custom word for negative numbers|
+|`gender`|ordinal|'masculine' \| 'feminine'|`masculine`|Grammatical gender|
 
 ### Australian English (`en-AU`)
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
-|`and`|currency|`boolean`|—|Use "and" between dollars and cents|
+|`and`|currency|`boolean`|`true`|Use "and" between dollars and cents|
 
 ### Biblical Hebrew (Israel) (`hbo-IL`)
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
-|`gender`|cardinal|'masculine' \| 'feminine'|—|Grammatical gender|
-|`andWord`|cardinal|`string`|—|Custom conjunction word|
+|`gender`|cardinal|'masculine' \| 'feminine'|`masculine`|Grammatical gender|
+|`andWord`|cardinal|`string`|`ו`|Custom conjunction word|
 
 ### Brazilian Portuguese (`pt-BR`)
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
-|`and`|currency|`boolean`|—|Include "e" between major and minor units|
+|`and`|currency|`boolean`|`true`|Include "e" between major and minor units|
 |`currency`|currency|`string`|—|Currency code (e.g., 'BRL', 'USD')|
 
 ### British English (`en-GB`)
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
-|`and`|currency|`boolean`|—|Use "and" between pounds and pence (e.g., "one pound and fifty pence")|
+|`and`|currency|`boolean`|`true`|Use "and" between pounds and pence (e.g., "one pound and fifty pence")|
 
 ### Canadian English (`en-CA`)
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
-|`hundredPairing`|cardinal|`boolean`|—|Use hundred-pairing for 1100-9999 (e.g., "fifteen hundred" instead of "one thousand five hundred")|
-|`and`|cardinal|`boolean`|—|Use "and" after hundreds and before final small numbers (default: true, Canadian/British style)|
-|`and`|currency|`boolean`|—|Use "and" between dollars and cents (e.g., "one dollar and fifty cents")|
+|`hundredPairing`|cardinal|`boolean`|`false`|Use hundred-pairing for 1100-9999 (e.g., "fifteen hundred" instead of "one thousand five hundred")|
+|`and`|cardinal|`boolean`|`true`|Use "and" after hundreds and before final small numbers (default: true, Canadian/British style)|
+|`and`|currency|`boolean`|`true`|Use "and" between dollars and cents (e.g., "one dollar and fifty cents")|
 
 ### Chinese (Simplified, China) (`zh-Hans-CN`)
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
-|`formal`|cardinal|`boolean`|—|Use formal/financial numerals|
-|`formal`|ordinal|`boolean`|—|Use formal/financial numerals|
-|`formal`|currency|`boolean`|—|Use formal/financial numerals|
+|`formal`|cardinal|`boolean`|`true`|Use formal/financial numerals|
+|`formal`|ordinal|`boolean`|`true`|Use formal/financial numerals|
+|`formal`|currency|`boolean`|`true`|Use formal/financial numerals|
 
 ### Chinese (Traditional, Taiwan) (`zh-Hant-TW`)
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
-|`formal`|cardinal|`boolean`|—|Use formal/financial numerals|
-|`formal`|ordinal|`boolean`|—|Use formal/financial numerals|
-|`formal`|currency|`boolean`|—|Use formal/financial numerals|
+|`formal`|cardinal|`boolean`|`true`|Use formal/financial numerals|
+|`formal`|ordinal|`boolean`|`true`|Use formal/financial numerals|
+|`formal`|currency|`boolean`|`true`|Use formal/financial numerals|
 
 ### Croatian (Croatia) (`hr-HR`)
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
-|`gender`|cardinal|'masculine' \| 'feminine'|—|Grammatical gender|
+|`gender`|cardinal|'masculine' \| 'feminine'|`masculine`|Grammatical gender|
 
 ### Dutch (Netherlands) (`nl-NL`)
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
-|`accentOne`|cardinal|`boolean`|—|Use "één" instead of "een"|
-|`includeOptionalAnd`|cardinal|`boolean`|—|Include "en" before small numbers|
-|`noHundredPairing`|cardinal|`boolean`|—|Disable hundred pairing (1104→duizend honderdvier)|
-|`and`|currency|`boolean`|—|Include "en" between euros and cents|
+|`accentOne`|cardinal|`boolean`|`true`|Use "één" instead of "een"|
+|`includeOptionalAnd`|cardinal|`boolean`|`false`|Include "en" before small numbers|
+|`noHundredPairing`|cardinal|`boolean`|`false`|Disable hundred pairing (1104→duizend honderdvier)|
+|`and`|currency|`boolean`|`true`|Include "en" between euros and cents|
 
 ### English (Bangladesh) (`en-BD`)
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
-|`and`|currency|`boolean`|—|Use "and" between taka and paise|
+|`and`|currency|`boolean`|`true`|Use "and" between taka and paise|
 
 ### English (Ghana) (`en-GH`)
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
-|`and`|currency|`boolean`|—||
+|`and`|currency|`boolean`|`true`|Use "and" between cedis and pesewas|
 
 ### English (India) (`en-IN`)
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
-|`and`|currency|`boolean`|—|Use "and" between rupees and paise|
+|`and`|currency|`boolean`|`true`|Use "and" between rupees and paise|
 
 ### English (Ireland) (`en-IE`)
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
-|`and`|currency|`boolean`|—|Use "and" between euro and cent (e.g., "one euro and fifty cents")|
+|`and`|currency|`boolean`|`true`|Use "and" between euro and cent (e.g., "one euro and fifty cents")|
 
 ### English (Kenya) (`en-KE`)
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
-|`and`|currency|`boolean`|—||
+|`and`|currency|`boolean`|`true`|Use "and" between shillings and cents|
 
 ### English (Malaysia) (`en-MY`)
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
-|`and`|currency|`boolean`|—||
+|`and`|currency|`boolean`|`true`|Use "and" between ringgit and sen|
 
 ### English (New Zealand) (`en-NZ`)
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
-|`and`|currency|`boolean`|—||
+|`and`|currency|`boolean`|`true`|Use "and" between dollars and cents|
 
 ### English (Nigeria) (`en-NG`)
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
-|`and`|currency|`boolean`|—|Use "and" between naira and kobo (e.g., "one naira and fifty kobo")|
+|`and`|currency|`boolean`|`true`|Use "and" between naira and kobo (e.g., "one naira and fifty kobo")|
 
 ### English (Pakistan) (`en-PK`)
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
-|`and`|currency|`boolean`|—|Use "and" between rupees and paise|
+|`and`|currency|`boolean`|`true`|Use "and" between rupees and paise|
 
 ### English (Philippines) (`en-PH`)
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
-|`and`|currency|`boolean`|—||
+|`and`|currency|`boolean`|`true`|Use "and" between pesos and centavos|
 
 ### English (Singapore) (`en-SG`)
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
-|`and`|currency|`boolean`|—||
+|`and`|currency|`boolean`|`true`|Use "and" between dollars and cents|
 
 ### English (South Africa) (`en-ZA`)
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
-|`and`|currency|`boolean`|—|Use "and" between rand and cents (e.g., "one rand and fifty cents")|
+|`and`|currency|`boolean`|`true`|Use "and" between rand and cents (e.g., "one rand and fifty cents")|
 
 ### European Portuguese (`pt-PT`)
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
-|`and`|currency|`boolean`|—|Include "e" between euros and cents|
+|`and`|currency|`boolean`|`true`|Include "e" between euros and cents|
 
 ### European Spanish (`es-ES`)
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
-|`gender`|cardinal|'masculine' \| 'feminine'|—|Grammatical gender|
-|`gender`|ordinal|'masculine' \| 'feminine'|—|Grammatical gender|
-|`and`|currency|`boolean`|—|Use "con" between euros and cents|
+|`gender`|cardinal|'masculine' \| 'feminine'|`masculine`|Grammatical gender|
+|`gender`|ordinal|'masculine' \| 'feminine'|`masculine`|Grammatical gender|
+|`and`|currency|`boolean`|`true`|Use "con" between euros and cents|
 
 ### French (Belgium) (`fr-BE`)
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
-|`withHyphenSeparator`|cardinal|`boolean`|—|Use hyphens between words|
-|`and`|currency|`boolean`|—|Use "et" between euros and centimes|
+|`withHyphenSeparator`|cardinal|`boolean`|`false`|Use hyphens between words|
+|`and`|currency|`boolean`|`true`|Use "et" between euros and centimes|
 
 ### French (France) (`fr-FR`)
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
-|`withHyphenSeparator`|cardinal|`boolean`|—|Use hyphens between all words|
-|`and`|currency|`boolean`|—|Use "et" between euros and centimes|
+|`withHyphenSeparator`|cardinal|`boolean`|`false`|Use hyphens between all words|
+|`and`|currency|`boolean`|`true`|Use "et" between euros and centimes|
 
 ### German (Germany) (`de-DE`)
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
-|`and`|currency|`boolean`|—|Use "und" between euros and cents|
+|`and`|currency|`boolean`|`true`|Use "und" between euros and cents|
 
 ### Hebrew (Israel) (`he-IL`)
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
-|`andWord`|cardinal|`string`|—|Custom conjunction word|
+|`andWord`|cardinal|`string`|`ו`|Custom conjunction word|
 
 ### Italian (Italy) (`it-IT`)
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
-|`and`|currency|`boolean`|—|Use "e" between euros and centesimi|
+|`and`|currency|`boolean`|`true`|Use "e" between euros and centesimi|
 
 ### Latvian (Latvia) (`lv-LV`)
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
-|`gender`|cardinal|`string`|—|Gender for numbers < 1000|
+|`gender`|cardinal|`string`|`masculine`|Gender for numbers < 1000|
 
 ### Lithuanian (Lithuania) (`lt-LT`)
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
-|`gender`|cardinal|`string`|—|Gender for numbers < 1000|
+|`gender`|cardinal|`string`|`masculine`|Gender for numbers < 1000|
 
 ### Mexican Spanish (`es-MX`)
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
-|`gender`|cardinal|'masculine' \| 'feminine'|—|Grammatical gender|
-|`gender`|ordinal|'masculine' \| 'feminine'|—|Grammatical gender|
-|`and`|currency|`boolean`|—|Use "con" between pesos and centavos|
+|`gender`|cardinal|'masculine' \| 'feminine'|`masculine`|Grammatical gender|
+|`gender`|ordinal|'masculine' \| 'feminine'|`masculine`|Grammatical gender|
+|`and`|currency|`boolean`|`true`|Use "con" between pesos and centavos|
 
 ### Polish (Poland) (`pl-PL`)
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
-|`gender`|cardinal|`string`|—|Gender for numbers < 1000|
+|`gender`|cardinal|`string`|`masculine`|Gender for numbers < 1000|
 
 ### Romanian (Romania) (`ro-RO`)
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
-|`gender`|cardinal|`string`|—|Gender for numbers|
+|`gender`|cardinal|`string`|`masculine`|Gender for numbers|
 
 ### Russian (Russia) (`ru-RU`)
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
-|`gender`|cardinal|'masculine' \| 'feminine'|—|Grammatical gender|
-|`and`|currency|`boolean`|—|Use "и" between rubles and kopecks|
+|`gender`|cardinal|'masculine' \| 'feminine'|`masculine`|Grammatical gender|
+|`and`|currency|`boolean`|`true`|Use "и" between rubles and kopecks|
 
 ### Serbian (Cyrillic, Serbia) (`sr-Cyrl-RS`)
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
-|`gender`|cardinal|'masculine' \| 'feminine'|—|Grammatical gender|
-|`and`|currency|`boolean`|—|Use "и" between dinars and para|
+|`gender`|cardinal|'masculine' \| 'feminine'|`masculine`|Grammatical gender|
+|`and`|currency|`boolean`|`true`|Use "и" between dinars and para|
 
 ### Serbian (Latin, Serbia) (`sr-Latn-RS`)
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
-|`gender`|cardinal|'masculine' \| 'feminine'|—|Grammatical gender|
-|`and`|currency|`boolean`|—|Use "i" between dinars and para|
+|`gender`|cardinal|'masculine' \| 'feminine'|`masculine`|Grammatical gender|
+|`and`|currency|`boolean`|`true`|Use "i" between dinars and para|
 
 ### Spanish (United States) (`es-US`)
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
-|`gender`|cardinal|'masculine' \| 'feminine'|—|Grammatical gender|
-|`gender`|ordinal|'masculine' \| 'feminine'|—|Grammatical gender|
-|`and`|currency|`boolean`|—|Use "con" between dollars and cents|
+|`gender`|cardinal|'masculine' \| 'feminine'|`masculine`|Grammatical gender|
+|`gender`|ordinal|'masculine' \| 'feminine'|`masculine`|Grammatical gender|
+|`and`|currency|`boolean`|`true`|Use "con" between dollars and cents|
 
 ### Turkish (Türkiye) (`tr-TR`)
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
-|`dropSpaces`|cardinal|`boolean`|—|Remove spaces for compound form|
+|`dropSpaces`|cardinal|`boolean`|`false`|Remove spaces for compound form|
 
 ### Ukrainian (Ukraine) (`uk-UA`)
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
-|`gender`|cardinal|'masculine' \| 'feminine'|—|Grammatical gender|
+|`gender`|cardinal|'masculine' \| 'feminine'|`masculine`|Grammatical gender|

@@ -376,7 +376,8 @@ function toOrdinal(value) {
 /**
  * Converts a numeric value to Philippine English currency words.
  * @param {number | string | bigint} value - The numeric value to convert
- * @param {{and?: boolean}} [options] - Optional configuration
+ * @param {object} [options] - Optional configuration
+ * @param {boolean} [options.and] - Use "and" between pesos and centavos
  * @returns {string} The amount in Philippine English currency words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {Error} If value is not a valid number format

@@ -374,7 +374,8 @@ function toOrdinal(value) {
 /**
  * Converts a numeric value to Kenyan English currency words.
  * @param {number | string | bigint} value - The numeric value to convert
- * @param {{and?: boolean}} [options] - Currency formatting options
+ * @param {object} [options] - Optional configuration
+ * @param {boolean} [options.and] - Use "and" between shillings and cents
  * @returns {string} The currency in English words
  */
 function toCurrency(value, options) {

@@ -120,6 +120,36 @@ function extractDefault(prop, name) {
 }
 
 /**
+ * Read each option's default from the form's `const { x = default } = options`
+ * destructuring. Defaults live in code, not JSDoc, so this is the single source
+ * of truth; renamed bindings (`{ and: useAnd = true }`) key off the property
+ * name, and string-literal defaults are unquoted for display.
+ *
+ * @param {import('typescript').FunctionDeclaration} fnNode Form function node
+ * @returns {Map<string, string>} Option key -> default value text
+ */
+function extractDestructureDefaults(fnNode) {
+  const defaults = new Map()
+  const visit = (node) => {
+    if (
+      ts.isVariableDeclaration(node)
+      && node.initializer && ts.isIdentifier(node.initializer) && node.initializer.text === 'options'
+      && node.name && ts.isObjectBindingPattern(node.name)
+    ) {
+      for (const el of node.name.elements) {
+        if (!el.initializer) continue // this property has no default
+        const key = el.propertyName ?? el.name // `and: useAnd` keys off `and`; `gender` off itself
+        const keyText = ts.isIdentifier(key) ? key.text : key.getText()
+        defaults.set(keyText, ts.isStringLiteral(el.initializer) ? el.initializer.text : el.initializer.getText())
+      }
+    }
+    ts.forEachChild(node, visit)
+  }
+  visit(fnNode)
+  return defaults
+}
+
+/**
  * Build code -> (functionName -> OptionInfo[]) by type-checking the language
  * sources once. Option names, types, and descriptions come straight from the
  * checker (the same view TypeScript exposes to consumers), so the docs can't
@@ -165,6 +195,7 @@ function buildOptionsIndex(codes) {
         type = type.types.find(t => !(t.flags & ts.TypeFlags.Undefined)) ?? type
       }
 
+      const destructureDefaults = extractDestructureDefaults(node)
       const options = (type.getProperties?.() ?? []).map((prop) => {
         const name = prop.getName()
         const description = ts
@@ -175,7 +206,7 @@ function buildOptionsIndex(codes) {
         return {
           name,
           type: toDocType(checker, checker.getTypeOfSymbolAtLocation(prop, optionsParam)),
-          defaultValue: extractDefault(prop, name),
+          defaultValue: destructureDefaults.get(name) ?? extractDefault(prop, name),
           description,
           form: FORM_FUNCTIONS[fnName],
         }

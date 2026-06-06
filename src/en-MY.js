@@ -373,7 +373,8 @@ function toOrdinal(value) {
 
 /**
  * @param {number | string | bigint} value The numeric value to convert.
- * @param {{and?: boolean}} [options] Formatting options, such as whether to join ringgit and sen with "and".
+ * @param {object} [options] - Optional configuration
+ * @param {boolean} [options.and] - Use "and" between ringgit and sen
  * @returns {string} The amount in Malaysian ringgit and sen in English words.
  */
 function toCurrency(value, options) {
