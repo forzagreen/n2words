@@ -20,7 +20,8 @@
 import { parseCardinalValue } from './utils/parse-cardinal.js'
 import { parseCurrencyValue } from './utils/parse-currency.js'
 import { parseOrdinalValue } from './utils/parse-ordinal.js'
-import { tooLargeError } from './utils/too-large-error.js'
+import { checkMax } from './utils/check-max.js'
+import { bounded, longScale } from './utils/scale.js'
 import { validateOptions } from './utils/validate-options.js'
 
 // ============================================================================
@@ -51,10 +52,9 @@ const SCALES_PLURAL = ['millones', 'billones', 'trillones', 'cuatrillones']
 // that's 2 * SCALES.length + 2 groups of 3 digits, so cardinals must stay below
 // 10^30. Ordinals are bounded lower: the millions multiplier uses
 // buildOrdinalSegment (0-999), so n must stay below 10^9.
-const MAX_CARDINAL_EXPONENT = (2 * SCALES.length + 2) * 3
-const MAX_CARDINAL = 10n ** BigInt(MAX_CARDINAL_EXPONENT)
-const MAX_ORDINAL_EXPONENT = 9
-const MAX_ORDINAL = 10n ** BigInt(MAX_ORDINAL_EXPONENT)
+export const cardinalMax = longScale(SCALES.length)
+export const ordinalMax = bounded(9)
+export const currencyMax = longScale(SCALES.length)
 
 const THOUSAND = 'mil'
 
@@ -233,7 +233,7 @@ function integerToWords(n, feminine) {
 function buildLargeNumberWords(n, feminine) {
   // Extract segments using BigInt division (faster than string slicing)
   // Segments stored least-significant first (index 0 = ones, 1 = thousands, etc.)
-  // Callers guard the magnitude (MAX_CARDINAL) before reaching here.
+  // Callers guard the magnitude (cardinalMax) before reaching here.
   const segmentValues = []
   let temp = n
   while (temp > 0n) {
@@ -336,9 +336,7 @@ function toCardinal(value, options) {
   const { isNegative, integerPart, decimalPart } = parseCardinalValue(value)
   // Both the integer part and the decimal's significant digits are spelled via
   // the scale builder, so both must clear the ceiling.
-  if (integerPart >= MAX_CARDINAL || (decimalPart && BigInt(decimalPart) >= MAX_CARDINAL)) {
-    throw tooLargeError(MAX_CARDINAL_EXPONENT)
-  }
+  checkMax(integerPart, cardinalMax, decimalPart)
 
   // Apply option defaults
   const { gender = 'masculine' } = options
@@ -478,7 +476,7 @@ function integerToOrdinal(n, feminine) {
 function toOrdinal(value, options) {
   options = validateOptions(options)
   const integerPart = parseOrdinalValue(value)
-  if (integerPart >= MAX_ORDINAL) throw tooLargeError(MAX_ORDINAL_EXPONENT)
+  checkMax(integerPart, ordinalMax)
 
   const { gender = 'masculine' } = options
   const feminine = gender === 'feminine'
@@ -510,7 +508,7 @@ function toOrdinal(value, options) {
 function toCurrency(value, options) {
   options = validateOptions(options)
   const { isNegative, dollars: pesos, cents: centavos } = parseCurrencyValue(value)
-  if (pesos >= MAX_CARDINAL) throw tooLargeError(MAX_CARDINAL_EXPONENT)
+  checkMax(pesos, currencyMax)
   const { and: useAnd = true } = options
 
   let result = ''
