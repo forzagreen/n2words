@@ -13,7 +13,8 @@
 import { parseCardinalValue } from './utils/parse-cardinal.js'
 import { parseCurrencyValue } from './utils/parse-currency.js'
 import { parseOrdinalValue } from './utils/parse-ordinal.js'
-import { tooLargeError } from './utils/too-large-error.js'
+import { checkMax } from './utils/check-max.js'
+import { western } from './utils/scale.js'
 import { validateOptions } from './utils/validate-options.js'
 
 // ============================================================================
@@ -261,10 +262,9 @@ function decimalPartToWords(decimalPart, gender) {
 // Supported magnitude ceilings (checked at the public entry points). Both
 // tables are indexed [scaleIndex - 1] (units separate), so the ceiling is
 // 10^((length + 1) * 3): cardinal/currency 10^30, ordinal 10^15.
-const MAX_CARDINAL_EXPONENT = (SCALE_FORMS.length + 1) * 3
-const MAX_CARDINAL = 10n ** BigInt(MAX_CARDINAL_EXPONENT)
-const MAX_ORDINAL_EXPONENT = (ORDINAL_SCALES.length + 1) * 3
-const MAX_ORDINAL = 10n ** BigInt(MAX_ORDINAL_EXPONENT)
+export const cardinalMax = western(SCALE_FORMS.length)
+export const ordinalMax = western(ORDINAL_SCALES.length)
+export const currencyMax = western(SCALE_FORMS.length)
 
 /**
  * Converts a numeric value to Ukrainian words.
@@ -278,9 +278,7 @@ function toCardinal(value, options) {
   const { isNegative, integerPart, decimalPart } = parseCardinalValue(value)
   // Both the integer part and the decimal's significant digits are spelled via
   // the scale builder, so both must clear the ceiling.
-  if (integerPart >= MAX_CARDINAL || (decimalPart && BigInt(decimalPart) >= MAX_CARDINAL)) {
-    throw tooLargeError(MAX_CARDINAL_EXPONENT)
-  }
+  checkMax(integerPart, cardinalMax, decimalPart)
 
   // Apply option defaults
   const { gender = 'masculine' } = options
@@ -458,7 +456,7 @@ function buildLargeOrdinal(n) {
  */
 function toOrdinal(value) {
   const integerPart = parseOrdinalValue(value)
-  if (integerPart >= MAX_ORDINAL) throw tooLargeError(MAX_ORDINAL_EXPONENT)
+  checkMax(integerPart, ordinalMax)
   return integerToOrdinal(integerPart)
 }
 
@@ -480,7 +478,7 @@ function toOrdinal(value) {
  */
 function toCurrency(value) {
   const { isNegative, dollars: hryvnia, cents: kopiyky } = parseCurrencyValue(value)
-  if (hryvnia >= MAX_CARDINAL) throw tooLargeError(MAX_CARDINAL_EXPONENT)
+  checkMax(hryvnia, currencyMax)
 
   let result = ''
   if (isNegative) {
