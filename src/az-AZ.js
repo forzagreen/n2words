@@ -12,9 +12,8 @@
 import { parseCardinalValue } from './utils/parse-cardinal.js'
 import { parseCurrencyValue } from './utils/parse-currency.js'
 import { parseOrdinalValue } from './utils/parse-ordinal.js'
-import { exceedsMax } from './utils/exceeds-max.js'
+import { checkMax } from './utils/check-max.js'
 import { western } from './utils/scale.js'
-import { tooLargeError } from './utils/too-large-error.js'
 
 // ============================================================================
 // Vocabulary
@@ -214,7 +213,7 @@ function toCardinal(value) {
   const { isNegative, integerPart, decimalPart } = parseCardinalValue(value)
   // Both the integer part and the decimal's significant digits are spelled via
   // the scale builder, so both must clear the ceiling.
-  if (exceedsMax(integerPart, cardinalMax, decimalPart)) throw tooLargeError(cardinalMax)
+  checkMax(integerPart, cardinalMax, decimalPart)
 
   let result = ''
 
@@ -298,7 +297,7 @@ function toOrdinal(value) {
   // Ordinal builds on the cardinal (integerToWords + suffix), so it shares the
   // ceiling — past it the cardinal's trailing-space artifact would be hidden by
   // the space-stripping and emit a silently-wrong ordinal.
-  if (exceedsMax(integerPart, ordinalMax)) throw tooLargeError(ordinalMax)
+  checkMax(integerPart, ordinalMax)
   return integerToOrdinal(integerPart)
 }
 
@@ -321,7 +320,7 @@ function toOrdinal(value) {
  */
 function toCurrency(value) {
   const { isNegative, dollars: manat, cents: qepik } = parseCurrencyValue(value)
-  if (exceedsMax(manat, currencyMax)) throw tooLargeError(currencyMax)
+  checkMax(manat, currencyMax)
 
   let result = ''
   if (isNegative) {

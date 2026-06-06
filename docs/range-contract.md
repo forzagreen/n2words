@@ -42,24 +42,27 @@ ceiling tracks the vocabulary and can't drift:
 A language whose shape fits none of them declares a literal bigint or `bounded(e)`.
 The helpers are pure — none of them throws.
 
-## The guard: one line per form
+## The guard: one call per form
 
 ```js
-if (exceedsMax(integerPart, cardinalMax, decimalPart)) throw tooLargeError(cardinalMax)
-if (exceedsMax(integerPart, ordinalMax))               throw tooLargeError(ordinalMax)
-if (exceedsMax(dollars,     currencyMax))              throw tooLargeError(currencyMax)
+checkMax(integerPart, cardinalMax, decimalPart)
+checkMax(integerPart, ordinalMax)
+checkMax(dollars,     currencyMax)
 ```
 
-`exceedsMax(value, max, fraction?)` (`src/utils/exceeds-max.js`) is a pure boolean compare (the language throws):
+`checkMax(value, max, fraction?)` (`src/utils/check-max.js`) is a throwing
+precondition validator — the same family as `parseCardinalValue` /
+`validateOptions`: the language calls it and it throws on a value past the
+ceiling, owning the `RangeError` itself.
 
-- a `max` of `null` (unbounded) is never exceeded;
+- a `max` of `null` (unbounded) never throws;
 - pass `fraction` (the decimal digit string) **only** when the fraction is spelled
   via the scale builder (integer-spelled). Digit-by-digit forms and ordinal /
   currency omit it, so long fractions stay valid.
 
 It runs at the entry point — an O(1) short-circuit before any building — and
-allocates nothing. `tooLargeError(max)` renders `10^N - 1` when the ceiling is an
-exact power of ten, otherwise the raw maximum.
+allocates nothing on the in-range path. The message renders `10^N - 1` when the
+ceiling is an exact power of ten, otherwise the raw maximum.
 
 ## The gate: behavioural, in CI (`test/range-contract.test.js`)
 
@@ -79,7 +82,7 @@ property the injectivity sweep enforces, not a structural assertion.
 
 1. Export `cardinalMax` / `ordinalMax` / `currencyMax` — a helper, `bounded(e)`, or
    `UNBOUNDED`.
-2. Guard each form with `if (exceedsMax(value, max, fraction?)) throw tooLargeError(max)`.
+2. Guard each form with `checkMax(value, max, fraction?)`.
 3. Run `npm test` — the gate picks the language up automatically.
 
 ## Why this shape
