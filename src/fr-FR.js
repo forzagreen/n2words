@@ -14,7 +14,8 @@
 import { parseCardinalValue } from './utils/parse-cardinal.js'
 import { parseCurrencyValue } from './utils/parse-currency.js'
 import { parseOrdinalValue } from './utils/parse-ordinal.js'
-import { tooLargeError } from './utils/too-large-error.js'
+import { checkMax } from './utils/check-max.js'
+import { longScale } from './utils/scale.js'
 import { validateOptions } from './utils/validate-options.js'
 
 // ============================================================================
@@ -34,8 +35,9 @@ const SCALES_ARD = ['milliard', 'billiard', 'trilliard', 'quadrilliard']
 // so with the units group that's 2 * SCALES.length + 2 groups of 3 digits.
 // Cardinals must stay below 10^30; ordinals and currency build on the cardinal,
 // so they share the same ceiling.
-const MAX_CARDINAL_EXPONENT = (2 * SCALES.length + 2) * 3
-const MAX_CARDINAL = 10n ** BigInt(MAX_CARDINAL_EXPONENT)
+export const cardinalMax = longScale(SCALES.length)
+export const ordinalMax = longScale(SCALES.length)
+export const currencyMax = longScale(SCALES.length)
 
 const THOUSAND = 'mille'
 const HUNDRED = 'cent'
@@ -378,9 +380,7 @@ function toCardinal(value, options) {
   const { isNegative, integerPart, decimalPart } = parseCardinalValue(value)
   // Both the integer part and the decimal's significant digits are spelled via
   // the scale builder, so both must clear the ceiling.
-  if (integerPart >= MAX_CARDINAL || (decimalPart && BigInt(decimalPart) >= MAX_CARDINAL)) {
-    throw tooLargeError(MAX_CARDINAL_EXPONENT)
-  }
+  checkMax(integerPart, cardinalMax, decimalPart)
 
   // Apply option defaults
   const { withHyphenSeparator = false } = options
@@ -488,7 +488,7 @@ function integerToOrdinal(n) {
  */
 function toOrdinal(value) {
   const integerPart = parseOrdinalValue(value)
-  if (integerPart >= MAX_CARDINAL) throw tooLargeError(MAX_CARDINAL_EXPONENT)
+  checkMax(integerPart, ordinalMax)
   return integerToOrdinal(integerPart)
 }
 
@@ -514,7 +514,7 @@ function toOrdinal(value) {
 function toCurrency(value, options) {
   options = validateOptions(options)
   const { isNegative, dollars: euros, cents: centimes } = parseCurrencyValue(value)
-  if (euros >= MAX_CARDINAL) throw tooLargeError(MAX_CARDINAL_EXPONENT)
+  checkMax(euros, currencyMax)
   const { and: useAnd = true } = options
 
   // Build result
