@@ -20,9 +20,13 @@ export function resolveOptions(options, defaults) {
   if (!isPlainObject(options)) {
     throw new TypeError(`Invalid options: expected plain object or undefined, got ${typeof options}`)
   }
+  const allowed = Object.keys(defaults)
   for (const [key, value] of Object.entries(options)) {
-    if (!(key in resolved)) {
-      throw new RangeError(`Unknown option "${key}" — expected one of: ${Object.keys(resolved).join(', ')}`)
+    // Own-property check: inherited keys (__proto__, constructor, …) are not
+    // options. Using `key in defaults` here would let them past the guard and
+    // into `resolved[key] = value` — a prototype-pollution vector.
+    if (!Object.hasOwn(defaults, key)) {
+      throw new RangeError(`Unknown option "${key}" — expected one of: ${allowed.join(', ')}`)
     }
     if (typeof value !== typeof resolved[key]) {
       throw new TypeError(`Option "${key}" must be a ${typeof resolved[key]}, got ${typeof value}`)

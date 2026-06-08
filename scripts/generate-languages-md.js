@@ -183,7 +183,7 @@ function buildOptionsIndex(codes, mods) {
         return {
           name,
           type: toDocType(checker, checker.getTypeOfSymbolAtLocation(prop, optionsParam)),
-          defaultValue: formDefaults && name in formDefaults ? String(formDefaults[name]) : extractDefault(prop, name),
+          defaultValue: formDefaults && Object.hasOwn(formDefaults, name) ? String(formDefaults[name]) : extractDefault(prop, name),
           description,
           form: FORM_FUNCTIONS[fnName],
         }

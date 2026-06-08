@@ -54,6 +54,23 @@ for (const { code, mod, declared } of languages) {
         { instanceOf: RangeError },
         `${code} ${form}: must reject unknown options`,
       )
+
+      // A wrong-typed value is rejected too (not coerced or silently kept).
+      const [firstKey, firstDefault] = Object.entries(defaults)[0]
+      const wrongTyped = typeof firstDefault === 'string' ? 0 : 'wrong-type'
+      t.throws(
+        () => fn(sample, { [firstKey]: wrongTyped }),
+        { instanceOf: TypeError },
+        `${code} ${form}: must reject a wrong-typed "${firstKey}"`,
+      )
+
+      // Inherited keys must not bypass the guard (prototype-pollution defence).
+      t.throws(
+        () => fn(sample, JSON.parse('{ "__proto__": { "polluted": true } }')),
+        { instanceOf: RangeError },
+        `${code} ${form}: must reject inherited keys like __proto__`,
+      )
+      t.falsy(/** @type {Record<string, unknown>} */ ({}).polluted, 'prototype must not be polluted')
     }
   })
 }
