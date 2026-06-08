@@ -126,9 +126,10 @@ function extractDefault(prop, name) {
  * drift from comment formatting the way the old regex scrape could.
  *
  * @param {string[]} codes Language codes
+ * @param {Map<string, object>} mods Code -> module namespace (for `<form>Defaults` exports)
  * @returns {Map<string, Map<string, OptionInfo[]>>}
  */
-function buildOptionsIndex(codes) {
+function buildOptionsIndex(codes, mods) {
   const program = ts.createProgram(
     codes.map(code => `./src/${code}.js`),
     {
@@ -165,6 +166,13 @@ function buildOptionsIndex(codes) {
         type = type.types.find(t => !(t.flags & ts.TypeFlags.Undefined)) ?? type
       }
 
+      // Defaults come from the form's exported `<form>Defaults` map (the single
+      // source of truth) — imported, not scraped. Falls back to the legacy JSDoc
+      // `[name=default]` tag for languages not yet on the options contract.
+      const formDefaults = /** @type {Record<string, unknown> | undefined} */ (
+        mods.get(code)?.[`${FORM_FUNCTIONS[fnName]}Defaults`]
+      )
+
       const options = (type.getProperties?.() ?? []).map((prop) => {
         const name = prop.getName()
         const description = ts
@@ -175,7 +183,7 @@ function buildOptionsIndex(codes) {
         return {
           name,
           type: toDocType(checker, checker.getTypeOfSymbolAtLocation(prop, optionsParam)),
-          defaultValue: extractDefault(prop, name),
+          defaultValue: formDefaults && name in formDefaults ? String(formDefaults[name]) : extractDefault(prop, name),
           description,
           form: FORM_FUNCTIONS[fnName],
         }
@@ -423,7 +431,10 @@ async function main() {
   const forms = new Map(
     await Promise.all(codes.map(async code => [code, await getExportedForms(code)])),
   )
-  optionsIndex = buildOptionsIndex(codes)
+  const mods = new Map(
+    await Promise.all(codes.map(async code => [code, await import(`../src/${code}.js`)])),
+  )
+  optionsIndex = buildOptionsIndex(codes, mods)
   const markdown = generateMarkdown(codes, forms)
 
   writeFileSync('./LANGUAGES.md', markdown)

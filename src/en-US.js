@@ -22,7 +22,7 @@ import { parseCurrencyValue } from './utils/parse-currency.js'
 import { parseOrdinalValue } from './utils/parse-ordinal.js'
 import { checkMax } from './utils/check-max.js'
 import { western } from './utils/scale.js'
-import { validateOptions } from './utils/validate-options.js'
+import { resolveOptions } from './utils/resolve-options.js'
 
 // ============================================================================
 // VOCABULARY
@@ -270,14 +270,21 @@ function decimalPartToWords(decimalPart, useAnd) {
 }
 
 /**
+ * @typedef {object} CardinalOptions
+ * @property {boolean} [hundredPairing] - Use hundred-pairing for 1100-9999 (e.g., "fifteen hundred" instead of "one thousand five hundred")
+ * @property {boolean} [and] - Use "and" after hundreds and before final small numbers (e.g., "one hundred and one" instead of "one hundred one")
+ */
+
+/** @type {Required<CardinalOptions>} */
+export const cardinalDefaults = { hundredPairing: false, and: false }
+
+/**
  * Converts a numeric value to American English words.
  *
  * This is the main public API. It accepts any valid numeric input
  * (number, string, or bigint) and handles parsing internally.
  * @param {number | string | bigint} value - The numeric value to convert
- * @param {object} [options] - Optional configuration
- * @param {boolean} [options.hundredPairing] - Use hundred-pairing for 1100-9999 (e.g., "fifteen hundred" instead of "one thousand five hundred")
- * @param {boolean} [options.and] - Use "and" after hundreds and before final small numbers (e.g., "one hundred and one" instead of "one hundred one")
+ * @param {CardinalOptions} [options] - Optional configuration
  * @returns {string} The number in American English words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {Error} If value is not a valid number format
@@ -289,14 +296,12 @@ function decimalPartToWords(decimalPart, useAnd) {
  * toCardinal(1500, { hundredPairing: true }) // 'fifteen hundred'
  */
 function toCardinal(value, options) {
-  options = validateOptions(options)
   const { isNegative, integerPart, decimalPart } = parseCardinalValue(value)
   // Both the integer part and the decimal's significant digits are spelled via
   // the scale builder, so both must clear the ceiling.
   checkMax(integerPart, cardinalMax, decimalPart)
 
-  // Extract options with defaults
-  const { hundredPairing = false, and: useAnd = false } = options
+  const { hundredPairing, and: useAnd } = resolveOptions(options, cardinalDefaults)
 
   let result = ''
 
@@ -480,10 +485,17 @@ function toOrdinal(value) {
 // ============================================================================
 
 /**
+ * @typedef {object} CurrencyOptions
+ * @property {boolean} [and] - Use "and" between dollars and cents (e.g., "one dollar and fifty cents")
+ */
+
+/** @type {Required<CurrencyOptions>} */
+export const currencyDefaults = { and: true }
+
+/**
  * Converts a numeric value to American English currency words.
  * @param {number | string | bigint} value - The currency amount to convert
- * @param {object} [options] - Optional configuration
- * @param {boolean} [options.and] - Use "and" between dollars and cents (e.g., "one dollar and fifty cents")
+ * @param {CurrencyOptions} [options] - Optional configuration
  * @returns {string} The amount in American English currency words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {Error} If value is not a valid number format
@@ -494,10 +506,9 @@ function toOrdinal(value) {
  * toCurrency(42.50, { and: false })    // 'forty-two dollars fifty cents'
  */
 function toCurrency(value, options) {
-  options = validateOptions(options)
   const { isNegative, dollars, cents } = parseCurrencyValue(value)
   checkMax(dollars, currencyMax)
-  const { and: useAnd = true } = options
+  const { and: useAnd } = resolveOptions(options, currencyDefaults)
 
   // Build result
   let result = ''
