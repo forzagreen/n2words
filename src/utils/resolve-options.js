@@ -24,9 +24,11 @@ export function resolveOptions(options, defaults) {
   for (const [key, value] of Object.entries(options)) {
     // Own-property check: inherited keys (__proto__, constructor, …) are not
     // options. Using `key in defaults` here would let them past the guard and
-    // into `resolved[key] = value` — a prototype-pollution vector.
+    // into `resolved[key] = value` — a prototype-pollution vector. An unknown
+    // key is a malformed-argument (shape) error, hence TypeError — RangeError is
+    // reserved for a value outside an allowed range/set (see checkMax).
     if (!Object.hasOwn(defaults, key)) {
-      throw new RangeError(`Unknown option "${key}" — expected one of: ${allowed.join(', ')}`)
+      throw new TypeError(`Unknown option "${key}" — expected one of: ${allowed.join(', ')}`)
     }
     if (typeof value !== typeof resolved[key]) {
       throw new TypeError(`Option "${key}" must be a ${typeof resolved[key]}, got ${typeof value}`)

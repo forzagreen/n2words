@@ -15,7 +15,9 @@ import { isPlainObject } from '../src/utils/is-plain-object.js'
  * - the form accepts `(value, options)`;
  * - calling with the explicit defaults reproduces the no-options output, so the
  *   declared defaults really are the defaults;
- * - an undeclared option throws `RangeError` — a typo fails loudly, not silently.
+ * - a malformed options argument throws `TypeError` — an unknown key, a
+ *   wrong-typed value, or an inherited key all fail loudly, not silently.
+ *   (`RangeError` is reserved for a value out of range, e.g. checkMax.)
  *
  * Auto-covers any form that exports `<form>Defaults`.
  */
@@ -51,7 +53,7 @@ for (const { code, mod, declared } of languages) {
       // An undeclared option fails loudly rather than being silently ignored.
       t.throws(
         () => fn(sample, { __unknown_option__: true }),
-        { instanceOf: RangeError },
+        { instanceOf: TypeError },
         `${code} ${form}: must reject unknown options`,
       )
 
@@ -67,7 +69,7 @@ for (const { code, mod, declared } of languages) {
       // Inherited keys must not bypass the guard (prototype-pollution defence).
       t.throws(
         () => fn(sample, JSON.parse('{ "__proto__": { "polluted": true } }')),
-        { instanceOf: RangeError },
+        { instanceOf: TypeError },
         `${code} ${form}: must reject inherited keys like __proto__`,
       )
       t.falsy(/** @type {Record<string, unknown>} */ ({}).polluted, 'prototype must not be polluted')
