@@ -88,17 +88,23 @@ import { validateOptions } from './utils/validate-options.js'
 
 /**
  * @param {number | string | bigint} value
- * @param {Object} [options]
- * @param {('masculine'|'feminine')} [options.gender='masculine']
+ * @param {object} [options]
+ * @param {('masculine'|'feminine')} [options.gender] - Grammatical gender of the number
  * @returns {string}
  */
 function toCardinal (value, options) {
   options = validateOptions(options)
   const { isNegative, integerPart, decimalPart } = parseCardinalValue(value)
-  const { gender = 'masculine' } = options
+  const { gender = 'masculine' } = options // default lives here — the single source of truth
   // Pass explicit values to internal functions, not options object
 }
 ```
+
+Document each option with an **explicit** `@param {type} [options.name] - description` —
+never an inline `@param {{name?: type}} [options]`, which has nowhere for the
+description. Put the **default in the destructuring** (`{ gender = 'masculine' }`),
+not in the `@param` tag: it's the single source of truth, and the `LANGUAGES.md`
+generator reads it from there (`@param {object}` lowercase, so it doesn't trip lint).
 
 ## Adding a Language
 

@@ -10,78 +10,80 @@ Language codes follow [IETF BCP 47](https://tools.ietf.org/html/bcp47) standards
 
 |Code|Language|Cardinal|Ordinal|Currency|
 |----|--------|:------:|:-----:|:------:|
-|`am-ET`|Amharic (Ethiopia)|✓|✓|✓|
-|`am-Latn-ET`|Amharic (Latin, Ethiopia)|✓|✓|✓|
-|`ar-SA`|Arabic (Saudi Arabia)|[✓*](#arabic-saudi-arabia-ar-sa)|[✓*](#arabic-saudi-arabia-ar-sa)|✓|
-|`az-AZ`|Azerbaijani (Azerbaijan)|✓|✓|✓|
-|`bn-BD`|Bangla (Bangladesh)|✓|✓|✓|
-|`cs-CZ`|Czech (Czechia)|✓|✓|✓|
-|`da-DK`|Danish (Denmark)|✓|✓|✓|
-|`de-DE`|German (Germany)|✓|✓|[✓*](#german-germany-de-de)|
-|`el-GR`|Greek (Greece)|✓|✓|✓|
-|`en-AU`|Australian English|✓|✓|[✓*](#australian-english-en-au)|
-|`en-BD`|English (Bangladesh)|✓|✓|[✓*](#english-bangladesh-en-bd)|
-|`en-CA`|Canadian English|[✓*](#canadian-english-en-ca)|✓|[✓*](#canadian-english-en-ca)|
-|`en-GB`|British English|✓|✓|[✓*](#british-english-en-gb)|
-|`en-GH`|English (Ghana)|✓|✓|✓|
-|`en-IE`|English (Ireland)|✓|✓|[✓*](#english-ireland-en-ie)|
-|`en-IN`|English (India)|✓|✓|[✓*](#english-india-en-in)|
-|`en-KE`|English (Kenya)|✓|✓|✓|
-|`en-MY`|English (Malaysia)|✓|✓|✓|
-|`en-NG`|English (Nigeria)|✓|✓|[✓*](#english-nigeria-en-ng)|
-|`en-NZ`|English (New Zealand)|✓|✓|✓|
-|`en-PH`|English (Philippines)|✓|✓|✓|
-|`en-PK`|English (Pakistan)|✓|✓|[✓*](#english-pakistan-en-pk)|
-|`en-SG`|English (Singapore)|✓|✓|✓|
-|`en-US`|American English|[✓*](#american-english-en-us)|✓|[✓*](#american-english-en-us)|
-|`en-ZA`|English (South Africa)|✓|✓|[✓*](#english-south-africa-en-za)|
-|`es-ES`|European Spanish|[✓*](#european-spanish-es-es)|[✓*](#european-spanish-es-es)|[✓*](#european-spanish-es-es)|
-|`es-MX`|Mexican Spanish|[✓*](#mexican-spanish-es-mx)|[✓*](#mexican-spanish-es-mx)|[✓*](#mexican-spanish-es-mx)|
-|`es-US`|Spanish (United States)|[✓*](#spanish-united-states-es-us)|[✓*](#spanish-united-states-es-us)|[✓*](#spanish-united-states-es-us)|
-|`fa-IR`|Persian (Iran)|✓|✓|✓|
-|`fi-FI`|Finnish (Finland)|✓|✓|✓|
-|`fil-PH`|Filipino (Philippines)|✓|✓|✓|
-|`fr-BE`|French (Belgium)|[✓*](#french-belgium-fr-be)|✓|[✓*](#french-belgium-fr-be)|
-|`fr-FR`|French (France)|[✓*](#french-france-fr-fr)|✓|[✓*](#french-france-fr-fr)|
-|`gu-IN`|Gujarati (India)|✓|✓|✓|
-|`ha-NG`|Hausa (Nigeria)|✓|✓|✓|
-|`hbo-IL`|Biblical Hebrew (Israel)|[✓*](#biblical-hebrew-israel-hbo-il)|✓|✓|
-|`he-IL`|Hebrew (Israel)|[✓*](#hebrew-israel-he-il)|✓|✓|
-|`hi-IN`|Hindi (India)|✓|✓|✓|
-|`hr-HR`|Croatian (Croatia)|[✓*](#croatian-croatia-hr-hr)|✓|✓|
-|`hu-HU`|Hungarian (Hungary)|✓|✓|✓|
-|`id-ID`|Indonesian (Indonesia)|✓|✓|✓|
-|`it-IT`|Italian (Italy)|✓|✓|[✓*](#italian-italy-it-it)|
-|`ja-JP`|Japanese (Japan)|✓|✓|✓|
-|`ka-GE`|Georgian (Georgia)|✓|✓|✓|
-|`kn-IN`|Kannada (India)|✓|✓|✓|
-|`ko-KR`|Korean (South Korea)|✓|✓|✓|
-|`lt-LT`|Lithuanian (Lithuania)|[✓*](#lithuanian-lithuania-lt-lt)|✓|✓|
-|`lv-LV`|Latvian (Latvia)|[✓*](#latvian-latvia-lv-lv)|✓|✓|
-|`mr-IN`|Marathi (India)|✓|✓|✓|
-|`ms-MY`|Malay (Malaysia)|✓|✓|✓|
-|`nb-NO`|Norwegian Bokmål (Norway)|✓|✓|✓|
-|`nl-NL`|Dutch (Netherlands)|[✓*](#dutch-netherlands-nl-nl)|✓|[✓*](#dutch-netherlands-nl-nl)|
-|`pa-IN`|Punjabi (India)|✓|✓|✓|
-|`pl-PL`|Polish (Poland)|[✓*](#polish-poland-pl-pl)|✓|✓|
-|`pt-BR`|Brazilian Portuguese|✓|✓|[✓*](#brazilian-portuguese-pt-br)|
-|`pt-PT`|European Portuguese|✓|✓|[✓*](#european-portuguese-pt-pt)|
-|`ro-RO`|Romanian (Romania)|[✓*](#romanian-romania-ro-ro)|✓|✓|
-|`ru-RU`|Russian (Russia)|[✓*](#russian-russia-ru-ru)|✓|[✓*](#russian-russia-ru-ru)|
-|`sr-Cyrl-RS`|Serbian (Cyrillic, Serbia)|[✓*](#serbian-cyrillic-serbia-sr-cyrl-rs)|✓|[✓*](#serbian-cyrillic-serbia-sr-cyrl-rs)|
-|`sr-Latn-RS`|Serbian (Latin, Serbia)|[✓*](#serbian-latin-serbia-sr-latn-rs)|✓|[✓*](#serbian-latin-serbia-sr-latn-rs)|
-|`sv-SE`|Swedish (Sweden)|✓|✓|✓|
-|`sw-KE`|Swahili (Kenya)|✓|✓|✓|
-|`ta-IN`|Tamil (India)|✓|✓|✓|
-|`te-IN`|Telugu (India)|✓|✓|✓|
-|`th-TH`|Thai (Thailand)|✓|✓|✓|
-|`tr-TR`|Turkish (Türkiye)|[✓*](#turkish-türkiye-tr-tr)|✓|✓|
-|`uk-UA`|Ukrainian (Ukraine)|[✓*](#ukrainian-ukraine-uk-ua)|✓|✓|
-|`ur-PK`|Urdu (Pakistan)|✓|✓|✓|
-|`vi-VN`|Vietnamese (Vietnam)|✓|✓|✓|
-|`yo-NG`|Yoruba (Nigeria)|✓|✓|✓|
-|`zh-Hans-CN`|Chinese (Simplified, China)|[✓*](#chinese-simplified-china-zh-hans-cn)|[✓*](#chinese-simplified-china-zh-hans-cn)|[✓*](#chinese-simplified-china-zh-hans-cn)|
-|`zh-Hant-TW`|Chinese (Traditional, Taiwan)|[✓*](#chinese-traditional-taiwan-zh-hant-tw)|[✓*](#chinese-traditional-taiwan-zh-hant-tw)|[✓*](#chinese-traditional-taiwan-zh-hant-tw)|
+|`am-ET`|Amharic (Ethiopia)|10^12 - 1|10^12 - 1|10^12 - 1|
+|`am-Latn-ET`|Amharic (Latin, Ethiopia)|10^12 - 1|10^12 - 1|10^12 - 1|
+|`ar-SA`|Arabic (Saudi Arabia)|10^24 - 1 [*](#arabic-saudi-arabia-ar-sa)|10^24 - 1 [*](#arabic-saudi-arabia-ar-sa)|10^24 - 1|
+|`az-AZ`|Azerbaijani (Azerbaijan)|10^21 - 1|10^21 - 1|10^21 - 1|
+|`bn-BD`|Bangla (Bangladesh)|10^19 - 1|10^19 - 1|10^19 - 1|
+|`cs-CZ`|Czech (Czechia)|10^30 - 1|10^30 - 1|10^30 - 1|
+|`da-DK`|Danish (Denmark)|10^30 - 1|10^30 - 1|10^30 - 1|
+|`de-DE`|German (Germany)|10^30 - 1|10^30 - 1|10^30 - 1 [*](#german-germany-de-de)|
+|`el-GR`|Greek (Greece)|10^15 - 1|10^9 - 1|10^15 - 1|
+|`en-AU`|Australian English|10^66 - 1|10^66 - 1|10^66 - 1 [*](#australian-english-en-au)|
+|`en-BD`|English (Bangladesh)|10^19 - 1|10^19 - 1|10^19 - 1 [*](#english-bangladesh-en-bd)|
+|`en-CA`|Canadian English|10^66 - 1 [*](#canadian-english-en-ca)|10^66 - 1|10^66 - 1 [*](#canadian-english-en-ca)|
+|`en-GB`|British English|10^66 - 1|10^66 - 1|10^66 - 1 [*](#british-english-en-gb)|
+|`en-GH`|English (Ghana)|10^66 - 1|10^66 - 1|10^66 - 1 [*](#english-ghana-en-gh)|
+|`en-IE`|English (Ireland)|10^66 - 1|10^66 - 1|10^66 - 1 [*](#english-ireland-en-ie)|
+|`en-IN`|English (India)|10^19 - 1|10^19 - 1|10^19 - 1 [*](#english-india-en-in)|
+|`en-KE`|English (Kenya)|10^66 - 1|10^66 - 1|10^66 - 1 [*](#english-kenya-en-ke)|
+|`en-MY`|English (Malaysia)|10^66 - 1|10^66 - 1|10^66 - 1 [*](#english-malaysia-en-my)|
+|`en-NG`|English (Nigeria)|10^66 - 1|10^66 - 1|10^66 - 1 [*](#english-nigeria-en-ng)|
+|`en-NZ`|English (New Zealand)|10^66 - 1|10^66 - 1|10^66 - 1 [*](#english-new-zealand-en-nz)|
+|`en-PH`|English (Philippines)|10^66 - 1|10^66 - 1|10^66 - 1 [*](#english-philippines-en-ph)|
+|`en-PK`|English (Pakistan)|10^19 - 1|10^19 - 1|10^19 - 1 [*](#english-pakistan-en-pk)|
+|`en-SG`|English (Singapore)|10^66 - 1|10^66 - 1|10^66 - 1 [*](#english-singapore-en-sg)|
+|`en-US`|American English|10^66 - 1 [*](#american-english-en-us)|10^66 - 1|10^66 - 1 [*](#american-english-en-us)|
+|`en-ZA`|English (South Africa)|10^66 - 1|10^66 - 1|10^66 - 1 [*](#english-south-africa-en-za)|
+|`es-ES`|European Spanish|10^30 - 1 [*](#european-spanish-es-es)|10^9 - 1 [*](#european-spanish-es-es)|10^30 - 1 [*](#european-spanish-es-es)|
+|`es-MX`|Mexican Spanish|10^30 - 1 [*](#mexican-spanish-es-mx)|10^9 - 1 [*](#mexican-spanish-es-mx)|10^30 - 1 [*](#mexican-spanish-es-mx)|
+|`es-US`|Spanish (United States)|10^21 - 1 [*](#spanish-united-states-es-us)|10^9 - 1 [*](#spanish-united-states-es-us)|10^21 - 1 [*](#spanish-united-states-es-us)|
+|`fa-IR`|Persian (Iran)|∞|∞|∞|
+|`fi-FI`|Finnish (Finland)|10^18 - 1|10^18 - 1|10^18 - 1|
+|`fil-PH`|Filipino (Philippines)|10^15 - 1|10^15 - 1|10^15 - 1|
+|`fr-BE`|French (Belgium)|10^30 - 1 [*](#french-belgium-fr-be)|10^30 - 1|10^30 - 1 [*](#french-belgium-fr-be)|
+|`fr-FR`|French (France)|10^30 - 1 [*](#french-france-fr-fr)|10^30 - 1|10^30 - 1 [*](#french-france-fr-fr)|
+|`gu-IN`|Gujarati (India)|10^19 - 1|10^19 - 1|10^19 - 1|
+|`ha-NG`|Hausa (Nigeria)|10^12 - 1|10^12 - 1|10^12 - 1|
+|`hbo-IL`|Biblical Hebrew (Israel)|10^21 - 1 [*](#biblical-hebrew-israel-hbo-il)|10^9 - 1|10^21 - 1|
+|`he-IL`|Hebrew (Israel)|10^21 - 1 [*](#hebrew-israel-he-il)|10^9 - 1|10^21 - 1|
+|`hi-IN`|Hindi (India)|10^19 - 1|10^19 - 1|10^19 - 1|
+|`hr-HR`|Croatian (Croatia)|10^30 - 1 [*](#croatian-croatia-hr-hr)|10^15 - 1|10^30 - 1|
+|`hu-HU`|Hungarian (Hungary)|∞|∞|∞|
+|`id-ID`|Indonesian (Indonesia)|10^36 - 1|10^36 - 1|10^36 - 1|
+|`it-IT`|Italian (Italy)|10^66 - 1|10^66 - 1|10^66 - 1 [*](#italian-italy-it-it)|
+|`ja-JP`|Japanese (Japan)|10^72 - 1|10^72 - 1|10^72 - 1|
+|`ka-GE`|Georgian (Georgia)|10^24 - 1|10^24 - 1|10^24 - 1|
+|`kn-IN`|Kannada (India)|10^19 - 1|10^19 - 1|10^19 - 1|
+|`ko-KR`|Korean (South Korea)|10^32 - 1|10^32 - 1|10^32 - 1|
+|`lt-LT`|Lithuanian (Lithuania)|10^30 - 1 [*](#lithuanian-lithuania-lt-lt)|10^15 - 1|10^30 - 1|
+|`lv-LV`|Latvian (Latvia)|10^30 - 1 [*](#latvian-latvia-lv-lv)|10^15 - 1|10^30 - 1|
+|`mr-IN`|Marathi (India)|10^19 - 1|10^19 - 1|10^19 - 1|
+|`ms-MY`|Malay (Malaysia)|10^15 - 1|10^15 - 1|10^15 - 1|
+|`nb-NO`|Norwegian Bokmål (Norway)|10^30 - 1|10^30 - 1|10^30 - 1|
+|`nl-NL`|Dutch (Netherlands)|10^30 - 1 [*](#dutch-netherlands-nl-nl)|10^21 - 1|10^30 - 1 [*](#dutch-netherlands-nl-nl)|
+|`pa-IN`|Punjabi (India)|10^19 - 1|10^19 - 1|10^19 - 1|
+|`pl-PL`|Polish (Poland)|10^33 - 1 [*](#polish-poland-pl-pl)|10^24 - 1|10^33 - 1|
+|`pt-BR`|Brazilian Portuguese|10^27 - 1|10^24 - 1|10^27 - 1 [*](#brazilian-portuguese-pt-br)|
+|`pt-PT`|European Portuguese|10^27 - 1|10^21 - 1|10^27 - 1 [*](#european-portuguese-pt-pt)|
+|`ro-RO`|Romanian (Romania)|10^30 - 1 [*](#romanian-romania-ro-ro)|10^9 - 1|10^30 - 1|
+|`ru-RU`|Russian (Russia)|10^33 - 1 [*](#russian-russia-ru-ru)|10^33 - 1|10^33 - 1 [*](#russian-russia-ru-ru)|
+|`sr-Cyrl-RS`|Serbian (Cyrillic, Serbia)|10^30 - 1 [*](#serbian-cyrillic-serbia-sr-cyrl-rs)|10^30 - 1|10^30 - 1 [*](#serbian-cyrillic-serbia-sr-cyrl-rs)|
+|`sr-Latn-RS`|Serbian (Latin, Serbia)|10^30 - 1 [*](#serbian-latin-serbia-sr-latn-rs)|10^30 - 1|10^30 - 1 [*](#serbian-latin-serbia-sr-latn-rs)|
+|`sv-SE`|Swedish (Sweden)|10^27 - 1|10^27 - 1|10^27 - 1|
+|`sw-KE`|Swahili (Kenya)|10^21 - 1|10^21 - 1|10^21 - 1|
+|`ta-IN`|Tamil (India)|10^19 - 1|10^19 - 1|10^19 - 1|
+|`te-IN`|Telugu (India)|10^19 - 1|10^19 - 1|10^19 - 1|
+|`th-TH`|Thai (Thailand)|∞|∞|∞|
+|`tr-TR`|Turkish (Türkiye)|10^21 - 1 [*](#turkish-türkiye-tr-tr)|10^21 - 1|10^21 - 1|
+|`uk-UA`|Ukrainian (Ukraine)|10^30 - 1 [*](#ukrainian-ukraine-uk-ua)|10^15 - 1|10^30 - 1|
+|`ur-PK`|Urdu (Pakistan)|10^19 - 1|10^19 - 1|10^19 - 1|
+|`vi-VN`|Vietnamese (Vietnam)|10^21 - 1|10^21 - 1|10^21 - 1|
+|`yo-NG`|Yoruba (Nigeria)|∞|∞|∞|
+|`zh-Hans-CN`|Chinese (Simplified, China)|10^16 - 1 [*](#chinese-simplified-china-zh-hans-cn)|10^16 - 1 [*](#chinese-simplified-china-zh-hans-cn)|10^16 - 1 [*](#chinese-simplified-china-zh-hans-cn)|
+|`zh-Hant-TW`|Chinese (Traditional, Taiwan)|10^16 - 1 [*](#chinese-traditional-taiwan-zh-hant-tw)|10^16 - 1 [*](#chinese-traditional-taiwan-zh-hant-tw)|10^16 - 1 [*](#chinese-traditional-taiwan-zh-hant-tw)|
+
+Each form column shows the largest value it converts (`10^N - 1`), `∞` when unbounded, or blank when the form isn't supported.
 
 \* Has options — click to jump to that language's options.
 
@@ -103,7 +105,7 @@ Import paths use BCP 47 language codes: `n2words/en-US`, `n2words/zh-Hans-CN`, `
 
 ## Language Options
 
-35 languages support options via a second parameter. Options are passed as an object:
+41 languages support options via a second parameter. Options are passed as an object:
 
 ```js
 toCardinal(value, { optionName: value })
@@ -122,9 +124,9 @@ toCurrency(value, { optionName: value })
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
-|`gender`|cardinal|'masculine' \| 'feminine'|`'masculine'`|Grammatical gender|
-|`negativeWord`|cardinal|`string`|—|Custom word for negative numbers|
-|`gender`|ordinal|'masculine' \| 'feminine'|`'masculine'`|Grammatical gender|
+|`gender`|cardinal|'masculine' \| 'feminine'|`masculine`|Grammatical gender|
+|`negativeWord`|cardinal|`string`|`NEGATIVE`|Custom word for negative numbers|
+|`gender`|ordinal|'masculine' \| 'feminine'|`masculine`|Grammatical gender|
 
 ### Australian English (`en-AU`)
 
@@ -136,8 +138,8 @@ toCurrency(value, { optionName: value })
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
-|`gender`|cardinal|'masculine' \| 'feminine'|`'masculine'`|Grammatical gender|
-|`andWord`|cardinal|`string`|`'ו'`|Custom conjunction word|
+|`gender`|cardinal|'masculine' \| 'feminine'|`masculine`|Grammatical gender|
+|`andWord`|cardinal|`string`|`ו`|Custom conjunction word|
 
 ### Brazilian Portuguese (`pt-BR`)
 
@@ -180,7 +182,7 @@ toCurrency(value, { optionName: value })
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
-|`gender`|cardinal|'masculine' \| 'feminine'|`'masculine'`|Grammatical gender|
+|`gender`|cardinal|'masculine' \| 'feminine'|`masculine`|Grammatical gender|
 
 ### Dutch (Netherlands) (`nl-NL`)
 
@@ -197,6 +199,12 @@ toCurrency(value, { optionName: value })
 |------|----|----|-------|-----------|
 |`and`|currency|`boolean`|`true`|Use "and" between taka and paise|
 
+### English (Ghana) (`en-GH`)
+
+|Option|Form|Type|Default|Description|
+|------|----|----|-------|-----------|
+|`and`|currency|`boolean`|`true`|Use "and" between cedis and pesewas|
+
 ### English (India) (`en-IN`)
 
 |Option|Form|Type|Default|Description|
@@ -209,6 +217,24 @@ toCurrency(value, { optionName: value })
 |------|----|----|-------|-----------|
 |`and`|currency|`boolean`|`true`|Use "and" between euro and cent (e.g., "one euro and fifty cents")|
 
+### English (Kenya) (`en-KE`)
+
+|Option|Form|Type|Default|Description|
+|------|----|----|-------|-----------|
+|`and`|currency|`boolean`|`true`|Use "and" between shillings and cents|
+
+### English (Malaysia) (`en-MY`)
+
+|Option|Form|Type|Default|Description|
+|------|----|----|-------|-----------|
+|`and`|currency|`boolean`|`true`|Use "and" between ringgit and sen|
+
+### English (New Zealand) (`en-NZ`)
+
+|Option|Form|Type|Default|Description|
+|------|----|----|-------|-----------|
+|`and`|currency|`boolean`|`true`|Use "and" between dollars and cents|
+
 ### English (Nigeria) (`en-NG`)
 
 |Option|Form|Type|Default|Description|
@@ -220,6 +246,18 @@ toCurrency(value, { optionName: value })
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
 |`and`|currency|`boolean`|`true`|Use "and" between rupees and paise|
+
+### English (Philippines) (`en-PH`)
+
+|Option|Form|Type|Default|Description|
+|------|----|----|-------|-----------|
+|`and`|currency|`boolean`|`true`|Use "and" between pesos and centavos|
+
+### English (Singapore) (`en-SG`)
+
+|Option|Form|Type|Default|Description|
+|------|----|----|-------|-----------|
+|`and`|currency|`boolean`|`true`|Use "and" between dollars and cents|
 
 ### English (South Africa) (`en-ZA`)
 
@@ -237,8 +275,8 @@ toCurrency(value, { optionName: value })
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
-|`gender`|cardinal|'masculine' \| 'feminine'|`'masculine'`|Grammatical gender|
-|`gender`|ordinal|'masculine' \| 'feminine'|`'masculine'`|Grammatical gender|
+|`gender`|cardinal|'masculine' \| 'feminine'|`masculine`|Grammatical gender|
+|`gender`|ordinal|'masculine' \| 'feminine'|`masculine`|Grammatical gender|
 |`and`|currency|`boolean`|`true`|Use "con" between euros and cents|
 
 ### French (Belgium) (`fr-BE`)
@@ -265,7 +303,7 @@ toCurrency(value, { optionName: value })
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
-|`andWord`|cardinal|`string`|`'ו'`|Custom conjunction word|
+|`andWord`|cardinal|`string`|`ו`|Custom conjunction word|
 
 ### Italian (Italy) (`it-IT`)
 
@@ -277,61 +315,61 @@ toCurrency(value, { optionName: value })
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
-|`gender`|cardinal|`string`|`'masculine'`|Gender for numbers < 1000|
+|`gender`|cardinal|`string`|`masculine`|Gender for numbers < 1000|
 
 ### Lithuanian (Lithuania) (`lt-LT`)
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
-|`gender`|cardinal|`string`|`'masculine'`|Gender for numbers < 1000|
+|`gender`|cardinal|`string`|`masculine`|Gender for numbers < 1000|
 
 ### Mexican Spanish (`es-MX`)
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
-|`gender`|cardinal|'masculine' \| 'feminine'|`'masculine'`|Grammatical gender|
-|`gender`|ordinal|'masculine' \| 'feminine'|`'masculine'`|Grammatical gender|
+|`gender`|cardinal|'masculine' \| 'feminine'|`masculine`|Grammatical gender|
+|`gender`|ordinal|'masculine' \| 'feminine'|`masculine`|Grammatical gender|
 |`and`|currency|`boolean`|`true`|Use "con" between pesos and centavos|
 
 ### Polish (Poland) (`pl-PL`)
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
-|`gender`|cardinal|`string`|`'masculine'`|Gender for numbers < 1000|
+|`gender`|cardinal|`string`|`masculine`|Gender for numbers < 1000|
 
 ### Romanian (Romania) (`ro-RO`)
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
-|`gender`|cardinal|`string`|`'masculine'`|Gender for numbers|
+|`gender`|cardinal|`string`|`masculine`|Gender for numbers|
 
 ### Russian (Russia) (`ru-RU`)
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
-|`gender`|cardinal|'masculine' \| 'feminine'|`'masculine'`|Grammatical gender|
+|`gender`|cardinal|'masculine' \| 'feminine'|`masculine`|Grammatical gender|
 |`and`|currency|`boolean`|`true`|Use "и" between rubles and kopecks|
 
 ### Serbian (Cyrillic, Serbia) (`sr-Cyrl-RS`)
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
-|`gender`|cardinal|'masculine' \| 'feminine'|`'masculine'`|Grammatical gender|
+|`gender`|cardinal|'masculine' \| 'feminine'|`masculine`|Grammatical gender|
 |`and`|currency|`boolean`|`true`|Use "и" between dinars and para|
 
 ### Serbian (Latin, Serbia) (`sr-Latn-RS`)
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
-|`gender`|cardinal|'masculine' \| 'feminine'|`'masculine'`|Grammatical gender|
+|`gender`|cardinal|'masculine' \| 'feminine'|`masculine`|Grammatical gender|
 |`and`|currency|`boolean`|`true`|Use "i" between dinars and para|
 
 ### Spanish (United States) (`es-US`)
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
-|`gender`|cardinal|'masculine' \| 'feminine'|`'masculine'`|Grammatical gender|
-|`gender`|ordinal|'masculine' \| 'feminine'|`'masculine'`|Grammatical gender|
+|`gender`|cardinal|'masculine' \| 'feminine'|`masculine`|Grammatical gender|
+|`gender`|ordinal|'masculine' \| 'feminine'|`masculine`|Grammatical gender|
 |`and`|currency|`boolean`|`true`|Use "con" between dollars and cents|
 
 ### Turkish (Türkiye) (`tr-TR`)
@@ -344,4 +382,4 @@ toCurrency(value, { optionName: value })
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
-|`gender`|cardinal|'masculine' \| 'feminine'|`'masculine'`|Grammatical gender|
+|`gender`|cardinal|'masculine' \| 'feminine'|`masculine`|Grammatical gender|
