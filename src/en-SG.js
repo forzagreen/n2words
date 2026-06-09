@@ -374,7 +374,8 @@ function toOrdinal(value) {
 /**
  * Converts a numeric value to Singaporean English currency words.
  * @param {number | string | bigint} value - The currency amount to convert
- * @param {{ and?: boolean }} [options] - Optional configuration
+ * @param {object} [options] - Optional configuration
+ * @param {boolean} [options.and] - Use "and" between dollars and cents
  * @returns {string} The amount in Singaporean English currency words
  */
 function toCurrency(value, options) {
