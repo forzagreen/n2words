@@ -19,7 +19,10 @@ import { isPlainObject } from '../src/utils/is-plain-object.js'
  *   wrong-typed value, or an inherited key all fail loudly, not silently.
  *   (`RangeError` is reserved for a value out of range, e.g. checkMax.)
  *
- * Auto-covers any form that exports `<form>Defaults`.
+ * Auto-covers any form that exports `<form>Defaults` while the sweep is in
+ * progress. Once every options-taking language is migrated, this flips to
+ * required — any form accepting an options parameter without a `<form>Defaults`
+ * export fails, exactly as the range gate requires `*Max`.
  */
 
 const FORMS = [
