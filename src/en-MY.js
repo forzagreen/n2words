@@ -25,7 +25,7 @@ import { parseCurrencyValue } from './utils/parse-currency.js'
 import { parseOrdinalValue } from './utils/parse-ordinal.js'
 import { checkMax } from './utils/check-max.js'
 import { western } from './utils/scale.js'
-import { validateOptions } from './utils/validate-options.js'
+import { resolveOptions } from './utils/resolve-options.js'
 
 // ============================================================================
 // Vocabulary (module-level constants)
@@ -372,16 +372,22 @@ function toOrdinal(value) {
 // ============================================================================
 
 /**
+ * @typedef {object} CurrencyOptions
+ * @property {boolean} [and] - Use "and" between ringgit and sen
+ */
+
+/** @type {Required<CurrencyOptions>} */
+export const currencyDefaults = { and: true }
+
+/**
  * @param {number | string | bigint} value The numeric value to convert.
- * @param {object} [options] - Optional configuration
- * @param {boolean} [options.and] - Use "and" between ringgit and sen
+ * @param {CurrencyOptions} [options] - Optional configuration
  * @returns {string} The amount in Malaysian ringgit and sen in English words.
  */
 function toCurrency(value, options) {
-  options = validateOptions(options)
   const { isNegative, dollars: ringgit, cents: sen } = parseCurrencyValue(value)
   checkMax(ringgit, currencyMax)
-  const { and: useAnd = true } = options
+  const { and: useAnd } = resolveOptions(options, currencyDefaults)
 
   let result = ''
   if (isNegative) result = NEGATIVE + ' '

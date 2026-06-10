@@ -25,7 +25,7 @@ import { parseCurrencyValue } from './utils/parse-currency.js'
 import { parseOrdinalValue } from './utils/parse-ordinal.js'
 import { checkMax } from './utils/check-max.js'
 import { western } from './utils/scale.js'
-import { validateOptions } from './utils/validate-options.js'
+import { resolveOptions } from './utils/resolve-options.js'
 
 // ============================================================================
 // Vocabulary (module-level constants)
@@ -437,10 +437,17 @@ function toOrdinal(value) {
 // ============================================================================
 
 /**
+ * @typedef {object} CurrencyOptions
+ * @property {boolean} [and] - Use "and" between naira and kobo (e.g., "one naira and fifty kobo")
+ */
+
+/** @type {Required<CurrencyOptions>} */
+export const currencyDefaults = { and: true }
+
+/**
  * Converts a numeric value to Nigerian English currency words.
  * @param {number | string | bigint} value - The currency amount to convert
- * @param {object} [options] - Optional configuration
- * @param {boolean} [options.and] - Use "and" between naira and kobo (e.g., "one naira and fifty kobo")
+ * @param {CurrencyOptions} [options] - Optional configuration
  * @returns {string} The amount in Nigerian English currency words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {Error} If value is not a valid number format
@@ -452,10 +459,9 @@ function toOrdinal(value) {
  * toCurrency(42.50, { and: false })    // 'forty-two naira fifty kobo'
  */
 function toCurrency(value, options) {
-  options = validateOptions(options)
   const { isNegative, dollars: naira, cents: kobo } = parseCurrencyValue(value)
   checkMax(naira, currencyMax)
-  const { and: useAnd = true } = options
+  const { and: useAnd } = resolveOptions(options, currencyDefaults)
 
   // Build result
   let result = ''

@@ -15,7 +15,7 @@ import { parseCurrencyValue } from './utils/parse-currency.js'
 import { parseOrdinalValue } from './utils/parse-ordinal.js'
 import { checkMax } from './utils/check-max.js'
 import { western } from './utils/scale.js'
-import { validateOptions } from './utils/validate-options.js'
+import { resolveOptions } from './utils/resolve-options.js'
 
 // ============================================================================
 // Vocabulary (module-level constants)
@@ -429,10 +429,17 @@ function toOrdinal(value) {
 // ============================================================================
 
 /**
+ * @typedef {object} CurrencyOptions
+ * @property {boolean} [and] - Use "and" between pounds and pence (e.g., "one pound and fifty pence")
+ */
+
+/** @type {Required<CurrencyOptions>} */
+export const currencyDefaults = { and: true }
+
+/**
  * Converts a numeric value to British English currency words.
  * @param {number | string | bigint} value - The currency amount to convert
- * @param {object} [options] - Optional configuration
- * @param {boolean} [options.and] - Use "and" between pounds and pence (e.g., "one pound and fifty pence")
+ * @param {CurrencyOptions} [options] - Optional configuration
  * @returns {string} The amount in British English currency words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {Error} If value is not a valid number format
@@ -444,10 +451,9 @@ function toOrdinal(value) {
  * toCurrency(42.50, { and: false })    // 'forty-two pounds fifty pence'
  */
 function toCurrency(value, options) {
-  options = validateOptions(options)
   const { isNegative, dollars: pounds, cents: pence } = parseCurrencyValue(value)
   checkMax(pounds, currencyMax)
-  const { and: useAnd = true } = options
+  const { and: useAnd } = resolveOptions(options, currencyDefaults)
 
   // Build result
   let result = ''
