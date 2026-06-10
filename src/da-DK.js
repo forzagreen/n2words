@@ -193,7 +193,7 @@ function buildLargeNumberWords(n) {
   }
 
   // Convert segments to words with scale tracking
-  // Callers guard the magnitude (MAX_CARDINAL) before reaching here.
+  // Callers guard the magnitude (cardinalMax) before reaching here.
   // scaleIndex: 0 = units, 1 = thousands, 2 = millions, etc.
   const parts = []
   let scaleIndex = segments.length - 1

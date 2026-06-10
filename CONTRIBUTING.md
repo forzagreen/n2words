@@ -28,7 +28,7 @@ npm test
 - `refactor(core): simplify exports` — code refactoring
 - `docs: update README` — documentation
 
-Scopes use BCP 47 language codes (`en-US`, `fr-BE`, `zh-Hans-CN`) or project areas (`core`, `types`, `umd`). See [.commitlintrc.mjs](.commitlintrc.mjs) for details.
+Scopes use BCP 47 language codes — one (`en-US`), comma-separated (`az-AZ,tr-TR`), or a bare primary subtag for a variant family (`en`, `es`) — or project areas (`core`, `types`, `umd`). See [.commitlintrc.mjs](.commitlintrc.mjs) for details.
 
 ## Adding a New Language
 
@@ -36,7 +36,9 @@ Scopes use BCP 47 language codes (`en-US`, `fr-BE`, `zh-Hans-CN`) or project are
 npm run lang:add -- <code>   # e.g., ko-KR, sr-Cyrl-RS, fr-BE
 ```
 
-This scaffolds all required files. Every language implements three **forms**:
+This scaffolds the language file, test fixture, and type tests. A language can
+implement one, two, or all three **forms** — start with whichever you can do
+well and others can be added later:
 
 | Form     | Function       | Example              |
 | -------- | -------------- | -------------------- |
@@ -46,13 +48,18 @@ This scaffolds all required files. Every language implements three **forms**:
 
 Then:
 
-1. Implement all three forms in `src/<code>.js`
+1. Implement your form(s) in `src/<code>.js` — including each form's range
+   declaration (`cardinalMax` etc., scaffolded as `UNBOUNDED` placeholders; see
+   [docs/range-contract.md](docs/range-contract.md)) and, if a form takes
+   options, its options contract (see
+   [docs/options-contract.md](docs/options-contract.md))
 2. Add test cases to `test/fixtures/<code>.js`
-3. Run `npm test`
+3. Run `npm test` — the suite's gates verify everything automatically and tell
+   you exactly what's missing; green means done
 
 ## Code Style
 
-- **JavaScript:** ESLint with [neostandard](https://github.com/neostandard/neostandard) (standard style) — `npm run lint:fix`
+- **JavaScript:** [ESLint](https://eslint.org/) — `npm run lint:fix`
 - **Markdown:** [markdownlint](https://github.com/DavidAnson/markdownlint) — `npm run lint:md -- --fix`
 
 ## Testing
