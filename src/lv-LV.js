@@ -16,7 +16,7 @@ import { parseCurrencyValue } from './utils/parse-currency.js'
 import { parseOrdinalValue } from './utils/parse-ordinal.js'
 import { checkMax } from './utils/check-max.js'
 import { western } from './utils/scale.js'
-import { validateOptions } from './utils/validate-options.js'
+import { resolveOptions } from './utils/resolve-options.js'
 
 // ============================================================================
 // Vocabulary (module-level constants)
@@ -351,10 +351,20 @@ function decimalPartToWords(decimalPart, gender) {
 }
 
 /**
+ * @typedef {object} CardinalOptions
+ * @property {('masculine'|'feminine')} [gender] - Gender for numbers < 1000
+ */
+
+/** @type {Required<CardinalOptions>} */
+export const cardinalDefaults = { gender: 'masculine' }
+
+/** @type {{ gender: ReadonlyArray<Required<CardinalOptions>['gender']> }} */
+export const cardinalValues = { gender: ['masculine', 'feminine'] }
+
+/**
  * Converts a numeric value to Latvian words.
  * @param {number | string | bigint} value - The numeric value to convert
- * @param {object} [options] - Conversion options
- * @param {string} [options.gender] - Gender for numbers < 1000
+ * @param {CardinalOptions} [options] - Conversion options
  * @returns {string} The number in Latvian words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {Error} If value is not a valid number format
@@ -364,14 +374,13 @@ function decimalPartToWords(decimalPart, gender) {
  * toCardinal(1000)                        // 'tūkstotis'
  */
 function toCardinal(value, options) {
-  options = validateOptions(options)
   const { isNegative, integerPart, decimalPart } = parseCardinalValue(value)
   // Both the integer part and the decimal's significant digits are spelled via
   // the scale builder, so both must clear the ceiling.
   checkMax(integerPart, cardinalMax, decimalPart)
 
   // Apply option defaults
-  const { gender = 'masculine' } = options
+  const { gender } = resolveOptions(options, cardinalDefaults, cardinalValues)
 
   let result = ''
 

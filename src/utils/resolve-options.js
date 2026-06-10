@@ -5,14 +5,18 @@ import { isPlainObject } from './is-plain-object.js'
  *
  * The exported defaults map (e.g. `cardinalDefaults`) is the single source of
  * truth for each option's default value — the form never restates it, and the
- * docs generator imports it rather than scraping the body. An unknown key or a
- * wrong-typed value throws loudly instead of being silently dropped.
+ * docs generator imports it rather than scraping the body. A malformed options
+ * argument (unknown key, wrong-typed value, inherited key) throws `TypeError`;
+ * a known option with a value outside its declared allowed set (an exported
+ * `<form>Values` map, e.g. gender) throws `RangeError` — right kind of value,
+ * out of range — instead of silently falling back to the default.
  * @template {object} T
  * @param {T | undefined} options - Caller-provided options, or undefined
  * @param {Required<T>} defaults - The form's default for every option
+ * @param {Partial<Record<keyof T & string, readonly unknown[]>>} [values] - Allowed set per enum-valued option
  * @returns {Required<T>} The options with every default applied
  */
-export function resolveOptions(options, defaults) {
+export function resolveOptions(options, defaults, values) {
   /** @type {Record<string, unknown>} */
   const resolved = { ...defaults }
   if (options === undefined) return /** @type {Required<T>} */ (resolved)
@@ -36,6 +40,15 @@ export function resolveOptions(options, defaults) {
     if (value === undefined) continue
     if (typeof value !== typeof resolved[key]) {
       throw new TypeError(`Option "${key}" must be a ${typeof resolved[key]}, got ${typeof value}`)
+    }
+    if (values !== undefined && Object.hasOwn(values, key)) {
+      const set = /** @type {Record<string, readonly unknown[]>} */ (values)[key]
+      if (!set.includes(value)) {
+        // The received value is caller-supplied and arbitrary — stringify it so
+        // quotes/newlines can't garble the message. The allowed set is our own
+        // gate-verified declaration and reads cleaner unquoted.
+        throw new RangeError(`Option "${key}" must be one of: ${set.join(', ')} — got ${JSON.stringify(value)}`)
+      }
     }
     resolved[key] = value
   }

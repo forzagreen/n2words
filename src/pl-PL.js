@@ -16,7 +16,7 @@ import { parseCurrencyValue } from './utils/parse-currency.js'
 import { parseOrdinalValue } from './utils/parse-ordinal.js'
 import { checkMax } from './utils/check-max.js'
 import { western } from './utils/scale.js'
-import { validateOptions } from './utils/validate-options.js'
+import { resolveOptions } from './utils/resolve-options.js'
 
 // ============================================================================
 // Vocabulary (module-level constants)
@@ -318,13 +318,23 @@ export const ordinalMax = western(ORDINAL_SCALES.length)
 export const currencyMax = western(MAX_SCALE_KEY)
 
 /**
+ * @typedef {object} CardinalOptions
+ * @property {('masculine'|'feminine')} [gender] - Gender for numbers < 1000
+ */
+
+/** @type {Required<CardinalOptions>} */
+export const cardinalDefaults = { gender: 'masculine' }
+
+/** @type {{ gender: ReadonlyArray<Required<CardinalOptions>['gender']> }} */
+export const cardinalValues = { gender: ['masculine', 'feminine'] }
+
+/**
  * Converts a numeric value to Polish words.
  *
  * This is the main public API. It accepts any valid numeric input
  * (number, string, or bigint) and handles parsing internally.
  * @param {number | string | bigint} value - The numeric value to convert
- * @param {object} [options] - Conversion options
- * @param {string} [options.gender] - Gender for numbers < 1000
+ * @param {CardinalOptions} [options] - Conversion options
  * @returns {string} The number in Polish words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {Error} If value is not a valid number format
@@ -335,14 +345,13 @@ export const currencyMax = western(MAX_SCALE_KEY)
  * toCardinal(2000)                       // 'dwa tysiące'
  */
 function toCardinal(value, options) {
-  options = validateOptions(options)
   const { isNegative, integerPart, decimalPart } = parseCardinalValue(value)
   // Both the integer part and the decimal's significant digits are spelled via
   // the scale builder, so both must clear the ceiling.
   checkMax(integerPart, cardinalMax, decimalPart)
 
   // Apply option defaults
-  const { gender = 'masculine' } = options
+  const { gender } = resolveOptions(options, cardinalDefaults, cardinalValues)
 
   let result = ''
 
