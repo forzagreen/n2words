@@ -22,7 +22,7 @@ import { parseCurrencyValue } from './utils/parse-currency.js'
 import { parseOrdinalValue } from './utils/parse-ordinal.js'
 import { checkMax } from './utils/check-max.js'
 import { bounded, western } from './utils/scale.js'
-import { validateOptions } from './utils/validate-options.js'
+import { resolveOptions } from './utils/resolve-options.js'
 
 // ============================================================================
 // Vocabulary (module-level constants)
@@ -233,10 +233,20 @@ function decimalPartToWords(decimalPart, feminine) {
 }
 
 /**
+ * @typedef {object} CardinalOptions
+ * @property {('masculine'|'feminine')} [gender] - Grammatical gender
+ */
+
+/** @type {Required<CardinalOptions>} */
+export const cardinalDefaults = { gender: 'masculine' }
+
+/** @type {{ gender: ReadonlyArray<Required<CardinalOptions>['gender']> }} */
+export const cardinalValues = { gender: ['masculine', 'feminine'] }
+
+/**
  * Converts a numeric value to Spanish words (US short scale).
  * @param {number | string | bigint} value - The numeric value to convert
- * @param {object} [options] - Optional configuration
- * @param {('masculine'|'feminine')} [options.gender] - Grammatical gender
+ * @param {CardinalOptions} [options] - Optional configuration
  * @returns {string} The number in Spanish words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {Error} If value is not a valid number format
@@ -246,14 +256,13 @@ function decimalPartToWords(decimalPart, feminine) {
  * toCardinal(1000000000)                // 'un billón'
  */
 function toCardinal(value, options) {
-  options = validateOptions(options)
   const { isNegative, integerPart, decimalPart } = parseCardinalValue(value)
   // Both the integer part and the decimal's significant digits are spelled via
   // the scale builder, so both must clear the ceiling.
   checkMax(integerPart, cardinalMax, decimalPart)
 
   // Apply option defaults
-  const { gender = 'masculine' } = options
+  const { gender } = resolveOptions(options, cardinalDefaults, cardinalValues)
   const feminine = gender === 'feminine'
 
   let result = ''
@@ -375,10 +384,20 @@ function integerToOrdinal(n, feminine) {
 }
 
 /**
+ * @typedef {object} OrdinalOptions
+ * @property {('masculine'|'feminine')} [gender] - Grammatical gender
+ */
+
+/** @type {Required<OrdinalOptions>} */
+export const ordinalDefaults = { gender: 'masculine' }
+
+/** @type {{ gender: ReadonlyArray<Required<OrdinalOptions>['gender']> }} */
+export const ordinalValues = { gender: ['masculine', 'feminine'] }
+
+/**
  * Converts a numeric value to Spanish ordinal words.
  * @param {number | string | bigint} value - The positive integer to convert
- * @param {object} [options] - Optional configuration
- * @param {('masculine'|'feminine')} [options.gender] - Grammatical gender
+ * @param {OrdinalOptions} [options] - Optional configuration
  * @returns {string} The number in Spanish ordinal words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {Error} If value is not a positive integer
@@ -388,11 +407,10 @@ function integerToOrdinal(n, feminine) {
  * toOrdinal(21)                         // 'vigésimo primero'
  */
 function toOrdinal(value, options) {
-  options = validateOptions(options)
   const integerPart = parseOrdinalValue(value)
   checkMax(integerPart, ordinalMax)
 
-  const { gender = 'masculine' } = options
+  const { gender } = resolveOptions(options, ordinalDefaults, ordinalValues)
   const feminine = gender === 'feminine'
 
   return integerToOrdinal(integerPart, feminine)
@@ -403,13 +421,20 @@ function toOrdinal(value, options) {
 // ============================================================================
 
 /**
+ * @typedef {object} CurrencyOptions
+ * @property {boolean} [and] - Use "con" between dollars and cents
+ */
+
+/** @type {Required<CurrencyOptions>} */
+export const currencyDefaults = { and: true }
+
+/**
  * Converts a numeric value to US Dollar currency words in Spanish.
  *
  * US Dollar uses masculine gender for dólares (el dólar)
  * and masculine for centavos (el centavo).
  * @param {number | string | bigint} value - The currency amount to convert
- * @param {object} [options] - Optional configuration
- * @param {boolean} [options.and] - Use "con" between dollars and cents
+ * @param {CurrencyOptions} [options] - Optional configuration
  * @returns {string} The amount in Spanish US Dollar currency words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {Error} If value is not a valid number format
@@ -420,10 +445,9 @@ function toOrdinal(value, options) {
  * toCurrency(42.50, { and: false })  // 'cuarenta y dos dólares cincuenta centavos'
  */
 function toCurrency(value, options) {
-  options = validateOptions(options)
   const { isNegative, dollars, cents: centavos } = parseCurrencyValue(value)
   checkMax(dollars, currencyMax)
-  const { and: useAnd = true } = options
+  const { and: useAnd } = resolveOptions(options, currencyDefaults)
 
   let result = ''
   if (isNegative) result = NEGATIVE + ' '

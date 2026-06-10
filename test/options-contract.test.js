@@ -18,6 +18,9 @@ import { isPlainObject } from '../src/utils/is-plain-object.js'
  * - a malformed options argument throws `TypeError` — an unknown key, a
  *   wrong-typed value, or an inherited key all fail loudly, not silently.
  *   (`RangeError` is reserved for a value out of range, e.g. checkMax.)
+ * - an enum-valued option declares its allowed set as `<form>Values`: every
+ *   declared value is accepted, the default is in the set, and an out-of-set
+ *   value throws `RangeError` instead of silently falling back to the default.
  *
  * Auto-covers any form that exports `<form>Defaults` while the sweep is in
  * progress. Once every options-taking language is migrated, this flips to
@@ -80,6 +83,24 @@ for (const { code, mod, declared } of languages) {
         `${code} ${form}: must reject inherited keys like __proto__`,
       )
       t.falsy(/** @type {Record<string, unknown>} */ ({}).polluted, 'prototype must not be polluted')
+
+      // Enum options: every declared value works, the default is in the set,
+      // and an out-of-set value throws RangeError (not a silent fallback).
+      for (const [key, set] of Object.entries(mod[`${form}Values`] ?? {})) {
+        t.true(Object.hasOwn(defaults, key), `${code} ${form}Values.${key} must be a declared option`)
+        t.true(Array.isArray(set) && set.length > 0, `${code} ${form}Values.${key} must be a non-empty array`)
+        t.true(set.includes(defaults[key]), `${code} ${form}: the default for "${key}" must be in its allowed set`)
+        for (const allowedValue of set) {
+          t.notThrows(() => fn(sample, { [key]: allowedValue }), `${code} ${form}: declared value "${allowedValue}" must be accepted`)
+        }
+        // The probe shares the option's typeof so it reaches the set check
+        // (a different typeof would TypeError first). All current enums are strings.
+        t.throws(
+          () => fn(sample, { [key]: '__not_in_set__' }),
+          { instanceOf: RangeError },
+          `${code} ${form}: out-of-set "${key}" must throw RangeError`,
+        )
+      }
     }
   })
 }

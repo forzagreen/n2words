@@ -17,7 +17,7 @@ import { parseCurrencyValue } from './utils/parse-currency.js'
 import { parseOrdinalValue } from './utils/parse-ordinal.js'
 import { checkMax } from './utils/check-max.js'
 import { western } from './utils/scale.js'
-import { validateOptions } from './utils/validate-options.js'
+import { resolveOptions } from './utils/resolve-options.js'
 
 // ============================================================================
 // Vocabulary
@@ -226,26 +226,32 @@ function decimalPartToWords(decimalPart, gender) {
 }
 
 /**
+ * @typedef {object} CardinalOptions
+ * @property {('masculine'|'feminine')} [gender] - Grammatical gender
+ * @property {string} [negativeWord] - Custom word for negative numbers
+ */
+
+/** @type {Required<CardinalOptions>} */
+export const cardinalDefaults = { gender: 'masculine', negativeWord: NEGATIVE }
+
+/** @type {{ gender: ReadonlyArray<Required<CardinalOptions>['gender']> }} */
+export const cardinalValues = { gender: ['masculine', 'feminine'] }
+
+/**
  * Converts a numeric value to Arabic words.
  * @param {number | string | bigint} value - The numeric value to convert
- * @param {object} [options] - Optional configuration
- * @param {('masculine'|'feminine')} [options.gender] - Grammatical gender
- * @param {string} [options.negativeWord] - Custom word for negative numbers
+ * @param {CardinalOptions} [options] - Optional configuration
  * @returns {string} The number in Arabic words
  * @example
  * toCardinal(1)                        // 'واحد'
  * toCardinal(1, {gender: 'feminine'})  // 'واحدة'
  */
 function toCardinal(value, options) {
-  options = validateOptions(options)
   const { isNegative, integerPart, decimalPart } = parseCardinalValue(value)
   checkMax(integerPart, cardinalMax, decimalPart)
 
   // Apply option defaults
-  const {
-    gender = 'masculine',
-    negativeWord = NEGATIVE,
-  } = options
+  const { gender, negativeWord } = resolveOptions(options, cardinalDefaults, cardinalValues)
 
   const parts = []
 
@@ -289,10 +295,20 @@ function integerToOrdinal(n, gender) {
 }
 
 /**
+ * @typedef {object} OrdinalOptions
+ * @property {('masculine'|'feminine')} [gender] - Grammatical gender
+ */
+
+/** @type {Required<OrdinalOptions>} */
+export const ordinalDefaults = { gender: 'masculine' }
+
+/** @type {{ gender: ReadonlyArray<Required<OrdinalOptions>['gender']> }} */
+export const ordinalValues = { gender: ['masculine', 'feminine'] }
+
+/**
  * Converts a numeric value to Arabic ordinal words.
  * @param {number | string | bigint} value - The numeric value to convert (positive integer)
- * @param {object} [options] - Optional configuration
- * @param {('masculine'|'feminine')} [options.gender] - Grammatical gender
+ * @param {OrdinalOptions} [options] - Optional configuration
  * @returns {string} The number as ordinal words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {RangeError} If value is negative, zero, or has a decimal part
@@ -302,10 +318,9 @@ function integerToOrdinal(n, gender) {
  * toOrdinal(3)                        // 'الثالث'
  */
 function toOrdinal(value, options) {
-  options = validateOptions(options)
   const integerPart = parseOrdinalValue(value)
   checkMax(integerPart, ordinalMax)
-  const { gender = 'masculine' } = options
+  const { gender } = resolveOptions(options, ordinalDefaults, ordinalValues)
   return integerToOrdinal(integerPart, gender)
 }
 

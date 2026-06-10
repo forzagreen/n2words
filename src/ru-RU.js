@@ -15,7 +15,7 @@ import { parseCurrencyValue } from './utils/parse-currency.js'
 import { parseOrdinalValue } from './utils/parse-ordinal.js'
 import { checkMax } from './utils/check-max.js'
 import { western } from './utils/scale.js'
-import { validateOptions } from './utils/validate-options.js'
+import { resolveOptions } from './utils/resolve-options.js'
 
 // ============================================================================
 // Vocabulary
@@ -303,21 +303,30 @@ export const ordinalMax = western(ORDINAL_SCALES.length)
 export const currencyMax = western(SCALE_FORMS.length)
 
 /**
+ * @typedef {object} CardinalOptions
+ * @property {('masculine'|'feminine')} [gender] - Grammatical gender
+ */
+
+/** @type {Required<CardinalOptions>} */
+export const cardinalDefaults = { gender: 'masculine' }
+
+/** @type {{ gender: ReadonlyArray<Required<CardinalOptions>['gender']> }} */
+export const cardinalValues = { gender: ['masculine', 'feminine'] }
+
+/**
  * Converts a numeric value to Russian words.
  * @param {number | string | bigint} value - The numeric value to convert
- * @param {object} [options] - Optional configuration
- * @param {('masculine'|'feminine')} [options.gender] - Grammatical gender
+ * @param {CardinalOptions} [options] - Optional configuration
  * @returns {string} The number in Russian words
  */
 function toCardinal(value, options) {
-  options = validateOptions(options)
   const { isNegative, integerPart, decimalPart } = parseCardinalValue(value)
   // Both the integer part and the decimal's significant digits are spelled via
   // the scale builder, so both must clear the ceiling.
   checkMax(integerPart, cardinalMax, decimalPart)
 
   // Apply option defaults
-  const { gender = 'masculine' } = options
+  const { gender } = resolveOptions(options, cardinalDefaults, cardinalValues)
 
   let result = ''
 
@@ -533,10 +542,17 @@ function toOrdinal(value) {
 // ============================================================================
 
 /**
+ * @typedef {object} CurrencyOptions
+ * @property {boolean} [and] - Use "и" between rubles and kopecks
+ */
+
+/** @type {Required<CurrencyOptions>} */
+export const currencyDefaults = { and: true }
+
+/**
  * Converts a numeric value to Russian currency words (Russian Ruble).
  * @param {number | string | bigint} value - The currency amount to convert
- * @param {object} [options] - Optional configuration
- * @param {boolean} [options.and] - Use "и" between rubles and kopecks
+ * @param {CurrencyOptions} [options] - Optional configuration
  * @returns {string} The amount in Russian currency words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {Error} If value is not a valid number format
@@ -548,10 +564,9 @@ function toOrdinal(value) {
  * toCurrency(42.50, { and: false })    // 'сорок два рубля пятьдесят копеек'
  */
 function toCurrency(value, options) {
-  options = validateOptions(options)
   const { isNegative, dollars: rubles, cents: kopecks } = parseCurrencyValue(value)
   checkMax(rubles, currencyMax)
-  const { and: useAnd = true } = options
+  const { and: useAnd } = resolveOptions(options, currencyDefaults)
 
   // Build result
   let result = ''

@@ -15,7 +15,7 @@ import { parseCurrencyValue } from './utils/parse-currency.js'
 import { parseOrdinalValue } from './utils/parse-ordinal.js'
 import { checkMax } from './utils/check-max.js'
 import { western } from './utils/scale.js'
-import { validateOptions } from './utils/validate-options.js'
+import { resolveOptions } from './utils/resolve-options.js'
 
 // ============================================================================
 // Vocabulary
@@ -267,21 +267,30 @@ export const ordinalMax = western(ORDINAL_SCALES.length)
 export const currencyMax = western(SCALE_FORMS.length)
 
 /**
+ * @typedef {object} CardinalOptions
+ * @property {('masculine'|'feminine')} [gender] - Grammatical gender
+ */
+
+/** @type {Required<CardinalOptions>} */
+export const cardinalDefaults = { gender: 'masculine' }
+
+/** @type {{ gender: ReadonlyArray<Required<CardinalOptions>['gender']> }} */
+export const cardinalValues = { gender: ['masculine', 'feminine'] }
+
+/**
  * Converts a numeric value to Croatian words.
  * @param {number | string | bigint} value - The numeric value to convert
- * @param {object} [options] - Optional configuration
- * @param {('masculine'|'feminine')} [options.gender] - Grammatical gender
+ * @param {CardinalOptions} [options] - Optional configuration
  * @returns {string} The number in Croatian words
  */
 function toCardinal(value, options) {
-  options = validateOptions(options)
   const { isNegative, integerPart, decimalPart } = parseCardinalValue(value)
   // Both the integer part and the decimal's significant digits are spelled via
   // the scale builder, so both must clear the ceiling.
   checkMax(integerPart, cardinalMax, decimalPart)
 
   // Apply option defaults
-  const { gender = 'masculine' } = options
+  const { gender } = resolveOptions(options, cardinalDefaults, cardinalValues)
 
   let result = ''
 
