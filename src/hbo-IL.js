@@ -16,7 +16,7 @@ import { parseCurrencyValue } from './utils/parse-currency.js'
 import { parseOrdinalValue } from './utils/parse-ordinal.js'
 import { checkMax } from './utils/check-max.js'
 import { bounded, western } from './utils/scale.js'
-import { validateOptions } from './utils/validate-options.js'
+import { resolveOptions } from './utils/resolve-options.js'
 
 // ============================================================================
 // Vocabulary (arrays for indexed access - faster than object property lookup)
@@ -295,23 +295,27 @@ function decimalPartToWords(decimalPart, gender) {
 }
 
 /**
+ * @typedef {object} CardinalOptions
+ * @property {('masculine'|'feminine')} [gender] - Grammatical gender
+ * @property {string} [andWord] - Custom conjunction word
+ */
+
+/** @type {Required<CardinalOptions>} */
+export const cardinalDefaults = { gender: 'masculine', andWord: 'ו' }
+
+/** @type {{ gender: ReadonlyArray<Required<CardinalOptions>['gender']> }} */
+export const cardinalValues = { gender: ['masculine', 'feminine'] }
+
+/**
  * Converts a numeric value to Biblical Hebrew words.
  * @param {number | string | bigint} value - The numeric value to convert
- * @param {object} [options] - Optional configuration
- * @param {('masculine'|'feminine')} [options.gender] - Grammatical gender
- * @param {string} [options.andWord] - Custom conjunction word
+ * @param {CardinalOptions} [options] - Optional configuration
  * @returns {string} The number in Biblical Hebrew words
  */
 function toCardinal(value, options) {
-  options = validateOptions(options)
   const { isNegative, integerPart, decimalPart } = parseCardinalValue(value)
   checkMax(integerPart, cardinalMax)
-
-  // Apply option defaults
-  const {
-    gender = 'masculine',
-    andWord = 'ו',
-  } = options
+  const { gender, andWord } = resolveOptions(options, cardinalDefaults, cardinalValues)
 
   let result = ''
 

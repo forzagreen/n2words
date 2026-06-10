@@ -16,7 +16,7 @@ import { parseCurrencyValue } from './utils/parse-currency.js'
 import { parseOrdinalValue } from './utils/parse-ordinal.js'
 import { checkMax } from './utils/check-max.js'
 import { western } from './utils/scale.js'
-import { validateOptions } from './utils/validate-options.js'
+import { resolveOptions } from './utils/resolve-options.js'
 
 // ============================================================================
 // Vocabulary (module-level constants)
@@ -486,10 +486,17 @@ function toOrdinal(value) {
 // ============================================================================
 
 /**
+ * @typedef {object} CurrencyOptions
+ * @property {boolean} [and] - Include "e" between euros and cents
+ */
+
+/** @type {Required<CurrencyOptions>} */
+export const currencyDefaults = { and: true }
+
+/**
  * Converts a number to Portuguese currency words (Euro).
  * @param {number | string | bigint} value - The amount to convert
- * @param {object} [options] Currency formatting options
- * @param {boolean} [options.and] - Include "e" between euros and cents
+ * @param {CurrencyOptions} [options] Currency formatting options
  * @returns {string} Portuguese currency words
  * @example
  * toCurrency(42.50)  // 'quarenta e dois euros e cinquenta cêntimos'
@@ -497,10 +504,9 @@ function toOrdinal(value) {
  * toCurrency(0.01)   // 'um cêntimo'
  */
 function toCurrency(value, options) {
-  options = validateOptions(options)
   const { isNegative, dollars: euros, cents } = parseCurrencyValue(value)
   checkMax(euros, currencyMax)
-  const { and = true } = options
+  const { and } = resolveOptions(options, currencyDefaults)
 
   let result = ''
 

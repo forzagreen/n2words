@@ -14,7 +14,7 @@ import { parseCurrencyValue } from './utils/parse-currency.js'
 import { parseOrdinalValue } from './utils/parse-ordinal.js'
 import { checkMax } from './utils/check-max.js'
 import { western } from './utils/scale.js'
-import { validateOptions } from './utils/validate-options.js'
+import { resolveOptions } from './utils/resolve-options.js'
 
 // ============================================================================
 // Vocabulary (module-level constants)
@@ -261,10 +261,17 @@ function decimalPartToWords(decimalPart, dropSpaces) {
 }
 
 /**
+ * @typedef {object} CardinalOptions
+ * @property {boolean} [dropSpaces] - Remove spaces for compound form
+ */
+
+/** @type {Required<CardinalOptions>} */
+export const cardinalDefaults = { dropSpaces: false }
+
+/**
  * Converts a numeric value to Turkish words.
  * @param {number | string | bigint} value - The numeric value to convert
- * @param {object} [options] - Conversion options
- * @param {boolean} [options.dropSpaces] - Remove spaces for compound form
+ * @param {CardinalOptions} [options] - Conversion options
  * @returns {string} The number in Turkish words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {Error} If value is not a valid number format
@@ -274,14 +281,13 @@ function decimalPartToWords(decimalPart, dropSpaces) {
  * toCardinal(1000)                      // 'bin'
  */
 function toCardinal(value, options) {
-  options = validateOptions(options)
   const { isNegative, integerPart, decimalPart } = parseCardinalValue(value)
   // Both the integer part and the decimal's significant digits are spelled via
   // the scale builder, so both must clear the ceiling.
   checkMax(integerPart, cardinalMax, decimalPart)
 
   // Apply option defaults
-  const { dropSpaces = false } = options
+  const { dropSpaces } = resolveOptions(options, cardinalDefaults)
 
   const sep = dropSpaces ? '' : ' '
   let result = ''

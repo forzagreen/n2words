@@ -16,7 +16,7 @@ import { parseCurrencyValue } from './utils/parse-currency.js'
 import { parseOrdinalValue } from './utils/parse-ordinal.js'
 import { checkMax } from './utils/check-max.js'
 import { western } from './utils/scale.js'
-import { validateOptions } from './utils/validate-options.js'
+import { resolveOptions } from './utils/resolve-options.js'
 
 // ============================================================================
 // Vocabulary (module-level constants)
@@ -482,24 +482,30 @@ function toOrdinal(value) {
 // ============================================================================
 
 /**
+ * @typedef {object} CurrencyOptions
+ * @property {boolean} [and] - Include "e" between major and minor units
+ * @property {string} [currency] - Currency code (e.g., 'BRL', 'USD'); empty means auto-detect for pt-BR
+ */
+
+/** @type {Required<CurrencyOptions>} */
+export const currencyDefaults = { and: true, currency: '' }
+
+/**
  * Converts a number to Brazilian Portuguese currency words.
  * @param {number | string | bigint} value - The amount to convert
- * @param {object} [options] Currency formatting options
- * @param {boolean} [options.and] - Include "e" between major and minor units
- * @param {string} [options.currency] - Currency code (e.g., 'BRL', 'USD')
+ * @param {CurrencyOptions} [options] Currency formatting options
  * @returns {string} Brazilian Portuguese currency words
  * @example
  * toCurrency(42.50)                    // 'quarenta e dois reais e cinquenta centavos'
  * toCurrency(42.50, {currency: 'USD'}) // 'quarenta e dois dólares e cinquenta centavos'
  */
 function toCurrency(value, options) {
-  options = validateOptions(options)
   const { isNegative, dollars: majorUnits, cents: minorUnits } = parseCurrencyValue(value)
   checkMax(majorUnits, currencyMax)
-  const { and = true } = options
+  const { and, currency } = resolveOptions(options, currencyDefaults)
 
   // 1. Descobre a moeda informada ou busca automaticamente a padrão do país (pt-BR = BRL)
-  let currencyCode = options.currency
+  let currencyCode = currency
   if (!currencyCode) {
     try {
       // Intl Locale Info (getCurrencies) is a newer TC39 API present at
