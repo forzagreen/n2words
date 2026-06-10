@@ -52,7 +52,7 @@ checkMax(dollars,     currencyMax)
 
 `checkMax(value, max, fraction?)` (`src/utils/check-max.js`) is a throwing
 precondition validator — the same family as `parseCardinalValue` /
-`validateOptions`: the language calls it and it throws on a value past the
+`resolveOptions`: the language calls it and it throws on a value past the
 ceiling, owning the `RangeError` itself.
 
 - a `max` of `null` (unbounded) never throws;

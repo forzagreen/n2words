@@ -2,7 +2,7 @@
  * Range guard — the throwing counterpart of the scale-range producers.
  *
  * A precondition validator in the same family as `parseCardinalValue` /
- * `validateOptions`: the language calls it and it throws on a value past the
+ * `resolveOptions`: the language calls it and it throws on a value past the
  * form's ceiling, e.g. `checkMax(integerPart, cardinalMax, decimalPart)`. The
  * `*Max` it consumes is produced by the pure helpers in `scale.js`.
  * @module check-max

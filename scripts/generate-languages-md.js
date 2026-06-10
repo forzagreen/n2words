@@ -103,53 +103,6 @@ function toDocType(checker, propType) {
 }
 
 /**
- * Read an option's default from its `@param {type} [options.name=default]`
- * tag — a bounded read on the single declaration node the checker resolved,
- * not a scan of the file.
- *
- * @param {import('typescript').Symbol} prop
- * @param {string} name
- * @returns {string|undefined}
- */
-function extractDefault(prop, name) {
-  const decl = prop.valueDeclaration ?? prop.declarations?.[0]
-  if (!decl) return undefined
-  const text = decl.getText(decl.getSourceFile())
-  const match = text.match(new RegExp(`\\[options\\.${name}(?:=([^\\]]+))?\\]`))
-  return match && match[1] != null ? match[1] : undefined
-}
-
-/**
- * Read each option's default from the form's `const { x = default } = options`
- * destructuring. Defaults live in code, not JSDoc, so this is the single source
- * of truth; renamed bindings (`{ and: useAnd = true }`) key off the property
- * name, and string-literal defaults are unquoted for display.
- *
- * @param {import('typescript').FunctionDeclaration} fnNode Form function node
- * @returns {Map<string, string>} Option key -> default value text
- */
-function extractDestructureDefaults(fnNode) {
-  const defaults = new Map()
-  const visit = (node) => {
-    if (
-      ts.isVariableDeclaration(node)
-      && node.initializer && ts.isIdentifier(node.initializer) && node.initializer.text === 'options'
-      && node.name && ts.isObjectBindingPattern(node.name)
-    ) {
-      for (const el of node.name.elements) {
-        if (!el.initializer) continue // this property has no default
-        const key = el.propertyName ?? el.name // `and: useAnd` keys off `and`; `gender` off itself
-        const keyText = ts.isIdentifier(key) ? key.text : key.getText()
-        defaults.set(keyText, ts.isStringLiteral(el.initializer) ? el.initializer.text : el.initializer.getText())
-      }
-    }
-    ts.forEachChild(node, visit)
-  }
-  visit(fnNode)
-  return defaults
-}
-
-/**
  * Build code -> (functionName -> OptionInfo[]) by type-checking the language
  * sources once. Option names, types, and descriptions come straight from the
  * checker (the same view TypeScript exposes to consumers), so the docs can't
@@ -196,14 +149,16 @@ function buildOptionsIndex(codes, mods) {
         type = type.types.find(t => !(t.flags & ts.TypeFlags.Undefined)) ?? type
       }
 
-      // Default precedence: the options-contract `<form>Defaults` export
-      // (imported — the single source of truth) → the `const { x = default } =
-      // options` destructuring (languages not yet on the contract) → the legacy
-      // JSDoc `[name=default]` tag.
+      // Defaults come from the options contract's `<form>Defaults` export —
+      // imported, the single source of truth. A form taking options without it
+      // is a contract violation (the gate enforces this too), so fail loudly
+      // rather than scrape JSDoc or the function body.
       const formDefaults = /** @type {Record<string, unknown> | undefined} */ (
         mods.get(code)?.[`${FORM_FUNCTIONS[fnName]}Defaults`]
       )
-      const destructureDefaults = extractDestructureDefaults(node)
+      if (formDefaults === undefined) {
+        throw new Error(`${code} ${fnName}() accepts options but doesn't export ${FORM_FUNCTIONS[fnName]}Defaults — every options-taking form must declare its contract`)
+      }
       const options = (type.getProperties?.() ?? []).map((prop) => {
         const name = prop.getName()
         const description = ts
@@ -214,9 +169,7 @@ function buildOptionsIndex(codes, mods) {
         return {
           name,
           type: toDocType(checker, checker.getTypeOfSymbolAtLocation(prop, optionsParam)),
-          defaultValue: formDefaults && Object.hasOwn(formDefaults, name)
-            ? String(formDefaults[name])
-            : destructureDefaults.get(name) ?? extractDefault(prop, name),
+          defaultValue: Object.hasOwn(formDefaults, name) ? String(formDefaults[name]) : undefined,
           description,
           form: FORM_FUNCTIONS[fnName],
         }
