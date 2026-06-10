@@ -50,6 +50,10 @@ for (const { code, mod, declared } of languages) {
       // The declared defaults are the real defaults: explicit must equal omitted.
       t.is(fn(sample, { ...defaults }), fn(sample), `${code} ${form}: explicit defaults must match the no-options output`)
 
+      // `{ key: undefined }` means "use the default" (matches `key?: T`), not a throw.
+      const firstName = Object.keys(defaults)[0]
+      t.is(fn(sample, { [firstName]: undefined }), fn(sample), `${code} ${form}: an undefined "${firstName}" falls back to its default`)
+
       // An undeclared option fails loudly rather than being silently ignored.
       t.throws(
         () => fn(sample, { __unknown_option__: true }),

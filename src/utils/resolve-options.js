@@ -30,6 +30,10 @@ export function resolveOptions(options, defaults) {
     if (!Object.hasOwn(defaults, key)) {
       throw new TypeError(`Unknown option "${key}" — expected one of: ${allowed.join(', ')}`)
     }
+    // `{ key: undefined }` means "use the default": `key?: T` is `T | undefined`
+    // without exactOptionalPropertyTypes, and the old destructuring defaults
+    // treated undefined the same way. Omit it rather than reject it as a type.
+    if (value === undefined) continue
     if (typeof value !== typeof resolved[key]) {
       throw new TypeError(`Option "${key}" must be a ${typeof resolved[key]}, got ${typeof value}`)
     }
