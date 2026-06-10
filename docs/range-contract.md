@@ -6,9 +6,9 @@ language's range, lets the gate pin the exact ceiling, and makes the
 silent-magnitude-collapse bug class structurally catchable — with no per-language
 test code.
 
-> Status: introduced as a proof on `en-US`, `it-IT`, `zh-Hans-CN`, `th-TH`
-> (one of each structural kind). The remaining languages are migrated to it
-> family by family, and the gate covers each one the moment it declares a `*Max`.
+> Status: adopted by every language, and **required** — the gate fails any
+> exported form that doesn't declare its `*Max`, so a new language can't skip
+> the contract and pass CI.
 
 ## The fact: a bigint `*Max` per form
 
@@ -79,12 +79,13 @@ scale table:
 Contiguity ("no missing in-between scale word") is therefore a *behavioural*
 property the injectivity sweep enforces, not a structural assertion.
 
-## Migrating a language
+## Declaring a language's range
 
-1. Export `cardinalMax` / `ordinalMax` / `currencyMax` — a helper, `bounded(e)`, or
-   `UNBOUNDED`.
+1. Export `cardinalMax` / `ordinalMax` / `currencyMax` for each form you export —
+   a helper, `bounded(e)`, or `UNBOUNDED`. This is required: the gate fails an
+   exported form with no declaration.
 2. Guard each form with `checkMax(value, max, fraction?)`.
-3. Run `npm test` — the gate picks the language up automatically.
+3. Run `npm test` — the gate verifies the declaration behaviourally.
 
 ## Why this shape
 
