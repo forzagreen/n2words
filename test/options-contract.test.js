@@ -3,16 +3,17 @@ import { readdirSync } from 'node:fs'
 import { isPlainObject } from '../src/utils/is-plain-object.js'
 
 /**
- * Options-contract gate (proof).
+ * Options-contract gate.
  *
- * A form that accepts options declares its defaults as an exported map
+ * A form that accepts options MUST declare its defaults as an exported map
  * (`cardinalDefaults` / `ordinalDefaults` / `currencyDefaults`) — the single
  * source of truth that the runtime applies (via `resolveOptions`) and the docs
- * generator imports rather than scraping. This gate verifies the contract
+ * generator imports rather than scraping. A form whose function accepts an
+ * options parameter without the export fails here — required, not opt-in,
+ * exactly as the range gate requires `*Max`. The declaration is then verified
  * behaviourally, with no per-language knowledge:
  *
  * - the defaults export is a non-empty plain object;
- * - the form accepts `(value, options)`;
  * - calling with the explicit defaults reproduces the no-options output, so the
  *   declared defaults really are the defaults;
  * - a malformed options argument throws `TypeError` — an unknown key, a
@@ -22,10 +23,8 @@ import { isPlainObject } from '../src/utils/is-plain-object.js'
  *   declared value is accepted, the default is in the set, and an out-of-set
  *   value throws `RangeError` instead of silently falling back to the default.
  *
- * Auto-covers any form that exports `<form>Defaults` while the sweep is in
- * progress. Once every options-taking language is migrated, this flips to
- * required — any form accepting an options parameter without a `<form>Defaults`
- * export fails, exactly as the range gate requires `*Max`.
+ * Options-taking is detected by arity (`fn.length >= 2`) — every form signature
+ * is `(value, options)` with no default parameter, scaffold included.
  */
 
 const FORMS = [
@@ -53,24 +52,31 @@ function outOfSetProbe(set, type) {
   return null
 }
 
-// Pre-load so a test is registered only for forms that declare the contract.
+// Pre-load: a language registers when any form takes options OR declares the
+// contract, so neither side can dodge the other — options without a declaration
+// and a declaration without options both fail below.
 const languages = []
 for (const file of readdirSync('./src').filter(f => f.endsWith('.js') && !f.startsWith('utils')).sort()) {
   const mod = await import('../src/' + file)
-  const declared = FORMS.filter(([form]) => mod[`${form}Defaults`] !== undefined)
-  if (declared.length > 0) languages.push({ code: file.replace('.js', ''), mod, declared })
+  const relevant = FORMS.filter(([form, fnName]) =>
+    (typeof mod[fnName] === 'function' && mod[fnName].length >= 2) || mod[`${form}Defaults`] !== undefined,
+  )
+  if (relevant.length > 0) languages.push({ code: file.replace('.js', ''), mod, relevant })
 }
 
-for (const { code, mod, declared } of languages) {
+for (const { code, mod, relevant } of languages) {
   test(`${code} upholds its options contract`, (t) => {
-    for (const [form, fnName, sample] of declared) {
+    for (const [form, fnName, sample] of relevant) {
       const defaults = mod[`${form}Defaults`]
       const fn = mod[fnName]
+      const takesOptions = typeof fn === 'function' && fn.length >= 2
+
+      t.true(defaults !== undefined, `${code} ${fnName}() accepts options but doesn't export ${form}Defaults — every options-taking form must declare its contract (see CLAUDE.md's Options Pattern)`)
+      t.true(takesOptions, `${code} declares ${form}Defaults but ${fnName}() doesn't accept (value, options)`)
+      if (defaults === undefined || !takesOptions) continue // declaration mismatch already failed above
 
       t.true(isPlainObject(defaults), `${code} ${form}Defaults must be a plain object`)
       t.true(Object.keys(defaults).length > 0, `${code} ${form}Defaults must declare at least one option`)
-      t.is(typeof fn, 'function', `${code} declares ${form}Defaults but doesn't export ${fnName}()`)
-      t.true(fn.length >= 2, `${code} ${fnName} must accept (value, options)`)
 
       // The declared defaults are the real defaults: explicit must equal omitted.
       t.is(fn(sample, { ...defaults }), fn(sample), `${code} ${form}: explicit defaults must match the no-options output`)

@@ -249,17 +249,18 @@ function generateCurrencyFunction(code) {
   return `/**
  * Converts a numeric value to currency words.
  * @param {number | string | bigint} value - The currency amount to convert
- * @param {object} [options] - Optional configuration
  * @returns {string} The amount in currency words
  */
-function toCurrency(value, options) {
-  options = validateOptions(options)
+function toCurrency(value) {
   const { dollars } = parseCurrencyValue(value)
   checkMax(dollars, currencyMax)
 
   // parseCurrencyValue also returns isNegative and cents — use them when you build the words.
   // TODO: build the words from dollars (bigint) and cents, applying the sign
   // TODO: define this locale's currency vocabulary (major/minor unit names)
+  // TODO: if this form takes options (e.g. an "and" joiner), declare the options
+  //       contract — typedef + <form>Defaults export + resolveOptions — per
+  //       CLAUDE.md's Options Pattern; the gate fails an undeclared options param.
   throw new Error('${code} currency not yet implemented')
 }`
 }
@@ -319,9 +320,6 @@ function generateLanguageFile(code, name, forms) {
     importLines.push('import { parseOrdinalValue } from \'./utils/parse-ordinal.js\'')
   }
   importLines.push('import { UNBOUNDED } from \'./utils/scale.js\'')
-  if (hasCurrency) {
-    importLines.push('import { validateOptions } from \'./utils/validate-options.js\'')
-  }
   const imports = importLines.join('\n')
 
   const header = `// TODO: Implement number-to-words conversion for ${name} (${code})
@@ -437,9 +435,6 @@ function addFormsToExistingFile(code, newForms) {
   }
   if (newForms.has('currency') && !content.includes('parse-currency.js')) {
     newImports.push('import { parseCurrencyValue } from \'./utils/parse-currency.js\'')
-  }
-  if (newForms.has('currency') && !content.includes('validate-options.js')) {
-    newImports.push('import { validateOptions } from \'./utils/validate-options.js\'')
   }
   // Every scaffolded guard needs checkMax; every placeholder ceiling needs
   // UNBOUNDED. checkMax is its own module; UNBOUNDED shares scale.js, so fold it

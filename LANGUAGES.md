@@ -125,7 +125,7 @@ toCurrency(value, { optionName: value })
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
 |`gender`|cardinal|'masculine' \| 'feminine'|`masculine`|Grammatical gender|
-|`negativeWord`|cardinal|`string`|`NEGATIVE`|Custom word for negative numbers|
+|`negativeWord`|cardinal|`string`|`ناقص`|Custom word for negative numbers|
 |`gender`|ordinal|'masculine' \| 'feminine'|`masculine`|Grammatical gender|
 
 ### Australian English (`en-AU`)
@@ -146,7 +146,7 @@ toCurrency(value, { optionName: value })
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
 |`and`|currency|`boolean`|`true`|Include "e" between major and minor units|
-|`currency`|currency|`string`|—|Currency code (e.g., 'BRL', 'USD')|
+|`currency`|currency|`string`|—|Currency code (e.g., 'BRL', 'USD'); empty means auto-detect for pt-BR|
 
 ### British English (`en-GB`)
 
@@ -315,13 +315,13 @@ toCurrency(value, { optionName: value })
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
-|`gender`|cardinal|`string`|`masculine`|Gender for numbers < 1000|
+|`gender`|cardinal|'masculine' \| 'feminine'|`masculine`|Gender for numbers < 1000|
 
 ### Lithuanian (Lithuania) (`lt-LT`)
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
-|`gender`|cardinal|`string`|`masculine`|Gender for numbers < 1000|
+|`gender`|cardinal|'masculine' \| 'feminine'|`masculine`|Gender for numbers < 1000|
 
 ### Mexican Spanish (`es-MX`)
 
@@ -335,13 +335,13 @@ toCurrency(value, { optionName: value })
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
-|`gender`|cardinal|`string`|`masculine`|Gender for numbers < 1000|
+|`gender`|cardinal|'masculine' \| 'feminine'|`masculine`|Gender for numbers < 1000|
 
 ### Romanian (Romania) (`ro-RO`)
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
-|`gender`|cardinal|`string`|`masculine`|Gender for numbers|
+|`gender`|cardinal|'masculine' \| 'feminine'|`masculine`|Gender for numbers|
 
 ### Russian (Russia) (`ru-RU`)
 

@@ -19,9 +19,9 @@ src/
     ├── parse-currency.js    # Currency form parsing (dollars, cents)
     ├── scale.js             # Pure *Max producers (western/myriad/indian/longScale/bounded/UNBOUNDED)
     ├── check-max.js         # checkMax: throws RangeError past a form's declared ceiling
+    ├── resolve-options.js   # resolveOptions: applies a form's exported defaults, validates options
     ├── expand-scientific.js # Scientific notation expansion
-    ├── is-plain-object.js   # Object type checking
-    └── validate-options.js  # Options validation
+    └── is-plain-object.js   # Object type checking
 ```
 
 ## Language File Pattern
@@ -83,28 +83,51 @@ genuinely universal single-purpose logic.
 
 ## Options Pattern
 
+A form that accepts options declares an **options contract** — enforced by
+`test/options-contract.test.js`: any form whose function takes an options
+parameter **must** export its `<form>Defaults` (a form without one fails CI).
+
 ```javascript
-import { validateOptions } from './utils/validate-options.js'
+import { resolveOptions } from './utils/resolve-options.js'
+
+/**
+ * @typedef {object} CardinalOptions
+ * @property {('masculine'|'feminine')} [gender] - Grammatical gender of the number
+ */
+
+/** @type {Required<CardinalOptions>} */
+export const cardinalDefaults = { gender: 'masculine' }
+
+/** @type {{ gender: ReadonlyArray<Required<CardinalOptions>['gender']> }} */
+export const cardinalValues = { gender: ['masculine', 'feminine'] } // enum options only
 
 /**
  * @param {number | string | bigint} value
- * @param {object} [options]
- * @param {('masculine'|'feminine')} [options.gender] - Grammatical gender of the number
+ * @param {CardinalOptions} [options]
  * @returns {string}
  */
 function toCardinal (value, options) {
-  options = validateOptions(options)
   const { isNegative, integerPart, decimalPart } = parseCardinalValue(value)
-  const { gender = 'masculine' } = options // default lives here — the single source of truth
+  const { gender } = resolveOptions(options, cardinalDefaults, cardinalValues)
   // Pass explicit values to internal functions, not options object
 }
 ```
 
-Document each option with an **explicit** `@param {type} [options.name] - description` —
-never an inline `@param {{name?: type}} [options]`, which has nowhere for the
-description. Put the **default in the destructuring** (`{ gender = 'masculine' }`),
-not in the `@param` tag: it's the single source of truth, and the `LANGUAGES.md`
-generator reads it from there (`@param {object}` lowercase, so it doesn't trip lint).
+Each fact has exactly one home, and machines hold every seam:
+
+- **type + description** → the `@typedef` (one `@property` per option — lint
+  forces the description; never an inline `@param {{...}}`).
+- **default** → the exported `<form>Defaults` map. The runtime applies it
+  (`resolveOptions`), the `LANGUAGES.md` generator imports it, and the
+  `Required<...Options>` annotation makes strict checkJs fail a key missing
+  from (or added beyond) the typedef.
+- **allowed set** (enum options like `gender`) → the exported `<form>Values`
+  map. An out-of-set value throws `RangeError`; the array's element type ties it
+  to the typedef union, so a typo in the set fails typecheck.
+
+`resolveOptions` rejects malformed options with `TypeError` (unknown key,
+wrong-typed value, non-object) and treats `{ key: undefined }` as "use the
+default". Boolean/free-string forms omit the `<form>Values` argument.
 
 ## Adding a Language
 
@@ -114,10 +137,11 @@ npm run lang:add -- <code>  # Creates stub + fixture + type tests
 
 Then: implement the form(s) you're adding (`toCardinal`, `toOrdinal`, and/or `toCurrency` — at least one) in `src/{code}.js` — **including the `*Max` declarations and `checkMax` guards** (see Language File Pattern) — add cases to `test/fixtures/{code}.js`, run `npm test`.
 
-A new language must clear four enforced gates (in `test/`):
+A new language must clear five enforced gates (in `test/`):
 
 - **Contract** (`contract.test.js`): every exported form returns a well-formed string or throws `RangeError` for any input.
 - **Range** (`range-contract.test.js`): every exported form **must** declare its `*Max` (helper-derived or `UNBOUNDED`) — a form without one fails — and uphold it: well-formed and injective across the range, throwing exactly at a finite ceiling.
+- **Options** (`options-contract.test.js`): every options-taking form **must** export its `<form>Defaults` (see Options Pattern) — declared defaults round-trip, malformed options throw `TypeError`, out-of-set enum values throw `RangeError`.
 - **Coverage** (`conversions.test.js`): ≥5 fixture cases per form.
 - **Canonical code** (`conversions.test.js`): the filename is canonical BCP 47 (`en-US`, not `en-us`).
 
