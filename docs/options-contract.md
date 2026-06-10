@@ -53,9 +53,10 @@ Each fact has exactly one home:
 
 ## The gate (`test/options-contract.test.js`)
 
-Options-taking is detected by arity (every form signature is `(value, options)`),
-so a form cannot accept options without declaring the contract. For each
-options-taking form:
+Options-taking is detected by arity: every options-taking form's signature is
+`(value, options)` with no default parameter (forms without options are
+`(value)` only), so a form cannot accept options without declaring the
+contract. For each options-taking form:
 
 - `<form>Defaults` exists, is a plain object, and is non-empty;
 - the declared defaults **round-trip**: `fn(x, { ...defaults })` equals `fn(x)`;

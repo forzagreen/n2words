@@ -23,8 +23,9 @@ import { isPlainObject } from '../src/utils/is-plain-object.js'
  *   declared value is accepted, the default is in the set, and an out-of-set
  *   value throws `RangeError` instead of silently falling back to the default.
  *
- * Options-taking is detected by arity (`fn.length >= 2`) — every form signature
- * is `(value, options)` with no default parameter, scaffold included.
+ * Options-taking is detected by arity (`fn.length >= 2`) — every options-taking
+ * form's signature is `(value, options)` with no default parameter; forms
+ * without options are `(value)` only, scaffold included.
  */
 
 const FORMS = [
