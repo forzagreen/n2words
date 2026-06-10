@@ -156,9 +156,10 @@ function extractDestructureDefaults(fnNode) {
  * drift from comment formatting the way the old regex scrape could.
  *
  * @param {string[]} codes Language codes
+ * @param {Map<string, object>} mods Code -> module namespace (for `<form>Defaults` exports)
  * @returns {Map<string, Map<string, OptionInfo[]>>}
  */
-function buildOptionsIndex(codes) {
+function buildOptionsIndex(codes, mods) {
   const program = ts.createProgram(
     codes.map(code => `./src/${code}.js`),
     {
@@ -195,6 +196,13 @@ function buildOptionsIndex(codes) {
         type = type.types.find(t => !(t.flags & ts.TypeFlags.Undefined)) ?? type
       }
 
+      // Default precedence: the options-contract `<form>Defaults` export
+      // (imported — the single source of truth) → the `const { x = default } =
+      // options` destructuring (languages not yet on the contract) → the legacy
+      // JSDoc `[name=default]` tag.
+      const formDefaults = /** @type {Record<string, unknown> | undefined} */ (
+        mods.get(code)?.[`${FORM_FUNCTIONS[fnName]}Defaults`]
+      )
       const destructureDefaults = extractDestructureDefaults(node)
       const options = (type.getProperties?.() ?? []).map((prop) => {
         const name = prop.getName()
@@ -206,7 +214,9 @@ function buildOptionsIndex(codes) {
         return {
           name,
           type: toDocType(checker, checker.getTypeOfSymbolAtLocation(prop, optionsParam)),
-          defaultValue: destructureDefaults.get(name) ?? extractDefault(prop, name),
+          defaultValue: formDefaults && Object.hasOwn(formDefaults, name)
+            ? String(formDefaults[name])
+            : destructureDefaults.get(name) ?? extractDefault(prop, name),
           description,
           form: FORM_FUNCTIONS[fnName],
         }
@@ -471,7 +481,7 @@ async function main() {
   const mods = new Map(
     await Promise.all(codes.map(async code => [code, await import(`../src/${code}.js`)])),
   )
-  optionsIndex = buildOptionsIndex(codes)
+  optionsIndex = buildOptionsIndex(codes, mods)
   const markdown = generateMarkdown(codes, forms, mods)
 
   writeFileSync('./LANGUAGES.md', markdown)
