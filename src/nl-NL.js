@@ -18,7 +18,7 @@ import { parseCurrencyValue } from './utils/parse-currency.js'
 import { parseOrdinalValue } from './utils/parse-ordinal.js'
 import { checkMax } from './utils/check-max.js'
 import { western } from './utils/scale.js'
-import { validateOptions } from './utils/validate-options.js'
+import { resolveOptions } from './utils/resolve-options.js'
 
 // ============================================================================
 // Vocabulary (module-level constants)
@@ -309,15 +309,22 @@ function decimalPartToWords(decimalPart, options) {
 }
 
 /**
+ * @typedef {object} CardinalOptions
+ * @property {boolean} [accentOne] - Use "één" instead of "een"
+ * @property {boolean} [includeOptionalAnd] - Include "en" before small numbers
+ * @property {boolean} [noHundredPairing] - Disable hundred pairing (1104→duizend honderdvier)
+ */
+
+/** @type {Required<CardinalOptions>} */
+export const cardinalDefaults = { accentOne: true, includeOptionalAnd: false, noHundredPairing: false }
+
+/**
  * Converts a numeric value to Dutch words.
  *
  * This is the main public API. It accepts any valid numeric input
  * (number, string, or bigint) and handles parsing internally.
  * @param {number | string | bigint} value - The numeric value to convert
- * @param {object} [options] - Optional configuration
- * @param {boolean} [options.accentOne] - Use "één" instead of "een"
- * @param {boolean} [options.includeOptionalAnd] - Include "en" before small numbers
- * @param {boolean} [options.noHundredPairing] - Disable hundred pairing (1104→duizend honderdvier)
+ * @param {CardinalOptions} [options] - Optional configuration
  * @returns {string} The number in Dutch words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {Error} If value is not a valid number format
@@ -328,18 +335,13 @@ function decimalPartToWords(decimalPart, options) {
  * toCardinal(1104)                      // 'elfhonderd vier'
  */
 function toCardinal(value, options) {
-  options = validateOptions(options)
   const { isNegative, integerPart, decimalPart } = parseCardinalValue(value)
   // Both the integer part and the decimal's significant digits are spelled via
   // the scale builder, so both must clear the ceiling.
   checkMax(integerPart, cardinalMax, decimalPart)
 
   // Apply option defaults
-  const {
-    accentOne = true,
-    includeOptionalAnd = false,
-    noHundredPairing = false,
-  } = options
+  const { accentOne, includeOptionalAnd, noHundredPairing } = resolveOptions(options, cardinalDefaults)
 
   const opts = { accentOne, includeOptionalAnd, noHundredPairing }
 
@@ -542,10 +544,17 @@ function buildLargeOrdinal(n) {
 // ============================================================================
 
 /**
+ * @typedef {object} CurrencyOptions
+ * @property {boolean} [and] - Include "en" between euros and cents
+ */
+
+/** @type {Required<CurrencyOptions>} */
+export const currencyDefaults = { and: true }
+
+/**
  * Converts a number to Dutch currency words (Euro).
  * @param {number | string | bigint} value - The amount to convert
- * @param {object} [options] Optional configuration
- * @param {boolean} [options.and] - Include "en" between euros and cents
+ * @param {CurrencyOptions} [options] Optional configuration
  * @returns {string} Dutch currency words
  * @example
  * toCurrency(42.50)  // 'tweeënveertig euro en vijftig cent'
@@ -553,10 +562,9 @@ function buildLargeOrdinal(n) {
  * toCurrency(0.01)   // 'één cent'
  */
 function toCurrency(value, options) {
-  options = validateOptions(options)
   const { isNegative, dollars: euros, cents } = parseCurrencyValue(value)
   checkMax(euros, currencyMax)
-  const { and = true } = options
+  const { and } = resolveOptions(options, currencyDefaults)
 
   let result = ''
 

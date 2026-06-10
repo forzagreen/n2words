@@ -19,7 +19,7 @@ import { parseCurrencyValue } from './utils/parse-currency.js'
 import { parseOrdinalValue } from './utils/parse-ordinal.js'
 import { checkMax } from './utils/check-max.js'
 import { bounded } from './utils/scale.js'
-import { validateOptions } from './utils/validate-options.js'
+import { resolveOptions } from './utils/resolve-options.js'
 
 // ============================================================================
 // Vocabulary
@@ -223,19 +223,25 @@ function decimalDigitsToWords(decimalString, formal = true) {
 }
 
 /**
+ * @typedef {object} CardinalOptions
+ * @property {boolean} [formal] - Use formal/financial numerals
+ */
+
+/** @type {Required<CardinalOptions>} */
+export const cardinalDefaults = { formal: true }
+
+/**
  * Converts a numeric value to Traditional Chinese words.
  * @param {number | string | bigint} value - The numeric value to convert
- * @param {object} [options] - Optional configuration
- * @param {boolean} [options.formal] - Use formal/financial numerals
+ * @param {CardinalOptions} [options] - Optional configuration
  * @returns {string} The number in Traditional Chinese words
  */
 function toCardinal(value, options) {
-  options = validateOptions(options)
   const { isNegative, integerPart, decimalPart } = parseCardinalValue(value)
   checkMax(integerPart, cardinalMax)
 
   // Apply option defaults
-  const { formal = true } = options
+  const { formal } = resolveOptions(options, cardinalDefaults)
 
   let result = ''
 
@@ -269,10 +275,17 @@ function integerToOrdinal(n, formal = true) {
 }
 
 /**
+ * @typedef {object} OrdinalOptions
+ * @property {boolean} [formal] - Use formal/financial numerals
+ */
+
+/** @type {Required<OrdinalOptions>} */
+export const ordinalDefaults = { formal: true }
+
+/**
  * Converts a numeric value to Traditional Chinese ordinal words.
  * @param {number | string | bigint} value - The numeric value to convert (positive integer)
- * @param {object} [options] - Optional configuration
- * @param {boolean} [options.formal] - Use formal/financial numerals
+ * @param {OrdinalOptions} [options] - Optional configuration
  * @returns {string} The number as ordinal words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {RangeError} If value is negative, zero, or has a decimal part
@@ -282,10 +295,9 @@ function integerToOrdinal(n, formal = true) {
  * toOrdinal(1, { formal: false }) // '第一'
  */
 function toOrdinal(value, options) {
-  options = validateOptions(options)
   const integerPart = parseOrdinalValue(value)
   checkMax(integerPart, ordinalMax)
-  const { formal = true } = options
+  const { formal } = resolveOptions(options, ordinalDefaults)
   return integerToOrdinal(integerPart, formal)
 }
 
@@ -294,13 +306,20 @@ function toOrdinal(value, options) {
 // ============================================================================
 
 /**
+ * @typedef {object} CurrencyOptions
+ * @property {boolean} [formal] - Use formal/financial numerals
+ */
+
+/** @type {Required<CurrencyOptions>} */
+export const currencyDefaults = { formal: true }
+
+/**
  * Converts a numeric value to Traditional Chinese currency words (New Taiwan Dollar).
  *
  * Uses 圓 (yuan), 角 (jiao, 1/10), 分 (fen, 1/100).
  * Formal writing adds 整 (zheng) for whole amounts.
  * @param {number | string | bigint} value - The currency amount to convert
- * @param {object} [options] - Optional configuration
- * @param {boolean} [options.formal] - Use formal/financial numerals
+ * @param {CurrencyOptions} [options] - Optional configuration
  * @returns {string} The amount in Traditional Chinese currency words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {Error} If value is not a valid number format
@@ -310,10 +329,9 @@ function toOrdinal(value, options) {
  * toCurrency(42, { formal: false }) // '四十二元整'
  */
 function toCurrency(value, options) {
-  options = validateOptions(options)
   const { isNegative, dollars: yuan, cents } = parseCurrencyValue(value)
   checkMax(yuan, currencyMax)
-  const { formal = true } = options
+  const { formal } = resolveOptions(options, currencyDefaults)
 
   const yuanWord = formal ? YUAN_FORMAL : YUAN_COMMON
 

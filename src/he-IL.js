@@ -16,7 +16,7 @@ import { parseCurrencyValue } from './utils/parse-currency.js'
 import { parseOrdinalValue } from './utils/parse-ordinal.js'
 import { checkMax } from './utils/check-max.js'
 import { bounded, western } from './utils/scale.js'
-import { validateOptions } from './utils/validate-options.js'
+import { resolveOptions } from './utils/resolve-options.js'
 
 // ============================================================================
 // Vocabulary (arrays for indexed access - faster than object property lookup)
@@ -275,19 +275,25 @@ function decimalPartToWords(decimalPart) {
 }
 
 /**
+ * @typedef {object} CardinalOptions
+ * @property {string} [andWord] - Custom conjunction word
+ */
+
+/** @type {Required<CardinalOptions>} */
+export const cardinalDefaults = { andWord: 'ו' }
+
+/**
  * Converts a numeric value to Modern Hebrew words.
  * @param {number | string | bigint} value - The numeric value to convert
- * @param {object} [options] - Optional configuration
- * @param {string} [options.andWord] - Custom conjunction word
+ * @param {CardinalOptions} [options] - Optional configuration
  * @returns {string} The number in Modern Hebrew words
  */
 function toCardinal(value, options) {
-  options = validateOptions(options)
   const { isNegative, integerPart, decimalPart } = parseCardinalValue(value)
   checkMax(integerPart, cardinalMax)
 
   // Apply option defaults
-  const { andWord = 'ו' } = options
+  const { andWord } = resolveOptions(options, cardinalDefaults)
 
   let result = ''
 

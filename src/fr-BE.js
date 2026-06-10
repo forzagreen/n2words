@@ -15,7 +15,7 @@ import { parseCurrencyValue } from './utils/parse-currency.js'
 import { parseOrdinalValue } from './utils/parse-ordinal.js'
 import { checkMax } from './utils/check-max.js'
 import { longScale } from './utils/scale.js'
-import { validateOptions } from './utils/validate-options.js'
+import { resolveOptions } from './utils/resolve-options.js'
 
 // ============================================================================
 // Vocabulary
@@ -338,21 +338,27 @@ function decimalPartToWords(decimalPart, withHyphen) {
 }
 
 /**
+ * @typedef {object} CardinalOptions
+ * @property {boolean} [withHyphenSeparator] - Use hyphens between words
+ */
+
+/** @type {Required<CardinalOptions>} */
+export const cardinalDefaults = { withHyphenSeparator: false }
+
+/**
  * Converts a numeric value to Belgian French words.
  * @param {number | string | bigint} value - The numeric value to convert
- * @param {object} [options] - Optional configuration
- * @param {boolean} [options.withHyphenSeparator] - Use hyphens between words
+ * @param {CardinalOptions} [options] - Optional configuration
  * @returns {string} The number in Belgian French words
  */
 function toCardinal(value, options) {
-  options = validateOptions(options)
   const { isNegative, integerPart, decimalPart } = parseCardinalValue(value)
   // Both the integer part and the decimal's significant digits are spelled via
   // the scale builder, so both must clear the ceiling.
   checkMax(integerPart, cardinalMax, decimalPart)
 
   // Apply option defaults
-  const { withHyphenSeparator = false } = options
+  const { withHyphenSeparator } = resolveOptions(options, cardinalDefaults)
 
   let result = ''
   const sep = withHyphenSeparator ? '-' : ' '
@@ -462,10 +468,17 @@ function toOrdinal(value) {
 // ============================================================================
 
 /**
+ * @typedef {object} CurrencyOptions
+ * @property {boolean} [and] - Use "et" between euros and centimes
+ */
+
+/** @type {Required<CurrencyOptions>} */
+export const currencyDefaults = { and: true }
+
+/**
  * Converts a numeric value to Belgian French currency words (Euro).
  * @param {number | string | bigint} value - The currency amount to convert
- * @param {object} [options] - Optional configuration
- * @param {boolean} [options.and] - Use "et" between euros and centimes
+ * @param {CurrencyOptions} [options] - Optional configuration
  * @returns {string} The amount in Belgian French currency words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {Error} If value is not a valid number format
@@ -477,10 +490,9 @@ function toOrdinal(value) {
  * toCurrency(42.50, { and: false }) // 'quarante-deux euros cinquante centimes'
  */
 function toCurrency(value, options) {
-  options = validateOptions(options)
   const { isNegative, dollars: euros, cents: centimes } = parseCurrencyValue(value)
   checkMax(euros, currencyMax)
-  const { and: useAnd = true } = options
+  const { and: useAnd } = resolveOptions(options, currencyDefaults)
 
   // Build result
   let result = ''
