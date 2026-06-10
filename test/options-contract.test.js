@@ -34,6 +34,25 @@ const FORMS = [
   ['currency', 'toCurrency', 42.5],
 ]
 
+/**
+ * A value of the given typeof that is guaranteed outside the allowed set, or
+ * null when none is constructible (e.g. a boolean set declaring both values).
+ * @param {readonly unknown[]} set Allowed values
+ * @param {string} type `typeof` the option's default
+ * @returns {unknown} The probe value, or null
+ */
+function outOfSetProbe(set, type) {
+  if (type === 'string') {
+    let probe = '__not_in_set__'
+    while (set.includes(probe)) probe += '_'
+    return probe
+  }
+  if (type === 'number') return Math.max(0, ...set.filter(v => typeof v === 'number')) + 1
+  if (type === 'bigint') return set.filter(v => typeof v === 'bigint').reduce((max, v) => v > max ? v : max, 0n) + 1n
+  if (type === 'boolean') return set.includes(true) ? (set.includes(false) ? null : false) : true
+  return null
+}
+
 // Pre-load so a test is registered only for forms that declare the contract.
 const languages = []
 for (const file of readdirSync('./src').filter(f => f.endsWith('.js') && !f.startsWith('utils')).sort()) {
@@ -85,21 +104,27 @@ for (const { code, mod, declared } of languages) {
       t.falsy(/** @type {Record<string, unknown>} */ ({}).polluted, 'prototype must not be polluted')
 
       // Enum options: every declared value works, the default is in the set,
-      // and an out-of-set value throws RangeError (not a silent fallback).
-      for (const [key, set] of Object.entries(mod[`${form}Values`] ?? {})) {
+      // and an out-of-set value throws RangeError (not a silent fallback). The
+      // export must be a plain object when present — a falsy non-object would
+      // otherwise skip this block silently via empty Object.entries.
+      const formValues = mod[`${form}Values`]
+      t.true(formValues === undefined || isPlainObject(formValues), `${code} ${form}Values must be a plain object when exported`)
+      for (const [key, set] of Object.entries(isPlainObject(formValues) ? formValues : {})) {
         t.true(Object.hasOwn(defaults, key), `${code} ${form}Values.${key} must be a declared option`)
         t.true(Array.isArray(set) && set.length > 0, `${code} ${form}Values.${key} must be a non-empty array`)
         t.true(set.includes(defaults[key]), `${code} ${form}: the default for "${key}" must be in its allowed set`)
         for (const allowedValue of set) {
           t.notThrows(() => fn(sample, { [key]: allowedValue }), `${code} ${form}: declared value "${allowedValue}" must be accepted`)
         }
-        // The probe shares the option's typeof so it reaches the set check
-        // (a different typeof would TypeError first). All current enums are strings.
-        t.throws(
-          () => fn(sample, { [key]: '__not_in_set__' }),
-          { instanceOf: RangeError },
-          `${code} ${form}: out-of-set "${key}" must throw RangeError`,
-        )
+        // The probe must share the option's typeof to reach the set check (a
+        // different typeof would TypeError first), so derive it from the default.
+        for (const probe of [outOfSetProbe(set, typeof defaults[key])].filter(p => p !== null)) {
+          t.throws(
+            () => fn(sample, { [key]: probe }),
+            { instanceOf: RangeError },
+            `${code} ${form}: out-of-set "${key}" must throw RangeError`,
+          )
+        }
       }
     }
   })

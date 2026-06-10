@@ -44,7 +44,10 @@ export function resolveOptions(options, defaults, values) {
     if (values !== undefined && Object.hasOwn(values, key)) {
       const set = /** @type {Record<string, readonly unknown[]>} */ (values)[key]
       if (!set.includes(value)) {
-        throw new RangeError(`Option "${key}" must be one of: ${set.join(', ')} — got "${value}"`)
+        // The received value is caller-supplied and arbitrary — stringify it so
+        // quotes/newlines can't garble the message. The allowed set is our own
+        // gate-verified declaration and reads cleaner unquoted.
+        throw new RangeError(`Option "${key}" must be one of: ${set.join(', ')} — got ${JSON.stringify(value)}`)
       }
     }
     resolved[key] = value
