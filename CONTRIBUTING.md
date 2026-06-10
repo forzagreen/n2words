@@ -36,7 +36,7 @@ Scopes use BCP 47 language codes — one (`en-US`), comma-separated (`az-AZ,tr-T
 npm run lang:add -- <code>   # e.g., ko-KR, sr-Cyrl-RS, fr-BE
 ```
 
-This scaffolds the language file, test fixture, and type tests. A language can
+This scaffolds the language file and test fixture, and regenerates LANGUAGES.md. A language can
 implement one, two, or all three **forms** — start with whichever you can do
 well and others can be added later:
 

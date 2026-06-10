@@ -132,7 +132,7 @@ default". Boolean/free-string forms omit the `<form>Values` argument.
 ## Adding a Language
 
 ```bash
-npm run lang:add -- <code>  # Creates stub + fixture + type tests
+npm run lang:add -- <code>  # Creates stub + fixture, regenerates LANGUAGES.md
 ```
 
 Then: implement the form(s) you're adding (`toCardinal`, `toOrdinal`, and/or `toCurrency` — at least one) in `src/{code}.js` — **including the `*Max` declarations and `checkMax` guards** (see Language File Pattern) — add cases to `test/fixtures/{code}.js`, run `npm test`.
