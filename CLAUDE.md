@@ -117,7 +117,7 @@ Then: implement the form(s) you're adding (`toCardinal`, `toOrdinal`, and/or `to
 A new language must clear four enforced gates (in `test/`):
 
 - **Contract** (`contract.test.js`): every exported form returns a well-formed string or throws `RangeError` for any input.
-- **Range** (`range-contract.test.js`): each declared `*Max` is well-formed and injective across its range, and (if finite) throws exactly at the ceiling.
+- **Range** (`range-contract.test.js`): every exported form **must** declare its `*Max` (helper-derived or `UNBOUNDED`) — a form without one fails — and uphold it: well-formed and injective across the range, throwing exactly at a finite ceiling.
 - **Coverage** (`conversions.test.js`): ≥5 fixture cases per form.
 - **Canonical code** (`conversions.test.js`): the filename is canonical BCP 47 (`en-US`, not `en-us`).
 

@@ -2,21 +2,20 @@ import test from 'ava'
 import { readdirSync } from 'node:fs'
 
 /**
- * Range-contract gate (proof).
+ * Range-contract gate.
  *
- * Each form declares its maximum supported value as an exported bigint
- * (`cardinalMax` / `ordinalMax` / `currencyMax`), or `null` for no fixed limit.
- * This gate verifies that fact behaviourally — no per-language magic, no probing,
- * no knowledge of any scale table:
+ * Every exported form MUST declare its maximum supported value as an exported
+ * bigint (`cardinalMax` / `ordinalMax` / `currencyMax`), or `null` (UNBOUNDED)
+ * for no fixed limit — a form exported without its declaration fails here, so
+ * the contract is a requirement, not a convention. The declaration is then
+ * verified behaviourally — no per-language magic, no probing, no knowledge of
+ * any scale table:
  *
  * - **well-formed + injective** across the valid range — distinct magnitudes
  *   must spell differently, so a gap / drop / clamp (which collapses magnitude)
  *   is caught generically;
  * - **boundary** (finite max only) — `max` throws RangeError and `max - 1`
  *   is well-formed, pinning the exact ceiling.
- *
- * Auto-covers any language that exports `*Max` (currently the four proof
- * languages) and would eventually subsume the well-formedness gate.
  */
 
 const FORMS = [
@@ -74,19 +73,28 @@ function checkForm(fn, max) {
   if (!isWellFormed(below)) throw new Error(`malformed just below the ceiling: ${render(below)}`)
 }
 
-// Pre-load modules so we register a test only for languages that declare a range.
+// Every language registers — the declaration is required, not opt-in. A form
+// exported without its *Max (or a *Max without its form) fails below.
 const languages = []
 for (const file of readdirSync('./src').filter(f => f.endsWith('.js') && !f.startsWith('utils')).sort()) {
   const mod = await import('../src/' + file)
-  const declared = FORMS.filter(([form]) => mod[`${form}Max`] !== undefined)
-  if (declared.length > 0) languages.push({ code: file.replace('.js', ''), mod, declared })
+  languages.push({ code: file.replace('.js', ''), mod })
 }
 
-for (const { code, mod, declared } of languages) {
+for (const { code, mod } of languages) {
   test(`${code} upholds its declared range`, (t) => {
-    for (const [form, fnName] of declared) {
-      t.is(typeof mod[fnName], 'function', `${code} declares ${form}Max but doesn't export ${fnName}()`)
-      t.notThrows(() => checkForm(mod[fnName], mod[`${form}Max`]), `${code} ${form}`)
+    for (const [form, fnName] of FORMS) {
+      const fn = mod[fnName]
+      const max = mod[`${form}Max`]
+      const hasFn = typeof fn === 'function'
+      const hasMax = max !== undefined
+      if (!hasFn && !hasMax) continue // form not implemented
+
+      t.true(hasMax, `${code} exports ${fnName}() but doesn't declare ${form}Max — every exported form must declare its range (see docs/range-contract.md)`)
+      t.true(hasFn, `${code} declares ${form}Max but doesn't export ${fnName}()`)
+      if (!hasFn || !hasMax) continue // declaration mismatch already failed above
+
+      t.notThrows(() => checkForm(fn, max), `${code} ${form}`)
     }
   })
 }
