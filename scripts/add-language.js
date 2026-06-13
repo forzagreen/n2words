@@ -33,7 +33,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import * as readline from 'node:readline/promises'
 import chalk from 'chalk'
 import { getExportedForms } from '../test/helpers/language-helpers.js'
-import { getCanonicalCode, getLanguageName, isInCLDR, isValidLanguageCode, normalizeCode } from '../test/helpers/language-naming.js'
+import { getCanonicalCode, getLanguageName, isValidLanguageCode, normalizeCode } from '../test/helpers/language-naming.js'
 
 // ============================================================================
 // CLI Argument Parsing
@@ -279,20 +279,23 @@ function generateMaxExport(form) {
   return `export const ${form}Max = UNBOUNDED`
 }
 
-/**
- * The grouped `*Max` declaration block for a new language, with a TODO pointing
- * at the scale.js helpers.
- *
- * @param {Set<string>} forms Forms to include
- * @returns {string} Comment + one export per scaffolded form
- */
-function generateMaxExportsBlock(forms) {
-  const exports = FORM_ORDER.filter(f => forms.has(f)).map(generateMaxExport)
-  return `// TODO: set each form's ceiling — the smallest value it refuses. Use a scale.js
+const MAX_TODO_COMMENT = `// TODO: set each form's ceiling — the smallest value it refuses. Use a scale.js
 // helper (western / myriad / indian / longScale / bounded) derived from your scale
 // table, or keep UNBOUNDED for a recursive/compounding speller. The range gate
-// (test/range-contract.test.js) verifies whatever you declare — see docs/range-contract.md.
-${exports.join('\n')}`
+// (test/range-contract.test.js) verifies whatever you declare — see docs/range-contract.md.`
+
+/**
+ * The grouped `*Max` declaration block, with a TODO pointing at the scale.js
+ * helpers. The comment is skipped when the target file already carries it
+ * (adding a second form shouldn't duplicate the guidance).
+ *
+ * @param {Set<string>} forms Forms to include
+ * @param {boolean} [withComment] Include the TODO comment (default true)
+ * @returns {string} Comment + one export per scaffolded form
+ */
+function generateMaxExportsBlock(forms, withComment = true) {
+  const exports = FORM_ORDER.filter(f => forms.has(f)).map(generateMaxExport)
+  return withComment ? `${MAX_TODO_COMMENT}\n${exports.join('\n')}` : exports.join('\n')
 }
 
 /**
@@ -489,7 +492,8 @@ function addFormsToExistingFile(code, newForms) {
   // statement (re-find since content may have shifted).
   const updatedExportMatch = content.match(/export \{[^}]+\}/)
   const insertPos = content.indexOf(updatedExportMatch[0])
-  const insertion = `${generateMaxExportsBlock(newForms)}\n\n${newFunctions.join('\n\n')}\n\n`
+  const needsTodoComment = !content.includes('TODO: set each form')
+  const insertion = `${generateMaxExportsBlock(newForms, needsTodoComment)}\n\n${newFunctions.join('\n\n')}\n\n`
   content = content.slice(0, insertPos) + insertion + content.slice(insertPos)
 
   // Update export statement
@@ -622,9 +626,24 @@ async function main() {
   const langFilePath = `./src/${code}.js`
   const fixtureFilePath = `./test/fixtures/${code}.js`
 
-  // Check existing implementation (read from real exports, not source text)
+  // Check existing implementation (read from real exports, not source text).
+  // "New language" means the FILE doesn't exist — never "the import returned no
+  // forms": a work-in-progress file with a syntax error imports as zero forms,
+  // and treating that as new would silently overwrite the contributor's work.
   const existingForms = await getExportedForms(code)
-  const isNewLanguage = existingForms.size === 0
+  const isNewLanguage = !existsSync(langFilePath)
+  if (!isNewLanguage && existingForms.size === 0) {
+    console.error(chalk.red(`${langFilePath} exists but exports no working forms — likely a syntax error or unfinished file.`))
+    console.error(chalk.gray('Refusing to overwrite it. Fix (or delete) the file, then re-run.'))
+    process.exitCode = 1
+    return
+  }
+  if (isNewLanguage && existsSync(fixtureFilePath)) {
+    console.error(chalk.red(`${fixtureFilePath} exists but ${langFilePath} doesn't.`))
+    console.error(chalk.gray('Refusing to overwrite the fixture. Move it aside (or delete it), then re-run.'))
+    process.exitCode = 1
+    return
+  }
 
   // Determine which forms to scaffold
   let formsToScaffold
@@ -644,16 +663,19 @@ async function main() {
     }
   }
 
-  // Get language name
+  // Get language name — CLDR or the LANGUAGE_NAME_OVERRIDES in
+  // test/helpers/language-naming.js; prompt only when neither knows it.
   let languageName = getLanguageName(code)
+  let nameNeedsOverride = false
 
-  if (!isInCLDR(code)) {
+  if (languageName === null) {
     const userProvidedName = await promptForLanguageName(code)
     if (userProvidedName === null) {
       process.exitCode = 1
       return
     }
     languageName = userProvidedName
+    nameNeedsOverride = true
   }
 
   console.log(chalk.cyan(`\nAdding ${isNewLanguage ? 'language' : 'forms'}: ${languageName} (${code})`))
@@ -699,6 +721,11 @@ async function main() {
   console.log(chalk.gray(`3. Add at least one case per form to ${fixtureFilePath}`))
   console.log(chalk.gray('   — the suite rejects empty fixtures, so it fails until you do'))
   console.log(chalk.gray('4. Run: npm test  (runs the suite and builds types)'))
+  if (nameNeedsOverride) {
+    console.log(chalk.yellow(`5. "${code}" isn't in CLDR: add it to LANGUAGE_NAME_OVERRIDES in`))
+    console.log(chalk.yellow(`   test/helpers/language-naming.js ('${code}': '${languageName}')`))
+    console.log(chalk.yellow('   so LANGUAGES.md shows the name instead of the code'))
+  }
 }
 
 main().catch((err) => {

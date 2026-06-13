@@ -21,11 +21,6 @@ import { getLanguageName } from '../test/helpers/language-naming.js'
 // Language Discovery
 // ============================================================================
 
-// Manual overrides for languages not in CLDR
-const LANGUAGE_NAME_OVERRIDES = {
-  'hbo-IL': 'Biblical Hebrew (Israel)',
-}
-
 /**
  * Get all language codes from src/ directory.
  *
@@ -42,15 +37,13 @@ function getLanguageCodes() {
 }
 
 /**
- * Get display name for a language code.
+ * Get display name for a language code (non-CLDR overrides live in
+ * test/helpers/language-naming.js, the single source for naming).
  *
  * @param {string} code Language code
  * @returns {string} Human-readable language name
  */
 function getDisplayName(code) {
-  if (LANGUAGE_NAME_OVERRIDES[code]) {
-    return LANGUAGE_NAME_OVERRIDES[code]
-  }
   return getLanguageName(code) || code
 }
 

@@ -69,16 +69,29 @@ export function normalizeCode(code) {
 // ============================================================================
 
 /**
- * Gets the human-readable language name from CLDR via Intl.DisplayNames.
+ * Display names for valid BCP 47 codes that CLDR doesn't know. The single
+ * source for these — the LANGUAGES.md generator and lang:add both resolve
+ * names through getLanguageName, so an entry here covers every consumer.
+ */
+export const LANGUAGE_NAME_OVERRIDES = {
+  'hbo-IL': 'Biblical Hebrew (Israel)',
+}
+
+/**
+ * Gets the human-readable language name — from the overrides for codes CLDR
+ * doesn't know, otherwise from CLDR via Intl.DisplayNames.
  *
  * @param {string} code BCP 47 language code
- * @returns {string|null} Language name in English, or null if not in CLDR
+ * @returns {string|null} Language name in English, or null if unknown
  * @example
  * getLanguageName('en-US')       // 'American English'
  * getLanguageName('zh-Hans-CN')  // 'Simplified Chinese (China)'
- * getLanguageName('hbo')      // null (not in CLDR)
+ * getLanguageName('hbo-IL')      // 'Biblical Hebrew (Israel)' (override; not in CLDR)
  */
 export function getLanguageName(code) {
+  if (LANGUAGE_NAME_OVERRIDES[code]) {
+    return LANGUAGE_NAME_OVERRIDES[code]
+  }
   try {
     const displayNames = new Intl.DisplayNames(['en'], { type: 'language' })
     const name = displayNames.of(code)
@@ -88,20 +101,4 @@ export function getLanguageName(code) {
   catch {
     return null
   }
-}
-
-/**
- * Checks if a language code is known in CLDR.
- * Uses Intl.DisplayNames which is backed by CLDR data.
- *
- * Note: Valid BCP 47 codes may not be in CLDR (e.g., 'hbo' for Ancient Hebrew).
- *
- * @param {string} code BCP 47 language code
- * @returns {boolean} True if the code has a CLDR entry
- * @example
- * isInCLDR('en')   // true
- * isInCLDR('hbo')  // false (valid BCP 47 but not in CLDR)
- */
-export function isInCLDR(code) {
-  return getLanguageName(code) !== null
 }
