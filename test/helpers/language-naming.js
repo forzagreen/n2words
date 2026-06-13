@@ -102,19 +102,3 @@ export function getLanguageName(code) {
     return null
   }
 }
-
-/**
- * Checks if a language code is known in CLDR.
- * Uses Intl.DisplayNames which is backed by CLDR data.
- *
- * Note: Valid BCP 47 codes may not be in CLDR (e.g., 'hbo' for Ancient Hebrew).
- *
- * @param {string} code BCP 47 language code
- * @returns {boolean} True if the code has a CLDR entry
- * @example
- * isInCLDR('en')   // true
- * isInCLDR('hbo')  // false (valid BCP 47 but not in CLDR)
- */
-export function isInCLDR(code) {
-  return getLanguageName(code) !== null
-}
