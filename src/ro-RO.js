@@ -452,7 +452,13 @@ function toCurrency(value) {
     }
     else {
       const leuWord = integerToWords(dollars, 'masculine')
-      parts.push(leuWord + ' ' + LEU_PLURAL)
+      // Romanian inserts "de" before the noun when the count's last two digits
+      // are 00 or 20-99 (the CLDR `other` category): "douăzeci de lei", "o sută
+      // de lei", but "o sută unu lei". Mirrors the bani path below and the
+      // scale-word handling in buildScalePhrase.
+      const m = dollars % 100n
+      const needsDe = dollars >= 20n && (m === 0n || m >= 20n)
+      parts.push(leuWord + (needsDe ? ' de ' : ' ') + LEU_PLURAL)
     }
   }
 
