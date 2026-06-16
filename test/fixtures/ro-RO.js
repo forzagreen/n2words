@@ -212,10 +212,12 @@ export const currency = [
   [2, 'doi lei'],
   [5, 'cinci lei'],
   [10, 'zece lei'],
-  [21, 'douăzeci și unu lei'],
-  [42, 'patruzeci și doi lei'],
-  [100, 'o sută lei'],
-  [1000, 'o mie lei'],
+  [19, 'nouăsprezece lei'],
+  [20, 'douăzeci de lei'],
+  [21, 'douăzeci și unu de lei'],
+  [42, 'patruzeci și doi de lei'],
+  [100, 'o sută de lei'],
+  [1000, 'o mie de lei'],
 
   // Bani only
   [0.01, 'un ban'],
@@ -229,12 +231,12 @@ export const currency = [
   [1.01, 'un leu un ban'],
   [1.50, 'un leu cincizeci de bani'],
   [2.02, 'doi lei doi bani'],
-  [42.50, 'patruzeci și doi lei cincizeci de bani'],
-  [100.99, 'o sută lei nouăzeci și nouă de bani'],
+  [42.50, 'patruzeci și doi de lei cincizeci de bani'],
+  [100.99, 'o sută de lei nouăzeci și nouă de bani'],
 
   // Negative amounts
   [-1, 'minus un leu'],
-  [-42.50, 'minus patruzeci și doi lei cincizeci de bani'],
+  [-42.50, 'minus patruzeci și doi de lei cincizeci de bani'],
 
   // Edge cases
   ['5.00', 'cinci lei'],
