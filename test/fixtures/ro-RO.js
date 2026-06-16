@@ -212,6 +212,8 @@ export const currency = [
   [2, 'doi lei'],
   [5, 'cinci lei'],
   [10, 'zece lei'],
+  [19, 'nouăsprezece lei'],
+  [20, 'douăzeci de lei'],
   [21, 'douăzeci și unu de lei'],
   [42, 'patruzeci și doi de lei'],
   [100, 'o sută de lei'],
