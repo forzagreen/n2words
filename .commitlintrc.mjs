@@ -188,7 +188,13 @@ export default {
     // -------------------------------------------------------------------------
     'body-leading-blank': [2, 'always'],
     'body-max-line-length': [0], // Disabled - URLs can be long
-    'footer-leading-blank': [2, 'always'],
+    // Disabled: the conventional parser treats any body line containing a
+    // "#123" reference as the START of the footer, so this rule fails valid
+    // messages position-dependently (it bit three commits running). Its
+    // protection here is ~nil — git trailers (Co-Authored-By) are never parser
+    // footer-starts, and a glued BREAKING CHANGE still parses as a note, so the
+    // blank line it wants is purely stylistic. Off lets commit bodies cite #123.
+    'footer-leading-blank': [0],
     'footer-max-line-length': [0], // Disabled - URLs can be long
   },
 }
