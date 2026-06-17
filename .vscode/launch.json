@@ -31,6 +31,19 @@
     {
       "type": "node",
       "request": "launch",
+      "name": "Debug Current Test File (AVA)",
+      "skipFiles": ["<node_internals>/**"],
+      "program": "${workspaceFolder}/node_modules/ava/entrypoints/cli.js",
+      "args": ["${file}", "--serial", "--concurrency=1"],
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}",
+      "env": {
+        "NODE_ENV": "test"
+      }
+    },
+    {
+      "type": "node",
+      "request": "launch",
       "name": "Debug Benchmark",
       "skipFiles": ["<node_internals>/**"],
       "program": "${workspaceFolder}/bench/index.js",

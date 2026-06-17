@@ -17,8 +17,10 @@
 
     "types": ["node"]
   },
+  // src/ is type-checked by src/tsconfig.json (checkJs) to match CI; this root
+  // config covers the rest for editor IntelliSense without checkJs (CI does not
+  // type-check test/scripts/bench, so flagging them in-editor would be phantom).
   "include": [
-    "src/**/*.js",
     "test/**/*.js",
     "scripts/**/*.js",
     "bench/**/*.js"
