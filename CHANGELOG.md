@@ -1,5 +1,43 @@
 # Changelog
 
+## [5.1.0](https://github.com/forzagreen/n2words/compare/v5.0.0...v5.1.0) (2026-06-17)
+
+
+### Features
+
+* **core:** prove the options contract on en-US ([#390](https://github.com/forzagreen/n2words/issues/390)) ([141fe04](https://github.com/forzagreen/n2words/commit/141fe049e3b55c2a31c4cca43d0296926590cf74))
+* **core:** scaffold the range contract in lang:add ([#389](https://github.com/forzagreen/n2words/issues/389)) ([b90ed05](https://github.com/forzagreen/n2words/commit/b90ed05ad7cbfffb972fb41baaf76b5c9c90eb04))
+* **core:** prove the range-contract shape on four representative languages ([#372](https://github.com/forzagreen/n2words/issues/372)) ([04c3e46](https://github.com/forzagreen/n2words/commit/04c3e4690400e1623b6078a6920df8b00bedfbba))
+
+### Bug Fixes
+
+* **ro-RO:** insert "de" before the currency unit for 20+ ([#404](https://github.com/forzagreen/n2words/issues/404)) ([c420c82](https://github.com/forzagreen/n2words/commit/c420c8240d4ecc3473e8f87321d5016ac0a21581))
+* **scripts:** stop lang:add overwriting work-in-progress files ([#400](https://github.com/forzagreen/n2words/issues/400)) ([24cb02c](https://github.com/forzagreen/n2words/commit/24cb02c2573afce4ea6db2b1aad980b57f443b42))
+* **vi-VN:** correct large-scale vocabulary and migrate to the range contract ([#386](https://github.com/forzagreen/n2words/issues/386)) ([073e4c1](https://github.com/forzagreen/n2words/commit/073e4c14cee100be87e603db5a2eb37be4ee82f0))
+* **core:** repoint the western batch's exceedsMax import to exceeds-max.js ([#376](https://github.com/forzagreen/n2words/issues/376)) ([ca80dc7](https://github.com/forzagreen/n2words/commit/ca80dc7b3b2c2b576593bc9764e8a186a0b82576))
+* **ka-GE:** guard scale ceiling ([#371](https://github.com/forzagreen/n2words/issues/371)) ([3362118](https://github.com/forzagreen/n2words/commit/3362118f9ecde17c870b198315f494816f7c5c21))
+* **bn-BD,gu-IN,hi-IN,kn-IN,mr-IN,pa-IN,ta-IN,te-IN,ur-PK:** guard scale ceilings ([#370](https://github.com/forzagreen/n2words/issues/370)) ([8968c52](https://github.com/forzagreen/n2words/commit/8968c52d314de59fe7b3f2fff012bd74bd04b734))
+* **core:** gate only the conversion forms a language exports ([#367](https://github.com/forzagreen/n2words/issues/367)) ([1a3b225](https://github.com/forzagreen/n2words/commit/1a3b2251aa18ba91c3f756c1ecb40cdae9e5ac29))
+* **en:** guard scale ceilings across the en-* family ([#363](https://github.com/forzagreen/n2words/issues/363)) ([cb06f2d](https://github.com/forzagreen/n2words/commit/cb06f2dd51a826b5b2108bdbaf7ea14aefc11e9f))
+* **it-IT,ja-JP,vi-VN,cs-CZ,ro-RO:** guard scale ceilings ([#364](https://github.com/forzagreen/n2words/issues/364)) ([c0cf69f](https://github.com/forzagreen/n2words/commit/c0cf69f54a508c1f7e4fb5fef6b3fdbdee7590bc))
+* **el-GR,ar-SA,ha-NG,fil-PH,ms-MY,sw-KE,id-ID,ko-KR:** guard scale ceilings ([#362](https://github.com/forzagreen/n2words/issues/362)) ([76c1034](https://github.com/forzagreen/n2words/commit/76c103464788b9c03ab5a0881d63919803aa42bf))
+* **nb-NO,sv-SE,fi-FI:** guard scale ceilings in the Nordic group ([#361](https://github.com/forzagreen/n2words/issues/361)) ([02cd569](https://github.com/forzagreen/n2words/commit/02cd569084057032ccb5176b71a62ebbb4c4bcd4))
+* **ru-RU,uk-UA,pl-PL,hr-HR:** guard scale ceilings in the Slavic group ([#360](https://github.com/forzagreen/n2words/issues/360)) ([2a759c0](https://github.com/forzagreen/n2words/commit/2a759c0bf3e072b04873447fa19fcf4e93fb5633))
+* **lt-LT,lv-LV:** guard scale ceilings in the Baltic pair ([#359](https://github.com/forzagreen/n2words/issues/359)) ([2207d12](https://github.com/forzagreen/n2words/commit/2207d121104ec562fec66194e237f223d733afa7))
+* **de-DE,nl-NL:** guard scale ceilings in the Germanic pair ([#358](https://github.com/forzagreen/n2words/issues/358)) ([e8c16cf](https://github.com/forzagreen/n2words/commit/e8c16cfb7d7062af55c4c7e439ab634c078b745b))
+* **az-AZ,tr-TR:** guard scale ceiling in az-AZ, tr-TR ([#357](https://github.com/forzagreen/n2words/issues/357)) ([9d73897](https://github.com/forzagreen/n2words/commit/9d7389743fffefa02908936b62c0ea0a922614ff))
+* **he:** guard scale ceilings in he-IL, hbo-IL ([#356](https://github.com/forzagreen/n2words/issues/356)) ([c401e6c](https://github.com/forzagreen/n2words/commit/c401e6c7e3d92a826e116cdf346d71e49605369d))
+* **am:** guard scale ceiling in am-ET, am-Latn-ET ([#355](https://github.com/forzagreen/n2words/issues/355)) ([77d9083](https://github.com/forzagreen/n2words/commit/77d90830593626a798ba309aff8d92305e98450b))
+* **zh:** guard scale ceiling in zh-Hans-CN, zh-Hant-TW ([#353](https://github.com/forzagreen/n2words/issues/353)) ([4bb2b90](https://github.com/forzagreen/n2words/commit/4bb2b901763e0d1eeb1e149d3f6bee3a2b9497ac))
+* **sr:** guard scale ceilings in sr-Cyrl-RS, sr-Latn-RS ([#352](https://github.com/forzagreen/n2words/issues/352)) ([93a86d2](https://github.com/forzagreen/n2words/commit/93a86d25ec479ddd0a49168829da2d2becf1fcd9))
+* **pt:** guard scale ceilings in pt-BR, pt-PT ([#351](https://github.com/forzagreen/n2words/issues/351)) ([02d28cd](https://github.com/forzagreen/n2words/commit/02d28cd01b8c2ce48bcd78713925b1ca2516379d))
+* **fr:** guard scale ceilings in fr-FR, fr-BE (+ retrofit da-DK to entry-point guards) ([#349](https://github.com/forzagreen/n2words/issues/349)) ([498537b](https://github.com/forzagreen/n2words/commit/498537bfea36110d0610ad754bdab190cf9380c5))
+* **es:** guard the decimal part against the scale ceiling ([#350](https://github.com/forzagreen/n2words/issues/350)) ([52b738e](https://github.com/forzagreen/n2words/commit/52b738ebbd1d89a05aa4a92a7260be7b00cfe506))
+* **es:** guard scale ceilings in es-ES, es-MX, es-US ([#348](https://github.com/forzagreen/n2words/issues/348)) ([1b1bf3f](https://github.com/forzagreen/n2words/commit/1b1bf3f64bf97c62434cb3bf1400d22927373197))
+* **da-DK:** correct scale-group joining and guard the scale ceiling ([#347](https://github.com/forzagreen/n2words/issues/347)) ([e8bd4c6](https://github.com/forzagreen/n2words/commit/e8bd4c63baf1c30275554c4559bab7b8b5b19c39))
+* **core:** declare @types/node devDependency ([#317](https://github.com/forzagreen/n2words/issues/317)) ([2db4796](https://github.com/forzagreen/n2words/commit/2db47962d5069c97faac7276e09442ab8285dee0))
+* **scripts:** make lang:add output lint-clean and canonicalize the code ([#312](https://github.com/forzagreen/n2words/issues/312)) ([8dfc52e](https://github.com/forzagreen/n2words/commit/8dfc52e1df2947a0ad266b69181555d38ff0706b))
+
 ## [5.0.0](https://github.com/forzagreen/n2words/compare/v4.0.0...v5.0.0) (2026-05-30)
 
 
