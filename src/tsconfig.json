@@ -1,0 +1,12 @@
+{
+  // Editor-only: gives src/ strict checkJs in VS Code so in-editor type errors
+  // match what CI enforces (tsconfig.build.json type-checks src/ with checkJs).
+  // The root tsconfig.json keeps checkJs off and covers test/scripts/bench,
+  // which CI does not type-check — so without this file the editor would either
+  // miss src/ errors or flood those dirs with phantom ones. CI does not use this.
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "checkJs": true
+  },
+  "include": ["**/*.js"]
+}

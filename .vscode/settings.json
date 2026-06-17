@@ -6,7 +6,7 @@
   "files.insertFinalNewline": true,
   "files.eol": "\n", // LF line endings (matches .editorconfig)
 
-  // ESLint (flat config, neostandard style) is the project linter
+  // ESLint flat config (ESLint 10) is the project linter
   "eslint.useFlatConfig": true,
   "javascript.preferences.quoteStyle": "single",
 
@@ -16,21 +16,22 @@
     "source.fixAll.eslint": "explicit"
   },
 
-  // Markdown Linting (Project Standard - matches .markdownlint.mjs)
-  "markdownlint.config": {
-    "line-length": false, // MD013: Allow long lines (links, tables, code examples)
-    "MD013": false // Deprecated alias for backward compatibility
-  },
+  // Markdown linting follows the project's .markdownlint.mjs / .markdownlint-cli2.mjs,
+  // which the extension auto-discovers — no inline mirror to drift out of sync.
 
-  // TypeScript - Use JSDoc for type checking
+  // TypeScript - JSDoc type checking; pin the editor to the workspace TypeScript
+  // (node_modules) so in-editor checks use the same tsc version as CI.
   "javascript.validate.enable": true,
   "typescript.validate.enable": true,
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "typescript.enablePromptUseWorkspaceTsdk": true,
 
   // Project Build Artifacts & Performance
   "search.exclude": {
     "**/node_modules": true,
     "**/coverage": true,
     "**/dist": true,
+    "**/*.d.ts": true,
     "**/.nyc_output": true,
     "**/package-lock.json": true,
     "**/.claude": true,
