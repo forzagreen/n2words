@@ -157,7 +157,7 @@
     "typescript": "^6.0.3"
   },
   "engines": {
-    "node": ">=22"
+    "node": "^22 || ^24 || ^26"
   },
   "publishConfig": {
     "access": "public",

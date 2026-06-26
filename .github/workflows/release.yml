@@ -57,9 +57,10 @@ jobs:
           token: ${{ steps.app-token.outputs.token }}
 
       - name: Verify NODE_VERSION satisfies engines.node
-        # engines.node is a floor (e.g. ">=22"). The runner's Node major
-        # must clear it — otherwise we'd publish a package whose engines
-        # field contradicts the toolchain that built it.
+        # engines.node lists the supported LTS lines (e.g.
+        # "^22 || ^24 || ^26"); the regex pulls the lowest major as a floor.
+        # The runner's Node major must clear it — otherwise we'd publish a
+        # package whose engines field contradicts the toolchain that built it.
         run: |
           ENGINES_MIN=$(node -p "require('./package.json').engines.node.match(/\d+/)[0]")
           ENV_VERSION="${{ env.NODE_VERSION }}"
