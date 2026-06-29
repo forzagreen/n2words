@@ -5,7 +5,8 @@
  *
  * Key features:
  * - Three-form pluralization (one/few/many)
- * - Gender: thousands are feminine, millions+ are masculine
+ * - Gender by scale word: the -arda forms (hiljada, milijarda, bilijarda, ...)
+ *   are feminine; the -ion forms (milion, bilion, ...) are masculine
  * - Irregular hundreds
  * - Long scale naming with -ard forms
  * - Cyrillic script
@@ -236,8 +237,8 @@ function buildLargeNumberWords(n, gender) {
       else {
         const scaleForms = SCALE_FORMS[scaleIndex - 1]
         const scaleWord = pluralize(segment, scaleForms)
-        // Thousands (scaleIndex=1) are feminine, others masculine
-        const isFeminine = scaleIndex === 1
+        // -arda scale words (hiljada, milijarda, ...) are feminine; -ion words masculine
+        const isFeminine = scaleIndex % 2 === 1
         const segmentWord = isFeminine ? buildSegmentFem(segment) : buildSegmentMasc(segment)
         parts.push(segmentWord + ' ' + scaleWord)
       }
@@ -462,7 +463,7 @@ function buildLargeOrdinal(n) {
           }
           else {
             // Use cardinal segment + ordinal scale
-            const isFeminine = scaleIndex === 1 // thousands are feminine
+            const isFeminine = scaleIndex % 2 === 1 // feminine at -arda scales (hiljada, milijarda, ...)
             const segmentWord = isFeminine ? buildSegmentFem(segment) : buildSegmentMasc(segment)
             parts.push(segmentWord + ' ' + ORDINAL_SCALES[scaleIndex - 1])
           }
@@ -471,7 +472,7 @@ function buildLargeOrdinal(n) {
           // Not the final segment: use cardinal
           const scaleForms = SCALE_FORMS[scaleIndex - 1]
           const scaleWord = pluralize(segment, scaleForms)
-          const isFeminine = scaleIndex === 1
+          const isFeminine = scaleIndex % 2 === 1
           const segmentWord = isFeminine ? buildSegmentFem(segment) : buildSegmentMasc(segment)
           parts.push(segmentWord + ' ' + scaleWord)
         }

@@ -69,6 +69,9 @@ export const cardinal = [
   [1_000_000, 'jedan milion'],
   [1_000_001, 'jedan milion jedan'],
   [4_000_000, 'četiri miliona'],
+  [1_000_000_000, 'jedna milijarda'],
+  [2_000_000_000, 'dve milijarde'],
+  [1_000_000_000_000_000n, 'jedna bilijarda'],
   [10_000_000_000_000, 'deset biliona'],
   [100_000_000_000_000, 'sto biliona'],
   [1_000_000_000_000_000_000n, 'jedan trilion'],
@@ -134,6 +137,8 @@ export const ordinal = [
   // Larger numbers
   [1_000_000, 'milioniti'],
   [2_000_000, 'dva milioniti'],
+  [1_000_000_000, 'milijarditi'],
+  [2_000_000_000, 'dve milijarditi'],
 ]
 
 /**
