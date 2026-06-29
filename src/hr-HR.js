@@ -5,7 +5,8 @@
  *
  * Key features:
  * - Three-form pluralization (one/few/many)
- * - Gender: thousands are feminine, millions+ are masculine
+ * - Gender by scale word: tisuća and the -arda forms (milijarda, bilijarda, ...)
+ *   are feminine; the -un forms (milijun, bilijun, ...) are masculine
  * - Irregular hundreds (dvjesto, tristo, etc.)
  * - Long scale naming with -ard forms
  */
@@ -63,7 +64,8 @@ const EURO_FORMS = ['euro', 'eura', 'eura']
 const CENT_FORMS = ['cent', 'centa', 'centi']
 
 // Scale words: [singular, few, many]
-// Thousands (index 0) are feminine, rest are masculine
+// Indexed [scaleIndex - 1]; odd scales (tisuća, milijarda, bilijarda, ...) are
+// feminine, the -un forms (milijun, bilijun, ...) masculine
 const SCALE_FORMS = [
   ['tisuća', 'tisuće', 'tisuća'],
   ['milijun', 'milijuna', 'milijuna'],
@@ -221,8 +223,8 @@ function buildLargeNumberWords(n, gender) {
       else {
         const scaleForms = SCALE_FORMS[scaleIndex - 1]
         const scaleWord = pluralize(segment, scaleForms)
-        // Thousands (scaleIndex=1) are feminine, others masculine
-        const isFeminine = scaleIndex === 1
+        // tisuća and the -arda forms (milijarda, bilijarda, ...) are feminine; -un words masculine
+        const isFeminine = scaleIndex % 2 === 1
         const segmentWord = isFeminine ? buildSegmentFem(segment) : buildSegmentMasc(segment)
         parts.push(segmentWord + ' ' + scaleWord)
       }
@@ -429,7 +431,7 @@ function buildLargeOrdinal(n) {
             parts.push(ORDINAL_SCALES[scaleIndex - 1])
           }
           else {
-            const isFeminine = scaleIndex === 1
+            const isFeminine = scaleIndex % 2 === 1 // feminine at odd scales (tisuća, milijarda, ...)
             const segmentWord = isFeminine ? buildSegmentFem(segment) : buildSegmentMasc(segment)
             parts.push(segmentWord + ' ' + ORDINAL_SCALES[scaleIndex - 1])
           }
@@ -437,7 +439,7 @@ function buildLargeOrdinal(n) {
         else {
           const scaleForms = SCALE_FORMS[scaleIndex - 1]
           const scaleWord = pluralize(segment, scaleForms)
-          const isFeminine = scaleIndex === 1
+          const isFeminine = scaleIndex % 2 === 1
           const segmentWord = isFeminine ? buildSegmentFem(segment) : buildSegmentMasc(segment)
           parts.push(segmentWord + ' ' + scaleWord)
         }
