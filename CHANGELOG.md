@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.1.1](https://github.com/forzagreen/n2words/compare/v5.1.0...v5.1.1) (2026-07-02)
+
+
+### Bug Fixes
+
+* **sr-Cyrl-RS,sr-Latn-RS:** feminine number words before -arda scale words ([#413](https://github.com/forzagreen/n2words/issues/413)) ([075ae2e](https://github.com/forzagreen/n2words/commit/075ae2ed531823225403aedf1629e14ac9f1956e))
+
 ## [5.1.0](https://github.com/forzagreen/n2words/compare/v5.0.0...v5.1.0) (2026-06-17)
 
 
