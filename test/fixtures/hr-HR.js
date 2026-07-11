@@ -69,8 +69,12 @@ export const cardinal = [
   [1_000_000, 'jedan milijun'],
   [1_000_001, 'jedan milijun jedan'],
   [4_000_000, 'četiri milijuna'],
+  [1_000_000_000, 'jedna milijarda'],
+  [2_000_000_000, 'dvije milijarde'],
+  [5_000_000_000, 'pet milijarda'],
   [10_000_000_000_000, 'deset bilijuna'],
   [100_000_000_000_000, 'sto bilijuna'],
+  [1_000_000_000_000_000n, 'jedna bilijarda'],
   [1_000_000_000_000_000_000n, 'jedan trilijun'],
 
   // Feminine gender tests
@@ -130,6 +134,10 @@ export const ordinal = [
   // Millions
   [1000000, 'milijunti'],
   [2000000, 'dva milijunti'],
+
+  // Billions (milijarda is feminine, like tisuća)
+  [1_000_000_000, 'milijarditi'],
+  [2_000_000_000, 'dvije milijarditi'],
 ]
 
 /**
