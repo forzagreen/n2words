@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.1.2](https://github.com/forzagreen/n2words/compare/v5.1.1...v5.1.2) (2026-07-14)
+
+
+### Bug Fixes
+
+* **hr-HR:** feminine number words before -arda scale words ([#414](https://github.com/forzagreen/n2words/issues/414)) ([99c424e](https://github.com/forzagreen/n2words/commit/99c424ed0e9fdcd5139156331df05598fc22c5f4))
+
 ## [5.1.1](https://github.com/forzagreen/n2words/compare/v5.1.0...v5.1.1) (2026-07-02)
 
 
