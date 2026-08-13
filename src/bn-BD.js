@@ -280,7 +280,7 @@ function toCurrency(value, options) {
     if (taka > 0n) {
       result += ' '
     }
-    result += integerToWords(paisa) + ' ' + minor[0]
+    result += integerToWords(paisa) + ' ' + (/** @type {string[]} */ (minor))[0]
   }
 
   return result
