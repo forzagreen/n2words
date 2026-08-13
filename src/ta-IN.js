@@ -276,7 +276,7 @@ function toCurrency(value, options) {
     if (rupees > 0n) {
       result += ' '
     }
-    result += integerToWords(paise) + ' ' + minor[0]
+    result += integerToWords(paise) + ' ' + (/** @type {string[]} */ (minor))[0]
   }
 
   return result

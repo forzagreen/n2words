@@ -406,7 +406,7 @@ function toCurrency(value, options) {
       result += useAnd ? ' and ' : ' '
     }
     result += integerToWords(sen)
-    result += ' ' + minor[0]
+    result += ' ' + (/** @type {string[]} */ (minor))[0]
   }
 
   return result

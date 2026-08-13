@@ -415,7 +415,7 @@ function toCurrency(value, options) {
       result += useAnd ? ' and ' : ' '
     }
     result += integerToWords(pesewas)
-    result += ' ' + (pesewas === 1n ? minor[0] : minor[1])
+    result += ' ' + (pesewas === 1n ? (/** @type {string[]} */ (minor))[0] : (/** @type {string[]} */ (minor))[1])
   }
 
   return result
