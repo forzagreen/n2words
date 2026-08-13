@@ -13,6 +13,9 @@ import { parseCardinalValue } from './utils/parse-cardinal.js'
 import { parseCurrencyValue } from './utils/parse-currency.js'
 import { parseOrdinalValue } from './utils/parse-ordinal.js'
 import { UNBOUNDED } from './utils/scale.js'
+import { checkMax } from './utils/check-max.js'
+import { resolveOptions } from './utils/resolve-options.js'
+import { faIR as CURRENCY_VOCAB, assertCurrencyExponent } from './utils/currency-vocab.js'
 
 // No fixed scale ceiling — the speller composes every magnitude.
 export const cardinalMax = UNBOUNDED
@@ -59,12 +62,6 @@ const ORDINAL_ONES = {
   8: 'هشتم',
   9: 'نهم',
 }
-
-// ============================================================================
-// Currency Vocabulary (Iranian Rial)
-// ============================================================================
-
-const RIAL = 'ریال'
 
 // ============================================================================
 // Conversion Functions
@@ -227,25 +224,38 @@ function toOrdinal(value) {
 // ============================================================================
 
 /**
+ * @typedef {object} CurrencyOptions
+ * @property {('IRR')} [currency] - ISO 4217 currency code to name the amount in
+ */
+
+/** @type {Required<CurrencyOptions>} */
+export const currencyDefaults = { currency: 'IRR' }
+
+/** @type {{ currency: ReadonlyArray<Required<CurrencyOptions>['currency']> }} */
+export const currencyValues = { currency: /** @type {Required<CurrencyOptions>['currency'][]} */ (Object.keys(CURRENCY_VOCAB)) }
+
+/**
  * Converts a numeric value to Persian currency words (Rial).
  *
- * Iranian Rial has no everyday minor unit (the dinar was historically 1/100
- * rial), so a fractional amount throws RangeError rather than being silently
- * discarded.
+ * Iranian Rial has no everyday minor unit (historically dinar was 1/100
+ * rial, but not used today) — a fractional amount throws RangeError
+ * rather than being silently dropped.
  * @param {number | string | bigint} value - The currency amount to convert
+ * @param {CurrencyOptions} [options] - Optional configuration
  * @returns {string} The amount in Persian currency words
  * @throws {TypeError} If value is not a valid numeric type
- * @throws {RangeError} If the amount has a fractional part
+ * @throws {RangeError} If value is not a valid number format, or has a fractional part
  * @example
  * toCurrency(42)     // 'چهل و دو ریال'
  * toCurrency(1000)   // 'هزار ریال'
  * toCurrency(-5)     // 'منفى پنج ریال'
  */
-function toCurrency(value) {
+function toCurrency(value, options) {
   const { isNegative, dollars: rial, cents } = parseCurrencyValue(value)
-  if (cents !== 0n) {
-    throw new RangeError('IRR has no minor unit — fractional amounts aren\'t representable')
-  }
+  checkMax(rial, currencyMax)
+  const { currency } = resolveOptions(options, currencyDefaults, currencyValues)
+  assertCurrencyExponent(cents, currency)
+  const { major } = CURRENCY_VOCAB[currency]
 
   let result = ''
   if (isNegative) {
@@ -253,7 +263,7 @@ function toCurrency(value) {
   }
 
   result += integerToWords(rial)
-  result += ' ' + RIAL
+  result += ' ' + major[0]
 
   return result
 }
