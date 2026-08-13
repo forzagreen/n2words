@@ -15,6 +15,8 @@ import { parseCurrencyValue } from './utils/parse-currency.js'
 import { parseOrdinalValue } from './utils/parse-ordinal.js'
 import { checkMax } from './utils/check-max.js'
 import { indian } from './utils/scale.js'
+import { resolveOptions } from './utils/resolve-options.js'
+import { urPK as CURRENCY_VOCAB, assertCurrencyExponent } from './utils/currency-vocab.js'
 
 // ============================================================================
 // Vocabulary
@@ -34,18 +36,6 @@ const ORDINAL_SUFFIX = 'واں'
 
 // Special ordinals for first few numbers
 const ORDINAL_SPECIAL = ['', 'پہلا', 'دوسرا', 'تیسرا', 'چوتھا', 'پانچواں', 'چھٹا']
-
-// ============================================================================
-// Currency Vocabulary (Pakistani Rupee)
-// ============================================================================
-
-// Rupee: singular/plural (same form used)
-const RUPEE = 'روپیہ'
-const RUPEES = 'روپے'
-
-// Paisa: singular/plural
-const PAISA = 'پیسہ'
-const PAISE = 'پیسے'
 
 const BELOW_HUNDRED = [
   'صفر', 'ایک', 'دو', 'تین', 'چار', 'پانچ', 'چھ', 'سات', 'آٹھ', 'نو',
@@ -239,8 +229,20 @@ function toOrdinal(value) {
 // ============================================================================
 
 /**
+ * @typedef {object} CurrencyOptions
+ * @property {('PKR')} [currency] - ISO 4217 currency code to name the amount in
+ */
+
+/** @type {Required<CurrencyOptions>} */
+export const currencyDefaults = { currency: 'PKR' }
+
+/** @type {{ currency: ReadonlyArray<Required<CurrencyOptions>['currency']> }} */
+export const currencyValues = { currency: /** @type {Required<CurrencyOptions>['currency'][]} */ (Object.keys(CURRENCY_VOCAB)) }
+
+/**
  * Converts a numeric value to Urdu currency words (Pakistani Rupee).
  * @param {number | string | bigint} value - The currency amount to convert
+ * @param {CurrencyOptions} [options] - Optional configuration
  * @returns {string} The amount in Urdu currency words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {Error} If value is not a valid number format
@@ -249,9 +251,12 @@ function toOrdinal(value) {
  * toCurrency(1)      // 'ایک روپیہ'
  * toCurrency(0.01)   // 'ایک پیسہ'
  */
-function toCurrency(value) {
+function toCurrency(value, options) {
   const { isNegative, dollars: rupees, cents: paise } = parseCurrencyValue(value)
   checkMax(rupees, currencyMax)
+  const { currency } = resolveOptions(options, currencyDefaults, currencyValues)
+  assertCurrencyExponent(paise, currency)
+  const { major, minor } = CURRENCY_VOCAB[currency]
 
   // Build result
   let result = ''
@@ -261,7 +266,7 @@ function toCurrency(value) {
   if (rupees > 0n || paise === 0n) {
     result += integerToWords(rupees)
     // Singular for 1 rupee, plural otherwise
-    result += ' ' + (rupees === 1n ? RUPEE : RUPEES)
+    result += ' ' + (rupees === 1n ? major[0] : major[1])
   }
 
   // Paise part
@@ -271,7 +276,7 @@ function toCurrency(value) {
     }
     result += integerToWords(paise)
     // Singular for 1 paisa, plural otherwise
-    result += ' ' + (paise === 1n ? PAISA : PAISE)
+    result += ' ' + (paise === 1n ? minor[0] : minor[1])
   }
 
   return result

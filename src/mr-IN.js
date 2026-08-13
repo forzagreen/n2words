@@ -16,6 +16,8 @@ import { parseCurrencyValue } from './utils/parse-currency.js'
 import { parseOrdinalValue } from './utils/parse-ordinal.js'
 import { checkMax } from './utils/check-max.js'
 import { indian } from './utils/scale.js'
+import { resolveOptions } from './utils/resolve-options.js'
+import { mrIN as CURRENCY_VOCAB, assertCurrencyExponent } from './utils/currency-vocab.js'
 
 // ============================================================================
 // Vocabulary
@@ -35,18 +37,6 @@ const ORDINAL_SUFFIX = 'वा'
 
 // Special ordinals for first few numbers (1-6 have irregular forms)
 const ORDINAL_SPECIAL = ['', 'पहिला', 'दुसरा', 'तिसरा', 'चौथा', 'पाचवा', 'सहावा']
-
-// ============================================================================
-// Currency Vocabulary (Indian Rupee)
-// ============================================================================
-
-// Rupee: singular/plural
-const RUPEE = 'रुपया'
-const RUPEES = 'रुपये'
-
-// Paisa: singular/plural
-const PAISA = 'पैसा'
-const PAISE = 'पैसे'
 
 const BELOW_HUNDRED = [
   'शून्य', 'एक', 'दोन', 'तीन', 'चार', 'पाच', 'सहा', 'सात', 'आठ', 'नऊ',
@@ -230,8 +220,20 @@ function toOrdinal(value) {
 // ============================================================================
 
 /**
+ * @typedef {object} CurrencyOptions
+ * @property {('INR')} [currency] - ISO 4217 currency code to name the amount in
+ */
+
+/** @type {Required<CurrencyOptions>} */
+export const currencyDefaults = { currency: 'INR' }
+
+/** @type {{ currency: ReadonlyArray<Required<CurrencyOptions>['currency']> }} */
+export const currencyValues = { currency: /** @type {Required<CurrencyOptions>['currency'][]} */ (Object.keys(CURRENCY_VOCAB)) }
+
+/**
  * Converts a numeric value to Marathi currency words (Indian Rupee).
  * @param {number | string | bigint} value - The currency amount to convert
+ * @param {CurrencyOptions} [options] - Optional configuration
  * @returns {string} The amount in Marathi currency words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {Error} If value is not a valid number format
@@ -240,9 +242,12 @@ function toOrdinal(value) {
  * toCurrency(1)      // 'एक रुपया'
  * toCurrency(0.01)   // 'एक पैसा'
  */
-function toCurrency(value) {
+function toCurrency(value, options) {
   const { isNegative, dollars: rupees, cents: paise } = parseCurrencyValue(value)
   checkMax(rupees, currencyMax)
+  const { currency } = resolveOptions(options, currencyDefaults, currencyValues)
+  assertCurrencyExponent(paise, currency)
+  const { major, minor } = CURRENCY_VOCAB[currency]
 
   // Build result
   let result = ''
@@ -252,7 +257,7 @@ function toCurrency(value) {
   if (rupees > 0n || paise === 0n) {
     result += integerToWords(rupees)
     // Singular for 1 rupee, plural otherwise
-    result += ' ' + (rupees === 1n ? RUPEE : RUPEES)
+    result += ' ' + (rupees === 1n ? major[0] : major[1])
   }
 
   // Paise part
@@ -262,7 +267,7 @@ function toCurrency(value) {
     }
     result += integerToWords(paise)
     // Singular for 1 paisa, plural otherwise
-    result += ' ' + (paise === 1n ? PAISA : PAISE)
+    result += ' ' + (paise === 1n ? minor[0] : minor[1])
   }
 
   return result
