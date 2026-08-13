@@ -253,6 +253,70 @@ export const ukUA = {
   UAH: { major: ['гривня', 'гривнi', 'гривень'], minor: ['копiйка', 'копiйки', 'копiйок'] },
 }
 
+// Danish Krone/Øre: [singular, plural] for krone; øre is invariable (same
+// singular/plural) — da-DK's own toCurrency selects the major index.
+/** @type {Record<string, CurrencyWordForms>} */
+export const daDK = {
+  DKK: { major: ['krone', 'kroner'], minor: ['øre'] },
+}
+
+// German Euro/Cent — both invariable (no plural form) in German currency
+// speech: "ein Euro", "zwei Euro".
+/** @type {Record<string, CurrencyWordForms>} */
+export const deDE = {
+  EUR: { major: ['Euro'], minor: ['Cent'] },
+}
+
+// Finnish Euro/Sentti: [singular, plural] — fi-FI's own toCurrency selects
+// the index (euro/euroa, sentti/senttiä).
+/** @type {Record<string, CurrencyWordForms>} */
+export const fiFI = {
+  EUR: { major: ['euro', 'euroa'], minor: ['sentti', 'senttiä'] },
+}
+
+// Norwegian Bokmål Krone/Øre: [singular, plural] for krone; øre is
+// invariable (same singular/plural) — nb-NO's own toCurrency selects the
+// major index.
+/** @type {Record<string, CurrencyWordForms>} */
+export const nbNO = {
+  NOK: { major: ['krone', 'kroner'], minor: ['øre'] },
+}
+
+// Dutch Euro/Cent — both invariable in written Dutch currency (euro and cent
+// don't pluralize).
+/** @type {Record<string, CurrencyWordForms>} */
+export const nlNL = {
+  EUR: { major: ['euro'], minor: ['cent'] },
+}
+
+// Swedish Krona/Öre: [singular, plural] for krona; öre is invariable (same
+// singular/plural) — sv-SE's own toCurrency selects the major index.
+/** @type {Record<string, CurrencyWordForms>} */
+export const svSE = {
+  SEK: { major: ['krona', 'kronor'], minor: ['öre'] },
+}
+
+// Italian Euro/Centesimo: euro is invariable; centesimo/centesimi is
+// [singular, plural] — it-IT's own toCurrency selects the minor index.
+/** @type {Record<string, CurrencyWordForms>} */
+export const itIT = {
+  EUR: { major: ['euro'], minor: ['centesimo', 'centesimi'] },
+}
+
+// Romanian Leu/Ban: [singular, plural] — ro-RO's own toCurrency selects the
+// index (and inserts "de" for higher counts, unchanged local grammar).
+/** @type {Record<string, CurrencyWordForms>} */
+export const roRO = {
+  RON: { major: ['leu', 'lei'], minor: ['ban', 'bani'] },
+}
+
+// Portuguese (Portugal) Euro/Cêntimo: [singular, plural] — pt-PT's own
+// toCurrency selects the index.
+/** @type {Record<string, CurrencyWordForms>} */
+export const ptPT = {
+  EUR: { major: ['euro', 'euros'], minor: ['cêntimo', 'cêntimos'] },
+}
+
 /**
  * ISO 4217 minor-unit decimal exponent, for currencies that diverge from the
  * default of 2 (most currencies). Only overrides are listed; an absent code

@@ -18,6 +18,7 @@ import { parseOrdinalValue } from './utils/parse-ordinal.js'
 import { checkMax } from './utils/check-max.js'
 import { longScale } from './utils/scale.js'
 import { resolveOptions } from './utils/resolve-options.js'
+import { itIT as CURRENCY_VOCAB, assertCurrencyExponent } from './utils/currency-vocab.js'
 
 // ============================================================================
 // Vocabulary (module-level constants)
@@ -62,14 +63,6 @@ const ORDINAL_ONES = ['', 'primo', 'secondo', 'terzo', 'quarto', 'quinto', 'sest
 
 // Ordinal suffix for 11+
 const ORDINAL_SUFFIX = 'esimo'
-
-// ============================================================================
-// Currency Vocabulary (Euro)
-// ============================================================================
-
-const EURO = 'euro'
-const CENTESIMO = 'centesimo'
-const CENTESIMI = 'centesimi'
 
 // ============================================================================
 // Segment Building
@@ -471,10 +464,14 @@ function toOrdinal(value) {
 /**
  * @typedef {object} CurrencyOptions
  * @property {boolean} [and] - Use "e" between euros and centesimi
+ * @property {('EUR')} [currency] - ISO 4217 currency code to name the amount in
  */
 
 /** @type {Required<CurrencyOptions>} */
-export const currencyDefaults = { and: true }
+export const currencyDefaults = { and: true, currency: 'EUR' }
+
+/** @type {{ currency: ReadonlyArray<Required<CurrencyOptions>['currency']> }} */
+export const currencyValues = { currency: /** @type {Required<CurrencyOptions>['currency'][]} */ (Object.keys(CURRENCY_VOCAB)) }
 
 /**
  * Converts a numeric value to Italian currency words (Euro).
@@ -493,7 +490,9 @@ export const currencyDefaults = { and: true }
 function toCurrency(value, options) {
   const { isNegative, dollars: euros, cents: centesimi } = parseCurrencyValue(value)
   checkMax(euros, currencyMax)
-  const { and: useAnd } = resolveOptions(options, currencyDefaults)
+  const { and: useAnd, currency } = resolveOptions(options, currencyDefaults, currencyValues)
+  assertCurrencyExponent(centesimi, currency)
+  const { major, minor } = CURRENCY_VOCAB[currency]
 
   // Build result
   let result = ''
@@ -509,7 +508,7 @@ function toCurrency(value, options) {
       result += integerToWords(euros)
     }
     // Euro is invariable (doesn't change for plural in Italian)
-    result += ' ' + EURO
+    result += ' ' + major[0]
   }
 
   // Centesimi part
@@ -524,7 +523,7 @@ function toCurrency(value, options) {
     else {
       result += integerToWords(centesimi)
     }
-    result += ' ' + (centesimi === 1n ? CENTESIMO : CENTESIMI)
+    result += ' ' + (centesimi === 1n ? (/** @type {string[]} */ (minor))[0] : (/** @type {string[]} */ (minor))[1])
   }
 
   return result

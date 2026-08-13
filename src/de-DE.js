@@ -18,6 +18,7 @@ import { parseOrdinalValue } from './utils/parse-ordinal.js'
 import { checkMax } from './utils/check-max.js'
 import { western } from './utils/scale.js'
 import { resolveOptions } from './utils/resolve-options.js'
+import { deDE as CURRENCY_VOCAB, assertCurrencyExponent } from './utils/currency-vocab.js'
 
 // ============================================================================
 // Vocabulary (module-level constants)
@@ -71,13 +72,6 @@ const ORDINAL_TENS = ['', '', 'zwanzigste', 'dreißigste', 'vierzigste', 'fünfz
 
 // Ordinal scale suffixes: -ste for 20+
 const ORDINAL_SUFFIX = 'ste'
-
-// ============================================================================
-// Currency Vocabulary (Euro)
-// ============================================================================
-
-const EURO = 'Euro'
-const CENT = 'Cent'
 
 // ============================================================================
 // Segment Building
@@ -569,10 +563,14 @@ function toOrdinal(value) {
 /**
  * @typedef {object} CurrencyOptions
  * @property {boolean} [and] - Use "und" between euros and cents
+ * @property {('EUR')} [currency] - ISO 4217 currency code to name the amount in
  */
 
 /** @type {Required<CurrencyOptions>} */
-export const currencyDefaults = { and: true }
+export const currencyDefaults = { and: true, currency: 'EUR' }
+
+/** @type {{ currency: ReadonlyArray<Required<CurrencyOptions>['currency']> }} */
+export const currencyValues = { currency: /** @type {Required<CurrencyOptions>['currency'][]} */ (Object.keys(CURRENCY_VOCAB)) }
 
 /**
  * Converts a numeric value to German currency words (Euro).
@@ -591,7 +589,9 @@ export const currencyDefaults = { and: true }
 function toCurrency(value, options) {
   const { isNegative, dollars: euros, cents } = parseCurrencyValue(value)
   checkMax(euros, currencyMax)
-  const { and: useAnd } = resolveOptions(options, currencyDefaults)
+  const { and: useAnd, currency } = resolveOptions(options, currencyDefaults, currencyValues)
+  assertCurrencyExponent(cents, currency)
+  const { major, minor } = CURRENCY_VOCAB[currency]
 
   // Build result
   let result = ''
@@ -606,7 +606,7 @@ function toCurrency(value, options) {
     else {
       result += integerToWords(euros)
     }
-    result += ' ' + EURO
+    result += ' ' + major[0]
   }
 
   // Cents part
@@ -621,7 +621,7 @@ function toCurrency(value, options) {
     else {
       result += integerToWords(cents)
     }
-    result += ' ' + CENT
+    result += ' ' + (/** @type {string[]} */ (minor))[0]
   }
 
   return result

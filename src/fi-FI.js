@@ -16,6 +16,8 @@ import { parseCurrencyValue } from './utils/parse-currency.js'
 import { parseOrdinalValue } from './utils/parse-ordinal.js'
 import { checkMax } from './utils/check-max.js'
 import { western } from './utils/scale.js'
+import { resolveOptions } from './utils/resolve-options.js'
+import { fiFI as CURRENCY_VOCAB, assertCurrencyExponent } from './utils/currency-vocab.js'
 
 // ============================================================================
 // Vocabulary (module-level constants)
@@ -60,15 +62,6 @@ const ORDINAL_SUFFIX = 's' // e.g., kolmas, neljäs
 const ORDINAL_ONES = ['', 'ensimmäinen', 'toinen', 'kolmas', 'neljäs', 'viides', 'kuudes', 'seitsemäs', 'kahdeksas', 'yhdeksäs']
 const ORDINAL_TEENS = ['kymmenes', 'yhdestoista', 'kahdestoista', 'kolmastoista', 'neljästoista', 'viidestoista', 'kuudestoista', 'seitsemästoista', 'kahdeksastoista', 'yhdeksästoista']
 const ORDINAL_TENS = ['', '', 'kahdeskymmenes', 'kolmaskymmenes', 'neljäskymmenes', 'viideskymmenes', 'kuudeskymmenes', 'seitsemäskymmenes', 'kahdeksaskymmenes', 'yhdeksäskymmenes']
-
-// ============================================================================
-// Currency Vocabulary (Euro)
-// ============================================================================
-
-const EURO = 'euroa'
-const EURO_SINGULAR = 'euro'
-const CENT = 'senttiä'
-const CENT_SINGULAR = 'sentti'
 
 // ============================================================================
 // Segment Building
@@ -350,11 +343,23 @@ function toOrdinal(value) {
 // ============================================================================
 
 /**
+ * @typedef {object} CurrencyOptions
+ * @property {('EUR')} [currency] - ISO 4217 currency code to name the amount in
+ */
+
+/** @type {Required<CurrencyOptions>} */
+export const currencyDefaults = { currency: 'EUR' }
+
+/** @type {{ currency: ReadonlyArray<Required<CurrencyOptions>['currency']> }} */
+export const currencyValues = { currency: /** @type {Required<CurrencyOptions>['currency'][]} */ (Object.keys(CURRENCY_VOCAB)) }
+
+/**
  * Converts a numeric value to Finnish currency words (Euro).
  *
  * Euro uses sentti as subunit (100 senttiä = 1 euro).
  * Finnish has singular/plural: 1 euro vs 2 euroa, 1 sentti vs 2 senttiä.
  * @param {number | string | bigint} value - The currency amount to convert
+ * @param {CurrencyOptions} [options] - Optional configuration
  * @returns {string} The amount in Finnish currency words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {Error} If value is not a valid number format
@@ -363,9 +368,12 @@ function toOrdinal(value) {
  * toCurrency(42)     // 'neljäkymmentäkaksi euroa'
  * toCurrency(1.50)   // 'yksi euro viisikymmentä senttiä'
  */
-function toCurrency(value) {
+function toCurrency(value, options) {
   const { isNegative, dollars: euros, cents } = parseCurrencyValue(value)
   checkMax(euros, currencyMax)
+  const { currency } = resolveOptions(options, currencyDefaults, currencyValues)
+  assertCurrencyExponent(cents, currency)
+  const { major, minor } = CURRENCY_VOCAB[currency]
 
   let result = ''
   if (isNegative) {
@@ -375,7 +383,7 @@ function toCurrency(value) {
   // Euro part - always show if non-zero, or if no cents
   if (euros > 0n || cents === 0n) {
     result += integerToWords(euros)
-    result += ' ' + (euros === 1n ? EURO_SINGULAR : EURO)
+    result += ' ' + (euros === 1n ? major[0] : major[1])
   }
 
   // Cent part
@@ -384,7 +392,7 @@ function toCurrency(value) {
       result += ' '
     }
     result += integerToWords(cents)
-    result += ' ' + (cents === 1n ? CENT_SINGULAR : CENT)
+    result += ' ' + (cents === 1n ? (/** @type {string[]} */ (minor))[0] : (/** @type {string[]} */ (minor))[1])
   }
 
   return result
