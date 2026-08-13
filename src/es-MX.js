@@ -23,6 +23,7 @@ import { parseOrdinalValue } from './utils/parse-ordinal.js'
 import { checkMax } from './utils/check-max.js'
 import { bounded, longScale } from './utils/scale.js'
 import { resolveOptions } from './utils/resolve-options.js'
+import { esMX as CURRENCY_VOCAB, assertCurrencyExponent } from './utils/currency-vocab.js'
 
 // ============================================================================
 // Vocabulary (module-level constants)
@@ -74,11 +75,6 @@ const ORDINAL_THOUSAND_FEM = 'milésima'
 const ORDINAL_MILLION_MASC = 'millonésimo'
 const ORDINAL_MILLION_FEM = 'millonésima'
 
-// Currency vocabulary (Mexican Peso - MXN)
-const PESO = 'peso'
-const PESOS = 'pesos'
-const CENTAVO = 'centavo'
-const CENTAVOS = 'centavos'
 const CURRENCY_CONNECTOR = 'con'
 
 // ============================================================================
@@ -509,10 +505,14 @@ function toOrdinal(value, options) {
 /**
  * @typedef {object} CurrencyOptions
  * @property {boolean} [and] - Use "con" between pesos and centavos
+ * @property {('MXN')} [currency] - ISO 4217 currency code to name the amount in
  */
 
 /** @type {Required<CurrencyOptions>} */
-export const currencyDefaults = { and: true }
+export const currencyDefaults = { and: true, currency: 'MXN' }
+
+/** @type {{ currency: ReadonlyArray<Required<CurrencyOptions>['currency']> }} */
+export const currencyValues = { currency: /** @type {Required<CurrencyOptions>['currency'][]} */ (Object.keys(CURRENCY_VOCAB)) }
 
 /**
  * Converts a numeric value to Mexican Peso currency words.
@@ -533,7 +533,9 @@ export const currencyDefaults = { and: true }
 function toCurrency(value, options) {
   const { isNegative, dollars: pesos, cents: centavos } = parseCurrencyValue(value)
   checkMax(pesos, currencyMax)
-  const { and: useAnd } = resolveOptions(options, currencyDefaults)
+  const { and: useAnd, currency } = resolveOptions(options, currencyDefaults, currencyValues)
+  assertCurrencyExponent(centavos, currency)
+  const { major, minor } = CURRENCY_VOCAB[currency]
 
   let result = ''
   if (isNegative) result = NEGATIVE + ' '
@@ -542,10 +544,10 @@ function toCurrency(value, options) {
   if (pesos > 0n || centavos === 0n) {
     // Use masculine for pesos, but "un peso" not "uno peso"
     if (pesos === 1n) {
-      result += 'un ' + PESO
+      result += 'un ' + major[0]
     }
     else {
-      result += integerToWords(pesos, false) + ' ' + PESOS
+      result += integerToWords(pesos, false) + ' ' + major[1]
     }
   }
 
@@ -556,10 +558,10 @@ function toCurrency(value, options) {
     }
     // Use masculine for centavos, but "un centavo" not "uno centavo"
     if (centavos === 1n) {
-      result += 'un ' + CENTAVO
+      result += 'un ' + minor[0]
     }
     else {
-      result += integerToWords(centavos, false) + ' ' + CENTAVOS
+      result += integerToWords(centavos, false) + ' ' + minor[1]
     }
   }
 
