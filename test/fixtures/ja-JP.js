@@ -176,9 +176,13 @@ export const currency = [
   [10000, '一万円'],
   [100000000, '一億円'],
 
+  // Yen has no everyday minor unit (銭/sen is historical) — a fractional
+  // amount throws RangeError instead of spelling a fictitious sen; covered
+  // generically by test/currency-vocab-contract.test.js, not per-fixture.
+
   // Negative amounts
   [-1, 'マイナス一円'],
-  [-42, 'マイナス四十二円'],
+  [-1000, 'マイナス千円'],
 
   // Edge cases
   [5.00, '五円'],

@@ -15,6 +15,8 @@ import { parseCurrencyValue } from './utils/parse-currency.js'
 import { parseOrdinalValue } from './utils/parse-ordinal.js'
 import { checkMax } from './utils/check-max.js'
 import { myriad } from './utils/scale.js'
+import { resolveOptions } from './utils/resolve-options.js'
+import { koKR as CURRENCY_VOCAB, assertCurrencyExponent } from './utils/currency-vocab.js'
 
 // ============================================================================
 // Vocabulary (module-level constants)
@@ -46,12 +48,6 @@ export const currencyMax = myriad(SCALES.length)
 // ============================================================================
 
 const ORDINAL_PREFIX = '제'
-
-// ============================================================================
-// Currency Vocabulary (Korean Won)
-// ============================================================================
-
-const WON = '원'
 
 // ============================================================================
 // Segment Building
@@ -311,25 +307,37 @@ function toOrdinal(value) {
 // ============================================================================
 
 /**
+ * @typedef {object} CurrencyOptions
+ * @property {('KRW')} [currency] - ISO 4217 currency code to name the amount in
+ */
+
+/** @type {Required<CurrencyOptions>} */
+export const currencyDefaults = { currency: 'KRW' }
+
+/** @type {{ currency: ReadonlyArray<Required<CurrencyOptions>['currency']> }} */
+export const currencyValues = { currency: /** @type {Required<CurrencyOptions>['currency'][]} */ (Object.keys(CURRENCY_VOCAB)) }
+
+/**
  * Converts a numeric value to Korean currency words (Won).
  *
- * Korean Won has no everyday minor unit (jeon are historical), so a
- * fractional amount throws RangeError rather than being silently discarded.
+ * Korean Won has no everyday subunit (jeon are historical) — a fractional
+ * amount throws RangeError rather than being silently rounded away.
  * @param {number | string | bigint} value - The currency amount to convert
+ * @param {CurrencyOptions} [options] - Optional configuration
  * @returns {string} The amount in Korean currency words
  * @throws {TypeError} If value is not a valid numeric type
- * @throws {RangeError} If the amount has a fractional part
+ * @throws {RangeError} If value is not a valid number format, or has a fractional part
  * @example
  * toCurrency(42)     // '사십이원'
  * toCurrency(1000)   // '천원'
  * toCurrency(-5)     // '마이너스 오원'
  */
-function toCurrency(value) {
+function toCurrency(value, options) {
   const { isNegative, dollars: won, cents } = parseCurrencyValue(value)
   checkMax(won, currencyMax)
-  if (cents !== 0n) {
-    throw new RangeError('KRW has no minor unit — fractional amounts aren\'t representable')
-  }
+  const { currency } = resolveOptions(options, currencyDefaults, currencyValues)
+  assertCurrencyExponent(cents, currency)
+  const { major } = CURRENCY_VOCAB[currency]
 
   let result = ''
   if (isNegative) {
@@ -337,7 +345,7 @@ function toCurrency(value) {
   }
 
   result += integerToWords(won)
-  result += WON
+  result += major[0]
 
   return result
 }
