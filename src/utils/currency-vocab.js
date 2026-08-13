@@ -72,6 +72,13 @@ export const ptBR = {
 /** @type {Record<string, CurrencyWordForms>} */
 export const jaJP = { JPY: { major: ['円'], minor: null } }
 
+// Czech koruna/haléř: [singular, few (2-4), many (5+)] — cs-CZ's own
+// pluralize() selects the index; this module only holds the word forms.
+/** @type {Record<string, CurrencyWordForms>} */
+export const csCZ = {
+  CZK: { major: ['koruna', 'koruny', 'korun'], minor: ['haléř', 'haléře', 'haléřů'] },
+}
+
 /** @type {Record<string, CurrencyWordForms>} */
 export const koKR = { KRW: { major: ['원'], minor: null } }
 
