@@ -272,7 +272,7 @@ function toCurrency(value, options) {
     }
     result += integerToWords(paise)
     // Singular for 1 paisa, plural otherwise
-    result += ' ' + (paise === 1n ? minor[0] : minor[1])
+    result += ' ' + (paise === 1n ? (/** @type {string[]} */ (minor))[0] : (/** @type {string[]} */ (minor))[1])
   }
 
   return result

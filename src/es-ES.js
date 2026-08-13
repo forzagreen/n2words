@@ -574,10 +574,10 @@ function toCurrency(value, options) {
     }
     // Use masculine for centimos, but "un céntimo" not "uno céntimo"
     if (centimos === 1n) {
-      result += 'un ' + minor[0]
+      result += 'un ' + (/** @type {string[]} */ (minor))[0]
     }
     else {
-      result += integerToWords(centimos, false) + ' ' + minor[1]
+      result += integerToWords(centimos, false) + ' ' + (/** @type {string[]} */ (minor))[1]
     }
   }
 

@@ -472,10 +472,10 @@ function toCurrency(value, options) {
     }
     // Use masculine for centavos, but "un centavo" not "uno centavo"
     if (centavos === 1n) {
-      result += 'un ' + minor[0]
+      result += 'un ' + (/** @type {string[]} */ (minor))[0]
     }
     else {
-      result += integerToWords(centavos, false) + ' ' + minor[1]
+      result += integerToWords(centavos, false) + ' ' + (/** @type {string[]} */ (minor))[1]
     }
   }
 

@@ -522,7 +522,10 @@ function toCurrency(value, options) {
       result += and ? ' e ' : ' '
     }
     const minorText = integerToWords(minorUnits)
-    const minorUnit = minorUnits === 1n ? currencyWords.minor[0] : currencyWords.minor[1]
+    // assertCurrencyExponent already guarantees minorUnits is 0n whenever
+    // currencyWords.minor is null, so hasMinor here implies a real array.
+    const minorForms = /** @type {string[]} */ (currencyWords.minor)
+    const minorUnit = minorUnits === 1n ? minorForms[0] : minorForms[1]
     result += minorText + ' ' + minorUnit
   }
 

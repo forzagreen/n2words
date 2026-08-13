@@ -472,7 +472,7 @@ function toCurrency(value, options) {
       result += useAnd ? ' and ' : ' '
     }
     result += integerToWords(pence)
-    result += ' ' + (pence === 1n ? minor[0] : minor[1])
+    result += ' ' + (pence === 1n ? (/** @type {string[]} */ (minor))[0] : (/** @type {string[]} */ (minor))[1])
   }
 
   return result

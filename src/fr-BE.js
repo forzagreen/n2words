@@ -509,7 +509,7 @@ function toCurrency(value, options) {
       result += useAnd ? ' et ' : ' '
     }
     result += integerToWords(centimes, false)
-    result += ' ' + (centimes === 1n ? minor[0] : minor[1])
+    result += ' ' + (centimes === 1n ? (/** @type {string[]} */ (minor))[0] : (/** @type {string[]} */ (minor))[1])
   }
 
   return result
