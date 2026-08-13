@@ -17,6 +17,8 @@ import { parseCurrencyValue } from './utils/parse-currency.js'
 import { parseOrdinalValue } from './utils/parse-ordinal.js'
 import { checkMax } from './utils/check-max.js'
 import { western } from './utils/scale.js'
+import { resolveOptions } from './utils/resolve-options.js'
+import { kaGE as CURRENCY_VOCAB, assertCurrencyExponent } from './utils/currency-vocab.js'
 
 // ============================================================================
 // Vocabulary (module-level constants)
@@ -59,10 +61,6 @@ const ORDINAL_SUFFIX = 'ე'
 
 // Ordinal forms for 1-9 (these are special)
 const ORDINAL_ONES = ['', 'პირველი', 'მეორე', 'მესამე', 'მეოთხე', 'მეხუთე', 'მეექვსე', 'მეშვიდე', 'მერვე', 'მეცხრე']
-
-// Currency (Georgian Lari)
-const LARI = 'ლარი'
-const TETRI = 'თეთრი'
 
 // ============================================================================
 // Segment Building
@@ -364,8 +362,20 @@ function toOrdinal(value) {
 // ============================================================================
 
 /**
+ * @typedef {object} CurrencyOptions
+ * @property {('GEL')} [currency] - ISO 4217 currency code to name the amount in
+ */
+
+/** @type {Required<CurrencyOptions>} */
+export const currencyDefaults = { currency: 'GEL' }
+
+/** @type {{ currency: ReadonlyArray<Required<CurrencyOptions>['currency']> }} */
+export const currencyValues = { currency: /** @type {Required<CurrencyOptions>['currency'][]} */ (Object.keys(CURRENCY_VOCAB)) }
+
+/**
  * Converts a numeric value to Georgian Lari currency words.
  * @param {number | string | bigint} value - The numeric value to convert
+ * @param {CurrencyOptions} [options] - Optional configuration
  * @returns {string} The currency in Georgian words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {Error} If value is not a valid number format
@@ -373,9 +383,12 @@ function toOrdinal(value) {
  * toCurrency(1)     // 'ერთი ლარი'
  * toCurrency(2.50)  // 'ორი ლარი ორმოცდაათი თეთრი'
  */
-function toCurrency(value) {
+function toCurrency(value, options) {
   const { isNegative, dollars, cents } = parseCurrencyValue(value)
   checkMax(dollars, currencyMax)
+  const { currency } = resolveOptions(options, currencyDefaults, currencyValues)
+  assertCurrencyExponent(cents, currency)
+  const { major, minor } = CURRENCY_VOCAB[currency]
 
   const parts = []
 
@@ -386,13 +399,13 @@ function toCurrency(value) {
   // Lari
   if (dollars > 0n || cents === 0n) {
     const lariWord = integerToWords(dollars)
-    parts.push(lariWord + ' ' + LARI)
+    parts.push(lariWord + ' ' + major[0])
   }
 
   // Tetri
   if (cents > 0n) {
     const tetriWord = integerToWords(cents)
-    parts.push(tetriWord + ' ' + TETRI)
+    parts.push(tetriWord + ' ' + (/** @type {string[]} */ (minor))[0])
   }
 
   return parts.join(' ')

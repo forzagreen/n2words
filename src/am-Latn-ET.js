@@ -16,6 +16,8 @@ import { parseCurrencyValue } from './utils/parse-currency.js'
 import { parseOrdinalValue } from './utils/parse-ordinal.js'
 import { checkMax } from './utils/check-max.js'
 import { western } from './utils/scale.js'
+import { resolveOptions } from './utils/resolve-options.js'
+import { amLatnET as CURRENCY_VOCAB, assertCurrencyExponent } from './utils/currency-vocab.js'
 
 // ============================================================================
 // Vocabulary
@@ -41,16 +43,6 @@ const ORDINAL_SUFFIX = 'nya'
 
 // Special ordinal for first (romanized አንደኛ)
 const FIRST = 'andenya'
-
-// ============================================================================
-// Currency Vocabulary (Ethiopian Birr)
-// ============================================================================
-
-// Birr (main unit, romanized ብር)
-const BIRR = 'birr'
-
-// Santim (1/100 of birr, romanized ሳንቲም)
-const SANTIM = 'santim'
 
 // Short scale
 const SCALE_WORDS = ['', THOUSAND, 'miliyon', 'billiyon']
@@ -250,8 +242,20 @@ function toOrdinal(value) {
 // ============================================================================
 
 /**
+ * @typedef {object} CurrencyOptions
+ * @property {('ETB')} [currency] - ISO 4217 currency code to name the amount in
+ */
+
+/** @type {Required<CurrencyOptions>} */
+export const currencyDefaults = { currency: 'ETB' }
+
+/** @type {{ currency: ReadonlyArray<Required<CurrencyOptions>['currency']> }} */
+export const currencyValues = { currency: /** @type {Required<CurrencyOptions>['currency'][]} */ (Object.keys(CURRENCY_VOCAB)) }
+
+/**
  * Converts a numeric value to Amharic (Latin script) currency words (Ethiopian Birr).
  * @param {number | string | bigint} value - The currency amount to convert
+ * @param {CurrencyOptions} [options] - Optional configuration
  * @returns {string} The amount in Amharic (Latin) currency words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {Error} If value is not a valid number format
@@ -260,9 +264,12 @@ function toOrdinal(value) {
  * toCurrency(1)      // 'and birr'
  * toCurrency(0.01)   // 'and santim'
  */
-function toCurrency(value) {
+function toCurrency(value, options) {
   const { isNegative, dollars: birr, cents: santim } = parseCurrencyValue(value)
   checkMax(birr, currencyMax)
+  const { currency } = resolveOptions(options, currencyDefaults, currencyValues)
+  assertCurrencyExponent(santim, currency)
+  const { major, minor } = CURRENCY_VOCAB[currency]
 
   // Build result
   let result = ''
@@ -271,7 +278,7 @@ function toCurrency(value) {
   // Birr part - show if non-zero, or if no santim
   if (birr > 0n || santim === 0n) {
     result += integerToWords(birr)
-    result += ' ' + BIRR
+    result += ' ' + major[0]
   }
 
   // Santim part
@@ -280,7 +287,7 @@ function toCurrency(value) {
       result += ' '
     }
     result += integerToWords(santim)
-    result += ' ' + SANTIM
+    result += ' ' + (/** @type {string[]} */ (minor))[0]
   }
 
   return result
