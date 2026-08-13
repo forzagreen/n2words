@@ -16,6 +16,7 @@ import { parseOrdinalValue } from './utils/parse-ordinal.js'
 import { checkMax } from './utils/check-max.js'
 import { indian } from './utils/scale.js'
 import { resolveOptions } from './utils/resolve-options.js'
+import { enPK as CURRENCY_VOCAB, assertCurrencyExponent } from './utils/currency-vocab.js'
 
 // ============================================================================
 // Vocabulary (module-level constants)
@@ -42,12 +43,6 @@ const DECIMAL_SEP = 'point'
 const ORDINAL_ONES = ['', 'first', 'second', 'third', 'fourth', 'fifth', 'sixth', 'seventh', 'eighth', 'ninth']
 const ORDINAL_TEENS = ['tenth', 'eleventh', 'twelfth', 'thirteenth', 'fourteenth', 'fifteenth', 'sixteenth', 'seventeenth', 'eighteenth', 'nineteenth']
 const ORDINAL_TENS = ['', '', 'twentieth', 'thirtieth', 'fortieth', 'fiftieth', 'sixtieth', 'seventieth', 'eightieth', 'ninetieth']
-
-// Currency vocabulary (Pakistani Rupee)
-const RUPEE = 'rupee'
-const RUPEES = 'rupees'
-const PAISA = 'paisa'
-const PAISE = 'paise'
 
 // ============================================================================
 // Segment Building
@@ -381,10 +376,14 @@ function toOrdinal(value) {
 /**
  * @typedef {object} CurrencyOptions
  * @property {boolean} [and] - Use "and" between rupees and paise
+ * @property {('PKR')} [currency] - ISO 4217 currency code to name the amount in
  */
 
 /** @type {Required<CurrencyOptions>} */
-export const currencyDefaults = { and: true }
+export const currencyDefaults = { and: true, currency: 'PKR' }
+
+/** @type {{ currency: ReadonlyArray<Required<CurrencyOptions>['currency']> }} */
+export const currencyValues = { currency: /** @type {Required<CurrencyOptions>['currency'][]} */ (Object.keys(CURRENCY_VOCAB)) }
 
 /**
  * Converts a numeric value to Pakistani English currency words.
@@ -403,7 +402,9 @@ export const currencyDefaults = { and: true }
 function toCurrency(value, options) {
   const { isNegative, dollars: rupees, cents: paise } = parseCurrencyValue(value)
   checkMax(rupees, currencyMax)
-  const { and: useAnd } = resolveOptions(options, currencyDefaults)
+  const { and: useAnd, currency } = resolveOptions(options, currencyDefaults, currencyValues)
+  assertCurrencyExponent(paise, currency)
+  const { major, minor } = CURRENCY_VOCAB[currency]
 
   // Build result
   let result = ''
@@ -412,7 +413,7 @@ function toCurrency(value, options) {
   // Rupees part (show if non-zero, or if no paise)
   if (rupees > 0n || paise === 0n) {
     result += integerToWords(rupees)
-    result += ' ' + (rupees === 1n ? RUPEE : RUPEES)
+    result += ' ' + (rupees === 1n ? major[0] : major[1])
   }
 
   // Paise part
@@ -421,7 +422,7 @@ function toCurrency(value, options) {
       result += useAnd ? ' and ' : ' '
     }
     result += integerToWords(paise)
-    result += ' ' + (paise === 1n ? PAISA : PAISE)
+    result += ' ' + (paise === 1n ? minor[0] : minor[1])
   }
 
   return result
