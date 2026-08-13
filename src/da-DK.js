@@ -16,6 +16,8 @@ import { parseCurrencyValue } from './utils/parse-currency.js'
 import { parseOrdinalValue } from './utils/parse-ordinal.js'
 import { checkMax } from './utils/check-max.js'
 import { western } from './utils/scale.js'
+import { resolveOptions } from './utils/resolve-options.js'
+import { daDK as CURRENCY_VOCAB, assertCurrencyExponent } from './utils/currency-vocab.js'
 
 // ============================================================================
 // Vocabulary (module-level constants)
@@ -69,14 +71,6 @@ const ORDINAL_SPECIAL = {
   11: 'ellevte',
   12: 'tolvte',
 }
-
-// ============================================================================
-// Currency Vocabulary (Danish Krone)
-// ============================================================================
-
-const KRONE = 'krone'
-const KRONER = 'kroner' // plural
-const ORE = 'øre' // same singular and plural
 
 // ============================================================================
 // Segment Building
@@ -364,10 +358,22 @@ function toOrdinal(value) {
 // ============================================================================
 
 /**
+ * @typedef {object} CurrencyOptions
+ * @property {('DKK')} [currency] - ISO 4217 currency code to name the amount in
+ */
+
+/** @type {Required<CurrencyOptions>} */
+export const currencyDefaults = { currency: 'DKK' }
+
+/** @type {{ currency: ReadonlyArray<Required<CurrencyOptions>['currency']> }} */
+export const currencyValues = { currency: /** @type {Required<CurrencyOptions>['currency'][]} */ (Object.keys(CURRENCY_VOCAB)) }
+
+/**
  * Converts a numeric value to Danish currency words (Danish Krone).
  *
  * Uses krone/kroner and øre (100 øre = 1 krone).
  * @param {number | string | bigint} value - The currency amount to convert
+ * @param {CurrencyOptions} [options] - Optional configuration
  * @returns {string} The amount in Danish currency words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {Error} If value is not a valid number format
@@ -376,9 +382,12 @@ function toOrdinal(value) {
  * toCurrency(42)     // 'toogfyrre kroner'
  * toCurrency(1.50)   // 'en krone og halvtreds øre'
  */
-function toCurrency(value) {
+function toCurrency(value, options) {
   const { isNegative, dollars: kroner, cents: ore } = parseCurrencyValue(value)
   checkMax(kroner, currencyMax)
+  const { currency } = resolveOptions(options, currencyDefaults, currencyValues)
+  assertCurrencyExponent(ore, currency)
+  const { major, minor } = CURRENCY_VOCAB[currency]
 
   let result = ''
   if (isNegative) {
@@ -388,10 +397,10 @@ function toCurrency(value) {
   // Kroner part - use "en" for 1 krone
   if (kroner > 0n || ore === 0n) {
     if (kroner === 1n) {
-      result += 'en ' + KRONE
+      result += 'en ' + major[0]
     }
     else {
-      result += integerToWords(kroner) + ' ' + KRONER
+      result += integerToWords(kroner) + ' ' + major[1]
     }
   }
 
@@ -400,7 +409,7 @@ function toCurrency(value) {
     if (kroner > 0n) {
       result += ' og '
     }
-    result += integerToWords(ore) + ' ' + ORE
+    result += integerToWords(ore) + ' ' + (/** @type {string[]} */ (minor))[0]
   }
 
   return result
