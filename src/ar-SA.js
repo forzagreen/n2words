@@ -18,6 +18,7 @@ import { parseOrdinalValue } from './utils/parse-ordinal.js'
 import { checkMax } from './utils/check-max.js'
 import { western } from './utils/scale.js'
 import { resolveOptions } from './utils/resolve-options.js'
+import { arSA as CURRENCY_VOCAB, assertCurrencyExponent } from './utils/currency-vocab.js'
 
 // ============================================================================
 // Vocabulary
@@ -58,22 +59,6 @@ const ORDINAL_MASC = ['الأول', 'الثاني', 'الثالث', 'الراب�
 
 // Feminine ordinal forms (1-10)
 const ORDINAL_FEM = ['الأولى', 'الثانية', 'الثالثة', 'الرابعة', 'الخامسة', 'السادسة', 'السابعة', 'الثامنة', 'التاسعة', 'العاشرة']
-
-// ============================================================================
-// Currency Vocabulary (Saudi Riyal)
-// ============================================================================
-
-// Riyal: singular, dual, plural (3-10), plural (11+)
-const RIYAL_SINGULAR = 'ريال'
-const RIYAL_DUAL = 'ريالان'
-const RIYAL_PLURAL_3_10 = 'ريالات'
-const RIYAL_PLURAL_11 = 'ريالاً'
-
-// Halala: singular, dual, plural (3-10), plural (11+)
-const HALALA_SINGULAR = 'هللة'
-const HALALA_DUAL = 'هللتان'
-const HALALA_PLURAL_3_10 = 'هللات'
-const HALALA_PLURAL_11 = 'هللة'
 
 // ============================================================================
 // Conversion Functions
@@ -336,31 +321,45 @@ function toOrdinal(value, options) {
  * - 2: dual
  * - 3-10: plural form 1
  * - 11+: plural form 2 (different ending)
- * @param {bigint} n - The riyal count
- * @returns {string} The appropriate riyal word form
+ * @param {bigint} n - The count
+ * @param {string[]} forms - [singular, dual, plural3-10, plural11+]
+ * @returns {string} The appropriate word form
  */
-function getRiyalForm(n) {
-  if (n === 1n) return RIYAL_SINGULAR
-  if (n === 2n) return RIYAL_DUAL
-  if (n >= 3n && n <= 10n) return RIYAL_PLURAL_3_10
-  return RIYAL_PLURAL_11
+function getRiyalForm(n, forms) {
+  if (n === 1n) return forms[0]
+  if (n === 2n) return forms[1]
+  if (n >= 3n && n <= 10n) return forms[2]
+  return forms[3]
 }
 
 /**
  * Gets the appropriate halala word form based on number.
  * @param {bigint} n - The halala count
- * @returns {string} The appropriate halala word form
+ * @param {string[]} forms - [singular, dual, plural3-10, plural11+]
+ * @returns {string} The appropriate word form
  */
-function getHalalaForm(n) {
-  if (n === 1n) return HALALA_SINGULAR
-  if (n === 2n) return HALALA_DUAL
-  if (n >= 3n && n <= 10n) return HALALA_PLURAL_3_10
-  return HALALA_PLURAL_11
+function getHalalaForm(n, forms) {
+  if (n === 1n) return forms[0]
+  if (n === 2n) return forms[1]
+  if (n >= 3n && n <= 10n) return forms[2]
+  return forms[3]
 }
+
+/**
+ * @typedef {object} CurrencyOptions
+ * @property {('SAR')} [currency] - ISO 4217 currency code to name the amount in
+ */
+
+/** @type {Required<CurrencyOptions>} */
+export const currencyDefaults = { currency: 'SAR' }
+
+/** @type {{ currency: ReadonlyArray<Required<CurrencyOptions>['currency']> }} */
+export const currencyValues = { currency: /** @type {Required<CurrencyOptions>['currency'][]} */ (Object.keys(CURRENCY_VOCAB)) }
 
 /**
  * Converts a numeric value to Arabic currency words (Saudi Riyal).
  * @param {number | string | bigint} value - The currency amount to convert
+ * @param {CurrencyOptions} [options] - Optional configuration
  * @returns {string} The amount in Arabic currency words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {Error} If value is not a valid number format
@@ -369,9 +368,15 @@ function getHalalaForm(n) {
  * toCurrency(1)      // 'ريال واحد'
  * toCurrency(0.01)   // 'هللة واحدة'
  */
-function toCurrency(value) {
+function toCurrency(value, options) {
   const { isNegative, dollars: riyals, cents: halalas } = parseCurrencyValue(value)
   checkMax(riyals, currencyMax)
+  const { currency } = resolveOptions(options, currencyDefaults, currencyValues)
+  assertCurrencyExponent(halalas, currency)
+  const { major, minor } = CURRENCY_VOCAB[currency]
+  // assertCurrencyExponent already guarantees halalas is 0n whenever minor is
+  // null, so any branch reading minor here implies a real array.
+  const minorForms = /** @type {string[]} */ (minor)
 
   // Build result
   let result = ''
@@ -381,14 +386,14 @@ function toCurrency(value) {
   if (riyals > 0n || halalas === 0n) {
     // Special case for 1 and 2: currency word comes first
     if (riyals === 1n) {
-      result += RIYAL_SINGULAR + ' ' + ONES_MASC[0]
+      result += major[0] + ' ' + ONES_MASC[0]
     }
     else if (riyals === 2n) {
-      result += RIYAL_DUAL
+      result += major[1]
     }
     else {
       const riyalWord = integerToWords(riyals, 'masculine')
-      result += riyalWord + ' ' + getRiyalForm(riyals)
+      result += riyalWord + ' ' + getRiyalForm(riyals, major)
     }
   }
 
@@ -399,14 +404,14 @@ function toCurrency(value) {
     }
     // Special case for 1 and 2: currency word comes first
     if (halalas === 1n) {
-      result += HALALA_SINGULAR + ' ' + ONES_FEM[0]
+      result += minorForms[0] + ' ' + ONES_FEM[0]
     }
     else if (halalas === 2n) {
-      result += HALALA_DUAL
+      result += minorForms[1]
     }
     else {
       const halalaWord = integerToWords(halalas, 'feminine')
-      result += halalaWord + ' ' + getHalalaForm(halalas)
+      result += halalaWord + ' ' + getHalalaForm(halalas, minorForms)
     }
   }
 
