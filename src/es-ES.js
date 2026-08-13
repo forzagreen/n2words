@@ -23,6 +23,7 @@ import { parseOrdinalValue } from './utils/parse-ordinal.js'
 import { checkMax } from './utils/check-max.js'
 import { bounded, longScale } from './utils/scale.js'
 import { resolveOptions } from './utils/resolve-options.js'
+import { esES as CURRENCY_VOCAB, assertCurrencyExponent } from './utils/currency-vocab.js'
 
 // ============================================================================
 // Vocabulary (module-level constants)
@@ -74,11 +75,6 @@ const ORDINAL_THOUSAND_FEM = 'milésima'
 const ORDINAL_MILLION_MASC = 'millonésimo'
 const ORDINAL_MILLION_FEM = 'millonésima'
 
-// Currency vocabulary (Euro - Spain's official currency)
-const EURO = 'euro'
-const EUROS = 'euros'
-const CENTIMO = 'céntimo'
-const CENTIMOS = 'céntimos'
 const CURRENCY_CONNECTOR = 'con'
 
 // ============================================================================
@@ -525,10 +521,14 @@ function toOrdinal(value, options) {
 /**
  * @typedef {object} CurrencyOptions
  * @property {boolean} [and] - Use "con" between euros and cents
+ * @property {('EUR')} [currency] - ISO 4217 currency code to name the amount in
  */
 
 /** @type {Required<CurrencyOptions>} */
-export const currencyDefaults = { and: true }
+export const currencyDefaults = { and: true, currency: 'EUR' }
+
+/** @type {{ currency: ReadonlyArray<Required<CurrencyOptions>['currency']> }} */
+export const currencyValues = { currency: /** @type {Required<CurrencyOptions>['currency'][]} */ (Object.keys(CURRENCY_VOCAB)) }
 
 /**
  * Converts a numeric value to Spanish Euro currency words.
@@ -549,7 +549,9 @@ export const currencyDefaults = { and: true }
 function toCurrency(value, options) {
   const { isNegative, dollars: euros, cents: centimos } = parseCurrencyValue(value)
   checkMax(euros, currencyMax)
-  const { and: useAnd } = resolveOptions(options, currencyDefaults)
+  const { and: useAnd, currency } = resolveOptions(options, currencyDefaults, currencyValues)
+  assertCurrencyExponent(centimos, currency)
+  const { major, minor } = CURRENCY_VOCAB[currency]
 
   let result = ''
   if (isNegative) result = NEGATIVE + ' '
@@ -558,10 +560,10 @@ function toCurrency(value, options) {
   if (euros > 0n || centimos === 0n) {
     // Use masculine for euros, but "un euro" not "uno euro"
     if (euros === 1n) {
-      result += 'un ' + EURO
+      result += 'un ' + major[0]
     }
     else {
-      result += integerToWords(euros, false) + ' ' + EUROS
+      result += integerToWords(euros, false) + ' ' + major[1]
     }
   }
 
@@ -572,10 +574,10 @@ function toCurrency(value, options) {
     }
     // Use masculine for centimos, but "un céntimo" not "uno céntimo"
     if (centimos === 1n) {
-      result += 'un ' + CENTIMO
+      result += 'un ' + minor[0]
     }
     else {
-      result += integerToWords(centimos, false) + ' ' + CENTIMOS
+      result += integerToWords(centimos, false) + ' ' + minor[1]
     }
   }
 
