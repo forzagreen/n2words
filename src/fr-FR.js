@@ -17,6 +17,7 @@ import { parseOrdinalValue } from './utils/parse-ordinal.js'
 import { checkMax } from './utils/check-max.js'
 import { longScale } from './utils/scale.js'
 import { resolveOptions } from './utils/resolve-options.js'
+import { frFR as CURRENCY_VOCAB, assertCurrencyExponent } from './utils/currency-vocab.js'
 
 // ============================================================================
 // Vocabulary (module-level constants)
@@ -54,15 +55,6 @@ const ORDINAL_SUFFIX = 'ième'
 
 // Special ordinals
 const PREMIER = 'premier'
-
-// ============================================================================
-// Currency Vocabulary (Euro)
-// ============================================================================
-
-const EURO = 'euro'
-const EUROS = 'euros'
-const CENTIME = 'centime'
-const CENTIMES = 'centimes'
 
 // ============================================================================
 // Segment Building
@@ -505,10 +497,14 @@ function toOrdinal(value) {
 /**
  * @typedef {object} CurrencyOptions
  * @property {boolean} [and] - Use "et" between euros and centimes
+ * @property {('EUR')} [currency] - ISO 4217 currency code to name the amount in
  */
 
 /** @type {Required<CurrencyOptions>} */
-export const currencyDefaults = { and: true }
+export const currencyDefaults = { and: true, currency: 'EUR' }
+
+/** @type {{ currency: ReadonlyArray<Required<CurrencyOptions>['currency']> }} */
+export const currencyValues = { currency: /** @type {Required<CurrencyOptions>['currency'][]} */ (Object.keys(CURRENCY_VOCAB)) }
 
 /**
  * Converts a numeric value to French currency words (Euro).
@@ -527,7 +523,9 @@ export const currencyDefaults = { and: true }
 function toCurrency(value, options) {
   const { isNegative, dollars: euros, cents: centimes } = parseCurrencyValue(value)
   checkMax(euros, currencyMax)
-  const { and: useAnd } = resolveOptions(options, currencyDefaults)
+  const { and: useAnd, currency } = resolveOptions(options, currencyDefaults, currencyValues)
+  assertCurrencyExponent(centimes, currency)
+  const { major, minor } = CURRENCY_VOCAB[currency]
 
   // Build result
   let result = ''
@@ -537,7 +535,7 @@ function toCurrency(value, options) {
   if (euros > 0n || centimes === 0n) {
     result += integerToWords(euros, false)
     // In French, 0 and 1 are singular: "zéro euro", "un euro"
-    result += ' ' + (euros <= 1n ? EURO : EUROS)
+    result += ' ' + (euros <= 1n ? major[0] : major[1])
   }
 
   // Centimes part
@@ -546,7 +544,7 @@ function toCurrency(value, options) {
       result += useAnd ? ' et ' : ' '
     }
     result += integerToWords(centimes, false)
-    result += ' ' + (centimes === 1n ? CENTIME : CENTIMES)
+    result += ' ' + (centimes === 1n ? minor[0] : minor[1])
   }
 
   return result
