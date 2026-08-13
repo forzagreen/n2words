@@ -17,6 +17,7 @@ import { parseOrdinalValue } from './utils/parse-ordinal.js'
 import { checkMax } from './utils/check-max.js'
 import { western } from './utils/scale.js'
 import { resolveOptions } from './utils/resolve-options.js'
+import { ptBR as CURRENCY_VOCAB, assertCurrencyExponent } from './utils/currency-vocab.js'
 
 // ============================================================================
 // Vocabulary (module-level constants)
@@ -39,23 +40,6 @@ const ORDINAL_ONES = ['', 'primeiro', 'segundo', 'terceiro', 'quarto', 'quinto',
 const ORDINAL_TEENS = ['décimo', 'décimo primeiro', 'décimo segundo', 'décimo terceiro', 'décimo quarto', 'décimo quinto', 'décimo sexto', 'décimo sétimo', 'décimo oitavo', 'décimo nono']
 const ORDINAL_TENS = ['', '', 'vigésimo', 'trigésimo', 'quadragésimo', 'quinquagésimo', 'sexagésimo', 'septuagésimo', 'octogésimo', 'nonagésimo']
 const ORDINAL_HUNDREDS = ['', 'centésimo', 'ducentésimo', 'tricentésimo', 'quadringentésimo', 'quingentésimo', 'sexcentésimo', 'septingentésimo', 'octingentésimo', 'nongentésimo']
-
-// ============================================================================
-// Currency vocabulary
-// ============================================================================
-
-// Dicionário focado no uso no Brasil (centavos para dólar e euro em vez de cêntimos)
-/** @type {Record<string, {major: string[], minor: string[]}>} */
-const CURRENCIES = {
-  BRL: { major: ['real', 'reais'], minor: ['centavo', 'centavos'] },
-  USD: { major: ['dólar', 'dólares'], minor: ['centavo', 'centavos'] },
-  EUR: { major: ['euro', 'euros'], minor: ['centavo', 'centavos'] }, // No Brasil é comum falar "centavos de euro"
-  GBP: { major: ['libra', 'libras'], minor: ['pêni', 'pence'] },
-  JPY: { major: ['iene', 'ienes'], minor: ['sen', 'sen'] }, // Iene não tem subdivisão usada no dia a dia
-}
-
-// Fallback para caso o usuário passe uma moeda não mapeada (ex: 'CAD')
-const DEFAULT_CURRENCY_WORDS = { major: ['unidade', 'unidades'], minor: ['centavo', 'centavos'] }
 
 // ============================================================================
 // Segment Building
@@ -484,11 +468,14 @@ function toOrdinal(value) {
 /**
  * @typedef {object} CurrencyOptions
  * @property {boolean} [and] - Include "e" between major and minor units
- * @property {string} [currency] - Currency code (e.g., 'BRL', 'USD'); empty means auto-detect for pt-BR
+ * @property {('BRL'|'USD'|'EUR'|'GBP'|'JPY')} [currency] - ISO 4217 currency code to name the amount in
  */
 
 /** @type {Required<CurrencyOptions>} */
-export const currencyDefaults = { and: true, currency: '' }
+export const currencyDefaults = { and: true, currency: 'BRL' }
+
+/** @type {{ currency: ReadonlyArray<Required<CurrencyOptions>['currency']> }} */
+export const currencyValues = { currency: /** @type {Required<CurrencyOptions>['currency'][]} */ (Object.keys(CURRENCY_VOCAB)) }
 
 /**
  * Converts a number to Brazilian Portuguese currency words.
@@ -502,30 +489,10 @@ export const currencyDefaults = { and: true, currency: '' }
 function toCurrency(value, options) {
   const { isNegative, dollars: majorUnits, cents: minorUnits } = parseCurrencyValue(value)
   checkMax(majorUnits, currencyMax)
-  const { and, currency } = resolveOptions(options, currencyDefaults)
+  const { and, currency } = resolveOptions(options, currencyDefaults, currencyValues)
+  assertCurrencyExponent(minorUnits, currency)
 
-  // 1. Descobre a moeda informada ou busca automaticamente a padrão do país (pt-BR = BRL)
-  let currencyCode = currency
-  if (!currencyCode) {
-    try {
-      // Intl Locale Info (getCurrencies) is a newer TC39 API present at
-      // runtime in modern engines but not yet in the TS ES2022 lib types;
-      // augment the type locally rather than widen the project's lib.
-      const localeInfo = /** @type {Intl.Locale & { getCurrencies(): string[] }} */ (new Intl.Locale('pt-BR'))
-      currencyCode = localeInfo.getCurrencies?.()[0]
-    }
-    catch {
-      // Ignora erro em ambientes antigos (fallback garantido abaixo)
-    }
-    currencyCode = currencyCode || 'BRL' // Padrão absoluto para o Brasil
-  }
-  currencyCode = currencyCode.toUpperCase()
-
-  // 2. Busca os nomes no dicionário ou usa o fallback genérico
-  const currencyWords = CURRENCIES[currencyCode] || {
-    major: [currencyCode, currencyCode],
-    minor: DEFAULT_CURRENCY_WORDS.minor,
-  }
+  const currencyWords = CURRENCY_VOCAB[currency]
 
   let result = ''
 
@@ -547,21 +514,16 @@ function toCurrency(value, options) {
     result += majorText + ' ' + majorUnit
   }
 
-  // Parte decimal (Centavos...)
+  // Parte decimal (Centavos...) — assertCurrencyExponent already guarantees
+  // minorUnits is 0n whenever currencyWords.minor is null, so hasMinor here
+  // implies a real minor-unit word list.
   if (hasMinor) {
     if (hasMajor) {
       result += and ? ' e ' : ' '
     }
     const minorText = integerToWords(minorUnits)
     const minorUnit = minorUnits === 1n ? currencyWords.minor[0] : currencyWords.minor[1]
-
-    // Ignora adicionar unidade de centavos se a moeda não os tiver (ex: JPY onde minor é string vazia)
-    if (minorUnit === '') {
-      result += minorText
-    }
-    else {
-      result += minorText + ' ' + minorUnit
-    }
+    result += minorText + ' ' + minorUnit
   }
 
   return result
