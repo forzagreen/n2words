@@ -16,6 +16,7 @@ import { parseOrdinalValue } from './utils/parse-ordinal.js'
 import { checkMax } from './utils/check-max.js'
 import { western } from './utils/scale.js'
 import { resolveOptions } from './utils/resolve-options.js'
+import { ltLT as CURRENCY_VOCAB, assertCurrencyExponent } from './utils/currency-vocab.js'
 
 // ============================================================================
 // Vocabulary (module-level constants)
@@ -57,11 +58,6 @@ const ORDINAL_SCALES = ['tūkstantasis', 'milijonasis', 'milijardasis', 'trilijo
 // ============================================================================
 // Currency Vocabulary (Euro - Lithuania uses Euro since 2015)
 // ============================================================================
-
-// Euro forms: [singular, plural, genitive]
-const EURO_FORMS = ['euras', 'eurai', 'eurų']
-// Cent forms: [singular, plural, genitive]
-const CENT_FORMS = ['centas', 'centai', 'centų']
 
 // Scale words: [singular, plural, genitive]
 const SCALE_FORMS = [
@@ -520,8 +516,20 @@ function toOrdinal(value) {
 // ============================================================================
 
 /**
+ * @typedef {object} CurrencyOptions
+ * @property {('EUR')} [currency] - ISO 4217 currency code to name the amount in
+ */
+
+/** @type {Required<CurrencyOptions>} */
+export const currencyDefaults = { currency: 'EUR' }
+
+/** @type {{ currency: ReadonlyArray<Required<CurrencyOptions>['currency']> }} */
+export const currencyValues = { currency: /** @type {Required<CurrencyOptions>['currency'][]} */ (Object.keys(CURRENCY_VOCAB)) }
+
+/**
  * Converts a numeric value to Lithuanian currency words (Euro).
  * @param {number | string | bigint} value - The currency amount to convert
+ * @param {CurrencyOptions} [options] - Optional configuration
  * @returns {string} The amount in Lithuanian currency words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {Error} If value is not a valid number format
@@ -531,9 +539,12 @@ function toOrdinal(value) {
  * toCurrency(1.50)   // 'vienas euras penkiasdešimt centų'
  * toCurrency(-5)     // 'minus penki eurai'
  */
-function toCurrency(value) {
+function toCurrency(value, options) {
   const { isNegative, dollars: euros, cents } = parseCurrencyValue(value)
   checkMax(euros, currencyMax)
+  const { currency } = resolveOptions(options, currencyDefaults, currencyValues)
+  assertCurrencyExponent(cents, currency)
+  const { major, minor } = CURRENCY_VOCAB[currency]
 
   let result = ''
   if (isNegative) {
@@ -543,7 +554,7 @@ function toCurrency(value) {
   // Euro part (masculine)
   if (euros > 0n || cents === 0n) {
     result += integerToWords(euros, 'masculine')
-    result += ' ' + pluralize(Number(euros), EURO_FORMS)
+    result += ' ' + pluralize(Number(euros), major)
   }
 
   // Cent part (masculine)
@@ -552,7 +563,7 @@ function toCurrency(value) {
       result += ' '
     }
     result += integerToWords(cents, 'masculine')
-    result += ' ' + pluralize(Number(cents), CENT_FORMS)
+    result += ' ' + pluralize(Number(cents), /** @type {string[]} */ (minor))
   }
 
   return result

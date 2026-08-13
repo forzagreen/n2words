@@ -17,6 +17,7 @@ import { parseOrdinalValue } from './utils/parse-ordinal.js'
 import { checkMax } from './utils/check-max.js'
 import { western } from './utils/scale.js'
 import { resolveOptions } from './utils/resolve-options.js'
+import { plPL as CURRENCY_VOCAB, assertCurrencyExponent } from './utils/currency-vocab.js'
 
 // ============================================================================
 // Vocabulary (module-level constants)
@@ -70,15 +71,6 @@ const ORDINAL_HUNDREDS = ['', 'setny', 'dwusetny', 'trzechsetny', 'czterechsetny
 
 // Scale ordinals (1000, million, etc.)
 const ORDINAL_SCALES = ['tysięczny', 'milionowy', 'miliardowy', 'bilionowy', 'biliardowy', 'trylionowy', 'tryliardowy']
-
-// ============================================================================
-// Currency Vocabulary (Polish Złoty)
-// ============================================================================
-
-// Złoty forms: [singular, few (2-4), many (5+)]
-const ZLOTY_FORMS = ['złoty', 'złote', 'złotych']
-// Grosz forms: [singular, few (2-4), many (5+)]
-const GROSZ_FORMS = ['grosz', 'grosze', 'groszy']
 
 // ============================================================================
 // Segment Building
@@ -564,8 +556,20 @@ function toOrdinal(value) {
 // ============================================================================
 
 /**
+ * @typedef {object} CurrencyOptions
+ * @property {('PLN')} [currency] - ISO 4217 currency code to name the amount in
+ */
+
+/** @type {Required<CurrencyOptions>} */
+export const currencyDefaults = { currency: 'PLN' }
+
+/** @type {{ currency: ReadonlyArray<Required<CurrencyOptions>['currency']> }} */
+export const currencyValues = { currency: /** @type {Required<CurrencyOptions>['currency'][]} */ (Object.keys(CURRENCY_VOCAB)) }
+
+/**
  * Converts a numeric value to Polish currency words (Polish Złoty).
  * @param {number | string | bigint} value - The currency amount to convert
+ * @param {CurrencyOptions} [options] - Optional configuration
  * @returns {string} The amount in Polish currency words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {Error} If value is not a valid number format
@@ -575,9 +579,12 @@ function toOrdinal(value) {
  * toCurrency(1.50)   // 'jeden złoty pięćdziesiąt groszy'
  * toCurrency(-5)     // 'minus pięć złotych'
  */
-function toCurrency(value) {
+function toCurrency(value, options) {
   const { isNegative, dollars: zloty, cents: grosze } = parseCurrencyValue(value)
   checkMax(zloty, currencyMax)
+  const { currency } = resolveOptions(options, currencyDefaults, currencyValues)
+  assertCurrencyExponent(grosze, currency)
+  const { major, minor } = CURRENCY_VOCAB[currency]
 
   let result = ''
   if (isNegative) {
@@ -587,7 +594,7 @@ function toCurrency(value) {
   // Złoty part (masculine)
   if (zloty > 0n || grosze === 0n) {
     result += integerToWords(zloty, 'masculine')
-    result += ' ' + pluralize(zloty, ZLOTY_FORMS)
+    result += ' ' + pluralize(zloty, major)
   }
 
   // Grosze part (masculine)
@@ -596,7 +603,7 @@ function toCurrency(value) {
       result += ' '
     }
     result += integerToWords(grosze, 'masculine')
-    result += ' ' + pluralize(grosze, GROSZ_FORMS)
+    result += ' ' + pluralize(grosze, /** @type {string[]} */ (minor))
   }
 
   return result

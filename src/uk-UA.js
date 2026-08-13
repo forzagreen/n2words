@@ -16,6 +16,7 @@ import { parseOrdinalValue } from './utils/parse-ordinal.js'
 import { checkMax } from './utils/check-max.js'
 import { western } from './utils/scale.js'
 import { resolveOptions } from './utils/resolve-options.js'
+import { ukUA as CURRENCY_VOCAB, assertCurrencyExponent } from './utils/currency-vocab.js'
 
 // ============================================================================
 // Vocabulary
@@ -56,11 +57,6 @@ const ORDINAL_SCALES = ['тисячний', 'мiльйонний', 'мiльяр�
 // ============================================================================
 // Currency Vocabulary (Ukrainian Hryvnia)
 // ============================================================================
-
-// Hryvnia forms: [singular, few (2-4), many (5+)]
-const HRYVNIA_FORMS = ['гривня', 'гривнi', 'гривень']
-// Kopiyka forms: [singular, few (2-4), many (5+)]
-const KOPIYKA_FORMS = ['копiйка', 'копiйки', 'копiйок']
 
 // Scale words: [singular, few, many]
 // Thousands (index 0) are feminine, rest are masculine
@@ -474,8 +470,20 @@ function toOrdinal(value) {
 // ============================================================================
 
 /**
+ * @typedef {object} CurrencyOptions
+ * @property {('UAH')} [currency] - ISO 4217 currency code to name the amount in
+ */
+
+/** @type {Required<CurrencyOptions>} */
+export const currencyDefaults = { currency: 'UAH' }
+
+/** @type {{ currency: ReadonlyArray<Required<CurrencyOptions>['currency']> }} */
+export const currencyValues = { currency: /** @type {Required<CurrencyOptions>['currency'][]} */ (Object.keys(CURRENCY_VOCAB)) }
+
+/**
  * Converts a numeric value to Ukrainian currency words (Hryvnia).
  * @param {number | string | bigint} value - The currency amount to convert
+ * @param {CurrencyOptions} [options] - Optional configuration
  * @returns {string} The amount in Ukrainian currency words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {Error} If value is not a valid number format
@@ -485,9 +493,12 @@ function toOrdinal(value) {
  * toCurrency(1.50)   // 'одна гривня п\'ятдесят копiйок'
  * toCurrency(-5)     // 'мiнус п\'ять гривень'
  */
-function toCurrency(value) {
+function toCurrency(value, options) {
   const { isNegative, dollars: hryvnia, cents: kopiyky } = parseCurrencyValue(value)
   checkMax(hryvnia, currencyMax)
+  const { currency } = resolveOptions(options, currencyDefaults, currencyValues)
+  assertCurrencyExponent(kopiyky, currency)
+  const { major, minor } = CURRENCY_VOCAB[currency]
 
   let result = ''
   if (isNegative) {
@@ -497,7 +508,7 @@ function toCurrency(value) {
   // Hryvnia part (feminine)
   if (hryvnia > 0n || kopiyky === 0n) {
     result += integerToWords(hryvnia, 'feminine')
-    result += ' ' + pluralize(hryvnia, HRYVNIA_FORMS)
+    result += ' ' + pluralize(hryvnia, major)
   }
 
   // Kopiyky part (feminine)
@@ -506,7 +517,7 @@ function toCurrency(value) {
       result += ' '
     }
     result += integerToWords(kopiyky, 'feminine')
-    result += ' ' + pluralize(kopiyky, KOPIYKA_FORMS)
+    result += ' ' + pluralize(kopiyky, /** @type {string[]} */ (minor))
   }
 
   return result

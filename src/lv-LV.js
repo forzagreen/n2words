@@ -17,6 +17,7 @@ import { parseOrdinalValue } from './utils/parse-ordinal.js'
 import { checkMax } from './utils/check-max.js'
 import { western } from './utils/scale.js'
 import { resolveOptions } from './utils/resolve-options.js'
+import { lvLV as CURRENCY_VOCAB, assertCurrencyExponent } from './utils/currency-vocab.js'
 
 // ============================================================================
 // Vocabulary (module-level constants)
@@ -59,10 +60,6 @@ const ORDINAL_SCALES = ['tūkstošais', 'miljonais', 'miljardais', 'triljonais']
 // ============================================================================
 // Currency Vocabulary (Euro - Latvia uses Euro since 2014)
 // ============================================================================
-
-// Cent forms: [singular, plural, genitive]
-// Note: Eiro is indeclinable in Latvian, so we just use 'eiro' directly
-const CENT_FORMS = ['cents', 'centi', 'centu']
 
 // Scale words: [singular, plural, genitive]
 const SCALE_FORMS = [
@@ -578,8 +575,20 @@ function toOrdinal(value) {
 // ============================================================================
 
 /**
+ * @typedef {object} CurrencyOptions
+ * @property {('EUR')} [currency] - ISO 4217 currency code to name the amount in
+ */
+
+/** @type {Required<CurrencyOptions>} */
+export const currencyDefaults = { currency: 'EUR' }
+
+/** @type {{ currency: ReadonlyArray<Required<CurrencyOptions>['currency']> }} */
+export const currencyValues = { currency: /** @type {Required<CurrencyOptions>['currency'][]} */ (Object.keys(CURRENCY_VOCAB)) }
+
+/**
  * Converts a numeric value to Latvian currency words (Euro).
  * @param {number | string | bigint} value - The currency amount to convert
+ * @param {CurrencyOptions} [options] - Optional configuration
  * @returns {string} The amount in Latvian currency words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {Error} If value is not a valid number format
@@ -589,19 +598,22 @@ function toOrdinal(value) {
  * toCurrency(1.50)   // 'viens eiro piecdesmit centu'
  * toCurrency(-5)     // 'mīnus pieci eiro'
  */
-function toCurrency(value) {
+function toCurrency(value, options) {
   const { isNegative, dollars: euros, cents } = parseCurrencyValue(value)
   checkMax(euros, currencyMax)
+  const { currency } = resolveOptions(options, currencyDefaults, currencyValues)
+  assertCurrencyExponent(cents, currency)
+  const { major, minor } = CURRENCY_VOCAB[currency]
 
   let result = ''
   if (isNegative) {
     result = NEGATIVE + ' '
   }
 
-  // Euro part (eiro is indeclinable)
+  // Euro part (eiro is indeclinable, hence the single major form)
   if (euros > 0n || cents === 0n) {
     result += integerToWords(euros, 'masculine')
-    result += ' eiro'
+    result += ' ' + major[0]
   }
 
   // Cent part (masculine)
@@ -610,7 +622,7 @@ function toCurrency(value) {
       result += ' '
     }
     result += integerToWords(cents, 'masculine')
-    result += ' ' + pluralizeCurrency(Number(cents), CENT_FORMS)
+    result += ' ' + pluralizeCurrency(Number(cents), /** @type {string[]} */ (minor))
   }
 
   return result

@@ -16,6 +16,7 @@ import { parseOrdinalValue } from './utils/parse-ordinal.js'
 import { checkMax } from './utils/check-max.js'
 import { western } from './utils/scale.js'
 import { resolveOptions } from './utils/resolve-options.js'
+import { ruRU as CURRENCY_VOCAB, assertCurrencyExponent } from './utils/currency-vocab.js'
 
 // ============================================================================
 // Vocabulary
@@ -81,16 +82,6 @@ const ORDINAL_SCALES = [
 
 // Prefixes for compound ordinal thousands (двух-, трёх-, etc. + тысячный)
 const THOUSAND_PREFIXES = ['', '', 'двух', 'трёх', 'четырёх', 'пяти', 'шести', 'семи', 'восьми', 'девяти']
-
-// ============================================================================
-// Currency Vocabulary (Russian Ruble)
-// ============================================================================
-
-// Ruble: masculine, [singular, few, many]
-const RUBLE_FORMS = ['рубль', 'рубля', 'рублей']
-
-// Kopeck: feminine, [singular, few, many]
-const KOPECK_FORMS = ['копейка', 'копейки', 'копеек']
 
 // ============================================================================
 // Segment Building
@@ -544,10 +535,14 @@ function toOrdinal(value) {
 /**
  * @typedef {object} CurrencyOptions
  * @property {boolean} [and] - Use "и" between rubles and kopecks
+ * @property {('RUB')} [currency] - ISO 4217 currency code to name the amount in
  */
 
 /** @type {Required<CurrencyOptions>} */
-export const currencyDefaults = { and: true }
+export const currencyDefaults = { and: true, currency: 'RUB' }
+
+/** @type {{ currency: ReadonlyArray<Required<CurrencyOptions>['currency']> }} */
+export const currencyValues = { currency: /** @type {Required<CurrencyOptions>['currency'][]} */ (Object.keys(CURRENCY_VOCAB)) }
 
 /**
  * Converts a numeric value to Russian currency words (Russian Ruble).
@@ -566,7 +561,9 @@ export const currencyDefaults = { and: true }
 function toCurrency(value, options) {
   const { isNegative, dollars: rubles, cents: kopecks } = parseCurrencyValue(value)
   checkMax(rubles, currencyMax)
-  const { and: useAnd } = resolveOptions(options, currencyDefaults)
+  const { and: useAnd, currency } = resolveOptions(options, currencyDefaults, currencyValues)
+  assertCurrencyExponent(kopecks, currency)
+  const { major, minor } = CURRENCY_VOCAB[currency]
 
   // Build result
   let result = ''
@@ -575,7 +572,7 @@ function toCurrency(value, options) {
   // Rubles part (masculine) - show if non-zero, or if no kopecks
   if (rubles > 0n || kopecks === 0n) {
     result += integerToWords(rubles, 'masculine')
-    result += ' ' + pluralize(rubles, RUBLE_FORMS)
+    result += ' ' + pluralize(rubles, major)
   }
 
   // Kopecks part (feminine)
@@ -584,7 +581,7 @@ function toCurrency(value, options) {
       result += useAnd ? ' и ' : ' '
     }
     result += integerToWords(kopecks, 'feminine')
-    result += ' ' + pluralize(kopecks, KOPECK_FORMS)
+    result += ' ' + pluralize(kopecks, /** @type {string[]} */ (minor))
   }
 
   return result
