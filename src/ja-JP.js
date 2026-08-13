@@ -15,6 +15,8 @@ import { parseCurrencyValue } from './utils/parse-currency.js'
 import { parseOrdinalValue } from './utils/parse-ordinal.js'
 import { checkMax } from './utils/check-max.js'
 import { myriad } from './utils/scale.js'
+import { resolveOptions } from './utils/resolve-options.js'
+import { jaJP as CURRENCY_VOCAB, assertCurrencyExponent } from './utils/currency-vocab.js'
 
 // ============================================================================
 // Vocabulary (module-level constants)
@@ -62,15 +64,6 @@ const DECIMAL_SEP = '点'
 
 // Ordinal prefix
 const ORDINAL_PREFIX = '第'
-
-// ============================================================================
-// Currency Vocabulary (Japanese Yen)
-// ============================================================================
-
-// Yen (main unit)
-const YEN = '円'
-
-// Sen (1/100 yen) - historically used, now rare
 
 // Internal scale words (within 4-digit segments)
 const TEN = '十'
@@ -311,37 +304,48 @@ function toOrdinal(value) {
 // ============================================================================
 
 /**
+ * @typedef {object} CurrencyOptions
+ * @property {('JPY')} [currency] - ISO 4217 currency code to name the amount in
+ */
+
+/** @type {Required<CurrencyOptions>} */
+export const currencyDefaults = { currency: 'JPY' }
+
+/** @type {{ currency: ReadonlyArray<Required<CurrencyOptions>['currency']> }} */
+export const currencyValues = { currency: /** @type {Required<CurrencyOptions>['currency'][]} */ (Object.keys(CURRENCY_VOCAB)) }
+
+/**
  * Converts a numeric value to Japanese currency words (Yen).
  *
  * Yen has no everyday minor unit — a fractional amount throws RangeError
  * rather than spelling a historical, no-longer-circulating 銭 (sen), which
- * was demonetised in 1953. "Loud beats silent," the same philosophy checkMax
- * already applies to its own precondition.
+ * was demonetised in 1953.
  * @param {number | string | bigint} value - The currency amount to convert
+ * @param {CurrencyOptions} [options] - Optional configuration
  * @returns {string} The amount in Japanese currency words
  * @throws {TypeError} If value is not a valid numeric type
- * @throws {RangeError} If value exceeds the supported range, or has a fractional part
+ * @throws {RangeError} If value is not a valid number format, or has a fractional part
  * @example
  * toCurrency(42)     // '四十二円'
  * toCurrency(1)      // '一円'
  * toCurrency(0)      // '零円'
  */
-function toCurrency(value) {
+function toCurrency(value, options) {
   const { isNegative, dollars: yen, cents } = parseCurrencyValue(value)
   checkMax(yen, currencyMax)
-  if (cents !== 0n) {
-    throw new RangeError('JPY has no minor unit — fractional amounts aren\'t representable')
-  }
+  const { currency } = resolveOptions(options, currencyDefaults, currencyValues)
+  assertCurrencyExponent(cents, currency)
+  const { major } = CURRENCY_VOCAB[currency]
 
   // Build result
   let result = ''
   if (isNegative) result = NEGATIVE
 
   if (yen > 0n) {
-    result += integerToWords(yen) + YEN
+    result += integerToWords(yen) + major[0]
   }
   else {
-    result += ZERO + YEN
+    result += ZERO + major[0]
   }
 
   return result
