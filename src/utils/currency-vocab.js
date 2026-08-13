@@ -85,6 +85,12 @@ export const koKR = { KRW: { major: ['원'], minor: null } }
 /** @type {Record<string, CurrencyWordForms>} */
 export const viVN = { VND: { major: ['đồng'], minor: null } }
 
+/** @type {Record<string, CurrencyWordForms>} */
+export const faIR = { IRR: { major: ['ریال'], minor: null } }
+
+/** @type {Record<string, CurrencyWordForms>} */
+export const idID = { IDR: { major: ['rupiah'], minor: null } }
+
 /**
  * ISO 4217 minor-unit decimal exponent, for currencies that diverge from the
  * default of 2 (most currencies). Only overrides are listed; an absent code
@@ -95,6 +101,8 @@ export const CURRENCY_EXPONENTS = {
   JPY: 0,
   KRW: 0,
   VND: 0,
+  IRR: 0,
+  IDR: 0,
 }
 
 /**
