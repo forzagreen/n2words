@@ -127,6 +127,36 @@ export const enSG = { SGD: EN_DOLLAR }
 /** @type {Record<string, CurrencyWordForms>} */
 export const enZA = { ZAR: { major: ['rand'], minor: ['cent', 'cents'] } }
 
+/** @type {Record<string, CurrencyWordForms>} */
+export const bnBD = { BDT: { major: ['টাকা'], minor: ['পয়সা'] } }
+
+/** @type {Record<string, CurrencyWordForms>} */
+export const guIN = { INR: { major: ['રૂપિયો', 'રૂપિયા'], minor: ['પૈસો', 'પૈસા'] } }
+
+// Hindi and Marathi both use these Devanagari rupee/paisa forms verbatim.
+const HI_MR_RUPEE = { major: ['रुपया', 'रुपये'], minor: ['पैसा', 'पैसे'] }
+
+/** @type {Record<string, CurrencyWordForms>} */
+export const hiIN = { INR: HI_MR_RUPEE }
+
+/** @type {Record<string, CurrencyWordForms>} */
+export const knIN = { INR: { major: ['ರೂಪಾಯಿ', 'ರೂಪಾಯಿಗಳು'], minor: ['ಪೈಸೆ', 'ಪೈಸೆಗಳು'] } }
+
+/** @type {Record<string, CurrencyWordForms>} */
+export const mrIN = { INR: HI_MR_RUPEE }
+
+/** @type {Record<string, CurrencyWordForms>} */
+export const paIN = { INR: { major: ['ਰੁਪਇਆ', 'ਰੁਪਏ'], minor: ['ਪੈਸਾ', 'ਪੈਸੇ'] } }
+
+/** @type {Record<string, CurrencyWordForms>} */
+export const taIN = { INR: { major: ['ரூபாய்'], minor: ['பைசா'] } }
+
+/** @type {Record<string, CurrencyWordForms>} */
+export const teIN = { INR: { major: ['రూపాయి', 'రూపాయలు'], minor: ['పైసా', 'పైసలు'] } }
+
+/** @type {Record<string, CurrencyWordForms>} */
+export const urPK = { PKR: { major: ['روپیہ', 'روپے'], minor: ['پیسہ', 'پیسے'] } }
+
 /**
  * ISO 4217 minor-unit decimal exponent, for currencies that diverge from the
  * default of 2 (most currencies). Only overrides are listed; an absent code

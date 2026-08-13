@@ -15,6 +15,8 @@ import { parseCurrencyValue } from './utils/parse-currency.js'
 import { parseOrdinalValue } from './utils/parse-ordinal.js'
 import { checkMax } from './utils/check-max.js'
 import { indian } from './utils/scale.js'
+import { resolveOptions } from './utils/resolve-options.js'
+import { bnBD as CURRENCY_VOCAB, assertCurrencyExponent } from './utils/currency-vocab.js'
 
 // ============================================================================
 // Vocabulary
@@ -34,16 +36,6 @@ const ORDINAL_SUFFIX = 'তম'
 
 // Special ordinals for first few numbers (1-6 have irregular forms)
 const ORDINAL_SPECIAL = ['', 'প্রথম', 'দ্বিতীয়', 'তৃতীয়', 'চতুর্থ', 'পঞ্চম', 'ষষ্ঠ']
-
-// ============================================================================
-// Currency Vocabulary (Bangladeshi Taka)
-// ============================================================================
-
-// Taka: singular/plural (same form used in Bengali)
-const TAKA = 'টাকা'
-
-// Paisa: singular/plural (same form used in Bengali)
-const PAISA = 'পয়সা'
 
 const BELOW_HUNDRED = [
   'শূন্য', 'এক', 'দুই', 'তিন', 'চার', 'পাঁচ', 'ছয়', 'সাত', 'আট', 'নয়',
@@ -245,8 +237,20 @@ function toOrdinal(value) {
 // ============================================================================
 
 /**
+ * @typedef {object} CurrencyOptions
+ * @property {('BDT')} [currency] - ISO 4217 currency code to name the amount in
+ */
+
+/** @type {Required<CurrencyOptions>} */
+export const currencyDefaults = { currency: 'BDT' }
+
+/** @type {{ currency: ReadonlyArray<Required<CurrencyOptions>['currency']> }} */
+export const currencyValues = { currency: /** @type {Required<CurrencyOptions>['currency'][]} */ (Object.keys(CURRENCY_VOCAB)) }
+
+/**
  * Converts a numeric value to Bengali currency words (Bangladeshi Taka).
  * @param {number | string | bigint} value - The currency amount to convert
+ * @param {CurrencyOptions} [options] - Optional configuration
  * @returns {string} The amount in Bengali currency words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {Error} If value is not a valid number format
@@ -255,9 +259,12 @@ function toOrdinal(value) {
  * toCurrency(1)      // 'এক টাকা'
  * toCurrency(0.01)   // 'এক পয়সা'
  */
-function toCurrency(value) {
+function toCurrency(value, options) {
   const { isNegative, dollars: taka, cents: paisa } = parseCurrencyValue(value)
   checkMax(taka, currencyMax)
+  const { currency } = resolveOptions(options, currencyDefaults, currencyValues)
+  assertCurrencyExponent(paisa, currency)
+  const { major, minor } = CURRENCY_VOCAB[currency]
 
   // Build result
   let result = ''
@@ -265,7 +272,7 @@ function toCurrency(value) {
 
   // Taka part - show if non-zero, or if no paisa
   if (taka > 0n || paisa === 0n) {
-    result += integerToWords(taka) + ' ' + TAKA
+    result += integerToWords(taka) + ' ' + major[0]
   }
 
   // Paisa part
@@ -273,7 +280,7 @@ function toCurrency(value) {
     if (taka > 0n) {
       result += ' '
     }
-    result += integerToWords(paisa) + ' ' + PAISA
+    result += integerToWords(paisa) + ' ' + minor[0]
   }
 
   return result
