@@ -25,6 +25,7 @@ import { parseOrdinalValue } from './utils/parse-ordinal.js'
 import { checkMax } from './utils/check-max.js'
 import { western } from './utils/scale.js'
 import { resolveOptions } from './utils/resolve-options.js'
+import { enZA as CURRENCY_VOCAB, assertCurrencyExponent } from './utils/currency-vocab.js'
 
 // ============================================================================
 // Vocabulary (module-level constants)
@@ -55,11 +56,6 @@ const DECIMAL_SEP = 'point'
 const ORDINAL_ONES = ['', 'first', 'second', 'third', 'fourth', 'fifth', 'sixth', 'seventh', 'eighth', 'ninth']
 const ORDINAL_TEENS = ['tenth', 'eleventh', 'twelfth', 'thirteenth', 'fourteenth', 'fifteenth', 'sixteenth', 'seventeenth', 'eighteenth', 'nineteenth']
 const ORDINAL_TENS = ['', '', 'twentieth', 'thirtieth', 'fortieth', 'fiftieth', 'sixtieth', 'seventieth', 'eightieth', 'ninetieth']
-
-// Currency vocabulary (South African Rand - invariable)
-const RAND = 'rand'
-const CENT = 'cent'
-const CENTS = 'cents'
 
 // ============================================================================
 // Segment Building
@@ -439,10 +435,14 @@ function toOrdinal(value) {
 /**
  * @typedef {object} CurrencyOptions
  * @property {boolean} [and] - Use "and" between rand and cents (e.g., "one rand and fifty cents")
+ * @property {('ZAR')} [currency] - ISO 4217 currency code to name the amount in
  */
 
 /** @type {Required<CurrencyOptions>} */
-export const currencyDefaults = { and: true }
+export const currencyDefaults = { and: true, currency: 'ZAR' }
+
+/** @type {{ currency: ReadonlyArray<Required<CurrencyOptions>['currency']> }} */
+export const currencyValues = { currency: /** @type {Required<CurrencyOptions>['currency'][]} */ (Object.keys(CURRENCY_VOCAB)) }
 
 /**
  * Converts a numeric value to South African English currency words.
@@ -461,7 +461,9 @@ export const currencyDefaults = { and: true }
 function toCurrency(value, options) {
   const { isNegative, dollars: rand, cents } = parseCurrencyValue(value)
   checkMax(rand, currencyMax)
-  const { and: useAnd } = resolveOptions(options, currencyDefaults)
+  const { and: useAnd, currency } = resolveOptions(options, currencyDefaults, currencyValues)
+  assertCurrencyExponent(cents, currency)
+  const { major, minor } = CURRENCY_VOCAB[currency]
 
   // Build result
   let result = ''
@@ -471,7 +473,7 @@ function toCurrency(value, options) {
   // Note: "rand" is invariable (same singular/plural)
   if (rand > 0n || cents === 0n) {
     result += integerToWords(rand)
-    result += ' ' + RAND
+    result += ' ' + major[0]
   }
 
   // Cents part
@@ -480,7 +482,7 @@ function toCurrency(value, options) {
       result += useAnd ? ' and ' : ' '
     }
     result += integerToWords(cents)
-    result += ' ' + (cents === 1n ? CENT : CENTS)
+    result += ' ' + (cents === 1n ? minor[0] : minor[1])
   }
 
   return result

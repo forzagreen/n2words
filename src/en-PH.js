@@ -23,6 +23,7 @@ import { parseOrdinalValue } from './utils/parse-ordinal.js'
 import { checkMax } from './utils/check-max.js'
 import { western } from './utils/scale.js'
 import { resolveOptions } from './utils/resolve-options.js'
+import { enPH as CURRENCY_VOCAB, assertCurrencyExponent } from './utils/currency-vocab.js'
 
 // ============================================================================
 // Vocabulary (module-level constants)
@@ -53,12 +54,6 @@ const DECIMAL_SEP = 'point'
 const ORDINAL_ONES = ['', 'first', 'second', 'third', 'fourth', 'fifth', 'sixth', 'seventh', 'eighth', 'ninth']
 const ORDINAL_TEENS = ['tenth', 'eleventh', 'twelfth', 'thirteenth', 'fourteenth', 'fifteenth', 'sixteenth', 'seventeenth', 'eighteenth', 'nineteenth']
 const ORDINAL_TENS = ['', '', 'twentieth', 'thirtieth', 'fortieth', 'fiftieth', 'sixtieth', 'seventieth', 'eightieth', 'ninetieth']
-
-// Currency vocabulary (Philippine Peso)
-const PESO = 'peso'
-const PESOS = 'pesos'
-const CENTAVO = 'centavo'
-const CENTAVOS = 'centavos'
 
 // ============================================================================
 // Segment Building
@@ -376,10 +371,14 @@ function toOrdinal(value) {
 /**
  * @typedef {object} CurrencyOptions
  * @property {boolean} [and] - Use "and" between pesos and centavos
+ * @property {('PHP')} [currency] - ISO 4217 currency code to name the amount in
  */
 
 /** @type {Required<CurrencyOptions>} */
-export const currencyDefaults = { and: true }
+export const currencyDefaults = { and: true, currency: 'PHP' }
+
+/** @type {{ currency: ReadonlyArray<Required<CurrencyOptions>['currency']> }} */
+export const currencyValues = { currency: /** @type {Required<CurrencyOptions>['currency'][]} */ (Object.keys(CURRENCY_VOCAB)) }
 
 /**
  * Converts a numeric value to Philippine English currency words.
@@ -392,14 +391,16 @@ export const currencyDefaults = { and: true }
 function toCurrency(value, options) {
   const { isNegative, dollars: pesos, cents: centavos } = parseCurrencyValue(value)
   checkMax(pesos, currencyMax)
-  const { and: useAnd } = resolveOptions(options, currencyDefaults)
+  const { and: useAnd, currency } = resolveOptions(options, currencyDefaults, currencyValues)
+  assertCurrencyExponent(centavos, currency)
+  const { major, minor } = CURRENCY_VOCAB[currency]
 
   let result = ''
   if (isNegative) result = NEGATIVE + ' '
 
   if (pesos > 0n || centavos === 0n) {
     result += integerToWords(pesos)
-    result += ' ' + (pesos === 1n ? PESO : PESOS)
+    result += ' ' + (pesos === 1n ? major[0] : major[1])
   }
 
   if (centavos > 0n) {
@@ -407,7 +408,7 @@ function toCurrency(value, options) {
       result += useAnd ? ' and ' : ' '
     }
     result += integerToWords(centavos)
-    result += ' ' + (centavos === 1n ? CENTAVO : CENTAVOS)
+    result += ' ' + (centavos === 1n ? minor[0] : minor[1])
   }
 
   return result

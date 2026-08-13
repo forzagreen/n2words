@@ -26,6 +26,7 @@ import { parseOrdinalValue } from './utils/parse-ordinal.js'
 import { checkMax } from './utils/check-max.js'
 import { western } from './utils/scale.js'
 import { resolveOptions } from './utils/resolve-options.js'
+import { enMY as CURRENCY_VOCAB, assertCurrencyExponent } from './utils/currency-vocab.js'
 
 // ============================================================================
 // Vocabulary (module-level constants)
@@ -56,10 +57,6 @@ const DECIMAL_SEP = 'point'
 const ORDINAL_ONES = ['', 'first', 'second', 'third', 'fourth', 'fifth', 'sixth', 'seventh', 'eighth', 'ninth']
 const ORDINAL_TEENS = ['tenth', 'eleventh', 'twelfth', 'thirteenth', 'fourteenth', 'fifteenth', 'sixteenth', 'seventeenth', 'eighteenth', 'nineteenth']
 const ORDINAL_TENS = ['', '', 'twentieth', 'thirtieth', 'fortieth', 'fiftieth', 'sixtieth', 'seventieth', 'eightieth', 'ninetieth']
-
-// Currency vocabulary (Malaysian Ringgit - both words are invariable)
-const RINGGIT = 'ringgit'
-const SEN = 'sen'
 
 // ============================================================================
 // Segment Building
@@ -374,10 +371,14 @@ function toOrdinal(value) {
 /**
  * @typedef {object} CurrencyOptions
  * @property {boolean} [and] - Use "and" between ringgit and sen
+ * @property {('MYR')} [currency] - ISO 4217 currency code to name the amount in
  */
 
 /** @type {Required<CurrencyOptions>} */
-export const currencyDefaults = { and: true }
+export const currencyDefaults = { and: true, currency: 'MYR' }
+
+/** @type {{ currency: ReadonlyArray<Required<CurrencyOptions>['currency']> }} */
+export const currencyValues = { currency: /** @type {Required<CurrencyOptions>['currency'][]} */ (Object.keys(CURRENCY_VOCAB)) }
 
 /**
  * @param {number | string | bigint} value The numeric value to convert.
@@ -387,7 +388,9 @@ export const currencyDefaults = { and: true }
 function toCurrency(value, options) {
   const { isNegative, dollars: ringgit, cents: sen } = parseCurrencyValue(value)
   checkMax(ringgit, currencyMax)
-  const { and: useAnd } = resolveOptions(options, currencyDefaults)
+  const { and: useAnd, currency } = resolveOptions(options, currencyDefaults, currencyValues)
+  assertCurrencyExponent(sen, currency)
+  const { major, minor } = CURRENCY_VOCAB[currency]
 
   let result = ''
   if (isNegative) result = NEGATIVE + ' '
@@ -395,7 +398,7 @@ function toCurrency(value, options) {
   // Note: Both "ringgit" and "sen" are invariable in Malaysian English
   if (ringgit > 0n || sen === 0n) {
     result += integerToWords(ringgit)
-    result += ' ' + RINGGIT
+    result += ' ' + major[0]
   }
 
   if (sen > 0n) {
@@ -403,7 +406,7 @@ function toCurrency(value, options) {
       result += useAnd ? ' and ' : ' '
     }
     result += integerToWords(sen)
-    result += ' ' + SEN
+    result += ' ' + minor[0]
   }
 
   return result
