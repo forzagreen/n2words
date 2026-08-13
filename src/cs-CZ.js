@@ -16,6 +16,8 @@ import { parseCurrencyValue } from './utils/parse-currency.js'
 import { parseOrdinalValue } from './utils/parse-ordinal.js'
 import { checkMax } from './utils/check-max.js'
 import { western } from './utils/scale.js'
+import { resolveOptions } from './utils/resolve-options.js'
+import { csCZ as CURRENCY_VOCAB, assertCurrencyExponent } from './utils/currency-vocab.js'
 
 // ============================================================================
 // Vocabulary (module-level constants)
@@ -75,15 +77,6 @@ const ORDINAL_HUNDREDS = ['', 'stý', 'dvoustý', 'třístý', 'čtyřstý', 'p�
 
 // Scale ordinals
 const ORDINAL_SCALES = ['tisící', 'miliontý', 'miliardtý', 'biliontý']
-
-// ============================================================================
-// Currency Vocabulary (Czech Koruna)
-// ============================================================================
-
-// Koruna forms: [singular, few (2-4), many (5+)]
-const KORUNA_FORMS = ['koruna', 'koruny', 'korun']
-// Haléř forms: [singular, few (2-4), many (5+)]
-const HALER_FORMS = ['haléř', 'haléře', 'haléřů']
 
 // ============================================================================
 // Segment Building
@@ -527,8 +520,20 @@ function toOrdinal(value) {
 // ============================================================================
 
 /**
+ * @typedef {object} CurrencyOptions
+ * @property {('CZK')} [currency] - ISO 4217 currency code to name the amount in
+ */
+
+/** @type {Required<CurrencyOptions>} */
+export const currencyDefaults = { currency: 'CZK' }
+
+/** @type {{ currency: ReadonlyArray<Required<CurrencyOptions>['currency']> }} */
+export const currencyValues = { currency: /** @type {Required<CurrencyOptions>['currency'][]} */ (Object.keys(CURRENCY_VOCAB)) }
+
+/**
  * Converts a numeric value to Czech currency words (Koruna).
  * @param {number | string | bigint} value - The currency amount to convert
+ * @param {CurrencyOptions} [options] - Optional configuration
  * @returns {string} The amount in Czech currency words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {Error} If value is not a valid number format
@@ -538,9 +543,12 @@ function toOrdinal(value) {
  * toCurrency(1.50)   // 'jedna koruna padesát haléřů'
  * toCurrency(-5)     // 'mínus pět korun'
  */
-function toCurrency(value) {
+function toCurrency(value, options) {
   const { isNegative, dollars: koruny, cents: halere } = parseCurrencyValue(value)
   checkMax(koruny, currencyMax)
+  const { currency } = resolveOptions(options, currencyDefaults, currencyValues)
+  assertCurrencyExponent(halere, currency)
+  const { major, minor } = CURRENCY_VOCAB[currency]
 
   let result = ''
   if (isNegative) {
@@ -550,7 +558,7 @@ function toCurrency(value) {
   // Koruna part
   if (koruny > 0n || halere === 0n) {
     result += integerToWords(koruny)
-    result += ' ' + pluralize(koruny, KORUNA_FORMS)
+    result += ' ' + pluralize(koruny, major)
   }
 
   // Haléř part
@@ -559,7 +567,7 @@ function toCurrency(value) {
       result += ' '
     }
     result += integerToWords(halere)
-    result += ' ' + pluralize(halere, HALER_FORMS)
+    result += ' ' + pluralize(halere, /** @type {string[]} */ (minor))
   }
 
   return result
