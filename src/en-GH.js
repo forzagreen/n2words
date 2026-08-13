@@ -23,6 +23,7 @@ import { parseOrdinalValue } from './utils/parse-ordinal.js'
 import { checkMax } from './utils/check-max.js'
 import { western } from './utils/scale.js'
 import { resolveOptions } from './utils/resolve-options.js'
+import { enGH as CURRENCY_VOCAB, assertCurrencyExponent } from './utils/currency-vocab.js'
 
 // ============================================================================
 // Vocabulary (module-level constants)
@@ -53,12 +54,6 @@ const DECIMAL_SEP = 'point'
 const ORDINAL_ONES = ['', 'first', 'second', 'third', 'fourth', 'fifth', 'sixth', 'seventh', 'eighth', 'ninth']
 const ORDINAL_TEENS = ['tenth', 'eleventh', 'twelfth', 'thirteenth', 'fourteenth', 'fifteenth', 'sixteenth', 'seventeenth', 'eighteenth', 'nineteenth']
 const ORDINAL_TENS = ['', '', 'twentieth', 'thirtieth', 'fortieth', 'fiftieth', 'sixtieth', 'seventieth', 'eightieth', 'ninetieth']
-
-// Currency vocabulary (Ghanaian Cedi)
-const CEDI = 'cedi'
-const CEDIS = 'cedis'
-const PESEWA = 'pesewa'
-const PESEWAS = 'pesewas'
 
 // ============================================================================
 // Segment Building
@@ -383,10 +378,14 @@ function toOrdinal(value) {
 /**
  * @typedef {object} CurrencyOptions
  * @property {boolean} [and] - Use "and" between cedis and pesewas
+ * @property {('GHS')} [currency] - ISO 4217 currency code to name the amount in
  */
 
 /** @type {Required<CurrencyOptions>} */
-export const currencyDefaults = { and: true }
+export const currencyDefaults = { and: true, currency: 'GHS' }
+
+/** @type {{ currency: ReadonlyArray<Required<CurrencyOptions>['currency']> }} */
+export const currencyValues = { currency: /** @type {Required<CurrencyOptions>['currency'][]} */ (Object.keys(CURRENCY_VOCAB)) }
 
 /**
  * Converts a numeric value to Ghanaian English currency words.
@@ -399,14 +398,16 @@ export const currencyDefaults = { and: true }
 function toCurrency(value, options) {
   const { isNegative, dollars: cedis, cents: pesewas } = parseCurrencyValue(value)
   checkMax(cedis, currencyMax)
-  const { and: useAnd } = resolveOptions(options, currencyDefaults)
+  const { and: useAnd, currency } = resolveOptions(options, currencyDefaults, currencyValues)
+  assertCurrencyExponent(pesewas, currency)
+  const { major, minor } = CURRENCY_VOCAB[currency]
 
   let result = ''
   if (isNegative) result = NEGATIVE + ' '
 
   if (cedis > 0n || pesewas === 0n) {
     result += integerToWords(cedis)
-    result += ' ' + (cedis === 1n ? CEDI : CEDIS)
+    result += ' ' + (cedis === 1n ? major[0] : major[1])
   }
 
   if (pesewas > 0n) {
@@ -414,7 +415,7 @@ function toCurrency(value, options) {
       result += useAnd ? ' and ' : ' '
     }
     result += integerToWords(pesewas)
-    result += ' ' + (pesewas === 1n ? PESEWA : PESEWAS)
+    result += ' ' + (pesewas === 1n ? minor[0] : minor[1])
   }
 
   return result

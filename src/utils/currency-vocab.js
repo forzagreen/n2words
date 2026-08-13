@@ -91,6 +91,42 @@ export const faIR = { IRR: { major: ['ریال'], minor: null } }
 /** @type {Record<string, CurrencyWordForms>} */
 export const idID = { IDR: { major: ['rupiah'], minor: null } }
 
+/** @type {Record<string, CurrencyWordForms>} */
+export const enBD = { BDT: { major: ['taka'], minor: ['paisa', 'paise'] } }
+
+/** @type {Record<string, CurrencyWordForms>} */
+export const enGH = { GHS: { major: ['cedi', 'cedis'], minor: ['pesewa', 'pesewas'] } }
+
+/** @type {Record<string, CurrencyWordForms>} */
+export const enIE = { EUR: { major: ['euro'], minor: ['cent', 'cents'] } }
+
+/** @type {Record<string, CurrencyWordForms>} */
+export const enIN = { INR: { major: ['rupee', 'rupees'], minor: ['paisa', 'paise'] } }
+
+/** @type {Record<string, CurrencyWordForms>} */
+export const enKE = { KES: { major: ['shilling', 'shillings'], minor: ['cent', 'cents'] } }
+
+/** @type {Record<string, CurrencyWordForms>} */
+export const enMY = { MYR: { major: ['ringgit'], minor: ['sen'] } }
+
+/** @type {Record<string, CurrencyWordForms>} */
+export const enNG = { NGN: { major: ['naira'], minor: ['kobo'] } }
+
+/** @type {Record<string, CurrencyWordForms>} */
+export const enNZ = { NZD: EN_DOLLAR }
+
+/** @type {Record<string, CurrencyWordForms>} */
+export const enPH = { PHP: { major: ['peso', 'pesos'], minor: ['centavo', 'centavos'] } }
+
+/** @type {Record<string, CurrencyWordForms>} */
+export const enPK = { PKR: { major: ['rupee', 'rupees'], minor: ['paisa', 'paise'] } }
+
+/** @type {Record<string, CurrencyWordForms>} */
+export const enSG = { SGD: EN_DOLLAR }
+
+/** @type {Record<string, CurrencyWordForms>} */
+export const enZA = { ZAR: { major: ['rand'], minor: ['cent', 'cents'] } }
+
 /**
  * ISO 4217 minor-unit decimal exponent, for currencies that diverge from the
  * default of 2 (most currencies). Only overrides are listed; an absent code
