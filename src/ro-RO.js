@@ -16,6 +16,7 @@ import { parseOrdinalValue } from './utils/parse-ordinal.js'
 import { checkMax } from './utils/check-max.js'
 import { bounded, western } from './utils/scale.js'
 import { resolveOptions } from './utils/resolve-options.js'
+import { roRO as CURRENCY_VOCAB, assertCurrencyExponent } from './utils/currency-vocab.js'
 
 // ============================================================================
 // Vocabulary (module-level constants)
@@ -42,12 +43,6 @@ const ORDINAL_TENS = ['', '', 'al douăzecilea', 'al treizecilea', 'al patruzeci
 const ORDINAL_HUNDRED = 'al sutălea'
 const ORDINAL_THOUSAND = 'al miilea'
 const ORDINAL_MILLION = 'al milionulea'
-
-// Currency (Romanian Leu)
-const LEU_SINGULAR = 'leu'
-const LEU_PLURAL = 'lei'
-const BAN_SINGULAR = 'ban'
-const BAN_PLURAL = 'bani'
 
 // Scale metadata: [singular, plural, article, feminine, needsDe]
 // - singular: form for 1
@@ -426,8 +421,20 @@ function toOrdinal(value) {
 // ============================================================================
 
 /**
+ * @typedef {object} CurrencyOptions
+ * @property {('RON')} [currency] - ISO 4217 currency code to name the amount in
+ */
+
+/** @type {Required<CurrencyOptions>} */
+export const currencyDefaults = { currency: 'RON' }
+
+/** @type {{ currency: ReadonlyArray<Required<CurrencyOptions>['currency']> }} */
+export const currencyValues = { currency: /** @type {Required<CurrencyOptions>['currency'][]} */ (Object.keys(CURRENCY_VOCAB)) }
+
+/**
  * Converts a numeric value to Romanian Leu currency words.
  * @param {number | string | bigint} value - The numeric value to convert
+ * @param {CurrencyOptions} [options] - Optional configuration
  * @returns {string} The currency in Romanian words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {Error} If value is not a valid number format
@@ -435,9 +442,13 @@ function toOrdinal(value) {
  * toCurrency(1)     // 'un leu'
  * toCurrency(2.50)  // 'doi lei cincizeci de bani'
  */
-function toCurrency(value) {
+function toCurrency(value, options) {
   const { isNegative, dollars, cents } = parseCurrencyValue(value)
   checkMax(dollars, currencyMax)
+  const { currency } = resolveOptions(options, currencyDefaults, currencyValues)
+  assertCurrencyExponent(cents, currency)
+  const { major, minor } = CURRENCY_VOCAB[currency]
+  const minorForms = /** @type {string[]} */ (minor)
 
   const parts = []
 
@@ -448,7 +459,7 @@ function toCurrency(value) {
   // Lei (masculine)
   if (dollars > 0n || cents === 0n) {
     if (dollars === 1n) {
-      parts.push('un ' + LEU_SINGULAR)
+      parts.push('un ' + major[0])
     }
     else {
       const leuWord = integerToWords(dollars, 'masculine')
@@ -459,7 +470,7 @@ function toCurrency(value) {
       // per-segment predicate for scale words.
       const m = dollars % 100n
       const needsDe = dollars >= 20n && (m === 0n || m >= 20n)
-      parts.push(leuWord + (needsDe ? ' de ' : ' ') + LEU_PLURAL)
+      parts.push(leuWord + (needsDe ? ' de ' : ' ') + major[1])
     }
   }
 
@@ -467,15 +478,15 @@ function toCurrency(value) {
   if (cents > 0n) {
     const centNum = Number(cents)
     if (centNum === 1) {
-      parts.push('un ' + BAN_SINGULAR)
+      parts.push('un ' + minorForms[0])
     }
     else if (centNum >= 20) {
       const banWord = spellUnder100(centNum, false)
-      parts.push(banWord + ' de ' + BAN_PLURAL)
+      parts.push(banWord + ' de ' + minorForms[1])
     }
     else {
       const banWord = spellUnder100(centNum, false)
-      parts.push(banWord + ' ' + BAN_PLURAL)
+      parts.push(banWord + ' ' + minorForms[1])
     }
   }
 

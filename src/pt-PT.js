@@ -17,6 +17,7 @@ import { parseOrdinalValue } from './utils/parse-ordinal.js'
 import { checkMax } from './utils/check-max.js'
 import { western } from './utils/scale.js'
 import { resolveOptions } from './utils/resolve-options.js'
+import { ptPT as CURRENCY_VOCAB, assertCurrencyExponent } from './utils/currency-vocab.js'
 
 // ============================================================================
 // Vocabulary (module-level constants)
@@ -39,12 +40,6 @@ const ORDINAL_ONES = ['', 'primeiro', 'segundo', 'terceiro', 'quarto', 'quinto',
 const ORDINAL_TEENS = ['décimo', 'décimo primeiro', 'décimo segundo', 'décimo terceiro', 'décimo quarto', 'décimo quinto', 'décimo sexto', 'décimo sétimo', 'décimo oitavo', 'décimo nono']
 const ORDINAL_TENS = ['', '', 'vigésimo', 'trigésimo', 'quadragésimo', 'quinquagésimo', 'sexagésimo', 'septuagésimo', 'octogésimo', 'nonagésimo']
 const ORDINAL_HUNDREDS = ['', 'centésimo', 'ducentésimo', 'tricentésimo', 'quadringentésimo', 'quingentésimo', 'sexcentésimo', 'septingentésimo', 'octingentésimo', 'nongentésimo']
-
-// Currency vocabulary (Euro)
-const EURO = 'euro'
-const EUROS = 'euros'
-const CENTIMO = 'cêntimo'
-const CENTIMOS = 'cêntimos'
 
 // ============================================================================
 // Segment Building
@@ -488,10 +483,14 @@ function toOrdinal(value) {
 /**
  * @typedef {object} CurrencyOptions
  * @property {boolean} [and] - Include "e" between euros and cents
+ * @property {('EUR')} [currency] - ISO 4217 currency code to name the amount in
  */
 
 /** @type {Required<CurrencyOptions>} */
-export const currencyDefaults = { and: true }
+export const currencyDefaults = { and: true, currency: 'EUR' }
+
+/** @type {{ currency: ReadonlyArray<Required<CurrencyOptions>['currency']> }} */
+export const currencyValues = { currency: /** @type {Required<CurrencyOptions>['currency'][]} */ (Object.keys(CURRENCY_VOCAB)) }
 
 /**
  * Converts a number to Portuguese currency words (Euro).
@@ -506,7 +505,9 @@ export const currencyDefaults = { and: true }
 function toCurrency(value, options) {
   const { isNegative, dollars: euros, cents } = parseCurrencyValue(value)
   checkMax(euros, currencyMax)
-  const { and } = resolveOptions(options, currencyDefaults)
+  const { and, currency } = resolveOptions(options, currencyDefaults, currencyValues)
+  assertCurrencyExponent(cents, currency)
+  const { major, minor } = CURRENCY_VOCAB[currency]
 
   let result = ''
 
@@ -518,12 +519,12 @@ function toCurrency(value, options) {
   const hasCents = cents > 0n
 
   if (!hasEuros && !hasCents) {
-    return ZERO + ' ' + EUROS
+    return ZERO + ' ' + major[1]
   }
 
   if (hasEuros) {
     const euroWords = integerToWords(euros)
-    const euroUnit = euros === 1n ? EURO : EUROS
+    const euroUnit = euros === 1n ? major[0] : major[1]
     result += euroWords + ' ' + euroUnit
   }
 
@@ -532,7 +533,7 @@ function toCurrency(value, options) {
       result += and ? ' e ' : ' '
     }
     const centWords = integerToWords(cents)
-    const centUnit = cents === 1n ? CENTIMO : CENTIMOS
+    const centUnit = cents === 1n ? (/** @type {string[]} */ (minor))[0] : (/** @type {string[]} */ (minor))[1]
     result += centWords + ' ' + centUnit
   }
 

@@ -19,6 +19,7 @@ import { parseOrdinalValue } from './utils/parse-ordinal.js'
 import { checkMax } from './utils/check-max.js'
 import { western } from './utils/scale.js'
 import { resolveOptions } from './utils/resolve-options.js'
+import { nlNL as CURRENCY_VOCAB, assertCurrencyExponent } from './utils/currency-vocab.js'
 
 // ============================================================================
 // Vocabulary (module-level constants)
@@ -49,12 +50,6 @@ export const currencyMax = western(SCALES.length)
 const ZERO = 'nul'
 const NEGATIVE = 'min'
 const DECIMAL_SEP = 'komma'
-
-// Currency vocabulary (Euro)
-const EURO = 'euro'
-const EUROS = 'euro' // Euro doesn't pluralize in Dutch
-const CENT = 'cent'
-const CENTEN = 'cent' // Cent doesn't pluralize in written currency
 
 // ============================================================================
 // Segment Building
@@ -546,10 +541,14 @@ function buildLargeOrdinal(n) {
 /**
  * @typedef {object} CurrencyOptions
  * @property {boolean} [and] - Include "en" between euros and cents
+ * @property {('EUR')} [currency] - ISO 4217 currency code to name the amount in
  */
 
 /** @type {Required<CurrencyOptions>} */
-export const currencyDefaults = { and: true }
+export const currencyDefaults = { and: true, currency: 'EUR' }
+
+/** @type {{ currency: ReadonlyArray<Required<CurrencyOptions>['currency']> }} */
+export const currencyValues = { currency: /** @type {Required<CurrencyOptions>['currency'][]} */ (Object.keys(CURRENCY_VOCAB)) }
 
 /**
  * Converts a number to Dutch currency words (Euro).
@@ -564,7 +563,9 @@ export const currencyDefaults = { and: true }
 function toCurrency(value, options) {
   const { isNegative, dollars: euros, cents } = parseCurrencyValue(value)
   checkMax(euros, currencyMax)
-  const { and } = resolveOptions(options, currencyDefaults)
+  const { and, currency } = resolveOptions(options, currencyDefaults, currencyValues)
+  assertCurrencyExponent(cents, currency)
+  const { major, minor } = CURRENCY_VOCAB[currency]
 
   let result = ''
 
@@ -576,7 +577,7 @@ function toCurrency(value, options) {
   const hasCents = cents > 0n
 
   if (!hasEuros && !hasCents) {
-    return ZERO + ' ' + EUROS
+    return ZERO + ' ' + major[0]
   }
 
   // Use accentOne: true for currency (één euro, één cent)
@@ -584,7 +585,7 @@ function toCurrency(value, options) {
 
   if (hasEuros) {
     const euroWords = integerToWords(euros, opts)
-    result += euroWords + ' ' + (euros === 1n ? EURO : EUROS)
+    result += euroWords + ' ' + major[0]
   }
 
   if (hasCents) {
@@ -592,7 +593,7 @@ function toCurrency(value, options) {
       result += and ? ' en ' : ' '
     }
     const centWords = integerToWords(cents, opts)
-    result += centWords + ' ' + (cents === 1n ? CENT : CENTEN)
+    result += centWords + ' ' + (/** @type {string[]} */ (minor))[0]
   }
 
   return result
