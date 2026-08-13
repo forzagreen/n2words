@@ -16,6 +16,7 @@ import { parseOrdinalValue } from './utils/parse-ordinal.js'
 import { checkMax } from './utils/check-max.js'
 import { bounded } from './utils/scale.js'
 import { resolveOptions } from './utils/resolve-options.js'
+import { zhHansCN as CURRENCY_VOCAB, assertCurrencyExponent } from './utils/currency-vocab.js'
 
 // ============================================================================
 // Vocabulary
@@ -60,20 +61,10 @@ const DECIMAL_SEP = '点'
 const ORDINAL_PREFIX = '第'
 
 // ============================================================================
-// Currency Vocabulary (Chinese Yuan / Renminbi)
+// Currency Grammar (Chinese Yuan / Renminbi)
 // ============================================================================
 
-// Yuan (main unit) - formal uses 圆, common uses 元
-const YUAN_FORMAL = '圆'
-const YUAN_COMMON = '元'
-
-// Jiao (1/10 yuan) - both use 角
-const JIAO = '角'
-
-// Fen (1/100 yuan) - both use 分
-const FEN = '分'
-
-// "Whole" when no jiao/fen
+// "Whole" suffix when no jiao/fen
 const ZHENG = '整'
 
 // ============================================================================
@@ -295,10 +286,14 @@ function toOrdinal(value, options) {
 /**
  * @typedef {object} CurrencyOptions
  * @property {boolean} [formal] - Use formal/financial numerals
+ * @property {('CNY')} [currency] - ISO 4217 currency code to name the amount in
  */
 
 /** @type {Required<CurrencyOptions>} */
-export const currencyDefaults = { formal: true }
+export const currencyDefaults = { formal: true, currency: 'CNY' }
+
+/** @type {{ currency: ReadonlyArray<Required<CurrencyOptions>['currency']> }} */
+export const currencyValues = { currency: /** @type {Required<CurrencyOptions>['currency'][]} */ (Object.keys(CURRENCY_VOCAB)) }
 
 /**
  * Converts a numeric value to Simplified Chinese currency words (Yuan/Renminbi).
@@ -316,10 +311,15 @@ export const currencyDefaults = { formal: true }
 function toCurrency(value, options) {
   const { isNegative, dollars: yuan, cents } = parseCurrencyValue(value)
   checkMax(yuan, currencyMax)
-  const { formal } = resolveOptions(options, currencyDefaults)
+  const { formal, currency } = resolveOptions(options, currencyDefaults, currencyValues)
+  assertCurrencyExponent(cents, currency)
+  const { major, minor } = CURRENCY_VOCAB[currency]
+  // assertCurrencyExponent already guarantees cents is 0n whenever minor is
+  // null, so any branch reading minor here implies a real array.
+  const minorForms = /** @type {string[]} */ (minor)
 
   const ones = formal ? ONES_FORMAL : ONES_COMMON
-  const yuanWord = formal ? YUAN_FORMAL : YUAN_COMMON
+  const yuanWord = formal ? major[0] : major[1]
 
   // Split cents into jiao (tens) and fen (ones)
   const jiao = cents / 10n
@@ -336,7 +336,7 @@ function toCurrency(value, options) {
 
   // Jiao part (1/10)
   if (jiao > 0n) {
-    result += ones[Number(jiao)] + JIAO
+    result += ones[Number(jiao)] + minorForms[0]
   }
   else if (yuan > 0n && fen > 0n) {
     // Need zero placeholder between yuan and fen
@@ -345,7 +345,7 @@ function toCurrency(value, options) {
 
   // Fen part (1/100)
   if (fen > 0n) {
-    result += ones[Number(fen)] + FEN
+    result += ones[Number(fen)] + minorForms[1]
   }
   else if (yuan > 0n || jiao > 0n) {
     // Add 整 (zheng) to indicate whole amount

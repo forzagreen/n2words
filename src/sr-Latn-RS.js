@@ -18,6 +18,7 @@ import { parseOrdinalValue } from './utils/parse-ordinal.js'
 import { checkMax } from './utils/check-max.js'
 import { western } from './utils/scale.js'
 import { resolveOptions } from './utils/resolve-options.js'
+import { srLatnRS as CURRENCY_VOCAB, assertCurrencyExponent } from './utils/currency-vocab.js'
 
 // ============================================================================
 // Vocabulary
@@ -63,14 +64,8 @@ const ORDINAL_SCALES = [
 ]
 
 // ============================================================================
-// Currency Vocabulary (Serbian Dinar)
+// Scale Vocabulary
 // ============================================================================
-
-// Dinar: masculine, [singular, few, many]
-const DINAR_FORMS = ['dinar', 'dinara', 'dinara']
-
-// Para: feminine, [singular, few, many]
-const PARA_FORMS = ['para', 'pare', 'para']
 
 // Scale words: [singular, few, many]
 const SCALE_FORMS = [
@@ -513,10 +508,14 @@ function toOrdinal(value) {
 /**
  * @typedef {object} CurrencyOptions
  * @property {boolean} [and] - Use "i" between dinars and para
+ * @property {('RSD')} [currency] - ISO 4217 currency code to name the amount in
  */
 
 /** @type {Required<CurrencyOptions>} */
-export const currencyDefaults = { and: true }
+export const currencyDefaults = { and: true, currency: 'RSD' }
+
+/** @type {{ currency: ReadonlyArray<Required<CurrencyOptions>['currency']> }} */
+export const currencyValues = { currency: /** @type {Required<CurrencyOptions>['currency'][]} */ (Object.keys(CURRENCY_VOCAB)) }
 
 /**
  * Converts a numeric value to Serbian currency words (Serbian Dinar).
@@ -535,7 +534,9 @@ export const currencyDefaults = { and: true }
 function toCurrency(value, options) {
   const { isNegative, dollars: dinars, cents: para } = parseCurrencyValue(value)
   checkMax(dinars, currencyMax)
-  const { and: useAnd } = resolveOptions(options, currencyDefaults)
+  const { and: useAnd, currency } = resolveOptions(options, currencyDefaults, currencyValues)
+  assertCurrencyExponent(para, currency)
+  const { major, minor } = CURRENCY_VOCAB[currency]
 
   // Build result
   let result = ''
@@ -544,7 +545,7 @@ function toCurrency(value, options) {
   // Dinars part (masculine) - show if non-zero, or if no para
   if (dinars > 0n || para === 0n) {
     result += integerToWords(dinars, 'masculine')
-    result += ' ' + pluralize(dinars, DINAR_FORMS)
+    result += ' ' + pluralize(dinars, major)
   }
 
   // Para part (feminine)
@@ -553,7 +554,7 @@ function toCurrency(value, options) {
       result += useAnd ? ' i ' : ' '
     }
     result += integerToWords(para, 'feminine')
-    result += ' ' + pluralize(para, PARA_FORMS)
+    result += ' ' + pluralize(para, /** @type {string[]} */ (minor))
   }
 
   return result

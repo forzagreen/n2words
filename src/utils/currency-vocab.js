@@ -157,6 +157,59 @@ export const teIN = { INR: { major: ['రూపాయి', 'రూపాయల�
 /** @type {Record<string, CurrencyWordForms>} */
 export const urPK = { PKR: { major: ['روپیہ', 'روپے'], minor: ['پیسہ', 'پیسے'] } }
 
+// Ethiopian Birr/Santim — invariable, no plural distinction. am-ET is Ge'ez
+// script, am-Latn-ET is a Latin transliteration, so the word text differs.
+/** @type {Record<string, CurrencyWordForms>} */
+export const amET = { ETB: { major: ['ብር'], minor: ['ሳንቲም'] } }
+
+/** @type {Record<string, CurrencyWordForms>} */
+export const amLatnET = { ETB: { major: ['birr'], minor: ['santim'] } }
+
+// Serbian Dinar/Para: [singular, few (2-4), many (5+)] — sr-Cyrl-RS's and
+// sr-Latn-RS's own pluralize() selects the index. Same grammar, different script.
+/** @type {Record<string, CurrencyWordForms>} */
+export const srCyrlRS = {
+  RSD: { major: ['динар', 'динара', 'динара'], minor: ['пара', 'паре', 'пара'] },
+}
+
+/** @type {Record<string, CurrencyWordForms>} */
+export const srLatnRS = {
+  RSD: { major: ['dinar', 'dinara', 'dinara'], minor: ['para', 'pare', 'para'] },
+}
+
+// zh-Hans-CN Yuan: major[0]/[1] = formal/common denomination word (圆/元) —
+// not a singular/plural distinction. minor[0]/[1] = jiao (角, 1/10 yuan)/fen
+// (分, 1/100 yuan), two distinct minor denominations rather than plural forms.
+/** @type {Record<string, CurrencyWordForms>} */
+export const zhHansCN = { CNY: { major: ['圆', '元'], minor: ['角', '分'] } }
+
+// zh-Hant-TW New Taiwan Dollar: same indexing convention as zh-Hans-CN above
+// (major = formal/common denomination; minor = jiao/fen), Traditional glyphs.
+/** @type {Record<string, CurrencyWordForms>} */
+export const zhHantTW = { TWD: { major: ['圓', '元'], minor: ['角', '分'] } }
+
+// Saudi Riyal/Halala: [singular, dual, plural (3-10), plural (11+)] — ar-SA's
+// own getRiyalForm()/getHalalaForm() select the index.
+/** @type {Record<string, CurrencyWordForms>} */
+export const arSA = {
+  SAR: { major: ['ريال', 'ريالان', 'ريالات', 'ريالاً'], minor: ['هللة', 'هللتان', 'هللات', 'هللة'] },
+}
+
+// hbo-IL (Biblical Hebrew) and he-IL (Modern Hebrew) share identical Shekel
+// major-unit forms; they differ in the minor unit — historical gerah
+// (Biblical) vs modern agora.
+const SHEKEL_MAJOR = ['שקל', 'שקלים']
+
+/** @type {Record<string, CurrencyWordForms>} */
+export const hboIL = { ILS: { major: SHEKEL_MAJOR, minor: ['גרה', 'גרות'] } }
+
+/** @type {Record<string, CurrencyWordForms>} */
+export const heIL = { ILS: { major: SHEKEL_MAJOR, minor: ['אגורה', 'אגורות'] } }
+
+// Georgian Lari/Tetri — invariable, no plural distinction.
+/** @type {Record<string, CurrencyWordForms>} */
+export const kaGE = { GEL: { major: ['ლარი'], minor: ['თეთრი'] } }
+
 /**
  * ISO 4217 minor-unit decimal exponent, for currencies that diverge from the
  * default of 2 (most currencies). Only overrides are listed; an absent code

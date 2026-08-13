@@ -17,6 +17,7 @@ import { parseOrdinalValue } from './utils/parse-ordinal.js'
 import { checkMax } from './utils/check-max.js'
 import { bounded, western } from './utils/scale.js'
 import { resolveOptions } from './utils/resolve-options.js'
+import { heIL as CURRENCY_VOCAB, assertCurrencyExponent } from './utils/currency-vocab.js'
 
 // ============================================================================
 // Vocabulary (arrays for indexed access - faster than object property lookup)
@@ -56,12 +57,6 @@ const ORDINAL_ONES = ['', 'ראשון', 'שני', 'שלישי', 'רביעי', '�
 const ORDINAL_TEENS = ['עשירי', 'אחד עשר', 'שנים עשר', 'שלשה עשר', 'ארבעה עשר', 'חמשה עשר', 'ששה עשר', 'שבעה עשר', 'שמונה עשר', 'תשעה עשר']
 const ORDINAL_TENS = ['', '', 'עשרים', 'שלשים', 'ארבעים', 'חמישים', 'ששים', 'שבעים', 'שמונים', 'תשעים']
 const ORDINAL_HUNDRED = 'מאה'
-
-// Currency (New Israeli Shekel)
-const SHEKEL_SINGULAR = 'שקל'
-const SHEKEL_PLURAL = 'שקלים'
-const AGORA_SINGULAR = 'אגורה'
-const AGORA_PLURAL = 'אגורות'
 
 // ============================================================================
 // Segment Building
@@ -523,8 +518,20 @@ function integerToCurrencyWords(n) {
 }
 
 /**
+ * @typedef {object} CurrencyOptions
+ * @property {('ILS')} [currency] - ISO 4217 currency code to name the amount in
+ */
+
+/** @type {Required<CurrencyOptions>} */
+export const currencyDefaults = { currency: 'ILS' }
+
+/** @type {{ currency: ReadonlyArray<Required<CurrencyOptions>['currency']> }} */
+export const currencyValues = { currency: /** @type {Required<CurrencyOptions>['currency'][]} */ (Object.keys(CURRENCY_VOCAB)) }
+
+/**
  * Converts a numeric value to Hebrew New Israeli Shekel currency words.
  * @param {number | string | bigint} value - The numeric value to convert
+ * @param {CurrencyOptions} [options] - Optional configuration
  * @returns {string} The currency in Hebrew words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {Error} If value is not a valid number format
@@ -532,9 +539,15 @@ function integerToCurrencyWords(n) {
  * toCurrency(1)     // 'שקל אחד'
  * toCurrency(2.50)  // 'שניים שקלים חמישים אגורות'
  */
-function toCurrency(value) {
+function toCurrency(value, options) {
   const { isNegative, dollars, cents } = parseCurrencyValue(value)
   checkMax(dollars, currencyMax)
+  const { currency } = resolveOptions(options, currencyDefaults, currencyValues)
+  assertCurrencyExponent(cents, currency)
+  const { major, minor } = CURRENCY_VOCAB[currency]
+  // assertCurrencyExponent already guarantees cents is 0n whenever minor is
+  // null, so any branch reading minor here implies a real array.
+  const minorForms = /** @type {string[]} */ (minor)
 
   const parts = []
 
@@ -545,15 +558,14 @@ function toCurrency(value) {
   // Shekels (masculine)
   if (dollars > 0n || cents === 0n) {
     if (dollars === 1n) {
-      parts.push(SHEKEL_SINGULAR + ' ' + ONES_MASC[1])
+      parts.push(major[0] + ' ' + ONES_MASC[1])
     }
     else if (dollars === 2n) {
-      parts.push(ONES_MASC[2] + ' ' + SHEKEL_PLURAL)
+      parts.push(ONES_MASC[2] + ' ' + major[1])
     }
     else {
       const shekelWord = integerToCurrencyWords(dollars)
-      const shekelForm = SHEKEL_PLURAL
-      parts.push(shekelWord + ' ' + shekelForm)
+      parts.push(shekelWord + ' ' + major[1])
     }
   }
 
@@ -561,11 +573,11 @@ function toCurrency(value) {
   if (cents > 0n) {
     const centNum = Number(cents)
     if (centNum === 1) {
-      parts.push(AGORA_SINGULAR + ' ' + ONES[1])
+      parts.push(minorForms[0] + ' ' + ONES[1])
     }
     else {
       const centWord = integerToWords(cents, 'ו')
-      parts.push(centWord + ' ' + AGORA_PLURAL)
+      parts.push(centWord + ' ' + minorForms[1])
     }
   }
 

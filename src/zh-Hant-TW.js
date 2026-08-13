@@ -20,6 +20,7 @@ import { parseOrdinalValue } from './utils/parse-ordinal.js'
 import { checkMax } from './utils/check-max.js'
 import { bounded } from './utils/scale.js'
 import { resolveOptions } from './utils/resolve-options.js'
+import { zhHantTW as CURRENCY_VOCAB, assertCurrencyExponent } from './utils/currency-vocab.js'
 
 // ============================================================================
 // Vocabulary
@@ -61,17 +62,11 @@ const DECIMAL_SEP = '點'
 const ORDINAL_PREFIX = '第'
 
 // ============================================================================
-// Currency Vocabulary (New Taiwan Dollar)
+// Currency Grammar (New Taiwan Dollar)
 // ============================================================================
 
-// Formal currency (default)
-const YUAN_FORMAL = '圓'
-const JIAO_FORMAL = '角'
-const FEN_FORMAL = '分'
-const ZHENG_FORMAL = '整' // "exactly" suffix when whole amount
-
-// Common currency
-const YUAN_COMMON = '元'
+// "Exactly" suffix used when the amount has no jiao/fen remainder
+const ZHENG_FORMAL = '整'
 
 // ============================================================================
 // Conversion Functions
@@ -308,10 +303,14 @@ function toOrdinal(value, options) {
 /**
  * @typedef {object} CurrencyOptions
  * @property {boolean} [formal] - Use formal/financial numerals
+ * @property {('TWD')} [currency] - ISO 4217 currency code to name the amount in
  */
 
 /** @type {Required<CurrencyOptions>} */
-export const currencyDefaults = { formal: true }
+export const currencyDefaults = { formal: true, currency: 'TWD' }
+
+/** @type {{ currency: ReadonlyArray<Required<CurrencyOptions>['currency']> }} */
+export const currencyValues = { currency: /** @type {Required<CurrencyOptions>['currency'][]} */ (Object.keys(CURRENCY_VOCAB)) }
 
 /**
  * Converts a numeric value to Traditional Chinese currency words (New Taiwan Dollar).
@@ -331,9 +330,14 @@ export const currencyDefaults = { formal: true }
 function toCurrency(value, options) {
   const { isNegative, dollars: yuan, cents } = parseCurrencyValue(value)
   checkMax(yuan, currencyMax)
-  const { formal } = resolveOptions(options, currencyDefaults)
+  const { formal, currency } = resolveOptions(options, currencyDefaults, currencyValues)
+  assertCurrencyExponent(cents, currency)
+  const { major, minor } = CURRENCY_VOCAB[currency]
+  // assertCurrencyExponent already guarantees cents is 0n whenever minor is
+  // null, so any branch reading minor here implies a real array.
+  const minorForms = /** @type {string[]} */ (minor)
 
-  const yuanWord = formal ? YUAN_FORMAL : YUAN_COMMON
+  const yuanWord = formal ? major[0] : major[1]
 
   // Split cents into jiao (tens) and fen (ones)
   const jiao = cents / 10n
@@ -353,7 +357,7 @@ function toCurrency(value, options) {
   // Jiao part (tens of cents)
   if (jiao > 0n) {
     const ones = formal ? ONES_FORMAL : ONES_COMMON
-    result += ones[Number(jiao)] + JIAO_FORMAL
+    result += ones[Number(jiao)] + minorForms[0]
   }
 
   // Fen part (ones of cents)
@@ -363,7 +367,7 @@ function toCurrency(value, options) {
     if (yuan > 0n && jiao === 0n) {
       result += ZERO
     }
-    result += ones[Number(fen)] + FEN_FORMAL
+    result += ones[Number(fen)] + minorForms[1]
   }
   else if (jiao > 0n) {
     // Has jiao but no fen - add 整
