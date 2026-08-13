@@ -26,21 +26,23 @@ import { normalizeCode } from './helpers/language-naming.js'
  * touches a zero-exponent currency.
  */
 
+// Pre-load: only languages that declare a currency enum register a test, so
+// there's no per-language "nothing to check here" assertion to plan around.
+const languages = []
 for (const file of readdirSync('./src').filter(f => f.endsWith('.js') && !f.startsWith('utils')).sort()) {
-  const code = file.replace('.js', '')
+  const mod = await import('../src/' + file)
+  const declaredCodes = mod.currencyValues?.currency
+  if (declaredCodes !== undefined) {
+    languages.push({ code: file.replace('.js', ''), mod, declaredCodes })
+  }
+}
 
-  test(`${code} currency enum matches its currency-vocab entries`, async (t) => {
-    const mod = await import('../src/' + file)
-    const declaredCodes = mod.currencyValues?.currency
+for (const { code, mod, declaredCodes } of languages) {
+  const exportName = normalizeCode(code)
+  // eslint-disable-next-line import-x/namespace -- computed lookup by design: this gate checks *whether* a matching export exists, so the key can't be statically known
+  const langVocab = /** @type {Record<string, import('../src/utils/currency-vocab.js').CurrencyWordForms> | undefined} */ (vocab[exportName])
 
-    if (declaredCodes === undefined) {
-      t.pass('no currency enum declared')
-      return
-    }
-
-    const exportName = normalizeCode(code)
-    const langVocab = vocab[exportName]
-
+  test(`${code} currency enum matches its currency-vocab entries`, (t) => {
     t.truthy(
       langVocab,
       `${code} declares currencyValues.currency but src/utils/currency-vocab.js has no "${exportName}" export`,
@@ -54,28 +56,16 @@ for (const file of readdirSync('./src').filter(f => f.endsWith('.js') && !f.star
     }
   })
 
-  test(`${code} rejects a fractional amount for its zero-exponent currencies`, async (t) => {
-    const mod = await import('../src/' + file)
-    const declaredCodes = mod.currencyValues?.currency
-    if (declaredCodes === undefined) {
-      t.pass('no currency enum declared')
-      return
-    }
-
-    const zeroExponentCodes = declaredCodes.filter(
-      isoCode => (vocab.CURRENCY_EXPONENTS[isoCode] ?? 2) === 0,
-    )
-    if (zeroExponentCodes.length === 0) {
-      t.pass('no zero-exponent currency declared')
-      return
-    }
-
-    for (const isoCode of zeroExponentCodes) {
-      t.throws(
-        () => mod.toCurrency(1.5, { currency: isoCode }),
-        { instanceOf: RangeError },
-        `${code} toCurrency(1.5, { currency: '${isoCode}' }) should throw RangeError — ${isoCode} has no minor unit`,
-      )
-    }
-  })
+  const zeroExponentCodes = declaredCodes.filter(isoCode => (vocab.CURRENCY_EXPONENTS[isoCode] ?? 2) === 0)
+  if (zeroExponentCodes.length > 0) {
+    test(`${code} rejects a fractional amount for its zero-exponent currencies`, (t) => {
+      for (const isoCode of zeroExponentCodes) {
+        t.throws(
+          () => mod.toCurrency(1.5, { currency: isoCode }),
+          { instanceOf: RangeError },
+          `${code} toCurrency(1.5, { currency: '${isoCode}' }) should throw RangeError — ${isoCode} has no minor unit`,
+        )
+      }
+    })
+  }
 }
