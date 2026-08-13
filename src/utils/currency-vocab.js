@@ -210,6 +210,49 @@ export const heIL = { ILS: { major: SHEKEL_MAJOR, minor: ['אגורה', 'אגו�
 /** @type {Record<string, CurrencyWordForms>} */
 export const kaGE = { GEL: { major: ['ლარი'], minor: ['თეთრი'] } }
 
+// Croatian Euro/Cent: [singular, few (2-4), many (5+)] — hr-HR's own
+// pluralize() selects the index.
+/** @type {Record<string, CurrencyWordForms>} */
+export const hrHR = {
+  EUR: { major: ['euro', 'eura', 'eura'], minor: ['cent', 'centa', 'centi'] },
+}
+
+// Lithuanian Euro/Cent: [singular, plural, genitive] — lt-LT's own
+// pluralize() selects the index.
+/** @type {Record<string, CurrencyWordForms>} */
+export const ltLT = {
+  EUR: { major: ['euras', 'eurai', 'eurų'], minor: ['centas', 'centai', 'centų'] },
+}
+
+// Latvian Euro/Cent: eiro (euro) is indeclinable, hence a single major form;
+// centi use [singular, plural, genitive] — lv-LV's own pluralizeCurrency()
+// selects the minor index.
+/** @type {Record<string, CurrencyWordForms>} */
+export const lvLV = {
+  EUR: { major: ['eiro'], minor: ['cents', 'centi', 'centu'] },
+}
+
+// Polish Złoty/Grosz: [singular, few (2-4), many (5+)] — pl-PL's own
+// pluralize() selects the index.
+/** @type {Record<string, CurrencyWordForms>} */
+export const plPL = {
+  PLN: { major: ['złoty', 'złote', 'złotych'], minor: ['grosz', 'grosze', 'groszy'] },
+}
+
+// Russian Ruble/Kopeck: [singular, few, many] — ru-RU's own pluralize()
+// selects the index.
+/** @type {Record<string, CurrencyWordForms>} */
+export const ruRU = {
+  RUB: { major: ['рубль', 'рубля', 'рублей'], minor: ['копейка', 'копейки', 'копеек'] },
+}
+
+// Ukrainian Hryvnia/Kopiyka: [singular, few, many] — uk-UA's own pluralize()
+// selects the index.
+/** @type {Record<string, CurrencyWordForms>} */
+export const ukUA = {
+  UAH: { major: ['гривня', 'гривнi', 'гривень'], minor: ['копiйка', 'копiйки', 'копiйок'] },
+}
+
 /**
  * ISO 4217 minor-unit decimal exponent, for currencies that diverge from the
  * default of 2 (most currencies). Only overrides are listed; an absent code

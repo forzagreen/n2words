@@ -17,6 +17,7 @@ import { parseOrdinalValue } from './utils/parse-ordinal.js'
 import { checkMax } from './utils/check-max.js'
 import { western } from './utils/scale.js'
 import { resolveOptions } from './utils/resolve-options.js'
+import { hrHR as CURRENCY_VOCAB, assertCurrencyExponent } from './utils/currency-vocab.js'
 
 // ============================================================================
 // Vocabulary
@@ -57,11 +58,6 @@ const ORDINAL_SCALES = ['tisućiti', 'milijunti', 'milijarditi', 'bilijunti']
 // ============================================================================
 // Currency Vocabulary (Croatian Kuna - now Euro)
 // ============================================================================
-
-// Euro forms: [singular, few (2-4), many (5+)] - masculine
-const EURO_FORMS = ['euro', 'eura', 'eura']
-// Cent forms: [singular, few (2-4), many (5+)] - masculine
-const CENT_FORMS = ['cent', 'centa', 'centi']
 
 // Scale words: [singular, few, many]
 // Indexed [scaleIndex - 1]; odd scales (tisuća, milijarda, bilijarda, ...) are
@@ -476,8 +472,20 @@ function toOrdinal(value) {
 // ============================================================================
 
 /**
+ * @typedef {object} CurrencyOptions
+ * @property {('EUR')} [currency] - ISO 4217 currency code to name the amount in
+ */
+
+/** @type {Required<CurrencyOptions>} */
+export const currencyDefaults = { currency: 'EUR' }
+
+/** @type {{ currency: ReadonlyArray<Required<CurrencyOptions>['currency']> }} */
+export const currencyValues = { currency: /** @type {Required<CurrencyOptions>['currency'][]} */ (Object.keys(CURRENCY_VOCAB)) }
+
+/**
  * Converts a numeric value to Croatian currency words (Euro).
  * @param {number | string | bigint} value - The currency amount to convert
+ * @param {CurrencyOptions} [options] - Optional configuration
  * @returns {string} The amount in Croatian currency words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {Error} If value is not a valid number format
@@ -487,9 +495,12 @@ function toOrdinal(value) {
  * toCurrency(1.50)   // 'jedan euro pedeset centi'
  * toCurrency(-5)     // 'minus pet eura'
  */
-function toCurrency(value) {
+function toCurrency(value, options) {
   const { isNegative, dollars: euros, cents } = parseCurrencyValue(value)
   checkMax(euros, currencyMax)
+  const { currency } = resolveOptions(options, currencyDefaults, currencyValues)
+  assertCurrencyExponent(cents, currency)
+  const { major, minor } = CURRENCY_VOCAB[currency]
 
   let result = ''
   if (isNegative) {
@@ -499,7 +510,7 @@ function toCurrency(value) {
   // Euro part (masculine)
   if (euros > 0n || cents === 0n) {
     result += integerToWords(euros, 'masculine')
-    result += ' ' + pluralize(euros, EURO_FORMS)
+    result += ' ' + pluralize(euros, major)
   }
 
   // Cent part (masculine)
@@ -508,7 +519,7 @@ function toCurrency(value) {
       result += ' '
     }
     result += integerToWords(cents, 'masculine')
-    result += ' ' + pluralize(cents, CENT_FORMS)
+    result += ' ' + pluralize(cents, /** @type {string[]} */ (minor))
   }
 
   return result
