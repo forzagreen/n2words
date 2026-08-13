@@ -15,6 +15,8 @@ import { parseCurrencyValue } from './utils/parse-currency.js'
 import { parseOrdinalValue } from './utils/parse-ordinal.js'
 import { checkMax } from './utils/check-max.js'
 import { western } from './utils/scale.js'
+import { resolveOptions } from './utils/resolve-options.js'
+import { idID as CURRENCY_VOCAB, assertCurrencyExponent } from './utils/currency-vocab.js'
 
 // ============================================================================
 // Vocabulary
@@ -44,12 +46,6 @@ const DECIMAL_SEP = 'koma'
 const ORDINAL_PREFIX = 'ke'
 // First is special: "pertama" (not "kesatu")
 const ORDINAL_FIRST = 'pertama'
-
-// ============================================================================
-// Currency Vocabulary (Indonesian Rupiah)
-// ============================================================================
-
-const RUPIAH = 'rupiah'
 
 // ============================================================================
 // Segment Building
@@ -285,25 +281,38 @@ function toOrdinal(value) {
 // ============================================================================
 
 /**
+ * @typedef {object} CurrencyOptions
+ * @property {('IDR')} [currency] - ISO 4217 currency code to name the amount in
+ */
+
+/** @type {Required<CurrencyOptions>} */
+export const currencyDefaults = { currency: 'IDR' }
+
+/** @type {{ currency: ReadonlyArray<Required<CurrencyOptions>['currency']> }} */
+export const currencyValues = { currency: /** @type {Required<CurrencyOptions>['currency'][]} */ (Object.keys(CURRENCY_VOCAB)) }
+
+/**
  * Converts a numeric value to Indonesian currency words (Rupiah).
  *
- * Indonesian Rupiah has no everyday minor unit (sen are historical), so a
- * fractional amount throws RangeError rather than being silently discarded.
+ * Indonesian Rupiah has no everyday minor unit (sen are historical) — a
+ * fractional amount throws RangeError rather than being silently rounded
+ * away.
  * @param {number | string | bigint} value - The currency amount to convert
+ * @param {CurrencyOptions} [options] - Optional configuration
  * @returns {string} The amount in Indonesian currency words
  * @throws {TypeError} If value is not a valid numeric type
- * @throws {RangeError} If the amount has a fractional part
+ * @throws {RangeError} If value is not a valid number format, or has a fractional part
  * @example
  * toCurrency(42)     // 'empat puluh dua rupiah'
  * toCurrency(1000)   // 'seribu rupiah'
  * toCurrency(-5)     // 'min lima rupiah'
  */
-function toCurrency(value) {
+function toCurrency(value, options) {
   const { isNegative, dollars: rupiah, cents } = parseCurrencyValue(value)
   checkMax(rupiah, currencyMax)
-  if (cents !== 0n) {
-    throw new RangeError('IDR has no minor unit — fractional amounts aren\'t representable')
-  }
+  const { currency } = resolveOptions(options, currencyDefaults, currencyValues)
+  assertCurrencyExponent(cents, currency)
+  const { major } = CURRENCY_VOCAB[currency]
 
   let result = ''
   if (isNegative) {
@@ -311,7 +320,7 @@ function toCurrency(value) {
   }
 
   result += integerToWords(rupiah)
-  result += ' ' + RUPIAH
+  result += ' ' + major[0]
 
   return result
 }
