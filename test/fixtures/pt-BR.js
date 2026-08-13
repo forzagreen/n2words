@@ -217,15 +217,15 @@ export const currency = [
   ['42.50', 'quarenta e dois reais e cinquenta centavos'],
   ['1.99', 'um real e noventa e nove centavos'],
 
-  // Other currencies via CURRENCIES dictionary
+  // Other currencies via the shared currency-vocab matrix
   [1, 'um dólar', { currency: 'USD' }],
   [42.50, 'quarenta e dois dólares e cinquenta centavos', { currency: 'USD' }],
   [42.50, 'quarenta e dois euros e cinquenta centavos', { currency: 'EUR' }],
   [5, 'cinco libras', { currency: 'GBP' }],
   [100, 'cem ienes', { currency: 'JPY' }],
 
-  // Unknown currency falls back to using the code as the major word
-  [5, 'cinco CAD', { currency: 'CAD' }],
+  // An out-of-set currency code throws RangeError — covered generically for
+  // every language by test/options-contract.test.js's enum probe.
 
   // BigInt (whole reais only)
   [1_000_000_000_000n, 'um trilhão reais'],

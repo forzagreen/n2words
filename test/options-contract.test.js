@@ -31,7 +31,12 @@ import { isPlainObject } from '../src/utils/is-plain-object.js'
 const FORMS = [
   ['cardinal', 'toCardinal', 101],
   ['ordinal', 'toOrdinal', 101],
-  ['currency', 'toCurrency', 42.5],
+  // A whole number, not a fractional amount: this sample round-trips every
+  // declared `currency` enum value (line ~124 below), and some currencies
+  // (JPY et al., see src/utils/currency-vocab.js's CURRENCY_EXPONENTS) reject
+  // a nonzero minor-unit amount by design. Malformed-option / defaults
+  // round-trip behavior doesn't depend on the sample having cents.
+  ['currency', 'toCurrency', 42],
 ]
 
 /**
