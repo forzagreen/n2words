@@ -25,6 +25,7 @@ import { parseOrdinalValue } from './utils/parse-ordinal.js'
 import { checkMax } from './utils/check-max.js'
 import { western } from './utils/scale.js'
 import { resolveOptions } from './utils/resolve-options.js'
+import { enCA as CURRENCY_VOCAB, assertCurrencyExponent } from './utils/currency-vocab.js'
 
 // ============================================================================
 // VOCABULARY
@@ -54,12 +55,6 @@ const DECIMAL_SEP = 'point'
 const ORDINAL_ONES = ['', 'first', 'second', 'third', 'fourth', 'fifth', 'sixth', 'seventh', 'eighth', 'ninth']
 const ORDINAL_TEENS = ['tenth', 'eleventh', 'twelfth', 'thirteenth', 'fourteenth', 'fifteenth', 'sixteenth', 'seventeenth', 'eighteenth', 'nineteenth']
 const ORDINAL_TENS = ['', '', 'twentieth', 'thirtieth', 'fortieth', 'fiftieth', 'sixtieth', 'seventieth', 'eightieth', 'ninetieth']
-
-// Currency vocabulary (Canadian Dollar)
-const DOLLAR = 'dollar'
-const DOLLARS = 'dollars'
-const CENT = 'cent'
-const CENTS = 'cents'
 
 // ============================================================================
 // SHARED HELPERS
@@ -487,10 +482,14 @@ function toOrdinal(value) {
 /**
  * @typedef {object} CurrencyOptions
  * @property {boolean} [and] - Use "and" between dollars and cents (e.g., "one dollar and fifty cents")
+ * @property {('CAD')} [currency] - ISO 4217 currency code to name the amount in
  */
 
 /** @type {Required<CurrencyOptions>} */
-export const currencyDefaults = { and: true }
+export const currencyDefaults = { and: true, currency: 'CAD' }
+
+/** @type {{ currency: ReadonlyArray<Required<CurrencyOptions>['currency']> }} */
+export const currencyValues = { currency: /** @type {Required<CurrencyOptions>['currency'][]} */ (Object.keys(CURRENCY_VOCAB)) }
 
 /**
  * Converts a numeric value to Canadian English currency words.
@@ -508,7 +507,9 @@ export const currencyDefaults = { and: true }
 function toCurrency(value, options) {
   const { isNegative, dollars, cents } = parseCurrencyValue(value)
   checkMax(dollars, currencyMax)
-  const { and: useAnd } = resolveOptions(options, currencyDefaults)
+  const { and: useAnd, currency } = resolveOptions(options, currencyDefaults, currencyValues)
+  assertCurrencyExponent(cents, currency)
+  const { major, minor } = CURRENCY_VOCAB[currency]
 
   // Build result
   let result = ''
@@ -517,7 +518,7 @@ function toCurrency(value, options) {
   // Dollars part (show if non-zero, or if no cents)
   if (dollars > 0n || cents === 0n) {
     result += integerToWords(dollars, false, false)
-    result += ' ' + (dollars === 1n ? DOLLAR : DOLLARS)
+    result += ' ' + (dollars === 1n ? major[0] : major[1])
   }
 
   // Cents part
@@ -526,7 +527,7 @@ function toCurrency(value, options) {
       result += useAnd ? ' and ' : ' '
     }
     result += integerToWords(cents, false, false)
-    result += ' ' + (cents === 1n ? CENT : CENTS)
+    result += ' ' + (cents === 1n ? minor[0] : minor[1])
   }
 
   return result
