@@ -24,8 +24,9 @@ export const aliasOf = 'de-DE'
 ```
 
 Thin, `export *`-based, identical in shape to every other language file in
-`src/`. Nothing about it is language-specific; see
-[CLAUDE.md](../CLAUDE.md)'s Quick Reference for the current list.
+`src/`. Nothing about it is language-specific. The current list is generated,
+not maintained by hand: see the `Entry point` column of
+[LANGUAGES.md](../LANGUAGES.md)'s "Languages" table.
 
 ## The "very different" test
 

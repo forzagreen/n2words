@@ -22,7 +22,7 @@ n2words: Number to words converter. ESM + UMD, Node >=22, zero dependencies.
 
 ```text
 src/
-├── {lang-code}.js       # One file per region/script variant (70+)
+├── {lang-code}.js       # One file per region/script variant (72)
 ├── {primary-subtag}.js  # Bare-tag aliases (46): `export * from './{target}.js'` + `aliasOf`
 └── utils/
     ├── parse-cardinal.js    # Cardinal form parsing (decimals, negatives)
