@@ -632,6 +632,20 @@ async function main() {
   // and treating that as new would silently overwrite the contributor's work.
   const existingForms = await getExportedForms(code)
   const isNewLanguage = !existsSync(langFilePath)
+
+  // A bare-tag alias (e.g. en.js re-exporting en-US.js, marked by its own
+  // `aliasOf` export) has real forms via `export *`, so it would otherwise
+  // pass every check below and get mutated by addFormsToExistingFile —
+  // corrupting a two-line re-export file. Refuse and point at the real target.
+  if (!isNewLanguage) {
+    const existingMod = await import(`../src/${code}.js`).catch(() => undefined)
+    if (existingMod?.aliasOf !== undefined) {
+      console.error(chalk.red(`${langFilePath} is a bare-tag alias for ${existingMod.aliasOf}.js — edit src/${existingMod.aliasOf}.js directly, or pick a different code.`))
+      process.exitCode = 1
+      return
+    }
+  }
+
   if (!isNewLanguage && existingForms.size === 0) {
     console.error(chalk.red(`${langFilePath} exists but exports no working forms — likely a syntax error or unfinished file.`))
     console.error(chalk.gray('Refusing to overwrite it. Fix (or delete) the file, then re-run.'))
