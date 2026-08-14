@@ -52,6 +52,18 @@ toOrdinal(1234)       // 'one thousand two hundred thirty-fourth'
 toCurrency(1234.56)   // 'one thousand two hundred thirty-four dollars and fifty-six cents'
 ```
 
+A currency-supporting language can also name an amount in a currency other than its own
+default, via the `currency` option — the set of currencies it knows is validated, so an
+unsupported code throws rather than silently guessing:
+
+```js
+import { toCurrency } from 'n2words/pt-BR'
+
+toCurrency(42.50)                      // 'quarenta e dois reais e cinquenta centavos' (BRL, the default)
+toCurrency(42.50, { currency: 'EUR' }) // 'quarenta e dois euros e cinquenta centavos'
+toCurrency(42.50, { currency: 'CAD' }) // throws RangeError — pt-BR doesn't know CAD (yet)
+```
+
 Each language implements one or more of these forms — see [LANGUAGES.md](LANGUAGES.md) for per-language coverage.
 
 > **Range:** each form spells values up to the largest scale word it knows, then throws a `RangeError` rather than inventing vocabulary — and the ceiling varies by language *and* form (e.g. `es-ES` cardinals reach 10^30 − 1, ordinals only 10^9 − 1). Cardinal and currency accept negatives and decimals; ordinal is positive integers only.
@@ -65,6 +77,12 @@ import { toCardinal } from 'n2words/en-US'            // Single form
 import { toCardinal, toOrdinal } from 'n2words/en-US' // Multiple forms
 import { toCardinal as fr } from 'n2words/fr-FR'       // Aliased import
 ```
+
+A handful of bare BCP 47 tags also resolve, without a region subtag —
+`n2words/en`, `n2words/fr`, `n2words/ar`, `n2words/es` — each a documented alias for one
+specific regional variant (see "Bare-tag aliases" in [LANGUAGES.md](LANGUAGES.md)). Every
+other language stays region-qualified, since its variants genuinely diverge in default
+currency or script.
 
 **Browser (CDN):**
 
