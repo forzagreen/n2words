@@ -2,6 +2,14 @@
 dist/
 *.d.ts
 
+# Generated API reference. docs/ is a tracked directory of hand-written
+# contract docs (*.md), so a JSDoc run pointed at it would otherwise leave
+# dozens of generated pages staged-able alongside them.
+docs/*.html
+docs/fonts/
+docs/scripts/
+docs/styles/
+
 # Dependencies
 node_modules/
 
