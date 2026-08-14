@@ -45,6 +45,17 @@ const languageCodes = getLanguageCodes()
  * UMD bundles use virtual entry points to re-export toCardinal as the
  * normalized language code (e.g., n2words.en, n2words.zhHans), allowing
  * multiple languages to be loaded together without conflicts.
+ *
+ * Bare-tag aliases (src/en.js -> src/en-US.js) get their own bundles too, so
+ * dist/ carries a copy of each aliased language's code under both names. That
+ * duplication is deliberate: a dist bundle's whole contract is that it is a
+ * single self-contained file you can point a <script> tag or a CDN URL at, and
+ * emitting a re-export stub instead would make dist/en.js useless without a
+ * second fetch of dist/en-US.js — fatal for the UMD build, which has no module
+ * loader to follow the redirect. The UMD alias bundles are not even byte-equal
+ * to their targets: they expose the global the README documents (n2words.en,
+ * not n2words.enUS). Node and bundler users import from src/ and never pay for
+ * this; it costs only npm tarball size.
  */
 
 // Individual bundle terser config — aggressive because each bundle is a
