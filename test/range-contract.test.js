@@ -75,9 +75,16 @@ function checkForm(fn, max) {
 
 // Every language registers — the declaration is required, not opt-in. A form
 // exported without its *Max (or a *Max without its form) fails below.
+//
+// Bare-tag alias files (`aliasOf` exported) are skipped: `export *` makes their
+// forms the exact same function objects — and their *Max the exact same
+// bigints — as their target's, so re-sweeping the range here would just
+// re-verify an identical declaration under a different name. test/bare-tag-
+// contract.test.js checks the re-export's fidelity directly instead.
 const languages = []
 for (const file of readdirSync('./src').filter(f => f.endsWith('.js') && !f.startsWith('utils')).sort()) {
   const mod = await import('../src/' + file)
+  if (mod.aliasOf !== undefined) continue
   languages.push({ code: file.replace('.js', ''), mod })
 }
 

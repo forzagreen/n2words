@@ -56,9 +56,16 @@ function outOfSetProbe(set, type) {
 // Pre-load: a language registers when any form takes options OR declares the
 // contract, so neither side can dodge the other — options without a declaration
 // and a declaration without options both fail below.
+//
+// Bare-tag alias files (`aliasOf` exported) are skipped: `export *` makes their
+// forms and `<form>Defaults`/`<form>Values` the exact same objects as their
+// target's, so re-running this whole battery would just re-verify an identical
+// contract under a different name. test/bare-tag-contract.test.js checks the
+// re-export's fidelity directly instead.
 const languages = []
 for (const file of readdirSync('./src').filter(f => f.endsWith('.js') && !f.startsWith('utils')).sort()) {
   const mod = await import('../src/' + file)
+  if (mod.aliasOf !== undefined) continue
   const relevant = FORMS.filter(([form, fnName]) =>
     (typeof mod[fnName] === 'function' && mod[fnName].length >= 2) || mod[`${form}Defaults`] !== undefined,
   )

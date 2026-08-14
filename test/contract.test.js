@@ -18,6 +18,13 @@ import { readdirSync } from 'node:fs'
  * scanning `src/` — so a newly added `src/{code}.js` is gated automatically with
  * no change to this file. (Correct in-range *output* is covered by the fixtures
  * in conversions.test.js; this gate covers the contract's shape.)
+ *
+ * Bare-tag alias files (`aliasOf` exported) are skipped: `export *` makes their
+ * toCardinal/toOrdinal/toCurrency the exact same function objects as their
+ * target's, so fuzzing them again would just re-run this same property against
+ * an identical function — test/bare-tag-contract.test.js verifies that
+ * reference-identity directly instead, which is both cheaper and a stronger
+ * guarantee than re-running 200 fast-check iterations per form.
  */
 
 const languageFiles = readdirSync('./src')
@@ -73,11 +80,17 @@ function upholdsContract(fn, input) {
   return true
 }
 
+const languages = []
 for (const file of languageFiles) {
   const code = file.replace('.js', '')
+  const mod = await import('../src/' + file)
+  if (mod.aliasOf !== undefined) continue
+  languages.push({ code, mod })
+}
 
-  test(`${code} upholds the conversion contract`, async (t) => {
-    const { toCardinal, toOrdinal, toCurrency } = await import('../src/' + file)
+for (const { code, mod } of languages) {
+  test(`${code} upholds the conversion contract`, (t) => {
+    const { toCardinal, toOrdinal, toCurrency } = mod
 
     // Collect a property per exported form (built only when the form exists, so a
     // partial-form language isn't called on functions it doesn't ship). Assertions
