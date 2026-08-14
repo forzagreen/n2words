@@ -73,6 +73,13 @@ for (const code of aliasCodes) {
     t.truthy(targetMod, `${code} aliases "${target}" but src/${target}.js doesn't exist`)
     if (!targetMod) return
 
+    // An alias is a *within-family* pointer: `en` must resolve to some en-*
+    // variant. Without this, `src/en.js` re-exporting './de-DE.js' would pass
+    // every other assertion here — bindings would be faithfully identical, just
+    // to the wrong language — and LANGUAGES.md would render English's entry
+    // point linking into German's section.
+    t.is(target.split('-')[0], code, `${code} must alias a ${code}-* variant, not "${target}"`)
+
     for (const key of REEXPORTED_KEYS) {
       t.is(mod[key], targetMod[key], `${code}.${key} must be the exact same binding as ${target}.${key}`)
     }
