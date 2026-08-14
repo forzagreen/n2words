@@ -75,6 +75,7 @@ export function normalizeCode(code) {
  */
 export const LANGUAGE_NAME_OVERRIDES = {
   'hbo-IL': 'Biblical Hebrew (Israel)',
+  'hbo': 'Biblical Hebrew',
 }
 
 /**
