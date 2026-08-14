@@ -1,6 +1,7 @@
 import test from 'ava'
 import fc from 'fast-check'
 import { readdirSync } from 'node:fs'
+import { isWellFormed } from './helpers/value-utils.js'
 
 /**
  * Conversion contract gate (the "gate" of the scale-ceiling fix-then-gate work).
@@ -38,15 +39,6 @@ const WIDE = 10n ** 309n
 
 // Fixed seed: the gate is deterministic in CI (a failure reproduces exactly).
 const RUN = { numRuns: 200, seed: 0x6e_32_77 }
-
-/** A conversion result the contract permits. */
-function isWellFormed(value) {
-  return typeof value === 'string'
-    && value.length > 0
-    && value === value.trim()
-    && !/\s{2,}/.test(value)
-    && !/undefined|NaN|\[object/.test(value)
-}
 
 /**
  * Renders any conversion result for an error message without itself throwing

@@ -2,6 +2,7 @@ import test from 'ava'
 import { readdirSync } from 'node:fs'
 import * as vocab from '../src/utils/currency-vocab.js'
 import { normalizeCode } from './helpers/language-naming.js'
+import { isWellFormed, safeStringify } from './helpers/value-utils.js'
 
 /**
  * Currency-vocab contract gate.
@@ -56,16 +57,85 @@ for (const { code, mod, declaredCodes } of languages) {
     }
   })
 
-  const zeroExponentCodes = declaredCodes.filter(isoCode => (vocab.CURRENCY_EXPONENTS[isoCode] ?? 2) === 0)
+  const zeroExponentCodes = declaredCodes.filter(isoCode => vocab.CURRENCY_EXPONENTS[isoCode] === 0)
   if (zeroExponentCodes.length > 0) {
     test(`${code} rejects a fractional amount for its zero-exponent currencies`, (t) => {
+      // Spread across the shapes a per-language fixture would have pinned
+      // before these currencies started throwing: bare fraction, minimum
+      // minor unit, whole+fraction, and negative. One sample would leave the
+      // others free to regress into spelling a fictitious subunit.
       for (const isoCode of zeroExponentCodes) {
-        t.throws(
-          () => mod.toCurrency(1.5, { currency: isoCode }),
-          { instanceOf: RangeError },
-          `${code} toCurrency(1.5, { currency: '${isoCode}' }) should throw RangeError — ${isoCode} has no minor unit`,
-        )
+        for (const amount of [0.01, 0.5, 1.01, 42.5, -42.5]) {
+          t.throws(
+            () => mod.toCurrency(amount, { currency: isoCode }),
+            { instanceOf: RangeError },
+            `${code} toCurrency(${amount}, { currency: '${isoCode}' }) should throw RangeError — ${isoCode} has no minor unit`,
+          )
+        }
+      }
+    })
+  }
+
+  // Every *other* declared currency must survive a fractional amount, i.e.
+  // actually render its minor unit. Without this, a language's non-default
+  // currencies are only ever exercised at a whole amount (options-contract
+  // uses one), so a `minor` array too short for the language's own
+  // pluralization — or null where the exponent says it shouldn't be — would
+  // emit "...e cinquenta undefined" and only a hand-written fixture would
+  // notice. Multi-currency support is the point of the matrix; this covers
+  // every cell of it, not just the ones someone wrote a fixture for.
+  const minorBearingCodes = declaredCodes.filter(isoCode => vocab.CURRENCY_EXPONENTS[isoCode] !== 0)
+  if (minorBearingCodes.length > 0) {
+    test(`${code} renders the minor unit for every currency it advertises`, (t) => {
+      // 1 and 2 catch singular/plural splits; 50 catches languages whose
+      // minor-unit form varies by the tens digit (Slavic, Romanian, Arabic).
+      for (const isoCode of minorBearingCodes) {
+        for (const amount of ['1.01', '1.02', '3.50']) {
+          const result = mod.toCurrency(amount, { currency: isoCode })
+          t.true(
+            isWellFormed(result),
+            `${code} toCurrency('${amount}', { currency: '${isoCode}' }) returned malformed output: ${safeStringify(result)}`,
+          )
+        }
       }
     })
   }
 }
+
+/**
+ * The exponent map underwrites two things the language files rely on: a
+ * `minor: null` currency is unreachable past assertCurrencyExponent (which is
+ * what licenses narrowing `minor` to `string[]` inside a `cents > 0n` branch),
+ * and the parser's fixed two-decimal precision is enough for every currency
+ * listed. Both break silently if the two data sources disagree, so pin them.
+ */
+test('CURRENCY_EXPONENTS holds only zero-exponent currencies', (t) => {
+  for (const [isoCode, exponent] of Object.entries(vocab.CURRENCY_EXPONENTS)) {
+    t.is(
+      exponent,
+      0,
+      `CURRENCY_EXPONENTS.${isoCode} is ${exponent}, but parseCurrencyValue tracks exactly 2 decimal digits — a 3-decimal currency like KWD would be silently mis-parsed (see the map's own doc comment)`,
+    )
+  }
+})
+
+test('a currency has minor-unit words if and only if its exponent is nonzero', (t) => {
+  for (const [exportName, entry] of Object.entries(vocab)) {
+    // Skip the non-matrix exports (CURRENCY_EXPONENTS, assertCurrencyExponent).
+    if (typeof entry !== 'object' || entry === null) continue
+    if (exportName === 'CURRENCY_EXPONENTS') continue
+
+    for (const [isoCode, forms] of Object.entries(entry)) {
+      const hasMinorWords = forms.minor !== null
+      const isZeroExponent = vocab.CURRENCY_EXPONENTS[isoCode] === 0
+      const mismatch = isZeroExponent
+        ? 'has an exponent of 0 but still lists minor-unit words — assertCurrencyExponent makes them unreachable'
+        : 'has minor: null but no CURRENCY_EXPONENTS entry, so nothing stops a fractional amount from dereferencing it'
+      t.is(
+        hasMinorWords,
+        !isZeroExponent,
+        `${exportName}.${isoCode} ${mismatch}`,
+      )
+    }
+  }
+})

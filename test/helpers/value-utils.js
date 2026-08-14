@@ -35,6 +35,22 @@ export function safeStringify(value) {
 }
 
 /**
+ * A conversion result the contract permits: a non-empty, tidily spaced string
+ * with no sign of a missing lookup. Shared by the gates that assert output
+ * shape (contract.test.js's fuzz sweep, currency-vocab-contract.test.js's
+ * per-currency sweep) so "well-formed" means one thing across the suite.
+ * @param {*} value Conversion result to check
+ * @returns {boolean} True if the value is a well-formed conversion result
+ */
+export function isWellFormed(value) {
+  return typeof value === 'string'
+    && value.length > 0
+    && value === value.trim()
+    && !/\s{2,}/.test(value)
+    && !/undefined|NaN|\[object/.test(value)
+}
+
+/**
  * Checks if a value is valid input for cardinal conversion.
  *
  * @param {*} value Value to check
