@@ -7,7 +7,7 @@
 [![npm downloads](https://img.shields.io/npm/dw/n2words)](https://npmjs.com/package/n2words)
 [![jsDelivr](https://img.shields.io/jsdelivr/npm/hm/n2words)](https://www.jsdelivr.com/package/npm/n2words)
 
-**Numbers to words. 50+ languages. Zero dependencies.**
+**Numbers to words. 50 languages, 72 regional variants. Zero dependencies.**
 
 ## Why n2words?
 
@@ -15,7 +15,7 @@
 - **Tree-Shakeable** — Import only what you need. Unused exports are eliminated by modern bundlers.
 - **Tiny Bundles** — ~2 KB gzipped per language (with all forms). No bloat.
 - **Multiple Forms** — Cardinal ("forty-two"), ordinal ("forty-second"), and currency ("forty-two dollars")
-- **50+ Languages** — European, Asian, Middle Eastern, African, and more — most importable via a single bare-tag code (`n2words/de`), no region required
+- **50 Languages, 72 Regional Variants** — European, Asian, Middle Eastern, African, and more — most importable via a single bare-tag code (`n2words/de`), no region required
 - **Zero Dependencies** — Works everywhere: Node.js, browsers, Deno, Bun
 - **BigInt Support** — Accepts `bigint` (and numeric-string) input, so large values keep full precision
 - **Type-Safe** — Full TypeScript support with generated `.d.ts` declarations
