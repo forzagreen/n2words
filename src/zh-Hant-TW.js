@@ -333,9 +333,6 @@ function toCurrency(value, options) {
   const { formal, currency } = resolveOptions(options, currencyDefaults, currencyValues)
   assertCurrencyExponent(cents, currency)
   const { major, minor } = CURRENCY_VOCAB[currency]
-  // assertCurrencyExponent already guarantees cents is 0n whenever minor is
-  // null, so any branch reading minor here implies a real array.
-  const minorForms = /** @type {string[]} */ (minor)
 
   const yuanWord = formal ? major[0] : major[1]
 
@@ -357,7 +354,9 @@ function toCurrency(value, options) {
   // Jiao part (tens of cents)
   if (jiao > 0n) {
     const ones = formal ? ONES_FORMAL : ONES_COMMON
-    result += ones[Number(jiao)] + minorForms[0]
+    // jiao > 0n implies cents > 0n, and assertCurrencyExponent already
+    // guaranteed cents is 0n whenever minor is null — so minor is a real array.
+    result += ones[Number(jiao)] + (/** @type {string[]} */ (minor))[0]
   }
 
   // Fen part (ones of cents)
@@ -367,7 +366,7 @@ function toCurrency(value, options) {
     if (yuan > 0n && jiao === 0n) {
       result += ZERO
     }
-    result += ones[Number(fen)] + minorForms[1]
+    result += ones[Number(fen)] + (/** @type {string[]} */ (minor))[1]
   }
   else if (jiao > 0n) {
     // Has jiao but no fen - add 整

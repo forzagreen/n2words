@@ -448,7 +448,6 @@ function toCurrency(value, options) {
   const { currency } = resolveOptions(options, currencyDefaults, currencyValues)
   assertCurrencyExponent(cents, currency)
   const { major, minor } = CURRENCY_VOCAB[currency]
-  const minorForms = /** @type {string[]} */ (minor)
 
   const parts = []
 
@@ -476,6 +475,9 @@ function toCurrency(value, options) {
 
   // Bani (masculine)
   if (cents > 0n) {
+    // assertCurrencyExponent already guaranteed cents is 0n whenever minor is
+    // null, so reaching this branch implies a real array.
+    const minorForms = /** @type {string[]} */ (minor)
     const centNum = Number(cents)
     if (centNum === 1) {
       parts.push('un ' + minorForms[0])

@@ -324,7 +324,6 @@ function toCurrency(value, options) {
   assertCurrencyExponent(sentimos, currency)
   const { major, minor } = CURRENCY_VOCAB[currency]
   const PESO = major[0]
-  const SENTIMO = (/** @type {string[]} */ (minor))[0]
 
   let result = ''
   if (isNegative) {
@@ -360,6 +359,9 @@ function toCurrency(value, options) {
 
   // Sentimos part
   if (sentimos > 0n) {
+    // assertCurrencyExponent already guaranteed sentimos is 0n whenever minor
+    // is null, so reaching this branch implies a real array.
+    const SENTIMO = (/** @type {string[]} */ (minor))[0]
     if (pesos > 0n) {
       result += ' at '
     }
