@@ -29,7 +29,7 @@
  */
 
 import { execSync } from 'node:child_process'
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs'
 import * as readline from 'node:readline/promises'
 import chalk from 'chalk'
 import { getExportedForms } from '../test/helpers/language-helpers.js'
@@ -408,6 +408,53 @@ export const currency = [
   return exports.join('\n\n') + '\n'
 }
 
+/**
+ * Existing canonical (non-alias) sibling variants sharing `code`'s BCP 47
+ * primary subtag — e.g. for a new `de-AT`, an existing `de-DE` is a sibling.
+ * Region/script variant codes always contain a hyphen after the primary
+ * subtag, and a bare-tag alias file's code never does, so a prefix filter
+ * cleanly finds siblings without needing to import anything.
+ *
+ * @param {string} primary BCP 47 primary language subtag (e.g. 'de')
+ * @param {string} excludeCode Code to exclude from the results (the one just added)
+ * @returns {string[]} Existing sibling variant codes
+ */
+function getSiblingVariants(primary, excludeCode) {
+  return readdirSync('./src')
+    .filter(f => f.endsWith('.js') && !f.startsWith('utils'))
+    .map(f => f.replace('.js', ''))
+    .filter(c => c !== excludeCode && c.startsWith(`${primary}-`))
+}
+
+/**
+ * Generate a bare-tag alias file — the same thin `export *` re-export shape
+ * as every other alias (src/en.js, src/de.js, ...). Only called when `code`
+ * is the first (and so far only) variant in its family; see
+ * docs/bare-tag-aliases.md for why a second variant doesn't get one
+ * automatically.
+ *
+ * @param {string} primary BCP 47 primary language subtag (e.g. 'de')
+ * @param {string} code The sole existing variant (e.g. 'de-DE')
+ * @param {string} name Family display name (e.g. 'German')
+ * @returns {string} File content
+ */
+function generateAliasFile(primary, code, name) {
+  return `/**
+ * ${name} (bare-tag alias)
+ *
+ * \`${primary}\` resolves to ${code}, currently the only ${name} variant this
+ * package implements. This file exists purely so \`n2words/${primary}\` works
+ * without requiring a region subtag; it is not a claim that ${code} speaks
+ * for every ${name}-speaking region. See docs/bare-tag-aliases.md for the
+ * full rationale and LANGUAGES.md for the complete family/variant table.
+ */
+
+export * from './${code}.js'
+
+export const aliasOf = '${code}'
+`
+}
+
 // ============================================================================
 // File Update Functions
 // ============================================================================
@@ -626,6 +673,19 @@ async function main() {
   const langFilePath = `./src/${code}.js`
   const fixtureFilePath = `./test/fixtures/${code}.js`
 
+  // Bare (no region/script subtag) codes are reserved for auto-generated
+  // bare-tag alias files (see docs/bare-tag-aliases.md) — a real
+  // implementation always carries a region or script subtag. Without this,
+  // a typo'd `lang:add -- de` would scaffold a full implementation at the
+  // exact path the alias-completeness gate (test/bare-tag-contract.test.js)
+  // expects to be a thin re-export.
+  if (!existsSync(langFilePath) && !code.includes('-')) {
+    console.error(chalk.red(`"${code}" has no region/script subtag — bare codes are reserved for bare-tag aliases.`))
+    console.log(chalk.gray(`Scaffold a region/script-qualified variant instead (e.g. "${code}-XX"); its bare-tag alias is created automatically when it's the first ${code}-* variant.`))
+    process.exitCode = 1
+    return
+  }
+
   // Check existing implementation (read from real exports, not source text).
   // "New language" means the FILE doesn't exist — never "the import returned no
   // forms": a work-in-progress file with a syntax error imports as zero forms,
@@ -710,6 +770,24 @@ async function main() {
     }
     writeFileSync(fixtureFilePath, generateTestFixture(code, languageName, formsToScaffold))
     console.log(chalk.green('✓ Created test fixture'))
+
+    // Bare-tag alias: auto-scaffold one when this is the first variant in
+    // its family (docs/bare-tag-aliases.md's completeness rule). A second+
+    // variant is a human judgment call, not automated — see that doc.
+    const primary = code.split('-')[0]
+    const siblings = getSiblingVariants(primary, code)
+    const aliasFilePath = `./src/${primary}.js`
+    if (siblings.length === 0 && !existsSync(aliasFilePath)) {
+      const familyName = getLanguageName(primary) ?? languageName
+      console.log(chalk.gray(`\nCreating ${aliasFilePath}...`))
+      writeFileSync(aliasFilePath, generateAliasFile(primary, code, familyName))
+      writeFileSync(`./test/fixtures/${primary}.js`, `export * from './${code}.js'\n`)
+      console.log(chalk.green(`✓ Created bare-tag alias: ${primary} -> ${code} (first ${primary}-* variant)`))
+    }
+    else if (siblings.length > 0) {
+      console.log(chalk.yellow(`\nNote: ${primary}-* already has ${siblings.length === 1 ? 'a variant' : 'variants'} (${siblings.join(', ')}).`))
+      console.log(chalk.yellow(`Decide by hand whether ${code} keeps the family "close enough" to share a bare-tag default — see docs/bare-tag-aliases.md.`))
+    }
   }
   else {
     // Add forms to existing files
