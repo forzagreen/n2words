@@ -24,7 +24,11 @@ import { getLanguageName } from '../test/helpers/language-naming.js'
 // ============================================================================
 
 /**
- * Get all language codes from src/ directory.
+ * Get all language codes from src/ directory — canonical languages and
+ * bare-tag aliases alike. Callers that need just one or the other partition
+ * this list themselves once each module is imported (see main()); a plain
+ * directory scan can't tell an alias from a canonical file without reading
+ * its `aliasOf` export.
  *
  * @returns {string[]} Sorted array of language codes
  */
@@ -312,14 +316,45 @@ function formatOptionsTable(options) {
 }
 
 /**
+ * Format the bare-tag alias table — one row per alias, linking to the
+ * target's options anchor when it has one (every current target does, but a
+ * future alias might point at a variant with no options, hence the fallback
+ * to plain code text rather than assuming an anchor always exists).
+ *
+ * @param {Map<string, string>} aliases Alias code -> target code
+ * @param {Map<string, string>} optionAnchors Target code -> anchor (only entries with options)
+ * @param {(code: string) => string} displayName Code -> human-readable name
+ * @returns {string} Markdown section
+ */
+function formatAliasSection(aliases, optionAnchors, displayName) {
+  const lines = [
+    '## Bare-tag aliases',
+    '',
+    'These import paths resolve without a region subtag, for convenience. Each is a',
+    'thin re-export of one specific regional variant — not a new language, and not',
+    'a guess: the target is fixed and documented here.',
+    '',
+    '|Alias|Resolves to|',
+    '|-----|-----------|',
+  ]
+  for (const [alias, target] of [...aliases].sort(([a], [b]) => a.localeCompare(b))) {
+    const anchor = optionAnchors.get(target)
+    const targetRef = anchor ? `[\`${target}\`](#${anchor})` : `\`${target}\``
+    lines.push(`|\`${alias}\`|${targetRef} (${displayName(target)})|`)
+  }
+  return lines.join('\n')
+}
+
+/**
  * Generate the LANGUAGES.md content.
  *
- * @param {string[]} codes Array of language codes
+ * @param {string[]} codes Array of canonical (non-alias) language codes
  * @param {Map<string, Set<string>>} forms Code -> set of exported forms
  * @param {Map<string, Record<string, bigint|null|undefined>>} mods Code -> module namespace (for the *Max range exports)
+ * @param {Map<string, string>} aliases Alias code -> target code
  * @returns {string} Markdown content
  */
-function generateMarkdown(codes, forms, mods) {
+function generateMarkdown(codes, forms, mods, aliases) {
   const hasOrdinal = code => forms.get(code).has('ordinal')
   const hasCurrency = code => forms.get(code).has('currency')
 
@@ -398,6 +433,8 @@ Each form column shows the largest value it converts (\`10^N - 1\`), \`∞\` whe
 
 \\* Has options — click to jump to that language's options.
 
+${formatAliasSection(aliases, optionAnchors, getDisplayName)}
+
 ## Usage
 
 \`\`\`js
@@ -432,18 +469,31 @@ ${optionSections.join('\n\n')}
 // ============================================================================
 
 async function main() {
-  const codes = getLanguageCodes()
+  const allCodes = getLanguageCodes()
+  const allMods = new Map(
+    await Promise.all(allCodes.map(async code => [code, await import(`../src/${code}.js`)])),
+  )
+
+  // Bare-tag alias files (aliasOf exported) are re-exports, not their own
+  // language: excluded from the main table/count/options so they can't
+  // inflate "n2words supports N languages", and surfaced instead as their
+  // own documented section (see formatAliasSection).
+  const codes = allCodes.filter(code => allMods.get(code).aliasOf === undefined)
+  const aliases = new Map(
+    allCodes
+      .filter(code => allMods.get(code).aliasOf !== undefined)
+      .map(code => [code, allMods.get(code).aliasOf]),
+  )
+  const mods = new Map(codes.map(code => [code, allMods.get(code)]))
+
   const forms = new Map(
     await Promise.all(codes.map(async code => [code, await getExportedForms(code)])),
   )
-  const mods = new Map(
-    await Promise.all(codes.map(async code => [code, await import(`../src/${code}.js`)])),
-  )
   optionsIndex = buildOptionsIndex(codes, mods)
-  const markdown = generateMarkdown(codes, forms, mods)
+  const markdown = generateMarkdown(codes, forms, mods, aliases)
 
   writeFileSync('./LANGUAGES.md', markdown)
-  console.log(`✓ Generated LANGUAGES.md (${codes.length} languages)`)
+  console.log(`✓ Generated LANGUAGES.md (${codes.length} languages, ${aliases.size} bare-tag aliases)`)
 }
 
 main()
