@@ -387,10 +387,19 @@ export const yoNG = {
 }
 
 /**
- * ISO 4217 minor-unit decimal exponent, for currencies that diverge from the
- * default of 2 (most currencies). Only overrides are listed; an absent code
- * is assumed to be 2.
- * @type {Record<string, number>}
+ * Currencies whose ISO 4217 minor-unit exponent is 0 — they have no everyday
+ * subunit at all. Only these overrides are listed; an absent code is assumed
+ * to be 2, which covers every other currency n2words names.
+ *
+ * **0 is the only value this map may hold**, and the type says so. n2words
+ * cannot represent a 3-decimal currency (KWD, BHD, OMR and TND divide into
+ * 1000 fils/millimes): `parseCurrencyValue` tracks exactly two decimal digits,
+ * so `'1.500'` reaches a language as 50 minor units, not 500. Adding
+ * `KWD: 3` here would therefore not widen support — it would silently spell
+ * "one dinar and fifty fils" for an amount meaning five hundred. Supporting
+ * one means changing the parser's precision first; until then
+ * `currency-vocab-contract.test.js` fails any entry that isn't 0.
+ * @type {Record<string, 0>}
  */
 export const CURRENCY_EXPONENTS = {
   JPY: 0,
@@ -403,15 +412,26 @@ export const CURRENCY_EXPONENTS = {
 /**
  * Guards a currency amount against a fractional part its currency can't
  * represent — e.g. JPY has no everyday minor unit, so a fractional yen
- * amount should throw rather than spell a fictitious subunit or silently
- * drop it. "Loud beats silent," the same philosophy checkMax and
+ * amount throws rather than spelling a fictitious subunit or silently
+ * dropping it. "Loud beats silent," the same philosophy checkMax and
  * resolveOptions already apply to their own preconditions.
- * @param {bigint} cents - The fractional/minor-unit amount, from parseCurrencyValue
+ *
+ * Scoped to what `parseCurrencyValue` measures: `cents` is the amount's
+ * minor-unit part at that function's two-decimal precision, so this guard
+ * fires on any fraction of 0.01 or more. A finer input (`'1.004'`) was
+ * already truncated before arriving here and is *not* an error — see
+ * parseCurrencyValue's "Precision" note for why two digits is the contract,
+ * and why no supported currency can lose anything to it.
+ *
+ * Callers that reach a `minor: null` currency's word list rely on this: a
+ * nonzero minor part is impossible past this point for such a currency, which
+ * is what licenses narrowing `minor` to `string[]` inside a `cents > 0n` branch.
+ * @param {bigint} cents - The minor-unit amount, from parseCurrencyValue
  * @param {string} currencyCode - The resolved ISO 4217 code
  * @throws {RangeError} If the currency has no minor unit and cents is nonzero
  */
 export function assertCurrencyExponent(cents, currencyCode) {
-  if (cents !== 0n && (CURRENCY_EXPONENTS[currencyCode] ?? 2) === 0) {
+  if (cents !== 0n && CURRENCY_EXPONENTS[currencyCode] === 0) {
     throw new RangeError(`${currencyCode} has no minor unit — fractional amounts aren't representable`)
   }
 }
