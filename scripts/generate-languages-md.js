@@ -370,7 +370,11 @@ function formatFamilyTable(families, aliases, optionAnchors, displayName) {
     const variants = families.get(primary)
     const entryTarget = aliases.get(primary)
     const entryCell = entryTarget ? ref(primary, entryTarget) : '—'
-    const variantCells = variants.map(v => v === entryTarget ? `${ref(v)} (default)` : ref(v))
+    // `(default)` only means something when there's more than one variant to
+    // be the default *among* — marking the sole variant of a single-variant
+    // family would contradict the note printed under the table.
+    const markDefault = variants.length > 1
+    const variantCells = variants.map(v => markDefault && v === entryTarget ? `${ref(v)} (default)` : ref(v))
     lines.push(`|${entryCell}|${displayName(primary)}|${variantCells.join(', ')}|`)
   }
   return lines.join('\n')
