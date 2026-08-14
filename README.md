@@ -7,7 +7,7 @@
 [![npm downloads](https://img.shields.io/npm/dw/n2words)](https://npmjs.com/package/n2words)
 [![jsDelivr](https://img.shields.io/jsdelivr/npm/hm/n2words)](https://www.jsdelivr.com/package/npm/n2words)
 
-**Numbers to words. 70+ languages. Zero dependencies.**
+**Numbers to words. 50+ languages. Zero dependencies.**
 
 ## Why n2words?
 
@@ -15,7 +15,7 @@
 - **Tree-Shakeable** — Import only what you need. Unused exports are eliminated by modern bundlers.
 - **Tiny Bundles** — ~2 KB gzipped per language (with all forms). No bloat.
 - **Multiple Forms** — Cardinal ("forty-two"), ordinal ("forty-second"), and currency ("forty-two dollars")
-- **70+ Languages** — European, Asian, Middle Eastern, African, and regional variants
+- **50+ Languages** — European, Asian, Middle Eastern, African, and more — most importable via a single bare-tag code (`n2words/de`), no region required
 - **Zero Dependencies** — Works everywhere: Node.js, browsers, Deno, Bun
 - **BigInt Support** — Accepts `bigint` (and numeric-string) input, so large values keep full precision
 - **Type-Safe** — Full TypeScript support with generated `.d.ts` declarations
@@ -27,8 +27,8 @@ npm install n2words
 ```
 
 ```js
-import { toCardinal } from 'n2words/en-US'
-import { toCardinal as es } from 'n2words/es-ES'
+import { toCardinal } from 'n2words/en'
+import { toCardinal as es } from 'n2words/es'
 
 toCardinal(42)   // 'forty-two'
 es(42)           // 'cuarenta y dos'
@@ -45,7 +45,7 @@ n2words converts numbers to words in multiple forms:
 | Currency | `toCurrency(42.50)`  | "forty-two dollars and fifty cents" |
 
 ```js
-import { toCardinal, toOrdinal, toCurrency } from 'n2words/en-US'
+import { toCardinal, toOrdinal, toCurrency } from 'n2words/en'
 
 toCardinal(1234)      // 'one thousand two hundred thirty-four'
 toOrdinal(1234)       // 'one thousand two hundred thirty-fourth'
@@ -54,7 +54,10 @@ toCurrency(1234.56)   // 'one thousand two hundred thirty-four dollars and fifty
 
 A currency-supporting language can also name an amount in a currency other than its own
 default, via the `currency` option — the set of currencies it knows is validated, so an
-unsupported code throws rather than silently guessing:
+unsupported code throws rather than silently guessing. `pt-BR` is one of the few languages
+with no bare-tag entry point (Brazilian and European Portuguese use different numbering
+systems, not just different currencies — see [LANGUAGES.md](LANGUAGES.md)), so it's
+imported by its full code:
 
 ```js
 import { toCurrency } from 'n2words/pt-BR'
@@ -73,32 +76,40 @@ Each language implements one or more of these forms — see [LANGUAGES.md](LANGU
 **ESM (Node.js, modern bundlers):**
 
 ```js
-import { toCardinal } from 'n2words/en-US'            // Single form
-import { toCardinal, toOrdinal } from 'n2words/en-US' // Multiple forms
-import { toCardinal as fr } from 'n2words/fr-FR'       // Aliased import
+import { toCardinal } from 'n2words/de'            // Single form, bare-tag entry point
+import { toCardinal, toOrdinal } from 'n2words/de' // Multiple forms
+import { toCardinal as fr } from 'n2words/fr'       // Aliased import
 ```
 
-A handful of bare BCP 47 tags also resolve, without a region subtag —
-`n2words/en`, `n2words/fr`, `n2words/ar`, `n2words/es` — each a documented alias for one
-specific regional variant (see "Bare-tag aliases" in [LANGUAGES.md](LANGUAGES.md)). Every
-other language stays region-qualified, since its variants genuinely diverge in default
-currency or script.
+Most languages are imported this way — a bare BCP 47 primary subtag
+(`n2words/de`, `n2words/en`, `n2words/fr`, ...), no region required. Each bare
+tag is a documented alias for one specific regional/script variant (see
+[LANGUAGES.md](LANGUAGES.md)'s "Languages" table for the full list and each
+one's default). Import the full region/script-qualified code instead when you
+need a *specific* variant (`n2words/en-GB`, `n2words/fr-BE`) or when the
+language has no single safe default — a handful of languages whose variants
+genuinely diverge in script or core numbering grammar (Chinese, Portuguese,
+Serbian, Amharic) require the full code:
+
+```js
+import { toCardinal } from 'n2words/zh-Hans-CN'
+```
 
 **Browser (CDN):**
 
 ```html
 <!-- ESM (recommended) -->
 <script type="module">
-  import { toCardinal } from 'https://cdn.jsdelivr.net/npm/n2words/dist/en-US.js'
+  import { toCardinal } from 'https://cdn.jsdelivr.net/npm/n2words/dist/en.js'
   console.log(toCardinal(42))  // 'forty-two'
 </script>
 
 <!-- UMD (legacy script tags) -->
-<script src="https://cdn.jsdelivr.net/npm/n2words/dist/en-US.umd.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/n2words/dist/en.umd.js"></script>
 <script>
-  n2words.enUS(42)              // 'forty-two'
-  n2words.ordinal.enUS(42)      // 'forty-second'
-  n2words.currency.enUS(42.50)  // 'forty-two dollars and fifty cents'
+  n2words.en(42)              // 'forty-two'
+  n2words.ordinal.en(42)      // 'forty-second'
+  n2words.currency.en(42.50)  // 'forty-two dollars and fifty cents'
 </script>
 ```
 

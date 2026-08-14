@@ -5,19 +5,25 @@ n2words: Number to words converter. ESM + UMD, Node >=22, zero dependencies.
 ## Quick Reference
 
 - **Language codes**: IETF BCP 47 (`en-US`, `zh-Hans-CN`, `fr-BE`)
-- **Imports**: `import { toCardinal, toOrdinal, toCurrency } from 'n2words/en-US'`
-- **Bare-tag aliases**: `n2words/en`, `n2words/fr`, `n2words/ar`, `n2words/es` resolve without a
-  region subtag, to one documented default variant each (see "Bare-tag aliases" in `LANGUAGES.md`).
-  Not every language has one — a family whose variants diverge in default currency or script
-  (`zh`, `pt`, `sr`, `am`) stays region/script-qualified only.
+- **"Language" means BCP 47 primary subtag, not regional/script variant**: English is one
+  language with 16 variants, not 16 languages — see `LANGUAGES.md`'s headline count and its
+  "Languages" (family) table vs. "All Regional Variants" (flat per-code) table.
+- **Imports**: bare-tag entry point is primary — `import { toCardinal, toOrdinal, toCurrency } from 'n2words/en'`.
+  Region/script-qualified codes (`n2words/en-GB`) always work too, and are required for the few
+  languages with no entry point.
+- **Bare-tag aliases**: every language whose variants aren't "very different" (different script,
+  or a fundamentally different core numbering system — not just vocabulary or currency) has one,
+  resolving without a region subtag to one documented default variant. `zh`, `pt`, `sr`, `am` are
+  the current exceptions and stay region/script-qualified only. Full rule, worked examples, and
+  the enforcing gate: `docs/bare-tag-aliases.md`.
 - **Forms**: Cardinal (`toCardinal`), Ordinal (`toOrdinal`), Currency (`toCurrency`)
 
 ## Project Structure
 
 ```text
 src/
-├── {lang-code}.js       # One file per language (70+)
-├── en.js, fr.js, ar.js, es.js  # Bare-tag aliases: `export * from './{target}.js'` + `aliasOf`
+├── {lang-code}.js       # One file per region/script variant (70+)
+├── {primary-subtag}.js  # Bare-tag aliases (46): `export * from './{target}.js'` + `aliasOf`
 └── utils/
     ├── parse-cardinal.js    # Cardinal form parsing (decimals, negatives)
     ├── parse-ordinal.js     # Ordinal form parsing (positive integers only)
@@ -175,6 +181,12 @@ default". Boolean/free-string forms omit the `<form>Values` argument.
 npm run lang:add -- <code>  # Creates stub + fixture, regenerates LANGUAGES.md
 ```
 
+`<code>` must carry a region/script subtag (`ko-KR`, not `ko`) — bare codes are reserved for
+alias files. When `<code>` is the first variant in its family, `lang:add` **also** scaffolds its
+bare-tag alias (`src/{primary}.js` + fixture) automatically. When it joins an existing family, it
+prints a note instead — repointing or dropping an existing alias is a human judgment call (see
+`docs/bare-tag-aliases.md`), not something the tool guesses at.
+
 Then: implement the form(s) you're adding (`toCardinal`, `toOrdinal`, and/or `toCurrency` — at least one) in `src/{code}.js` — **including the `*Max` declarations and `checkMax` guards** (see Language File Pattern) — add cases to `test/fixtures/{code}.js`, run `npm test`.
 
 A new language must clear these enforced gates (in `test/`):
@@ -183,6 +195,7 @@ A new language must clear these enforced gates (in `test/`):
 - **Range** (`range-contract.test.js`): every exported form **must** declare its `*Max` (helper-derived or `UNBOUNDED`) — a form without one fails — and uphold it: well-formed and injective across the range, throwing exactly at a finite ceiling.
 - **Options** (`options-contract.test.js`): every options-taking form **must** export its `<form>Defaults` (see Options Pattern) — declared defaults round-trip, malformed options throw `TypeError`, out-of-set enum values throw `RangeError`.
 - **Currency vocab** (`currency-vocab-contract.test.js`, currency-exporting languages only): a declared `currencyValues.currency` enum must have a matching entry in `src/utils/currency-vocab.js` for every code it lists (see `docs/currency-vocab.md`).
+- **Bare-tag alias** (`bare-tag-contract.test.js`): a family with exactly one variant **must** have a matching alias file; every alias's re-exported bindings must be reference-identical to its target's (see `docs/bare-tag-aliases.md`).
 - **Coverage** (`conversions.test.js`): ≥5 fixture cases per form.
 - **Canonical code** (`conversions.test.js`): the filename is canonical BCP 47 (`en-US`, not `en-us`).
 
