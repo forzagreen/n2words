@@ -14,6 +14,8 @@ import { parseCardinalValue } from './utils/parse-cardinal.js'
 import { parseCurrencyValue } from './utils/parse-currency.js'
 import { parseOrdinalValue } from './utils/parse-ordinal.js'
 import { UNBOUNDED } from './utils/scale.js'
+import { resolveOptions } from './utils/resolve-options.js'
+import { huHU as CURRENCY_VOCAB, assertCurrencyExponent } from './utils/currency-vocab.js'
 
 // No fixed scale ceiling — the speller composes every magnitude.
 export const cardinalMax = UNBOUNDED
@@ -108,13 +110,6 @@ const ORDINAL_SPECIAL = {
   100: 'századik',
   1000: 'ezredik',
 }
-
-// ============================================================================
-// Currency Vocabulary (Hungarian Forint)
-// ============================================================================
-
-const FORINT = 'forint' // same singular and plural
-const FILLER = 'fillér' // subunit (rarely used, same singular and plural)
 
 // ============================================================================
 // Conversion Functions
@@ -364,11 +359,23 @@ function toOrdinal(value) {
 // ============================================================================
 
 /**
+ * @typedef {object} CurrencyOptions
+ * @property {('HUF')} [currency] - ISO 4217 currency code to name the amount in
+ */
+
+/** @type {Required<CurrencyOptions>} */
+export const currencyDefaults = { currency: 'HUF' }
+
+/** @type {{ currency: ReadonlyArray<Required<CurrencyOptions>['currency']> }} */
+export const currencyValues = { currency: /** @type {Required<CurrencyOptions>['currency'][]} */ (Object.keys(CURRENCY_VOCAB)) }
+
+/**
  * Converts a numeric value to Hungarian currency words (Hungarian Forint).
  *
  * Uses forint (no plural form needed in Hungarian).
  * Fillér (1/100) is rarely used but included for completeness.
  * @param {number | string | bigint} value - The currency amount to convert
+ * @param {CurrencyOptions} [options] - Optional configuration
  * @returns {string} The amount in Hungarian currency words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {Error} If value is not a valid number format
@@ -377,8 +384,11 @@ function toOrdinal(value) {
  * toCurrency(1.50)   // 'egy forint ötven fillér'
  * toCurrency(-5)     // 'mínusz öt forint'
  */
-function toCurrency(value) {
+function toCurrency(value, options) {
   const { isNegative, dollars: forint, cents: filler } = parseCurrencyValue(value)
+  const { currency } = resolveOptions(options, currencyDefaults, currencyValues)
+  assertCurrencyExponent(filler, currency)
+  const { major, minor } = CURRENCY_VOCAB[currency]
 
   let result = ''
   if (isNegative) {
@@ -387,7 +397,7 @@ function toCurrency(value) {
 
   // Forint part
   if (forint > 0n || filler === 0n) {
-    result += integerToWords(forint) + ' ' + FORINT
+    result += integerToWords(forint) + ' ' + major[0]
   }
 
   // Fillér part
@@ -395,7 +405,7 @@ function toCurrency(value) {
     if (forint > 0n) {
       result += ' '
     }
-    result += integerToWords(filler) + ' ' + FILLER
+    result += integerToWords(filler) + ' ' + (/** @type {string[]} */ (minor))[0]
   }
 
   return result

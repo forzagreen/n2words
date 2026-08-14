@@ -15,6 +15,8 @@ import { parseCurrencyValue } from './utils/parse-currency.js'
 import { parseOrdinalValue } from './utils/parse-ordinal.js'
 import { checkMax } from './utils/check-max.js'
 import { western } from './utils/scale.js'
+import { resolveOptions } from './utils/resolve-options.js'
+import { filPH as CURRENCY_VOCAB, assertCurrencyExponent } from './utils/currency-vocab.js'
 
 // ============================================================================
 // Vocabulary
@@ -51,13 +53,6 @@ const ORDINAL_SPECIAL = {
   1: 'una', // first
   2: 'ikalawa', // second (contracted form)
 }
-
-// ============================================================================
-// Currency Vocabulary (Philippine Peso)
-// ============================================================================
-
-const PESO = 'piso'
-const SENTIMO = 'sentimo'
 
 // ============================================================================
 // Helper Functions
@@ -298,10 +293,22 @@ function toOrdinal(value) {
 // ============================================================================
 
 /**
+ * @typedef {object} CurrencyOptions
+ * @property {('PHP')} [currency] - ISO 4217 currency code to name the amount in
+ */
+
+/** @type {Required<CurrencyOptions>} */
+export const currencyDefaults = { currency: 'PHP' }
+
+/** @type {{ currency: ReadonlyArray<Required<CurrencyOptions>['currency']> }} */
+export const currencyValues = { currency: /** @type {Required<CurrencyOptions>['currency'][]} */ (Object.keys(CURRENCY_VOCAB)) }
+
+/**
  * Converts a numeric value to Filipino currency words (Philippine Peso).
  *
  * Uses piso (peso) and sentimo (centavo).
  * @param {number | string | bigint} value - The currency amount to convert
+ * @param {CurrencyOptions} [options] - Optional configuration
  * @returns {string} The amount in Filipino currency words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {Error} If value is not a valid number format
@@ -310,9 +317,14 @@ function toOrdinal(value) {
  * toCurrency(1.50)   // 'isang piso at limampung sentimo'
  * toCurrency(-5)     // 'negatibo limang piso'
  */
-function toCurrency(value) {
+function toCurrency(value, options) {
   const { isNegative, dollars: pesos, cents: sentimos } = parseCurrencyValue(value)
   checkMax(pesos, currencyMax)
+  const { currency } = resolveOptions(options, currencyDefaults, currencyValues)
+  assertCurrencyExponent(sentimos, currency)
+  const { major, minor } = CURRENCY_VOCAB[currency]
+  const PESO = major[0]
+  const SENTIMO = (/** @type {string[]} */ (minor))[0]
 
   let result = ''
   if (isNegative) {
