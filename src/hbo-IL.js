@@ -482,9 +482,6 @@ function toCurrency(value, options) {
   const { currency } = resolveOptions(options, currencyDefaults, currencyValues)
   assertCurrencyExponent(cents, currency)
   const { major, minor } = CURRENCY_VOCAB[currency]
-  // assertCurrencyExponent already guarantees cents is 0n whenever minor is
-  // null, so any branch reading minor here implies a real array.
-  const minorForms = /** @type {string[]} */ (minor)
 
   const parts = []
 
@@ -508,6 +505,9 @@ function toCurrency(value, options) {
 
   // Gerah (feminine subunit)
   if (cents > 0n) {
+    // assertCurrencyExponent already guaranteed cents is 0n whenever minor is
+    // null, so reaching this branch implies a real array.
+    const minorForms = /** @type {string[]} */ (minor)
     const centNum = Number(cents)
     if (centNum === 1) {
       parts.push(minorForms[0] + ' ' + ONES_FEM[1])

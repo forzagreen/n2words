@@ -374,9 +374,6 @@ function toCurrency(value, options) {
   const { currency } = resolveOptions(options, currencyDefaults, currencyValues)
   assertCurrencyExponent(halalas, currency)
   const { major, minor } = CURRENCY_VOCAB[currency]
-  // assertCurrencyExponent already guarantees halalas is 0n whenever minor is
-  // null, so any branch reading minor here implies a real array.
-  const minorForms = /** @type {string[]} */ (minor)
 
   // Build result
   let result = ''
@@ -399,6 +396,9 @@ function toCurrency(value, options) {
 
   // Halalas part
   if (halalas > 0n) {
+    // assertCurrencyExponent already guaranteed halalas is 0n whenever minor
+    // is null, so reaching this branch implies a real array.
+    const minorForms = /** @type {string[]} */ (minor)
     if (riyals > 0n) {
       result += ' ' + AND
     }
