@@ -317,6 +317,75 @@ export const ptPT = {
   EUR: { major: ['euro', 'euros'], minor: ['cêntimo', 'cêntimos'] },
 }
 
+// Azerbaijani Manat/Qəpik — both invariable (no plural distinction) in
+// Azerbaijani currency speech.
+/** @type {Record<string, CurrencyWordForms>} */
+export const azAZ = {
+  AZN: { major: ['manat'], minor: ['qəpik'] },
+}
+
+// Greek Euro/Λεπτό: euro is indeclinable (same singular/plural form used at
+// both indices); lepto uses [singular, plural] — el-GR's own toCurrency
+// selects the index.
+/** @type {Record<string, CurrencyWordForms>} */
+export const elGR = {
+  EUR: { major: ['ευρώ', 'ευρώ'], minor: ['λεπτό', 'λεπτά'] },
+}
+
+// Philippine Peso/Sentimo (Filipino) — both invariable in Filipino currency
+// speech. Distinct from en-PH, which uses different (English) words.
+/** @type {Record<string, CurrencyWordForms>} */
+export const filPH = {
+  PHP: { major: ['piso'], minor: ['sentimo'] },
+}
+
+// Nigerian Naira/Kobo (Hausa) — both invariable. Distinct export from en-NG
+// and yo-NG, which use different words for the same ISO code.
+/** @type {Record<string, CurrencyWordForms>} */
+export const haNG = {
+  NGN: { major: ['naira'], minor: ['kobo'] },
+}
+
+// Hungarian Forint/Fillér — both invariable (no plural form in Hungarian
+// currency speech). Fillér is rarely used but included for completeness.
+/** @type {Record<string, CurrencyWordForms>} */
+export const huHU = {
+  HUF: { major: ['forint'], minor: ['fillér'] },
+}
+
+// Malaysian Ringgit/Sen — both invariable. Distinct from en-MY, which uses
+// different (English) words.
+/** @type {Record<string, CurrencyWordForms>} */
+export const msMY = {
+  MYR: { major: ['ringgit'], minor: ['sen'] },
+}
+
+// Kenyan Shilling/Cent (Swahili) — both invariable. Distinct from en-KE,
+// which uses different (English) words.
+/** @type {Record<string, CurrencyWordForms>} */
+export const swKE = {
+  KES: { major: ['shilingi'], minor: ['senti'] },
+}
+
+// Thai Baht/Satang — both invariable (Thai has no plural marking).
+/** @type {Record<string, CurrencyWordForms>} */
+export const thTH = {
+  THB: { major: ['บาท'], minor: ['สตางค์'] },
+}
+
+// Turkish Lira/Kuruş — both invariable.
+/** @type {Record<string, CurrencyWordForms>} */
+export const trTR = {
+  TRY: { major: ['lira'], minor: ['kuruş'] },
+}
+
+// Nigerian Naira/Kobo (Yoruba) — both invariable, distinct spelling/tone
+// marks from ha-NG and en-NG.
+/** @type {Record<string, CurrencyWordForms>} */
+export const yoNG = {
+  NGN: { major: ['náírà'], minor: ['kọ́bọ̀'] },
+}
+
 /**
  * ISO 4217 minor-unit decimal exponent, for currencies that diverge from the
  * default of 2 (most currencies). Only overrides are listed; an absent code

@@ -20,6 +20,8 @@ import { parseCardinalValue } from './utils/parse-cardinal.js'
 import { parseCurrencyValue } from './utils/parse-currency.js'
 import { parseOrdinalValue } from './utils/parse-ordinal.js'
 import { UNBOUNDED } from './utils/scale.js'
+import { resolveOptions } from './utils/resolve-options.js'
+import { yoNG as CURRENCY_VOCAB, assertCurrencyExponent } from './utils/currency-vocab.js'
 
 // No fixed scale ceiling — the vigesimal speller composes every magnitude.
 export const cardinalMax = UNBOUNDED
@@ -130,13 +132,6 @@ const AND = 'ó lé' // "and" / "plus" connector
 const ORDINAL_FIRST = 'àkọ́kọ́' // first
 const ORDINAL_SECOND = 'ìkejì' // second
 const ORDINAL_PREFIX = 'ìkẹ'
-
-// ============================================================================
-// Currency Vocabulary (Nigerian Naira)
-// ============================================================================
-
-const NAIRA = 'náírà'
-const KOBO = 'kọ́bọ̀'
 
 // ============================================================================
 // Segment Building
@@ -380,10 +375,22 @@ function toOrdinal(value) {
 // ============================================================================
 
 /**
+ * @typedef {object} CurrencyOptions
+ * @property {('NGN')} [currency] - ISO 4217 currency code to name the amount in
+ */
+
+/** @type {Required<CurrencyOptions>} */
+export const currencyDefaults = { currency: 'NGN' }
+
+/** @type {{ currency: ReadonlyArray<Required<CurrencyOptions>['currency']> }} */
+export const currencyValues = { currency: /** @type {Required<CurrencyOptions>['currency'][]} */ (Object.keys(CURRENCY_VOCAB)) }
+
+/**
  * Converts a numeric value to Yoruba currency words (Nigerian Naira).
  *
  * Uses náírà (naira) and kọ́bọ̀ (kobo).
  * @param {number | string | bigint} value - The currency amount to convert
+ * @param {CurrencyOptions} [options] - Optional configuration
  * @returns {string} The amount in Yoruba currency words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {Error} If value is not a valid number format
@@ -392,8 +399,11 @@ function toOrdinal(value) {
  * toCurrency(1.50)   // 'ọ̀kan náírà àti àádọ́ta kọ́bọ̀'
  * toCurrency(-5)     // 'àìní àrùn náírà'
  */
-function toCurrency(value) {
+function toCurrency(value, options) {
   const { isNegative, dollars: naira, cents: kobo } = parseCurrencyValue(value)
+  const { currency } = resolveOptions(options, currencyDefaults, currencyValues)
+  assertCurrencyExponent(kobo, currency)
+  const { major, minor } = CURRENCY_VOCAB[currency]
 
   let result = ''
   if (isNegative) {
@@ -402,7 +412,7 @@ function toCurrency(value) {
 
   // Naira part
   if (naira > 0n || kobo === 0n) {
-    result += integerToWords(naira) + ' ' + NAIRA
+    result += integerToWords(naira) + ' ' + major[0]
   }
 
   // Kobo part
@@ -410,7 +420,7 @@ function toCurrency(value) {
     if (naira > 0n) {
       result += ' àti '
     }
-    result += integerToWords(kobo) + ' ' + KOBO
+    result += integerToWords(kobo) + ' ' + (/** @type {string[]} */ (minor))[0]
   }
 
   return result

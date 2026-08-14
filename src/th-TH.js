@@ -15,6 +15,8 @@ import { parseCardinalValue } from './utils/parse-cardinal.js'
 import { parseCurrencyValue } from './utils/parse-currency.js'
 import { parseOrdinalValue } from './utils/parse-ordinal.js'
 import { UNBOUNDED } from './utils/scale.js'
+import { resolveOptions } from './utils/resolve-options.js'
+import { thTH as CURRENCY_VOCAB, assertCurrencyExponent } from './utils/currency-vocab.js'
 
 // Thai spells large numbers by repeating ล้าน (10^6), so every form is
 // magnitude-preserving with no fixed ceiling. Declared per form so the gate
@@ -43,9 +45,7 @@ const ORDINAL_PREFIX = 'ที่'
 // Currency Vocabulary (Thai Baht)
 // ============================================================================
 
-const BAHT = 'บาท'
-const SATANG = 'สตางค์'
-const BAHT_ONLY = 'ถ้วน' // "exactly" suffix when no satang
+const BAHT_ONLY = 'ถ้วน' // "exactly" suffix when no satang; grammar, not a currency name
 
 // ============================================================================
 // Conversion Functions
@@ -233,11 +233,23 @@ function toOrdinal(value) {
 // ============================================================================
 
 /**
+ * @typedef {object} CurrencyOptions
+ * @property {('THB')} [currency] - ISO 4217 currency code to name the amount in
+ */
+
+/** @type {Required<CurrencyOptions>} */
+export const currencyDefaults = { currency: 'THB' }
+
+/** @type {{ currency: ReadonlyArray<Required<CurrencyOptions>['currency']> }} */
+export const currencyValues = { currency: /** @type {Required<CurrencyOptions>['currency'][]} */ (Object.keys(CURRENCY_VOCAB)) }
+
+/**
  * Converts a numeric value to Thai currency words (Baht).
  *
  * Thai Baht uses satang as subunit (100 satang = 1 baht).
  * When whole amounts, adds "ถ้วน" (exactly) suffix.
  * @param {number | string | bigint} value - The currency amount to convert
+ * @param {CurrencyOptions} [options] - Optional configuration
  * @returns {string} The amount in Thai currency words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {Error} If value is not a valid number format
@@ -246,8 +258,11 @@ function toOrdinal(value) {
  * toCurrency(1.50)   // 'หนึ่งบาทห้าสิบสตางค์'
  * toCurrency(-5)     // 'ลบห้าบาทถ้วน'
  */
-function toCurrency(value) {
+function toCurrency(value, options) {
   const { isNegative, dollars: baht, cents: satang } = parseCurrencyValue(value)
+  const { currency } = resolveOptions(options, currencyDefaults, currencyValues)
+  assertCurrencyExponent(satang, currency)
+  const { major, minor } = CURRENCY_VOCAB[currency]
 
   let result = ''
   if (isNegative) {
@@ -256,12 +271,12 @@ function toCurrency(value) {
 
   // Baht part - always show
   result += integerToWords(baht)
-  result += BAHT
+  result += major[0]
 
   // Satang part or "exactly" suffix
   if (satang > 0n) {
     result += integerToWords(satang)
-    result += SATANG
+    result += (/** @type {string[]} */ (minor))[0]
   }
   else {
     result += BAHT_ONLY

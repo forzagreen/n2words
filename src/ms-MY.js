@@ -15,6 +15,8 @@ import { parseCurrencyValue } from './utils/parse-currency.js'
 import { parseOrdinalValue } from './utils/parse-ordinal.js'
 import { checkMax } from './utils/check-max.js'
 import { western } from './utils/scale.js'
+import { resolveOptions } from './utils/resolve-options.js'
+import { msMY as CURRENCY_VOCAB, assertCurrencyExponent } from './utils/currency-vocab.js'
 
 // ============================================================================
 // Vocabulary
@@ -44,13 +46,6 @@ const DECIMAL_SEP = 'perpuluhan'
 const ORDINAL_PREFIX = 'ke'
 // First is special: "pertama" (not "kesatu")
 const ORDINAL_FIRST = 'pertama'
-
-// ============================================================================
-// Currency Vocabulary (Malaysian Ringgit)
-// ============================================================================
-
-const RINGGIT = 'ringgit'
-const SEN = 'sen'
 
 // ============================================================================
 // Segment Building
@@ -291,10 +286,22 @@ function toOrdinal(value) {
 // ============================================================================
 
 /**
+ * @typedef {object} CurrencyOptions
+ * @property {('MYR')} [currency] - ISO 4217 currency code to name the amount in
+ */
+
+/** @type {Required<CurrencyOptions>} */
+export const currencyDefaults = { currency: 'MYR' }
+
+/** @type {{ currency: ReadonlyArray<Required<CurrencyOptions>['currency']> }} */
+export const currencyValues = { currency: /** @type {Required<CurrencyOptions>['currency'][]} */ (Object.keys(CURRENCY_VOCAB)) }
+
+/**
  * Converts a numeric value to Malay currency words (Ringgit).
  *
  * Malaysian Ringgit uses sen as subunit (100 sen = 1 ringgit).
  * @param {number | string | bigint} value - The currency amount to convert
+ * @param {CurrencyOptions} [options] - Optional configuration
  * @returns {string} The amount in Malay currency words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {Error} If value is not a valid number format
@@ -303,9 +310,12 @@ function toOrdinal(value) {
  * toCurrency(1.50)   // 'satu ringgit lima puluh sen'
  * toCurrency(-5)     // 'minus lima ringgit'
  */
-function toCurrency(value) {
+function toCurrency(value, options) {
   const { isNegative, dollars: ringgit, cents: sen } = parseCurrencyValue(value)
   checkMax(ringgit, currencyMax)
+  const { currency } = resolveOptions(options, currencyDefaults, currencyValues)
+  assertCurrencyExponent(sen, currency)
+  const { major, minor } = CURRENCY_VOCAB[currency]
 
   let result = ''
   if (isNegative) {
@@ -315,7 +325,7 @@ function toCurrency(value) {
   // Ringgit part - show if non-zero, or if no sen
   if (ringgit > 0n || sen === 0n) {
     result += integerToWords(ringgit)
-    result += ' ' + RINGGIT
+    result += ' ' + major[0]
   }
 
   // Sen part
@@ -324,7 +334,7 @@ function toCurrency(value) {
       result += ' '
     }
     result += integerToWords(sen)
-    result += ' ' + SEN
+    result += ' ' + (/** @type {string[]} */ (minor))[0]
   }
 
   return result
