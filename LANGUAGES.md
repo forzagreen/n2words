@@ -2,11 +2,106 @@
 
 > **Auto-generated** — Do not edit manually. Run `npm run docs:languages` to update.
 
-n2words supports **72 languages** with cardinal number conversion, 72 with ordinal support, 72 with currency support.
+n2words supports **50 languages** (72 regional/script variants total) with
+cardinal number conversion, 72 variants with ordinal support, 72 variants
+with currency support.
+
+46 languages have a **bare-tag entry point** that resolves without a region
+subtag (e.g. `n2words/de`) — this is the primary, recommended way to import
+them. The other 4 require picking a specific variant explicitly, because
+their variants genuinely diverge in script or core numbering grammar, not
+just vocabulary — see [docs/bare-tag-aliases.md](docs/bare-tag-aliases.md).
 
 Language codes follow [IETF BCP 47](https://tools.ietf.org/html/bcp47) standards.
 
-## All Languages
+## Languages
+
+|Entry point|Language|Variants|
+|-----------|--------|--------|
+|—|Amharic|`am-ET`, `am-Latn-ET`|
+|[`ar`](#arabic-saudi-arabia-ar-sa)|Arabic|[`ar-SA`](#arabic-saudi-arabia-ar-sa) (default)|
+|`az`|Azerbaijani|`az-AZ` (default)|
+|`bn`|Bangla|`bn-BD` (default)|
+|[`hbo`](#biblical-hebrew-israel-hbo-il)|Biblical Hebrew|[`hbo-IL`](#biblical-hebrew-israel-hbo-il) (default)|
+|—|Chinese|[`zh-Hans-CN`](#chinese-simplified-china-zh-hans-cn), [`zh-Hant-TW`](#chinese-traditional-taiwan-zh-hant-tw)|
+|[`hr`](#croatian-croatia-hr-hr)|Croatian|[`hr-HR`](#croatian-croatia-hr-hr) (default)|
+|`cs`|Czech|`cs-CZ` (default)|
+|`da`|Danish|`da-DK` (default)|
+|[`nl`](#dutch-netherlands-nl-nl)|Dutch|[`nl-NL`](#dutch-netherlands-nl-nl) (default)|
+|[`en`](#american-english-en-us)|English|[`en-AU`](#australian-english-en-au), [`en-BD`](#english-bangladesh-en-bd), [`en-CA`](#canadian-english-en-ca), [`en-GB`](#british-english-en-gb), [`en-GH`](#english-ghana-en-gh), [`en-IE`](#english-ireland-en-ie), [`en-IN`](#english-india-en-in), [`en-KE`](#english-kenya-en-ke), [`en-MY`](#english-malaysia-en-my), [`en-NG`](#english-nigeria-en-ng), [`en-NZ`](#english-new-zealand-en-nz), [`en-PH`](#english-philippines-en-ph), [`en-PK`](#english-pakistan-en-pk), [`en-SG`](#english-singapore-en-sg), [`en-US`](#american-english-en-us) (default), [`en-ZA`](#english-south-africa-en-za)|
+|`fil`|Filipino|`fil-PH` (default)|
+|`fi`|Finnish|`fi-FI` (default)|
+|[`fr`](#french-france-fr-fr)|French|[`fr-BE`](#french-belgium-fr-be), [`fr-FR`](#french-france-fr-fr) (default)|
+|`ka`|Georgian|`ka-GE` (default)|
+|[`de`](#german-germany-de-de)|German|[`de-DE`](#german-germany-de-de) (default)|
+|`el`|Greek|`el-GR` (default)|
+|`gu`|Gujarati|`gu-IN` (default)|
+|`ha`|Hausa|`ha-NG` (default)|
+|[`he`](#hebrew-israel-he-il)|Hebrew|[`he-IL`](#hebrew-israel-he-il) (default)|
+|`hi`|Hindi|`hi-IN` (default)|
+|`hu`|Hungarian|`hu-HU` (default)|
+|`id`|Indonesian|`id-ID` (default)|
+|[`it`](#italian-italy-it-it)|Italian|[`it-IT`](#italian-italy-it-it) (default)|
+|`ja`|Japanese|`ja-JP` (default)|
+|`kn`|Kannada|`kn-IN` (default)|
+|`ko`|Korean|`ko-KR` (default)|
+|[`lv`](#latvian-latvia-lv-lv)|Latvian|[`lv-LV`](#latvian-latvia-lv-lv) (default)|
+|[`lt`](#lithuanian-lithuania-lt-lt)|Lithuanian|[`lt-LT`](#lithuanian-lithuania-lt-lt) (default)|
+|`ms`|Malay|`ms-MY` (default)|
+|`mr`|Marathi|`mr-IN` (default)|
+|`nb`|Norwegian Bokmål|`nb-NO` (default)|
+|`fa`|Persian|`fa-IR` (default)|
+|[`pl`](#polish-poland-pl-pl)|Polish|[`pl-PL`](#polish-poland-pl-pl) (default)|
+|—|Portuguese|[`pt-BR`](#brazilian-portuguese-pt-br), [`pt-PT`](#european-portuguese-pt-pt)|
+|`pa`|Punjabi|`pa-IN` (default)|
+|[`ro`](#romanian-romania-ro-ro)|Romanian|[`ro-RO`](#romanian-romania-ro-ro) (default)|
+|[`ru`](#russian-russia-ru-ru)|Russian|[`ru-RU`](#russian-russia-ru-ru) (default)|
+|—|Serbian|[`sr-Cyrl-RS`](#serbian-cyrillic-serbia-sr-cyrl-rs), [`sr-Latn-RS`](#serbian-latin-serbia-sr-latn-rs)|
+|[`es`](#european-spanish-es-es)|Spanish|[`es-ES`](#european-spanish-es-es) (default), [`es-MX`](#mexican-spanish-es-mx), [`es-US`](#spanish-united-states-es-us)|
+|`sw`|Swahili|`sw-KE` (default)|
+|`sv`|Swedish|`sv-SE` (default)|
+|`ta`|Tamil|`ta-IN` (default)|
+|`te`|Telugu|`te-IN` (default)|
+|`th`|Thai|`th-TH` (default)|
+|[`tr`](#turkish-türkiye-tr-tr)|Turkish|[`tr-TR`](#turkish-türkiye-tr-tr) (default)|
+|[`uk`](#ukrainian-ukraine-uk-ua)|Ukrainian|[`uk-UA`](#ukrainian-ukraine-uk-ua) (default)|
+|`ur`|Urdu|`ur-PK` (default)|
+|`vi`|Vietnamese|`vi-VN` (default)|
+|`yo`|Yoruba|`yo-NG` (default)|
+
+`Entry point` is `—` for the 4 languages with no safe default variant.
+Where a family has more than one variant, `(default)` marks the one its
+entry point resolves to.
+
+## Usage
+
+```js
+// Most languages: import via their bare-tag entry point
+import { toCardinal } from 'n2words/de'
+import { toCardinal, toOrdinal, toCurrency } from 'n2words/de'
+
+toCardinal(42)     // 'zweiundvierzig'
+toOrdinal(42)      // 'zweiundvierzigste' (if supported)
+toCurrency(42.50)  // 'zweiundvierzig Euro und fünfzig Cent' (if supported)
+
+// Need a specific regional/script variant, or one of the 4 languages with
+// no single default? Import the full BCP 47 code instead
+import { toCardinal } from 'n2words/en-GB'
+```
+
+### Import Paths
+
+Bare-tag entry points (`n2words/de`, `n2words/en`, ...) resolve without a region
+subtag for every language with a linked `Entry point` above. Full BCP 47 codes
+always work too (`n2words/en-GB`, `n2words/fr-BE`, ...), and are required for
+the 4 languages with no entry point (`—` above) — e.g. `n2words/pt-BR`,
+`n2words/zh-Hans-CN`.
+
+## All Regional Variants
+
+Per-variant detail — the largest value each form converts, and per-variant
+options where declared. Grouped by language above; this is the flat
+reference.
 
 |Code|Language|Cardinal|Ordinal|Currency|
 |----|--------|:------:|:-----:|:------:|
@@ -87,25 +182,9 @@ Each form column shows the largest value it converts (`10^N - 1`), `∞` when un
 
 \* Has options — click to jump to that language's options.
 
-## Usage
-
-```js
-// Import language modules directly
-import { toCardinal } from 'n2words/en-US'
-import { toCardinal, toOrdinal, toCurrency } from 'n2words/en-US'
-
-toCardinal(42)     // 'forty-two'
-toOrdinal(42)      // 'forty-second' (if supported)
-toCurrency(42.50)  // 'forty-two dollars and fifty cents' (if supported)
-```
-
-### Import Paths
-
-Import paths use BCP 47 language codes: `n2words/en-US`, `n2words/zh-Hans-CN`, `n2words/fr-BE`
-
 ## Language Options
 
-41 languages support options via a second parameter. Options are passed as an object:
+41 variants support options via a second parameter. Options are passed as an object:
 
 ```js
 toCardinal(value, { optionName: value })

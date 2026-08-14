@@ -316,31 +316,62 @@ function formatOptionsTable(options) {
 }
 
 /**
- * Format the bare-tag alias table — one row per alias, linking to the
- * target's options anchor when it has one (every current target does, but a
- * future alias might point at a variant with no options, hence the fallback
- * to plain code text rather than assuming an anchor always exists).
+ * Group canonical (non-alias) codes by BCP 47 primary language subtag, e.g.
+ * en-US/en-CA/... all group under "en", zh-Hans-CN/zh-Hant-TW under "zh".
+ * This is what "language" means for the headline count and the family
+ * table below — a regional/script variant isn't counted as its own
+ * language (see docs/bare-tag-aliases.md).
  *
- * @param {Map<string, string>} aliases Alias code -> target code
- * @param {Map<string, string>} optionAnchors Target code -> anchor (only entries with options)
- * @param {(code: string) => string} displayName Code -> human-readable name
- * @returns {string} Markdown section
+ * @param {string[]} codes Canonical (non-alias) codes
+ * @returns {Map<string, string[]>} Primary subtag -> sorted variant codes
  */
-function formatAliasSection(aliases, optionAnchors, displayName) {
+function groupByFamily(codes) {
+  const families = new Map()
+  for (const code of codes) {
+    const primary = code.split('-')[0]
+    if (!families.has(primary)) families.set(primary, [])
+    families.get(primary).push(code)
+  }
+  for (const variants of families.values()) variants.sort((a, b) => a.localeCompare(b))
+  return families
+}
+
+/**
+ * Format the family-level summary table — one row per language family, the
+ * primary place a reader sees "how many languages" n2words supports. A
+ * family's `Entry point` is its bare-tag alias when one exists (see
+ * docs/bare-tag-aliases.md for why some families don't get one — script or
+ * core numbering grammar genuinely diverges between their variants);
+ * `Variants` links each actual regional/script code to its detail section
+ * further down. An alias code (e.g. `en`) is always the same string as its
+ * family's primary subtag by construction, so `aliases.get(primary)` finds
+ * a family's alias directly with no extra lookup table.
+ *
+ * @param {Map<string, string[]>} families Primary subtag -> variant codes
+ * @param {Map<string, string>} aliases Alias code -> target code
+ * @param {Map<string, string>} optionAnchors Code -> anchor (only entries with options)
+ * @param {(code: string) => string} displayName Code -> human-readable name
+ * @returns {string} Markdown table
+ */
+function formatFamilyTable(families, aliases, optionAnchors, displayName) {
   const lines = [
-    '## Bare-tag aliases',
-    '',
-    'These import paths resolve without a region subtag, for convenience. Each is a',
-    'thin re-export of one specific regional variant — not a new language, and not',
-    'a guess: the target is fixed and documented here.',
-    '',
-    '|Alias|Resolves to|',
-    '|-----|-----------|',
+    '|Entry point|Language|Variants|',
+    '|-----------|--------|--------|',
   ]
-  for (const [alias, target] of [...aliases].sort(([a], [b]) => a.localeCompare(b))) {
-    const anchor = optionAnchors.get(target)
-    const targetRef = anchor ? `[\`${target}\`](#${anchor})` : `\`${target}\``
-    lines.push(`|\`${alias}\`|${targetRef} (${displayName(target)})|`)
+  // `label` is the visible code text; `anchorCode` is whose anchor it links
+  // to — for the entry-point cell these differ (the bare alias's own code
+  // has no detail section of its own; it links to its target's).
+  const ref = (label, anchorCode = label) => {
+    const anchor = optionAnchors.get(anchorCode)
+    return anchor ? `[\`${label}\`](#${anchor})` : `\`${label}\``
+  }
+  const sortedPrimaries = [...families.keys()].sort((a, b) => displayName(a).localeCompare(displayName(b)))
+  for (const primary of sortedPrimaries) {
+    const variants = families.get(primary)
+    const entryTarget = aliases.get(primary)
+    const entryCell = entryTarget ? ref(primary, entryTarget) : '—'
+    const variantCells = variants.map(v => v === entryTarget ? `${ref(v)} (default)` : ref(v))
+    lines.push(`|${entryCell}|${displayName(primary)}|${variantCells.join(', ')}|`)
   }
   return lines.join('\n')
 }
@@ -358,7 +389,15 @@ function generateMarkdown(codes, forms, mods, aliases) {
   const hasOrdinal = code => forms.get(code).has('ordinal')
   const hasCurrency = code => forms.get(code).has('currency')
 
-  const languageCount = codes.length
+  // "Language" means BCP 47 primary subtag, not regional/script variant —
+  // en-US/en-CA/... are one language (English) with 16 variants, not 16
+  // languages. See docs/bare-tag-aliases.md.
+  const families = groupByFamily(codes)
+  const familyCount = families.size
+  const variantCount = codes.length
+  const bareTagFamilyCount = aliases.size
+  const noEntryPointFamilyCount = familyCount - bareTagFamilyCount
+
   const codesWithOrdinal = codes.filter(hasOrdinal)
   const ordinalCount = codesWithOrdinal.length
   const codesWithCurrency = codes.filter(hasCurrency)
@@ -419,11 +458,55 @@ function generateMarkdown(codes, forms, mods, aliases) {
 
 > **Auto-generated** — Do not edit manually. Run \`npm run docs:languages\` to update.
 
-n2words supports **${languageCount} languages** with cardinal number conversion, ${ordinalCount} with ordinal support, ${currencyCount} with currency support.
+n2words supports **${familyCount} languages** (${variantCount} regional/script variants total) with
+cardinal number conversion, ${ordinalCount} variants with ordinal support, ${currencyCount} variants
+with currency support.
+
+${bareTagFamilyCount} languages have a **bare-tag entry point** that resolves without a region
+subtag (e.g. \`n2words/de\`) — this is the primary, recommended way to import
+them. The other ${noEntryPointFamilyCount} require picking a specific variant explicitly, because
+their variants genuinely diverge in script or core numbering grammar, not
+just vocabulary — see [docs/bare-tag-aliases.md](docs/bare-tag-aliases.md).
 
 Language codes follow [IETF BCP 47](https://tools.ietf.org/html/bcp47) standards.
 
-## All Languages
+## Languages
+
+${formatFamilyTable(families, aliases, optionAnchors, getDisplayName)}
+
+\`Entry point\` is \`—\` for the ${noEntryPointFamilyCount} languages with no safe default variant.
+Where a family has more than one variant, \`(default)\` marks the one its
+entry point resolves to.
+
+## Usage
+
+\`\`\`js
+// Most languages: import via their bare-tag entry point
+import { toCardinal } from 'n2words/de'
+import { toCardinal, toOrdinal, toCurrency } from 'n2words/de'
+
+toCardinal(42)     // 'zweiundvierzig'
+toOrdinal(42)      // 'zweiundvierzigste' (if supported)
+toCurrency(42.50)  // 'zweiundvierzig Euro und fünfzig Cent' (if supported)
+
+// Need a specific regional/script variant, or one of the 4 languages with
+// no single default? Import the full BCP 47 code instead
+import { toCardinal } from 'n2words/en-GB'
+\`\`\`
+
+### Import Paths
+
+Bare-tag entry points (\`n2words/de\`, \`n2words/en\`, ...) resolve without a region
+subtag for every language with a linked \`Entry point\` above. Full BCP 47 codes
+always work too (\`n2words/en-GB\`, \`n2words/fr-BE\`, ...), and are required for
+the ${noEntryPointFamilyCount} languages with no entry point (\`—\` above) — e.g. \`n2words/pt-BR\`,
+\`n2words/zh-Hans-CN\`.
+
+## All Regional Variants
+
+Per-variant detail — the largest value each form converts, and per-variant
+options where declared. Grouped by language above; this is the flat
+reference.
 
 |Code|Language|Cardinal|Ordinal|Currency|
 |----|--------|:------:|:-----:|:------:|
@@ -433,27 +516,9 @@ Each form column shows the largest value it converts (\`10^N - 1\`), \`∞\` whe
 
 \\* Has options — click to jump to that language's options.
 
-${formatAliasSection(aliases, optionAnchors, getDisplayName)}
-
-## Usage
-
-\`\`\`js
-// Import language modules directly
-import { toCardinal } from 'n2words/en-US'
-import { toCardinal, toOrdinal, toCurrency } from 'n2words/en-US'
-
-toCardinal(42)     // 'forty-two'
-toOrdinal(42)      // 'forty-second' (if supported)
-toCurrency(42.50)  // 'forty-two dollars and fifty cents' (if supported)
-\`\`\`
-
-### Import Paths
-
-Import paths use BCP 47 language codes: \`n2words/en-US\`, \`n2words/zh-Hans-CN\`, \`n2words/fr-BE\`
-
 ## Language Options
 
-${optionsCount} languages support options via a second parameter. Options are passed as an object:
+${optionsCount} variants support options via a second parameter. Options are passed as an object:
 
 \`\`\`js
 toCardinal(value, { optionName: value })
@@ -475,9 +540,9 @@ async function main() {
   )
 
   // Bare-tag alias files (aliasOf exported) are re-exports, not their own
-  // language: excluded from the main table/count/options so they can't
-  // inflate "n2words supports N languages", and surfaced instead as their
-  // own documented section (see formatAliasSection).
+  // language: excluded from the variant table/count/options so they can't
+  // inflate "n2words supports N languages", and surfaced instead via the
+  // family table's Entry point column (see formatFamilyTable).
   const codes = allCodes.filter(code => allMods.get(code).aliasOf === undefined)
   const aliases = new Map(
     allCodes
@@ -493,7 +558,8 @@ async function main() {
   const markdown = generateMarkdown(codes, forms, mods, aliases)
 
   writeFileSync('./LANGUAGES.md', markdown)
-  console.log(`✓ Generated LANGUAGES.md (${codes.length} languages, ${aliases.size} bare-tag aliases)`)
+  const familyCount = new Set(codes.map(code => code.split('-')[0])).size
+  console.log(`✓ Generated LANGUAGES.md (${familyCount} languages, ${codes.length} variants, ${aliases.size} bare-tag entry points)`)
 }
 
 main()
