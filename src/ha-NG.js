@@ -18,6 +18,8 @@ import { parseCurrencyValue } from './utils/parse-currency.js'
 import { parseOrdinalValue } from './utils/parse-ordinal.js'
 import { checkMax } from './utils/check-max.js'
 import { western } from './utils/scale.js'
+import { resolveOptions } from './utils/resolve-options.js'
+import { haNG as CURRENCY_VOCAB, assertCurrencyExponent } from './utils/currency-vocab.js'
 
 // ============================================================================
 // Vocabulary
@@ -51,13 +53,6 @@ export const currencyMax = western(SCALE_WORDS.length - 1)
 // First has special form "na fari" or "farko"
 const ORDINAL_PREFIX = 'na'
 const ORDINAL_FIRST = 'na farko'
-
-// ============================================================================
-// Currency Vocabulary (Nigerian Naira)
-// ============================================================================
-
-const NAIRA = 'naira'
-const KOBO = 'kobo'
 
 // ============================================================================
 // Precomputed Lookup Table
@@ -308,10 +303,22 @@ function toOrdinal(value) {
 // ============================================================================
 
 /**
+ * @typedef {object} CurrencyOptions
+ * @property {('NGN')} [currency] - ISO 4217 currency code to name the amount in
+ */
+
+/** @type {Required<CurrencyOptions>} */
+export const currencyDefaults = { currency: 'NGN' }
+
+/** @type {{ currency: ReadonlyArray<Required<CurrencyOptions>['currency']> }} */
+export const currencyValues = { currency: /** @type {Required<CurrencyOptions>['currency'][]} */ (Object.keys(CURRENCY_VOCAB)) }
+
+/**
  * Converts a numeric value to Hausa currency words (Nigerian Naira).
  *
  * Uses naira and kobo (100 kobo = 1 naira).
  * @param {number | string | bigint} value - The currency amount to convert
+ * @param {CurrencyOptions} [options] - Optional configuration
  * @returns {string} The amount in Hausa currency words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {Error} If value is not a valid number format
@@ -320,9 +327,12 @@ function toOrdinal(value) {
  * toCurrency(1.50)   // 'ɗaya naira da hamsin kobo'
  * toCurrency(-5)     // 'babu biyar naira'
  */
-function toCurrency(value) {
+function toCurrency(value, options) {
   const { isNegative, dollars: naira, cents: kobo } = parseCurrencyValue(value)
   checkMax(naira, currencyMax)
+  const { currency } = resolveOptions(options, currencyDefaults, currencyValues)
+  assertCurrencyExponent(kobo, currency)
+  const { major, minor } = CURRENCY_VOCAB[currency]
 
   let result = ''
   if (isNegative) {
@@ -331,7 +341,7 @@ function toCurrency(value) {
 
   // Naira part
   if (naira > 0n || kobo === 0n) {
-    result += integerToWords(naira) + ' ' + NAIRA
+    result += integerToWords(naira) + ' ' + major[0]
   }
 
   // Kobo part
@@ -339,7 +349,7 @@ function toCurrency(value) {
     if (naira > 0n) {
       result += ' da '
     }
-    result += integerToWords(kobo) + ' ' + KOBO
+    result += integerToWords(kobo) + ' ' + (/** @type {string[]} */ (minor))[0]
   }
 
   return result

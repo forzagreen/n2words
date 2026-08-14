@@ -14,6 +14,8 @@ import { parseCurrencyValue } from './utils/parse-currency.js'
 import { parseOrdinalValue } from './utils/parse-ordinal.js'
 import { checkMax } from './utils/check-max.js'
 import { western } from './utils/scale.js'
+import { resolveOptions } from './utils/resolve-options.js'
+import { swKE as CURRENCY_VOCAB, assertCurrencyExponent } from './utils/currency-vocab.js'
 
 // ============================================================================
 // Vocabulary
@@ -53,13 +55,6 @@ const ORDINAL_ONES = {
   9: 'wa tisa',
 }
 const ORDINAL_PREFIX = 'wa'
-
-// ============================================================================
-// Currency Vocabulary (Kenyan Shilling)
-// ============================================================================
-
-const SHILLING = 'shilingi'
-const CENT = 'senti'
 
 // ============================================================================
 // Conversion Functions
@@ -250,10 +245,22 @@ function toOrdinal(value) {
 // ============================================================================
 
 /**
+ * @typedef {object} CurrencyOptions
+ * @property {('KES')} [currency] - ISO 4217 currency code to name the amount in
+ */
+
+/** @type {Required<CurrencyOptions>} */
+export const currencyDefaults = { currency: 'KES' }
+
+/** @type {{ currency: ReadonlyArray<Required<CurrencyOptions>['currency']> }} */
+export const currencyValues = { currency: /** @type {Required<CurrencyOptions>['currency'][]} */ (Object.keys(CURRENCY_VOCAB)) }
+
+/**
  * Converts a numeric value to Swahili currency words (Kenyan Shilling).
  *
  * Uses shilingi and senti (100 senti = 1 shilingi).
  * @param {number | string | bigint} value - The currency amount to convert
+ * @param {CurrencyOptions} [options] - Optional configuration
  * @returns {string} The amount in Swahili currency words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {Error} If value is not a valid number format
@@ -262,9 +269,12 @@ function toOrdinal(value) {
  * toCurrency(1.50)   // 'shilingi moja na senti hamsini'
  * toCurrency(-5)     // 'minus shilingi tano'
  */
-function toCurrency(value) {
+function toCurrency(value, options) {
   const { isNegative, dollars: shillings, cents: senti } = parseCurrencyValue(value)
   checkMax(shillings, currencyMax)
+  const { currency } = resolveOptions(options, currencyDefaults, currencyValues)
+  assertCurrencyExponent(senti, currency)
+  const { major, minor } = CURRENCY_VOCAB[currency]
 
   let result = ''
   if (isNegative) {
@@ -273,7 +283,7 @@ function toCurrency(value) {
 
   // Shillings part
   if (shillings > 0n || senti === 0n) {
-    result += SHILLING + ' ' + integerToWords(shillings)
+    result += major[0] + ' ' + integerToWords(shillings)
   }
 
   // Senti part
@@ -281,7 +291,7 @@ function toCurrency(value) {
     if (shillings > 0n) {
       result += ' na '
     }
-    result += CENT + ' ' + integerToWords(senti)
+    result += (/** @type {string[]} */ (minor))[0] + ' ' + integerToWords(senti)
   }
 
   return result

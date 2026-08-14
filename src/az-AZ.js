@@ -14,6 +14,8 @@ import { parseCurrencyValue } from './utils/parse-currency.js'
 import { parseOrdinalValue } from './utils/parse-ordinal.js'
 import { checkMax } from './utils/check-max.js'
 import { western } from './utils/scale.js'
+import { resolveOptions } from './utils/resolve-options.js'
+import { azAZ as CURRENCY_VOCAB, assertCurrencyExponent } from './utils/currency-vocab.js'
 
 // ============================================================================
 // Vocabulary
@@ -61,13 +63,6 @@ const ORDINAL_SPECIAL = {
   9: 'doqquzuncu',
   10: 'onuncu',
 }
-
-// ============================================================================
-// Currency Vocabulary (Azerbaijani Manat)
-// ============================================================================
-
-const MANAT = 'manat'
-const QEPIK = 'qəpik' // subunit (100 qəpik = 1 manat)
 
 // ============================================================================
 // Precomputed Lookup Table
@@ -306,10 +301,22 @@ function toOrdinal(value) {
 // ============================================================================
 
 /**
+ * @typedef {object} CurrencyOptions
+ * @property {('AZN')} [currency] - ISO 4217 currency code to name the amount in
+ */
+
+/** @type {Required<CurrencyOptions>} */
+export const currencyDefaults = { currency: 'AZN' }
+
+/** @type {{ currency: ReadonlyArray<Required<CurrencyOptions>['currency']> }} */
+export const currencyValues = { currency: /** @type {Required<CurrencyOptions>['currency'][]} */ (Object.keys(CURRENCY_VOCAB)) }
+
+/**
  * Converts a numeric value to Azerbaijani currency words (Manat).
  *
  * Uses manat and qəpik (100 qəpik = 1 manat).
  * @param {number | string | bigint} value - The currency amount to convert
+ * @param {CurrencyOptions} [options] - Optional configuration
  * @returns {string} The amount in Azerbaijani currency words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {Error} If value is not a valid number format
@@ -318,9 +325,12 @@ function toOrdinal(value) {
  * toCurrency(1.50)   // 'bir manat əlli qəpik'
  * toCurrency(-5)     // 'mənfi beş manat'
  */
-function toCurrency(value) {
+function toCurrency(value, options) {
   const { isNegative, dollars: manat, cents: qepik } = parseCurrencyValue(value)
   checkMax(manat, currencyMax)
+  const { currency } = resolveOptions(options, currencyDefaults, currencyValues)
+  assertCurrencyExponent(qepik, currency)
+  const { major, minor } = CURRENCY_VOCAB[currency]
 
   let result = ''
   if (isNegative) {
@@ -329,7 +339,7 @@ function toCurrency(value) {
 
   // Manat part
   if (manat > 0n || qepik === 0n) {
-    result += integerToWords(manat) + ' ' + MANAT
+    result += integerToWords(manat) + ' ' + major[0]
   }
 
   // Qəpik part
@@ -337,7 +347,7 @@ function toCurrency(value) {
     if (manat > 0n) {
       result += ' '
     }
-    result += integerToWords(qepik) + ' ' + QEPIK
+    result += integerToWords(qepik) + ' ' + (/** @type {string[]} */ (minor))[0]
   }
 
   return result

@@ -15,6 +15,7 @@ import { parseOrdinalValue } from './utils/parse-ordinal.js'
 import { checkMax } from './utils/check-max.js'
 import { western } from './utils/scale.js'
 import { resolveOptions } from './utils/resolve-options.js'
+import { trTR as CURRENCY_VOCAB, assertCurrencyExponent } from './utils/currency-vocab.js'
 
 // ============================================================================
 // Vocabulary (module-level constants)
@@ -64,13 +65,6 @@ const ORDINAL_SPECIAL = {
   9: 'dokuzuncu',
   10: 'onuncu',
 }
-
-// ============================================================================
-// Currency Vocabulary (Turkish Lira)
-// ============================================================================
-
-const LIRA = 'lira' // same singular and plural
-const KURUS = 'kuruş' // subunit (100 kuruş = 1 lira)
 
 // ============================================================================
 // Segment Building
@@ -379,10 +373,22 @@ function toOrdinal(value) {
 // ============================================================================
 
 /**
+ * @typedef {object} CurrencyOptions
+ * @property {('TRY')} [currency] - ISO 4217 currency code to name the amount in
+ */
+
+/** @type {Required<CurrencyOptions>} */
+export const currencyDefaults = { currency: 'TRY' }
+
+/** @type {{ currency: ReadonlyArray<Required<CurrencyOptions>['currency']> }} */
+export const currencyValues = { currency: /** @type {Required<CurrencyOptions>['currency'][]} */ (Object.keys(CURRENCY_VOCAB)) }
+
+/**
  * Converts a numeric value to Turkish currency words (Turkish Lira).
  *
  * Uses lira and kuruş (100 kuruş = 1 lira).
  * @param {number | string | bigint} value - The currency amount to convert
+ * @param {CurrencyOptions} [options] - Optional configuration
  * @returns {string} The amount in Turkish currency words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {Error} If value is not a valid number format
@@ -391,9 +397,12 @@ function toOrdinal(value) {
  * toCurrency(1.50)   // 'bir lira elli kuruş'
  * toCurrency(-5)     // 'eksi beş lira'
  */
-function toCurrency(value) {
+function toCurrency(value, options) {
   const { isNegative, dollars: lira, cents: kurus } = parseCurrencyValue(value)
   checkMax(lira, currencyMax)
+  const { currency } = resolveOptions(options, currencyDefaults, currencyValues)
+  assertCurrencyExponent(kurus, currency)
+  const { major, minor } = CURRENCY_VOCAB[currency]
 
   let result = ''
   if (isNegative) {
@@ -402,7 +411,7 @@ function toCurrency(value) {
 
   // Lira part
   if (lira > 0n || kurus === 0n) {
-    result += integerToWords(lira, false) + ' ' + LIRA
+    result += integerToWords(lira, false) + ' ' + major[0]
   }
 
   // Kuruş part
@@ -410,7 +419,7 @@ function toCurrency(value) {
     if (lira > 0n) {
       result += ' '
     }
-    result += integerToWords(kurus, false) + ' ' + KURUS
+    result += integerToWords(kurus, false) + ' ' + (/** @type {string[]} */ (minor))[0]
   }
 
   return result
