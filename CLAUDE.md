@@ -6,6 +6,10 @@ n2words: Number to words converter. ESM + UMD, Node >=22, zero dependencies.
 
 - **Language codes**: IETF BCP 47 (`en-US`, `zh-Hans-CN`, `fr-BE`)
 - **Imports**: `import { toCardinal, toOrdinal, toCurrency } from 'n2words/en-US'`
+- **Bare-tag aliases**: `n2words/en`, `n2words/fr`, `n2words/ar`, `n2words/es` resolve without a
+  region subtag, to one documented default variant each (see "Bare-tag aliases" in `LANGUAGES.md`).
+  Not every language has one — a family whose variants diverge in default currency or script
+  (`zh`, `pt`, `sr`, `am`) stays region/script-qualified only.
 - **Forms**: Cardinal (`toCardinal`), Ordinal (`toOrdinal`), Currency (`toCurrency`)
 
 ## Project Structure
@@ -13,6 +17,7 @@ n2words: Number to words converter. ESM + UMD, Node >=22, zero dependencies.
 ```text
 src/
 ├── {lang-code}.js       # One file per language (70+)
+├── en.js, fr.js, ar.js, es.js  # Bare-tag aliases: `export * from './{target}.js'` + `aliasOf`
 └── utils/
     ├── parse-cardinal.js    # Cardinal form parsing (decimals, negatives)
     ├── parse-ordinal.js     # Ordinal form parsing (positive integers only)
@@ -20,6 +25,7 @@ src/
     ├── scale.js             # Pure *Max producers (western/myriad/indian/longScale/bounded/UNBOUNDED)
     ├── check-max.js         # checkMax: throws RangeError past a form's declared ceiling
     ├── resolve-options.js   # resolveOptions: applies a form's exported defaults, validates options
+    ├── currency-vocab.js    # Cross-language currency-name matrix + assertCurrencyExponent
     ├── expand-scientific.js # Scientific notation expansion
     └── is-plain-object.js   # Object type checking
 ```
@@ -64,10 +70,13 @@ function toOrdinal (value) {
   // positive integers only
 }
 
-function toCurrency (value) {
+function toCurrency (value, options) {
   const { isNegative, dollars, cents } = parseCurrencyValue(value)
   checkMax(dollars, currencyMax) // cents are ≤ 99, safe
-  // dollars/cents are bigints
+  // currency vocabulary and the `currency` option follow the Options
+  // Pattern below — see its toCurrency example, and docs/currency-vocab.md
+  // for why currency word-data lives in a shared module while its grammar
+  // (pluralization, joining) doesn't.
 }
 
 export { toCardinal, toOrdinal, toCurrency }
@@ -79,7 +88,11 @@ fuzzing can't catch — derive the ceiling by reading the table, not by probing 
 
 Language files are **self-contained**: duplicate small helpers rather than share them.
 Extract a util only for the API contract (parsing, options, the range guard) or
-genuinely universal single-purpose logic.
+genuinely universal single-purpose logic. Currency word-data
+(`src/utils/currency-vocab.js`) is the one deliberate exception to "duplicate small
+helpers": it's data, not logic, and centralizing it is the entire point of a
+cross-language currency matrix (see `docs/currency-vocab.md`). Pluralization
+*rules* still belong per-file — only the word-form arrays they consume are shared.
 
 ## Options Pattern
 
@@ -113,6 +126,33 @@ function toCardinal (value, options) {
 }
 ```
 
+`currency` is the same enum pattern, with its allowed set derived from the shared
+currency-name matrix (`docs/currency-vocab.md`) instead of hand-typed:
+
+```javascript
+import { enUS as CURRENCY_VOCAB, assertCurrencyExponent } from './utils/currency-vocab.js'
+
+/**
+ * @typedef {object} CurrencyOptions
+ * @property {('USD')} [currency] - ISO 4217 currency code to name the amount in
+ */
+
+/** @type {Required<CurrencyOptions>} */
+export const currencyDefaults = { currency: 'USD' }
+
+/** @type {{ currency: ReadonlyArray<Required<CurrencyOptions>['currency']> }} */
+export const currencyValues = { currency: /** @type {Required<CurrencyOptions>['currency'][]} */ (Object.keys(CURRENCY_VOCAB)) }
+
+function toCurrency (value, options) {
+  const { dollars, cents } = parseCurrencyValue(value)
+  const { currency } = resolveOptions(options, currencyDefaults, currencyValues)
+  assertCurrencyExponent(cents, currency) // throws RangeError for a fractional amount a currency can't represent (e.g. JPY)
+  const { major, minor } = CURRENCY_VOCAB[currency]
+  // build using major[n] / minor[n] — minor is `string[] | null`, narrow it
+  // at the point of use (inside the cents > 0n branch), not at destructure
+}
+```
+
 Each fact has exactly one home, and machines hold every seam:
 
 - **type + description** → the `@typedef` (one `@property` per option — lint
@@ -137,11 +177,12 @@ npm run lang:add -- <code>  # Creates stub + fixture, regenerates LANGUAGES.md
 
 Then: implement the form(s) you're adding (`toCardinal`, `toOrdinal`, and/or `toCurrency` — at least one) in `src/{code}.js` — **including the `*Max` declarations and `checkMax` guards** (see Language File Pattern) — add cases to `test/fixtures/{code}.js`, run `npm test`.
 
-A new language must clear five enforced gates (in `test/`):
+A new language must clear these enforced gates (in `test/`):
 
 - **Contract** (`contract.test.js`): every exported form returns a well-formed string or throws `RangeError` for any input.
 - **Range** (`range-contract.test.js`): every exported form **must** declare its `*Max` (helper-derived or `UNBOUNDED`) — a form without one fails — and uphold it: well-formed and injective across the range, throwing exactly at a finite ceiling.
 - **Options** (`options-contract.test.js`): every options-taking form **must** export its `<form>Defaults` (see Options Pattern) — declared defaults round-trip, malformed options throw `TypeError`, out-of-set enum values throw `RangeError`.
+- **Currency vocab** (`currency-vocab-contract.test.js`, currency-exporting languages only): a declared `currencyValues.currency` enum must have a matching entry in `src/utils/currency-vocab.js` for every code it lists (see `docs/currency-vocab.md`).
 - **Coverage** (`conversions.test.js`): ≥5 fixture cases per form.
 - **Canonical code** (`conversions.test.js`): the filename is canonical BCP 47 (`en-US`, not `en-us`).
 
