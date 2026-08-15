@@ -79,6 +79,8 @@ function toOrdinal (value) {
 function toCurrency (value, options) {
   const { isNegative, dollars, cents } = parseCurrencyValue(value)
   checkMax(dollars, currencyMax) // cents are ≤ 99, safe
+  // Naming a 1000-subunit currency (TND, KWD, ...)? Resolve options first and
+  // pass `minorUnitDigits(currency)` to the parser — see docs/currency-vocab.md
   // currency vocabulary and the `currency` option follow the Options
   // Pattern below — see its toCurrency example, and docs/currency-vocab.md
   // for why currency word-data lives in a shared module while its grammar
