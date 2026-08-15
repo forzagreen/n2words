@@ -98,7 +98,8 @@ now an explicit literal rather than an implicit hardcoded word choice.
 ## The guard: `assertCurrencyExponent`
 
 Most currencies have 2 decimal places; a few (JPY, KRW, VND, IRR, IDR — see
-`CURRENCY_EXPONENTS` in `currency-vocab.js`) have none in everyday use. A
+`CURRENCY_EXPONENTS` in `currency-vocab.js`) have none in everyday use, and
+a few divide into 1000 instead (see below). A
 fractional amount for one of those throws `RangeError` rather than spelling
 a fictitious historical subunit or silently dropping the fraction — "loud
 beats silent," the same philosophy `checkMax` and `resolveOptions` already
@@ -131,7 +132,10 @@ For every language that declares `currencyValues.currency`:
   globals);
 - every ISO code in the enum has a real entry in that export;
 - for any zero-exponent currency in the enum, `toCurrency` rejects a
-  fractional amount with `RangeError`.
+  fractional amount with `RangeError`;
+- for any 1000-subunit currency in the enum, the third decimal digit
+  survives — `'1.500'` and `'1.050'` must not render alike, which they do
+  the moment a language forgets `minorUnitDigits`.
 
 Bare-tag alias files (`aliasOf` exported) are skipped — their
 `currencyValues` is a live re-export of the target's, not a separate
@@ -146,46 +150,68 @@ declaration to re-verify under a different name.
    `currency` value.
 4. Run `npm test` — the gate verifies the declaration behaviourally.
 
-## TODO: minor-unit words we don't have yet
+## 1000-subunit currencies (millimes, fils)
 
-Two open items, one blocked and one not.
-
-### 1. 3-decimal currencies (millimes, fils) — blocked on the parser
-
-n2words cannot currently name **any** currency that divides into 1000:
+Most currencies divide into 100. A few divide into 1000, and n2words names
+them:
 
 | Currency | Minor unit |
 | -------- | ---------- |
 | TND (Tunisian dinar) | millime |
-| KWD, BHD, OMR, JOD, IQD, LYD | fils |
+| KWD, BHD, JOD, IQD (dinars) | fils |
+| OMR (Omani rial) | baisa |
+| LYD (Libyan dinar) | dirham |
 
-`parseCurrencyValue` tracks exactly two decimal digits and truncates
-anything finer, so `'1.500'` dinars reaches a language as **50** minor
-units, not 500 — it would confidently spell "one dinar and fifty millimes"
-for an amount meaning five hundred. Adding `TND: 3` to `CURRENCY_EXPONENTS`
-would not widen support; it would only make that mis-spelling reachable.
-The map is typed `Record<string, 0>` and the gate rejects any other value,
-so this can't be added by accident.
+These carry `3` in `CURRENCY_EXPONENTS`. Everything absent from that map is
+2; only `0` and `3` may appear in it.
 
-**Doing it properly means changing the parser's precision first** —
-`parseCurrencyValue` returning a minor part scaled to the currency's own
-exponent rather than a fixed two digits, which in turn means the guard and
-every language's `cents` handling become exponent-aware. That is a
-self-contained piece of work and a prerequisite for the whole 1000-subunit
-family; until it lands, these currencies simply stay out of the matrix.
+A language that names one **must** pass the currency's digit count to the
+parser, which means resolving options *before* parsing:
 
-### 2. Currencies whose minor word we haven't translated — just add them
+```js
+function toCurrency(value, options) {
+  const { currency } = resolveOptions(options, currencyDefaults, currencyValues)
+  const { isNegative, dollars, cents } = parseCurrencyValue(value, minorUnitDigits(currency))
+  checkMax(dollars, currencyMax) // cents are <= 999, safe
+  assertCurrencyExponent(cents, currency)
+  // ...
+}
+```
 
-This one needs no infrastructure, only vocabulary. A language can only name
-a currency listed in its own export, so e.g. `hi-IN` naming USD needs the
-Hindi words for "dollar" *and* "cent" added to `hiIN`.
+Parsing a 1000-subunit currency at the default 2 digits is the failure this
+guards against: `'1.500'` would arrive as **50** minor units and be spelled
+"one dinar and fifty millimes" for an amount meaning five hundred — a
+well-formed, confident, wrong answer. `currency-vocab-contract.test.js`
+proves the round trip behaviourally for every 3-decimal currency a language
+advertises, so forgetting the argument fails CI rather than shipping.
 
-Note that **a missing minor-unit translation cannot silently slip in**.
-`minor: null` is not a placeholder for "we don't know the word yet" — the
-gate enforces minor-words ⟺ nonzero exponent, so `minor: null` on a
-2-decimal currency fails CI with *"has `minor: null` but no
-`CURRENCY_EXPONENTS` entry, so nothing stops a fractional amount from
-dereferencing it"*. If you don't have the minor word, leave the currency
-out of that language's export entirely rather than nulling it — an absent
-currency throws a clear `RangeError` naming the accepted set, which is the
-honest answer.
+Note `minorUnitDigits` returns **2, not 0**, for a zero-exponent currency
+like JPY. Parsing those at 0 digits would silently turn 1.5 yen into 1 yen;
+keeping two digits is what leaves `assertCurrencyExponent` a fraction to
+reject.
+
+### Grammar the extra digits expose
+
+A minor amount now reaches the language as 0-999 rather than 0-99, so
+pluralization rules have to cover the whole range — a table keyed only to
+1/2/few/many still works, but a language that special-cased "two digits"
+would not. In Arabic the wider range also surfaces gender agreement that
+100-subunit currencies never exercised: `ar-SA` inverts numeral gender for
+3-10, so masculine فلس takes ثلاثة while feminine بيسة takes ثلاث. That
+selection is grammar and lives in `ar-SA.js` (`MINOR_GENDER`), not in this
+matrix — the matrix holds only the word forms.
+
+## Missing minor-unit words
+
+Adding a currency to a language needs no infrastructure, only vocabulary:
+a language can only name a currency listed in its own export, so e.g.
+`hi-IN` naming USD needs the Hindi words for "dollar" *and* "cent".
+
+**A missing minor-unit translation cannot silently slip in.** `minor: null`
+is not a placeholder for "we don't know the word yet" — the gate enforces
+minor-words ⟺ nonzero exponent, so `minor: null` on a 2-decimal currency
+fails CI with *"has `minor: null` but no `CURRENCY_EXPONENTS` entry, so
+nothing stops a fractional amount from dereferencing it"*. If you don't
+have the minor word, leave the currency out of that language's export
+rather than nulling it — an absent currency throws a clear `RangeError`
+naming the accepted set, which is the honest answer.
