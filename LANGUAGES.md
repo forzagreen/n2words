@@ -182,6 +182,76 @@ Each form column shows the largest value it converts (`10^N - 1`), `∞` when un
 
 \* Has options — click to jump to that language's options.
 
+## Currency Coverage
+
+Which languages can name which currency. 72 variants name 42 distinct
+ISO 4217 currencies, across 76 language/currency pairs.
+
+A language always names its own default currency; anything in the third column
+is opt-in via the `currency` option:
+
+```js
+import { toCurrency } from 'n2words/pt-BR'
+
+toCurrency(42.50)                       // 'quarenta e dois reais e cinquenta centavos' (BRL, the default)
+toCurrency(42, { currency: 'JPY' })     // 'quarenta e dois ienes'
+toCurrency(42.50, { currency: 'JPY' })  // RangeError — the yen has no minor unit
+```
+
+Passing a currency a language has no words for throws `RangeError` rather than
+guessing — each language's accepted set is its `currencyValues.currency` export,
+also listed per language under [Language Options](#language-options).
+
+|Currency|Default for|Also names it|
+|--------|-----------|-------------|
+|`EUR`|`de-DE`, `el-GR`, `en-IE`, `es-ES`, `fi-FI`, `fr-BE`, `fr-FR`, `hr-HR`, `it-IT`, `lt-LT`, `lv-LV`, `nl-NL`, `pt-PT`|`pt-BR`|
+|`INR`|`en-IN`, `gu-IN`, `hi-IN`, `kn-IN`, `mr-IN`, `pa-IN`, `ta-IN`, `te-IN`|—|
+|`NGN`|`en-NG`, `ha-NG`, `yo-NG`|—|
+|`USD`|`en-US`, `es-US`|`pt-BR`|
+|`BDT`|`bn-BD`, `en-BD`|—|
+|`ETB`|`am-ET`, `am-Latn-ET`|—|
+|`GBP`|`en-GB`|`pt-BR`|
+|`ILS`|`hbo-IL`, `he-IL`|—|
+|`JPY`|`ja-JP`|`pt-BR`|
+|`KES`|`en-KE`, `sw-KE`|—|
+|`MYR`|`en-MY`, `ms-MY`|—|
+|`PHP`|`en-PH`, `fil-PH`|—|
+|`PKR`|`en-PK`, `ur-PK`|—|
+|`RSD`|`sr-Cyrl-RS`, `sr-Latn-RS`|—|
+|`AUD`|`en-AU`|—|
+|`AZN`|`az-AZ`|—|
+|`BRL`|`pt-BR`|—|
+|`CAD`|`en-CA`|—|
+|`CNY`|`zh-Hans-CN`|—|
+|`CZK`|`cs-CZ`|—|
+|`DKK`|`da-DK`|—|
+|`GEL`|`ka-GE`|—|
+|`GHS`|`en-GH`|—|
+|`HUF`|`hu-HU`|—|
+|`IDR`|`id-ID`|—|
+|`IRR`|`fa-IR`|—|
+|`KRW`|`ko-KR`|—|
+|`MXN`|`es-MX`|—|
+|`NOK`|`nb-NO`|—|
+|`NZD`|`en-NZ`|—|
+|`PLN`|`pl-PL`|—|
+|`RON`|`ro-RO`|—|
+|`RUB`|`ru-RU`|—|
+|`SAR`|`ar-SA`|—|
+|`SEK`|`sv-SE`|—|
+|`SGD`|`en-SG`|—|
+|`THB`|`th-TH`|—|
+|`TRY`|`tr-TR`|—|
+|`TWD`|`zh-Hant-TW`|—|
+|`UAH`|`uk-UA`|—|
+|`VND`|`vi-VN`|—|
+|`ZAR`|`en-ZA`|—|
+
+To teach a language a new currency, add its word forms to that language's export
+in [`src/utils/currency-vocab.js`](src/utils/currency-vocab.js) — see
+[docs/currency-vocab.md](docs/currency-vocab.md) for the word-form conventions
+(the arrays are per-language plural forms, not a fixed singular/plural pair).
+
 ## Language Options
 
 72 variants support options via a second parameter. Options are passed as an object:
