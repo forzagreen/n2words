@@ -192,4 +192,12 @@ export const currency = [
   ['11.011', 'أحد عشر ديناراً وأحد عشر فلساً', { currency: 'KWD' }],
   ['3.003', 'ثلاثة ريالات وثلاث بيسات', { currency: 'OMR' }],
   [1, 'دينار واحد', { currency: 'JOD' }],
+
+  // Moroccan dirham: 100 santim, so it parses at two digits. درهم is Libya's
+  // minor unit and Morocco's major one — the same word in both roles.
+  [1, 'درهم واحد', { currency: 'MAD' }],
+  ['2.02', 'درهمان وسنتيمان', { currency: 'MAD' }],
+  ['3.03', 'ثلاثة دراهم وثلاثة سنتيمات', { currency: 'MAD' }],
+  ['11.11', 'أحد عشر درهماً وأحد عشر سنتيماً', { currency: 'MAD' }],
+  [42.50, 'اثنان وأربعون درهماً وخمسون سنتيماً', { currency: 'MAD' }],
 ]

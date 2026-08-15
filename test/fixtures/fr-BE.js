@@ -219,4 +219,10 @@ export const currency = [
   ['0.001', 'un millime', { currency: 'TND' }],
   ['42.750', 'quarante-deux dinars et sept cent cinquante millimes', { currency: 'TND' }],
   ['1.500', 'un euro et cinquante centimes', { currency: 'EUR' }],
+
+  // Moroccan dirham: 100 centimes, so it parses at two digits. 71 also pins
+  // the Belgian septante against the fr-FR fixture's soixante et onze.
+  [1, 'un dirham', { currency: 'MAD' }],
+  [42.50, 'quarante-deux dirhams et cinquante centimes', { currency: 'MAD' }],
+  [71, 'septante et un dirhams', { currency: 'MAD' }],
 ]

@@ -192,6 +192,13 @@ export const currency = [
 
   // A 2-decimal currency is unaffected by the above — '1.500' is fifty cents.
   ['1.500', 'one dollar and fifty cents', { currency: 'USD' }],
+
+  // Moroccan dirham: 100 centimes, so it parses at two digits like USD even
+  // though it sits among the 1000-subunit currencies in the matrix.
+  [1, 'one dirham', { currency: 'MAD' }],
+  [42.50, 'forty-two dirhams and fifty centimes', { currency: 'MAD' }],
+  [0.01, 'one centime', { currency: 'MAD' }],
+  ['1.500', 'one dirham and fifty centimes', { currency: 'MAD' }],
 ]
 
 /**
