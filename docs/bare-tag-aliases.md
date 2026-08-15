@@ -61,11 +61,13 @@ variants but pass the test above: same script, same core numbering grammar
 (short-scale Western grouping) across every variant in each family. Note
 that this holds even though some variants in these families diverge in
 other ways that don't matter for the test — `en-IN`/`en-BD`/`en-PK` use
-Indian lakh/crore grouping rather than Western grouping, and `es-MX`/`es-US`
-diverge from `es-ES` in default currency and cardinal ceiling. Neither
-threatens the alias, because a bare-tag alias is a **fixed pointer to one
-variant**, not a dispatcher that tries to speak for the whole family — `en`
-resolving to `en-US` makes no claim about what `en-IN` does.
+Indian lakh/crore grouping rather than Western grouping (`en-IN` spells
+10⁷ as `one crore`, `en-US` as `ten million`); `es-MX` and `es-US` differ
+from `es-ES` in default currency (MXN and USD vs EUR); and `es-US` also
+stops lower, at a cardinal ceiling of 10²¹ against `es-ES`'s 10³⁰. None of
+this threatens the alias, because a bare-tag alias is a **fixed pointer to
+one variant**, not a dispatcher that tries to speak for the whole family —
+`en` resolving to `en-US` makes no claim about what `en-IN` does.
 
 Picking the default itself is a one-time human judgment call (documented in
 each alias file's own comment) — most-used variant for `en`, conventional
