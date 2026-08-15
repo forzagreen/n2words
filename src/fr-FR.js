@@ -497,7 +497,7 @@ function toOrdinal(value) {
 /**
  * @typedef {object} CurrencyOptions
  * @property {boolean} [and] - Use "et" between euros and centimes
- * @property {('EUR'|'TND')} [currency] - ISO 4217 currency code to name the amount in
+ * @property {('EUR'|'TND'|'MAD')} [currency] - ISO 4217 currency code to name the amount in
  */
 
 /** @type {Required<CurrencyOptions>} */

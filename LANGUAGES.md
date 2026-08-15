@@ -184,8 +184,8 @@ Each form column shows the largest value it converts (`10^N - 1`), `∞` when un
 
 ## Currency Coverage
 
-Which languages can name which currency. 72 variants name 49 distinct
-ISO 4217 currencies, across 92 language/currency pairs.
+Which languages can name which currency. 72 variants name 50 distinct
+ISO 4217 currencies, across 96 language/currency pairs.
 
 A language always names its own default currency; anything in the third column
 is opt-in via the `currency` option:
@@ -206,6 +206,7 @@ also listed per language under [Language Options](#language-options).
 |--------|-----------|-------------|
 |`EUR`|`de-DE`, `el-GR`, `en-IE`, `es-ES`, `fi-FI`, `fr-BE`, `fr-FR`, `hr-HR`, `it-IT`, `lt-LT`, `lv-LV`, `nl-NL`, `pt-PT`|`pt-BR`|
 |`INR`|`en-IN`, `gu-IN`, `hi-IN`, `kn-IN`, `mr-IN`, `pa-IN`, `ta-IN`, `te-IN`|—|
+|`MAD`|—|`ar-SA`, `en-US`, `fr-BE`, `fr-FR`|
 |`TND`|—|`ar-SA`, `en-US`, `fr-BE`, `fr-FR`|
 |`NGN`|`en-NG`, `ha-NG`, `yo-NG`|—|
 |`USD`|`en-US`, `es-US`|`pt-BR`|
@@ -275,7 +276,7 @@ toCurrency(value, { optionName: value })
 |`hundredPairing`|cardinal|`boolean`|`false`|Use hundred-pairing for 1100-9999 (e.g., "fifteen hundred" instead of "one thousand five hundred")|
 |`and`|cardinal|`boolean`|`false`|Use "and" after hundreds and before final small numbers (e.g., "one hundred and one" instead of "one hundred one")|
 |`and`|currency|`boolean`|`true`|Use "and" between dollars and cents (e.g., "one dollar and fifty cents")|
-|`currency`|currency|'BHD' \| 'IQD' \| 'JOD' \| 'KWD' \| 'LYD' \| 'OMR' \| 'TND' \| 'USD'|`USD`|ISO 4217 currency code to name the amount in|
+|`currency`|currency|'BHD' \| 'IQD' \| 'JOD' \| 'KWD' \| 'LYD' \| 'MAD' \| 'OMR' \| 'TND' \| 'USD'|`USD`|ISO 4217 currency code to name the amount in|
 
 ### Amharic (Ethiopia) (`am-ET`)
 
@@ -296,7 +297,7 @@ toCurrency(value, { optionName: value })
 |`gender`|cardinal|'feminine' \| 'masculine'|`masculine`|Grammatical gender|
 |`negativeWord`|cardinal|`string`|`ناقص`|Custom word for negative numbers|
 |`gender`|ordinal|'feminine' \| 'masculine'|`masculine`|Grammatical gender|
-|`currency`|currency|'BHD' \| 'IQD' \| 'JOD' \| 'KWD' \| 'LYD' \| 'OMR' \| 'SAR' \| 'TND'|`SAR`|ISO 4217 currency code to name the amount in|
+|`currency`|currency|'BHD' \| 'IQD' \| 'JOD' \| 'KWD' \| 'LYD' \| 'MAD' \| 'OMR' \| 'SAR' \| 'TND'|`SAR`|ISO 4217 currency code to name the amount in|
 
 ### Australian English (`en-AU`)
 
@@ -513,7 +514,7 @@ toCurrency(value, { optionName: value })
 |------|----|----|-------|-----------|
 |`withHyphenSeparator`|cardinal|`boolean`|`false`|Use hyphens between words|
 |`and`|currency|`boolean`|`true`|Use "et" between euros and centimes|
-|`currency`|currency|'EUR' \| 'TND'|`EUR`|ISO 4217 currency code to name the amount in|
+|`currency`|currency|'EUR' \| 'MAD' \| 'TND'|`EUR`|ISO 4217 currency code to name the amount in|
 
 ### French (France) (`fr-FR`)
 
@@ -521,7 +522,7 @@ toCurrency(value, { optionName: value })
 |------|----|----|-------|-----------|
 |`withHyphenSeparator`|cardinal|`boolean`|`false`|Use hyphens between all words|
 |`and`|currency|`boolean`|`true`|Use "et" between euros and centimes|
-|`currency`|currency|'EUR' \| 'TND'|`EUR`|ISO 4217 currency code to name the amount in|
+|`currency`|currency|'EUR' \| 'MAD' \| 'TND'|`EUR`|ISO 4217 currency code to name the amount in|
 
 ### Georgian (Georgia) (`ka-GE`)
 

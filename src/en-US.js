@@ -482,7 +482,7 @@ function toOrdinal(value) {
 /**
  * @typedef {object} CurrencyOptions
  * @property {boolean} [and] - Use "and" between dollars and cents (e.g., "one dollar and fifty cents")
- * @property {('USD'|'TND'|'KWD'|'BHD'|'JOD'|'IQD'|'OMR'|'LYD')} [currency] - ISO 4217 currency code to name the amount in
+ * @property {('USD'|'TND'|'KWD'|'BHD'|'JOD'|'IQD'|'OMR'|'LYD'|'MAD')} [currency] - ISO 4217 currency code to name the amount in
  */
 
 /** @type {Required<CurrencyOptions>} */
