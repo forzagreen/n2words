@@ -18,7 +18,7 @@ import { parseOrdinalValue } from './utils/parse-ordinal.js'
 import { checkMax } from './utils/check-max.js'
 import { western } from './utils/scale.js'
 import { resolveOptions } from './utils/resolve-options.js'
-import { arSA as CURRENCY_VOCAB, assertCurrencyExponent } from './utils/currency-vocab.js'
+import { arSA as CURRENCY_VOCAB, assertCurrencyExponent, minorUnitDigits } from './utils/currency-vocab.js'
 
 // ============================================================================
 // Vocabulary
@@ -333,6 +333,29 @@ function getRiyalForm(n, forms) {
 }
 
 /**
+ * Grammatical gender of each currency's *minor* unit.
+ *
+ * Arabic inverts gender agreement for 3-10: a masculine counted noun takes the
+ * ة-marked numeral (ثلاثة فلوس) and a feminine one takes the bare form
+ * (ثلاث هللات). The minor unit is the only side that varies here — every major
+ * unit ar-SA names is masculine (ريال, دينار) — so the riyal side stays
+ * hardcoded while this map drives the halala side. Gender is a property of the
+ * word itself, but selecting on it is grammar, so it lives here rather than in
+ * the shared currency-vocab matrix (see docs/currency-vocab.md).
+ * @type {Record<string, 'masculine' | 'feminine'>}
+ */
+const MINOR_GENDER = {
+  SAR: 'feminine', // هللة
+  OMR: 'feminine', // بيسة
+  TND: 'masculine', // مليم
+  KWD: 'masculine', // فلس
+  BHD: 'masculine', // فلس
+  JOD: 'masculine', // فلس
+  IQD: 'masculine', // فلس
+  LYD: 'masculine', // درهم
+}
+
+/**
  * Gets the appropriate halala word form based on number.
  * @param {bigint} n - The halala count
  * @param {string[]} forms - [singular, dual, plural3-10, plural11+]
@@ -347,7 +370,7 @@ function getHalalaForm(n, forms) {
 
 /**
  * @typedef {object} CurrencyOptions
- * @property {('SAR')} [currency] - ISO 4217 currency code to name the amount in
+ * @property {('SAR'|'TND'|'KWD'|'BHD'|'JOD'|'IQD'|'OMR'|'LYD')} [currency] - ISO 4217 currency code to name the amount in
  */
 
 /** @type {Required<CurrencyOptions>} */
@@ -369,9 +392,12 @@ export const currencyValues = { currency: /** @type {Required<CurrencyOptions>['
  * toCurrency(0.01)   // 'هللة واحدة'
  */
 function toCurrency(value, options) {
-  const { isNegative, dollars: riyals, cents: halalas } = parseCurrencyValue(value)
-  checkMax(riyals, currencyMax)
+  // Options resolve first: the currency decides how many decimal digits the
+  // parser keeps, and a 1000-subunit currency (TND, KWD, ...) read at the
+  // default 2 would turn '1.500' into 50 minor units instead of 500.
   const { currency } = resolveOptions(options, currencyDefaults, currencyValues)
+  const { isNegative, dollars: riyals, cents: halalas } = parseCurrencyValue(value, minorUnitDigits(currency))
+  checkMax(riyals, currencyMax) // halalas are <= 999, safe
   assertCurrencyExponent(halalas, currency)
   const { major, minor } = CURRENCY_VOCAB[currency]
 
@@ -402,15 +428,16 @@ function toCurrency(value, options) {
     if (riyals > 0n) {
       result += ' ' + AND
     }
+    const minorGender = MINOR_GENDER[currency]
     // Special case for 1 and 2: currency word comes first
     if (halalas === 1n) {
-      result += minorForms[0] + ' ' + ONES_FEM[0]
+      result += minorForms[0] + ' ' + (minorGender === 'feminine' ? ONES_FEM[0] : ONES_MASC[0])
     }
     else if (halalas === 2n) {
       result += minorForms[1]
     }
     else {
-      const halalaWord = integerToWords(halalas, 'feminine')
+      const halalaWord = integerToWords(halalas, minorGender)
       result += halalaWord + ' ' + getHalalaForm(halalas, minorForms)
     }
   }
