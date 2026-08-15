@@ -145,3 +145,47 @@ declaration to re-verify under a different name.
 3. Add a fixture case in `test/fixtures/{code}.js` exercising the new
    `currency` value.
 4. Run `npm test` — the gate verifies the declaration behaviourally.
+
+## TODO: minor-unit words we don't have yet
+
+Two open items, one blocked and one not.
+
+### 1. 3-decimal currencies (millimes, fils) — blocked on the parser
+
+n2words cannot currently name **any** currency that divides into 1000:
+
+| Currency | Minor unit |
+| -------- | ---------- |
+| TND (Tunisian dinar) | millime |
+| KWD, BHD, OMR, JOD, IQD, LYD | fils |
+
+`parseCurrencyValue` tracks exactly two decimal digits and truncates
+anything finer, so `'1.500'` dinars reaches a language as **50** minor
+units, not 500 — it would confidently spell "one dinar and fifty millimes"
+for an amount meaning five hundred. Adding `TND: 3` to `CURRENCY_EXPONENTS`
+would not widen support; it would only make that mis-spelling reachable.
+The map is typed `Record<string, 0>` and the gate rejects any other value,
+so this can't be added by accident.
+
+**Doing it properly means changing the parser's precision first** —
+`parseCurrencyValue` returning a minor part scaled to the currency's own
+exponent rather than a fixed two digits, which in turn means the guard and
+every language's `cents` handling become exponent-aware. That is a
+self-contained piece of work and a prerequisite for the whole 1000-subunit
+family; until it lands, these currencies simply stay out of the matrix.
+
+### 2. Currencies whose minor word we haven't translated — just add them
+
+This one needs no infrastructure, only vocabulary. A language can only name
+a currency listed in its own export, so e.g. `hi-IN` naming USD needs the
+Hindi words for "dollar" *and* "cent" added to `hiIN`.
+
+Note that **a missing minor-unit translation cannot silently slip in**.
+`minor: null` is not a placeholder for "we don't know the word yet" — the
+gate enforces minor-words ⟺ nonzero exponent, so `minor: null` on a
+2-decimal currency fails CI with *"has `minor: null` but no
+`CURRENCY_EXPONENTS` entry, so nothing stops a fractional amount from
+dereferencing it"*. If you don't have the minor word, leave the currency
+out of that language's export entirely rather than nulling it — an absent
+currency throws a clear `RangeError` naming the accepted set, which is the
+honest answer.
