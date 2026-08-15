@@ -182,4 +182,14 @@ export const currency = [
 
   // Edge cases
   ['5.00', 'خمسة ريالات'],
+
+  // 1000-subunit currencies. Note the gender flip on the minor unit: Arabic
+  // inverts agreement for 3-10, so masculine فلس takes ثلاثة while feminine
+  // بيسة takes ثلاث — same numeral, different form, driven by MINOR_GENDER.
+  ['1.500', 'دينار واحد وخمسمائة مليماً', { currency: 'TND' }],
+  ['2.002', 'ديناران ومليمان', { currency: 'TND' }],
+  ['3.003', 'ثلاثة دنانير وثلاثة فلوس', { currency: 'KWD' }],
+  ['11.011', 'أحد عشر ديناراً وأحد عشر فلساً', { currency: 'KWD' }],
+  ['3.003', 'ثلاثة ريالات وثلاث بيسات', { currency: 'OMR' }],
+  [1, 'دينار واحد', { currency: 'JOD' }],
 ]

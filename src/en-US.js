@@ -23,7 +23,7 @@ import { parseOrdinalValue } from './utils/parse-ordinal.js'
 import { checkMax } from './utils/check-max.js'
 import { western } from './utils/scale.js'
 import { resolveOptions } from './utils/resolve-options.js'
-import { enUS as CURRENCY_VOCAB, assertCurrencyExponent } from './utils/currency-vocab.js'
+import { enUS as CURRENCY_VOCAB, assertCurrencyExponent, minorUnitDigits } from './utils/currency-vocab.js'
 
 // ============================================================================
 // VOCABULARY
@@ -482,7 +482,7 @@ function toOrdinal(value) {
 /**
  * @typedef {object} CurrencyOptions
  * @property {boolean} [and] - Use "and" between dollars and cents (e.g., "one dollar and fifty cents")
- * @property {('USD')} [currency] - ISO 4217 currency code to name the amount in
+ * @property {('USD'|'TND'|'KWD'|'BHD'|'JOD'|'IQD'|'OMR'|'LYD')} [currency] - ISO 4217 currency code to name the amount in
  */
 
 /** @type {Required<CurrencyOptions>} */
@@ -505,9 +505,12 @@ export const currencyValues = { currency: /** @type {Required<CurrencyOptions>['
  * toCurrency(42.50, { and: false })    // 'forty-two dollars fifty cents'
  */
 function toCurrency(value, options) {
-  const { isNegative, dollars, cents } = parseCurrencyValue(value)
-  checkMax(dollars, currencyMax)
+  // Options resolve first: the currency decides how many decimal digits the
+  // parser keeps, and a 1000-subunit currency (TND, KWD, ...) read at the
+  // default 2 would turn '1.500' into 50 minor units instead of 500.
   const { and: useAnd, currency } = resolveOptions(options, currencyDefaults, currencyValues)
+  const { isNegative, dollars, cents } = parseCurrencyValue(value, minorUnitDigits(currency))
+  checkMax(dollars, currencyMax) // cents are <= 999, safe
   assertCurrencyExponent(cents, currency)
   const { major, minor } = CURRENCY_VOCAB[currency]
 

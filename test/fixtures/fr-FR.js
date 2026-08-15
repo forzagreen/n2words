@@ -241,4 +241,11 @@ export const currency = [
 
   // BigInt (whole euros only)
   [1000000000000n, 'un billion euros'],
+
+  // Tunisian dinar: 1000 millimes, so the third decimal is significant.
+  ['1.500', 'un dinar et cinq cents millimes', { currency: 'TND' }],
+  ['1.050', 'un dinar et cinquante millimes', { currency: 'TND' }],
+  ['0.001', 'un millime', { currency: 'TND' }],
+  ['42.750', 'quarante-deux dinars et sept cent cinquante millimes', { currency: 'TND' }],
+  ['1.500', 'un euro et cinquante centimes', { currency: 'EUR' }],
 ]

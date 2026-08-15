@@ -212,4 +212,11 @@ export const currency = [
   // Edge cases
   [5.00, 'cinq euros'],
   ['5.00', 'cinq euros'],
+
+  // Tunisian dinar: 1000 millimes, so the third decimal is significant.
+  ['1.500', 'un dinar et cinq cents millimes', { currency: 'TND' }],
+  ['1.050', 'un dinar et cinquante millimes', { currency: 'TND' }],
+  ['0.001', 'un millime', { currency: 'TND' }],
+  ['42.750', 'quarante-deux dinars et sept cent cinquante millimes', { currency: 'TND' }],
+  ['1.500', 'un euro et cinquante centimes', { currency: 'EUR' }],
 ]

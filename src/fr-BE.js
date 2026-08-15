@@ -16,7 +16,7 @@ import { parseOrdinalValue } from './utils/parse-ordinal.js'
 import { checkMax } from './utils/check-max.js'
 import { longScale } from './utils/scale.js'
 import { resolveOptions } from './utils/resolve-options.js'
-import { frBE as CURRENCY_VOCAB, assertCurrencyExponent } from './utils/currency-vocab.js'
+import { frBE as CURRENCY_VOCAB, assertCurrencyExponent, minorUnitDigits } from './utils/currency-vocab.js'
 
 // ============================================================================
 // Vocabulary
@@ -462,7 +462,7 @@ function toOrdinal(value) {
 /**
  * @typedef {object} CurrencyOptions
  * @property {boolean} [and] - Use "et" between euros and centimes
- * @property {('EUR')} [currency] - ISO 4217 currency code to name the amount in
+ * @property {('EUR'|'TND')} [currency] - ISO 4217 currency code to name the amount in
  */
 
 /** @type {Required<CurrencyOptions>} */
@@ -486,9 +486,12 @@ export const currencyValues = { currency: /** @type {Required<CurrencyOptions>['
  * toCurrency(42.50, { and: false }) // 'quarante-deux euros cinquante centimes'
  */
 function toCurrency(value, options) {
-  const { isNegative, dollars: euros, cents: centimes } = parseCurrencyValue(value)
-  checkMax(euros, currencyMax)
+  // Options resolve first: the currency decides how many decimal digits the
+  // parser keeps, and TND read at the default 2 would turn '1.500' into 50
+  // millimes instead of 500.
   const { and: useAnd, currency } = resolveOptions(options, currencyDefaults, currencyValues)
+  const { isNegative, dollars: euros, cents: centimes } = parseCurrencyValue(value, minorUnitDigits(currency))
+  checkMax(euros, currencyMax) // centimes are <= 999, safe
   assertCurrencyExponent(centimes, currency)
   const { major, minor } = CURRENCY_VOCAB[currency]
 

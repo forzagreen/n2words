@@ -10,20 +10,25 @@ import { expandScientificNotation, hasScientificNotation, numberToString } from 
  * Parses a value for currency conversion.
  * Returns dollars and cents as separate bigints, plus negative flag.
  *
- * **Precision:** exactly two decimal digits are tracked; anything finer is
- * truncated (`'1.004'` → 1 dollar, 0 cents). That granularity is deliberate
- * and is the package's currency contract, for two reasons: it is at least as
- * fine as the minor unit of every currency n2words can name (all have an ISO
- * 4217 exponent of 2 or 0 — see `CURRENCY_EXPONENTS` in currency-vocab.js),
- * so nothing a currency could actually represent is ever lost; and float
- * input would otherwise be unusable, since `0.1 + 0.2` is
- * `0.30000000000000004` and rejecting or spelling that tail helps nobody.
+ * **Precision:** `minorDigits` decimal digits are tracked and anything finer
+ * is truncated — at the default of 2, `'1.004'` is 1 dollar and 0 cents.
+ * Truncating rather than rejecting is deliberate: float input would otherwise
+ * be unusable, since `0.1 + 0.2` is `0.30000000000000004` and neither
+ * rejecting nor spelling that tail helps anybody.
+ *
+ * Pass 3 for a currency whose minor unit is a thousandth (millimes, fils —
+ * see `CURRENCY_EXPONENTS` in currency-vocab.js), so that `'1.500'` dinars
+ * parses as 500 millimes rather than 50. Use `minorUnitDigits(currency)` to
+ * derive it instead of hard-coding, and note it returns 2 — not 0 — for a
+ * zero-exponent currency like JPY: those are rejected by
+ * `assertCurrencyExponent`, which can only see a fraction the parser kept.
  * @param {number|string|bigint} value - The value to parse
+ * @param {number} [minorDigits] - Decimal digits to track (2 or 3, default 2)
  * @returns {{isNegative: boolean, dollars: bigint, cents: bigint}} The parsed dollars and cents with a negative flag.
  * @throws {TypeError} If value is not number, string, or bigint
  * @throws {RangeError} If value is not finite
  */
-export function parseCurrencyValue(value) {
+export function parseCurrencyValue(value, minorDigits = 2) {
   const type = typeof value
 
   // BigInt: whole dollars only
@@ -44,12 +49,12 @@ export function parseCurrencyValue(value) {
         : { isNegative: false, dollars: BigInt(value), cents: 0n }
     }
     // Non-integer or unsafe: convert to string
-    return parseCurrencyString(numberToString(value))
+    return parseCurrencyString(numberToString(value), minorDigits)
   }
 
   // String input
   if (typeof value === 'string') {
-    return parseCurrencyString(value)
+    return parseCurrencyString(value, minorDigits)
   }
 
   throw new TypeError(
@@ -60,9 +65,10 @@ export function parseCurrencyValue(value) {
 /**
  * Parses a string for currency conversion.
  * @param {string} value - The string to parse
+ * @param {number} minorDigits - Decimal digits to track (2 or 3)
  * @returns {{isNegative: boolean, dollars: bigint, cents: bigint}} The parsed dollars and cents with a negative flag.
  */
-function parseCurrencyString(value) {
+function parseCurrencyString(value, minorDigits) {
   let str = value.trim()
 
   if (str.length === 0 || Number.isNaN(Number(str))) {
@@ -87,9 +93,9 @@ function parseCurrencyString(value) {
   const dollarStr = str.slice(0, dotIndex) || '0'
   const decimalPart = str.slice(dotIndex + 1)
 
-  // Truncate to 2 decimal places and pad if needed. See parseCurrencyValue's
+  // Truncate to minorDigits places and pad if needed. See parseCurrencyValue's
   // "Precision" note for why truncating here is the contract, not a rounding bug.
-  const centStr = (decimalPart + '00').slice(0, 2)
+  const centStr = (decimalPart + '000').slice(0, minorDigits)
 
   return {
     isNegative,

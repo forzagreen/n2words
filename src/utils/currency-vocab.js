@@ -33,8 +33,28 @@
 const EN_DOLLAR = { major: ['dollar', 'dollars'], minor: ['cent', 'cents'] }
 const FR_EURO = { major: ['euro', 'euros'], minor: ['centime', 'centimes'] }
 
+// The Arab-world dinars all divide into 1000 fils (CURRENCY_EXPONENTS marks
+// them 3). Tunisia, Oman and Libya are the odd ones out: Tunisia's subunit is
+// the millime, Libya's the dirham, and Oman's unit is a rial, not a dinar,
+// divided into baisa. "fils" is already plural in English and doesn't inflect.
+const EN_DINAR_FILS = { major: ['dinar', 'dinars'], minor: ['fils', 'fils'] }
+const EN_DINAR_MILLIME = { major: ['dinar', 'dinars'], minor: ['millime', 'millimes'] }
+const FR_DINAR_MILLIME = { major: ['dinar', 'dinars'], minor: ['millime', 'millimes'] }
+
+// en-US carries the full 1000-subunit set: English is the language these
+// currencies are most often quoted in outside their own countries, and it is
+// reachable as the bare `n2words/en` entry point.
 /** @type {Record<string, CurrencyWordForms>} */
-export const enUS = { USD: EN_DOLLAR }
+export const enUS = {
+  USD: EN_DOLLAR,
+  TND: EN_DINAR_MILLIME,
+  KWD: EN_DINAR_FILS,
+  BHD: EN_DINAR_FILS,
+  JOD: EN_DINAR_FILS,
+  IQD: EN_DINAR_FILS,
+  OMR: { major: ['rial', 'rials'], minor: ['baisa', 'baisas'] },
+  LYD: { major: ['dinar', 'dinars'], minor: ['dirham', 'dirhams'] },
+}
 
 /** @type {Record<string, CurrencyWordForms>} */
 export const enCA = { CAD: EN_DOLLAR }
@@ -45,11 +65,13 @@ export const enAU = { AUD: EN_DOLLAR }
 /** @type {Record<string, CurrencyWordForms>} */
 export const enGB = { GBP: { major: ['pound', 'pounds'], minor: ['penny', 'pence'] } }
 
+// French names the Tunisian dinar (Tunisia is francophone); the Gulf dinars
+// have no comparable French-language footing and stay out until one is asked for.
 /** @type {Record<string, CurrencyWordForms>} */
-export const frFR = { EUR: FR_EURO }
+export const frFR = { EUR: FR_EURO, TND: FR_DINAR_MILLIME }
 
 /** @type {Record<string, CurrencyWordForms>} */
-export const frBE = { EUR: FR_EURO }
+export const frBE = { EUR: FR_EURO, TND: FR_DINAR_MILLIME }
 
 /** @type {Record<string, CurrencyWordForms>} */
 export const esES = { EUR: { major: ['euro', 'euros'], minor: ['céntimo', 'céntimos'] } }
@@ -188,11 +210,29 @@ export const zhHansCN = { CNY: { major: ['圆', '元'], minor: ['角', '分'] } 
 /** @type {Record<string, CurrencyWordForms>} */
 export const zhHantTW = { TWD: { major: ['圓', '元'], minor: ['角', '分'] } }
 
-// Saudi Riyal/Halala: [singular, dual, plural (3-10), plural (11+)] — ar-SA's
-// own getRiyalForm()/getHalalaForm() select the index.
+// Arabic currency words: [singular, dual, plural (3-10), plural (11+)] —
+// ar-SA's own getRiyalForm()/getHalalaForm() select the index. The 11+ slot is
+// the tamyīz form: masculine nouns take tanwīn (ريالاً, ديناراً), while a
+// feminine ة noun keeps its base form (هللة, بيسة).
+//
+// Arabic number words are the same across every Arabic variant — only the
+// currency differs by country — so this one export is the right home for the
+// whole Arab-world set rather than splitting it per (as yet unimplemented)
+// regional variant.
+const AR_RIAL = ['ريال', 'ريالان', 'ريالات', 'ريالاً']
+const AR_DINAR = ['دينار', 'ديناران', 'دنانير', 'ديناراً']
+const AR_FILS = ['فلس', 'فلسان', 'فلوس', 'فلساً']
+
 /** @type {Record<string, CurrencyWordForms>} */
 export const arSA = {
-  SAR: { major: ['ريال', 'ريالان', 'ريالات', 'ريالاً'], minor: ['هللة', 'هللتان', 'هللات', 'هللة'] },
+  SAR: { major: AR_RIAL, minor: ['هللة', 'هللتان', 'هللات', 'هللة'] },
+  TND: { major: AR_DINAR, minor: ['مليم', 'مليمان', 'مليمات', 'مليماً'] },
+  KWD: { major: AR_DINAR, minor: AR_FILS },
+  BHD: { major: AR_DINAR, minor: AR_FILS },
+  JOD: { major: AR_DINAR, minor: AR_FILS },
+  IQD: { major: AR_DINAR, minor: AR_FILS },
+  OMR: { major: AR_RIAL, minor: ['بيسة', 'بيستان', 'بيسات', 'بيسة'] },
+  LYD: { major: AR_DINAR, minor: ['درهم', 'درهمان', 'دراهم', 'درهماً'] },
 }
 
 // hbo-IL (Biblical Hebrew) and he-IL (Modern Hebrew) share identical Shekel
@@ -391,22 +431,50 @@ export const yoNG = {
  * subunit at all. Only these overrides are listed; an absent code is assumed
  * to be 2, which covers every other currency n2words names.
  *
- * **0 is the only value this map may hold**, and the type says so. n2words
- * cannot represent a 3-decimal currency (KWD, BHD, OMR and TND divide into
- * 1000 fils/millimes): `parseCurrencyValue` tracks exactly two decimal digits,
- * so `'1.500'` reaches a language as 50 minor units, not 500. Adding
- * `KWD: 3` here would therefore not widen support — it would silently spell
- * "one dinar and fifty fils" for an amount meaning five hundred. Supporting
- * one means changing the parser's precision first; until then
- * `currency-vocab-contract.test.js` fails any entry that isn't 0.
- * @type {Record<string, 0>}
+ * **Only 0 and 3 may appear here**, and the type says so — 2 is the implicit
+ * default for everything absent, so listing it would be noise.
+ *
+ * A 3 means the minor unit is a *thousandth* (millimes, fils, baisa). Such a
+ * currency is only safe to name if the language passes
+ * `minorUnitDigits(currency)` to `parseCurrencyValue`; parsing it at the
+ * default 2 digits would read `'1.500'` as 50 minor units and confidently
+ * spell "one dinar and fifty millimes" for an amount meaning five hundred.
+ * `currency-vocab-contract.test.js` proves the round trip behaviourally for
+ * every 3-decimal currency a language advertises, so a language that forgets
+ * to pass the digits fails CI rather than shipping the mis-parse.
+ * @type {Record<string, 0 | 3>}
  */
 export const CURRENCY_EXPONENTS = {
+  // No everyday minor unit at all.
   JPY: 0,
   KRW: 0,
   VND: 0,
   IRR: 0,
   IDR: 0,
+
+  // Minor unit is 1/1000, not 1/100.
+  TND: 3, // millime
+  KWD: 3, // fils
+  BHD: 3, // fils
+  OMR: 3, // baisa
+  JOD: 3, // fils
+  IQD: 3, // fils
+  LYD: 3, // dirham
+}
+
+/**
+ * Decimal digits `parseCurrencyValue` should track for a currency.
+ *
+ * Note this is *not* the ISO 4217 exponent: a zero-exponent currency returns
+ * 2, not 0. The whole point of keeping two digits there is that
+ * `assertCurrencyExponent` can only reject a fraction the parser bothered to
+ * keep — parsing JPY at 0 digits would silently turn 1.5 yen into 1 yen,
+ * which is exactly the silent truncation this package refuses to do.
+ * @param {string} currencyCode - The resolved ISO 4217 code
+ * @returns {number} 3 for a thousandth-unit currency, otherwise 2
+ */
+export function minorUnitDigits(currencyCode) {
+  return CURRENCY_EXPONENTS[currencyCode] === 3 ? 3 : 2
 }
 
 /**
