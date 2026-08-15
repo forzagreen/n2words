@@ -41,6 +41,12 @@ const EN_DINAR_FILS = { major: ['dinar', 'dinars'], minor: ['fils', 'fils'] }
 const EN_DINAR_MILLIME = { major: ['dinar', 'dinars'], minor: ['millime', 'millimes'] }
 const FR_DINAR_MILLIME = { major: ['dinar', 'dinars'], minor: ['millime', 'millimes'] }
 
+// The Moroccan dirham is not one of the 1000-subunit currencies above: it
+// divides into 100 centimes like the euro, so it takes no CURRENCY_EXPONENTS
+// entry and parses at the default two digits.
+const EN_DIRHAM_CENTIME = { major: ['dirham', 'dirhams'], minor: ['centime', 'centimes'] }
+const FR_DIRHAM_CENTIME = { major: ['dirham', 'dirhams'], minor: ['centime', 'centimes'] }
+
 // en-US carries the full 1000-subunit set: English is the language these
 // currencies are most often quoted in outside their own countries, and it is
 // reachable as the bare `n2words/en` entry point.
@@ -54,6 +60,9 @@ export const enUS = {
   IQD: EN_DINAR_FILS,
   OMR: { major: ['rial', 'rials'], minor: ['baisa', 'baisas'] },
   LYD: { major: ['dinar', 'dinars'], minor: ['dirham', 'dirhams'] },
+  // Morocco divides into 100 centimes, so MAD is an ordinary 2-decimal
+  // currency despite sitting among the dinars above.
+  MAD: EN_DIRHAM_CENTIME,
 }
 
 /** @type {Record<string, CurrencyWordForms>} */
@@ -68,10 +77,10 @@ export const enGB = { GBP: { major: ['pound', 'pounds'], minor: ['penny', 'pence
 // French names the Tunisian dinar (Tunisia is francophone); the Gulf dinars
 // have no comparable French-language footing and stay out until one is asked for.
 /** @type {Record<string, CurrencyWordForms>} */
-export const frFR = { EUR: FR_EURO, TND: FR_DINAR_MILLIME }
+export const frFR = { EUR: FR_EURO, TND: FR_DINAR_MILLIME, MAD: FR_DIRHAM_CENTIME }
 
 /** @type {Record<string, CurrencyWordForms>} */
-export const frBE = { EUR: FR_EURO, TND: FR_DINAR_MILLIME }
+export const frBE = { EUR: FR_EURO, TND: FR_DINAR_MILLIME, MAD: FR_DIRHAM_CENTIME }
 
 /** @type {Record<string, CurrencyWordForms>} */
 export const esES = { EUR: { major: ['euro', 'euros'], minor: ['céntimo', 'céntimos'] } }
@@ -222,6 +231,8 @@ export const zhHantTW = { TWD: { major: ['圓', '元'], minor: ['角', '分'] } 
 const AR_RIAL = ['ريال', 'ريالان', 'ريالات', 'ريالاً']
 const AR_DINAR = ['دينار', 'ديناران', 'دنانير', 'ديناراً']
 const AR_FILS = ['فلس', 'فلسان', 'فلوس', 'فلساً']
+// درهم is Libya's *minor* unit and Morocco's *major* one — same word, two roles.
+const AR_DIRHAM = ['درهم', 'درهمان', 'دراهم', 'درهماً']
 
 /** @type {Record<string, CurrencyWordForms>} */
 export const arSA = {
@@ -232,7 +243,9 @@ export const arSA = {
   JOD: { major: AR_DINAR, minor: AR_FILS },
   IQD: { major: AR_DINAR, minor: AR_FILS },
   OMR: { major: AR_RIAL, minor: ['بيسة', 'بيستان', 'بيسات', 'بيسة'] },
-  LYD: { major: AR_DINAR, minor: ['درهم', 'درهمان', 'دراهم', 'درهماً'] },
+  LYD: { major: AR_DINAR, minor: AR_DIRHAM },
+  // Morocco divides into 100 santim, not 1000 — no CURRENCY_EXPONENTS entry.
+  MAD: { major: AR_DIRHAM, minor: ['سنتيم', 'سنتيمان', 'سنتيمات', 'سنتيماً'] },
 }
 
 // hbo-IL (Biblical Hebrew) and he-IL (Modern Hebrew) share identical Shekel

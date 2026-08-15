@@ -353,6 +353,7 @@ const MINOR_GENDER = {
   JOD: 'masculine', // فلس
   IQD: 'masculine', // فلس
   LYD: 'masculine', // درهم
+  MAD: 'masculine', // سنتيم
 }
 
 /**
@@ -370,7 +371,7 @@ function getHalalaForm(n, forms) {
 
 /**
  * @typedef {object} CurrencyOptions
- * @property {('SAR'|'TND'|'KWD'|'BHD'|'JOD'|'IQD'|'OMR'|'LYD')} [currency] - ISO 4217 currency code to name the amount in
+ * @property {('SAR'|'TND'|'KWD'|'BHD'|'JOD'|'IQD'|'OMR'|'LYD'|'MAD')} [currency] - ISO 4217 currency code to name the amount in
  */
 
 /** @type {Required<CurrencyOptions>} */
