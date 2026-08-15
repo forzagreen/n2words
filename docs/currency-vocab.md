@@ -57,6 +57,13 @@ growth model as `LANGUAGE_NAME_OVERRIDES` in
 currency" is a structural capability of the shape, not a day-one
 requirement.
 
+Because the source is keyed by language, how far that has actually got is not
+readable from the file itself — you'd have to read all 72 exports to answer
+"which languages can name EUR?". [LANGUAGES.md](../LANGUAGES.md)'s **Currency
+Coverage** section is the generated inverse view: one row per ISO code, split
+into the languages it's the default for and the languages that merely name it.
+Run `npm run docs:languages` after editing this file so the two stay in step.
+
 ## The `currency` option
 
 Follows the existing `<form>Values` enum contract

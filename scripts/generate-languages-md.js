@@ -381,6 +381,67 @@ function formatFamilyTable(families, aliases, optionAnchors, displayName) {
 }
 
 /**
+ * Format the currency coverage table — the cross-language view of the
+ * currency matrix.
+ *
+ * `src/utils/currency-vocab.js` is keyed by language, one named export each,
+ * because keying it by currency would defeat per-language tree-shaking
+ * (docs/currency-vocab.md explains the bundling constraint in full). That
+ * shape is right for the build and useless for answering "which languages can
+ * name EUR?", which is only visible by reading all 72 exports. This table is
+ * that missing view, generated so it can't drift from the data.
+ *
+ * Built from each language's exported `currencyValues.currency` enum rather
+ * than from the vocab module: the enum is what a caller can actually pass, and
+ * currency-vocab-contract.test.js already pins the enum and the vocab entries
+ * to each other, so reading either gives the same answer.
+ *
+ * @param {string[]} codes Canonical (non-alias) language codes
+ * @param {Map<string, Record<string, any>>} mods Code -> module namespace
+ * @returns {{table: string, currencyCount: number, pairCount: number}} Table plus its headline counts
+ */
+function formatCurrencyCoverage(codes, mods) {
+  // ISO code -> languages that name it, split by whether it's their own
+  // default. The split is the interesting part: the `default` column is
+  // essentially "this language's home currency", while `also` is the
+  // cross-currency capability the matrix exists to enable.
+  const byCurrency = new Map()
+  let pairCount = 0
+
+  for (const code of codes) {
+    const mod = mods.get(code)
+    const declared = mod.currencyValues?.currency
+    if (declared === undefined) continue
+    const ownDefault = mod.currencyDefaults?.currency
+
+    for (const iso of declared) {
+      if (!byCurrency.has(iso)) byCurrency.set(iso, { isDefault: [], alsoNamed: [] })
+      byCurrency.get(iso)[iso === ownDefault ? 'isDefault' : 'alsoNamed'].push(code)
+      pairCount++
+    }
+  }
+
+  // Most widely-known currencies first: that ordering puts the genuinely
+  // shared entries at the top and the single-language long tail at the
+  // bottom, which is what makes the gaps legible at a glance.
+  const sorted = [...byCurrency.entries()].sort(([isoA, a], [isoB, b]) => {
+    const total = entry => entry.isDefault.length + entry.alsoNamed.length
+    return total(b) - total(a) || isoA.localeCompare(isoB)
+  })
+
+  const lines = [
+    '|Currency|Default for|Also names it|',
+    '|--------|-----------|-------------|',
+  ]
+  const cell = list => list.length > 0 ? list.map(c => `\`${c}\``).join(', ') : '—'
+  for (const [iso, { isDefault, alsoNamed }] of sorted) {
+    lines.push(`|\`${iso}\`|${cell(isDefault)}|${cell(alsoNamed)}|`)
+  }
+
+  return { table: lines.join('\n'), currencyCount: byCurrency.size, pairCount }
+}
+
+/**
  * Generate the LANGUAGES.md content.
  *
  * @param {string[]} codes Array of canonical (non-alias) language codes
@@ -408,6 +469,7 @@ function generateMarkdown(codes, forms, mods, aliases) {
   const currencyCount = codesWithCurrency.length
   const optionsByLang = collectOptionsByLanguage(codes)
   const optionsCount = optionsByLang.length
+  const currencyCoverage = formatCurrencyCoverage(codes, mods)
 
   // Build a set of codes that have options for quick anchor lookup
   const optionAnchors = new Map()
@@ -519,6 +581,33 @@ ${langRows.join('\n')}
 Each form column shows the largest value it converts (\`10^N - 1\`), \`∞\` when unbounded, or blank when the form isn't supported.
 
 \\* Has options — click to jump to that language's options.
+
+## Currency Coverage
+
+Which languages can name which currency. ${currencyCount} variants name ${currencyCoverage.currencyCount} distinct
+ISO 4217 currencies, across ${currencyCoverage.pairCount} language/currency pairs.
+
+A language always names its own default currency; anything in the third column
+is opt-in via the \`currency\` option:
+
+\`\`\`js
+import { toCurrency } from 'n2words/pt-BR'
+
+toCurrency(42.50)                       // 'quarenta e dois reais e cinquenta centavos' (BRL, the default)
+toCurrency(42, { currency: 'JPY' })     // 'quarenta e dois ienes'
+toCurrency(42.50, { currency: 'JPY' })  // RangeError — the yen has no minor unit
+\`\`\`
+
+Passing a currency a language has no words for throws \`RangeError\` rather than
+guessing — each language's accepted set is its \`currencyValues.currency\` export,
+also listed per language under [Language Options](#language-options).
+
+${currencyCoverage.table}
+
+To teach a language a new currency, add its word forms to that language's export
+in [\`src/utils/currency-vocab.js\`](src/utils/currency-vocab.js) — see
+[docs/currency-vocab.md](docs/currency-vocab.md) for the word-form conventions
+(the arrays are per-language plural forms, not a fixed singular/plural pair).
 
 ## Language Options
 
