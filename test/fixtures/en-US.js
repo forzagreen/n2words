@@ -178,6 +178,20 @@ export const currency = [
 
   // BigInt (whole dollars only)
   [1000000000000n, 'one trillion dollars'],
+
+  // 1000-subunit currencies: the third decimal is significant, so '1.500' is
+  // five hundred millimes and '1.050' is fifty — the pair a 2-digit parse
+  // would collapse into each other.
+  ['1.500', 'one dinar and five hundred millimes', { currency: 'TND' }],
+  ['1.050', 'one dinar and fifty millimes', { currency: 'TND' }],
+  ['0.001', 'one millime', { currency: 'TND' }],
+  ['42.750', 'forty-two dinars and seven hundred fifty fils', { currency: 'KWD' }],
+  ['2.002', 'two rials and two baisas', { currency: 'OMR' }],
+  ['3.250', 'three dinars and two hundred fifty dirhams', { currency: 'LYD' }],
+  [1, 'one dinar', { currency: 'JOD' }],
+
+  // A 2-decimal currency is unaffected by the above — '1.500' is fifty cents.
+  ['1.500', 'one dollar and fifty cents', { currency: 'USD' }],
 ]
 
 /**
