@@ -483,7 +483,7 @@ function toOrdinal(value) {
 /**
  * @typedef {object} CurrencyOptions
  * @property {boolean} [and] - Include "e" between euros and cents
- * @property {('EUR')} [currency] - ISO 4217 currency code to name the amount in
+ * @property {import('./utils/currency-vocab.js').PtPTCurrency} [currency] - ISO 4217 currency code to name the amount in
  */
 
 /** @type {Required<CurrencyOptions>} */

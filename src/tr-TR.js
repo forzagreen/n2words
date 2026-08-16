@@ -15,7 +15,7 @@ import { parseOrdinalValue } from './utils/parse-ordinal.js'
 import { checkMax } from './utils/check-max.js'
 import { western } from './utils/scale.js'
 import { resolveOptions } from './utils/resolve-options.js'
-import { trTR as CURRENCY_VOCAB, assertCurrencyExponent } from './utils/currency-vocab.js'
+import { tr as CURRENCY_VOCAB, assertCurrencyExponent } from './utils/currency-vocab.js'
 
 // ============================================================================
 // Vocabulary (module-level constants)
@@ -374,7 +374,7 @@ function toOrdinal(value) {
 
 /**
  * @typedef {object} CurrencyOptions
- * @property {('TRY')} [currency] - ISO 4217 currency code to name the amount in
+ * @property {import('./utils/currency-vocab.js').TrCurrency} [currency] - ISO 4217 currency code to name the amount in
  */
 
 /** @type {Required<CurrencyOptions>} */

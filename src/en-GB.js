@@ -16,7 +16,7 @@ import { parseOrdinalValue } from './utils/parse-ordinal.js'
 import { checkMax } from './utils/check-max.js'
 import { western } from './utils/scale.js'
 import { resolveOptions } from './utils/resolve-options.js'
-import { enGB as CURRENCY_VOCAB, assertCurrencyExponent } from './utils/currency-vocab.js'
+import { en as CURRENCY_VOCAB, assertCurrencyExponent, minorUnitDigits } from './utils/currency-vocab.js'
 
 // ============================================================================
 // Vocabulary (module-level constants)
@@ -426,7 +426,7 @@ function toOrdinal(value) {
 /**
  * @typedef {object} CurrencyOptions
  * @property {boolean} [and] - Use "and" between pounds and pence (e.g., "one pound and fifty pence")
- * @property {('GBP')} [currency] - ISO 4217 currency code to name the amount in
+ * @property {import('./utils/currency-vocab.js').EnCurrency} [currency] - ISO 4217 currency code to name the amount in
  */
 
 /** @type {Required<CurrencyOptions>} */
@@ -450,9 +450,14 @@ export const currencyValues = { currency: /** @type {Required<CurrencyOptions>['
  * toCurrency(42.50, { and: false })    // 'forty-two pounds fifty pence'
  */
 function toCurrency(value, options) {
-  const { isNegative, dollars: pounds, cents: pence } = parseCurrencyValue(value)
-  checkMax(pounds, currencyMax)
+  // Options resolve first: the currency decides how many decimal digits the
+  // parser keeps, and a 1000-subunit currency (TND, KWD, ...) read at the
+  // default 2 would turn '1.500' into 50 minor units instead of 500. Every
+  // English entry point can name one via the shared `en` matrix, not just
+  // en-US, so this applies here too.
   const { and: useAnd, currency } = resolveOptions(options, currencyDefaults, currencyValues)
+  const { isNegative, dollars: pounds, cents: pence } = parseCurrencyValue(value, minorUnitDigits(currency))
+  checkMax(pounds, currencyMax) // pence are <= 999, safe
   assertCurrencyExponent(pence, currency)
   const { major, minor } = CURRENCY_VOCAB[currency]
 
@@ -460,10 +465,14 @@ function toCurrency(value, options) {
   let result = ''
   if (isNegative) result = NEGATIVE + ' '
 
-  // Pounds part (show if non-zero, or if no pence)
+  // Some currencies in the shared `en` matrix have an invariable major or
+  // minor noun (taka, ringgit, naira, rand, euro-in-Irish-English) — a
+  // single-element array with no plural form. Only index [1] when a plural
+  // form actually exists; otherwise [0] serves both roles, matching what
+  // each currency's own English usage already does.
   if (pounds > 0n || pence === 0n) {
     result += integerToWords(pounds)
-    result += ' ' + (pounds === 1n ? major[0] : major[1])
+    result += ' ' + (pounds === 1n || major.length < 2 ? major[0] : major[1])
   }
 
   // Pence part
@@ -472,7 +481,8 @@ function toCurrency(value, options) {
       result += useAnd ? ' and ' : ' '
     }
     result += integerToWords(pence)
-    result += ' ' + (pence === 1n ? (/** @type {string[]} */ (minor))[0] : (/** @type {string[]} */ (minor))[1])
+    const minorForms = /** @type {string[]} */ (minor)
+    result += ' ' + (pence === 1n || minorForms.length < 2 ? minorForms[0] : minorForms[1])
   }
 
   return result

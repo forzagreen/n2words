@@ -16,7 +16,7 @@ import { parseOrdinalValue } from './utils/parse-ordinal.js'
 import { checkMax } from './utils/check-max.js'
 import { western } from './utils/scale.js'
 import { resolveOptions } from './utils/resolve-options.js'
-import { ruRU as CURRENCY_VOCAB, assertCurrencyExponent } from './utils/currency-vocab.js'
+import { ru as CURRENCY_VOCAB, assertCurrencyExponent } from './utils/currency-vocab.js'
 
 // ============================================================================
 // Vocabulary
@@ -535,7 +535,7 @@ function toOrdinal(value) {
 /**
  * @typedef {object} CurrencyOptions
  * @property {boolean} [and] - Use "и" between rubles and kopecks
- * @property {('RUB')} [currency] - ISO 4217 currency code to name the amount in
+ * @property {import('./utils/currency-vocab.js').RuCurrency} [currency] - ISO 4217 currency code to name the amount in
  */
 
 /** @type {Required<CurrencyOptions>} */
@@ -563,24 +563,30 @@ function toCurrency(value, options) {
   checkMax(rubles, currencyMax)
   const { and: useAnd, currency } = resolveOptions(options, currencyDefaults, currencyValues)
   assertCurrencyExponent(kopecks, currency)
-  const { major, minor } = CURRENCY_VOCAB[currency]
+  const { major, minor, majorGender: majorGenderRaw, minorGender: minorGenderRaw } = CURRENCY_VOCAB[currency]
+  // Every ru entry sets both gender fields (currency-vocab-contract.test.js
+  // enforces it for gender-sensitive languages) — narrow the optional matrix
+  // fields to the non-optional shape toCurrency's own logic requires.
+  const majorGender = /** @type {'masculine' | 'feminine'} */ (majorGenderRaw)
+  const minorGender = /** @type {'masculine' | 'feminine'} */ (minorGenderRaw)
 
   // Build result
   let result = ''
   if (isNegative) result = NEGATIVE + ' '
 
-  // Rubles part (masculine) - show if non-zero, or if no kopecks
+  // Major-unit noun's own gender drives agreement (рубль is masculine, but a
+  // named currency's own noun may not be — see docs/currency-vocab.md).
   if (rubles > 0n || kopecks === 0n) {
-    result += integerToWords(rubles, 'masculine')
+    result += integerToWords(rubles, majorGender)
     result += ' ' + pluralize(rubles, major)
   }
 
-  // Kopecks part (feminine)
+  // Minor-unit noun's own gender (копейка is feminine).
   if (kopecks > 0n) {
     if (rubles > 0n) {
       result += useAnd ? ' и ' : ' '
     }
-    result += integerToWords(kopecks, 'feminine')
+    result += integerToWords(kopecks, minorGender)
     result += ' ' + pluralize(kopecks, /** @type {string[]} */ (minor))
   }
 

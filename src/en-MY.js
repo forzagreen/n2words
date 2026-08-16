@@ -1,415 +1,54 @@
 /**
- * Malaysian English language converter
+ * English (Malaysia) currency profile of en-GB
  *
  * CLDR: en-MY | English as used in Malaysia
  *
- * Exports:
- * - toCardinal(value)            - Cardinal numbers: 42 → "forty-two"
- * - toOrdinal(value)             - Ordinal numbers: 42 → "forty-second"
- * - toCurrency(value, options?)  - Currency: 42.50 → "forty-two ringgit and fifty sen"
- *
- * Malaysian English conventions:
- * - Follows British English style
- * - "and" after hundreds: "one hundred and twenty-three"
- * - "and" before final segment: "one million and one"
- * - Hyphenated tens-ones: "twenty-one", "forty-two"
- * - Western numbering system (short scale: billion = 10^9)
- * - Currency: Malaysian Ringgit (MYR) - ringgit (invariable), sen (invariable)
- *
- * Note: Both "ringgit" and "sen" are typically invariable (same for singular and plural)
- * in Malaysian English.
+ * Numerals are identical to en-GB (Commonwealth "and"-after-hundreds Western short-scale numerals) — see
+ * docs/language-layers.md for why this is a locale *profile* rather than a
+ * separate numeral implementation: "which words" (English) and "which
+ * country" (Malaysia) are different axes, and only the latter varies
+ * here. Only the default currency differs (MYR, not en-GB's
+ * default).
  */
 
-import { parseCardinalValue } from './utils/parse-cardinal.js'
-import { parseCurrencyValue } from './utils/parse-currency.js'
-import { parseOrdinalValue } from './utils/parse-ordinal.js'
-import { checkMax } from './utils/check-max.js'
-import { western } from './utils/scale.js'
 import { resolveOptions } from './utils/resolve-options.js'
-import { enMY as CURRENCY_VOCAB, assertCurrencyExponent } from './utils/currency-vocab.js'
+import { toCurrency as toCurrencyBase, currencyValues } from './en-GB.js'
 
-// ============================================================================
-// Vocabulary (module-level constants)
-// ============================================================================
-
-const ONES = ['', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine']
-const TEENS = ['ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen']
-const TENS = ['', '', 'twenty', 'thirty', 'forty', 'fifty', 'sixty', 'seventy', 'eighty', 'ninety']
-
-const SCALES = [
-  'thousand', 'million', 'billion', 'trillion', 'quadrillion',
-  'quintillion', 'sextillion', 'septillion', 'octillion', 'nonillion',
-  'decillion', 'undecillion', 'duodecillion', 'tredecillion', 'quattuordecillion',
-  'quindecillion', 'sexdecillion', 'septendecillion', 'octodecillion', 'novemdecillion',
-  'vigintillion',
-]
-
-export const cardinalMax = western(SCALES.length)
-export const ordinalMax = western(SCALES.length)
-export const currencyMax = western(SCALES.length)
-
-const HUNDRED = 'hundred'
-const ZERO = 'zero'
-const NEGATIVE = 'minus'
-const DECIMAL_SEP = 'point'
-
-// Ordinal vocabulary
-const ORDINAL_ONES = ['', 'first', 'second', 'third', 'fourth', 'fifth', 'sixth', 'seventh', 'eighth', 'ninth']
-const ORDINAL_TEENS = ['tenth', 'eleventh', 'twelfth', 'thirteenth', 'fourteenth', 'fifteenth', 'sixteenth', 'seventeenth', 'eighteenth', 'nineteenth']
-const ORDINAL_TENS = ['', '', 'twentieth', 'thirtieth', 'fortieth', 'fiftieth', 'sixtieth', 'seventieth', 'eightieth', 'ninetieth']
-
-// ============================================================================
-// Segment Building
-// ============================================================================
-
-const segmentResult = { word: '', hasHundred: false }
-
-/**
- * @param {number} n The 0-999 segment to convert.
- * @returns {{word: string, hasHundred: boolean}} The segment in words and whether it includes a hundreds part.
- */
-function buildSegment(n) {
-  if (n === 0) {
-    segmentResult.word = ''
-    segmentResult.hasHundred = false
-    return segmentResult
-  }
-
-  const ones = n % 10
-  const tens = Math.trunc(n / 10) % 10
-  const hundreds = Math.trunc(n / 100)
-
-  let tensOnes = ''
-  if (tens === 1) {
-    tensOnes = TEENS[ones]
-  }
-  else if (tens >= 2) {
-    tensOnes = ones > 0 ? TENS[tens] + '-' + ONES[ones] : TENS[tens]
-  }
-  else if (ones > 0) {
-    tensOnes = ONES[ones]
-  }
-
-  if (hundreds > 0) {
-    if (tensOnes) {
-      segmentResult.word = ONES[hundreds] + ' ' + HUNDRED + ' and ' + tensOnes
-    }
-    else {
-      segmentResult.word = ONES[hundreds] + ' ' + HUNDRED
-    }
-    segmentResult.hasHundred = true
-  }
-  else {
-    segmentResult.word = tensOnes
-    segmentResult.hasHundred = false
-  }
-
-  return segmentResult
-}
-
-// ============================================================================
-// Conversion Functions
-// ============================================================================
-
-/**
- * @param {bigint} n The non-negative integer to convert.
- * @returns {string} The integer in English words.
- */
-function integerToWords(n) {
-  if (n === 0n) return ZERO
-
-  if (n < 1000n) {
-    return buildSegment(Number(n)).word
-  }
-
-  if (n < 1_000_000n) {
-    const thousands = Number(n / 1000n)
-    const remainder = Number(n % 1000n)
-
-    const { word: thousandsWord } = buildSegment(thousands)
-    let result = thousandsWord + ' ' + SCALES[0]
-
-    if (remainder > 0) {
-      const { word: remainderWord, hasHundred } = buildSegment(remainder)
-      result += hasHundred ? ' ' + remainderWord : ' and ' + remainderWord
-    }
-
-    return result
-  }
-
-  return buildLargeNumberWords(n)
-}
-
-/**
- * @param {bigint} n The integer of one million or greater to convert.
- * @returns {string} The integer in English words.
- */
-function buildLargeNumberWords(n) {
-  const segments = []
-  let temp = n
-  while (temp > 0n) {
-    segments.push(Number(temp % 1000n))
-    temp = temp / 1000n
-  }
-
-  let firstNonZeroIdx = -1
-  for (let i = 0; i < segments.length; i++) {
-    if (segments[i] !== 0) {
-      firstNonZeroIdx = i
-      break
-    }
-  }
-
-  let result = ''
-  let prevWasScale = false
-
-  for (let i = segments.length - 1; i >= 0; i--) {
-    const segment = segments[i]
-    if (segment === 0) continue
-
-    const { word, hasHundred } = buildSegment(segment)
-    const isLastSegment = (i === firstNonZeroIdx)
-
-    if (result && isLastSegment && prevWasScale && !hasHundred) {
-      result += ' and'
-    }
-
-    if (result) result += ' '
-    result += word
-
-    if (i > 0) {
-      result += ' ' + SCALES[i - 1]
-      prevWasScale = true
-    }
-    else {
-      prevWasScale = false
-    }
-  }
-
-  return result
-}
-
-/**
- * @param {string} decimalPart The fractional digits after the decimal point.
- * @returns {string} The decimal digits in English words.
- */
-function decimalPartToWords(decimalPart) {
-  let result = ''
-
-  let i = 0
-  while (i < decimalPart.length && decimalPart[i] === '0') {
-    if (result) result += ' '
-    result += ZERO
-    i++
-  }
-
-  const remainder = decimalPart.slice(i)
-  if (remainder) {
-    if (result) result += ' '
-    result += integerToWords(BigInt(remainder))
-  }
-
-  return result
-}
-
-/**
- * Converts a numeric value to Malaysian English words.
- * @param {number | string | bigint} value - The numeric value to convert
- * @returns {string} The number in English words
- * @throws {TypeError} If value is not a valid numeric type
- * @throws {Error} If value is not a valid number format
- */
-function toCardinal(value) {
-  const { isNegative, integerPart, decimalPart } = parseCardinalValue(value)
-  // Both the integer part and the decimal's significant digits are spelled via
-  // the scale builder, so both must clear the ceiling.
-  checkMax(integerPart, cardinalMax, decimalPart)
-
-  let result = ''
-
-  if (isNegative) {
-    result = NEGATIVE + ' '
-  }
-
-  result += integerToWords(integerPart)
-
-  if (decimalPart) {
-    result += ' ' + DECIMAL_SEP + ' ' + decimalPartToWords(decimalPart)
-  }
-
-  return result
-}
-
-// ============================================================================
-// ORDINAL
-// ============================================================================
-
-/**
- * @param {number} n The 0-999 segment to convert.
- * @returns {string} The segment as an ordinal in English words.
- */
-function buildOrdinalSegment(n) {
-  const ones = n % 10
-  const tens = Math.trunc(n / 10) % 10
-  const hundreds = Math.trunc(n / 100)
-
-  let tensOnesOrdinal = ''
-  if (tens === 1) {
-    tensOnesOrdinal = ORDINAL_TEENS[ones]
-  }
-  else if (tens >= 2) {
-    if (ones > 0) {
-      tensOnesOrdinal = TENS[tens] + '-' + ORDINAL_ONES[ones]
-    }
-    else {
-      tensOnesOrdinal = ORDINAL_TENS[tens]
-    }
-  }
-  else if (ones > 0) {
-    tensOnesOrdinal = ORDINAL_ONES[ones]
-  }
-
-  if (hundreds > 0) {
-    if (tensOnesOrdinal) {
-      return ONES[hundreds] + ' ' + HUNDRED + ' ' + tensOnesOrdinal
-    }
-    else {
-      return ONES[hundreds] + ' hundredth'
-    }
-  }
-
-  return tensOnesOrdinal
-}
-
-/**
- * @param {bigint} n The non-negative integer to convert.
- * @returns {string} The integer as an ordinal in English words.
- */
-function integerToOrdinal(n) {
-  if (n < 1000n) {
-    return buildOrdinalSegment(Number(n))
-  }
-
-  if (n < 1_000_000n) {
-    const thousands = Number(n / 1000n)
-    const remainder = Number(n % 1000n)
-
-    if (remainder === 0) {
-      return buildSegment(thousands).word + ' ' + SCALES[0] + 'th'
-    }
-
-    const { word: thousandsWord } = buildSegment(thousands)
-    return thousandsWord + ' ' + SCALES[0] + ' ' + buildOrdinalSegment(remainder)
-  }
-
-  return buildLargeOrdinal(n)
-}
-
-/**
- * @param {bigint} n The integer of one million or greater to convert.
- * @returns {string} The integer as an ordinal in English words.
- */
-function buildLargeOrdinal(n) {
-  const segments = []
-  let temp = n
-  while (temp > 0n) {
-    segments.push(Number(temp % 1000n))
-    temp = temp / 1000n
-  }
-
-  let lowestNonZeroIdx = 0
-  for (let i = 0; i < segments.length; i++) {
-    if (segments[i] !== 0) {
-      lowestNonZeroIdx = i
-      break
-    }
-  }
-
-  let result = ''
-
-  for (let i = segments.length - 1; i >= 0; i--) {
-    const segment = segments[i]
-    if (segment === 0) continue
-
-    const isLowestSegment = (i === lowestNonZeroIdx)
-
-    if (result) result += ' '
-
-    if (isLowestSegment) {
-      if (i === 0) {
-        result += buildOrdinalSegment(segment)
-      }
-      else {
-        result += buildSegment(segment).word + ' ' + SCALES[i - 1] + 'th'
-      }
-    }
-    else {
-      result += buildSegment(segment).word
-      if (i > 0) {
-        result += ' ' + SCALES[i - 1]
-      }
-    }
-  }
-
-  return result
-}
-
-/**
- * @param {number | string | bigint} value The numeric value to convert.
- * @returns {string} The number as an ordinal in English words.
- */
-function toOrdinal(value) {
-  const integerPart = parseOrdinalValue(value)
-  checkMax(integerPart, ordinalMax)
-  return integerToOrdinal(integerPart)
-}
-
-// ============================================================================
-// CURRENCY
-// ============================================================================
+// currencyDefaults and toCurrency are deliberately re-declared below,
+// shadowing the star-exported ones from en-GB: that's the entire mechanism
+// a variant profile uses to apply its own default currency (see
+// docs/language-layers.md). A local export legally overrides a star-export
+// of the same name — this isn't a naming collision.
+// eslint-disable-next-line import-x/export -- deliberate shadow, see comment above
+export * from './en-GB.js'
+export const variantOf = 'en-GB'
 
 /**
  * @typedef {object} CurrencyOptions
- * @property {boolean} [and] - Use "and" between ringgit and sen
- * @property {('MYR')} [currency] - ISO 4217 currency code to name the amount in
+ * @property {boolean} [and] - Use "and" between the major and minor unit
+ * @property {import('./utils/currency-vocab.js').EnCurrency} [currency] - ISO 4217 currency code to name the amount in
  */
 
 /** @type {Required<CurrencyOptions>} */
+// eslint-disable-next-line import-x/export -- deliberate shadow, see comment above
 export const currencyDefaults = { and: true, currency: 'MYR' }
 
-/** @type {{ currency: ReadonlyArray<Required<CurrencyOptions>['currency']> }} */
-export const currencyValues = { currency: /** @type {Required<CurrencyOptions>['currency'][]} */ (Object.keys(CURRENCY_VOCAB)) }
-
 /**
- * @param {number | string | bigint} value The numeric value to convert.
+ * Converts a numeric value to Malaysian English currency words. Delegates
+ * to en-GB's numeral and pluralization logic — only the default currency
+ * differs, and any currency en-GB can name is reachable here too via the
+ * `currency` option (see docs/language-layers.md).
+ * @param {number | string | bigint} value - The currency amount to convert
  * @param {CurrencyOptions} [options] - Optional configuration
- * @returns {string} The amount in Malaysian ringgit and sen in English words.
+ * @returns {string} The amount in Malaysian English currency words
+ * @throws {TypeError} If value is not a valid numeric type
+ * @throws {Error} If value is not a valid number format
+ * @example
+ * toCurrency(42.50)                    // 'forty-two ringgit and fifty sen'
  */
 function toCurrency(value, options) {
-  const { isNegative, dollars: ringgit, cents: sen } = parseCurrencyValue(value)
-  checkMax(ringgit, currencyMax)
-  const { and: useAnd, currency } = resolveOptions(options, currencyDefaults, currencyValues)
-  assertCurrencyExponent(sen, currency)
-  const { major, minor } = CURRENCY_VOCAB[currency]
-
-  let result = ''
-  if (isNegative) result = NEGATIVE + ' '
-
-  // Note: Both "ringgit" and "sen" are invariable in Malaysian English
-  if (ringgit > 0n || sen === 0n) {
-    result += integerToWords(ringgit)
-    result += ' ' + major[0]
-  }
-
-  if (sen > 0n) {
-    if (ringgit > 0n) {
-      result += useAnd ? ' and ' : ' '
-    }
-    result += integerToWords(sen)
-    result += ' ' + (/** @type {string[]} */ (minor))[0]
-  }
-
-  return result
+  return toCurrencyBase(value, resolveOptions(options, currencyDefaults, currencyValues))
 }
 
-export { toCardinal, toOrdinal, toCurrency }
+// eslint-disable-next-line import-x/export -- deliberate shadow, see comment above
+export { toCurrency }

@@ -16,7 +16,7 @@ import { parseOrdinalValue } from './utils/parse-ordinal.js'
 import { checkMax } from './utils/check-max.js'
 import { myriad } from './utils/scale.js'
 import { resolveOptions } from './utils/resolve-options.js'
-import { koKR as CURRENCY_VOCAB, assertCurrencyExponent } from './utils/currency-vocab.js'
+import { ko as CURRENCY_VOCAB, assertCurrencyExponent } from './utils/currency-vocab.js'
 
 // ============================================================================
 // Vocabulary (module-level constants)
@@ -308,7 +308,7 @@ function toOrdinal(value) {
 
 /**
  * @typedef {object} CurrencyOptions
- * @property {('KRW')} [currency] - ISO 4217 currency code to name the amount in
+ * @property {import('./utils/currency-vocab.js').KoCurrency} [currency] - ISO 4217 currency code to name the amount in
  */
 
 /** @type {Required<CurrencyOptions>} */

@@ -16,13 +16,22 @@ n2words: Number to words converter. ESM + UMD, Node >=22, zero dependencies.
   resolving without a region subtag to one documented default variant. `zh`, `pt`, `sr`, `am` are
   the current exceptions and stay region/script-qualified only. Full rule, worked examples, and
   the enforcing gate: `docs/bare-tag-aliases.md`.
+- **Language layers**: numerals, currency words, and default-currency-per-country are three
+  independent axes, not one — a full implementation owns numerals, `currency-vocab.js` is keyed
+  by language for currency words, and a thin **locale profile** (`variantOf`) covers a country
+  whose numerals are a byte-identical clone of a full implementation's, overriding only the
+  default currency. Full model and the two counterexamples worth knowing before adding one
+  (an option only one variant exposes; an invariable-noun currency a generic pluralizer can't
+  handle): `docs/language-layers.md`.
 - **Forms**: Cardinal (`toCardinal`), Ordinal (`toOrdinal`), Currency (`toCurrency`)
 
 ## Project Structure
 
 ```text
 src/
-├── {lang-code}.js       # One file per region/script variant (72)
+├── {lang-code}.js       # Full implementations: one per numerally-distinct variant (59)
+├── {lang-code}.js       # Locale profiles (13): `export * from './{base}.js'` + `variantOf`,
+│                         #   overriding only currencyDefaults/toCurrency — see docs/language-layers.md
 ├── {primary-subtag}.js  # Bare-tag aliases (46): `export * from './{target}.js'` + `aliasOf`
 └── utils/
     ├── parse-cardinal.js    # Cardinal form parsing (decimals, negatives)
@@ -31,7 +40,7 @@ src/
     ├── scale.js             # Pure *Max producers (western/myriad/indian/longScale/bounded/UNBOUNDED)
     ├── check-max.js         # checkMax: throws RangeError past a form's declared ceiling
     ├── resolve-options.js   # resolveOptions: applies a form's exported defaults, validates options
-    ├── currency-vocab.js    # Cross-language currency-name matrix + assertCurrencyExponent
+    ├── currency-vocab.js    # Cross-language currency-name matrix (keyed by language) + assertCurrencyExponent
     ├── expand-scientific.js # Scientific notation expansion
     └── is-plain-object.js   # Object type checking
 ```
@@ -80,11 +89,19 @@ function toCurrency (value, options) {
   const { isNegative, dollars, cents } = parseCurrencyValue(value)
   checkMax(dollars, currencyMax) // cents are ≤ 99, safe
   // Naming a 1000-subunit currency (TND, KWD, ...)? Resolve options first and
-  // pass `minorUnitDigits(currency)` to the parser — see docs/currency-vocab.md
+  // pass `minorUnitDigits(currency)` to the parser — see docs/currency-vocab.md.
+  // Do this unconditionally, even if today's default currency doesn't need
+  // it: the vocab matrix is keyed by *language*, so any currency a sibling
+  // locale added later is reachable here too, the moment it lands.
+  //
+  // Naming more than one currency? A `[singular, plural]` word-form array
+  // may be shorter for an invariable noun (no plural distinction) — index
+  // [1] only when it exists: `count === 1n || major.length < 2 ? major[0] : major[1]`.
+  //
   // currency vocabulary and the `currency` option follow the Options
   // Pattern below — see its toCurrency example, and docs/currency-vocab.md
   // for why currency word-data lives in a shared module while its grammar
-  // (pluralization, joining) doesn't.
+  // (pluralization, joining, grammatical gender selection) doesn't.
 }
 
 export { toCardinal, toOrdinal, toCurrency }
@@ -138,11 +155,11 @@ function toCardinal (value, options) {
 currency-name matrix (`docs/currency-vocab.md`) instead of hand-typed:
 
 ```javascript
-import { enUS as CURRENCY_VOCAB, assertCurrencyExponent } from './utils/currency-vocab.js'
+import { en as CURRENCY_VOCAB, assertCurrencyExponent, minorUnitDigits } from './utils/currency-vocab.js'
 
 /**
  * @typedef {object} CurrencyOptions
- * @property {('USD')} [currency] - ISO 4217 currency code to name the amount in
+ * @property {import('./utils/currency-vocab.js').EnCurrency} [currency] - ISO 4217 currency code to name the amount in
  */
 
 /** @type {Required<CurrencyOptions>} */
@@ -152,14 +169,19 @@ export const currencyDefaults = { currency: 'USD' }
 export const currencyValues = { currency: /** @type {Required<CurrencyOptions>['currency'][]} */ (Object.keys(CURRENCY_VOCAB)) }
 
 function toCurrency (value, options) {
-  const { dollars, cents } = parseCurrencyValue(value)
   const { currency } = resolveOptions(options, currencyDefaults, currencyValues)
+  const { dollars, cents } = parseCurrencyValue(value, minorUnitDigits(currency))
   assertCurrencyExponent(cents, currency) // throws RangeError for a fractional amount a currency can't represent (e.g. JPY)
   const { major, minor } = CURRENCY_VOCAB[currency]
   // build using major[n] / minor[n] — minor is `string[] | null`, narrow it
   // at the point of use (inside the cents > 0n branch), not at destructure
 }
 ```
+
+`import('./utils/currency-vocab.js').EnCurrency` is `keyof typeof en` — one
+`keyof` typedef per language export in `currency-vocab.js`, so widening a
+language's currency map widens every file referencing it in the same edit,
+and a typo in either place fails typecheck. Don't hand-type the union.
 
 Each fact has exactly one home, and machines hold every seam:
 
@@ -189,6 +211,13 @@ bare-tag alias (`src/{primary}.js` + fixture) automatically. When it joins an ex
 prints a note instead — repointing or dropping an existing alias is a human judgment call (see
 `docs/bare-tag-aliases.md`), not something the tool guesses at.
 
+`lang:add` always scaffolds a full implementation. If the new code's numerals turn out to be a
+byte-identical clone of an existing variant's (verify with a default-options probe across a wide
+value range — see `docs/language-layers.md`'s two counterexamples for what a probe alone can
+miss), replace the stub with a locale profile instead: `export *` from the base, `variantOf`, and
+a `toCurrency` wrapper overriding only the default currency. This is a human call the tool doesn't
+make for you.
+
 Then: implement the form(s) you're adding (`toCardinal`, `toOrdinal`, and/or `toCurrency` — at least one) in `src/{code}.js` — **including the `*Max` declarations and `checkMax` guards** (see Language File Pattern) — add cases to `test/fixtures/{code}.js`, run `npm test`.
 
 A new language must clear these enforced gates (in `test/`):
@@ -198,6 +227,7 @@ A new language must clear these enforced gates (in `test/`):
 - **Options** (`options-contract.test.js`): every options-taking form **must** export its `<form>Defaults` (see Options Pattern) — declared defaults round-trip, malformed options throw `TypeError`, out-of-set enum values throw `RangeError`.
 - **Currency vocab** (`currency-vocab-contract.test.js`, currency-exporting languages only): a declared `currencyValues.currency` enum must have a matching entry in `src/utils/currency-vocab.js` for every code it lists (see `docs/currency-vocab.md`).
 - **Bare-tag alias** (`bare-tag-contract.test.js`): a family with exactly one variant **must** have a matching alias file; every alias's re-exported bindings must be reference-identical to its target's (see `docs/bare-tag-aliases.md`).
+- **Variant profile** (`variant-profile-contract.test.js`, profile files only): `variantOf` must name a full implementation (not another profile or alias); `toCardinal`/`toOrdinal` must be reference-identical to the base's; `toCurrency` with no options must match calling the base explicitly with the profile's own default currency (see `docs/language-layers.md`).
 - **Coverage** (`conversions.test.js`): ≥5 fixture cases per form.
 - **Canonical code** (`conversions.test.js`): the filename is canonical BCP 47 (`en-US`, not `en-us`).
 

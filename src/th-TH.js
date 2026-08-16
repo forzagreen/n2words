@@ -16,7 +16,7 @@ import { parseCurrencyValue } from './utils/parse-currency.js'
 import { parseOrdinalValue } from './utils/parse-ordinal.js'
 import { UNBOUNDED } from './utils/scale.js'
 import { resolveOptions } from './utils/resolve-options.js'
-import { thTH as CURRENCY_VOCAB, assertCurrencyExponent } from './utils/currency-vocab.js'
+import { th as CURRENCY_VOCAB, assertCurrencyExponent } from './utils/currency-vocab.js'
 
 // Thai spells large numbers by repeating ล้าน (10^6), so every form is
 // magnitude-preserving with no fixed ceiling. Declared per form so the gate
@@ -234,7 +234,7 @@ function toOrdinal(value) {
 
 /**
  * @typedef {object} CurrencyOptions
- * @property {('THB')} [currency] - ISO 4217 currency code to name the amount in
+ * @property {import('./utils/currency-vocab.js').ThCurrency} [currency] - ISO 4217 currency code to name the amount in
  */
 
 /** @type {Required<CurrencyOptions>} */

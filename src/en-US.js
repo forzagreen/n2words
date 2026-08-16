@@ -23,7 +23,7 @@ import { parseOrdinalValue } from './utils/parse-ordinal.js'
 import { checkMax } from './utils/check-max.js'
 import { western } from './utils/scale.js'
 import { resolveOptions } from './utils/resolve-options.js'
-import { enUS as CURRENCY_VOCAB, assertCurrencyExponent, minorUnitDigits } from './utils/currency-vocab.js'
+import { en as CURRENCY_VOCAB, assertCurrencyExponent, minorUnitDigits } from './utils/currency-vocab.js'
 
 // ============================================================================
 // VOCABULARY
@@ -482,7 +482,7 @@ function toOrdinal(value) {
 /**
  * @typedef {object} CurrencyOptions
  * @property {boolean} [and] - Use "and" between dollars and cents (e.g., "one dollar and fifty cents")
- * @property {('USD'|'TND'|'KWD'|'BHD'|'JOD'|'IQD'|'OMR'|'LYD'|'MAD')} [currency] - ISO 4217 currency code to name the amount in
+ * @property {import('./utils/currency-vocab.js').EnCurrency} [currency] - ISO 4217 currency code to name the amount in
  */
 
 /** @type {Required<CurrencyOptions>} */
@@ -518,10 +518,14 @@ function toCurrency(value, options) {
   let result = ''
   if (isNegative) result = NEGATIVE + ' '
 
-  // Dollars part (show if non-zero, or if no cents)
+  // Some currencies in the shared `en` matrix have an invariable major or
+  // minor noun (taka, ringgit, naira, rand, euro-in-Irish-English) — a
+  // single-element array with no plural form. Only index [1] when a plural
+  // form actually exists; otherwise [0] serves both roles, matching what
+  // each currency's own English usage already does.
   if (dollars > 0n || cents === 0n) {
     result += integerToWords(dollars, false, false)
-    result += ' ' + (dollars === 1n ? major[0] : major[1])
+    result += ' ' + (dollars === 1n || major.length < 2 ? major[0] : major[1])
   }
 
   // Cents part
@@ -530,7 +534,8 @@ function toCurrency(value, options) {
       result += useAnd ? ' and ' : ' '
     }
     result += integerToWords(cents, false, false)
-    result += ' ' + (cents === 1n ? (/** @type {string[]} */ (minor))[0] : (/** @type {string[]} */ (minor))[1])
+    const minorForms = /** @type {string[]} */ (minor)
+    result += ' ' + (cents === 1n || minorForms.length < 2 ? minorForms[0] : minorForms[1])
   }
 
   return result

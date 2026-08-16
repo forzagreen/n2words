@@ -16,7 +16,7 @@ import { parseOrdinalValue } from './utils/parse-ordinal.js'
 import { checkMax } from './utils/check-max.js'
 import { bounded, western } from './utils/scale.js'
 import { resolveOptions } from './utils/resolve-options.js'
-import { roRO as CURRENCY_VOCAB, assertCurrencyExponent } from './utils/currency-vocab.js'
+import { ro as CURRENCY_VOCAB, assertCurrencyExponent } from './utils/currency-vocab.js'
 
 // ============================================================================
 // Vocabulary (module-level constants)
@@ -422,7 +422,7 @@ function toOrdinal(value) {
 
 /**
  * @typedef {object} CurrencyOptions
- * @property {('RON')} [currency] - ISO 4217 currency code to name the amount in
+ * @property {import('./utils/currency-vocab.js').RoCurrency} [currency] - ISO 4217 currency code to name the amount in
  */
 
 /** @type {Required<CurrencyOptions>} */
@@ -447,7 +447,13 @@ function toCurrency(value, options) {
   checkMax(dollars, currencyMax)
   const { currency } = resolveOptions(options, currencyDefaults, currencyValues)
   assertCurrencyExponent(cents, currency)
-  const { major, minor } = CURRENCY_VOCAB[currency]
+  const { major, minor, majorGender: majorGenderRaw, minorGender: minorGenderRaw } = CURRENCY_VOCAB[currency]
+  // Every ro entry sets both gender fields (currency-vocab-contract.test.js
+  // enforces it for gender-sensitive languages) — narrow the optional matrix
+  // fields to the non-optional shape toCurrency's own logic requires.
+  const majorGender = /** @type {'masculine' | 'feminine'} */ (majorGenderRaw)
+  const minorGender = /** @type {'masculine' | 'feminine'} */ (minorGenderRaw)
+  const minorFeminine = minorGender === 'feminine'
 
   const parts = []
 
@@ -455,13 +461,13 @@ function toCurrency(value, options) {
     parts.push(NEGATIVE)
   }
 
-  // Lei (masculine)
+  // Major-unit noun's own gender drives agreement — see docs/currency-vocab.md.
   if (dollars > 0n || cents === 0n) {
     if (dollars === 1n) {
       parts.push('un ' + major[0])
     }
     else {
-      const leuWord = integerToWords(dollars, 'masculine')
+      const leuWord = integerToWords(dollars, majorGender)
       // Romanian inserts "de" before the noun for the CLDR `other` category:
       // count >= 20 whose last two digits are 00 or 20-99 — "douăzeci de lei",
       // "o sută de lei", but "o sută unu lei" (101) and no "de" below 20. The
@@ -473,7 +479,7 @@ function toCurrency(value, options) {
     }
   }
 
-  // Bani (masculine)
+  // Minor-unit noun's own gender.
   if (cents > 0n) {
     // assertCurrencyExponent already guaranteed cents is 0n whenever minor is
     // null, so reaching this branch implies a real array.
@@ -483,11 +489,11 @@ function toCurrency(value, options) {
       parts.push('un ' + minorForms[0])
     }
     else if (centNum >= 20) {
-      const banWord = spellUnder100(centNum, false)
+      const banWord = spellUnder100(centNum, minorFeminine)
       parts.push(banWord + ' de ' + minorForms[1])
     }
     else {
-      const banWord = spellUnder100(centNum, false)
+      const banWord = spellUnder100(centNum, minorFeminine)
       parts.push(banWord + ' ' + minorForms[1])
     }
   }
