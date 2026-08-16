@@ -17,7 +17,7 @@ import { parseOrdinalValue } from './utils/parse-ordinal.js'
 import { checkMax } from './utils/check-max.js'
 import { indian } from './utils/scale.js'
 import { resolveOptions } from './utils/resolve-options.js'
-import { knIN as CURRENCY_VOCAB, assertCurrencyExponent } from './utils/currency-vocab.js'
+import { kn as CURRENCY_VOCAB, assertCurrencyExponent } from './utils/currency-vocab.js'
 
 // ============================================================================
 // Vocabulary
@@ -220,7 +220,7 @@ function toOrdinal(value) {
 
 /**
  * @typedef {object} CurrencyOptions
- * @property {('INR')} [currency] - ISO 4217 currency code to name the amount in
+ * @property {import('./utils/currency-vocab.js').KnCurrency} [currency] - ISO 4217 currency code to name the amount in
  */
 
 /** @type {Required<CurrencyOptions>} */

@@ -17,7 +17,7 @@ import { parseOrdinalValue } from './utils/parse-ordinal.js'
 import { checkMax } from './utils/check-max.js'
 import { western } from './utils/scale.js'
 import { resolveOptions } from './utils/resolve-options.js'
-import { plPL as CURRENCY_VOCAB, assertCurrencyExponent } from './utils/currency-vocab.js'
+import { pl as CURRENCY_VOCAB, assertCurrencyExponent } from './utils/currency-vocab.js'
 
 // ============================================================================
 // Vocabulary (module-level constants)
@@ -557,7 +557,7 @@ function toOrdinal(value) {
 
 /**
  * @typedef {object} CurrencyOptions
- * @property {('PLN')} [currency] - ISO 4217 currency code to name the amount in
+ * @property {import('./utils/currency-vocab.js').PlCurrency} [currency] - ISO 4217 currency code to name the amount in
  */
 
 /** @type {Required<CurrencyOptions>} */
@@ -584,25 +584,31 @@ function toCurrency(value, options) {
   checkMax(zloty, currencyMax)
   const { currency } = resolveOptions(options, currencyDefaults, currencyValues)
   assertCurrencyExponent(grosze, currency)
-  const { major, minor } = CURRENCY_VOCAB[currency]
+  const { major, minor, majorGender: majorGenderRaw, minorGender: minorGenderRaw } = CURRENCY_VOCAB[currency]
+  // Every pl entry sets both gender fields (currency-vocab-contract.test.js
+  // enforces it for gender-sensitive languages) — narrow the optional matrix
+  // fields to the non-optional shape toCurrency's own logic requires.
+  const majorGender = /** @type {'masculine' | 'feminine'} */ (majorGenderRaw)
+  const minorGender = /** @type {'masculine' | 'feminine'} */ (minorGenderRaw)
 
   let result = ''
   if (isNegative) {
     result = NEGATIVE + ' '
   }
 
-  // Złoty part (masculine)
+  // Major-unit noun's own gender drives agreement (złoty is masculine, but a
+  // named currency's own noun may not be — see docs/currency-vocab.md).
   if (zloty > 0n || grosze === 0n) {
-    result += integerToWords(zloty, 'masculine')
+    result += integerToWords(zloty, majorGender)
     result += ' ' + pluralize(zloty, major)
   }
 
-  // Grosze part (masculine)
+  // Minor-unit noun's own gender (grosz is masculine).
   if (grosze > 0n) {
     if (zloty > 0n) {
       result += ' '
     }
-    result += integerToWords(grosze, 'masculine')
+    result += integerToWords(grosze, minorGender)
     result += ' ' + pluralize(grosze, /** @type {string[]} */ (minor))
   }
 

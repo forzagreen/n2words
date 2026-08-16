@@ -18,7 +18,7 @@ import { parseOrdinalValue } from './utils/parse-ordinal.js'
 import { checkMax } from './utils/check-max.js'
 import { western } from './utils/scale.js'
 import { resolveOptions } from './utils/resolve-options.js'
-import { srCyrlRS as CURRENCY_VOCAB, assertCurrencyExponent } from './utils/currency-vocab.js'
+import { srCyrl as CURRENCY_VOCAB, assertCurrencyExponent } from './utils/currency-vocab.js'
 
 // ============================================================================
 // Vocabulary
@@ -508,7 +508,7 @@ function toOrdinal(value) {
 /**
  * @typedef {object} CurrencyOptions
  * @property {boolean} [and] - Use "и" between dinars and para
- * @property {('RSD')} [currency] - ISO 4217 currency code to name the amount in
+ * @property {import('./utils/currency-vocab.js').SrCyrlCurrency} [currency] - ISO 4217 currency code to name the amount in
  */
 
 /** @type {Required<CurrencyOptions>} */
@@ -536,24 +536,29 @@ function toCurrency(value, options) {
   checkMax(dinars, currencyMax)
   const { and: useAnd, currency } = resolveOptions(options, currencyDefaults, currencyValues)
   assertCurrencyExponent(para, currency)
-  const { major, minor } = CURRENCY_VOCAB[currency]
+  const { major, minor, majorGender: majorGenderRaw, minorGender: minorGenderRaw } = CURRENCY_VOCAB[currency]
+  // Every sr entry sets both gender fields (currency-vocab-contract.test.js
+  // enforces it for gender-sensitive languages) — narrow the optional matrix
+  // fields to the non-optional shape toCurrency's own logic requires.
+  const majorGender = /** @type {'masculine' | 'feminine'} */ (majorGenderRaw)
+  const minorGender = /** @type {'masculine' | 'feminine'} */ (minorGenderRaw)
 
   // Build result
   let result = ''
   if (isNegative) result = NEGATIVE + ' '
 
-  // Dinars part (masculine) - show if non-zero, or if no para
+  // Major-unit noun's own gender drives agreement — see docs/currency-vocab.md.
   if (dinars > 0n || para === 0n) {
-    result += integerToWords(dinars, 'masculine')
+    result += integerToWords(dinars, majorGender)
     result += ' ' + pluralize(dinars, major)
   }
 
-  // Para part (feminine)
+  // Minor-unit noun's own gender.
   if (para > 0n) {
     if (dinars > 0n) {
       result += useAnd ? ' и ' : ' '
     }
-    result += integerToWords(para, 'feminine')
+    result += integerToWords(para, minorGender)
     result += ' ' + pluralize(para, /** @type {string[]} */ (minor))
   }
 

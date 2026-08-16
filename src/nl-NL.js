@@ -19,7 +19,7 @@ import { parseOrdinalValue } from './utils/parse-ordinal.js'
 import { checkMax } from './utils/check-max.js'
 import { western } from './utils/scale.js'
 import { resolveOptions } from './utils/resolve-options.js'
-import { nlNL as CURRENCY_VOCAB, assertCurrencyExponent } from './utils/currency-vocab.js'
+import { nl as CURRENCY_VOCAB, assertCurrencyExponent } from './utils/currency-vocab.js'
 
 // ============================================================================
 // Vocabulary (module-level constants)
@@ -541,7 +541,7 @@ function buildLargeOrdinal(n) {
 /**
  * @typedef {object} CurrencyOptions
  * @property {boolean} [and] - Include "en" between euros and cents
- * @property {('EUR')} [currency] - ISO 4217 currency code to name the amount in
+ * @property {import('./utils/currency-vocab.js').NlCurrency} [currency] - ISO 4217 currency code to name the amount in
  */
 
 /** @type {Required<CurrencyOptions>} */

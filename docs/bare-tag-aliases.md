@@ -74,6 +74,19 @@ each alias file's own comment) — most-used variant for `en`, conventional
 default for bare `es`/`fr` across BCP-47 tooling generally. This part isn't
 mechanically checkable and the gate doesn't try.
 
+## `aliasOf` vs `variantOf`
+
+A bare-tag alias is one of two thin, `export *`-based file shapes in
+`src/` — the other is a locale profile (`variantOf`, see
+[language-layers.md](./language-layers.md)), which points a
+region-qualified code like `en-AU` at a full implementation like `en-GB`
+whose numerals it shares, then overrides just the default currency. The two
+solve different problems (which single variant should a bare tag mean, vs.
+collapsing behaviourally-identical locale clones) and neither substitutes
+for the other: `bare-tag-contract.test.js` excludes any `variantOf` file
+from counting as a family's "canonical" variant, so a bare tag can never
+resolve to a profile instead of the full implementation it delegates to.
+
 ## The gate: `test/bare-tag-contract.test.js`
 
 Two things, both mechanical:

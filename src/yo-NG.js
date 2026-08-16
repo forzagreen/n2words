@@ -21,7 +21,7 @@ import { parseCurrencyValue } from './utils/parse-currency.js'
 import { parseOrdinalValue } from './utils/parse-ordinal.js'
 import { UNBOUNDED } from './utils/scale.js'
 import { resolveOptions } from './utils/resolve-options.js'
-import { yoNG as CURRENCY_VOCAB, assertCurrencyExponent } from './utils/currency-vocab.js'
+import { yo as CURRENCY_VOCAB, assertCurrencyExponent } from './utils/currency-vocab.js'
 
 // No fixed scale ceiling — the vigesimal speller composes every magnitude.
 export const cardinalMax = UNBOUNDED
@@ -376,7 +376,7 @@ function toOrdinal(value) {
 
 /**
  * @typedef {object} CurrencyOptions
- * @property {('NGN')} [currency] - ISO 4217 currency code to name the amount in
+ * @property {import('./utils/currency-vocab.js').YoCurrency} [currency] - ISO 4217 currency code to name the amount in
  */
 
 /** @type {Required<CurrencyOptions>} */

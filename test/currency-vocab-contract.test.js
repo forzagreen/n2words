@@ -1,7 +1,6 @@
 import test from 'ava'
 import { readdirSync } from 'node:fs'
 import * as vocab from '../src/utils/currency-vocab.js'
-import { normalizeCode } from './helpers/language-naming.js'
 import { isWellFormed, safeStringify } from './helpers/value-utils.js'
 
 /**
@@ -9,15 +8,25 @@ import { isWellFormed, safeStringify } from './helpers/value-utils.js'
  *
  * A language that declares `currencyValues.currency` (the enum of ISO 4217
  * codes it can spell) MUST have a matching named export in
- * src/utils/currency-vocab.js (e.g. `en-US.js` -> `enUS`), and every code
- * listed in the enum MUST have a real word-form entry there. This is what
- * keeps the cross-language currency matrix honest rather than aspirational —
- * the enum can never advertise a currency with no translation behind it.
+ * src/utils/currency-vocab.js, and every code listed in the enum MUST have a
+ * real word-form entry there. This is what keeps the cross-language currency
+ * matrix honest rather than aspirational — the enum can never advertise a
+ * currency with no translation behind it.
  *
  * `currencyValues.currency` is meant to be derived from the vocab export
  * (`Object.keys(CURRENCY_VOCAB)`), so under normal authoring this gate can't
  * fail; it's a belt-and-suspenders check against the enum and the vocab
  * object drifting apart if either is ever hand-edited independently.
+ *
+ * The matrix is keyed by *language*, not by locale (see
+ * docs/currency-vocab.md), so a code's expected export name is usually just
+ * its primary subtag (`ar-SA` -> `ar`, `en-GB` -> `en`) rather than the full
+ * normalized code. The exceptions are `VOCAB_KEY_OVERRIDES` below — the same
+ * handful of languages docs/language-layers.md's "very different" test keeps
+ * split by script or region (pt stays region-qualified; am/sr/zh's non-default
+ * script variant drops region but keeps its script suffix). This is a human
+ * editorial decision the same way LANGUAGE_NAME_OVERRIDES is, not something
+ * mechanically derivable from the BCP 47 code alone.
  *
  * Separately, for every zero-decimal-exponent currency (CURRENCY_EXPONENTS,
  * e.g. JPY) any language advertising it must reject a fractional amount with
@@ -25,13 +34,34 @@ import { isWellFormed, safeStringify } from './helpers/value-utils.js'
  * dropping it — the fixture-array format has no per-case "expect throw"
  * shape, so this is verified here instead, once, for every language that
  * touches a zero-exponent currency.
+ *
+ * Bare-tag alias files (`aliasOf`, e.g. `en.js` -> `en-US.js`) and variant
+ * profiles (`variantOf`, e.g. `en-AU.js` -> `en-GB.js`) are both skipped:
+ * their `currencyValues` is a live re-export of another file's own
+ * declaration, not a separate one, so checking it again under this file's
+ * name would just be re-verifying that other file's entry a second time.
  */
 
-// Pre-load: only languages that declare a currency enum register a test, so
-// there's no per-language "nothing to check here" assertion to plan around.
+/** @type {Record<string, string>} */
+const VOCAB_KEY_OVERRIDES = {
+  'pt-BR': 'ptBR',
+  'pt-PT': 'ptPT',
+  'am-Latn-ET': 'amLatn',
+  'sr-Cyrl-RS': 'srCyrl',
+  'sr-Latn-RS': 'srLatn',
+  'zh-Hans-CN': 'zhHans',
+  'zh-Hant-TW': 'zhHant',
+}
+
+const vocabKey = code => VOCAB_KEY_OVERRIDES[code] ?? code.split('-')[0]
+
+// Pre-load: only non-alias, non-profile languages that declare a currency
+// enum register a test, so there's no per-language "nothing to check here"
+// assertion to plan around.
 const languages = []
 for (const file of readdirSync('./src').filter(f => f.endsWith('.js') && !f.startsWith('utils')).sort()) {
   const mod = await import('../src/' + file)
+  if (mod.aliasOf !== undefined || mod.variantOf !== undefined) continue
   const declaredCodes = mod.currencyValues?.currency
   if (declaredCodes !== undefined) {
     languages.push({ code: file.replace('.js', ''), mod, declaredCodes })
@@ -39,7 +69,7 @@ for (const file of readdirSync('./src').filter(f => f.endsWith('.js') && !f.star
 }
 
 for (const { code, mod, declaredCodes } of languages) {
-  const exportName = normalizeCode(code)
+  const exportName = vocabKey(code)
   // eslint-disable-next-line import-x/namespace -- computed lookup by design: this gate checks *whether* a matching export exists, so the key can't be statically known
   const langVocab = /** @type {Record<string, import('../src/utils/currency-vocab.js').CurrencyWordForms> | undefined} */ (vocab[exportName])
 
@@ -53,6 +83,35 @@ for (const { code, mod, declaredCodes } of languages) {
       t.true(
         Object.hasOwn(langVocab ?? {}, isoCode),
         `${code} advertises currency "${isoCode}" in currencyValues but currency-vocab.js's "${exportName}" export has no entry for it`,
+      )
+    }
+
+    // majorGender and minorGender are checked independently, not as a pair:
+    // ar's own toCurrency never reads majorGender from the matrix (every
+    // Arabic major unit it names — ريال، دينار، درهم — happens to be
+    // masculine, hardcoded directly), so only its minorGender is a matrix
+    // concern. A language "uses" a field if ANY entry it already ships sets
+    // it (see docs/currency-vocab.md's "Grammatical gender" section);
+    // English et al. use neither and aren't held to this. Once a language
+    // DOES use a field, every entry must carry it — a currency added
+    // without it would silently pass `undefined` as the gender argument to
+    // that language's cardinal builder, the exact bug this project hit for
+    // the currency a matrix merge first made a second entry reachable for.
+    const entries = Object.entries(langVocab ?? {})
+    const usesMajorGender = entries.some(([, forms]) => forms.majorGender !== undefined)
+    const usesMinorGender = entries.some(([, forms]) => forms.minorGender !== undefined)
+    for (const [isoCode, forms] of entries) {
+      // Assertions run unconditionally (ava/no-conditional-assertion): a
+      // language that doesn't use a field at all is vacuously fine for it —
+      // `!usesMajorGender || ...` short-circuits to true rather than skipping
+      // the assertion outright.
+      t.true(
+        !usesMajorGender || forms.majorGender === 'masculine' || forms.majorGender === 'feminine',
+        `${exportName}.${isoCode} is missing majorGender — ${exportName} is gender-sensitive (another entry declares it), so every entry must`,
+      )
+      t.true(
+        !usesMinorGender || forms.minor === null || forms.minorGender === 'masculine' || forms.minorGender === 'feminine',
+        `${exportName}.${isoCode} is missing minorGender — ${exportName} is gender-sensitive (another entry declares it), so every entry with a minor unit must`,
       )
     }
   })

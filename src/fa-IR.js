@@ -15,7 +15,7 @@ import { parseOrdinalValue } from './utils/parse-ordinal.js'
 import { UNBOUNDED } from './utils/scale.js'
 import { checkMax } from './utils/check-max.js'
 import { resolveOptions } from './utils/resolve-options.js'
-import { faIR as CURRENCY_VOCAB, assertCurrencyExponent } from './utils/currency-vocab.js'
+import { fa as CURRENCY_VOCAB, assertCurrencyExponent } from './utils/currency-vocab.js'
 
 // No fixed scale ceiling — the speller composes every magnitude.
 export const cardinalMax = UNBOUNDED
@@ -225,7 +225,7 @@ function toOrdinal(value) {
 
 /**
  * @typedef {object} CurrencyOptions
- * @property {('IRR')} [currency] - ISO 4217 currency code to name the amount in
+ * @property {import('./utils/currency-vocab.js').FaCurrency} [currency] - ISO 4217 currency code to name the amount in
  */
 
 /** @type {Required<CurrencyOptions>} */

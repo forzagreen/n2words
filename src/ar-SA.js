@@ -18,7 +18,7 @@ import { parseOrdinalValue } from './utils/parse-ordinal.js'
 import { checkMax } from './utils/check-max.js'
 import { western } from './utils/scale.js'
 import { resolveOptions } from './utils/resolve-options.js'
-import { arSA as CURRENCY_VOCAB, assertCurrencyExponent, minorUnitDigits } from './utils/currency-vocab.js'
+import { ar as CURRENCY_VOCAB, assertCurrencyExponent, minorUnitDigits } from './utils/currency-vocab.js'
 
 // ============================================================================
 // Vocabulary
@@ -333,30 +333,6 @@ function getRiyalForm(n, forms) {
 }
 
 /**
- * Grammatical gender of each currency's *minor* unit.
- *
- * Arabic inverts gender agreement for 3-10: a masculine counted noun takes the
- * ة-marked numeral (ثلاثة فلوس) and a feminine one takes the bare form
- * (ثلاث هللات). The minor unit is the only side that varies here — every major
- * unit ar-SA names is masculine (ريال, دينار) — so the riyal side stays
- * hardcoded while this map drives the halala side. Gender is a property of the
- * word itself, but selecting on it is grammar, so it lives here rather than in
- * the shared currency-vocab matrix (see docs/currency-vocab.md).
- * @type {Record<string, 'masculine' | 'feminine'>}
- */
-const MINOR_GENDER = {
-  SAR: 'feminine', // هللة
-  OMR: 'feminine', // بيسة
-  TND: 'masculine', // مليم
-  KWD: 'masculine', // فلس
-  BHD: 'masculine', // فلس
-  JOD: 'masculine', // فلس
-  IQD: 'masculine', // فلس
-  LYD: 'masculine', // درهم
-  MAD: 'masculine', // سنتيم
-}
-
-/**
  * Gets the appropriate halala word form based on number.
  * @param {bigint} n - The halala count
  * @param {string[]} forms - [singular, dual, plural3-10, plural11+]
@@ -371,7 +347,7 @@ function getHalalaForm(n, forms) {
 
 /**
  * @typedef {object} CurrencyOptions
- * @property {('SAR'|'TND'|'KWD'|'BHD'|'JOD'|'IQD'|'OMR'|'LYD'|'MAD')} [currency] - ISO 4217 currency code to name the amount in
+ * @property {import('./utils/currency-vocab.js').ArCurrency} [currency] - ISO 4217 currency code to name the amount in
  */
 
 /** @type {Required<CurrencyOptions>} */
@@ -400,7 +376,11 @@ function toCurrency(value, options) {
   const { isNegative, dollars: riyals, cents: halalas } = parseCurrencyValue(value, minorUnitDigits(currency))
   checkMax(riyals, currencyMax) // halalas are <= 999, safe
   assertCurrencyExponent(halalas, currency)
-  const { major, minor } = CURRENCY_VOCAB[currency]
+  const { major, minor, minorGender: minorGenderRaw } = CURRENCY_VOCAB[currency]
+  // Every ar entry sets minorGender (currency-vocab-contract.test.js enforces
+  // it for gender-sensitive languages) — narrow the optional matrix field to
+  // the non-optional shape getHalalaForm's caller below requires.
+  const minorGender = /** @type {'masculine' | 'feminine'} */ (minorGenderRaw)
 
   // Build result
   let result = ''
@@ -429,7 +409,6 @@ function toCurrency(value, options) {
     if (riyals > 0n) {
       result += ' ' + AND
     }
-    const minorGender = MINOR_GENDER[currency]
     // Special case for 1 and 2: currency word comes first
     if (halalas === 1n) {
       result += minorForms[0] + ' ' + (minorGender === 'feminine' ? ONES_FEM[0] : ONES_MASC[0])

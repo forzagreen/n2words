@@ -17,7 +17,7 @@ import { parseOrdinalValue } from './utils/parse-ordinal.js'
 import { checkMax } from './utils/check-max.js'
 import { western } from './utils/scale.js'
 import { resolveOptions } from './utils/resolve-options.js'
-import { lvLV as CURRENCY_VOCAB, assertCurrencyExponent } from './utils/currency-vocab.js'
+import { lv as CURRENCY_VOCAB, assertCurrencyExponent } from './utils/currency-vocab.js'
 
 // ============================================================================
 // Vocabulary (module-level constants)
@@ -576,7 +576,7 @@ function toOrdinal(value) {
 
 /**
  * @typedef {object} CurrencyOptions
- * @property {('EUR')} [currency] - ISO 4217 currency code to name the amount in
+ * @property {import('./utils/currency-vocab.js').LvCurrency} [currency] - ISO 4217 currency code to name the amount in
  */
 
 /** @type {Required<CurrencyOptions>} */
@@ -603,25 +603,31 @@ function toCurrency(value, options) {
   checkMax(euros, currencyMax)
   const { currency } = resolveOptions(options, currencyDefaults, currencyValues)
   assertCurrencyExponent(cents, currency)
-  const { major, minor } = CURRENCY_VOCAB[currency]
+  const { major, minor, majorGender: majorGenderRaw, minorGender: minorGenderRaw } = CURRENCY_VOCAB[currency]
+  // Every lv entry sets both gender fields (currency-vocab-contract.test.js
+  // enforces it for gender-sensitive languages) — narrow the optional matrix
+  // fields to the non-optional shape toCurrency's own logic requires.
+  const majorGender = /** @type {'masculine' | 'feminine'} */ (majorGenderRaw)
+  const minorGender = /** @type {'masculine' | 'feminine'} */ (minorGenderRaw)
 
   let result = ''
   if (isNegative) {
     result = NEGATIVE + ' '
   }
 
-  // Euro part (eiro is indeclinable, hence the single major form)
+  // Euro part (eiro is indeclinable, hence the single major form). Gender
+  // still drives the numeral itself — see docs/currency-vocab.md.
   if (euros > 0n || cents === 0n) {
-    result += integerToWords(euros, 'masculine')
+    result += integerToWords(euros, majorGender)
     result += ' ' + major[0]
   }
 
-  // Cent part (masculine)
+  // Minor-unit noun's own gender.
   if (cents > 0n) {
     if (euros > 0n) {
       result += ' '
     }
-    result += integerToWords(cents, 'masculine')
+    result += integerToWords(cents, minorGender)
     result += ' ' + pluralizeCurrency(Number(cents), /** @type {string[]} */ (minor))
   }
 

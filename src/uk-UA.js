@@ -16,7 +16,7 @@ import { parseOrdinalValue } from './utils/parse-ordinal.js'
 import { checkMax } from './utils/check-max.js'
 import { western } from './utils/scale.js'
 import { resolveOptions } from './utils/resolve-options.js'
-import { ukUA as CURRENCY_VOCAB, assertCurrencyExponent } from './utils/currency-vocab.js'
+import { uk as CURRENCY_VOCAB, assertCurrencyExponent } from './utils/currency-vocab.js'
 
 // ============================================================================
 // Vocabulary
@@ -471,7 +471,7 @@ function toOrdinal(value) {
 
 /**
  * @typedef {object} CurrencyOptions
- * @property {('UAH')} [currency] - ISO 4217 currency code to name the amount in
+ * @property {import('./utils/currency-vocab.js').UkCurrency} [currency] - ISO 4217 currency code to name the amount in
  */
 
 /** @type {Required<CurrencyOptions>} */
@@ -498,25 +498,31 @@ function toCurrency(value, options) {
   checkMax(hryvnia, currencyMax)
   const { currency } = resolveOptions(options, currencyDefaults, currencyValues)
   assertCurrencyExponent(kopiyky, currency)
-  const { major, minor } = CURRENCY_VOCAB[currency]
+  const { major, minor, majorGender: majorGenderRaw, minorGender: minorGenderRaw } = CURRENCY_VOCAB[currency]
+  // Every uk entry sets both gender fields (currency-vocab-contract.test.js
+  // enforces it for gender-sensitive languages) — narrow the optional matrix
+  // fields to the non-optional shape toCurrency's own logic requires.
+  const majorGender = /** @type {'masculine' | 'feminine'} */ (majorGenderRaw)
+  const minorGender = /** @type {'masculine' | 'feminine'} */ (minorGenderRaw)
 
   let result = ''
   if (isNegative) {
     result = NEGATIVE + ' '
   }
 
-  // Hryvnia part (feminine)
+  // Major-unit noun's own gender drives agreement (гривня is feminine, but a
+  // named currency's own noun may not be — see docs/currency-vocab.md).
   if (hryvnia > 0n || kopiyky === 0n) {
-    result += integerToWords(hryvnia, 'feminine')
+    result += integerToWords(hryvnia, majorGender)
     result += ' ' + pluralize(hryvnia, major)
   }
 
-  // Kopiyky part (feminine)
+  // Minor-unit noun's own gender (копiйка is feminine).
   if (kopiyky > 0n) {
     if (hryvnia > 0n) {
       result += ' '
     }
-    result += integerToWords(kopiyky, 'feminine')
+    result += integerToWords(kopiyky, minorGender)
     result += ' ' + pluralize(kopiyky, /** @type {string[]} */ (minor))
   }
 
