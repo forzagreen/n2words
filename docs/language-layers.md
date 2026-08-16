@@ -13,6 +13,41 @@ defaulted to. n2words now names each fact separately:
 | 2. Currency words | language (or its script/orthography) | `src/utils/currency-vocab.js`, keyed by language | `en`'s `{ GBP: {...}, KES: {...} }` |
 | 3. Locale profile | country | a thin `src/{code}.js` file with `variantOf` | `en-AU` defaults to AUD |
 
+```mermaid
+flowchart TB
+    subgraph L1["Layer 1 · Numerals — full src/{code}.js implementations"]
+        enUS["en-US<br/>own default: USD"]
+        enGB["en-GB<br/>own default: GBP"]
+    end
+
+    subgraph L2["Layer 2 · Currency words — currency-vocab.js, keyed by language"]
+        enVocab["en → USD · GBP · KES · AUD · NZD … (24 currencies)"]
+    end
+
+    subgraph L3["Layer 3 · Locale profiles — variantOf + own currencyDefaults"]
+        enAU["en-AU<br/>variantOf: en-GB<br/>default: AUD"]
+        enKE["en-KE<br/>variantOf: en-GB<br/>default: KES"]
+    end
+
+    enAU -. numerals .-> enGB
+    enKE -. numerals .-> enGB
+
+    enUS -. currency words .-> enVocab
+    enGB -. currency words .-> enVocab
+    enAU -. currency words .-> enVocab
+    enKE -. currency words .-> enVocab
+```
+
+Every layer-3 entry point — base or profile — draws from the *same* layer-2
+matrix. That's the whole point made visible: `en-GB` and `en-KE` used to each
+hardcode their own single currency's words, so neither could name the
+other's. Now both point at one `en` matrix that has words for both, so
+`en-GB` can render KES and `en-KE` can render GBP — a capability that used to
+require either duplicating the vocabulary into both files or forking a
+third. Layer 1 stays untouched by any of this: `en-AU` and `en-KE` borrow
+`en-GB`'s numeral grammar unconditionally, so adding a currency or a country
+never risks the numeral logic that's actually hard to get right.
+
 > Status: adopted for every language with a behaviourally-identical
 > numeral clone (English, Spanish) — see
 > [bare-tag-aliases.md](./bare-tag-aliases.md) for which multi-variant
