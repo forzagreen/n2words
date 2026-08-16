@@ -398,9 +398,10 @@ function formatFamilyTable(families, aliases, optionAnchors, displayName) {
  *
  * @param {string[]} codes Canonical (non-alias) language codes
  * @param {Map<string, Record<string, any>>} mods Code -> module namespace
+ * @param {Map<string, string[]>} families Primary subtag -> variant codes (see groupByFamily)
  * @returns {{table: string, currencyCount: number, pairCount: number}} Table plus its headline counts
  */
-function formatCurrencyCoverage(codes, mods) {
+function formatCurrencyCoverage(codes, mods, families) {
   // ISO code -> languages that name it, split by whether it's their own
   // default. The split is the interesting part: the `default` column is
   // essentially "this language's home currency", while `also` is the
@@ -421,6 +422,47 @@ function formatCurrencyCoverage(codes, mods) {
     }
   }
 
+  // Collapse a family's contribution to the bare primary subtag whenever
+  // *every* one of its variants reaches this currency, whether as the
+  // default holder or an opt-in namer — a family-wide fact reads better as
+  // one row than as N repeats of the same fact. This fires reliably for a
+  // family sharing one currency-vocab language export (en, es, fr, ...): a
+  // locale profile shares its base's currencyValues verbatim (see
+  // docs/language-layers.md), so those variants always reach a currency
+  // together or not at all. It can also fire by coincidence for a family
+  // that keeps separate exports per variant (pt-BR and pt-PT each choosing,
+  // independently, to know the same currency) — the collapsed claim is
+  // still exactly true either way, just not structurally guaranteed to stay
+  // true the next time either export changes. A family that only partially
+  // reaches a currency is left listed individually — collapsing that case
+  // would be the actual information loss this rule exists to avoid.
+  const collapseFamilies = (list, isoDefaultCodes) => {
+    const byFamily = new Map()
+    const rest = []
+    for (const code of list) {
+      const primary = code.split('-')[0]
+      if (families.has(primary) && families.get(primary).length > 1) {
+        if (!byFamily.has(primary)) byFamily.set(primary, [])
+        byFamily.get(primary).push(code)
+      }
+      else {
+        rest.push(code)
+      }
+    }
+    const collapsed = [...rest]
+    for (const [primary, familyCodesInList] of byFamily) {
+      const wholeFamily = families.get(primary)
+      const reachingCount = familyCodesInList.length + wholeFamily.filter(c => isoDefaultCodes.includes(c)).length
+      if (reachingCount === wholeFamily.length) {
+        collapsed.push(primary)
+      }
+      else {
+        collapsed.push(...familyCodesInList)
+      }
+    }
+    return collapsed.sort((a, b) => a.localeCompare(b))
+  }
+
   // Most widely-known currencies first: that ordering puts the genuinely
   // shared entries at the top and the single-language long tail at the
   // bottom, which is what makes the gaps legible at a glance.
@@ -435,7 +477,8 @@ function formatCurrencyCoverage(codes, mods) {
   ]
   const cell = list => list.length > 0 ? list.map(c => `\`${c}\``).join(', ') : '—'
   for (const [iso, { isDefault, alsoNamed }] of sorted) {
-    lines.push(`|\`${iso}\`|${cell(isDefault)}|${cell(alsoNamed)}|`)
+    const alsoCollapsed = collapseFamilies(alsoNamed, isDefault)
+    lines.push(`|\`${iso}\`|${cell(isDefault)}|${cell(alsoCollapsed)}|`)
   }
 
   return { table: lines.join('\n'), currencyCount: byCurrency.size, pairCount }
@@ -469,7 +512,7 @@ function generateMarkdown(codes, forms, mods, aliases) {
   const currencyCount = codesWithCurrency.length
   const optionsByLang = collectOptionsByLanguage(codes)
   const optionsCount = optionsByLang.length
-  const currencyCoverage = formatCurrencyCoverage(codes, mods)
+  const currencyCoverage = formatCurrencyCoverage(codes, mods, families)
 
   // Build a set of codes that have options for quick anchor lookup
   const optionAnchors = new Map()

@@ -23,7 +23,7 @@ import { parseOrdinalValue } from './utils/parse-ordinal.js'
 import { checkMax } from './utils/check-max.js'
 import { bounded, longScale } from './utils/scale.js'
 import { resolveOptions } from './utils/resolve-options.js'
-import { esES as CURRENCY_VOCAB, assertCurrencyExponent } from './utils/currency-vocab.js'
+import { es as CURRENCY_VOCAB, assertCurrencyExponent } from './utils/currency-vocab.js'
 
 // ============================================================================
 // Vocabulary (module-level constants)
@@ -521,7 +521,7 @@ function toOrdinal(value, options) {
 /**
  * @typedef {object} CurrencyOptions
  * @property {boolean} [and] - Use "con" between euros and cents
- * @property {('EUR')} [currency] - ISO 4217 currency code to name the amount in
+ * @property {import('./utils/currency-vocab.js').EsCurrency} [currency] - ISO 4217 currency code to name the amount in
  */
 
 /** @type {Required<CurrencyOptions>} */
@@ -551,33 +551,36 @@ function toCurrency(value, options) {
   checkMax(euros, currencyMax)
   const { and: useAnd, currency } = resolveOptions(options, currencyDefaults, currencyValues)
   assertCurrencyExponent(centimos, currency)
-  const { major, minor } = CURRENCY_VOCAB[currency]
+  const { major, minor, majorGender, minorGender } = CURRENCY_VOCAB[currency]
+  const majorFeminine = majorGender === 'feminine'
+  const minorFeminine = minorGender === 'feminine'
 
   let result = ''
   if (isNegative) result = NEGATIVE + ' '
 
-  // Euros part (show if non-zero, or if no centimos)
+  // Major-unit noun's own gender drives both the "un"/"una" article and the
+  // numeral itself — see docs/currency-vocab.md. Every currency named here
+  // today is masculine (euro, dólar, peso), but a future feminine one (e.g.
+  // libra) must not silently get "un libra".
   if (euros > 0n || centimos === 0n) {
-    // Use masculine for euros, but "un euro" not "uno euro"
     if (euros === 1n) {
-      result += 'un ' + major[0]
+      result += (majorFeminine ? 'una ' : 'un ') + major[0]
     }
     else {
-      result += integerToWords(euros, false) + ' ' + major[1]
+      result += integerToWords(euros, majorFeminine) + ' ' + major[1]
     }
   }
 
-  // Centimos part
+  // Minor-unit noun's own gender.
   if (centimos > 0n) {
     if (euros > 0n) {
       result += useAnd ? ' ' + CURRENCY_CONNECTOR + ' ' : ' '
     }
-    // Use masculine for centimos, but "un céntimo" not "uno céntimo"
     if (centimos === 1n) {
-      result += 'un ' + (/** @type {string[]} */ (minor))[0]
+      result += (minorFeminine ? 'una ' : 'un ') + (/** @type {string[]} */ (minor))[0]
     }
     else {
-      result += integerToWords(centimos, false) + ' ' + (/** @type {string[]} */ (minor))[1]
+      result += integerToWords(centimos, minorFeminine) + ' ' + (/** @type {string[]} */ (minor))[1]
     }
   }
 

@@ -17,7 +17,7 @@ import { parseOrdinalValue } from './utils/parse-ordinal.js'
 import { checkMax } from './utils/check-max.js'
 import { bounded, western } from './utils/scale.js'
 import { resolveOptions } from './utils/resolve-options.js'
-import { heIL as CURRENCY_VOCAB, assertCurrencyExponent } from './utils/currency-vocab.js'
+import { he as CURRENCY_VOCAB, assertCurrencyExponent } from './utils/currency-vocab.js'
 
 // ============================================================================
 // Vocabulary (arrays for indexed access - faster than object property lookup)
@@ -519,7 +519,7 @@ function integerToCurrencyWords(n) {
 
 /**
  * @typedef {object} CurrencyOptions
- * @property {('ILS')} [currency] - ISO 4217 currency code to name the amount in
+ * @property {import('./utils/currency-vocab.js').HeCurrency} [currency] - ISO 4217 currency code to name the amount in
  */
 
 /** @type {Required<CurrencyOptions>} */

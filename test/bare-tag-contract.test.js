@@ -33,7 +33,12 @@ for (const code of codes) {
   mods.set(code, await import(`../src/${code}.js`))
 }
 
-const canonicalCodes = codes.filter(code => mods.get(code).aliasOf === undefined)
+// A variant profile (variantOf, see variant-profile-contract.test.js) is
+// derived from a full variant the same way an alias is derived from one —
+// neither counts as a "canonical" variant a bare tag could point to, so a
+// bare tag never resolves to a profile instead of the real implementation it
+// delegates to.
+const canonicalCodes = codes.filter(code => mods.get(code).aliasOf === undefined && mods.get(code).variantOf === undefined)
 const aliasCodes = codes.filter(code => mods.get(code).aliasOf !== undefined)
 
 // Group canonical (non-alias) codes by BCP 47 primary subtag, e.g.

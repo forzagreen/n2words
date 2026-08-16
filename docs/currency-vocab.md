@@ -17,8 +17,28 @@ of the language files that own it.
 
 ```js
 /** @type {Record<string, CurrencyWordForms>} */
-export const enUS = { USD: { major: ['dollar', 'dollars'], minor: ['cent', 'cents'] } }
+export const en = {
+  USD: { major: ['dollar', 'dollars'], minor: ['cent', 'cents'] },
+  GBP: { major: ['pound', 'pounds'], minor: ['penny', 'pence'] },
+  KES: { major: ['shilling', 'shillings'], minor: ['cent', 'cents'] },
+  // ...every other currency an English-speaking locale names, in one map
+}
 ```
+
+The export is keyed by **language**, not by locale — see
+[language-layers.md](./language-layers.md) for why a locale (`en-US`,
+`en-KE`) and a language (`en`) are different axes. Every `en-*` entry point
+shares this one export: `n2words/en-GB` can name KES and `n2words/en-KE` can
+name GBP, because both are asking the same English-language matrix for
+different currencies, not two unrelated, hand-typed lookups. A language
+whose script or core grammar genuinely diverges (`pt-BR`/`pt-PT`, or the
+script half of `zh`/`sr`/`am`) keeps a separate export per variant instead —
+same split as [bare-tag-aliases.md](./bare-tag-aliases.md)'s "very
+different" test, because the same argument that blocks a bare-tag alias
+blocks merging their vocab too: a shared map would either silently choose
+one variant's spelling for the other, or (for `pt`) collide outright, since
+`pt-BR` and `pt-PT` name the same EUR cent with different words
+(`centavo` vs `cêntimo`).
 
 `CurrencyWordForms` is `{ major: string[], minor: string[] | null }`. The
 arrays are plain word-form lists, not a fixed `[singular, plural]` tuple —
@@ -46,6 +66,21 @@ size. `scale.js`'s split into `western`/`myriad`/`indian`/`longScale`/
 `bounded` already established this same per-use-case export shape for the
 same reason.
 
+Keying by language over keying by locale (`enUS`, `enGB`, `enKE`, ... merged
+into one `en`) still trades a smaller, real cost for the capability: every
+`en-*` bundle now carries every currency *any* English locale names, not
+just its own default. Measured on this matrix (24 currencies for `en`, 3 for
+`es`): English bundles grew **~900 bytes–1 KB** each; Spanish grew **~350–430
+bytes**. That's the price of "any English entry point can name any English
+currency," paid once per bundle rather than compounding with the matrix's
+overall size the way a currency-keyed matrix would (see above). A locale
+profile's bundle (`en-AU`, `en-BD`, ...) pays this same cost plus a small
+delegation wrapper (~60–90 bytes) — profiles are not smaller downloads than
+a full implementation, since `rollup.config.js` produces self-contained
+bundles with no runtime cross-file imports. Their win is source-side:
+~6,400 lines of duplicated numeral logic collapsed into ~12–50-line files —
+see [language-layers.md](./language-layers.md).
+
 ## Populated incrementally
 
 Every language ships with just its own current default currency — a pure
@@ -71,7 +106,7 @@ Follows the existing `<form>Values` enum contract
 validation machinery:
 
 ```js
-import { enUS as CURRENCY_VOCAB, assertCurrencyExponent } from './utils/currency-vocab.js'
+import { en as CURRENCY_VOCAB, assertCurrencyExponent, minorUnitDigits } from './utils/currency-vocab.js'
 
 /** @type {Required<CurrencyOptions>} */
 export const currencyDefaults = { currency: 'USD' }
@@ -80,11 +115,17 @@ export const currencyDefaults = { currency: 'USD' }
 export const currencyValues = { currency: /** @type {...} */ (Object.keys(CURRENCY_VOCAB)) }
 
 function toCurrency(value, options) {
-  const { dollars, cents } = parseCurrencyValue(value)
+  // Options resolve first: the currency decides how many decimal digits the
+  // parser keeps (see "1000-subunit currencies" below) — this must run
+  // before parseCurrencyValue, not after.
   const { currency } = resolveOptions(options, currencyDefaults, currencyValues)
+  const { dollars, cents } = parseCurrencyValue(value, minorUnitDigits(currency))
   assertCurrencyExponent(cents, currency)
   const { major, minor } = CURRENCY_VOCAB[currency]
-  // build using major[n] / minor[n], exactly as before
+  // Some currencies in a shared, merged matrix (see "one named export per
+  // language" above) have an invariable noun — a single-element major/minor
+  // array with no separate plural form. Index [1] only when it exists:
+  // count === 1n || major.length < 2 ? major[0] : major[1]
 }
 ```
 
@@ -127,9 +168,13 @@ if (cents > 0n) {
 
 For every language that declares `currencyValues.currency`:
 
-- a named export exists in `currency-vocab.js` matching the language's code
-  (`en-US` → `enUS`, via the same `normalizeCode` convention as UMD
-  globals);
+- a named export exists in `currency-vocab.js` matching the language's
+  expected key — usually just the code's primary subtag (`ar-SA` → `ar`,
+  `en-KE` → `en`), with a small, hand-maintained exception list
+  (`VOCAB_KEY_OVERRIDES` in the test itself) for the languages that stay
+  split by script or region (`pt-BR` → `ptBR`, `zh-Hans-CN` → `zhHans`, ...)
+  — the same set [bare-tag-aliases.md](./bare-tag-aliases.md)'s "very
+  different" test excludes from a bare-tag alias, for the same reason;
 - every ISO code in the enum has a real entry in that export;
 - for any zero-exponent currency in the enum, `toCurrency` rejects a
   fractional amount with `RangeError`;
@@ -137,9 +182,10 @@ For every language that declares `currencyValues.currency`:
   survives — `'1.500'` and `'1.050'` must not render alike, which they do
   the moment a language forgets `minorUnitDigits`.
 
-Bare-tag alias files (`aliasOf` exported) are skipped — their
-`currencyValues` is a live re-export of the target's, not a separate
-declaration to re-verify under a different name.
+Bare-tag alias files (`aliasOf`) and locale profiles (`variantOf`, see
+[language-layers.md](./language-layers.md)) are both skipped — in both
+cases `currencyValues` is a live re-export of another file's own
+declaration, not a separate one to re-verify under a different name.
 
 ## Adding a currency to a language
 
@@ -196,10 +242,61 @@ A minor amount now reaches the language as 0-999 rather than 0-99, so
 pluralization rules have to cover the whole range — a table keyed only to
 1/2/few/many still works, but a language that special-cased "two digits"
 would not. In Arabic the wider range also surfaces gender agreement that
-100-subunit currencies never exercised: `ar-SA` inverts numeral gender for
-3-10, so masculine فلس takes ثلاثة while feminine بيسة takes ثلاث. That
-selection is grammar and lives in `ar-SA.js` (`MINOR_GENDER`), not in this
-matrix — the matrix holds only the word forms.
+100-subunit currencies never exercised: `ar` inverts numeral gender for
+3-10, so masculine فلس takes ثلاثة while feminine بيسة takes ثلاث. *Which*
+index that selects is grammar and stays in `ar-SA.js`; *what* gender each
+currency's noun actually is is word data, and lives in the matrix — see
+below.
+
+## Grammatical gender
+
+A currency's major/minor noun has a grammatical gender in Arabic, Spanish,
+and every Slavic/Baltic/Romanian language this project names, and a
+gender-sensitive language's cardinal builder needs to know it to pick the
+right form of "one"/"two"/... (`два рубля` vs `две гривны`). Optional
+`majorGender`/`minorGender` fields on `CurrencyWordForms` carry it:
+
+```js
+export const ru = {
+  RUB: { major: ['рубль', 'рубля', 'рублей'], minor: ['копейка', 'копейки', 'копеек'], majorGender: 'masculine', minorGender: 'feminine' },
+  UAH: { major: ['гривня', 'гривнi', 'гривень'], minor: [...], majorGender: 'feminine', minorGender: 'feminine' },
+}
+```
+
+**This exists because a matrix merge turns a latent bug into a reachable
+one.** Before the currency matrix, each gender-sensitive language named
+exactly one currency, so its cardinal builder could safely hardcode that
+currency's own gender as a literal (`integerToWords(rubles, 'masculine')`).
+That was already silently wrong the moment a second currency became
+reachable — `ru` naming UAH (feminine гривня, unlike masculine рубль) would
+have rendered `один гривна` instead of `одна гривня` — but the bug had no
+way to fire, because there was no second currency to ask for. Widening the
+matrix (a merged `en`, a language newly free to name currencies beyond its
+own) is exactly what makes it reachable, so this is not a hypothetical: it's
+the direct consequence of the capability the matrix exists to provide.
+
+A language consumes the field the same way it consumes `major`/`minor` word
+*index* selection — its own logic, narrowed at the point of use:
+
+```js
+const { major, minor, majorGender: majorGenderRaw, minorGender: minorGenderRaw } = CURRENCY_VOCAB[currency]
+const majorGender = /** @type {'masculine' | 'feminine'} */ (majorGenderRaw)
+const minorGender = /** @type {'masculine' | 'feminine'} */ (minorGenderRaw)
+// ...
+result += integerToWords(rubles, majorGender)
+```
+
+The fields are optional on the shared type because most languages this
+project names have no grammatical gender at all (English, Japanese, ...) and
+declaring them there would be noise. `currency-vocab-contract.test.js`
+enforces each field independently, not as a pair: if *any* entry for a
+language sets `majorGender`, every entry for that language must; same for
+`minorGender`. Independently, because `ar`'s own `toCurrency` never reads
+`majorGender` from the matrix at all — every Arabic major unit it names
+(ريال، دينار، درهم) happens to be masculine and that's hardcoded directly, so
+only `minorGender` is a matrix concern there. A currency added to `ru`
+without a gender fails CI instead of shipping a silent masculine/feminine
+mismatch.
 
 ## Missing minor-unit words
 

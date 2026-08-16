@@ -1,15 +1,16 @@
 /**
  * Cross-language currency-name matrix.
  *
- * One named export per language file (camelCase, e.g. `enUS` for en-US.js —
- * the same convention rollup.config.js uses for UMD globals), each a plain
- * object keyed by ISO 4217 code. A language file imports only its own
- * export, so each per-language Rollup bundle (rollup.config.js) ships only
- * that language's rows via ordinary dead-code elimination on unused
- * bindings — unlike an object keyed the other way (ISO code -> language),
- * where an unused *property* of an exported object literal is NOT
- * eliminated. The matrix can grow to include any language naming any
- * currency without affecting any other language's bundle size.
+ * One named export per *language* (not per regional/script locale), keyed by
+ * the same minimal tag as that language's numeral entry point — camelCase,
+ * e.g. `en` for the English family, `ptBR`/`ptPT` where the language itself
+ * splits (see below). A language file imports only its own export, so each
+ * per-language Rollup bundle (rollup.config.js) ships only that language's
+ * rows via ordinary dead-code elimination on unused bindings — unlike an
+ * object keyed the other way (ISO code -> language), where an unused
+ * property of an exported object literal is NOT eliminated. The matrix can
+ * grow to include any language naming any currency without affecting any
+ * other language's bundle size.
  *
  * Word forms are plain arrays, not fixed [singular, plural] tuples: English
  * needs 2 forms; Czech/Polish/Croatian/Lithuanian need 3+; Japanese/Korean
@@ -17,6 +18,10 @@
  * to is the language file's own pluralize()/rendering logic — that's real
  * per-language grammar and stays there, unchanged. `minor: null` marks a
  * currency with no everyday subunit (see CURRENCY_EXPONENTS below).
+ *
+ * `majorGender`/`minorGender` are present only for a language whose cardinal
+ * builder takes a grammatical-gender argument (Arabic, Spanish, Slavic,
+ * Baltic, Romanian) — see "Grammatical gender" below.
  *
  * Populated incrementally: a language ships with just its own current
  * default currency (a pure extraction, no new translation work); naming an
@@ -26,10 +31,16 @@
  * @module currency-vocab
  */
 
-/** @typedef {{ major: string[], minor: string[] | null }} CurrencyWordForms */
+/**
+ * @typedef {object} CurrencyWordForms
+ * @property {string[]} major - Word forms for the major unit, in the language's own plural-index order
+ * @property {string[] | null} minor - Word forms for the minor unit, or null if the currency has none
+ * @property {('masculine' | 'feminine')} [majorGender] - Grammatical gender of the major-unit noun, for a gender-sensitive language
+ * @property {('masculine' | 'feminine')} [minorGender] - Grammatical gender of the minor-unit noun, for a gender-sensitive language
+ */
 
-// Word-form data reused verbatim by more than one language export, factored
-// out once so the strings aren't duplicated per file.
+// Word-form data reused verbatim by more than one currency entry within a
+// language, factored out once so the strings aren't duplicated per entry.
 const EN_DOLLAR = { major: ['dollar', 'dollars'], minor: ['cent', 'cents'] }
 const FR_EURO = { major: ['euro', 'euros'], minor: ['centime', 'centimes'] }
 
@@ -47,12 +58,31 @@ const FR_DINAR_MILLIME = { major: ['dinar', 'dinars'], minor: ['millime', 'milli
 const EN_DIRHAM_CENTIME = { major: ['dirham', 'dirhams'], minor: ['centime', 'centimes'] }
 const FR_DIRHAM_CENTIME = { major: ['dirham', 'dirhams'], minor: ['centime', 'centimes'] }
 
-// en-US carries the full 1000-subunit set: English is the language these
-// currencies are most often quoted in outside their own countries, and it is
-// reachable as the bare `n2words/en` entry point.
+// English: every English-speaking locale's currency, in one map. Any English
+// entry point can now name any of these — en-AU can quote KES, en-KE can
+// quote GBP — because "which words" and "which country" are different axes
+// (see docs/language-layers.md). No two source locales named the same ISO
+// code, so this merge is a pure union, not a judgment call.
 /** @type {Record<string, CurrencyWordForms>} */
-export const enUS = {
+export const en = {
   USD: EN_DOLLAR,
+  CAD: EN_DOLLAR,
+  AUD: EN_DOLLAR,
+  NZD: EN_DOLLAR,
+  SGD: EN_DOLLAR,
+  GBP: { major: ['pound', 'pounds'], minor: ['penny', 'pence'] },
+  EUR: { major: ['euro'], minor: ['cent', 'cents'] }, // en-IE wording
+  BDT: { major: ['taka'], minor: ['paisa', 'paise'] },
+  GHS: { major: ['cedi', 'cedis'], minor: ['pesewa', 'pesewas'] },
+  INR: { major: ['rupee', 'rupees'], minor: ['paisa', 'paise'] },
+  KES: { major: ['shilling', 'shillings'], minor: ['cent', 'cents'] },
+  MYR: { major: ['ringgit'], minor: ['sen'] },
+  NGN: { major: ['naira'], minor: ['kobo'] },
+  PHP: { major: ['peso', 'pesos'], minor: ['centavo', 'centavos'] },
+  PKR: { major: ['rupee', 'rupees'], minor: ['paisa', 'paise'] },
+  ZAR: { major: ['rand'], minor: ['cent', 'cents'] },
+  // 1000-subunit dinars, previously carried only by en-US. English is the
+  // language these are most often quoted in outside their own countries.
   TND: EN_DINAR_MILLIME,
   KWD: EN_DINAR_FILS,
   BHD: EN_DINAR_FILS,
@@ -65,32 +95,32 @@ export const enUS = {
   MAD: EN_DIRHAM_CENTIME,
 }
 
+// French names the Tunisian dinar (Tunisia is francophone) and the Moroccan
+// dirham; the Gulf dinars have no comparable French-language footing and
+// stay out until one is asked for. fr-FR and fr-BE named identical words for
+// every currency, so this was already a pure union before the merge.
 /** @type {Record<string, CurrencyWordForms>} */
-export const enCA = { CAD: EN_DOLLAR }
+export const fr = { EUR: FR_EURO, TND: FR_DINAR_MILLIME, MAD: FR_DIRHAM_CENTIME }
 
+// Spanish: EUR (Spain), MXN (Mexico), USD (US) are three different
+// currencies, so merging es-ES/es-MX/es-US into one language-keyed map is a
+// pure union with no wording conflict — unlike pt-BR/pt-PT below, no two
+// Spanish locales name the same ISO code with different words (yet).
+// Grammatical gender: Spanish currency nouns are masculine ("un euro", "un
+// peso", "un dólar") — see "Grammatical gender" below for how es-*.js
+// consumes majorGender/minorGender.
 /** @type {Record<string, CurrencyWordForms>} */
-export const enAU = { AUD: EN_DOLLAR }
+export const es = {
+  EUR: { major: ['euro', 'euros'], minor: ['céntimo', 'céntimos'], majorGender: 'masculine', minorGender: 'masculine' },
+  MXN: { major: ['peso', 'pesos'], minor: ['centavo', 'centavos'], majorGender: 'masculine', minorGender: 'masculine' },
+  USD: { major: ['dólar', 'dólares'], minor: ['centavo', 'centavos'], majorGender: 'masculine', minorGender: 'masculine' },
+}
 
-/** @type {Record<string, CurrencyWordForms>} */
-export const enGB = { GBP: { major: ['pound', 'pounds'], minor: ['penny', 'pence'] } }
-
-// French names the Tunisian dinar (Tunisia is francophone); the Gulf dinars
-// have no comparable French-language footing and stay out until one is asked for.
-/** @type {Record<string, CurrencyWordForms>} */
-export const frFR = { EUR: FR_EURO, TND: FR_DINAR_MILLIME, MAD: FR_DIRHAM_CENTIME }
-
-/** @type {Record<string, CurrencyWordForms>} */
-export const frBE = { EUR: FR_EURO, TND: FR_DINAR_MILLIME, MAD: FR_DIRHAM_CENTIME }
-
-/** @type {Record<string, CurrencyWordForms>} */
-export const esES = { EUR: { major: ['euro', 'euros'], minor: ['céntimo', 'céntimos'] } }
-
-/** @type {Record<string, CurrencyWordForms>} */
-export const esMX = { MXN: { major: ['peso', 'pesos'], minor: ['centavo', 'centavos'] } }
-
-/** @type {Record<string, CurrencyWordForms>} */
-export const esUS = { USD: { major: ['dólar', 'dólares'], minor: ['centavo', 'centavos'] } }
-
+// Portuguese STAYS SPLIT by region, unlike en/fr/es above: pt-BR and pt-PT
+// name the same EUR cêntimo/centavo with different spellings — a real
+// wording conflict, not just an unpopulated union — and pt-BR/pt-PT are
+// already separate numeral systems (see docs/bare-tag-aliases.md), so
+// splitting the vocab the same way costs nothing extra.
 /** @type {Record<string, CurrencyWordForms>} */
 export const ptBR = {
   BRL: { major: ['real', 'reais'], minor: ['centavo', 'centavos'] },
@@ -101,126 +131,100 @@ export const ptBR = {
 }
 
 /** @type {Record<string, CurrencyWordForms>} */
-export const jaJP = { JPY: { major: ['円'], minor: null } }
+export const ptPT = {
+  EUR: { major: ['euro', 'euros'], minor: ['cêntimo', 'cêntimos'] },
+}
 
-// Czech koruna/haléř: [singular, few (2-4), many (5+)] — cs-CZ's own
+/** @type {Record<string, CurrencyWordForms>} */
+export const ja = { JPY: { major: ['円'], minor: null } }
+
+// Czech koruna/haléř: [singular, few (2-4), many (5+)] — cs's own
 // pluralize() selects the index; this module only holds the word forms.
 /** @type {Record<string, CurrencyWordForms>} */
-export const csCZ = {
+export const cs = {
   CZK: { major: ['koruna', 'koruny', 'korun'], minor: ['haléř', 'haléře', 'haléřů'] },
 }
 
 /** @type {Record<string, CurrencyWordForms>} */
-export const koKR = { KRW: { major: ['원'], minor: null } }
+export const ko = { KRW: { major: ['원'], minor: null } }
 
 /** @type {Record<string, CurrencyWordForms>} */
-export const viVN = { VND: { major: ['đồng'], minor: null } }
+export const vi = { VND: { major: ['đồng'], minor: null } }
 
 /** @type {Record<string, CurrencyWordForms>} */
-export const faIR = { IRR: { major: ['ریال'], minor: null } }
+export const fa = { IRR: { major: ['ریال'], minor: null } }
 
 /** @type {Record<string, CurrencyWordForms>} */
-export const idID = { IDR: { major: ['rupiah'], minor: null } }
+export const id = { IDR: { major: ['rupiah'], minor: null } }
 
 /** @type {Record<string, CurrencyWordForms>} */
-export const enBD = { BDT: { major: ['taka'], minor: ['paisa', 'paise'] } }
+export const bn = { BDT: { major: ['টাকা'], minor: ['পয়সা'] } }
 
 /** @type {Record<string, CurrencyWordForms>} */
-export const enGH = { GHS: { major: ['cedi', 'cedis'], minor: ['pesewa', 'pesewas'] } }
-
-/** @type {Record<string, CurrencyWordForms>} */
-export const enIE = { EUR: { major: ['euro'], minor: ['cent', 'cents'] } }
-
-/** @type {Record<string, CurrencyWordForms>} */
-export const enIN = { INR: { major: ['rupee', 'rupees'], minor: ['paisa', 'paise'] } }
-
-/** @type {Record<string, CurrencyWordForms>} */
-export const enKE = { KES: { major: ['shilling', 'shillings'], minor: ['cent', 'cents'] } }
-
-/** @type {Record<string, CurrencyWordForms>} */
-export const enMY = { MYR: { major: ['ringgit'], minor: ['sen'] } }
-
-/** @type {Record<string, CurrencyWordForms>} */
-export const enNG = { NGN: { major: ['naira'], minor: ['kobo'] } }
-
-/** @type {Record<string, CurrencyWordForms>} */
-export const enNZ = { NZD: EN_DOLLAR }
-
-/** @type {Record<string, CurrencyWordForms>} */
-export const enPH = { PHP: { major: ['peso', 'pesos'], minor: ['centavo', 'centavos'] } }
-
-/** @type {Record<string, CurrencyWordForms>} */
-export const enPK = { PKR: { major: ['rupee', 'rupees'], minor: ['paisa', 'paise'] } }
-
-/** @type {Record<string, CurrencyWordForms>} */
-export const enSG = { SGD: EN_DOLLAR }
-
-/** @type {Record<string, CurrencyWordForms>} */
-export const enZA = { ZAR: { major: ['rand'], minor: ['cent', 'cents'] } }
-
-/** @type {Record<string, CurrencyWordForms>} */
-export const bnBD = { BDT: { major: ['টাকা'], minor: ['পয়সা'] } }
-
-/** @type {Record<string, CurrencyWordForms>} */
-export const guIN = { INR: { major: ['રૂપિયો', 'રૂપિયા'], minor: ['પૈસો', 'પૈસા'] } }
+export const gu = { INR: { major: ['રૂપિયો', 'રૂપિયા'], minor: ['પૈસો', 'પૈસા'] } }
 
 // Hindi and Marathi both use these Devanagari rupee/paisa forms verbatim.
 const HI_MR_RUPEE = { major: ['रुपया', 'रुपये'], minor: ['पैसा', 'पैसे'] }
 
 /** @type {Record<string, CurrencyWordForms>} */
-export const hiIN = { INR: HI_MR_RUPEE }
+export const hi = { INR: HI_MR_RUPEE }
 
 /** @type {Record<string, CurrencyWordForms>} */
-export const knIN = { INR: { major: ['ರೂಪಾಯಿ', 'ರೂಪಾಯಿಗಳು'], minor: ['ಪೈಸೆ', 'ಪೈಸೆಗಳು'] } }
+export const kn = { INR: { major: ['ರೂಪಾಯಿ', 'ರೂಪಾಯಿಗಳು'], minor: ['ಪೈಸೆ', 'ಪೈಸೆಗಳು'] } }
 
 /** @type {Record<string, CurrencyWordForms>} */
-export const mrIN = { INR: HI_MR_RUPEE }
+export const mr = { INR: HI_MR_RUPEE }
 
 /** @type {Record<string, CurrencyWordForms>} */
-export const paIN = { INR: { major: ['ਰੁਪਇਆ', 'ਰੁਪਏ'], minor: ['ਪੈਸਾ', 'ਪੈਸੇ'] } }
+export const pa = { INR: { major: ['ਰੁਪਇਆ', 'ਰੁਪਏ'], minor: ['ਪੈਸਾ', 'ਪੈਸੇ'] } }
 
 /** @type {Record<string, CurrencyWordForms>} */
-export const taIN = { INR: { major: ['ரூபாய்'], minor: ['பைசா'] } }
+export const ta = { INR: { major: ['ரூபாய்'], minor: ['பைசா'] } }
 
 /** @type {Record<string, CurrencyWordForms>} */
-export const teIN = { INR: { major: ['రూపాయి', 'రూపాయలు'], minor: ['పైసా', 'పైసలు'] } }
+export const te = { INR: { major: ['రూపాయి', 'రూపాయలు'], minor: ['పైసా', 'పైసలు'] } }
 
 /** @type {Record<string, CurrencyWordForms>} */
-export const urPK = { PKR: { major: ['روپیہ', 'روپے'], minor: ['پیسہ', 'پیسے'] } }
+export const ur = { PKR: { major: ['روپیہ', 'روپے'], minor: ['پیسہ', 'پیسے'] } }
 
-// Ethiopian Birr/Santim — invariable, no plural distinction. am-ET is Ge'ez
-// script, am-Latn-ET is a Latin transliteration, so the word text differs.
+// Ethiopian Birr/Santim — invariable, no plural distinction. am is Ge'ez
+// script, amLatn is a Latin transliteration, so the word text differs; this
+// is a script split (see docs/language-layers.md), same treatment as zh/sr.
 /** @type {Record<string, CurrencyWordForms>} */
-export const amET = { ETB: { major: ['ብር'], minor: ['ሳንቲም'] } }
+export const am = { ETB: { major: ['ብር'], minor: ['ሳንቲም'] } }
 
 /** @type {Record<string, CurrencyWordForms>} */
-export const amLatnET = { ETB: { major: ['birr'], minor: ['santim'] } }
+export const amLatn = { ETB: { major: ['birr'], minor: ['santim'] } }
 
-// Serbian Dinar/Para: [singular, few (2-4), many (5+)] — sr-Cyrl-RS's and
-// sr-Latn-RS's own pluralize() selects the index. Same grammar, different script.
+// Serbian Dinar/Para: [singular, few (2-4), many (5+)] — srCyrl's and
+// srLatn's own pluralize() selects the index. Same grammar, different script.
+// Dinar is masculine, para is feminine — see "Grammatical gender" below.
 /** @type {Record<string, CurrencyWordForms>} */
-export const srCyrlRS = {
-  RSD: { major: ['динар', 'динара', 'динара'], minor: ['пара', 'паре', 'пара'] },
+export const srCyrl = {
+  RSD: { major: ['динар', 'динара', 'динара'], minor: ['пара', 'паре', 'пара'], majorGender: 'masculine', minorGender: 'feminine' },
 }
 
 /** @type {Record<string, CurrencyWordForms>} */
-export const srLatnRS = {
-  RSD: { major: ['dinar', 'dinara', 'dinara'], minor: ['para', 'pare', 'para'] },
+export const srLatn = {
+  RSD: { major: ['dinar', 'dinara', 'dinara'], minor: ['para', 'pare', 'para'], majorGender: 'masculine', minorGender: 'feminine' },
 }
 
 // zh-Hans-CN Yuan: major[0]/[1] = formal/common denomination word (圆/元) —
 // not a singular/plural distinction. minor[0]/[1] = jiao (角, 1/10 yuan)/fen
-// (分, 1/100 yuan), two distinct minor denominations rather than plural forms.
+// (分, 1/100 yuan), two distinct minor denominations rather than plural
+// forms. Region drops from the key (zhHansCN -> zhHans): Simplified vs
+// Traditional script is the only thing distinguishing these two entries,
+// same as am/amLatn and srCyrl/srLatn above.
 /** @type {Record<string, CurrencyWordForms>} */
-export const zhHansCN = { CNY: { major: ['圆', '元'], minor: ['角', '分'] } }
+export const zhHans = { CNY: { major: ['圆', '元'], minor: ['角', '分'] } }
 
-// zh-Hant-TW New Taiwan Dollar: same indexing convention as zh-Hans-CN above
+// zh-Hant-TW New Taiwan Dollar: same indexing convention as zhHans above
 // (major = formal/common denomination; minor = jiao/fen), Traditional glyphs.
 /** @type {Record<string, CurrencyWordForms>} */
-export const zhHantTW = { TWD: { major: ['圓', '元'], minor: ['角', '分'] } }
+export const zhHant = { TWD: { major: ['圓', '元'], minor: ['角', '分'] } }
 
 // Arabic currency words: [singular, dual, plural (3-10), plural (11+)] —
-// ar-SA's own getRiyalForm()/getHalalaForm() select the index. The 11+ slot is
+// ar's own getRiyalForm()/getHalalaForm() select the index. The 11+ slot is
 // the tamyīz form: masculine nouns take tanwīn (ريالاً, ديناراً), while a
 // feminine ة noun keeps its base form (هللة, بيسة).
 //
@@ -228,6 +232,10 @@ export const zhHantTW = { TWD: { major: ['圓', '元'], minor: ['角', '分'] } 
 // currency differs by country — so this one export is the right home for the
 // whole Arab-world set rather than splitting it per (as yet unimplemented)
 // regional variant.
+//
+// Grammatical gender: every major unit named below (ريال، دينار، درهم) happens
+// to be masculine, so only minorGender is populated so far — see "Grammatical
+// gender" below and ar.js's own getRiyalForm()/getHalalaForm().
 const AR_RIAL = ['ريال', 'ريالان', 'ريالات', 'ريالاً']
 const AR_DINAR = ['دينار', 'ديناران', 'دنانير', 'ديناراً']
 const AR_FILS = ['فلس', 'فلسان', 'فلوس', 'فلساً']
@@ -235,207 +243,207 @@ const AR_FILS = ['فلس', 'فلسان', 'فلوس', 'فلساً']
 const AR_DIRHAM = ['درهم', 'درهمان', 'دراهم', 'درهماً']
 
 /** @type {Record<string, CurrencyWordForms>} */
-export const arSA = {
-  SAR: { major: AR_RIAL, minor: ['هللة', 'هللتان', 'هللات', 'هللة'] },
-  TND: { major: AR_DINAR, minor: ['مليم', 'مليمان', 'مليمات', 'مليماً'] },
-  KWD: { major: AR_DINAR, minor: AR_FILS },
-  BHD: { major: AR_DINAR, minor: AR_FILS },
-  JOD: { major: AR_DINAR, minor: AR_FILS },
-  IQD: { major: AR_DINAR, minor: AR_FILS },
-  OMR: { major: AR_RIAL, minor: ['بيسة', 'بيستان', 'بيسات', 'بيسة'] },
-  LYD: { major: AR_DINAR, minor: AR_DIRHAM },
+export const ar = {
+  SAR: { major: AR_RIAL, minor: ['هللة', 'هللتان', 'هللات', 'هللة'], minorGender: 'feminine' },
+  TND: { major: AR_DINAR, minor: ['مليم', 'مليمان', 'مليمات', 'مليماً'], minorGender: 'masculine' },
+  KWD: { major: AR_DINAR, minor: AR_FILS, minorGender: 'masculine' },
+  BHD: { major: AR_DINAR, minor: AR_FILS, minorGender: 'masculine' },
+  JOD: { major: AR_DINAR, minor: AR_FILS, minorGender: 'masculine' },
+  IQD: { major: AR_DINAR, minor: AR_FILS, minorGender: 'masculine' },
+  OMR: { major: AR_RIAL, minor: ['بيسة', 'بيستان', 'بيسات', 'بيسة'], minorGender: 'feminine' },
+  LYD: { major: AR_DINAR, minor: AR_DIRHAM, minorGender: 'masculine' },
   // Morocco divides into 100 santim, not 1000 — no CURRENCY_EXPONENTS entry.
-  MAD: { major: AR_DIRHAM, minor: ['سنتيم', 'سنتيمان', 'سنتيمات', 'سنتيماً'] },
+  MAD: { major: AR_DIRHAM, minor: ['سنتيم', 'سنتيمان', 'سنتيمات', 'سنتيماً'], minorGender: 'masculine' },
 }
 
-// hbo-IL (Biblical Hebrew) and he-IL (Modern Hebrew) share identical Shekel
+// hbo (Biblical Hebrew) and he (Modern Hebrew) share identical Shekel
 // major-unit forms; they differ in the minor unit — historical gerah
-// (Biblical) vs modern agora.
+// (Biblical) vs modern agora. Different primary language subtags (not a
+// script split), each with exactly one entry point, so each gets its own
+// bare key like every other single-variant language below.
 const SHEKEL_MAJOR = ['שקל', 'שקלים']
 
 /** @type {Record<string, CurrencyWordForms>} */
-export const hboIL = { ILS: { major: SHEKEL_MAJOR, minor: ['גרה', 'גרות'] } }
+export const hbo = { ILS: { major: SHEKEL_MAJOR, minor: ['גרה', 'גרות'] } }
 
 /** @type {Record<string, CurrencyWordForms>} */
-export const heIL = { ILS: { major: SHEKEL_MAJOR, minor: ['אגורה', 'אגורות'] } }
+export const he = { ILS: { major: SHEKEL_MAJOR, minor: ['אגורה', 'אגורות'] } }
 
 // Georgian Lari/Tetri — invariable, no plural distinction.
 /** @type {Record<string, CurrencyWordForms>} */
-export const kaGE = { GEL: { major: ['ლარი'], minor: ['თეთრი'] } }
+export const ka = { GEL: { major: ['ლარი'], minor: ['თეთრი'] } }
 
-// Croatian Euro/Cent: [singular, few (2-4), many (5+)] — hr-HR's own
-// pluralize() selects the index.
+// Croatian Euro/Cent: [singular, few (2-4), many (5+)] — hr's own
+// pluralize() selects the index. Both nouns masculine.
 /** @type {Record<string, CurrencyWordForms>} */
-export const hrHR = {
-  EUR: { major: ['euro', 'eura', 'eura'], minor: ['cent', 'centa', 'centi'] },
+export const hr = {
+  EUR: { major: ['euro', 'eura', 'eura'], minor: ['cent', 'centa', 'centi'], majorGender: 'masculine', minorGender: 'masculine' },
 }
 
-// Lithuanian Euro/Cent: [singular, plural, genitive] — lt-LT's own
-// pluralize() selects the index.
+// Lithuanian Euro/Cent: [singular, plural, genitive] — lt's own
+// pluralize() selects the index. Both nouns masculine.
 /** @type {Record<string, CurrencyWordForms>} */
-export const ltLT = {
-  EUR: { major: ['euras', 'eurai', 'eurų'], minor: ['centas', 'centai', 'centų'] },
+export const lt = {
+  EUR: { major: ['euras', 'eurai', 'eurų'], minor: ['centas', 'centai', 'centų'], majorGender: 'masculine', minorGender: 'masculine' },
 }
 
 // Latvian Euro/Cent: eiro (euro) is indeclinable, hence a single major form;
-// centi use [singular, plural, genitive] — lv-LV's own pluralizeCurrency()
-// selects the minor index.
+// centi use [singular, plural, genitive] — lv's own pluralizeCurrency()
+// selects the minor index. Both nouns masculine.
 /** @type {Record<string, CurrencyWordForms>} */
-export const lvLV = {
-  EUR: { major: ['eiro'], minor: ['cents', 'centi', 'centu'] },
+export const lv = {
+  EUR: { major: ['eiro'], minor: ['cents', 'centi', 'centu'], majorGender: 'masculine', minorGender: 'masculine' },
 }
 
-// Polish Złoty/Grosz: [singular, few (2-4), many (5+)] — pl-PL's own
-// pluralize() selects the index.
+// Polish Złoty/Grosz: [singular, few (2-4), many (5+)] — pl's own
+// pluralize() selects the index. Both nouns masculine.
 /** @type {Record<string, CurrencyWordForms>} */
-export const plPL = {
-  PLN: { major: ['złoty', 'złote', 'złotych'], minor: ['grosz', 'grosze', 'groszy'] },
+export const pl = {
+  PLN: { major: ['złoty', 'złote', 'złotych'], minor: ['grosz', 'grosze', 'groszy'], majorGender: 'masculine', minorGender: 'masculine' },
 }
 
-// Russian Ruble/Kopeck: [singular, few, many] — ru-RU's own pluralize()
-// selects the index.
+// Russian Ruble/Kopeck: [singular, few, many] — ru's own pluralize()
+// selects the index. рубль is masculine, копейка is feminine — this is the
+// pairing that originally motivated moving gender into the matrix: naming a
+// second currency (e.g. UAH, feminine рубль-equivalent гривна) without it
+// would silently emit masculine agreement on a feminine noun.
 /** @type {Record<string, CurrencyWordForms>} */
-export const ruRU = {
-  RUB: { major: ['рубль', 'рубля', 'рублей'], minor: ['копейка', 'копейки', 'копеек'] },
+export const ru = {
+  RUB: { major: ['рубль', 'рубля', 'рублей'], minor: ['копейка', 'копейки', 'копеек'], majorGender: 'masculine', minorGender: 'feminine' },
 }
 
-// Ukrainian Hryvnia/Kopiyka: [singular, few, many] — uk-UA's own pluralize()
-// selects the index.
+// Ukrainian Hryvnia/Kopiyka: [singular, few, many] — uk's own pluralize()
+// selects the index. гривня is feminine (unlike Russian's masculine рубль),
+// копiйка is feminine.
 /** @type {Record<string, CurrencyWordForms>} */
-export const ukUA = {
-  UAH: { major: ['гривня', 'гривнi', 'гривень'], minor: ['копiйка', 'копiйки', 'копiйок'] },
+export const uk = {
+  UAH: { major: ['гривня', 'гривнi', 'гривень'], minor: ['копiйка', 'копiйки', 'копiйок'], majorGender: 'feminine', minorGender: 'feminine' },
 }
 
 // Danish Krone/Øre: [singular, plural] for krone; øre is invariable (same
-// singular/plural) — da-DK's own toCurrency selects the major index.
+// singular/plural) — da's own toCurrency selects the major index.
 /** @type {Record<string, CurrencyWordForms>} */
-export const daDK = {
+export const da = {
   DKK: { major: ['krone', 'kroner'], minor: ['øre'] },
 }
 
 // German Euro/Cent — both invariable (no plural form) in German currency
 // speech: "ein Euro", "zwei Euro".
 /** @type {Record<string, CurrencyWordForms>} */
-export const deDE = {
+export const de = {
   EUR: { major: ['Euro'], minor: ['Cent'] },
 }
 
-// Finnish Euro/Sentti: [singular, plural] — fi-FI's own toCurrency selects
+// Finnish Euro/Sentti: [singular, plural] — fi's own toCurrency selects
 // the index (euro/euroa, sentti/senttiä).
 /** @type {Record<string, CurrencyWordForms>} */
-export const fiFI = {
+export const fi = {
   EUR: { major: ['euro', 'euroa'], minor: ['sentti', 'senttiä'] },
 }
 
 // Norwegian Bokmål Krone/Øre: [singular, plural] for krone; øre is
-// invariable (same singular/plural) — nb-NO's own toCurrency selects the
+// invariable (same singular/plural) — nb's own toCurrency selects the
 // major index.
 /** @type {Record<string, CurrencyWordForms>} */
-export const nbNO = {
+export const nb = {
   NOK: { major: ['krone', 'kroner'], minor: ['øre'] },
 }
 
 // Dutch Euro/Cent — both invariable in written Dutch currency (euro and cent
 // don't pluralize).
 /** @type {Record<string, CurrencyWordForms>} */
-export const nlNL = {
+export const nl = {
   EUR: { major: ['euro'], minor: ['cent'] },
 }
 
 // Swedish Krona/Öre: [singular, plural] for krona; öre is invariable (same
-// singular/plural) — sv-SE's own toCurrency selects the major index.
+// singular/plural) — sv's own toCurrency selects the major index.
 /** @type {Record<string, CurrencyWordForms>} */
-export const svSE = {
+export const sv = {
   SEK: { major: ['krona', 'kronor'], minor: ['öre'] },
 }
 
 // Italian Euro/Centesimo: euro is invariable; centesimo/centesimi is
-// [singular, plural] — it-IT's own toCurrency selects the minor index.
+// [singular, plural] — it's own toCurrency selects the minor index.
 /** @type {Record<string, CurrencyWordForms>} */
-export const itIT = {
+export const it = {
   EUR: { major: ['euro'], minor: ['centesimo', 'centesimi'] },
 }
 
-// Romanian Leu/Ban: [singular, plural] — ro-RO's own toCurrency selects the
-// index (and inserts "de" for higher counts, unchanged local grammar).
+// Romanian Leu/Ban: [singular, plural] — ro's own toCurrency selects the
+// index (and inserts "de" for higher counts, unchanged local grammar). Both
+// nouns masculine.
 /** @type {Record<string, CurrencyWordForms>} */
-export const roRO = {
-  RON: { major: ['leu', 'lei'], minor: ['ban', 'bani'] },
-}
-
-// Portuguese (Portugal) Euro/Cêntimo: [singular, plural] — pt-PT's own
-// toCurrency selects the index.
-/** @type {Record<string, CurrencyWordForms>} */
-export const ptPT = {
-  EUR: { major: ['euro', 'euros'], minor: ['cêntimo', 'cêntimos'] },
+export const ro = {
+  RON: { major: ['leu', 'lei'], minor: ['ban', 'bani'], majorGender: 'masculine', minorGender: 'masculine' },
 }
 
 // Azerbaijani Manat/Qəpik — both invariable (no plural distinction) in
 // Azerbaijani currency speech.
 /** @type {Record<string, CurrencyWordForms>} */
-export const azAZ = {
+export const az = {
   AZN: { major: ['manat'], minor: ['qəpik'] },
 }
 
 // Greek Euro/Λεπτό: euro is indeclinable (same singular/plural form used at
-// both indices); lepto uses [singular, plural] — el-GR's own toCurrency
+// both indices); lepto uses [singular, plural] — el's own toCurrency
 // selects the index.
 /** @type {Record<string, CurrencyWordForms>} */
-export const elGR = {
+export const el = {
   EUR: { major: ['ευρώ', 'ευρώ'], minor: ['λεπτό', 'λεπτά'] },
 }
 
 // Philippine Peso/Sentimo (Filipino) — both invariable in Filipino currency
-// speech. Distinct from en-PH, which uses different (English) words.
+// speech. Distinct from en's PHP entry, which uses different (English) words.
 /** @type {Record<string, CurrencyWordForms>} */
-export const filPH = {
+export const fil = {
   PHP: { major: ['piso'], minor: ['sentimo'] },
 }
 
-// Nigerian Naira/Kobo (Hausa) — both invariable. Distinct export from en-NG
-// and yo-NG, which use different words for the same ISO code.
+// Nigerian Naira/Kobo (Hausa) — both invariable. Distinct export from en's
+// and yo's NGN entries, which use different words for the same ISO code.
 /** @type {Record<string, CurrencyWordForms>} */
-export const haNG = {
+export const ha = {
   NGN: { major: ['naira'], minor: ['kobo'] },
 }
 
 // Hungarian Forint/Fillér — both invariable (no plural form in Hungarian
 // currency speech). Fillér is rarely used but included for completeness.
 /** @type {Record<string, CurrencyWordForms>} */
-export const huHU = {
+export const hu = {
   HUF: { major: ['forint'], minor: ['fillér'] },
 }
 
-// Malaysian Ringgit/Sen — both invariable. Distinct from en-MY, which uses
-// different (English) words.
+// Malaysian Ringgit/Sen — both invariable. Distinct from en's MYR entry,
+// which uses different (English) words.
 /** @type {Record<string, CurrencyWordForms>} */
-export const msMY = {
+export const ms = {
   MYR: { major: ['ringgit'], minor: ['sen'] },
 }
 
-// Kenyan Shilling/Cent (Swahili) — both invariable. Distinct from en-KE,
-// which uses different (English) words.
+// Kenyan Shilling/Cent (Swahili) — both invariable. Distinct from en's KES
+// entry, which uses different (English) words.
 /** @type {Record<string, CurrencyWordForms>} */
-export const swKE = {
+export const sw = {
   KES: { major: ['shilingi'], minor: ['senti'] },
 }
 
 // Thai Baht/Satang — both invariable (Thai has no plural marking).
 /** @type {Record<string, CurrencyWordForms>} */
-export const thTH = {
+export const th = {
   THB: { major: ['บาท'], minor: ['สตางค์'] },
 }
 
 // Turkish Lira/Kuruş — both invariable.
 /** @type {Record<string, CurrencyWordForms>} */
-export const trTR = {
+export const tr = {
   TRY: { major: ['lira'], minor: ['kuruş'] },
 }
 
 // Nigerian Naira/Kobo (Yoruba) — both invariable, distinct spelling/tone
-// marks from ha-NG and en-NG.
+// marks from ha's and en's NGN entries.
 /** @type {Record<string, CurrencyWordForms>} */
-export const yoNG = {
+export const yo = {
   NGN: { major: ['náírà'], minor: ['kọ́bọ̀'] },
 }
 
@@ -454,7 +462,12 @@ export const yoNG = {
  * spell "one dinar and fifty millimes" for an amount meaning five hundred.
  * `currency-vocab-contract.test.js` proves the round trip behaviourally for
  * every 3-decimal currency a language advertises, so a language that forgets
- * to pass the digits fails CI rather than shipping the mis-parse.
+ * to pass the digits fails CI rather than shipping the mis-parse. This is why
+ * `minorUnitDigits` must be called unconditionally by every `toCurrency` —
+ * not just the languages that *currently* name a 3-decimal currency: once the
+ * matrix is keyed by language, any entry point sharing that language's export
+ * can reach one, including via a locale profile's delegation (see
+ * docs/language-layers.md).
  * @type {Record<string, 0 | 3>}
  */
 export const CURRENCY_EXPONENTS = {
@@ -516,3 +529,67 @@ export function assertCurrencyExponent(cents, currencyCode) {
     throw new RangeError(`${currencyCode} has no minor unit — fractional amounts aren't representable`)
   }
 }
+
+/**
+ * One `keyof typeof <export>` per language above, for that language's own
+ * `CurrencyOptions['currency']` typedef to reference instead of hand-typing
+ * a union. This is the enforcement half of "one named export per language":
+ * widening a language's map (e.g. adding a currency to `en`) widens every
+ * file that imports it and its typedef in the same edit — a typo in either
+ * place fails typecheck instead of drifting silently out of sync with
+ * `currencyValues`, which was already derived from `Object.keys(...)`.
+ * @typedef {keyof typeof am} AmCurrency
+ * @typedef {keyof typeof amLatn} AmLatnCurrency
+ * @typedef {keyof typeof ar} ArCurrency
+ * @typedef {keyof typeof az} AzCurrency
+ * @typedef {keyof typeof bn} BnCurrency
+ * @typedef {keyof typeof cs} CsCurrency
+ * @typedef {keyof typeof da} DaCurrency
+ * @typedef {keyof typeof de} DeCurrency
+ * @typedef {keyof typeof el} ElCurrency
+ * @typedef {keyof typeof en} EnCurrency
+ * @typedef {keyof typeof es} EsCurrency
+ * @typedef {keyof typeof fa} FaCurrency
+ * @typedef {keyof typeof fi} FiCurrency
+ * @typedef {keyof typeof fil} FilCurrency
+ * @typedef {keyof typeof fr} FrCurrency
+ * @typedef {keyof typeof gu} GuCurrency
+ * @typedef {keyof typeof ha} HaCurrency
+ * @typedef {keyof typeof hbo} HboCurrency
+ * @typedef {keyof typeof he} HeCurrency
+ * @typedef {keyof typeof hi} HiCurrency
+ * @typedef {keyof typeof hr} HrCurrency
+ * @typedef {keyof typeof hu} HuCurrency
+ * @typedef {keyof typeof id} IdCurrency
+ * @typedef {keyof typeof it} ItCurrency
+ * @typedef {keyof typeof ja} JaCurrency
+ * @typedef {keyof typeof ka} KaCurrency
+ * @typedef {keyof typeof kn} KnCurrency
+ * @typedef {keyof typeof ko} KoCurrency
+ * @typedef {keyof typeof lt} LtCurrency
+ * @typedef {keyof typeof lv} LvCurrency
+ * @typedef {keyof typeof mr} MrCurrency
+ * @typedef {keyof typeof ms} MsCurrency
+ * @typedef {keyof typeof nb} NbCurrency
+ * @typedef {keyof typeof nl} NlCurrency
+ * @typedef {keyof typeof pa} PaCurrency
+ * @typedef {keyof typeof pl} PlCurrency
+ * @typedef {keyof typeof ptBR} PtBRCurrency
+ * @typedef {keyof typeof ptPT} PtPTCurrency
+ * @typedef {keyof typeof ro} RoCurrency
+ * @typedef {keyof typeof ru} RuCurrency
+ * @typedef {keyof typeof srCyrl} SrCyrlCurrency
+ * @typedef {keyof typeof srLatn} SrLatnCurrency
+ * @typedef {keyof typeof sv} SvCurrency
+ * @typedef {keyof typeof sw} SwCurrency
+ * @typedef {keyof typeof ta} TaCurrency
+ * @typedef {keyof typeof te} TeCurrency
+ * @typedef {keyof typeof th} ThCurrency
+ * @typedef {keyof typeof tr} TrCurrency
+ * @typedef {keyof typeof uk} UkCurrency
+ * @typedef {keyof typeof ur} UrCurrency
+ * @typedef {keyof typeof vi} ViCurrency
+ * @typedef {keyof typeof yo} YoCurrency
+ * @typedef {keyof typeof zhHans} ZhHansCurrency
+ * @typedef {keyof typeof zhHant} ZhHantCurrency
+ */
