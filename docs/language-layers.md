@@ -3,50 +3,77 @@
 A BCP 47 code like `en-KE` used to encode three independent facts at once:
 which numeral grammar to use, which currencies are nameable, and which
 currency is the default. Measuring the actual English variants showed those
-facts don't vary together — 16 files carried only **3** distinct numeral
-behaviours, with the other 13 differing only in which currency they
-defaulted to. n2words now names each fact separately:
-
-| Layer | Varies by | Lives in | Example |
-| ----- | --------- | -------- | ------- |
-| 1. Numerals | language variety | a full `src/{code}.js` implementation | `en-GB`'s "and after hundreds" |
-| 2. Currency words | language (or its script/orthography) | `src/utils/currency-vocab.js`, keyed by language | `en`'s `{ GBP: {...}, KES: {...} }` |
-| 3. Locale profile | country | a thin `src/{code}.js` file with `variantOf` | `en-AU` defaults to AUD |
+facts don't vary together — 16 files produced only **3** distinct numeral
+outputs under default options, with the other 13 differing solely in which
+currency they defaulted to. (Layer 1 ends up with **4** implementations
+rather than 3 because `en-CA` exposes an option the others don't — see
+[below](#when-a-candidate-turns-out-not-to-be-a-clean-profile).) n2words now
+names each fact separately:
 
 ```mermaid
-flowchart TB
-    subgraph L1["Layer 1 · Numerals — full src/{code}.js implementations"]
-        enUS["en-US<br/>own default: USD"]
-        enGB["en-GB<br/>own default: GBP"]
+flowchart TD
+    E["What you import — 16 English entry points<br/>n2words/en-US · en-GB · en-AU · en-KE · en-IN · en-ZA · ..."]
+
+    E --> L1
+    E --> L2
+    E --> L3
+
+    subgraph S1["LAYER 1 — Numerals · varies by language VARIETY"]
+        L1["4 full implementations<br/>en-US · en-GB · en-IN · en-CA<br/>16 entry points collapse to 4 behaviours"]
     end
 
-    subgraph L2["Layer 2 · Currency words — currency-vocab.js, keyed by language"]
-        enVocab["en → USD · GBP · KES · AUD · NZD … (24 currencies)"]
+    subgraph S2["LAYER 2 — Currency words · varies by LANGUAGE"]
+        L2["1 shared matrix — en<br/>24 currencies · GBP KES AUD USD INR MYR ...<br/>16 entry points share 1 vocabulary"]
     end
 
-    subgraph L3["Layer 3 · Locale profiles — variantOf + own currencyDefaults"]
-        enAU["en-AU<br/>variantOf: en-GB<br/>default: AUD"]
-        enKE["en-KE<br/>variantOf: en-GB<br/>default: KES"]
+    subgraph S3["LAYER 3 — Default currency · varies by COUNTRY"]
+        L3["16 country defaults<br/>en-US → USD · en-KE → KES · en-AU → AUD ...<br/>16 entry points, 16 distinct values"]
     end
-
-    enAU -. numerals .-> enGB
-    enKE -. numerals .-> enGB
-
-    enUS -. currency words .-> enVocab
-    enGB -. currency words .-> enVocab
-    enAU -. currency words .-> enVocab
-    enKE -. currency words .-> enVocab
 ```
 
-Every layer-3 entry point — base or profile — draws from the *same* layer-2
-matrix. That's the whole point made visible: `en-GB` and `en-KE` used to each
-hardcode their own single currency's words, so neither could name the
-other's. Now both point at one `en` matrix that has words for both, so
-`en-GB` can render KES and `en-KE` can render GBP — a capability that used to
-require either duplicating the vocabulary into both files or forking a
-third. Layer 1 stays untouched by any of this: `en-AU` and `en-KE` borrow
-`en-GB`'s numeral grammar unconditionally, so adding a currency or a country
-never risks the numeral logic that's actually hard to get right.
+| Layer | Varies by | Lives in | Distinct values across English |
+| ----- | --------- | -------- | ------------------------------ |
+| 1. Numerals | language variety | a full `src/{code}.js` implementation | **4** |
+| 2. Currency words | language (or its script/orthography) | `src/utils/currency-vocab.js`, keyed by language | **1** — `en`, 24 currencies |
+| 3. Locale profile | country | a thin `src/{code}.js` file with `variantOf` | **16** |
+
+The cardinalities are the argument. Across the same 16 entry points the three
+layers have **4**, **1** and **16** distinct values. A single filename can't
+encode three facts of three different arities without duplicating something,
+and what got duplicated was layer 1 — the numeral logic, which is both the
+hard part and the part you least want copied sixteen times.
+
+The practical effect is on layer 2. `en-GB` and `en-KE` each used to hardcode
+their own single currency's words, so neither could name the other's; both now
+point at one `en` matrix holding both, so `en-GB` renders KES and `en-KE`
+renders GBP without either file growing a line:
+
+```text
+        WHICH CURRENCIES CAN THIS ENTRY POINT NAME?
+
+  before                             after
+        USD GBP KES INR …                  USD GBP KES INR …
+  en-US  ●   ·   ·   ·               en-US  ●   ●   ●   ●
+  en-GB  ·   ●   ·   ·               en-GB  ●   ●   ●   ●
+  en-KE  ·   ·   ●   ·               en-KE  ●   ●   ●   ●
+  en-IN  ·   ·   ·   ●               en-IN  ●   ●   ●   ●
+    …                                  …
+  16 locales × 1 = 16                16 locales × 24 = 384
+```
+
+Layer 1 is untouched by any of it: `en-AU` and `en-KE` borrow `en-GB`'s
+numeral grammar unconditionally, so adding a currency or a country never
+risks the numeral logic.
+
+Arabic shows layer 2 doing the work with no layer-3 files at all — one entry
+point, nine Arab-world currencies, and no `ar-MA` file to write, because the
+currency was never a property of the *language*:
+
+```js
+import { toCurrency } from 'n2words/ar'
+toCurrency('3.003', { currency: 'KWD' })  // 'ثلاثة دنانير وثلاثة فلوس'
+toCurrency(42.50,   { currency: 'MAD' })  // 'اثنان وأربعون درهماً وخمسون سنتيماً'
+```
 
 > Status: adopted for every language with a behaviourally-identical
 > numeral clone (English, Spanish) — see
