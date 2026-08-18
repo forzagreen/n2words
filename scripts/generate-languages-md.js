@@ -399,9 +399,10 @@ function formatFamilyTable(families, aliases, optionAnchors, displayName) {
  * @param {string[]} codes Canonical (non-alias) language codes
  * @param {Map<string, Record<string, any>>} mods Code -> module namespace
  * @param {Map<string, string[]>} families Primary subtag -> variant codes (see groupByFamily)
+ * @param {Map<string, string>} aliases Alias code -> target code
  * @returns {{table: string, currencyCount: number, pairCount: number}} Table plus its headline counts
  */
-function formatCurrencyCoverage(codes, mods, families) {
+function formatCurrencyCoverage(codes, mods, families, aliases) {
   // ISO code -> languages that name it, split by whether it's their own
   // default. The split is the interesting part: the `default` column is
   // essentially "this language's home currency", while `also` is the
@@ -436,12 +437,23 @@ function formatCurrencyCoverage(codes, mods, families) {
   // true the next time either export changes. A family that only partially
   // reaches a currency is left listed individually — collapsing that case
   // would be the actual information loss this rule exists to avoid.
+  //
+  // The gate is `aliases.has(primary)`, not the family's variant count: the
+  // collapsed cell has to name something a reader can actually import. That
+  // cuts both ways. A single-variant family (ar, de, ja, ...) always has a
+  // bare-tag alias — `bare-tag-contract.test.js` requires one — so `ar` is
+  // both importable and the documented primary entry point, and printing
+  // `ar-SA` there would point past the alias for no reason. Conversely, the
+  // four families that deliberately have *no* alias (zh, pt, sr, am — see
+  // docs/bare-tag-aliases.md) must never collapse, however many of their
+  // variants reach a currency: `n2words/pt` resolves to a file that does not
+  // exist.
   const collapseFamilies = (list, isoDefaultCodes) => {
     const byFamily = new Map()
     const rest = []
     for (const code of list) {
       const primary = code.split('-')[0]
-      if (families.has(primary) && families.get(primary).length > 1) {
+      if (aliases.has(primary)) {
         if (!byFamily.has(primary)) byFamily.set(primary, [])
         byFamily.get(primary).push(code)
       }
@@ -512,7 +524,7 @@ function generateMarkdown(codes, forms, mods, aliases) {
   const currencyCount = codesWithCurrency.length
   const optionsByLang = collectOptionsByLanguage(codes)
   const optionsCount = optionsByLang.length
-  const currencyCoverage = formatCurrencyCoverage(codes, mods, families)
+  const currencyCoverage = formatCurrencyCoverage(codes, mods, families, aliases)
 
   // Build a set of codes that have options for quick anchor lookup
   const optionAnchors = new Map()
