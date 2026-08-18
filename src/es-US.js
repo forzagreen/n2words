@@ -449,7 +449,16 @@ function toCurrency(value, options) {
   checkMax(dollars, currencyMax)
   const { and: useAnd, currency } = resolveOptions(options, currencyDefaults, currencyValues)
   assertCurrencyExponent(centavos, currency)
-  const { major, minor, majorGender, minorGender } = CURRENCY_VOCAB[currency]
+  const { major, minor, majorGender: majorGenderRaw, minorGender: minorGenderRaw } = CURRENCY_VOCAB[currency]
+  // Every es entry sets both gender fields (currency-vocab-contract.test.js
+  // enforces it for gender-sensitive languages) — narrow the optional matrix
+  // fields to the non-optional shape toCurrency's own logic requires. The cast
+  // also keeps the feminine branch reachable to the checker: every es currency
+  // is masculine today, so the literal key types would otherwise narrow this to
+  // 'masculine' and flag the comparison as dead — which it is, right up until
+  // the first feminine currency (libra, corona, ...) is added.
+  const majorGender = /** @type {'masculine' | 'feminine'} */ (majorGenderRaw)
+  const minorGender = /** @type {'masculine' | 'feminine'} */ (minorGenderRaw)
   const majorFeminine = majorGender === 'feminine'
   const minorFeminine = minorGender === 'feminine'
 
