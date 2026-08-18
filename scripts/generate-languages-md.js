@@ -658,8 +658,15 @@ ${optionsCount} variants support options via a second parameter. Options are pas
 
 \`\`\`js
 toCardinal(value, { optionName: value })
+toOrdinal(value, { optionName: value })
 toCurrency(value, { optionName: value })
 \`\`\`
+
+Every option belongs to exactly one form — the **Form** column below says which. Passing an
+option to a form that doesn't declare it throws \`TypeError\`, so \`currency\` is accepted by
+\`toCurrency\` only, never by \`toCardinal\` or \`toOrdinal\`. Where the same name appears
+twice for a language (\`and\` on \`en-US\`, say), the two are independent options with their
+own defaults.
 
 ${optionSections.join('\n\n')}
 `
