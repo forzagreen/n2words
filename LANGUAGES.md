@@ -204,22 +204,22 @@ also listed per language under [Language Options](#language-options).
 
 |Currency|Default for|Also names it|
 |--------|-----------|-------------|
-|`EUR`|`de-DE`, `el-GR`, `en-IE`, `es-ES`, `fi-FI`, `fr-BE`, `fr-FR`, `hr-HR`, `it-IT`, `lt-LT`, `lv-LV`, `nl-NL`, `pt-PT`|`en`, `es`, `pt`|
+|`EUR`|`de-DE`, `el-GR`, `en-IE`, `es-ES`, `fi-FI`, `fr-BE`, `fr-FR`, `hr-HR`, `it-IT`, `lt-LT`, `lv-LV`, `nl-NL`, `pt-PT`|`en`, `es`, `pt-BR`|
 |`INR`|`en-IN`, `gu-IN`, `hi-IN`, `kn-IN`, `mr-IN`, `pa-IN`, `ta-IN`, `te-IN`|`en`|
 |`USD`|`en-US`, `es-US`|`en`, `es`, `pt-BR`|
-|`MAD`|—|`ar-SA`, `en`, `fr`|
-|`TND`|—|`ar-SA`, `en`, `fr`|
+|`MAD`|—|`ar`, `en`, `fr`|
+|`TND`|—|`ar`, `en`, `fr`|
 |`NGN`|`en-NG`, `ha-NG`, `yo-NG`|`en`|
 |`BDT`|`bn-BD`, `en-BD`|`en`|
-|`BHD`|—|`ar-SA`, `en`|
+|`BHD`|—|`ar`, `en`|
 |`GBP`|`en-GB`|`en`, `pt-BR`|
-|`IQD`|—|`ar-SA`, `en`|
-|`JOD`|—|`ar-SA`, `en`|
+|`IQD`|—|`ar`, `en`|
+|`JOD`|—|`ar`, `en`|
 |`KES`|`en-KE`, `sw-KE`|`en`|
-|`KWD`|—|`ar-SA`, `en`|
-|`LYD`|—|`ar-SA`, `en`|
+|`KWD`|—|`ar`, `en`|
+|`LYD`|—|`ar`, `en`|
 |`MYR`|`en-MY`, `ms-MY`|`en`|
-|`OMR`|—|`ar-SA`, `en`|
+|`OMR`|—|`ar`, `en`|
 |`PHP`|`en-PH`, `fil-PH`|`en`|
 |`PKR`|`en-PK`, `ur-PK`|`en`|
 |`AUD`|`en-AU`|`en`|
@@ -283,19 +283,19 @@ own defaults.
 |`hundredPairing`|cardinal|`boolean`|`false`|Use hundred-pairing for 1100-9999 (e.g., "fifteen hundred" instead of "one thousand five hundred")|
 |`and`|cardinal|`boolean`|`false`|Use "and" after hundreds and before final small numbers (e.g., "one hundred and one" instead of "one hundred one")|
 |`and`|currency|`boolean`|`true`|Use "and" between dollars and cents (e.g., "one dollar and fifty cents")|
-|`currency`|currency|`string`|`USD`|ISO 4217 currency code to name the amount in|
+|`currency`|currency|'AUD' \| 'BDT' \| 'BHD' \| 'CAD' \| 'EUR' \| 'GBP' \| 'GHS' \| 'INR' \| 'IQD' \| 'JOD' \| 'KES' \| 'KWD' \| 'LYD' \| 'MAD' \| 'MYR' \| 'NGN' \| 'NZD' \| 'OMR' \| 'PHP' \| 'PKR' \| 'SGD' \| 'TND' \| 'USD' \| 'ZAR'|`USD`|ISO 4217 currency code to name the amount in|
 
 ### Amharic (Ethiopia) (`am-ET`)
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
-|`currency`|currency|`string`|`ETB`|ISO 4217 currency code to name the amount in|
+|`currency`|currency|`'ETB'`|`ETB`|ISO 4217 currency code to name the amount in|
 
 ### Amharic (Latin, Ethiopia) (`am-Latn-ET`)
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
-|`currency`|currency|`string`|`ETB`|ISO 4217 currency code to name the amount in|
+|`currency`|currency|`'ETB'`|`ETB`|ISO 4217 currency code to name the amount in|
 
 ### Arabic (Saudi Arabia) (`ar-SA`)
 
@@ -304,26 +304,26 @@ own defaults.
 |`gender`|cardinal|'feminine' \| 'masculine'|`masculine`|Grammatical gender|
 |`negativeWord`|cardinal|`string`|`ناقص`|Custom word for negative numbers|
 |`gender`|ordinal|'feminine' \| 'masculine'|`masculine`|Grammatical gender|
-|`currency`|currency|`string`|`SAR`|ISO 4217 currency code to name the amount in|
+|`currency`|currency|'BHD' \| 'IQD' \| 'JOD' \| 'KWD' \| 'LYD' \| 'MAD' \| 'OMR' \| 'SAR' \| 'TND'|`SAR`|ISO 4217 currency code to name the amount in|
 
 ### Australian English (`en-AU`)
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
 |`and`|currency|`boolean`|`true`|Use "and" between the major and minor unit|
-|`currency`|currency|`string`|`AUD`|ISO 4217 currency code to name the amount in|
+|`currency`|currency|'AUD' \| 'BDT' \| 'BHD' \| 'CAD' \| 'EUR' \| 'GBP' \| 'GHS' \| 'INR' \| 'IQD' \| 'JOD' \| 'KES' \| 'KWD' \| 'LYD' \| 'MAD' \| 'MYR' \| 'NGN' \| 'NZD' \| 'OMR' \| 'PHP' \| 'PKR' \| 'SGD' \| 'TND' \| 'USD' \| 'ZAR'|`AUD`|ISO 4217 currency code to name the amount in|
 
 ### Azerbaijani (Azerbaijan) (`az-AZ`)
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
-|`currency`|currency|`string`|`AZN`|ISO 4217 currency code to name the amount in|
+|`currency`|currency|`'AZN'`|`AZN`|ISO 4217 currency code to name the amount in|
 
 ### Bangla (Bangladesh) (`bn-BD`)
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
-|`currency`|currency|`string`|`BDT`|ISO 4217 currency code to name the amount in|
+|`currency`|currency|`'BDT'`|`BDT`|ISO 4217 currency code to name the amount in|
 
 ### Biblical Hebrew (Israel) (`hbo-IL`)
 
@@ -331,21 +331,21 @@ own defaults.
 |------|----|----|-------|-----------|
 |`gender`|cardinal|'feminine' \| 'masculine'|`masculine`|Grammatical gender|
 |`andWord`|cardinal|`string`|`ו`|Custom conjunction word|
-|`currency`|currency|`string`|`ILS`|ISO 4217 currency code to name the amount in|
+|`currency`|currency|`'ILS'`|`ILS`|ISO 4217 currency code to name the amount in|
 
 ### Brazilian Portuguese (`pt-BR`)
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
 |`and`|currency|`boolean`|`true`|Include "e" between major and minor units|
-|`currency`|currency|`string`|`BRL`|ISO 4217 currency code to name the amount in|
+|`currency`|currency|'BRL' \| 'EUR' \| 'GBP' \| 'JPY' \| 'USD'|`BRL`|ISO 4217 currency code to name the amount in|
 
 ### British English (`en-GB`)
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
 |`and`|currency|`boolean`|`true`|Use "and" between pounds and pence (e.g., "one pound and fifty pence")|
-|`currency`|currency|`string`|`GBP`|ISO 4217 currency code to name the amount in|
+|`currency`|currency|'AUD' \| 'BDT' \| 'BHD' \| 'CAD' \| 'EUR' \| 'GBP' \| 'GHS' \| 'INR' \| 'IQD' \| 'JOD' \| 'KES' \| 'KWD' \| 'LYD' \| 'MAD' \| 'MYR' \| 'NGN' \| 'NZD' \| 'OMR' \| 'PHP' \| 'PKR' \| 'SGD' \| 'TND' \| 'USD' \| 'ZAR'|`GBP`|ISO 4217 currency code to name the amount in|
 
 ### Canadian English (`en-CA`)
 
@@ -354,7 +354,7 @@ own defaults.
 |`hundredPairing`|cardinal|`boolean`|`false`|Use hundred-pairing for 1100-9999 (e.g., "fifteen hundred" instead of "one thousand five hundred")|
 |`and`|cardinal|`boolean`|`true`|Use "and" after hundreds and before final small numbers (default: true, Canadian/British style)|
 |`and`|currency|`boolean`|`true`|Use "and" between dollars and cents (e.g., "one dollar and fifty cents")|
-|`currency`|currency|`string`|`CAD`|ISO 4217 currency code to name the amount in|
+|`currency`|currency|'AUD' \| 'BDT' \| 'BHD' \| 'CAD' \| 'EUR' \| 'GBP' \| 'GHS' \| 'INR' \| 'IQD' \| 'JOD' \| 'KES' \| 'KWD' \| 'LYD' \| 'MAD' \| 'MYR' \| 'NGN' \| 'NZD' \| 'OMR' \| 'PHP' \| 'PKR' \| 'SGD' \| 'TND' \| 'USD' \| 'ZAR'|`CAD`|ISO 4217 currency code to name the amount in|
 
 ### Chinese (Simplified, China) (`zh-Hans-CN`)
 
@@ -363,7 +363,7 @@ own defaults.
 |`formal`|cardinal|`boolean`|`true`|Use formal/financial numerals|
 |`formal`|ordinal|`boolean`|`true`|Use formal/financial numerals|
 |`formal`|currency|`boolean`|`true`|Use formal/financial numerals|
-|`currency`|currency|`string`|`CNY`|ISO 4217 currency code to name the amount in|
+|`currency`|currency|`'CNY'`|`CNY`|ISO 4217 currency code to name the amount in|
 
 ### Chinese (Traditional, Taiwan) (`zh-Hant-TW`)
 
@@ -372,26 +372,26 @@ own defaults.
 |`formal`|cardinal|`boolean`|`true`|Use formal/financial numerals|
 |`formal`|ordinal|`boolean`|`true`|Use formal/financial numerals|
 |`formal`|currency|`boolean`|`true`|Use formal/financial numerals|
-|`currency`|currency|`string`|`TWD`|ISO 4217 currency code to name the amount in|
+|`currency`|currency|`'TWD'`|`TWD`|ISO 4217 currency code to name the amount in|
 
 ### Croatian (Croatia) (`hr-HR`)
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
 |`gender`|cardinal|'feminine' \| 'masculine'|`masculine`|Grammatical gender|
-|`currency`|currency|`string`|`EUR`|ISO 4217 currency code to name the amount in|
+|`currency`|currency|`'EUR'`|`EUR`|ISO 4217 currency code to name the amount in|
 
 ### Czech (Czechia) (`cs-CZ`)
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
-|`currency`|currency|`string`|`CZK`|ISO 4217 currency code to name the amount in|
+|`currency`|currency|`'CZK'`|`CZK`|ISO 4217 currency code to name the amount in|
 
 ### Danish (Denmark) (`da-DK`)
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
-|`currency`|currency|`string`|`DKK`|ISO 4217 currency code to name the amount in|
+|`currency`|currency|`'DKK'`|`DKK`|ISO 4217 currency code to name the amount in|
 
 ### Dutch (Netherlands) (`nl-NL`)
 
@@ -401,98 +401,98 @@ own defaults.
 |`includeOptionalAnd`|cardinal|`boolean`|`false`|Include "en" before small numbers|
 |`noHundredPairing`|cardinal|`boolean`|`false`|Disable hundred pairing (1104→duizend honderdvier)|
 |`and`|currency|`boolean`|`true`|Include "en" between euros and cents|
-|`currency`|currency|`string`|`EUR`|ISO 4217 currency code to name the amount in|
+|`currency`|currency|`'EUR'`|`EUR`|ISO 4217 currency code to name the amount in|
 
 ### English (Bangladesh) (`en-BD`)
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
 |`and`|currency|`boolean`|`true`|Use "and" between the major and minor unit|
-|`currency`|currency|`string`|`BDT`|ISO 4217 currency code to name the amount in|
+|`currency`|currency|'AUD' \| 'BDT' \| 'BHD' \| 'CAD' \| 'EUR' \| 'GBP' \| 'GHS' \| 'INR' \| 'IQD' \| 'JOD' \| 'KES' \| 'KWD' \| 'LYD' \| 'MAD' \| 'MYR' \| 'NGN' \| 'NZD' \| 'OMR' \| 'PHP' \| 'PKR' \| 'SGD' \| 'TND' \| 'USD' \| 'ZAR'|`BDT`|ISO 4217 currency code to name the amount in|
 
 ### English (Ghana) (`en-GH`)
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
 |`and`|currency|`boolean`|`true`|Use "and" between the major and minor unit|
-|`currency`|currency|`string`|`GHS`|ISO 4217 currency code to name the amount in|
+|`currency`|currency|'AUD' \| 'BDT' \| 'BHD' \| 'CAD' \| 'EUR' \| 'GBP' \| 'GHS' \| 'INR' \| 'IQD' \| 'JOD' \| 'KES' \| 'KWD' \| 'LYD' \| 'MAD' \| 'MYR' \| 'NGN' \| 'NZD' \| 'OMR' \| 'PHP' \| 'PKR' \| 'SGD' \| 'TND' \| 'USD' \| 'ZAR'|`GHS`|ISO 4217 currency code to name the amount in|
 
 ### English (India) (`en-IN`)
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
 |`and`|currency|`boolean`|`true`|Use "and" between rupees and paise|
-|`currency`|currency|`string`|`INR`|ISO 4217 currency code to name the amount in|
+|`currency`|currency|'AUD' \| 'BDT' \| 'BHD' \| 'CAD' \| 'EUR' \| 'GBP' \| 'GHS' \| 'INR' \| 'IQD' \| 'JOD' \| 'KES' \| 'KWD' \| 'LYD' \| 'MAD' \| 'MYR' \| 'NGN' \| 'NZD' \| 'OMR' \| 'PHP' \| 'PKR' \| 'SGD' \| 'TND' \| 'USD' \| 'ZAR'|`INR`|ISO 4217 currency code to name the amount in|
 
 ### English (Ireland) (`en-IE`)
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
 |`and`|currency|`boolean`|`true`|Use "and" between the major and minor unit|
-|`currency`|currency|`string`|`EUR`|ISO 4217 currency code to name the amount in|
+|`currency`|currency|'AUD' \| 'BDT' \| 'BHD' \| 'CAD' \| 'EUR' \| 'GBP' \| 'GHS' \| 'INR' \| 'IQD' \| 'JOD' \| 'KES' \| 'KWD' \| 'LYD' \| 'MAD' \| 'MYR' \| 'NGN' \| 'NZD' \| 'OMR' \| 'PHP' \| 'PKR' \| 'SGD' \| 'TND' \| 'USD' \| 'ZAR'|`EUR`|ISO 4217 currency code to name the amount in|
 
 ### English (Kenya) (`en-KE`)
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
 |`and`|currency|`boolean`|`true`|Use "and" between the major and minor unit|
-|`currency`|currency|`string`|`KES`|ISO 4217 currency code to name the amount in|
+|`currency`|currency|'AUD' \| 'BDT' \| 'BHD' \| 'CAD' \| 'EUR' \| 'GBP' \| 'GHS' \| 'INR' \| 'IQD' \| 'JOD' \| 'KES' \| 'KWD' \| 'LYD' \| 'MAD' \| 'MYR' \| 'NGN' \| 'NZD' \| 'OMR' \| 'PHP' \| 'PKR' \| 'SGD' \| 'TND' \| 'USD' \| 'ZAR'|`KES`|ISO 4217 currency code to name the amount in|
 
 ### English (Malaysia) (`en-MY`)
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
 |`and`|currency|`boolean`|`true`|Use "and" between the major and minor unit|
-|`currency`|currency|`string`|`MYR`|ISO 4217 currency code to name the amount in|
+|`currency`|currency|'AUD' \| 'BDT' \| 'BHD' \| 'CAD' \| 'EUR' \| 'GBP' \| 'GHS' \| 'INR' \| 'IQD' \| 'JOD' \| 'KES' \| 'KWD' \| 'LYD' \| 'MAD' \| 'MYR' \| 'NGN' \| 'NZD' \| 'OMR' \| 'PHP' \| 'PKR' \| 'SGD' \| 'TND' \| 'USD' \| 'ZAR'|`MYR`|ISO 4217 currency code to name the amount in|
 
 ### English (New Zealand) (`en-NZ`)
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
 |`and`|currency|`boolean`|`true`|Use "and" between the major and minor unit|
-|`currency`|currency|`string`|`NZD`|ISO 4217 currency code to name the amount in|
+|`currency`|currency|'AUD' \| 'BDT' \| 'BHD' \| 'CAD' \| 'EUR' \| 'GBP' \| 'GHS' \| 'INR' \| 'IQD' \| 'JOD' \| 'KES' \| 'KWD' \| 'LYD' \| 'MAD' \| 'MYR' \| 'NGN' \| 'NZD' \| 'OMR' \| 'PHP' \| 'PKR' \| 'SGD' \| 'TND' \| 'USD' \| 'ZAR'|`NZD`|ISO 4217 currency code to name the amount in|
 
 ### English (Nigeria) (`en-NG`)
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
 |`and`|currency|`boolean`|`true`|Use "and" between the major and minor unit|
-|`currency`|currency|`string`|`NGN`|ISO 4217 currency code to name the amount in|
+|`currency`|currency|'AUD' \| 'BDT' \| 'BHD' \| 'CAD' \| 'EUR' \| 'GBP' \| 'GHS' \| 'INR' \| 'IQD' \| 'JOD' \| 'KES' \| 'KWD' \| 'LYD' \| 'MAD' \| 'MYR' \| 'NGN' \| 'NZD' \| 'OMR' \| 'PHP' \| 'PKR' \| 'SGD' \| 'TND' \| 'USD' \| 'ZAR'|`NGN`|ISO 4217 currency code to name the amount in|
 
 ### English (Pakistan) (`en-PK`)
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
 |`and`|currency|`boolean`|`true`|Use "and" between the major and minor unit|
-|`currency`|currency|`string`|`PKR`|ISO 4217 currency code to name the amount in|
+|`currency`|currency|'AUD' \| 'BDT' \| 'BHD' \| 'CAD' \| 'EUR' \| 'GBP' \| 'GHS' \| 'INR' \| 'IQD' \| 'JOD' \| 'KES' \| 'KWD' \| 'LYD' \| 'MAD' \| 'MYR' \| 'NGN' \| 'NZD' \| 'OMR' \| 'PHP' \| 'PKR' \| 'SGD' \| 'TND' \| 'USD' \| 'ZAR'|`PKR`|ISO 4217 currency code to name the amount in|
 
 ### English (Philippines) (`en-PH`)
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
 |`and`|currency|`boolean`|`true`|Use "and" between the major and minor unit|
-|`currency`|currency|`string`|`PHP`|ISO 4217 currency code to name the amount in|
+|`currency`|currency|'AUD' \| 'BDT' \| 'BHD' \| 'CAD' \| 'EUR' \| 'GBP' \| 'GHS' \| 'INR' \| 'IQD' \| 'JOD' \| 'KES' \| 'KWD' \| 'LYD' \| 'MAD' \| 'MYR' \| 'NGN' \| 'NZD' \| 'OMR' \| 'PHP' \| 'PKR' \| 'SGD' \| 'TND' \| 'USD' \| 'ZAR'|`PHP`|ISO 4217 currency code to name the amount in|
 
 ### English (Singapore) (`en-SG`)
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
 |`and`|currency|`boolean`|`true`|Use "and" between the major and minor unit|
-|`currency`|currency|`string`|`SGD`|ISO 4217 currency code to name the amount in|
+|`currency`|currency|'AUD' \| 'BDT' \| 'BHD' \| 'CAD' \| 'EUR' \| 'GBP' \| 'GHS' \| 'INR' \| 'IQD' \| 'JOD' \| 'KES' \| 'KWD' \| 'LYD' \| 'MAD' \| 'MYR' \| 'NGN' \| 'NZD' \| 'OMR' \| 'PHP' \| 'PKR' \| 'SGD' \| 'TND' \| 'USD' \| 'ZAR'|`SGD`|ISO 4217 currency code to name the amount in|
 
 ### English (South Africa) (`en-ZA`)
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
 |`and`|currency|`boolean`|`true`|Use "and" between the major and minor unit|
-|`currency`|currency|`string`|`ZAR`|ISO 4217 currency code to name the amount in|
+|`currency`|currency|'AUD' \| 'BDT' \| 'BHD' \| 'CAD' \| 'EUR' \| 'GBP' \| 'GHS' \| 'INR' \| 'IQD' \| 'JOD' \| 'KES' \| 'KWD' \| 'LYD' \| 'MAD' \| 'MYR' \| 'NGN' \| 'NZD' \| 'OMR' \| 'PHP' \| 'PKR' \| 'SGD' \| 'TND' \| 'USD' \| 'ZAR'|`ZAR`|ISO 4217 currency code to name the amount in|
 
 ### European Portuguese (`pt-PT`)
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
 |`and`|currency|`boolean`|`true`|Include "e" between euros and cents|
-|`currency`|currency|`string`|`EUR`|ISO 4217 currency code to name the amount in|
+|`currency`|currency|`'EUR'`|`EUR`|ISO 4217 currency code to name the amount in|
 
 ### European Spanish (`es-ES`)
 
@@ -501,19 +501,19 @@ own defaults.
 |`gender`|cardinal|'feminine' \| 'masculine'|`masculine`|Grammatical gender|
 |`gender`|ordinal|'feminine' \| 'masculine'|`masculine`|Grammatical gender|
 |`and`|currency|`boolean`|`true`|Use "con" between euros and cents|
-|`currency`|currency|`string`|`EUR`|ISO 4217 currency code to name the amount in|
+|`currency`|currency|'EUR' \| 'MXN' \| 'USD'|`EUR`|ISO 4217 currency code to name the amount in|
 
 ### Filipino (Philippines) (`fil-PH`)
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
-|`currency`|currency|`string`|`PHP`|ISO 4217 currency code to name the amount in|
+|`currency`|currency|`'PHP'`|`PHP`|ISO 4217 currency code to name the amount in|
 
 ### Finnish (Finland) (`fi-FI`)
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
-|`currency`|currency|`string`|`EUR`|ISO 4217 currency code to name the amount in|
+|`currency`|currency|`'EUR'`|`EUR`|ISO 4217 currency code to name the amount in|
 
 ### French (Belgium) (`fr-BE`)
 
@@ -521,7 +521,7 @@ own defaults.
 |------|----|----|-------|-----------|
 |`withHyphenSeparator`|cardinal|`boolean`|`false`|Use hyphens between words|
 |`and`|currency|`boolean`|`true`|Use "et" between euros and centimes|
-|`currency`|currency|`string`|`EUR`|ISO 4217 currency code to name the amount in|
+|`currency`|currency|'EUR' \| 'MAD' \| 'TND'|`EUR`|ISO 4217 currency code to name the amount in|
 
 ### French (France) (`fr-FR`)
 
@@ -529,153 +529,153 @@ own defaults.
 |------|----|----|-------|-----------|
 |`withHyphenSeparator`|cardinal|`boolean`|`false`|Use hyphens between all words|
 |`and`|currency|`boolean`|`true`|Use "et" between euros and centimes|
-|`currency`|currency|`string`|`EUR`|ISO 4217 currency code to name the amount in|
+|`currency`|currency|'EUR' \| 'MAD' \| 'TND'|`EUR`|ISO 4217 currency code to name the amount in|
 
 ### Georgian (Georgia) (`ka-GE`)
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
-|`currency`|currency|`string`|`GEL`|ISO 4217 currency code to name the amount in|
+|`currency`|currency|`'GEL'`|`GEL`|ISO 4217 currency code to name the amount in|
 
 ### German (Germany) (`de-DE`)
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
 |`and`|currency|`boolean`|`true`|Use "und" between euros and cents|
-|`currency`|currency|`string`|`EUR`|ISO 4217 currency code to name the amount in|
+|`currency`|currency|`'EUR'`|`EUR`|ISO 4217 currency code to name the amount in|
 
 ### Greek (Greece) (`el-GR`)
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
-|`currency`|currency|`string`|`EUR`|ISO 4217 currency code to name the amount in|
+|`currency`|currency|`'EUR'`|`EUR`|ISO 4217 currency code to name the amount in|
 
 ### Gujarati (India) (`gu-IN`)
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
-|`currency`|currency|`string`|`INR`|ISO 4217 currency code to name the amount in|
+|`currency`|currency|`'INR'`|`INR`|ISO 4217 currency code to name the amount in|
 
 ### Hausa (Nigeria) (`ha-NG`)
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
-|`currency`|currency|`string`|`NGN`|ISO 4217 currency code to name the amount in|
+|`currency`|currency|`'NGN'`|`NGN`|ISO 4217 currency code to name the amount in|
 
 ### Hebrew (Israel) (`he-IL`)
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
 |`andWord`|cardinal|`string`|`ו`|Custom conjunction word|
-|`currency`|currency|`string`|`ILS`|ISO 4217 currency code to name the amount in|
+|`currency`|currency|`'ILS'`|`ILS`|ISO 4217 currency code to name the amount in|
 
 ### Hindi (India) (`hi-IN`)
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
-|`currency`|currency|`string`|`INR`|ISO 4217 currency code to name the amount in|
+|`currency`|currency|`'INR'`|`INR`|ISO 4217 currency code to name the amount in|
 
 ### Hungarian (Hungary) (`hu-HU`)
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
-|`currency`|currency|`string`|`HUF`|ISO 4217 currency code to name the amount in|
+|`currency`|currency|`'HUF'`|`HUF`|ISO 4217 currency code to name the amount in|
 
 ### Indonesian (Indonesia) (`id-ID`)
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
-|`currency`|currency|`string`|`IDR`|ISO 4217 currency code to name the amount in|
+|`currency`|currency|`'IDR'`|`IDR`|ISO 4217 currency code to name the amount in|
 
 ### Italian (Italy) (`it-IT`)
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
 |`and`|currency|`boolean`|`true`|Use "e" between euros and centesimi|
-|`currency`|currency|`string`|`EUR`|ISO 4217 currency code to name the amount in|
+|`currency`|currency|`'EUR'`|`EUR`|ISO 4217 currency code to name the amount in|
 
 ### Japanese (Japan) (`ja-JP`)
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
-|`currency`|currency|`string`|`JPY`|ISO 4217 currency code to name the amount in|
+|`currency`|currency|`'JPY'`|`JPY`|ISO 4217 currency code to name the amount in|
 
 ### Kannada (India) (`kn-IN`)
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
-|`currency`|currency|`string`|`INR`|ISO 4217 currency code to name the amount in|
+|`currency`|currency|`'INR'`|`INR`|ISO 4217 currency code to name the amount in|
 
 ### Korean (South Korea) (`ko-KR`)
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
-|`currency`|currency|`string`|`KRW`|ISO 4217 currency code to name the amount in|
+|`currency`|currency|`'KRW'`|`KRW`|ISO 4217 currency code to name the amount in|
 
 ### Latvian (Latvia) (`lv-LV`)
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
 |`gender`|cardinal|'feminine' \| 'masculine'|`masculine`|Gender for numbers < 1000|
-|`currency`|currency|`string`|`EUR`|ISO 4217 currency code to name the amount in|
+|`currency`|currency|`'EUR'`|`EUR`|ISO 4217 currency code to name the amount in|
 
 ### Lithuanian (Lithuania) (`lt-LT`)
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
 |`gender`|cardinal|'feminine' \| 'masculine'|`masculine`|Gender for numbers < 1000|
-|`currency`|currency|`string`|`EUR`|ISO 4217 currency code to name the amount in|
+|`currency`|currency|`'EUR'`|`EUR`|ISO 4217 currency code to name the amount in|
 
 ### Malay (Malaysia) (`ms-MY`)
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
-|`currency`|currency|`string`|`MYR`|ISO 4217 currency code to name the amount in|
+|`currency`|currency|`'MYR'`|`MYR`|ISO 4217 currency code to name the amount in|
 
 ### Marathi (India) (`mr-IN`)
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
-|`currency`|currency|`string`|`INR`|ISO 4217 currency code to name the amount in|
+|`currency`|currency|`'INR'`|`INR`|ISO 4217 currency code to name the amount in|
 
 ### Mexican Spanish (`es-MX`)
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
 |`and`|currency|`boolean`|`true`|Use "con" between the major and minor unit|
-|`currency`|currency|`string`|`MXN`|ISO 4217 currency code to name the amount in|
+|`currency`|currency|'EUR' \| 'MXN' \| 'USD'|`MXN`|ISO 4217 currency code to name the amount in|
 
 ### Norwegian Bokmål (Norway) (`nb-NO`)
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
-|`currency`|currency|`string`|`NOK`|ISO 4217 currency code to name the amount in|
+|`currency`|currency|`'NOK'`|`NOK`|ISO 4217 currency code to name the amount in|
 
 ### Persian (Iran) (`fa-IR`)
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
-|`currency`|currency|`string`|`IRR`|ISO 4217 currency code to name the amount in|
+|`currency`|currency|`'IRR'`|`IRR`|ISO 4217 currency code to name the amount in|
 
 ### Polish (Poland) (`pl-PL`)
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
 |`gender`|cardinal|'feminine' \| 'masculine'|`masculine`|Gender for numbers < 1000|
-|`currency`|currency|`string`|`PLN`|ISO 4217 currency code to name the amount in|
+|`currency`|currency|`'PLN'`|`PLN`|ISO 4217 currency code to name the amount in|
 
 ### Punjabi (India) (`pa-IN`)
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
-|`currency`|currency|`string`|`INR`|ISO 4217 currency code to name the amount in|
+|`currency`|currency|`'INR'`|`INR`|ISO 4217 currency code to name the amount in|
 
 ### Romanian (Romania) (`ro-RO`)
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
 |`gender`|cardinal|'feminine' \| 'masculine'|`masculine`|Gender for numbers|
-|`currency`|currency|`string`|`RON`|ISO 4217 currency code to name the amount in|
+|`currency`|currency|`'RON'`|`RON`|ISO 4217 currency code to name the amount in|
 
 ### Russian (Russia) (`ru-RU`)
 
@@ -683,7 +683,7 @@ own defaults.
 |------|----|----|-------|-----------|
 |`gender`|cardinal|'feminine' \| 'masculine'|`masculine`|Grammatical gender|
 |`and`|currency|`boolean`|`true`|Use "и" between rubles and kopecks|
-|`currency`|currency|`string`|`RUB`|ISO 4217 currency code to name the amount in|
+|`currency`|currency|`'RUB'`|`RUB`|ISO 4217 currency code to name the amount in|
 
 ### Serbian (Cyrillic, Serbia) (`sr-Cyrl-RS`)
 
@@ -691,7 +691,7 @@ own defaults.
 |------|----|----|-------|-----------|
 |`gender`|cardinal|'feminine' \| 'masculine'|`masculine`|Grammatical gender|
 |`and`|currency|`boolean`|`true`|Use "и" between dinars and para|
-|`currency`|currency|`string`|`RSD`|ISO 4217 currency code to name the amount in|
+|`currency`|currency|`'RSD'`|`RSD`|ISO 4217 currency code to name the amount in|
 
 ### Serbian (Latin, Serbia) (`sr-Latn-RS`)
 
@@ -699,7 +699,7 @@ own defaults.
 |------|----|----|-------|-----------|
 |`gender`|cardinal|'feminine' \| 'masculine'|`masculine`|Grammatical gender|
 |`and`|currency|`boolean`|`true`|Use "i" between dinars and para|
-|`currency`|currency|`string`|`RSD`|ISO 4217 currency code to name the amount in|
+|`currency`|currency|`'RSD'`|`RSD`|ISO 4217 currency code to name the amount in|
 
 ### Spanish (United States) (`es-US`)
 
@@ -708,66 +708,66 @@ own defaults.
 |`gender`|cardinal|'feminine' \| 'masculine'|`masculine`|Grammatical gender|
 |`gender`|ordinal|'feminine' \| 'masculine'|`masculine`|Grammatical gender|
 |`and`|currency|`boolean`|`true`|Use "con" between dollars and cents|
-|`currency`|currency|`string`|`USD`|ISO 4217 currency code to name the amount in|
+|`currency`|currency|'EUR' \| 'MXN' \| 'USD'|`USD`|ISO 4217 currency code to name the amount in|
 
 ### Swahili (Kenya) (`sw-KE`)
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
-|`currency`|currency|`string`|`KES`|ISO 4217 currency code to name the amount in|
+|`currency`|currency|`'KES'`|`KES`|ISO 4217 currency code to name the amount in|
 
 ### Swedish (Sweden) (`sv-SE`)
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
-|`currency`|currency|`string`|`SEK`|ISO 4217 currency code to name the amount in|
+|`currency`|currency|`'SEK'`|`SEK`|ISO 4217 currency code to name the amount in|
 
 ### Tamil (India) (`ta-IN`)
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
-|`currency`|currency|`string`|`INR`|ISO 4217 currency code to name the amount in|
+|`currency`|currency|`'INR'`|`INR`|ISO 4217 currency code to name the amount in|
 
 ### Telugu (India) (`te-IN`)
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
-|`currency`|currency|`string`|`INR`|ISO 4217 currency code to name the amount in|
+|`currency`|currency|`'INR'`|`INR`|ISO 4217 currency code to name the amount in|
 
 ### Thai (Thailand) (`th-TH`)
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
-|`currency`|currency|`string`|`THB`|ISO 4217 currency code to name the amount in|
+|`currency`|currency|`'THB'`|`THB`|ISO 4217 currency code to name the amount in|
 
 ### Turkish (Türkiye) (`tr-TR`)
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
 |`dropSpaces`|cardinal|`boolean`|`false`|Remove spaces for compound form|
-|`currency`|currency|`string`|`TRY`|ISO 4217 currency code to name the amount in|
+|`currency`|currency|`'TRY'`|`TRY`|ISO 4217 currency code to name the amount in|
 
 ### Ukrainian (Ukraine) (`uk-UA`)
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
 |`gender`|cardinal|'feminine' \| 'masculine'|`masculine`|Grammatical gender|
-|`currency`|currency|`string`|`UAH`|ISO 4217 currency code to name the amount in|
+|`currency`|currency|`'UAH'`|`UAH`|ISO 4217 currency code to name the amount in|
 
 ### Urdu (Pakistan) (`ur-PK`)
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
-|`currency`|currency|`string`|`PKR`|ISO 4217 currency code to name the amount in|
+|`currency`|currency|`'PKR'`|`PKR`|ISO 4217 currency code to name the amount in|
 
 ### Vietnamese (Vietnam) (`vi-VN`)
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
-|`currency`|currency|`string`|`VND`|ISO 4217 currency code to name the amount in|
+|`currency`|currency|`'VND'`|`VND`|ISO 4217 currency code to name the amount in|
 
 ### Yoruba (Nigeria) (`yo-NG`)
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
-|`currency`|currency|`string`|`NGN`|ISO 4217 currency code to name the amount in|
+|`currency`|currency|`'NGN'`|`NGN`|ISO 4217 currency code to name the amount in|
