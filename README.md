@@ -67,6 +67,24 @@ toCurrency(42.50, { currency: 'EUR' }) // 'quarenta e dois euros e cinquenta cen
 toCurrency(42.50, { currency: 'CAD' }) // throws RangeError — pt-BR doesn't know CAD (yet)
 ```
 
+You don't have to hardcode that set or catch the `RangeError` to discover it — every
+currency-supporting language exports it, so it's readable at runtime and narrowed to a
+literal union in TypeScript:
+
+```js
+import { currencyDefaults, currencyValues } from 'n2words/pt-BR'
+
+currencyDefaults.currency  // 'BRL'
+currencyValues.currency    // ['BRL', 'USD', 'EUR', 'GBP', 'JPY']
+```
+
+This generalizes: every form that takes options exports its defaults
+(`cardinalDefaults`, `ordinalDefaults`, `currencyDefaults`), and any option with a fixed set
+of allowed values — `currency`, `gender` — also exports that set as `<form>Values`. Boolean
+and free-string options have no such set, so they have no `Values` entry.
+[LANGUAGES.md](LANGUAGES.md#language-options) lists every option, type and default per
+language.
+
 Each language implements one or more of these forms — see [LANGUAGES.md](LANGUAGES.md) for per-language coverage.
 
 > **Range:** each form spells values up to the largest scale word it knows, then throws a `RangeError` rather than inventing vocabulary — and the ceiling varies by language *and* form (e.g. `es-ES` cardinals reach 10^30 − 1, ordinals only 10^9 − 1). Cardinal and currency accept negatives and decimals; ordinal is positive integers only.
