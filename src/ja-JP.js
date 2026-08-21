@@ -71,7 +71,6 @@ const ORDINAL_PREFIX = '第'
 const YEN = '円'
 
 // Sen (1/100 yen) - historically used, now rare
-const SEN = '銭'
 
 // Internal scale words (within 4-digit segments)
 const TEN = '十'
@@ -314,38 +313,34 @@ function toOrdinal(value) {
 /**
  * Converts a numeric value to Japanese currency words (Yen).
  *
- * Note: Sen (銭, 1/100 yen) is included for completeness but is rarely used
- * in modern Japan. Most transactions are in whole yen.
+ * Yen has no everyday minor unit — a fractional amount throws RangeError
+ * rather than spelling a historical, no-longer-circulating 銭 (sen), which
+ * was demonetised in 1953. "Loud beats silent," the same philosophy checkMax
+ * already applies to its own precondition.
  * @param {number | string | bigint} value - The currency amount to convert
  * @returns {string} The amount in Japanese currency words
  * @throws {TypeError} If value is not a valid numeric type
- * @throws {Error} If value is not a valid number format
+ * @throws {RangeError} If value exceeds the supported range, or has a fractional part
  * @example
  * toCurrency(42)     // '四十二円'
  * toCurrency(1)      // '一円'
- * toCurrency(0.50)   // '五十銭'
- * toCurrency(42.50)  // '四十二円五十銭'
+ * toCurrency(0)      // '零円'
  */
 function toCurrency(value) {
-  const { isNegative, dollars: yen, cents: sen } = parseCurrencyValue(value)
+  const { isNegative, dollars: yen, cents } = parseCurrencyValue(value)
   checkMax(yen, currencyMax)
+  if (cents !== 0n) {
+    throw new RangeError('JPY has no minor unit — fractional amounts aren\'t representable')
+  }
 
   // Build result
   let result = ''
   if (isNegative) result = NEGATIVE
 
-  // Yen part
   if (yen > 0n) {
     result += integerToWords(yen) + YEN
   }
-
-  // Sen part (1/100 yen)
-  if (sen > 0n) {
-    result += integerToWords(sen) + SEN
-  }
-
-  // Handle zero case
-  if (yen === 0n && sen === 0n) {
+  else {
     result += ZERO + YEN
   }
 

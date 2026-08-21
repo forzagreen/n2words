@@ -229,19 +229,23 @@ function toOrdinal(value) {
 /**
  * Converts a numeric value to Persian currency words (Rial).
  *
- * Iranian Rial has no subunit in modern usage.
- * (Historically dinar was 1/100 rial, but not used today)
+ * Iranian Rial has no everyday minor unit (the dinar was historically 1/100
+ * rial), so a fractional amount throws RangeError rather than being silently
+ * discarded.
  * @param {number | string | bigint} value - The currency amount to convert
  * @returns {string} The amount in Persian currency words
  * @throws {TypeError} If value is not a valid numeric type
- * @throws {Error} If value is not a valid number format
+ * @throws {RangeError} If the amount has a fractional part
  * @example
  * toCurrency(42)     // 'چهل و دو ریال'
  * toCurrency(1000)   // 'هزار ریال'
  * toCurrency(-5)     // 'منفى پنج ریال'
  */
 function toCurrency(value) {
-  const { isNegative, dollars: rial } = parseCurrencyValue(value)
+  const { isNegative, dollars: rial, cents } = parseCurrencyValue(value)
+  if (cents !== 0n) {
+    throw new RangeError('IRR has no minor unit — fractional amounts aren\'t representable')
+  }
 
   let result = ''
   if (isNegative) {
