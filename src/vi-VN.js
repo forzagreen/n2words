@@ -367,20 +367,23 @@ function toOrdinal(value) {
 /**
  * Converts a numeric value to Vietnamese currency words (Dong).
  *
- * Vietnamese Dong has no subunit in modern usage (xu are historical).
- * Amounts are rounded to whole đồng.
+ * Vietnamese Dong has no everyday minor unit (xu are historical), so a
+ * fractional amount throws RangeError rather than being silently discarded.
  * @param {number | string | bigint} value - The currency amount to convert
  * @returns {string} The amount in Vietnamese currency words
  * @throws {TypeError} If value is not a valid numeric type
- * @throws {Error} If value is not a valid number format
+ * @throws {RangeError} If the amount has a fractional part
  * @example
  * toCurrency(42)     // 'bốn mươi hai đồng'
  * toCurrency(1000)   // 'một nghìn đồng'
  * toCurrency(-5)     // 'âm năm đồng'
  */
 function toCurrency(value) {
-  const { isNegative, dollars: dong } = parseCurrencyValue(value)
+  const { isNegative, dollars: dong, cents } = parseCurrencyValue(value)
   checkMax(dong, currencyMax)
+  if (cents !== 0n) {
+    throw new RangeError('VND has no minor unit — fractional amounts aren\'t representable')
+  }
 
   let result = ''
   if (isNegative) {

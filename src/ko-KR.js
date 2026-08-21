@@ -313,20 +313,23 @@ function toOrdinal(value) {
 /**
  * Converts a numeric value to Korean currency words (Won).
  *
- * Korean Won has no subunit (jeon are historical).
- * Amounts are rounded to whole won.
+ * Korean Won has no everyday minor unit (jeon are historical), so a
+ * fractional amount throws RangeError rather than being silently discarded.
  * @param {number | string | bigint} value - The currency amount to convert
  * @returns {string} The amount in Korean currency words
  * @throws {TypeError} If value is not a valid numeric type
- * @throws {Error} If value is not a valid number format
+ * @throws {RangeError} If the amount has a fractional part
  * @example
  * toCurrency(42)     // '사십이원'
  * toCurrency(1000)   // '천원'
  * toCurrency(-5)     // '마이너스 오원'
  */
 function toCurrency(value) {
-  const { isNegative, dollars: won } = parseCurrencyValue(value)
+  const { isNegative, dollars: won, cents } = parseCurrencyValue(value)
   checkMax(won, currencyMax)
+  if (cents !== 0n) {
+    throw new RangeError('KRW has no minor unit — fractional amounts aren\'t representable')
+  }
 
   let result = ''
   if (isNegative) {

@@ -13,7 +13,9 @@
  */
 
 import { writeFileSync, readdirSync } from 'node:fs'
-import ts from 'typescript'
+import { resolve } from 'node:path'
+import { API } from 'typescript/unstable/sync'
+import { isFunctionDeclaration, isIdentifier } from 'typescript/unstable/ast'
 import { getExportedForms } from '../test/helpers/language-helpers.js'
 import { getLanguageName } from '../test/helpers/language-naming.js'
 
@@ -78,16 +80,16 @@ let optionsIndex = new Map()
  * markdown renderer expects: a string-literal union becomes
  * `('a'|'b')`, everything else uses its plain type name (`boolean`, `string`).
  *
- * @param {import('typescript').TypeChecker} checker
- * @param {import('typescript').Type} propType
+ * @param {import('typescript/unstable/sync').Checker} checker
+ * @param {import('typescript/unstable/sync').Type} propType
  * @returns {string}
  */
 function toDocType(checker, propType) {
   // Optional props arrive as `T | undefined`; drop the undefined first.
-  const type = propType.getNonNullableType()
-  const parts = type.isUnion() ? type.types : [type]
+  const type = checker.getNonNullableType(propType) ?? propType
+  const parts = type.isUnionType() ? (type.getTypes() ?? []) : [type]
 
-  if (parts.length > 0 && parts.every(t => t.isStringLiteral())) {
+  if (parts.length > 0 && parts.every(t => t.isStringLiteralType())) {
     const literals = parts.map(t => `'${t.value}'`)
     return parts.length > 1 ? `(${literals.join('|')})` : literals[0]
   }
@@ -101,80 +103,90 @@ function toDocType(checker, propType) {
  * checker (the same view TypeScript exposes to consumers), so the docs can't
  * drift from comment formatting the way the old regex scrape could.
  *
+ * Uses `typescript/unstable/sync`, the native-compiler ("tsgo") API that
+ * replaced the classic `ts.createProgram` surface in typescript@7 — the
+ * client spawns the bundled tsgo binary as a subprocess and talks to it
+ * per-request, so the `API` instance is closed once extraction is done.
+ *
  * @param {string[]} codes Language codes
  * @param {Map<string, object>} mods Code -> module namespace (for `<form>Defaults` exports)
  * @returns {Map<string, Map<string, OptionInfo[]>>}
  */
 function buildOptionsIndex(codes, mods) {
-  const program = ts.createProgram(
-    codes.map(code => `./src/${code}.js`),
-    {
-      allowJs: true,
-      checkJs: false,
-      noEmit: true,
-      target: ts.ScriptTarget.ES2022,
-      module: ts.ModuleKind.NodeNext,
-      moduleResolution: ts.ModuleResolutionKind.NodeNext,
-    },
-  )
-  const checker = program.getTypeChecker()
-  const index = new Map()
-
-  for (const code of codes) {
-    const sourceFile = program.getSourceFile(`./src/${code}.js`)
-    if (!sourceFile) {
-      throw new Error(`Could not load source for "${code}" (./src/${code}.js) — cannot extract options`)
+  const api = new API({ cwd: process.cwd() })
+  try {
+    // src/tsconfig.json is the project this repo already maintains for
+    // checkJs coverage of src/**/*.js (see that file's own comment) — reusing
+    // it means compiler options can't drift between editor/CI type-checking
+    // and this doc generator.
+    const configFileName = resolve('src/tsconfig.json')
+    api.parseConfigFile(configFileName)
+    const openFiles = codes.map(code => resolve('src', `${code}.js`))
+    const snapshot = api.updateSnapshot({ openFiles })
+    const project = snapshot.getProject(configFileName)
+    if (!project) {
+      throw new Error(`Could not load project "${configFileName}" — cannot extract options`)
     }
-    const byFunction = new Map()
+    const checker = project.checker
+    const index = new Map()
 
-    ts.forEachChild(sourceFile, (node) => {
-      if (!ts.isFunctionDeclaration(node) || !node.name) return
-      const fnName = node.name.text
-      if (!(fnName in FORM_FUNCTIONS)) return
-
-      const optionsParam = node.parameters.find(
-        p => ts.isIdentifier(p.name) && p.name.text === 'options',
-      )
-      if (!optionsParam) return
-
-      let type = checker.getTypeAtLocation(optionsParam)
-      if (type.isUnion()) {
-        type = type.types.find(t => !(t.flags & ts.TypeFlags.Undefined)) ?? type
+    for (const code of codes) {
+      const sourceFile = project.program.getSourceFile(resolve('src', `${code}.js`))
+      if (!sourceFile) {
+        throw new Error(`Could not load source for "${code}" (src/${code}.js) — cannot extract options`)
       }
+      const byFunction = new Map()
 
-      // Defaults come from the options contract's `<form>Defaults` export —
-      // imported, the single source of truth. A form taking options without it
-      // is a contract violation (the gate enforces this too), so fail loudly
-      // rather than scrape JSDoc or the function body.
-      const formDefaults = /** @type {Record<string, unknown> | undefined} */ (
-        mods.get(code)?.[`${FORM_FUNCTIONS[fnName]}Defaults`]
-      )
-      if (formDefaults === undefined) {
-        throw new Error(`${code} ${fnName}() accepts options but doesn't export ${FORM_FUNCTIONS[fnName]}Defaults — every options-taking form must declare its contract`)
-      }
-      const options = (type.getProperties?.() ?? []).map((prop) => {
-        const name = prop.getName()
-        const description = ts
-          .displayPartsToString(prop.getDocumentationComment(checker))
-          .trim()
-          .replace(/^-\s*/, '')
-          .trim()
-        return {
-          name,
-          type: toDocType(checker, checker.getTypeOfSymbolAtLocation(prop, optionsParam)),
-          defaultValue: Object.hasOwn(formDefaults, name) ? String(formDefaults[name]) : undefined,
-          description,
-          form: FORM_FUNCTIONS[fnName],
+      for (const node of sourceFile.statements) {
+        if (!isFunctionDeclaration(node) || !node.name) continue
+        const fnName = node.name.text
+        if (!(fnName in FORM_FUNCTIONS)) continue
+
+        const optionsParam = node.parameters.find(
+          p => isIdentifier(p.name) && p.name.text === 'options',
+        )
+        if (!optionsParam) continue
+
+        const rawType = checker.getTypeAtLocation(optionsParam)
+        const type = (rawType && checker.getNonNullableType(rawType)) ?? rawType
+
+        // Defaults come from the options contract's `<form>Defaults` export —
+        // imported, the single source of truth. A form taking options without it
+        // is a contract violation (the gate enforces this too), so fail loudly
+        // rather than scrape JSDoc or the function body.
+        const formDefaults = /** @type {Record<string, unknown> | undefined} */ (
+          mods.get(code)?.[`${FORM_FUNCTIONS[fnName]}Defaults`]
+        )
+        if (formDefaults === undefined) {
+          throw new Error(`${code} ${fnName}() accepts options but doesn't export ${FORM_FUNCTIONS[fnName]}Defaults — every options-taking form must declare its contract`)
         }
-      })
+        const options = checker.getPropertiesOfType(type).map((prop) => {
+          const name = prop.name
+          const description = prop
+            .getDocumentationComment(checker)
+            .trim()
+            .replace(/^-\s*/, '')
+            .trim()
+          return {
+            name,
+            type: toDocType(checker, checker.getTypeOfSymbolAtLocation(prop, optionsParam)),
+            defaultValue: Object.hasOwn(formDefaults, name) ? String(formDefaults[name]) : undefined,
+            description,
+            form: FORM_FUNCTIONS[fnName],
+          }
+        })
 
-      if (options.length > 0) byFunction.set(fnName, options)
-    })
+        if (options.length > 0) byFunction.set(fnName, options)
+      }
 
-    index.set(code, byFunction)
+      index.set(code, byFunction)
+    }
+
+    return index
   }
-
-  return index
+  finally {
+    api.close()
+  }
 }
 
 /**
