@@ -124,9 +124,9 @@ toCurrency(value, { optionName: value })
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
-|`gender`|cardinal|'masculine' \| 'feminine'|`masculine`|Grammatical gender|
+|`gender`|cardinal|'feminine' \| 'masculine'|`masculine`|Grammatical gender|
 |`negativeWord`|cardinal|`string`|`ناقص`|Custom word for negative numbers|
-|`gender`|ordinal|'masculine' \| 'feminine'|`masculine`|Grammatical gender|
+|`gender`|ordinal|'feminine' \| 'masculine'|`masculine`|Grammatical gender|
 
 ### Australian English (`en-AU`)
 
@@ -138,7 +138,7 @@ toCurrency(value, { optionName: value })
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
-|`gender`|cardinal|'masculine' \| 'feminine'|`masculine`|Grammatical gender|
+|`gender`|cardinal|'feminine' \| 'masculine'|`masculine`|Grammatical gender|
 |`andWord`|cardinal|`string`|`ו`|Custom conjunction word|
 
 ### Brazilian Portuguese (`pt-BR`)
@@ -182,7 +182,7 @@ toCurrency(value, { optionName: value })
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
-|`gender`|cardinal|'masculine' \| 'feminine'|`masculine`|Grammatical gender|
+|`gender`|cardinal|'feminine' \| 'masculine'|`masculine`|Grammatical gender|
 
 ### Dutch (Netherlands) (`nl-NL`)
 
@@ -275,8 +275,8 @@ toCurrency(value, { optionName: value })
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
-|`gender`|cardinal|'masculine' \| 'feminine'|`masculine`|Grammatical gender|
-|`gender`|ordinal|'masculine' \| 'feminine'|`masculine`|Grammatical gender|
+|`gender`|cardinal|'feminine' \| 'masculine'|`masculine`|Grammatical gender|
+|`gender`|ordinal|'feminine' \| 'masculine'|`masculine`|Grammatical gender|
 |`and`|currency|`boolean`|`true`|Use "con" between euros and cents|
 
 ### French (Belgium) (`fr-BE`)
@@ -315,61 +315,61 @@ toCurrency(value, { optionName: value })
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
-|`gender`|cardinal|'masculine' \| 'feminine'|`masculine`|Gender for numbers < 1000|
+|`gender`|cardinal|'feminine' \| 'masculine'|`masculine`|Gender for numbers < 1000|
 
 ### Lithuanian (Lithuania) (`lt-LT`)
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
-|`gender`|cardinal|'masculine' \| 'feminine'|`masculine`|Gender for numbers < 1000|
+|`gender`|cardinal|'feminine' \| 'masculine'|`masculine`|Gender for numbers < 1000|
 
 ### Mexican Spanish (`es-MX`)
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
-|`gender`|cardinal|'masculine' \| 'feminine'|`masculine`|Grammatical gender|
-|`gender`|ordinal|'masculine' \| 'feminine'|`masculine`|Grammatical gender|
+|`gender`|cardinal|'feminine' \| 'masculine'|`masculine`|Grammatical gender|
+|`gender`|ordinal|'feminine' \| 'masculine'|`masculine`|Grammatical gender|
 |`and`|currency|`boolean`|`true`|Use "con" between pesos and centavos|
 
 ### Polish (Poland) (`pl-PL`)
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
-|`gender`|cardinal|'masculine' \| 'feminine'|`masculine`|Gender for numbers < 1000|
+|`gender`|cardinal|'feminine' \| 'masculine'|`masculine`|Gender for numbers < 1000|
 
 ### Romanian (Romania) (`ro-RO`)
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
-|`gender`|cardinal|'masculine' \| 'feminine'|`masculine`|Gender for numbers|
+|`gender`|cardinal|'feminine' \| 'masculine'|`masculine`|Gender for numbers|
 
 ### Russian (Russia) (`ru-RU`)
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
-|`gender`|cardinal|'masculine' \| 'feminine'|`masculine`|Grammatical gender|
+|`gender`|cardinal|'feminine' \| 'masculine'|`masculine`|Grammatical gender|
 |`and`|currency|`boolean`|`true`|Use "и" between rubles and kopecks|
 
 ### Serbian (Cyrillic, Serbia) (`sr-Cyrl-RS`)
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
-|`gender`|cardinal|'masculine' \| 'feminine'|`masculine`|Grammatical gender|
+|`gender`|cardinal|'feminine' \| 'masculine'|`masculine`|Grammatical gender|
 |`and`|currency|`boolean`|`true`|Use "и" between dinars and para|
 
 ### Serbian (Latin, Serbia) (`sr-Latn-RS`)
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
-|`gender`|cardinal|'masculine' \| 'feminine'|`masculine`|Grammatical gender|
+|`gender`|cardinal|'feminine' \| 'masculine'|`masculine`|Grammatical gender|
 |`and`|currency|`boolean`|`true`|Use "i" between dinars and para|
 
 ### Spanish (United States) (`es-US`)
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
-|`gender`|cardinal|'masculine' \| 'feminine'|`masculine`|Grammatical gender|
-|`gender`|ordinal|'masculine' \| 'feminine'|`masculine`|Grammatical gender|
+|`gender`|cardinal|'feminine' \| 'masculine'|`masculine`|Grammatical gender|
+|`gender`|ordinal|'feminine' \| 'masculine'|`masculine`|Grammatical gender|
 |`and`|currency|`boolean`|`true`|Use "con" between dollars and cents|
 
 ### Turkish (Türkiye) (`tr-TR`)
@@ -382,4 +382,4 @@ toCurrency(value, { optionName: value })
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
-|`gender`|cardinal|'masculine' \| 'feminine'|`masculine`|Grammatical gender|
+|`gender`|cardinal|'feminine' \| 'masculine'|`masculine`|Grammatical gender|
