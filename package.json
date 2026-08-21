@@ -38,12 +38,13 @@
   "type": "module",
   "sideEffects": false,
   "exports": {
+    "./utils/*": null,
+    "./lib/*": null,
     "./*": {
       "types": "./src/*.d.ts",
       "import": "./src/*.js",
       "default": "./src/*.js"
     },
-    "./utils/*": null,
     "./package.json": "./package.json"
   },
   "typesVersions": {
