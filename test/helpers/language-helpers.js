@@ -30,7 +30,9 @@ export function getLanguageCodes() {
 }
 
 // Form key -> the export a language provides when it supports that form.
-const FORM_EXPORTS = {
+// Exported because rollup.config.js builds one bundle per form and needs the
+// same mapping; a second copy there could drift from this one.
+export const FORM_EXPORTS = {
   cardinal: 'toCardinal',
   ordinal: 'toOrdinal',
   currency: 'toCurrency',

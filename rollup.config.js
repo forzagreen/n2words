@@ -1,7 +1,7 @@
 import terser from '@rollup/plugin-terser'
 import virtual from '@rollup/plugin-virtual'
 import { readFileSync } from 'node:fs'
-import { getExportedForms, getLanguageCodes } from './test/helpers/language-helpers.js'
+import { FORM_EXPORTS, getExportedForms, getLanguageCodes } from './test/helpers/language-helpers.js'
 import { normalizeCode } from './test/helpers/language-naming.js'
 
 // Read package.json for version
@@ -23,8 +23,21 @@ const languageCodes = getLanguageCodes()
  *
  * Generates:
  * - Individual ESM bundles (dist/{langCode}.js): One per language, for browsers
+ * - Per-form ESM bundles (dist/{langCode}/{form}.js): One per language *and*
+ *   form, for a page that needs only one of the three
  * - Individual UMD bundles (dist/{langCode}.umd.js): One per language, for
  *   browser <script> tags
+ *
+ * Why per-form bundles exist, and only for ESM: a dist bundle is a prebuilt
+ * file fetched from a CDN, so whatever it contains is what the page downloads
+ * — there is no bundler on the other end to prune the forms it didn't ask
+ * for. dist/en.js carries all three, which is most of its weight for a page
+ * that only spells prices. npm consumers never needed this: src/{lang}.js
+ * exports the three forms independently and the package is sideEffects-free,
+ * so `import { toCurrency } from 'n2words/en'` already tree-shakes cardinals
+ * and ordinals away. UMD gets no per-form split — it is the legacy path, its
+ * globals are already namespaced by form (n2words.currency.en), and doubling
+ * the file count for it buys the least.
  *
  * Node.js users import directly from src/ (ESM source). No CJS bundle is generated -
  * Node.js 22.12+ can require() ESM modules directly.
@@ -72,6 +85,37 @@ const languageEsmConfigs = languageCodes.map(langCode => ({
 }))
 
 /**
+ * Build the ESM config for one (language, form) pair.
+ *
+ * A virtual entry re-exports the single form, so Rollup's dead-code
+ * elimination drops the other two and everything only they reach — the
+ * currency vocabulary for a cardinal bundle, the scale tables for a currency
+ * one. Same terser settings as the combined bundle, so the sizes are
+ * directly comparable.
+ * @param {string} langCode - The language code (e.g. 'en-US')
+ * @param {string} form - A key of FORM_EXPORTS ('cardinal' | 'ordinal' | 'currency')
+ * @returns {import('rollup').RollupOptions} Config for that one form's bundle
+ */
+function formEsmConfig(langCode, form) {
+  const virtualEntryId = `\0virtual:form:${langCode}:${form}`
+
+  return {
+    input: virtualEntryId,
+    output: {
+      file: `dist/${langCode}/${form}.js`,
+      format: 'es',
+      banner: `/*! n2words/${langCode} ${form} v${pkg.version} | MIT License | github.com/forzagreen/n2words */`,
+    },
+    plugins: [
+      virtual({
+        [virtualEntryId]: `export { ${FORM_EXPORTS[form]} } from './src/${langCode}.js';\n`,
+      }),
+      individualTerserConfig,
+    ],
+  }
+}
+
+/**
  * Build the UMD config for one language. `forms` is the Set of forms the
  * language actually exports (read from the module, not scanned from text).
  */
@@ -117,12 +161,21 @@ function umdConfig(langCode, forms) {
 // Async config: resolve each language's exported forms (an import() per
 // module), then build the UMD entries from real exports.
 export default async () => {
-  const languageUmdConfigs = await Promise.all(
-    languageCodes.map(async langCode => umdConfig(langCode, await getExportedForms(langCode))),
+  const formsByCode = await Promise.all(
+    languageCodes.map(async langCode => /** @type {const} */ ([langCode, await getExportedForms(langCode)])),
+  )
+
+  const languageUmdConfigs = formsByCode.map(([langCode, forms]) => umdConfig(langCode, forms))
+
+  // Only for forms the language actually exports — a language without
+  // toOrdinal gets no dist/{lang}/ordinal.js rather than an empty bundle.
+  const formEsmConfigs = formsByCode.flatMap(
+    ([langCode, forms]) => [...forms].map(form => formEsmConfig(langCode, form)),
   )
 
   return [
     ...languageEsmConfigs,
+    ...formEsmConfigs,
     ...languageUmdConfigs,
   ]
 }

@@ -84,6 +84,32 @@ import { toCardinal as fr } from 'n2words/fr-FR'       // Aliased import
 </script>
 ```
 
+`dist/{code}.js` carries all three forms. A page that needs only one can fetch
+just that form from `dist/{code}/{form}.js` — `cardinal`, `ordinal` or
+`currency`:
+
+```html
+<script type="module">
+  import { toCurrency } from 'https://cdn.jsdelivr.net/npm/n2words/dist/en-US/currency.js'
+  console.log(toCurrency(42.50))  // 'forty-two dollars and fifty cents'
+</script>
+```
+
+Roughly half the bytes, since the other two forms and everything only they
+reach are never in the file:
+
+|`en-US`|bytes|
+|-------|-----|
+|`dist/en-US.js` (all three forms)|7,778|
+|`dist/en-US/cardinal.js`|4,293|
+|`dist/en-US/ordinal.js`|3,815|
+|`dist/en-US/currency.js`|3,827|
+
+This is for CDN consumers only. If you install from npm and use a bundler,
+`import { toCurrency } from 'n2words/en-US'` already drops the forms you don't
+import — the package is `sideEffects`-free and each form is an independent
+export, so there is nothing to opt into.
+
 See [LANGUAGES.md](LANGUAGES.md) for all language codes and available forms.
 
 ## Supported Languages
