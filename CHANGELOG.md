@@ -1,5 +1,17 @@
 # Changelog
 
+## [5.2.0](https://github.com/forzagreen/n2words/compare/v5.1.3...v5.2.0) (2026-09-02)
+
+
+### Features
+
+* **core:** group LANGUAGES.md by language family, not variant ([5db933a](https://github.com/forzagreen/n2words/commit/5db933a7e99fba553df6129d420c6281463428ef))
+* **core:** auto-scaffold bare-tag aliases for new single-variant languages ([f55cdb7](https://github.com/forzagreen/n2words/commit/f55cdb7e7406824e975f857c7344e61b69cc1bde))
+* **core:** backfill bare-tag aliases for every single-variant language ([91402dc](https://github.com/forzagreen/n2words/commit/91402dc0d1ff3c3ba3d0f8a60da4af57b87e90ff))
+* **core:** refuse to scaffold onto a bare-tag alias file ([a1b8e9a](https://github.com/forzagreen/n2words/commit/a1b8e9a11bdc2ce2e50517f1c8b62e3726362169))
+* **core:** exclude bare-tag aliases from LANGUAGES.md's language count ([d5dfd36](https://github.com/forzagreen/n2words/commit/d5dfd3624d496354fd43d5cb2186383456ce991e))
+* **core:** add bare-tag language aliases (en, fr, ar, es) ([f19377e](https://github.com/forzagreen/n2words/commit/f19377e8d253a2c5786dd7155a2c9deb543fa223))
+
 ## [5.1.3](https://github.com/forzagreen/n2words/compare/v5.1.2...v5.1.3) (2026-09-02)
 
 
