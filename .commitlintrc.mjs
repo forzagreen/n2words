@@ -66,6 +66,7 @@ const PROJECT_SCOPES = [
   // Infrastructure
   'release', // Version bumps, release preparation
   'scripts', // scripts/* - contributor tooling
+  'site', // site/* - the GitHub Pages demo
 ]
 
 /**

@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Languages — n2words</title>
+<meta name="description" content="Every language n2words supports: 50 languages, 72 regional variants, with the forms, options, bundle size and numeric range of each.">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap">
+    <a class="brand" href="./"><span class="n">n2</span>words</a>
+    <nav class="site-nav" aria-label="Main">
+      <a href="./">Demo</a>
+      <a href="languages.html">Languages</a>
+      <a href="docs.html">Docs</a>
+      <a href="https://github.com/forzagreen/n2words">GitHub</a>
+      <a href="https://www.npmjs.com/package/n2words">npm</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="hero">
+    <h1>Supported languages</h1>
+    <p>
+      One row per regional or script variant. <strong>Entry point</strong> is what
+      you import: a bare tag where the language has one, the full code otherwise.
+      <strong>Size</strong> is the gzipped bundle for that variant's three forms —
+      import a single form and you ship less still. Pick a code to open it in the demo.
+    </p>
+  </section>
+
+  <div class="toolbar">
+    <label class="visually-hidden" for="search">Filter languages</label>
+    <input type="text" id="search" placeholder="Filter by language, code or currency…" autocomplete="off">
+    <label class="visually-hidden" for="form-filter">Filter by form</label>
+    <select id="form-filter" style="width:auto">
+      <option value="">All forms</option>
+      <option value="cardinal">Has cardinal</option>
+      <option value="ordinal">Has ordinal</option>
+      <option value="currency">Has currency</option>
+      <option value="options">Has options</option>
+    </select>
+    <span class="count" id="count"></span>
+  </div>
+
+  <div class="table-scroll">
+    <table>
+      <thead>
+        <tr>
+          <th scope="col">Language</th>
+          <th scope="col">Entry point</th>
+          <th scope="col">Forms</th>
+          <th scope="col">Options</th>
+          <th scope="col">Currency</th>
+          <th scope="col">Range</th>
+          <th scope="col" class="num">Size</th>
+        </tr>
+      </thead>
+      <tbody id="rows"></tbody>
+    </table>
+  </div>
+
+  <section>
+    <h2>How the codes work</h2>
+    <div class="prose">
+      <p>
+        Codes are <a href="https://tools.ietf.org/html/bcp47">IETF BCP 47</a>. A
+        <em>language</em> is the primary subtag — English is one language with 16
+        regional variants, not 16 languages. Most languages also have a bare-tag
+        entry point (<code>n2words/de</code>) that resolves to one documented
+        default variant; the few whose variants genuinely diverge in script or
+        core numbering grammar — Chinese, Portuguese, Serbian, Amharic — stay
+        region- or script-qualified.
+      </p>
+      <p>
+        <code>toCurrency</code> is the one form a bare tag won't guess at: a bare
+        tag names a language, and a default currency belongs to a country. Import
+        the region-qualified code for its default, or pass an explicit
+        <code>{ currency }</code>.
+      </p>
+      <p>
+        Full detail lives in
+        <a href="https://github.com/forzagreen/n2words/blob/main/LANGUAGES.md">LANGUAGES.md</a>
+        and <a href="https://github.com/forzagreen/n2words/blob/main/docs/bare-tag-aliases.md">docs/bare-tag-aliases.md</a>.
+      </p>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <span>n2words <span id="version"></span> — MIT licensed</span>
+    <span>
+      <a href="https://github.com/forzagreen/n2words">GitHub</a> ·
+      <a href="https://www.npmjs.com/package/n2words">npm</a> ·
+      <a href="https://github.com/forzagreen/n2words/blob/main/CHANGELOG.md">Changelog</a>
+    </span>
+  </div>
+</footer>
+
+<script type="module" src="languages.js"></script>
+</body>
+</html>

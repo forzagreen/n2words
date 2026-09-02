@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>n2words — numbers to words in 50 languages</title>
+<meta name="description" content="Convert numbers to words in 50 languages and 72 regional variants — cardinal, ordinal and currency. Try it live; the demo runs the real library in your browser. Zero dependencies.">
+<meta property="og:title" content="n2words — numbers to words in 50 languages">
+<meta property="og:description" content="Cardinal, ordinal and currency conversion in 50 languages. Zero dependencies, BigInt-safe, tree-shakeable.">
+<meta property="og:type" content="website">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap">
+    <a class="brand" href="./"><span class="n">n2</span>words</a>
+    <nav class="site-nav" aria-label="Main">
+      <a href="./">Demo</a>
+      <a href="languages.html">Languages</a>
+      <a href="docs.html">Docs</a>
+      <a href="https://github.com/forzagreen/n2words">GitHub</a>
+      <a href="https://www.npmjs.com/package/n2words">npm</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section class="hero">
+    <h1>Numbers to words, in 50 languages.</h1>
+    <p>
+      Cardinal, ordinal and currency conversion for 72 regional variants —
+      BigInt-safe, tree-shakeable, and with zero dependencies. Everything below
+      runs the real library in your browser.
+    </p>
+    <ul class="stats">
+      <li><strong data-stat="languages">—</strong><span>Languages</span></li>
+      <li><strong data-stat="variants">—</strong><span>Variants</span></li>
+      <li><strong data-stat="forms">3</strong><span>Forms</span></li>
+      <li><strong data-stat="deps">0</strong><span>Dependencies</span></li>
+    </ul>
+  </section>
+
+  <section class="card converter" aria-labelledby="converter-heading">
+    <h2 id="converter-heading" class="visually-hidden">Converter</h2>
+
+    <div class="controls">
+      <div class="field">
+        <label for="value">Number</label>
+        <input type="text" id="value" value="1234.56" autocomplete="off" spellcheck="false"
+               aria-describedby="value-hint">
+        <p id="value-hint" class="visually-hidden">
+          Accepts integers, decimals, negatives, scientific notation, and arbitrarily large values.
+        </p>
+      </div>
+
+      <div class="field">
+        <label for="language">Language</label>
+        <select id="language"></select>
+      </div>
+    </div>
+
+    <fieldset style="margin-top:1rem">
+      <legend class="legend">Form</legend>
+      <div class="segmented">
+        <input type="radio" name="form" id="form-cardinal" value="cardinal" checked>
+        <label for="form-cardinal">Cardinal</label>
+        <input type="radio" name="form" id="form-ordinal" value="ordinal">
+        <label for="form-ordinal">Ordinal</label>
+        <input type="radio" name="form" id="form-currency" value="currency">
+        <label for="form-currency">Currency</label>
+      </div>
+    </fieldset>
+
+    <div class="options" id="options"></div>
+
+    <div class="output" id="output" data-state="idle">
+      <p class="output-text" id="output-text">…</p>
+      <p class="output-meta" id="output-meta"></p>
+    </div>
+
+    <div class="presets">
+      <span class="label">Try</span>
+      <button type="button" data-preset="42">42</button>
+      <button type="button" data-preset="1234.56">1234.56</button>
+      <button type="button" data-preset="-19">-19</button>
+      <button type="button" data-preset="1000000">1000000</button>
+      <button type="button" data-preset="1.5e21">1.5e21</button>
+      <button type="button" data-preset="1000000000000000000000000000000">10³⁰</button>
+    </div>
+  </section>
+
+  <section class="snippet">
+    <div class="snippet-head">
+      <p class="legend">The same call in your code</p>
+      <button type="button" id="copy-snippet">Copy</button>
+    </div>
+    <pre><code id="snippet"></code></pre>
+  </section>
+
+  <section aria-labelledby="compare-heading">
+    <h2 id="compare-heading">One number, every language</h2>
+    <p>
+      The value above, converted by each language's own bundle. Currency uses
+      each locale's default currency.
+    </p>
+    <div class="presets">
+      <button type="button" id="compare-toggle" class="primary">Show all variants</button>
+    </div>
+    <div class="compare-grid" id="compare"></div>
+  </section>
+
+  <section aria-labelledby="install-heading">
+    <h2 id="install-heading">Install</h2>
+    <pre><code><span class="cm"># Node, bundlers, Deno, Bun</span>
+npm install n2words</code></pre>
+    <p>
+      No build step? Load a single bundle straight from a CDN — the same file this
+      page just used. See <a href="docs.html">the docs</a> for browser, UMD and
+      TypeScript usage, or browse <a href="languages.html">all 72 variants</a>.
+    </p>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <span>n2words <span id="version"></span> — MIT licensed</span>
+    <span>
+      <a href="https://github.com/forzagreen/n2words">GitHub</a> ·
+      <a href="https://www.npmjs.com/package/n2words">npm</a> ·
+      <a href="https://github.com/forzagreen/n2words/blob/main/CHANGELOG.md">Changelog</a>
+    </span>
+  </div>
+</footer>
+
+<script type="module" src="demo.js"></script>
+</body>
+</html>
