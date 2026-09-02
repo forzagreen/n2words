@@ -52,6 +52,9 @@ toOrdinal(1234)                         // 'one thousand two hundred thirty-four
 toCurrency(1234.56, { currency: 'USD' }) // 'one thousand two hundred thirty-four dollars and fifty-six cents'
 ```
 
+> **Upgrading from v5?** See [docs/migration-v6.md](docs/migration-v6.md) — three
+> breaking changes, all in `toCurrency`.
+
 `toCurrency` is the one form a bare tag won't guess at. `en` names a *language*,
 and a default currency belongs to a *country*, so `n2words/en` requires the
 currency to be named. Import the region-qualified code when you want its
