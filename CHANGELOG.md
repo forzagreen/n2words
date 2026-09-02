@@ -1,5 +1,13 @@
 # Changelog
 
+## [5.1.3](https://github.com/forzagreen/n2words/compare/v5.1.2...v5.1.3) (2026-09-02)
+
+
+### Bug Fixes
+
+* **core:** migrate generate-languages-md.js to typescript@7's new compiler API ([1fe4e02](https://github.com/forzagreen/n2words/commit/1fe4e0285f16bc77d24fe9e537298448fa69fbfa))
+* **fa-IR,id-ID,ja-JP,ko-KR,vi-VN:** reject fractional amounts for currencies with no minor unit ([ec5d941](https://github.com/forzagreen/n2words/commit/ec5d941f65f9249c258cc5f1678ad44591ebdcb1))
+
 ## [5.1.2](https://github.com/forzagreen/n2words/compare/v5.1.1...v5.1.2) (2026-07-14)
 
 
