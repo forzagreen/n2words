@@ -38,18 +38,32 @@ es(42)           // 'cuarenta y dos'
 
 n2words converts numbers to words in multiple forms:
 
-| Form     | Function             | Example                             |
-| -------- | -------------------- | ----------------------------------- |
-| Cardinal | `toCardinal(42)`     | "forty-two"                         |
-| Ordinal  | `toOrdinal(42)`      | "forty-second"                      |
-| Currency | `toCurrency(42.50)`  | "forty-two dollars and fifty cents" |
+| Form     | Function                              | Example                             |
+| -------- | ------------------------------------- | ----------------------------------- |
+| Cardinal | `toCardinal(42)`                      | "forty-two"                         |
+| Ordinal  | `toOrdinal(42)`                       | "forty-second"                      |
+| Currency | `toCurrency(42.50, { currency })`     | "forty-two dollars and fifty cents" |
 
 ```js
 import { toCardinal, toOrdinal, toCurrency } from 'n2words/en'
 
-toCardinal(1234)      // 'one thousand two hundred thirty-four'
-toOrdinal(1234)       // 'one thousand two hundred thirty-fourth'
-toCurrency(1234.56)   // 'one thousand two hundred thirty-four dollars and fifty-six cents'
+toCardinal(1234)                        // 'one thousand two hundred thirty-four'
+toOrdinal(1234)                         // 'one thousand two hundred thirty-fourth'
+toCurrency(1234.56, { currency: 'USD' }) // 'one thousand two hundred thirty-four dollars and fifty-six cents'
+```
+
+`toCurrency` is the one form a bare tag won't guess at. `en` names a *language*,
+and a default currency belongs to a *country*, so `n2words/en` requires the
+currency to be named. Import the region-qualified code when you want its
+default:
+
+```js
+import { toCurrency } from 'n2words/en'
+import { toCurrency as usd } from 'n2words/en-US'
+
+toCurrency(42.50)                      // throws TypeError — en is a language, not a locale
+toCurrency(42.50, { currency: 'GBP' }) // 'forty-two pounds and fifty pence'
+usd(42.50)                             // 'forty-two dollars and fifty cents'
 ```
 
 A currency-supporting language can also name an amount in a currency other than its own
@@ -112,6 +126,12 @@ Serbian, Amharic) require the full code:
 ```js
 import { toCardinal } from 'n2words/zh-Hans-CN'
 ```
+
+A bare tag forwards `toCardinal` and `toOrdinal` untouched — they're the same
+functions its target exports. The one difference is `toCurrency`, which
+requires an explicit `currency` because a language tag carries no country to
+take a default from (see
+[docs/bare-tag-aliases.md](docs/bare-tag-aliases.md#bare-tags-carry-no-default-currency)).
 
 **Browser (CDN):**
 

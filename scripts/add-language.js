@@ -447,6 +447,13 @@ function generateAliasFile(primary, code, name) {
  * without requiring a region subtag; it is not a claim that ${code} speaks
  * for every ${name}-speaking region. See docs/bare-tag-aliases.md for the
  * full rationale and LANGUAGES.md for the complete family/variant table.
+ *
+ * A plain \`export *\` while ${code} names a single hardcoded currency. If it
+ * ever gains a \`currency\` option, this file must stop forwarding
+ * \`toCurrency\`/\`currencyDefaults\` and wrap them instead — a bare tag names a
+ * language and has no country to take a default currency from. See
+ * docs/bare-tag-aliases.md's "Bare tags carry no default currency" for the
+ * shape to copy; test/bare-tag-contract.test.js fails until it's there.
  */
 
 export * from './${code}.js'
@@ -783,6 +790,10 @@ async function main() {
       writeFileSync(aliasFilePath, generateAliasFile(primary, code, familyName))
       writeFileSync(`./test/fixtures/${primary}.js`, `export * from './${code}.js'\n`)
       console.log(chalk.green(`✓ Created bare-tag alias: ${primary} -> ${code} (first ${primary}-* variant)`))
+      if (formsToScaffold.has('currency')) {
+        console.log(chalk.yellow(`Note: src/${primary}.js forwards toCurrency as-is, which is right while ${code} names one hardcoded currency.`))
+        console.log(chalk.yellow('If you give it a `currency` option, wrap toCurrency in the alias so the bare tag requires an explicit currency — see docs/bare-tag-aliases.md.'))
+      }
     }
     else if (siblings.length > 0) {
       console.log(chalk.yellow(`\nNote: ${primary}-* already has ${siblings.length === 1 ? 'a variant' : 'variants'} (${siblings.join(', ')}).`))

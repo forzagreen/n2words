@@ -60,13 +60,18 @@ for (const [primary, variants] of byPrimary) {
   })
 }
 
-// Every named export an alias could plausibly forward — asserting identity
-// on all of them (not just the three forms) covers the range and options
-// contracts too, since `export *` should forward every binding equally.
+// Every named export an alias forwards untouched — asserting identity on all
+// of them (not just the two forms) covers the range and options contracts
+// too, since `export *` should forward every binding equally.
+//
+// `toCurrency` and `currencyDefaults` are deliberately absent: a bare tag
+// names a language and has no country to take a default currency from, so it
+// wraps toCurrency to require an explicit `currency` and strips that key from
+// its defaults. Both are asserted separately below.
 const REEXPORTED_KEYS = [
-  'toCardinal', 'toOrdinal', 'toCurrency',
+  'toCardinal', 'toOrdinal',
   'cardinalMax', 'ordinalMax', 'currencyMax',
-  'cardinalDefaults', 'ordinalDefaults', 'currencyDefaults',
+  'cardinalDefaults', 'ordinalDefaults',
   'cardinalValues', 'ordinalValues', 'currencyValues',
 ]
 
@@ -88,5 +93,79 @@ for (const code of aliasCodes) {
     for (const key of REEXPORTED_KEYS) {
       t.is(mod[key], targetMod[key], `${code}.${key} must be the exact same binding as ${target}.${key}`)
     }
+  })
+}
+
+// Compare a call by its result *or* its error type, so two functions that
+// both legitimately reject an input compare as equal without a conditional
+// assertion around the throwing case.
+const outcome = (fn) => {
+  try {
+    return fn()
+  }
+  catch (error) {
+    return `throws ${error.constructor.name}`
+  }
+}
+
+// A bare tag names a language; a default currency belongs to a country. An
+// alias therefore does NOT inherit its target's default currency — it requires
+// the caller to name one, and otherwise behaves exactly as the target does.
+// See docs/bare-tag-aliases.md's "Bare tags carry no default currency".
+for (const code of aliasCodes) {
+  const mod = mods.get(code)
+  const targetMod = mods.get(mod.aliasOf)
+  // Only families whose target actually declares a `currency` option have a
+  // default to strip. A language that hardcodes one currency (or exports no
+  // toCurrency at all) has nothing to inherit, so its alias stays a plain
+  // `export *` — and the moment that language gains a `currency` option, this
+  // gate starts requiring the wrapper.
+  if (typeof targetMod?.toCurrency !== 'function') continue
+  if (targetMod.currencyDefaults?.currency === undefined) continue
+
+  test(`${code} carries no default currency`, (t) => {
+    const target = mod.aliasOf
+
+    // The wrapper is a distinct function — an `export *` passthrough here
+    // would silently reinstate the target's default.
+    t.not(mod.toCurrency, targetMod.toCurrency, `${code}.toCurrency must wrap ${target}'s, not re-export it`)
+
+    // The declared contract must agree with the behaviour: no `currency` key
+    // in the alias's defaults, though the target still declares its own.
+    t.false(Object.hasOwn(mod.currencyDefaults, 'currency'), `${code}.currencyDefaults must not declare a default currency`)
+    t.true(Object.hasOwn(targetMod.currencyDefaults, 'currency'), `${target}.currencyDefaults should still declare its own default currency`)
+
+    // Every other option keeps the target's default, so the alias doesn't
+    // quietly drop an option while removing the currency.
+    for (const [key, value] of Object.entries(targetMod.currencyDefaults)) {
+      if (key === 'currency') continue
+      t.is(mod.currencyDefaults[key], value, `${code}.currencyDefaults.${key} must keep ${target}'s default`)
+    }
+
+    // Omitting the currency is a shape error, not an out-of-range value.
+    const missing = t.throws(() => mod.toCurrency(42.5), { instanceOf: TypeError }, `${code}.toCurrency() must throw without an explicit currency`)
+    t.true(missing?.message.includes(target), `${code}'s error should point at ${target} as the region-qualified alternative`)
+
+    // Given a currency, it must be the target function in every other respect.
+    // Compared through `outcome` so a currency the language legitimately
+    // rejects (a fractional amount in a currency with no minor unit) compares
+    // as equal-and-throwing rather than needing a conditional assertion.
+    for (const currency of targetMod.currencyValues.currency) {
+      t.is(
+        outcome(() => mod.toCurrency(42.5, { currency })),
+        outcome(() => targetMod.toCurrency(42.5, { currency })),
+        `${code}.toCurrency(42.5, { currency: '${currency}' }) must match ${target}'s`,
+      )
+    }
+
+    // Naming the target's own default must reproduce what the target produces
+    // with no options at all — the exact behaviour a caller gives up by
+    // importing the bare tag instead of the region-qualified code.
+    const { currency: targetDefault } = targetMod.currencyDefaults
+    t.is(
+      outcome(() => mod.toCurrency(42.5, { currency: targetDefault })),
+      outcome(() => targetMod.toCurrency(42.5)),
+      `${code}.toCurrency(42.5, { currency: '${targetDefault}' }) must equal ${target}.toCurrency(42.5)`,
+    )
   })
 }
