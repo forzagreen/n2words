@@ -1,5 +1,78 @@
 # Changelog
 
+## [6.0.0](https://github.com/forzagreen/n2words/compare/v5.2.0...v6.0.0) (2026-09-02)
+
+
+### ⚠ BREAKING CHANGES
+
+* **core:** `toCurrency`'s `currency` option changes in three ways. Whole
+amounts in a language's own currency are unaffected everywhere, and `toCardinal`
+and `toOrdinal` are untouched. The zero-subunit guard that an earlier revision of
+this footer declared here shipped separately as a fix and is not re-declared.
+
+1. The `currency` option is now validated in the 41 languages that previously
+declared `toCurrency(value)` with no options parameter and so discarded it
+silently. Passing `{ currency: 'USD' }` to hi-IN returned `पाँच रुपये` ("five
+rupees") on 5.1.2 and now throws RangeError naming the accepted set. Affected
+languages — am-ET, am-Latn-ET, ar-SA, az-AZ, bn-BD, cs-CZ, da-DK, el-GR,
+fa-IR, fi-FI, fil-PH, gu-IN, ha-NG, hbo-IL, he-IL, hi-IN, hr-HR, hu-HU, id-ID,
+ja-JP, ka-GE, kn-IN, ko-KR, lt-LT, lv-LV, mr-IN, ms-MY, nb-NO, pa-IN, pl-PL,
+ro-RO, sv-SE, sw-KE, ta-IN, te-IN, th-TH, tr-TR, uk-UA, ur-PK, vi-VN, yo-NG.
+
+2. In the 30 languages that already took an options object, an unsupported
+`currency` value changes error type from TypeError to RangeError, because
+`currency` is now a known key and an out-of-set value is a range problem
+rather than a type problem. Callers matching on `instanceof TypeError` must
+catch RangeError too. Affected languages — de-DE, en-AU, en-BD, en-CA, en-GB,
+en-GH, en-IE, en-IN, en-KE, en-MY, en-NG, en-NZ, en-PH, en-PK, en-SG, en-US,
+en-ZA, es-ES, es-MX, es-US, fr-BE, fr-FR, it-IT, nl-NL, pt-PT, ru-RU,
+sr-Cyrl-RS, sr-Latn-RS, zh-Hans-CN, zh-Hant-TW. Passing a language's own code
+now succeeds where it used to throw, so `toCurrency(5, { currency: 'USD' })`
+on en-US returns "five dollars".
+
+3. pt-BR's `currency` option changed from a free-form string to a validated
+enum, so three previously-accepted inputs now throw RangeError. `{ currency:
+'' }` was the previous documented default and auto-detected BRL; the default is
+now the literal `BRL`. `{ currency: 'brl' }` worked because lowercase codes
+were uppercased. Any code pt-BR has no words for, such as `{ currency: 'CAD' }`,
+was a documented fallback that spelled the bare ISO code, e.g. "cinco CAD".
+The currencies pt-BR can name are listed in its exported
+`currencyValues.currency`.
+* **core:** toCurrency() called through a bare-tag entry point
+(n2words/en, n2words/fr, n2words/es, ...) now throws TypeError unless the
+`currency` option names a currency. Pass one, or import the region-qualified
+entry point (n2words/en-US) to keep a default.
+
+### Features
+
+* **core:** stop bare tags from inheriting a country's default currency ([#436](https://github.com/forzagreen/n2words/issues/436)) ([0788681](https://github.com/forzagreen/n2words/commit/0788681aadc3f5ddac489cf134c30ac64c96f642))
+* **core:** separate numerals, currency words, and locale defaults into three layers ([2c76559](https://github.com/forzagreen/n2words/commit/2c76559f696cf85b301714424a7aec97d8e07c23))
+* **ar-SA,en-US,fr-BE,fr-FR:** name the Moroccan dirham ([2391ed4](https://github.com/forzagreen/n2words/commit/2391ed4a4974032ff18f132925d11a0194830cfb))
+* **core:** name currencies whose minor unit is a thousandth ([db15b83](https://github.com/forzagreen/n2words/commit/db15b83460ff4800f880af99a4847babd045d6f9))
+* **core:** generate a currency coverage table in LANGUAGES.md ([ecb48c8](https://github.com/forzagreen/n2words/commit/ecb48c854393df9fbd8fa85899db73afc6b9b0ca))
+* **az-AZ,el-GR,fil-PH,ha-NG,hu-HU,ms-MY,sw-KE,th-TH,tr-TR,yo-NG:** migrate to shared currency vocab ([f4c2837](https://github.com/forzagreen/n2words/commit/f4c283702d49670170d1206892246f37e6983e25))
+* **da-DK,de-DE,fi-FI,nb-NO,nl-NL,sv-SE,it-IT,ro-RO,pt-PT:** migrate to shared currency vocab ([b326451](https://github.com/forzagreen/n2words/commit/b326451bbdeacd07030aa53c1e528e7b7096fb20))
+* **hr-HR,lt-LT,lv-LV,pl-PL,ru-RU,uk-UA:** migrate to shared currency vocab ([83ae697](https://github.com/forzagreen/n2words/commit/83ae69746625eae2483e32f5086f68e2acf3bf90))
+* **am-ET,am-Latn-ET,sr-Cyrl-RS,sr-Latn-RS,zh-Hans-CN,zh-Hant-TW,ar-SA,hbo-IL,he-IL,ka-GE:** migrate to shared currency vocab ([7968d8f](https://github.com/forzagreen/n2words/commit/7968d8fd6413bd70b3cda1a025c1d4f587183779))
+* **bn-BD,gu-IN,hi-IN,kn-IN,mr-IN,pa-IN,ta-IN,te-IN,ur-PK:** migrate to shared currency vocab ([340992b](https://github.com/forzagreen/n2words/commit/340992bc93e96380a0f308ca85f19ab1d69a6112))
+* **en-BD,en-GH,en-IE,en-IN,en-KE,en-MY,en-NG,en-NZ,en-PH,en-PK,en-SG,en-ZA:** migrate to shared currency vocab ([df657a9](https://github.com/forzagreen/n2words/commit/df657a97a4d455b0a14dbf3f47746b272d7fde15))
+* **cs-CZ:** migrate to shared currency vocab ([bcbc1cf](https://github.com/forzagreen/n2words/commit/bcbc1cfc19189e56fd0ef3b2b9c8b3e9977f2c29))
+* **es-ES,es-MX,es-US:** migrate to shared currency vocab ([fb5dab0](https://github.com/forzagreen/n2words/commit/fb5dab041737ad5ee235105d6afd9aeb514c9c73))
+* **fr-FR,fr-BE:** migrate to shared currency vocab ([7f2c825](https://github.com/forzagreen/n2words/commit/7f2c825757f89ed03af538b5c5f7a87ad9aa36f0))
+* **en-US,en-CA,en-AU,en-GB:** migrate to shared currency vocab ([5313372](https://github.com/forzagreen/n2words/commit/531337208a3a50c194a2503f167853ab41fe2245))
+* **core:** add shared currency-vocab matrix and pt-BR migration ([873c878](https://github.com/forzagreen/n2words/commit/873c87880a66b90a97bc46921ee2840bf0fd4c62))
+
+### Bug Fixes
+
+* **core:** collapse currency coverage to importable bare tags only ([c29e2e5](https://github.com/forzagreen/n2words/commit/c29e2e5b94ebb7ac5995916c7adf754bded91453))
+* **types:** stop widening the currency matrix keys to string ([f8e28f6](https://github.com/forzagreen/n2words/commit/f8e28f60be9951a28e9395c5d2023dd9673778a0))
+* **core:** drop the (default) marker for single-variant families ([be3411c](https://github.com/forzagreen/n2words/commit/be3411c8043ec3b37b8325794c71e5b019ccc71d))
+* **core:** scope the currency-exponent contract to what the parser represents ([421db6e](https://github.com/forzagreen/n2words/commit/421db6ec31dcaf836ba02e289a68271624d55582))
+* **core:** narrow minor's nullable type at point of use, not at destructure ([de9b73b](https://github.com/forzagreen/n2words/commit/de9b73b0f98ecd07d9ec54bbc025adad88c01982))
+* **core:** narrow minor's nullable type at point of use ([dcb2729](https://github.com/forzagreen/n2words/commit/dcb27293a298704577925f7803b1a1090d72a619))
+* **fa-IR,id-ID:** reject fractional amounts for zero-exponent currencies ([349e0bb](https://github.com/forzagreen/n2words/commit/349e0bb57099302c0dd1914e097cc54c8a95d8fb))
+* **ja-JP,ko-KR,vi-VN:** reject fractional amounts for zero-exponent currencies ([f50e927](https://github.com/forzagreen/n2words/commit/f50e92742f9b08c0976d5bc18d8a0b048a2af6b3))
+
 ## [5.2.0](https://github.com/forzagreen/n2words/compare/v5.1.3...v5.2.0) (2026-09-02)
 
 
