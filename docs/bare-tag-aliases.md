@@ -74,6 +74,82 @@ each alias file's own comment) — most-used variant for `en`, conventional
 default for bare `es`/`fr` across BCP-47 tooling generally. This part isn't
 mechanically checkable and the gate doesn't try.
 
+## Bare tags carry no default currency
+
+Everything above is about *numerals*, where an alias forwards its target's
+bindings untouched. `toCurrency` is the one exception, and it falls out of the
+layer model rather than being a special case: **a bare tag names a language,
+and a default currency belongs to a country.**
+
+`en-US` defaults to USD because a locale has a country and a country has a
+currency. `en` has no country. Inheriting `en-US`'s default would mean
+`n2words/en`'s `toCurrency(42.50)` quietly returns dollars to a caller who
+asked only for English — and English is official in sixteen of this package's
+variants, spanning USD, GBP, INR, KES, NGN, ZAR and more. So an alias strips
+the key and requires the caller to name one:
+
+```js
+import { toCurrency } from 'n2words/en'
+
+toCurrency(42.50)                      // TypeError: names a language, not a locale
+toCurrency(42.50, { currency: 'GBP' }) // 'forty-two pounds and fifty pence'
+
+import { toCurrency as toCurrencyUS } from 'n2words/en-US'
+toCurrencyUS(42.50)                    // 'forty-two dollars and fifty cents'
+```
+
+This applies to every alias, not only the families whose variants visibly
+disagree. `de` looks safe because de-DE is the only German variant here, but
+German is also spoken in Austria and Switzerland, and CHF is not EUR — the
+rule holds because of what a language tag *is*, not because of which variants
+happen to be implemented today.
+
+The shape, in each alias file:
+
+```js
+import { resolveOptions } from './utils/resolve-options.js'
+import { toCurrency as toCurrencyBase, currencyDefaults as baseCurrencyDefaults, currencyValues } from './de-DE.js'
+
+// eslint-disable-next-line import-x/export -- deliberate shadow
+export * from './de-DE.js'
+export const aliasOf = 'de-DE'
+
+// eslint-disable-next-line no-unused-vars -- named only so the rest excludes it
+const { currency: _baseCurrency, ...baseDefaultsWithoutCurrency } = baseCurrencyDefaults
+// eslint-disable-next-line import-x/export -- deliberate shadow
+export const currencyDefaults = baseDefaultsWithoutCurrency
+
+function toCurrency(value, options) {
+  resolveOptions(options, baseCurrencyDefaults, currencyValues)
+  if (options?.currency === undefined) {
+    throw new TypeError('n2words/de names a language, not a locale: ...')
+  }
+  return toCurrencyBase(value, options)
+}
+// eslint-disable-next-line import-x/export -- deliberate shadow
+export { toCurrency }
+```
+
+Three details worth keeping:
+
+- **`currencyDefaults` is derived, not hand-listed.** Every option other than
+  `currency` keeps the target's default, so an option added to the target
+  later can't silently go missing from the bare tag.
+- **The target's options contract runs first.** `resolveOptions` is called
+  before the missing-currency check so a typo'd key reports itself
+  (`Unknown option "currencey"`) instead of being masked by the
+  missing-currency error. `TypeError` is right for both: `resolve-options.js`
+  reserves `TypeError` for shape errors and `RangeError` for values outside a
+  declared set, and an absent required option is a shape error.
+- **Only `toCurrency` and `currencyDefaults` are shadowed.** `currencyValues`,
+  `currencyMax` and both other forms stay reference-identical to the target's,
+  and the gate still asserts that.
+
+A language that names one hardcoded currency has no `currency` option and so
+has nothing to strip — its alias stays a plain `export *`. The gate keys off
+exactly that condition, so the wrapper becomes mandatory the moment such a
+language gains the option.
+
 ## `aliasOf` vs `variantOf`
 
 A bare-tag alias is one of two thin, `export *`-based file shapes in
@@ -95,10 +171,16 @@ Two things, both mechanical:
   `src/` must have a matching alias file. This is what keeps "must exist for
   every non-diverging language" true over time instead of being a one-time
   cleanup.
-- **Fidelity** — every alias's re-exported bindings (`toCardinal`,
-  `cardinalMax`, `currencyDefaults`, ...) are reference-identical (`===`) to
+- **Fidelity** — every alias's forwarded bindings (`toCardinal`,
+  `cardinalMax`, `currencyValues`, ...) are reference-identical (`===`) to
   its target's, proving `export *` is forwarding live bindings rather than a
   stale copy.
+- **No inherited currency** — for a family whose target declares a `currency`
+  option, the alias must wrap `toCurrency` and strip the default (see above):
+  the wrapper is a distinct function, `currencyDefaults` has no `currency`
+  key, calling it without one throws `TypeError`, every *other* default is
+  kept, and naming the target's own currency reproduces the target's output
+  exactly.
 
 Because fidelity is covered here, `contract.test.js`, `range-contract.test.js`,
 and `options-contract.test.js` skip alias files entirely (an `aliasOf`
