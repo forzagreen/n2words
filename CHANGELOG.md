@@ -1,5 +1,8 @@
 # Changelog
 
+## [6.0.1](https://github.com/forzagreen/n2words/compare/v6.0.0...v6.0.1) (2026-09-02)
+
+
 ## [6.0.0](https://github.com/forzagreen/n2words/compare/v5.2.0...v6.0.0) (2026-09-02)
 
 
