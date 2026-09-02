@@ -13,7 +13,7 @@
 
 - **Pure Functions** — Each language exports standalone functions. No classes, no configuration, no side effects.
 - **Tree-Shakeable** — Import only what you need. Unused exports are eliminated by modern bundlers.
-- **Tiny Bundles** — ~2 KB gzipped per language (with all forms). No bloat.
+- **Tiny Bundles** — ~2.5-3.5 KB gzipped per language with all three forms, less per form. No bloat.
 - **Multiple Forms** — Cardinal ("forty-two"), ordinal ("forty-second"), and currency ("forty-two dollars")
 - **50 Languages, 72 Regional Variants** — European, Asian, Middle Eastern, African, and more — most importable via a single bare-tag code (`n2words/de`), no region required
 - **Zero Dependencies** — Works everywhere: Node.js, browsers, Deno, Bun
@@ -148,9 +148,11 @@ take a default from (see
 <!-- UMD (legacy script tags) -->
 <script src="https://cdn.jsdelivr.net/npm/n2words/dist/en.umd.js"></script>
 <script>
-  n2words.en(42)              // 'forty-two'
-  n2words.ordinal.en(42)      // 'forty-second'
-  n2words.currency.en(42.50)  // 'forty-two dollars and fifty cents'
+  n2words.en(42)                                   // 'forty-two'
+  n2words.ordinal.en(42)                           // 'forty-second'
+  n2words.currency.en(42.50, { currency: 'USD' })  // 'forty-two dollars and fifty cents'
+  // `en` is a language, so currency must be named — or load dist/en-US.umd.js
+  // and call n2words.currency.enUS(42.50) for a locale's own default.
 </script>
 ```
 
@@ -165,15 +167,17 @@ just that form from `dist/{code}/{form}.js` — `cardinal`, `ordinal` or
 </script>
 ```
 
-Roughly half the bytes, since the other two forms and everything only they
-reach are never in the file:
+Under half the bytes for cardinal or ordinal, since the other two forms and
+everything only they reach are never in the file. Currency is the heaviest of
+the three: it carries the shared currency-name matrix, so `en-US` can quote any
+of the currencies English has words for, not just USD.
 
 |`en-US`|bytes|
 |-------|-----|
-|`dist/en-US.js` (all three forms)|7,778|
+|`dist/en-US.js` (all three forms)|9,227|
 |`dist/en-US/cardinal.js`|4,293|
 |`dist/en-US/ordinal.js`|3,815|
-|`dist/en-US/currency.js`|3,827|
+|`dist/en-US/currency.js`|5,258|
 
 This is for CDN consumers only. If you install from npm and use a bundler,
 `import { toCurrency } from 'n2words/en-US'` already drops the forms you don't
@@ -200,7 +204,7 @@ Requires BigInt support (cannot be polyfilled).
 
 n2words is optimized for both size and speed:
 
-- ~2 KB gzipped per language (includes all forms)
+- ~2.5-3.5 KB gzipped per language, all three forms included
 - Individual language imports enable tree-shaking
 - No runtime dependencies
 - BigInt modulo operations (no string manipulation)
