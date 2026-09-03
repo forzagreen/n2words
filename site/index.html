@@ -58,11 +58,20 @@ catch { /* private mode, blocked storage: fall back to the system theme */ }
     <div class="controls">
       <div class="field">
         <label for="value">Number</label>
-        <input type="text" id="value" value="1234.56" autocomplete="off" spellcheck="false"
+        <input type="text" id="value" value="1234" autocomplete="off" spellcheck="false"
                aria-describedby="value-hint">
         <p id="value-hint" class="visually-hidden">
           Accepts integers, decimals, negatives, scientific notation, and arbitrarily large values.
         </p>
+        <div class="presets">
+          <span class="label">Try</span>
+          <button type="button" data-preset="42">42</button>
+          <button type="button" data-preset="1234.56">1234.56</button>
+          <button type="button" data-preset="-19">-19</button>
+          <button type="button" data-preset="1000000">1000000</button>
+          <button type="button" data-preset="1.5e21">1.5e21</button>
+          <button type="button" data-preset="1000000000000000000000000000000">10³⁰</button>
+        </div>
       </div>
 
       <div class="field">
@@ -103,16 +112,6 @@ catch { /* private mode, blocked storage: fall back to the system theme */ }
       <summary id="locale-summary"></summary>
       <div class="locale-body" id="locale-body" role="radiogroup" aria-label="Region"></div>
     </details>
-
-    <div class="presets">
-      <span class="label">Try</span>
-      <button type="button" data-preset="42">42</button>
-      <button type="button" data-preset="1234.56">1234.56</button>
-      <button type="button" data-preset="-19">-19</button>
-      <button type="button" data-preset="1000000">1000000</button>
-      <button type="button" data-preset="1.5e21">1.5e21</button>
-      <button type="button" data-preset="1000000000000000000000000000000">10³⁰</button>
-    </div>
   </section>
 
   <section class="snippet">

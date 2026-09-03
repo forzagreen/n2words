@@ -201,7 +201,9 @@ h3 { font-size: 1.05rem; margin: 2rem 0 0.5rem; }
 
 .converter { padding: 1.25rem; margin-top: 1.5rem; }
 
-.field { display: grid; gap: 0.4rem; }
+/* align-content:start so a field carrying extra rows (the Number field
+   and its presets) does not stretch its neighbour's control. */
+.field { display: grid; gap: 0.4rem; align-content: start; }
 .field > label, .legend {
   font-size: 0.78rem;
   text-transform: uppercase;
@@ -212,7 +214,7 @@ h3 { font-size: 1.05rem; margin: 2rem 0 0.5rem; }
 
 .controls {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1.15fr 1fr;
   gap: 1rem;
 }
 
@@ -446,6 +448,8 @@ button.primary { background: var(--accent); color: var(--accent-ink); border-col
 button.primary:hover { filter: brightness(1.08); color: var(--accent-ink); }
 
 .presets { display: flex; gap: 0.4rem; flex-wrap: wrap; margin-top: 0.9rem; align-items: center; }
+.field > .presets { margin-top: 0.15rem; gap: 0.3rem; }
+.field > .presets button { padding: 0.3rem 0.5rem; }
 .presets .label { color: var(--ink-faint); font-size: 0.82rem; margin-inline-end: 0.2rem; }
 .presets button { font-family: var(--mono); font-size: 0.8rem; }
 
