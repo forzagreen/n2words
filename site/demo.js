@@ -464,15 +464,27 @@ async function renderCompare() {
 
 // ------------------------------------------------------------------- state
 
-/** Reflect the current selection in the URL so any result is linkable. */
+let hashTimer
+
+/**
+ * Reflect the current selection in the URL so any result is linkable.
+ *
+ * Coalesced and deduplicated: typing in the number field fires this on every
+ * keystroke, and a `replaceState` per character is both wasted work and a
+ * browser history event that page-view analytics counts as a navigation.
+ */
 function writeHash() {
-  const query = new URLSearchParams(
-    Object.entries(state.options).map(([key, item]) => [key, String(item)]),
-  )
-  if (state.currency !== null) query.set('currency', state.currency)
-  const target = state.region ?? state.language
-  const search = query.toString()
-  history.replaceState(null, '', `#${target}/${state.form}/${encodeURIComponent(value())}${search ? `?${search}` : ''}`)
+  clearTimeout(hashTimer)
+  hashTimer = setTimeout(() => {
+    const query = new URLSearchParams(
+      Object.entries(state.options).map(([key, item]) => [key, String(item)]),
+    )
+    if (state.currency !== null) query.set('currency', state.currency)
+    const target = state.region ?? state.language
+    const search = query.toString()
+    const hash = `#${target}/${state.form}/${encodeURIComponent(value())}${search ? `?${search}` : ''}`
+    if (hash !== location.hash) history.replaceState(null, '', hash)
+  }, 300)
 }
 
 /**
