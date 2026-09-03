@@ -95,22 +95,31 @@ catch { /* private mode, blocked storage: fall back to the system theme */ }
       </div>
     </fieldset>
 
-    <div class="field currency-field" id="currency-field" hidden>
-      <label for="currency">Currency</label>
-      <select id="currency" aria-describedby="currency-note"></select>
-      <p class="hint" id="currency-note"></p>
-    </div>
-
-    <div class="options" id="options"></div>
-
     <div class="output" id="output" data-state="idle" aria-live="polite">
       <p class="output-text" id="output-text">…</p>
       <p class="output-meta" id="output-meta"></p>
     </div>
 
-    <details class="locale" id="locale">
+    <!-- Three refinements on the answer above, each a single quiet line
+         stating what is in effect until you open it: which money, how this
+         language is tuned, which region. -->
+    <details class="refine" id="currency-field" hidden>
+      <summary id="currency-summary"></summary>
+      <div class="refine-body">
+        <label class="visually-hidden" for="currency">Currency</label>
+        <select id="currency" aria-describedby="currency-note"></select>
+        <p class="hint" id="currency-note"></p>
+      </div>
+    </details>
+
+    <details class="refine" id="options-panel" hidden>
+      <summary id="options-summary"></summary>
+      <div class="refine-body" id="options"></div>
+    </details>
+
+    <details class="refine" id="locale">
       <summary id="locale-summary"></summary>
-      <div class="locale-body" id="locale-body" role="radiogroup" aria-label="Region"></div>
+      <div class="refine-body" id="locale-body" role="radiogroup" aria-label="Region"></div>
     </details>
   </section>
 

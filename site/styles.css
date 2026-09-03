@@ -270,19 +270,18 @@ fieldset { border: 0; padding: 0; margin: 0; display: grid; gap: 0.4rem; }
 
 /* Options panel, rendered from the manifest — empty for most languages.
    Scoped by id, not by class: the languages table has an options cell too. */
-#options { margin-top: 1rem; display: grid; gap: 0.75rem; }
-#options:empty { display: none; }
+#options { gap: 0.7rem; }
 
 .option { display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; }
 .option select { width: auto; min-width: 12rem; }
 .option label { font-size: 0.92rem; }
 .option .hint { color: var(--ink-faint); font-size: 0.82rem; flex-basis: 100%; margin: 0; }
 
-/* The currency control lives outside #options on purpose: `and` tunes one
-   language's grammar, while `currency` sits between a language and a country. */
-.currency-field { margin-top: 1rem; }
-.currency-field select { max-width: 26rem; }
-.currency-field .hint { color: var(--ink-faint); font-size: 0.84rem; margin: 0.15rem 0 0; }
+/* The currency control keeps its own bar, never folded in with #options:
+   `and` tunes one language's grammar, while `currency` sits between a
+   language and a country. */
+.refine-body > select { max-width: 26rem; }
+.refine-body > .hint { color: var(--ink-faint); font-size: 0.84rem; margin: 0.3rem 0 0; }
 
 .linky {
   border: 0;
@@ -303,7 +302,7 @@ fieldset { border: 0; padding: 0; margin: 0; display: grid; gap: 0.4rem; }
   border-radius: var(--radius);
   background: var(--surface-2);
   padding: 1.1rem 1.25rem;
-  min-height: 6.5rem;
+  min-height: 5rem;
   display: flex;
   flex-direction: column;
   gap: 0.6rem;
@@ -328,6 +327,8 @@ fieldset { border: 0; padding: 0; margin: 0; display: grid; gap: 0.4rem; }
 }
 
 .output-meta .sep { opacity: 0.5; }
+/* Only an error fills it now — an empty one must not claim the flex gap. */
+.output-meta:empty { display: none; }
 
 .output[data-state="error"] { background: var(--danger-soft); border-color: color-mix(in srgb, var(--danger) 35%, transparent); }
 .output[data-state="error"] .output-text { font-family: var(--sans); font-size: 1rem; color: var(--danger); }
@@ -337,19 +338,20 @@ fieldset { border: 0; padding: 0; margin: 0; display: grid; gap: 0.4rem; }
 .output[data-state="teaching"] { background: var(--accent-soft); border-color: color-mix(in srgb, var(--accent) 35%, transparent); }
 .output[data-state="teaching"] .output-text { font-family: var(--sans); font-size: 1rem; color: var(--ink); }
 
-/* ------------------------------------------------------- region details */
+/* --------------------------------------------------- refinement details */
 
-/* The demoted axis: one quiet line under the answer, opening onto the regions
-   grouped by what they actually change. */
-.locale {
-  margin-top: 0.6rem;
+/* The three demoted axes — currency, options, region — share one shell: a
+   quiet line under the answer stating what is in effect, opening onto the
+   controls. Collapsed, the whole stack costs three lines. */
+.refine {
+  margin-top: 0.5rem;
   border: 1px solid var(--border);
   border-radius: var(--radius);
   background: var(--surface);
   font-size: 0.88rem;
 }
 
-.locale > summary {
+.refine > summary {
   display: flex;
   align-items: center;
   gap: 0.75rem;
@@ -360,18 +362,39 @@ fieldset { border: 0; padding: 0; margin: 0; display: grid; gap: 0.4rem; }
   list-style-position: inside;
 }
 
-.locale > summary::marker { color: var(--ink-faint); }
-.locale > summary:hover { color: var(--ink); }
-.locale code { font-family: var(--mono); font-size: 0.92em; color: var(--ink); }
+/* `display: flex` on a <summary> drops the native disclosure triangle, so
+   draw one — three stacked bars have to look openable. */
+.refine > summary { list-style: none; }
+.refine > summary::-webkit-details-marker { display: none; }
 
-.locale-count {
+.refine > summary::before {
+  content: "";
+  flex: none;
+  width: 0.4rem;
+  height: 0.4rem;
+  margin-inline-end: -0.15rem;
+  border-inline-end: 1.5px solid currentColor;
+  border-block-end: 1.5px solid currentColor;
+  transform: rotate(-45deg);
+  opacity: 0.65;
+  transition: transform 0.15s ease;
+}
+
+.refine[open] > summary::before { transform: rotate(45deg); }
+.refine > summary:hover { color: var(--ink); }
+.refine code { font-family: var(--mono); font-size: 0.92em; color: var(--ink); }
+
+.refine-now { min-width: 0; }
+.refine-plain { color: var(--ink-faint); }
+
+.refine-count {
   margin-inline-start: auto;
   color: var(--ink-faint);
   font-size: 0.78rem;
   white-space: nowrap;
 }
 
-.locale-body {
+.refine-body {
   border-top: 1px solid var(--border);
   padding: 0.6rem 0.85rem 0.85rem;
   display: grid;

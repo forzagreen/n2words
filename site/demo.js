@@ -20,7 +20,7 @@
  */
 
 import {
-  FORMS, convert, escapeHtml, formatBytes, formatOptions,
+  FORMS, convert, escapeHtml, formatOptions,
   initTheme, loadBundle, loadManifest, markCurrentPage, wireCopy,
 } from './app.js'
 
@@ -38,8 +38,11 @@ const elements = {
   value: $('#value'),
   language: $('#language'),
   currencyField: $('#currency-field'),
+  currencySummary: $('#currency-summary'),
   currency: $('#currency'),
   currencyNote: $('#currency-note'),
+  optionsPanel: $('#options-panel'),
+  optionsSummary: $('#options-summary'),
   options: $('#options'),
   output: $('#output'),
   outputText: $('#output-text'),
@@ -147,6 +150,14 @@ function syncForms() {
 // ------------------------------------------------------------- the currency
 
 /**
+ * Paint one refinement bar's summary: what is in effect on the left, how much
+ * there is to choose from on the right. The three bars read as one row each.
+ */
+function refineSummary(element, now, count) {
+  element.innerHTML = `<span class="refine-now">${now}</span><span class="refine-count">${escapeHtml(count)}</span>`
+}
+
+/**
  * The currency control — shown only for the currency form.
  *
  * One select, not two: the reader picks a currency, and the *consequence* of
@@ -160,6 +171,9 @@ function renderCurrency() {
   const known = family().currencies
   const isCurrency = state.form === 'currency' && item.forms.currency !== undefined
 
+  // Open it the moment currency becomes relevant — the note inside is the
+  // point, not the select — but leave a reader's own collapse alone after.
+  if (isCurrency && elements.currencyField.hidden) elements.currencyField.open = true
   elements.currencyField.hidden = !isCurrency
   if (!isCurrency) return
 
@@ -173,6 +187,12 @@ function renderCurrency() {
   }).join('')
 
   const usingDefault = state.currency === null || state.currency === fallback
+  refineSummary(
+    elements.currencySummary,
+    `Naming <code>${escapeHtml(selected)}</code> — ${escapeHtml(state.manifest.currencies[selected] ?? selected)}`
+    + (usingDefault ? `, the default of <code>${escapeHtml(item.code)}</code>` : ''),
+    `${known.length} ${known.length === 1 ? 'currency' : 'currencies'}`,
+  )
   elements.currencyNote.innerHTML = usingDefault
     ? `A default currency belongs to a country, so this imports <code>${escapeHtml(item.code)}</code> to borrow ${escapeHtml(fallback)}.`
     + (family().entry ? ` <button type="button" class="linky" id="show-throw">See what <code>${escapeHtml(family().entry)}</code> throws</button>` : '')
@@ -212,6 +232,14 @@ async function showBareTagThrow() {
 function renderOptions() {
   const options = (variant().forms[state.form]?.options ?? []).filter(option => option.name !== 'currency')
 
+  // Most languages declare none, and no form should pay for an empty bar.
+  elements.optionsPanel.hidden = options.length === 0
+  if (options.length === 0) {
+    elements.options.innerHTML = ''
+    state.options = {}
+    return
+  }
+
   elements.options.innerHTML = options.map((option) => {
     const id = `option-${option.name}`
     const label = `<label for="${id}">${escapeHtml(option.name)}</label>`
@@ -237,6 +265,26 @@ function renderOptions() {
 }
 
 /**
+ * The options bar's one line: the settings that differ from this form's
+ * declared defaults, which is exactly what the snippet below has to pass.
+ */
+function renderOptionsSummary() {
+  const declared = (variant().forms[state.form]?.options ?? []).filter(option => option.name !== 'currency')
+  if (declared.length === 0) return
+
+  const changed = Object.entries(state.options)
+    .map(([name, item]) => `<code>${escapeHtml(name)}: ${escapeHtml(String(item))}</code>`)
+
+  refineSummary(
+    elements.optionsSummary,
+    changed.length === 0
+      ? `Tuning <span class="refine-plain">nothing — every option is on its default</span>`
+      : `Tuning ${changed.join(', ')}`,
+    `${declared.length} ${declared.length === 1 ? 'option' : 'options'}`,
+  )
+}
+
+/**
  * Collect the option controls into `state.options`, keeping only what the
  * reader changed, so the generated snippet shows the shortest call that
  * produces this output.
@@ -251,6 +299,7 @@ function readOptions() {
     const current = control.type === 'checkbox' ? control.checked : control.value
     if (String(current) !== option.default) state.options[option.name] = current
   }
+  renderOptionsSummary()
 }
 
 // --------------------------------------------------------------- the region
@@ -273,7 +322,7 @@ function renderLocale() {
     ? '1 region'
     : `${item.variants.length} regions · ${spellings.length} spelling${spellings.length === 1 ? '' : 's'}`
 
-  elements.localeSummary.innerHTML = `<span class="locale-now">${summary}</span><span class="locale-count">${escapeHtml(count)}</span>`
+  refineSummary(elements.localeSummary, summary, count)
 
   const radio = (code, label, detail, checked) => `
     <label class="loc${checked ? ' is-on' : ''}">
@@ -322,7 +371,6 @@ function renderLocale() {
 /** Convert and paint the output panel and the snippet. */
 async function run() {
   const item = variant()
-  const form = item.forms[state.form]
   const input = value()
 
   if (input === '') {
@@ -339,12 +387,10 @@ async function run() {
     elements.outputText.textContent = words
     elements.outputText.lang = item.code
     elements.outputText.dir = item.dir
-    elements.outputMeta.innerHTML = [
-      `<span class="badge">${escapeHtml(state.form)}</span>`,
-      `<span>${escapeHtml(item.name)}</span>`,
-      `<span class="sep">·</span><span>${form.bundle ? `${formatBytes(form.bundle.gzip)} gzipped` : 'bundled'}</span>`,
-      form.maxLabel ? `<span class="sep">·</span><span>defined below ${form.maxLabel}</span>` : '',
-    ].join(' ')
+    // Form, language, bundle size and ceiling all restate a control that is
+    // already on screen or a column on /languages — the meta line carries
+    // only what nothing else says: an error.
+    elements.outputMeta.textContent = ''
     renderSnippet(words)
   }
   catch (error) {
