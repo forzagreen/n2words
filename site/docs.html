@@ -7,6 +7,15 @@
 <meta name="description" content="Getting started with n2words: install, the three forms, entry points, options, currency, error behaviour, browser and CDN usage, TypeScript.">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="styles.css">
+<script>
+// Apply a saved theme choice before first paint — a module script runs too
+// late and the page would flash the system theme first.
+try {
+  const choice = localStorage.getItem('n2words:theme')
+  if (choice === 'light' || choice === 'dark') document.documentElement.dataset.theme = choice
+}
+catch { /* private mode, blocked storage: fall back to the system theme */ }
+</script>
 </head>
 <body>
 
@@ -20,6 +29,11 @@
       <a href="https://github.com/forzagreen/n2words">GitHub</a>
       <a href="https://www.npmjs.com/package/n2words">npm</a>
     </nav>
+    <div class="theme" role="group" aria-label="Color theme">
+      <button type="button" data-theme-choice="system">Auto</button>
+      <button type="button" data-theme-choice="light">Light</button>
+      <button type="button" data-theme-choice="dark">Dark</button>
+    </div>
   </div>
 </header>
 
@@ -72,8 +86,29 @@ toCurrency(42.50)    <span class="cm">// 'forty-two dollars and fifty cents'</sp
       A bare tag is a documented alias for one specific variant. Chinese,
       Portuguese, Serbian and Amharic have none — their variants diverge in
       script or core numbering grammar, not just vocabulary — so they're always
-      imported by full code. <a href="languages.html">The languages table</a>
-      shows the entry point for every variant.
+      imported by full code.
+    </p>
+
+    <h2>When does the region matter?</h2>
+    <p>
+      Less often than 72 variants suggests. A region changes two independent
+      things, and usually only the second: which <em>words</em> the numbers get,
+      and which <em>currency</em> the amount defaults to. English has 16 regions
+      but only four spellings —
+    </p>
+    <pre><code><span class="kw">import</span> { toCardinal <span class="kw">as</span> us } <span class="kw">from</span> 'n2words/en-US'
+<span class="kw">import</span> { toCardinal <span class="kw">as</span> gb } <span class="kw">from</span> 'n2words/en-GB'
+<span class="kw">import</span> { toCardinal <span class="kw">as</span> ind } <span class="kw">from</span> 'n2words/en-IN'
+<span class="kw">import</span> { toCardinal <span class="kw">as</span> au } <span class="kw">from</span> 'n2words/en-AU'
+
+us(101)   <span class="cm">// 'one hundred one'</span>
+gb(101)   <span class="cm">// 'one hundred and one'</span>
+ind(12345678)  <span class="cm">// 'one crore twenty-three lakh forty-five thousand six hundred and seventy-eight'</span>
+au(101)   <span class="cm">// 'one hundred and one' — identical to en-GB; only its default currency differs (AUD)</span></code></pre>
+    <p>
+      <a href="languages.html">The languages table</a> groups every language's
+      regions by the words they actually produce, so you can see at a glance
+      whether a region is a real spelling or only a currency default.
     </p>
 
     <h2>Options</h2>
@@ -220,8 +255,9 @@ toCurrency(42.50, { currency: 'XYZ' })  <span class="cm">// compile error</span>
 </footer>
 
 <script type="module">
-import { loadManifest, markCurrentPage } from './app.js'
+import { initTheme, loadManifest, markCurrentPage } from './app.js'
 markCurrentPage()
+initTheme()
 loadManifest()
   .then((manifest) => { document.querySelector('#version').textContent = `v${manifest.version}` })
   .catch(() => { /* the version line is decorative */ })

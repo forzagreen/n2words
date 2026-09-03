@@ -10,6 +10,15 @@
 <meta property="og:type" content="website">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="styles.css">
+<script>
+// Apply a saved theme choice before first paint — a module script runs too
+// late and the page would flash the system theme first.
+try {
+  const choice = localStorage.getItem('n2words:theme')
+  if (choice === 'light' || choice === 'dark') document.documentElement.dataset.theme = choice
+}
+catch { /* private mode, blocked storage: fall back to the system theme */ }
+</script>
 </head>
 <body>
 
@@ -23,6 +32,11 @@
       <a href="https://github.com/forzagreen/n2words">GitHub</a>
       <a href="https://www.npmjs.com/package/n2words">npm</a>
     </nav>
+    <div class="theme" role="group" aria-label="Color theme">
+      <button type="button" data-theme-choice="system">Auto</button>
+      <button type="button" data-theme-choice="light">Light</button>
+      <button type="button" data-theme-choice="dark">Dark</button>
+    </div>
   </div>
 </header>
 
@@ -31,16 +45,11 @@
   <section class="hero">
     <h1>Numbers to words, in 50 languages.</h1>
     <p>
-      Cardinal, ordinal and currency conversion for 72 regional variants —
-      BigInt-safe, tree-shakeable, and with zero dependencies. Everything below
-      runs the real library in your browser.
+      Cardinal, ordinal and currency conversion — BigInt-safe, tree-shakeable,
+      and with zero dependencies. Pick a language; a region is a refinement you
+      only need when it changes the words or the money. Everything below runs
+      the real library in your browser.
     </p>
-    <ul class="stats">
-      <li><strong data-stat="languages">—</strong><span>Languages</span></li>
-      <li><strong data-stat="variants">—</strong><span>Variants</span></li>
-      <li><strong data-stat="forms">3</strong><span>Forms</span></li>
-      <li><strong data-stat="deps">0</strong><span>Dependencies</span></li>
-    </ul>
   </section>
 
   <section class="card converter" aria-labelledby="converter-heading">
@@ -58,7 +67,10 @@
 
       <div class="field">
         <label for="language">Language</label>
-        <select id="language"></select>
+        <select id="language" aria-describedby="language-hint"></select>
+        <p id="language-hint" class="visually-hidden">
+          One entry per language, labelled with the code you would import.
+        </p>
       </div>
     </div>
 
@@ -74,12 +86,23 @@
       </div>
     </fieldset>
 
+    <div class="field currency-field" id="currency-field" hidden>
+      <label for="currency">Currency</label>
+      <select id="currency" aria-describedby="currency-note"></select>
+      <p class="hint" id="currency-note"></p>
+    </div>
+
     <div class="options" id="options"></div>
 
-    <div class="output" id="output" data-state="idle">
+    <div class="output" id="output" data-state="idle" aria-live="polite">
       <p class="output-text" id="output-text">…</p>
       <p class="output-meta" id="output-meta"></p>
     </div>
+
+    <details class="locale" id="locale">
+      <summary id="locale-summary"></summary>
+      <div class="locale-body" id="locale-body" role="radiogroup" aria-label="Region"></div>
+    </details>
 
     <div class="presets">
       <span class="label">Try</span>
@@ -98,16 +121,17 @@
       <button type="button" id="copy-snippet">Copy</button>
     </div>
     <pre><code id="snippet"></code></pre>
+    <p class="snippet-note" id="snippet-note" hidden></p>
   </section>
 
   <section aria-labelledby="compare-heading">
     <h2 id="compare-heading">One number, every language</h2>
     <p>
-      The value above, converted by each language's own bundle. Currency uses
-      each locale's default currency.
+      The value above, converted by each language's own bundle. The code shown
+      is what you would import.
     </p>
     <div class="presets">
-      <button type="button" id="compare-toggle" class="primary">Show all variants</button>
+      <button type="button" id="compare-toggle" class="primary">Show all languages</button>
     </div>
     <div class="compare-grid" id="compare"></div>
   </section>
@@ -119,7 +143,7 @@ npm install n2words</code></pre>
     <p>
       No build step? Load a single bundle straight from a CDN — the same file this
       page just used. See <a href="docs.html">the docs</a> for browser, UMD and
-      TypeScript usage, or browse <a href="languages.html">all 72 variants</a>.
+      TypeScript usage, or browse <a href="languages.html">all 50 languages</a>.
     </p>
   </section>
 

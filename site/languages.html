@@ -7,6 +7,15 @@
 <meta name="description" content="Every language n2words supports: 50 languages, 72 regional variants, with the forms, options, bundle size and numeric range of each.">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="styles.css">
+<script>
+// Apply a saved theme choice before first paint — a module script runs too
+// late and the page would flash the system theme first.
+try {
+  const choice = localStorage.getItem('n2words:theme')
+  if (choice === 'light' || choice === 'dark') document.documentElement.dataset.theme = choice
+}
+catch { /* private mode, blocked storage: fall back to the system theme */ }
+</script>
 </head>
 <body>
 
@@ -20,6 +29,11 @@
       <a href="https://github.com/forzagreen/n2words">GitHub</a>
       <a href="https://www.npmjs.com/package/n2words">npm</a>
     </nav>
+    <div class="theme" role="group" aria-label="Color theme">
+      <button type="button" data-theme-choice="system">Auto</button>
+      <button type="button" data-theme-choice="light">Light</button>
+      <button type="button" data-theme-choice="dark">Dark</button>
+    </div>
   </div>
 </header>
 
@@ -27,22 +41,24 @@
   <section class="hero">
     <h1>Supported languages</h1>
     <p>
-      One row per regional or script variant. <strong>Entry point</strong> is what
-      you import: a bare tag where the language has one, the full code otherwise.
-      <strong>Size</strong> is the gzipped bundle for that variant's three forms —
-      import a single form and you ship less still. Pick a code to open it in the demo.
+      One row per <strong>language</strong> — n2words supports 50, which exist as
+      72 regional and script variants. <strong>Import</strong> is the code you
+      actually write: a bare tag where the language has one. <strong>Spellings</strong>
+      counts how many genuinely different sets of number words its regions produce,
+      measured by running them — English has 16 regions but only 4 spellings.
+      Expand a language to see them.
     </p>
   </section>
 
   <div class="toolbar">
     <label class="visually-hidden" for="search">Filter languages</label>
     <input type="text" id="search" placeholder="Filter by language, code or currency…" autocomplete="off">
-    <label class="visually-hidden" for="form-filter">Filter by form</label>
-    <select id="form-filter" style="width:auto">
-      <option value="">All forms</option>
-      <option value="cardinal">Has cardinal</option>
-      <option value="ordinal">Has ordinal</option>
-      <option value="currency">Has currency</option>
+    <label class="visually-hidden" for="kind-filter">Filter by kind</label>
+    <select id="kind-filter" style="width:auto">
+      <option value="">All languages</option>
+      <option value="regions">More than one region</option>
+      <option value="spellings">More than one spelling</option>
+      <option value="no-alias">No bare tag</option>
       <option value="options">Has options</option>
     </select>
     <span class="count" id="count"></span>
@@ -53,10 +69,9 @@
       <thead>
         <tr>
           <th scope="col">Language</th>
-          <th scope="col">Entry point</th>
-          <th scope="col">Forms</th>
-          <th scope="col">Options</th>
-          <th scope="col">Currency</th>
+          <th scope="col">Import</th>
+          <th scope="col">Regions</th>
+          <th scope="col" class="num" title="How many currencies this language has words for">Currencies</th>
           <th scope="col">Range</th>
           <th scope="col" class="num">Size</th>
         </tr>
@@ -76,6 +91,14 @@
         default variant; the few whose variants genuinely diverge in script or
         core numbering grammar — Chinese, Portuguese, Serbian, Amharic — stay
         region- or script-qualified.
+      </p>
+      <p>
+        A region changes two independent things, and usually only the second:
+        which <em>words</em> the numbers get, and which <em>currency</em> the
+        amount defaults to. The spelling groups above are measured by converting
+        the same numbers with every variant and comparing the output, so a region
+        listed as &ldquo;same words as <code>en-GB</code>&rdquo; provably differs
+        in nothing but its default currency.
       </p>
       <p>
         <code>toCurrency</code> is the one form a bare tag won't guess at: a bare

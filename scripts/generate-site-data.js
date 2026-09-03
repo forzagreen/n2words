@@ -20,6 +20,7 @@
 
 import { writeFileSync, statSync, readFileSync } from 'node:fs'
 import { gzipSync } from 'node:zlib'
+import { createHash } from 'node:crypto'
 import { getLanguageCodes, getExportedForms, FORM_EXPORTS } from '../test/helpers/language-helpers.js'
 import { getLanguageName } from '../test/helpers/language-naming.js'
 import { buildOptionsIndex } from './lib/options-index.js'
@@ -121,6 +122,152 @@ function currencyNames(mods) {
   )
 }
 
+// Values chosen to exercise the places variants actually diverge: the "and"
+// after hundreds (en-GB vs en-US), vigesimal/septante forms (fr-BE vs fr-FR),
+// scale-word boundaries, decimals and negatives.
+const PROBE_VALUES = [
+  '0', '1', '7', '11', '16', '21', '42', '71', '80', '91', '100', '101', '111',
+  '999', '1000', '1500', '2001', '100000', '1000000', '123456789',
+  '1000000000000', '-42', '3.14',
+]
+
+/**
+ * A fingerprint of how one variant spells numbers, across every form it
+ * exports. Two variants with the same fingerprint are word-for-word identical
+ * over the probe set and differ only in their default currency.
+ *
+ * This is the distinction the site has to make legible. `en-AU` and `en-GB`
+ * spell every number the same way; `en-US` is the one that says "one hundred
+ * one"; `en-IN` groups in lakh and crore. Grouping by measured output says
+ * that in one number ("16 regions, 4 spellings") where a flat list of 16 codes
+ * says nothing. `variantOf` in the source marks deliberate clones, but not
+ * every identical pair is a declared clone — en-AU is a full implementation
+ * that happens to agree with en-GB — so this probes the real functions rather
+ * than trusting the declaration. It earns that: en-CA lands in a group of its
+ * own because it takes British cardinals ("one hundred and one") with American
+ * ordinals ("...seven hundred eighty-ninth"), which no declaration records.
+ *
+ * Currency is excluded on purpose: a differing default currency is exactly
+ * what we want to report separately from differing words.
+ *
+ * @param {Record<string, any>} mod The variant's module namespace
+ * @returns {string} Stable fingerprint of this variant's number words
+ */
+function spellingSignature(mod) {
+  const rendered = []
+
+  for (const exportName of ['toCardinal', 'toOrdinal']) {
+    const convert = mod[exportName]
+    if (typeof convert !== 'function') {
+      rendered.push(`${exportName}:absent`)
+      continue
+    }
+    for (const value of PROBE_VALUES) {
+      try {
+        rendered.push(convert(value))
+      }
+      catch (error) {
+        // A different ceiling is itself a spelling difference worth capturing.
+        rendered.push(`<${error.name}>`)
+      }
+    }
+  }
+
+  return createHash('sha1').update(rendered.join('\u0000')).digest('hex').slice(0, 12)
+}
+
+/**
+ * Partition a family's variants into spelling groups.
+ *
+ * The group containing the family's default variant comes first (it's the one
+ * the bare tag resolves to); the rest follow by descending size, so the most
+ * widely-shared spelling outranks a one-off.
+ *
+ * A group's representative is the family default when it's in the group, else
+ * the member that is a full implementation rather than a locale profile — the
+ * base its siblings were cloned from. That's why the eleven-strong English
+ * group is represented by `en-GB` and not by `en-AU`, which merely sorts first.
+ *
+ * @param {string[]} codes The family's variant codes
+ * @param {Map<string, string>} signatures Code -> spelling signature
+ * @param {Map<string, string | null>} profileOf Code -> the variant it clones, or null if it's a full implementation
+ * @param {string | null} defaultCode The variant the family's bare tag resolves to
+ * @returns {Array<{representative: string, codes: string[]}>} Groups, most significant first
+ */
+function spellingGroups(codes, signatures, profileOf, defaultCode) {
+  const bySignature = new Map()
+  for (const code of codes) {
+    const signature = signatures.get(code)
+    if (!bySignature.has(signature)) bySignature.set(signature, [])
+    bySignature.get(signature).push(code)
+  }
+
+  return [...bySignature.values()]
+    .map(group => ({
+      representative: group.includes(defaultCode)
+        ? defaultCode
+        : group.find(code => profileOf.get(code) === null) ?? group[0],
+      codes: group,
+    }))
+    .sort((a, b) => {
+      if (a.representative === defaultCode) return -1
+      if (b.representative === defaultCode) return 1
+      return b.codes.length - a.codes.length || a.representative.localeCompare(b.representative)
+    })
+}
+
+/**
+ * Pick the probe value that best separates a family's spelling groups, and
+ * render each group's version of it.
+ *
+ * The languages page and the demo's region list both need to *show* what a
+ * spelling difference actually is — "one hundred one" beside "one hundred and
+ * one" — rather than assert one exists. Not every value distinguishes every
+ * group (101 separates en-US from en-GB but not en-GB from en-IN), so this
+ * picks whichever probe yields the most distinct renderings, preferring the
+ * smallest such value so the example stays easy to read.
+ *
+ * @param {Array<{representative: string, codes: string[]}>} groups The family's spelling groups
+ * @param {Map<string, Record<string, any>>} mods Code -> module namespace
+ * @returns {{value: string, texts: Record<string, string>} | null} The example, or null for a single-group family
+ */
+function groupSample(groups, mods) {
+  if (groups.length < 2) return null
+
+  let best = null
+
+  for (const value of PROBE_VALUES) {
+    const texts = {}
+    for (const group of groups) {
+      const convert = mods.get(group.representative)?.toCardinal
+      if (typeof convert !== 'function') continue
+      try {
+        texts[group.representative] = convert(value)
+      }
+      catch { /* out of this variant's range; it just won't be shown */ }
+    }
+    const distinct = new Set(Object.values(texts)).size
+    if (Object.keys(texts).length === groups.length && (best === null || distinct > best.distinct)) {
+      best = { value, texts, distinct }
+    }
+    if (best?.distinct === groups.length) break
+  }
+
+  if (best === null) return null
+
+  // Two groups can render the chosen value identically and still be different
+  // spellings — en-GB and en-CA agree on every cardinal and part company only
+  // in ordinals. Flag those so the UI can say so instead of showing two
+  // identical lines and looking wrong.
+  const counts = new Map()
+  for (const text of Object.values(best.texts)) counts.set(text, (counts.get(text) ?? 0) + 1)
+  const tied = Object.fromEntries(
+    Object.entries(best.texts).map(([code, text]) => [code, counts.get(text) > 1]),
+  )
+
+  return { value: best.value, texts: best.texts, tied }
+}
+
 /**
  * Build one variant's entry.
  *
@@ -148,6 +295,11 @@ function buildVariant(code, mod, forms, options, bareTag) {
     // A locale profile is a numeral-identical clone of another variant that
     // overrides only its default currency (docs/language-layers.md).
     variantOf: mod.variantOf ?? null,
+    // Fingerprint of this variant's number words; siblings sharing it are
+    // word-for-word identical and differ only in default currency. Resolved
+    // into a `spelling` (the representative code of its group) once every
+    // variant is built — see main().
+    signature: spellingSignature(mod),
     defaultCurrency: mod.currencyDefaults?.currency ?? null,
     forms: Object.fromEntries(FORMS.filter(form => forms.has(form)).map((form) => {
       const max = mod[`${form}Max`] ?? null
@@ -206,6 +358,9 @@ async function main() {
 
   // One row per BCP 47 primary subtag — the sense in which n2words supports
   // "50 languages" (see CLAUDE.md and docs/bare-tag-aliases.md).
+  const signatures = new Map(variants.map(v => [v.code, v.signature]))
+  const profileOf = new Map(variants.map(v => [v.code, v.variantOf]))
+
   const families = [...new Set(variants.map(v => v.primary))]
     .map((primary) => {
       const members = variants.filter(v => v.primary === primary)
@@ -213,12 +368,45 @@ async function main() {
       // so a family has an entry point exactly when one of its variants is an
       // alias target.
       const target = members.find(v => v.bareTag)
+      const groups = spellingGroups(members.map(v => v.code), signatures, profileOf, target?.code ?? null)
+
+      // Stamp each variant with the group it belongs to, so a variant row can
+      // say "spells like en-GB" without re-deriving the partition.
+      for (const group of groups) {
+        for (const code of group.codes) {
+          const member = members.find(v => v.code === code)
+          member.spelling = group.representative
+          member.spellingShared = group.codes.length
+        }
+      }
+
+      // The variant a reader lands on for this language: what the bare tag
+      // resolves to, or the first variant when there is no bare tag.
+      const landing = target ?? members[0]
+      const familyName = getLanguageName(primary) || primary
+
       return {
         primary,
-        name: getLanguageName(primary) || primary,
+        name: familyName,
+        // The language's own name for itself, asked of the primary subtag —
+        // "français", not "français (France)".
+        native: endonym(primary, familyName),
+        dir: textDirection(primary),
         entry: target ? target.bareTag : null,
         default: target?.code ?? null,
+        // What to import and convert with when no region is chosen.
+        landing: landing.code,
         variants: members.map(v => v.code),
+        spellings: groups,
+        sample: groupSample(groups, mods),
+        // Currency words are a per-LANGUAGE fact (docs/currency-vocab.md), so
+        // the site states them once per language instead of repeating the same
+        // list on all sixteen English rows.
+        currencies: mods.get(landing.code)?.currencyValues?.currency ?? [],
+        // Sizes of the bundle the Import column actually names. An alias
+        // bundle is not its target's: dist/en/currency.js carries the
+        // missing-currency guard that dist/en-US/currency.js has no need for.
+        bundle: bundleSize(`dist/${target ? target.bareTag : landing.code}.js`),
       }
     })
     .sort((a, b) => a.name.localeCompare(b.name))

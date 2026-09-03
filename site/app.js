@@ -148,6 +148,55 @@ export function wireCopy(button, getText) {
   })
 }
 
+const THEME_KEY = 'n2words:theme'
+
+/**
+ * Wire the system/light/dark control.
+ *
+ * "System" is the absence of a stored choice, not a third stored value, so a
+ * reader who never touches this follows their OS forever — including when they
+ * switch it mid-visit. An explicit choice sets `data-theme` on the root, which
+ * the stylesheet honours over `prefers-color-scheme` in both directions. A
+ * matching inline script in each page's head applies the stored choice before
+ * first paint; this only keeps the buttons in sync.
+ */
+export function initTheme() {
+  const buttons = [...document.querySelectorAll('[data-theme-choice]')]
+  if (buttons.length === 0) return
+
+  const read = () => {
+    try {
+      const stored = localStorage.getItem(THEME_KEY)
+      return stored === 'light' || stored === 'dark' ? stored : 'system'
+    }
+    catch {
+      return 'system'
+    }
+  }
+
+  const paint = (choice) => {
+    if (choice === 'system') delete document.documentElement.dataset.theme
+    else document.documentElement.dataset.theme = choice
+    for (const button of buttons) {
+      button.setAttribute('aria-pressed', String(button.dataset.themeChoice === choice))
+    }
+  }
+
+  paint(read())
+
+  for (const button of buttons) {
+    button.addEventListener('click', () => {
+      const choice = button.dataset.themeChoice
+      try {
+        if (choice === 'system') localStorage.removeItem(THEME_KEY)
+        else localStorage.setItem(THEME_KEY, choice)
+      }
+      catch { /* the choice still applies for this page view */ }
+      paint(choice)
+    })
+  }
+}
+
 /**
  * Mark the current page in the header nav.
  */
