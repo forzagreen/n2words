@@ -18,7 +18,7 @@
     "typescript",
     "bigint"
   ],
-  "homepage": "https://github.com/forzagreen/n2words#readme",
+  "homepage": "https://forzagreen.github.io/n2words/",
   "bugs": {
     "url": "https://github.com/forzagreen/n2words/issues"
   },
@@ -84,6 +84,9 @@
     "lint:md": "markdownlint-cli2",
     "prepack": "node --run build",
     "prepare:husky": "husky",
+    "site:build": "node scripts/build-site.js",
+    "site:data": "node scripts/generate-site-data.js",
+    "site:serve": "node scripts/serve-site.js",
     "test": "node --run test:unit && node --run build:types",
     "test:unit": "ava \"test/*.test.js\" \"test/utils/*.test.js\"",
     "typecheck": "tsc --project tsconfig.build.json --noEmit"

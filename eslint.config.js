@@ -17,7 +17,7 @@ import globals from 'globals'
 // ES2022). Plus: import hygiene (import-x), node-API correctness for tooling (n),
 // AVA test hygiene, and eslint-disable discipline (eslint-comments).
 export default defineConfig([
-  globalIgnores(['dist/', 'coverage/', '**/*.d.ts']),
+  globalIgnores(['dist/', '_site/', 'coverage/', '**/*.d.ts']),
 
   // Flag stale/blanket eslint-disable directives.
   { linterOptions: { reportUnusedDisableDirectives: 'error' } },
@@ -75,6 +75,20 @@ export default defineConfig([
     languageOptions: { globals: globals.node },
     extends: [n.configs['flat/recommended-module']],
     settings: { n: { version: '>=24.0.0' } },
+  },
+
+  // The GitHub Pages demo (site/) runs in the reader's browser and loads the
+  // same dist bundles the library ships, so it's held to the same browser
+  // floor as src/ — a demo that can't run where the library claims to run
+  // would be false advertising.
+  {
+    name: 'n2words/site',
+    files: ['site/**/*.js'],
+    languageOptions: { globals: globals.browser },
+    extends: [
+      compat.configs['flat/recommended'],
+      esx.configs['flat/restrict-to-es2022'],
+    ],
   },
 
   // AVA test hygiene (no committed .only, sane assertions, etc.).

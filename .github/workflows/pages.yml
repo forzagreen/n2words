@@ -1,0 +1,83 @@
+name: Pages
+
+env:
+  HUSKY: 0
+  CI: true
+
+# Deploys the demo site at https://forzagreen.github.io/n2words/.
+#
+# The site is assembled from three things, all built here rather than
+# committed: the pages in site/, the real Rollup bundles from dist/, and a
+# languages.json generated from src/. The demo imports those bundles at
+# runtime, so what the site demonstrates is always the code at the deployed
+# commit — there is no snapshot to refresh by hand.
+#
+# Requires repository Settings -> Pages -> Source = "GitHub Actions".
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+# Never cancel a deploy in progress; queue behind it instead.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build site
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: '26'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci --prefer-offline
+
+      # dist/ is what the demo actually imports, so the site can't be built
+      # without it — same build the package publishes.
+      - name: Build bundles
+        run: npm run build
+
+      - name: Assemble site
+        run: npm run site:build
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v6
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: _site
+
+  deploy:
+    name: Deploy to GitHub Pages
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    permissions:
+      pages: write
+      id-token: write
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v5

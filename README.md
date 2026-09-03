@@ -9,6 +9,9 @@
 
 **Numbers to words. 50 languages, 72 regional variants. Zero dependencies.**
 
+**[Try it live →](https://forzagreen.github.io/n2words/)** — an interactive demo
+running this library in your browser.
+
 ## Why n2words?
 
 - **Pure Functions** — Each language exports standalone functions. No classes, no configuration, no side effects.

@@ -1,0 +1,715 @@
+/*
+ * n2words site styles.
+ *
+ * Hand-written, dependency-free, and small enough to read in one sitting —
+ * the site advertises a zero-dependency library, so it loads no framework,
+ * no font CDN and no analytics. Colors are declared once as tokens on :root
+ * and re-declared under prefers-color-scheme so both themes stay in step.
+ */
+
+:root {
+  color-scheme: light dark;
+
+  --bg: #fbfbfa;
+  --surface: #ffffff;
+  --surface-2: #f4f4f2;
+  --border: #e2e2df;
+  --border-strong: #c9c9c4;
+  --ink: #1a1a1a;
+  --ink-muted: #62625d;
+  --ink-faint: #8a8a83;
+  --accent: #0f766e;
+  --accent-ink: #ffffff;
+  --accent-soft: #e6f2f0;
+  --danger: #b4341f;
+  --danger-soft: #fbeeeb;
+
+  /* System stacks, deliberately: a webfont would be the site's only network
+     dependency, and no single face covers the 20-odd scripts this page prints.
+     `system-ui` leads so each platform contributes its own best UI face; the
+     serif stack leads with Charter (macOS) and Sitka Text (Windows) and falls
+     back to Georgia, because the converted words are the one thing on the page
+     worth setting like prose. Iowan Old Style was tried first and rejected: at
+     the same size its smaller x-height renders visibly weaker than Georgia. */
+  --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, "Cascadia Mono", "Roboto Mono", Consolas, monospace;
+  --serif: Charter, "Bitstream Charter", "Sitka Text", Cambria, Georgia, serif;
+
+  --radius: 10px;
+  --shadow: 0 1px 2px rgb(0 0 0 / 5%), 0 4px 16px rgb(0 0 0 / 4%);
+}
+
+/* Dark palette, declared twice on purpose: once for "follow the system" and
+   once for an explicit choice. `light-dark()` would say it once, but a browser
+   without it renders every token invalid — an unreadable page is a worse
+   failure than a duplicated block. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #131316;
+    --surface: #1b1b1f;
+    --surface-2: #232329;
+    --border: #2e2e35;
+    --border-strong: #43434c;
+    --ink: #ececee;
+    --ink-muted: #a0a0a8;
+    --ink-faint: #78787f;
+    --accent: #2dd4bf;
+    --accent-ink: #10201e;
+    --accent-soft: #14312d;
+    --danger: #ff8f78;
+    --danger-soft: #35211d;
+    --shadow: 0 1px 2px rgb(0 0 0 / 40%), 0 4px 16px rgb(0 0 0 / 25%);
+  }
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #131316;
+  --surface: #1b1b1f;
+  --surface-2: #232329;
+  --border: #2e2e35;
+  --border-strong: #43434c;
+  --ink: #ececee;
+  --ink-muted: #a0a0a8;
+  --ink-faint: #78787f;
+  --accent: #2dd4bf;
+  --accent-ink: #10201e;
+  --accent-soft: #14312d;
+  --danger: #ff8f78;
+  --danger-soft: #35211d;
+  --shadow: 0 1px 2px rgb(0 0 0 / 40%), 0 4px 16px rgb(0 0 0 / 25%);
+}
+
+:root[data-theme="light"] { color-scheme: light; }
+
+*, *::before, *::after { box-sizing: border-box; }
+
+/* `hidden` has to win over the layout rules below: a class selector like
+   `.field { display: grid }` outranks the user-agent's [hidden] rule, which is
+   how a hidden control ends up visible. */
+[hidden] { display: none !important; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font: 16px/1.6 var(--sans);
+  -webkit-text-size-adjust: 100%;
+}
+
+a { color: var(--accent); }
+a:hover { text-decoration-thickness: 2px; }
+
+code, kbd, pre { font-family: var(--mono); }
+
+h1, h2, h3 { line-height: 1.2; letter-spacing: -0.02em; font-weight: 650; }
+h2 { font-size: 1.35rem; margin: 2.5rem 0 1rem; }
+.prose > h2:first-child, .hero + section > h2:first-child { margin-top: 1rem; }
+h3 { font-size: 1.05rem; margin: 2rem 0 0.5rem; }
+
+.wrap { max-width: 940px; margin: 0 auto; padding: 0 1.25rem; }
+
+/* ---------------------------------------------------------------- header */
+
+.site-header {
+  border-bottom: 1px solid var(--border);
+  background: color-mix(in srgb, var(--bg) 85%, transparent);
+  backdrop-filter: blur(8px);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.site-header .wrap {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  min-height: 56px;
+  flex-wrap: wrap;
+}
+
+.brand {
+  font-family: var(--mono);
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--ink);
+  text-decoration: none;
+  letter-spacing: -0.02em;
+}
+
+.brand .n { color: var(--accent); }
+
+.site-nav { display: flex; gap: 1rem; margin-inline-start: auto; flex-wrap: wrap; }
+
+.site-nav a {
+  color: var(--ink-muted);
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+
+.site-nav a:hover, .site-nav a[aria-current="page"] { color: var(--ink); }
+.site-nav a[aria-current="page"] { font-weight: 600; }
+
+/* Theme control: system / light / dark, as three real buttons rather than a
+   cycling toggle — "what will one more click give me?" shouldn't be a puzzle. */
+.theme {
+  display: flex;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  overflow: hidden;
+}
+
+.theme button {
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--ink-faint);
+  display: grid;
+  place-items: center;
+  padding: 0.3rem 0.45rem;
+  line-height: 0;
+}
+
+.theme button + button { border-inline-start: 1px solid var(--border); }
+.theme button:hover { color: var(--ink); background: var(--surface-2); }
+.theme button[aria-pressed="true"] { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
+
+/* ------------------------------------------------------------------ hero */
+
+.hero { padding: 3rem 0 1.5rem; }
+
+.hero h1 {
+  font-size: clamp(1.9rem, 5vw, 2.6rem);
+  margin: 0 0 0.6rem;
+}
+
+.hero p {
+  color: var(--ink-muted);
+  font-size: 1.05rem;
+  margin: 0 0 1.25rem;
+  max-width: 46rem;
+}
+
+/* ------------------------------------------------------------ converter */
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+.converter { padding: 1.25rem; margin-top: 1.5rem; }
+
+/* align-content:start so a field carrying extra rows (the Number field
+   and its presets) does not stretch its neighbour's control. */
+.field { display: grid; gap: 0.4rem; align-content: start; }
+.field > label, .legend {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--ink-faint);
+  font-weight: 600;
+}
+
+.controls {
+  display: grid;
+  grid-template-columns: 1.15fr 1fr;
+  gap: 1rem;
+}
+
+@media (max-width: 640px) {
+  .controls { grid-template-columns: 1fr; }
+}
+
+input[type="text"], select {
+  font: inherit;
+  color: var(--ink);
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-radius: 8px;
+  padding: 0.55rem 0.7rem;
+  width: 100%;
+}
+
+input[type="text"]:focus-visible, select:focus-visible, button:focus-visible, a:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+#value { font-family: var(--mono); font-size: 1.1rem; }
+
+/* Segmented control — real radios, restyled, so keyboard and screen readers
+   get the native group semantics. */
+.segmented {
+  display: flex;
+  border: 1px solid var(--border-strong);
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--surface-2);
+}
+
+.segmented input { position: absolute; opacity: 0; pointer-events: none; }
+
+.segmented label {
+  flex: 1;
+  text-align: center;
+  padding: 0.55rem 0.5rem;
+  font-size: 0.92rem;
+  cursor: pointer;
+  color: var(--ink-muted);
+  border-inline-end: 1px solid var(--border);
+}
+
+.segmented label:last-of-type { border-inline-end: 0; }
+.segmented input:checked + label { background: var(--accent); color: var(--accent-ink); font-weight: 600; }
+.segmented input:focus-visible + label { outline: 2px solid var(--accent); outline-offset: -2px; }
+.segmented input:disabled + label { opacity: 0.4; cursor: not-allowed; }
+
+fieldset { border: 0; padding: 0; margin: 0; display: grid; gap: 0.4rem; }
+
+/* Options panel, rendered from the manifest — empty for most languages.
+   Scoped by id, not by class: the languages table has an options cell too. */
+#options { gap: 0.7rem; }
+
+.option { display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; }
+.option select { width: auto; min-width: 12rem; }
+.option label { font-size: 0.92rem; }
+.option .hint { color: var(--ink-faint); font-size: 0.82rem; flex-basis: 100%; margin: 0; }
+
+/* The currency control keeps its own bar, never folded in with #options:
+   `and` tunes one language's grammar, while `currency` sits between a
+   language and a country. */
+.refine-body > select { max-width: 26rem; }
+.refine-body > .hint { color: var(--ink-faint); font-size: 0.84rem; margin: 0.3rem 0 0; }
+
+.linky {
+  border: 0;
+  background: none;
+  padding: 0;
+  color: var(--accent);
+  text-decoration: underline;
+  font-size: inherit;
+}
+
+.linky:hover { border: 0; }
+
+/* ------------------------------------------------------------- output */
+
+.output {
+  margin-top: 1.25rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface-2);
+  padding: 1.1rem 1.25rem;
+  min-height: 5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.6rem;
+}
+
+.output-text {
+  font-family: var(--serif);
+  font-size: clamp(1.25rem, 3.4vw, 1.75rem);
+  line-height: 1.35;
+  word-break: break-word;
+  text-align: center;
+  margin: 0;
+}
+
+.output-meta {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  flex-wrap: wrap;
+  color: var(--ink-faint);
+  font-size: 0.82rem;
+  margin-top: auto;
+}
+
+.output-meta .sep { opacity: 0.5; }
+/* Only an error fills it now — an empty one must not claim the flex gap. */
+.output-meta:empty { display: none; }
+
+.output[data-state="error"] { background: var(--danger-soft); border-color: color-mix(in srgb, var(--danger) 35%, transparent); }
+.output[data-state="error"] .output-text { font-family: var(--sans); font-size: 1rem; color: var(--danger); text-align: start; }
+
+/* A thrown bare-tag currency call is the documented contract, not a failure,
+   so it gets the accent treatment rather than the danger one. */
+.output[data-state="teaching"] { background: var(--accent-soft); border-color: color-mix(in srgb, var(--accent) 35%, transparent); }
+.output[data-state="teaching"] .output-text { font-family: var(--sans); font-size: 1rem; color: var(--ink); text-align: start; }
+
+/* --------------------------------------------------- refinement details */
+
+/* The three demoted axes — currency, options, region — share one shell: a
+   quiet line under the answer stating what is in effect, opening onto the
+   controls. Collapsed, the whole stack costs three lines. */
+.refine {
+  margin-top: 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  font-size: 0.88rem;
+}
+
+.refine > summary {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  padding: 0.5rem 0.85rem;
+  cursor: pointer;
+  color: var(--ink-muted);
+  list-style-position: inside;
+}
+
+/* `display: flex` on a <summary> drops the native disclosure triangle, so
+   draw one — three stacked bars have to look openable. */
+.refine > summary { list-style: none; }
+.refine > summary::-webkit-details-marker { display: none; }
+
+.refine > summary::before {
+  content: "";
+  flex: none;
+  width: 0.4rem;
+  height: 0.4rem;
+  margin-inline-end: -0.15rem;
+  border-inline-end: 1.5px solid currentColor;
+  border-block-end: 1.5px solid currentColor;
+  transform: rotate(-45deg);
+  opacity: 0.65;
+  transition: transform 0.15s ease;
+}
+
+.refine[open] > summary::before { transform: rotate(45deg); }
+.refine > summary:hover { color: var(--ink); }
+.refine code { font-family: var(--mono); font-size: 0.92em; color: var(--ink); }
+
+.refine-now { min-width: 0; }
+.refine-plain { color: var(--ink-faint); }
+
+.refine-count {
+  margin-inline-start: auto;
+  color: var(--ink-faint);
+  font-size: 0.78rem;
+  white-space: nowrap;
+}
+
+.refine-body {
+  border-top: 1px solid var(--border);
+  padding: 0.6rem 0.85rem 0.85rem;
+  display: grid;
+  gap: 0.15rem;
+}
+
+.loc-note { color: var(--ink-muted); margin: 0.2rem 0 0.5rem; }
+
+.loc-group {
+  margin: 0.75rem 0 0.3rem;
+  font-size: 0.78rem;
+  color: var(--ink-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.loc-group:first-child { margin-top: 0.2rem; }
+.loc-group code { font-size: 0.95em; text-transform: none; letter-spacing: 0; }
+
+.loc-sample {
+  display: block;
+  text-transform: none;
+  letter-spacing: 0;
+  font-family: var(--serif);
+  font-size: 0.92rem;
+  color: var(--ink-muted);
+  margin-top: 0.1rem;
+}
+
+.loc {
+  display: grid;
+  grid-template-columns: auto 7rem minmax(6rem, auto) 1fr;
+  align-items: baseline;
+  gap: 0.6rem;
+  padding: 0.3rem 0.4rem;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+@media (max-width: 640px) {
+  .loc { grid-template-columns: auto 1fr; }
+  .loc .loc-detail { grid-column: 2; }
+}
+
+.loc:hover { background: var(--surface-2); }
+.loc.is-on { background: var(--accent-soft); }
+.loc-code { font-family: var(--mono); font-size: 0.82rem; color: var(--accent); }
+.loc-detail { color: var(--ink-faint); font-size: 0.82rem; }
+.loc-detail code { font-size: 0.95em; }
+
+.badge {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  padding: 0.1rem 0.4rem;
+  border-radius: 5px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  border: 1px solid color-mix(in srgb, var(--accent) 25%, transparent);
+}
+
+button {
+  font: inherit;
+  font-size: 0.88rem;
+  color: var(--ink);
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-radius: 7px;
+  padding: 0.35rem 0.7rem;
+  cursor: pointer;
+}
+
+button:hover { border-color: var(--accent); color: var(--accent); }
+button.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+button.primary:hover { filter: brightness(1.08); color: var(--accent-ink); }
+
+.presets { display: flex; gap: 0.4rem; flex-wrap: wrap; margin-top: 0.9rem; align-items: center; }
+.field > .presets { margin-top: 0.15rem; gap: 0.3rem; }
+.field > .presets button { padding: 0.3rem 0.5rem; }
+.presets .label { color: var(--ink-faint); font-size: 0.82rem; margin-inline-end: 0.2rem; }
+.presets button { font-family: var(--mono); font-size: 0.8rem; }
+
+/* --------------------------------------------------------------- code */
+
+pre {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.9rem 1rem;
+  overflow-x: auto;
+  font-size: 0.86rem;
+  line-height: 1.6;
+  margin: 0;
+}
+
+pre .cm { color: var(--ink-faint); }
+pre .kw { color: var(--accent); }
+
+.snippet { margin-top: 1.25rem; }
+
+.snippet-note {
+  margin: 0.4rem 0 0;
+  color: var(--ink-faint);
+  font-size: 0.84rem;
+}
+
+.snippet-note code { font-family: var(--mono); color: var(--ink-muted); }
+
+.snippet-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.4rem;
+}
+
+.snippet-head .legend { margin: 0; }
+
+/* ------------------------------------------------------------ compare */
+
+.compare-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.compare-item {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  padding: 0.75rem 0.9rem;
+}
+
+.compare-item h3 {
+  margin: 0 0 0.3rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--ink-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.compare-item h3 .code { font-family: var(--mono); text-transform: none; letter-spacing: 0; white-space: nowrap; }
+.compare-item p { margin: 0; font-family: var(--serif); font-size: 1.02rem; line-height: 1.4; word-break: break-word; }
+.compare-item p.empty { color: var(--ink-faint); font-family: var(--sans); font-size: 0.9rem; }
+
+/* ---------------------------------------------------------- languages */
+
+.toolbar {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  align-items: center;
+  margin: 1.25rem 0;
+}
+
+.toolbar input[type="text"] { max-width: 22rem; }
+.toolbar .count { color: var(--ink-faint); font-size: 0.86rem; margin-inline-start: auto; }
+
+.table-scroll { overflow-x: auto; border: 1px solid var(--border); border-radius: var(--radius); }
+
+table { border-collapse: collapse; width: 100%; font-size: 0.9rem; }
+
+/* Cells default to nowrap so short codes and sizes stay on one line; the two
+   genuinely variable-width columns opt back into wrapping, which is what keeps
+   the table inside the page instead of scrolling on a laptop. */
+th, td { text-align: start; padding: 0.5rem 0.65rem; border-bottom: 1px solid var(--border); white-space: nowrap; vertical-align: top; }
+th { background: var(--surface-2); font-size: 0.76rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-faint); }
+tbody tr:last-child td { border-bottom: 0; }
+tbody tr:hover { background: var(--surface-2); }
+td.name, td.options { white-space: normal; }
+td.name { min-width: 10rem; }
+td.options { min-width: 8rem; color: var(--ink-muted); font-size: 0.85rem; }
+/* `<bdi>`: an endonym in an RTL script needs its own direction so its own
+   punctuation lands correctly, while still starting at the cell's leading edge
+   like every other row. */
+td .native { display: block; color: var(--ink-faint); font-size: 0.85rem; }
+td.code a { font-family: var(--mono); }
+td.num { text-align: end; font-variant-numeric: tabular-nums; color: var(--ink-muted); }
+
+/* Language rows expand onto their regions, grouped by measured spelling. */
+.expand {
+  border: 0;
+  background: none;
+  padding: 0;
+  font: inherit;
+  color: var(--ink);
+  text-align: start;
+}
+
+.expand:hover { color: var(--accent); border: 0; }
+.expand .caret { display: inline-block; width: 1em; color: var(--ink-faint); }
+.no-expand { padding-inline-start: 1em; }
+
+.tag {
+  display: inline-block;
+  margin-inline-start: 0.4rem;
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--ink-faint);
+  border: 1px solid var(--border-strong);
+  border-radius: 4px;
+  padding: 0 0.25rem;
+}
+
+td.spellings { white-space: normal; min-width: 9.5rem; }
+td.spellings .quiet { color: var(--ink-faint); }
+
+.regions-row td { background: var(--surface-2); padding: 0.75rem 1rem 1rem; white-space: normal; }
+
+.rg-head {
+  margin: 0.75rem 0 0.25rem;
+  font-size: 0.76rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--ink-faint);
+}
+
+.rg-head:first-child { margin-top: 0; }
+.rg-head code { text-transform: none; letter-spacing: 0; font-size: 0.95em; }
+
+.rg-sample {
+  display: block;
+  text-transform: none;
+  letter-spacing: 0;
+  font-family: var(--serif);
+  font-size: 0.9rem;
+  color: var(--ink-muted);
+  margin-top: 0.1rem;
+}
+
+.rg-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.1rem; }
+
+.rg-list li {
+  display: grid;
+  grid-template-columns: 7rem minmax(8rem, 14rem) 3rem 1fr;
+  gap: 0.6rem;
+  align-items: baseline;
+  padding: 0.15rem 0;
+  font-size: 0.86rem;
+}
+
+@media (max-width: 700px) {
+  .rg-list li { grid-template-columns: 7rem 1fr; }
+  .rg-list .rg-note { grid-column: 2; }
+}
+
+.rg-list code { font-size: 0.82rem; }
+.rg-cur { font-family: var(--mono); font-size: 0.78rem; color: var(--ink-muted); }
+.rg-note { color: var(--ink-faint); font-size: 0.82rem; }
+
+.rg-foot {
+  margin: 0.9rem 0 0;
+  color: var(--ink-faint);
+  font-size: 0.82rem;
+  max-width: 46rem;
+}
+
+/* --------------------------------------------------------------- docs */
+
+/* Prose keeps a readable measure; code blocks get the full column, because a
+   wrapped or clipped import path is harder to read than a long line. */
+.prose { max-width: none; }
+.prose > p, .prose > ul, .prose > h2, .prose > h3, .prose > .note { max-width: 44rem; }
+.prose p, .prose li { color: var(--ink); }
+.prose pre { margin: 0.75rem 0 1.5rem; }
+.prose :not(pre) > code {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 0.05rem 0.3rem;
+  font-size: 0.88em;
+}
+
+.note {
+  border-inline-start: 3px solid var(--accent);
+  background: var(--accent-soft);
+  padding: 0.75rem 1rem;
+  border-radius: 0 var(--radius) var(--radius) 0;
+  margin: 1.25rem 0;
+}
+
+.note p { margin: 0; }
+
+/* ------------------------------------------------------------- footer */
+
+.site-footer {
+  margin-top: 4rem;
+  border-top: 1px solid var(--border);
+  padding: 1.5rem 0 3rem;
+  color: var(--ink-faint);
+  font-size: 0.86rem;
+}
+
+.site-footer .wrap { display: flex; gap: 1rem; flex-wrap: wrap; justify-content: space-between; }
+
+.visually-hidden {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .flash { animation: flash 0.5s ease-out; }
+  @keyframes flash {
+    from { background: var(--accent-soft); }
+    to { background: var(--surface-2); }
+  }
+}

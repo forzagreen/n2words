@@ -68,3 +68,6 @@ Thumbs.db
 # Local CI testing
 .secrets
 .act/
+
+# Built GitHub Pages output (site/ + dist/ + generated manifest)
+_site/
