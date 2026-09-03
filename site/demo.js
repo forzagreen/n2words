@@ -501,7 +501,9 @@ function readHash() {
   if (encoded !== undefined) elements.value.value = decodeURIComponent(encoded)
 
   const params = query ? Object.fromEntries(new URLSearchParams(query)) : {}
-  if (params.currency !== undefined) state.currency = params.currency
+  // Assign rather than test: a hash typed over the current one must replace
+  // the selection it names, not inherit the part it left out.
+  state.currency = params.currency ?? null
   delete params.currency
   state.pendingOptions = Object.keys(params).length > 0 ? params : null
 }
@@ -559,6 +561,15 @@ async function init() {
   elements.language.addEventListener('change', () => {
     state.language = elements.language.value
     state.region = null
+    refresh()
+  })
+
+  // Editing the address bar changes the fragment without reloading the
+  // document, so the hash has to be read again. `writeHash` uses
+  // `replaceState`, which fires no event, so this cannot loop.
+  window.addEventListener('hashchange', () => {
+    readHash()
+    elements.language.value = state.language
     refresh()
   })
 

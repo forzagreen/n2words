@@ -164,10 +164,10 @@ h3 { font-size: 1.05rem; margin: 2rem 0 0.5rem; }
   border-radius: 0;
   background: transparent;
   color: var(--ink-faint);
-  font-size: 0.72rem;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  padding: 0.25rem 0.5rem;
+  display: grid;
+  place-items: center;
+  padding: 0.3rem 0.45rem;
+  line-height: 0;
 }
 
 .theme button + button { border-inline-start: 1px solid var(--border); }
@@ -305,6 +305,7 @@ fieldset { border: 0; padding: 0; margin: 0; display: grid; gap: 0.4rem; }
   min-height: 5rem;
   display: flex;
   flex-direction: column;
+  justify-content: center;
   gap: 0.6rem;
 }
 
@@ -313,6 +314,7 @@ fieldset { border: 0; padding: 0; margin: 0; display: grid; gap: 0.4rem; }
   font-size: clamp(1.25rem, 3.4vw, 1.75rem);
   line-height: 1.35;
   word-break: break-word;
+  text-align: center;
   margin: 0;
 }
 
@@ -331,12 +333,12 @@ fieldset { border: 0; padding: 0; margin: 0; display: grid; gap: 0.4rem; }
 .output-meta:empty { display: none; }
 
 .output[data-state="error"] { background: var(--danger-soft); border-color: color-mix(in srgb, var(--danger) 35%, transparent); }
-.output[data-state="error"] .output-text { font-family: var(--sans); font-size: 1rem; color: var(--danger); }
+.output[data-state="error"] .output-text { font-family: var(--sans); font-size: 1rem; color: var(--danger); text-align: start; }
 
 /* A thrown bare-tag currency call is the documented contract, not a failure,
    so it gets the accent treatment rather than the danger one. */
 .output[data-state="teaching"] { background: var(--accent-soft); border-color: color-mix(in srgb, var(--accent) 35%, transparent); }
-.output[data-state="teaching"] .output-text { font-family: var(--sans); font-size: 1rem; color: var(--ink); }
+.output[data-state="teaching"] .output-text { font-family: var(--sans); font-size: 1rem; color: var(--ink); text-align: start; }
 
 /* --------------------------------------------------- refinement details */
 
