@@ -13,10 +13,20 @@ env:
 # commit — there is no snapshot to refresh by hand.
 #
 # Requires repository Settings -> Pages -> Source = "GitHub Actions".
+#
+# `release: published` is what redeploys after a release. release.yml commits
+# `chore(release): vX.Y.Z [skip ci]` and pushes it, and GitHub skips
+# push-triggered runs for a `[skip ci]` commit — so without this trigger the
+# site would keep serving the previous version's footer and bundles until some
+# unrelated push landed. The release is created with the release-bot App token,
+# not GITHUB_TOKEN, so the event does start a run; a release event checks out
+# the tag, which is that same chore(release) commit.
 on:
   push:
     branches:
       - main
+  release:
+    types: [published]
   workflow_dispatch:
 
 # Never cancel a deploy in progress; queue behind it instead.
@@ -32,6 +42,15 @@ jobs:
     name: Build site
     runs-on: ubuntu-latest
     timeout-minutes: 10
+
+    # `actions/configure-pages` calls the Pages API (`GET /repos/{o}/{r}/pages`)
+    # to resolve the site's base URL, and a workflow-level `permissions:` block
+    # sets every scope it doesn't list to `none`. It works today only because
+    # this repo is public and that endpoint is readable anonymously; the read
+    # scope is what actually entitles it. Deploy keeps its own write scopes.
+    permissions:
+      contents: read
+      pages: read
 
     steps:
       - uses: actions/checkout@v7
