@@ -65,6 +65,16 @@ jobs:
       - name: Typecheck
         run: npm run typecheck
 
+      # The demo site's manifest is generated from src/ at deploy time, and
+      # pages.yml only runs on main — so a language whose shape the generator
+      # can't read used to pass every PR gate and surface after merge, as a red
+      # deploy with the site still serving the previous commit's bundles. The
+      # generator imports every language and reads its declarations, which is
+      # the part that can break; dist/ is not needed (bundle sizes come back
+      # null), so this costs seconds rather than a full build.
+      - name: Generate site data
+        run: node scripts/generate-site-data.js "$RUNNER_TEMP/languages.json"
+
   test:
     name: Test (Node ${{ matrix.node }}${{ matrix.coverage && ' + Coverage' || '' }})
     runs-on: ubuntu-latest
