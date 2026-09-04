@@ -62,8 +62,12 @@ function endonym(code, fallback) {
     // ICU echoes the subtag back when it has no data for a language — either
     // alone ("hbo") or inside an otherwise-translated name ("hbo (Israel)").
     // A word-boundary match catches both without touching a real endonym,
-    // since no endonym contains its own subtag as a standalone word.
-    const echoesCode = name && new RegExp(`\\b${code.split('-')[0]}\\b`).test(name)
+    // since no endonym contains its own subtag as a standalone word. The
+    // boundary has to be Unicode-aware: `\b` is defined against `\w`, which is
+    // ASCII, so it fires between "az" and "ə" and discards Azerbaijani's real
+    // endonym ("azərbaycan"). Letter lookarounds test the actual condition.
+    const subtag = code.split('-')[0]
+    const echoesCode = name && new RegExp(`(?<!\\p{L})${subtag}(?!\\p{L})`, 'u').test(name)
     return name && !echoesCode ? name : fallback
   }
   catch {

@@ -28,8 +28,18 @@ const TYPES = {
 }
 
 createServer((request, response) => {
-  // Resolve within ROOT: normalize collapses any `..` before it can escape.
-  const path = normalize(decodeURIComponent(new URL(request.url, 'http://localhost').pathname))
+  let path
+  try {
+    // Resolve within ROOT: normalize collapses any `..` before it can escape.
+    // `decodeURIComponent` throws on a malformed escape (`GET /%`), and an
+    // uncaught throw in this handler takes the whole preview server down.
+    path = normalize(decodeURIComponent(new URL(request.url, 'http://localhost').pathname))
+  }
+  catch {
+    response.writeHead(400, { 'content-type': 'text/plain' }).end('400')
+    return
+  }
+
   let file = join(ROOT, path)
 
   try {
