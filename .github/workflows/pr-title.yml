@@ -17,7 +17,9 @@ jobs:
   validate:
     name: Validate PR Title
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    # Linting the title is instant; the budget is entirely for `npm ci`, which
+    # installs commitlint from the lockfile. See the CI lint job's note.
+    timeout-minutes: 10
 
     steps:
       - uses: actions/checkout@v7
