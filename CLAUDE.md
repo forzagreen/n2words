@@ -28,6 +28,9 @@ n2words: Number to words converter. ESM + UMD, Node >=22, zero dependencies.
 ## Project Structure
 
 ```text
+bin/
+├── n2words.js           # The shipped `n2words` command (package.json `bin`)
+└── lib/                 # Arg parsing, language loading, output rendering
 src/
 ├── {lang-code}.js       # Full implementations: one per numerally-distinct variant (59)
 ├── {lang-code}.js       # Locale profiles (13): `export * from './{base}.js'` + `variantOf`,
@@ -269,6 +272,32 @@ build step of its own — `scripts/build-site.js` assembles `_site/` from three 
 picker entry, an options panel and a table row on the next deploy. Option metadata comes from
 `scripts/lib/options-index.js`, shared with the `LANGUAGES.md` generator, so the docs table and
 the demo can't disagree.
+
+## CLI
+
+`bin/` is the shipped `n2words` command (`npx n2words 42 -l en`). Because it ships, it may
+import only `node:` builtins and `src/` — no `chalk`, which is a devDependency and fine in
+`bench/` and `scripts/` but would break the zero-dependency guarantee.
+
+**Nothing about a language is hardcoded in `bin/`.** Flags, help text and validation are
+derived at runtime from each module's own declarations — `<form>Defaults` for the flag set
+and types, `<form>Values` for enum sets, `<form>Max` for the ceilings shown in help — the
+same contracts the gates in `test/` enforce. Adding a language or an option to `src/` gives
+the CLI a new flag with no edit in `bin/`. Option *value* validation stays in
+`resolveOptions`, whose errors already name the key and the allowed set; the CLI prints them
+rather than re-checking.
+
+Two seams to keep in mind when touching it:
+
+- `currency` is both a form name and an option key. `--currency <CODE>` means "as currency,
+  in CODE"; `--form currency` uses the locale default. It's forwarded even when a module's
+  `currencyDefaults` omits `currency`, since the 46 bare-tag aliases deliberately require an
+  explicit one (`docs/bare-tag-aliases.md`).
+- Flags are derived *after* `--lang` resolves, which is why nl-NL's `noHundredPairing` and
+  en-US's `hundredPairing` can both map to `--no-hundred-pairing` without colliding.
+
+Exit codes are part of the contract: `0` success, `1` usage error, `2` a value the library
+refused. `test/cli.test.js` spawns the real binary and pins all three.
 
 ## Git Workflow
 

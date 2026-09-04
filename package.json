@@ -54,7 +54,11 @@
       ]
     }
   },
+  "bin": {
+    "n2words": "./bin/n2words.js"
+  },
   "files": [
+    "bin/**/*.js",
     "src/**/*.js",
     "src/**/*.d.ts",
     "dist/**/*.js",

@@ -21,6 +21,7 @@
   // config covers the rest for editor IntelliSense without checkJs (CI does not
   // type-check test/scripts/bench, so flagging them in-editor would be phantom).
   "include": [
+    "bin/**/*.js",
     "test/**/*.js",
     "scripts/**/*.js",
     "bench/**/*.js"
