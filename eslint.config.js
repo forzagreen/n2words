@@ -67,6 +67,17 @@ export default defineConfig([
     extends: [n.configs['flat/recommended-module']],
   },
 
+  // The shipped CLI runs wherever the package is installed, so it's held to
+  // engines.node (>=22) — n reads that from package.json, hence no version
+  // override here, unlike the dev-cli block below. n/hashbang additionally
+  // checks the shebang and the bin wiring.
+  {
+    name: 'n2words/bin',
+    files: ['bin/**/*.js'],
+    languageOptions: { globals: globals.node },
+    extends: [n.configs['flat/recommended-module']],
+  },
+
   // Dev CLIs (scripts, bench, root configs) run on the .nvmrc Node (24), not
   // the published library's floor — so n targets 24 there.
   {

@@ -10,5 +10,5 @@
     "rootDir": "."
   },
   "include": ["src/**/*.js"],
-  "exclude": ["node_modules", "dist", "test", "bench", "scripts"]
+  "exclude": ["node_modules", "dist", "test", "bench", "scripts", "bin"]
 }

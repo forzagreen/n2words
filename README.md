@@ -189,6 +189,51 @@ export, so there is nothing to opt into.
 
 See [LANGUAGES.md](LANGUAGES.md) for all language codes and available forms.
 
+## CLI
+
+The package ships an `n2words` command, so a number can be spelled without writing any code:
+
+```bash
+npx n2words 42 --lang en                   # forty-two
+npx n2words 42 -l fr-FR --ordinal          # quarante-deuxième
+npx n2words 42.50 -l en-US --currency EUR  # forty-two euro and fifty cents
+npx n2words 101 -l es-ES --gender feminine # ciento una
+```
+
+`--lang` takes any entry point the library exports — a bare tag (`en`, `de`) or a
+region/script-qualified code (`en-GB`, `zh-Hans-CN`), in any casing. `--cardinal` (the
+default), `--ordinal` and `--currency` pick the form; `--currency <CODE>` names the currency
+and selects the form in one flag, while `--form currency` keeps the locale's own default.
+
+**Options are the language's own.** Every flag past the built-ins is derived at runtime from
+the module you selected, so the CLI offers exactly what that language and form declare —
+`--gender` for Spanish, `--formal` for Chinese, `--and`/`--no-and` for English currency.
+Booleans also accept `--flag=false`, and `--option key=value` reaches any option by its
+declared name.
+
+Two commands make the whole library explorable:
+
+```bash
+npx n2words --list               # every entry point, its kind, and the forms it exports
+npx n2words --help --lang es-ES  # es-ES's forms, their ceilings, and its options
+```
+
+It composes in pipelines. With no values it reads stdin, one per line, streaming:
+
+```bash
+printf '1\n2\n3\n' | npx n2words -l de
+seq 1 100 | npx n2words -l fr --json > numbers.jsonl
+```
+
+`--json` emits one record per line (`{input, output, lang, form, options}`), with failures
+reported as `{input, error}` rather than on stderr. Values are read as text and passed
+through untouched, so precision is never lost — `n2words 12345678901234567890 -l en` is
+exact.
+
+Exit codes: `0` success, `1` a usage error (unknown flag, unknown language, missing
+`--lang`), `2` at least one value could not be converted — an out-of-range number, or an
+option value the language rejects. A bad line in a pipe doesn't stop the rest.
+
 ## Supported Languages
 
 See **[LANGUAGES.md](LANGUAGES.md)** for the complete list with codes and options.

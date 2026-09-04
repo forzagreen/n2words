@@ -50,6 +50,7 @@
 const PROJECT_SCOPES = [
   // Code Areas
   'core', // src/* - language files and shared utilities
+  'cli', // bin/* - the shipped n2words command
 
   // Build & Distribution
   'esm', // ESM bundle output (dist/*.js)

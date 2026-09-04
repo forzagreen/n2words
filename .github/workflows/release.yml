@@ -229,12 +229,15 @@ jobs:
         if: steps.version.outputs.skip != 'true'
         run: |
           VERSION=${{ steps.version.outputs.version }}
-          mkdir -p n2words-${VERSION}/{src,dist}
+          mkdir -p n2words-${VERSION}/{src,dist,bin}
           # Recursive copy so the zip mirrors the npm package's src/ tree —
           # a flat `src/*.js src/*.d.ts` glob silently drops src/utils/ (its
           # .js + .d.ts), which the package's `src/**/*.js` + `src/**/*.d.ts`
-          # files globs ship.
+          # files globs ship. Same reason bin/ is copied recursively: the CLI
+          # is a shipped entry point (package.json `bin`), and bin/lib/ would
+          # be dropped by a flat glob.
           cp -r src/. n2words-${VERSION}/src/
+          cp -r bin/. n2words-${VERSION}/bin/
           cp dist/*.js n2words-${VERSION}/dist/
           zip -r n2words-${VERSION}.zip n2words-${VERSION}/
 

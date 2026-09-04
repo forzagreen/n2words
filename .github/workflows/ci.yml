@@ -23,7 +23,10 @@ jobs:
   lint:
     name: Lint & Security
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    # The job's own work (actionlint, audit, eslint, tsc) runs in well under a
+    # minute; the budget exists for `npm ci`, which is unpredictable whenever a
+    # lockfile change invalidates the setup-node cache. 10 matches the test jobs.
+    timeout-minutes: 10
 
     steps:
       - uses: actions/checkout@v7
