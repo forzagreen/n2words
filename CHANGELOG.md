@@ -1,5 +1,12 @@
 # Changelog
 
+## [6.1.0](https://github.com/forzagreen/n2words/compare/v6.0.1...v6.1.0) (2026-09-04)
+
+
+### Features
+
+* **cli:** add a shipped n2words command ([#442](https://github.com/forzagreen/n2words/issues/442)) ([249fd22](https://github.com/forzagreen/n2words/commit/249fd2264a3e405c8f6bd7eca6f37c0a2736d82b))
+
 ## [6.0.1](https://github.com/forzagreen/n2words/compare/v6.0.0...v6.0.1) (2026-09-02)
 
 
