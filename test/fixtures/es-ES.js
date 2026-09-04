@@ -91,8 +91,8 @@ export const cardinal = [
   [1, 'una', { gender: 'feminine' }],
   [21, 'veintiuna', { gender: 'feminine' }],
   [31, 'treinta y una', { gender: 'feminine' }],
-  [101, 'cienta una', { gender: 'feminine' }],
-  [121, 'cienta veintiuna', { gender: 'feminine' }],
+  [101, 'ciento una', { gender: 'feminine' }],
+  [121, 'ciento veintiuna', { gender: 'feminine' }],
   [201, 'doscientas una', { gender: 'feminine' }],
   [221, 'doscientas veintiuna', { gender: 'feminine' }],
   [300, 'trescientas', { gender: 'feminine' }],
@@ -106,7 +106,7 @@ export const cardinal = [
   [900, 'novecientas', { gender: 'feminine' }],
   [1001, 'mil una', { gender: 'feminine' }],
   [2001, 'dos mil una', { gender: 'feminine' }],
-  [2121, 'dos mil cienta veintiuna', { gender: 'feminine' }],
+  [2121, 'dos mil ciento veintiuna', { gender: 'feminine' }],
 ]
 
 /**
