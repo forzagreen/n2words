@@ -84,6 +84,21 @@ const variant = () => state.variants.get(state.region ?? family().landing)
 const value = () => elements.value.value.trim()
 
 /**
+ * Whether this call takes its currency from a region's default rather than
+ * naming one — the single question behind the import specifier, the currency
+ * note and the snippet footnote, which must agree in every state.
+ *
+ * `state.currency` is null exactly when nothing was named: `normalizeCurrency`
+ * collapses a pick that merely restates the resolved variant's own default, so
+ * "picked USD on en-US" and "picked nothing" cannot disagree here.
+ *
+ * @returns {boolean} True when the currency is borrowed from a country
+ */
+function borrowsRegionDefault() {
+  return state.form === 'currency' && state.currency === null
+}
+
+/**
  * The import specifier for the current selection.
  *
  * A bare tag names a language and carries no default currency, so a currency
@@ -95,8 +110,26 @@ const value = () => elements.value.value.trim()
  */
 function specifier() {
   if (state.region !== null) return `n2words/${state.region}`
-  const borrowsRegionDefault = state.form === 'currency' && state.currency === null
-  return `n2words/${borrowsRegionDefault ? variant().code : family().entry ?? family().landing}`
+  return `n2words/${borrowsRegionDefault() ? variant().code : family().entry ?? family().landing}`
+}
+
+/**
+ * Drop an explicit currency that the current selection can't or needn't name.
+ *
+ * Two cases collapse to "nothing named": a currency this language has no words
+ * for (carried over from a previous language), and one that merely restates
+ * the resolved variant's own default. The second matters because the snippet
+ * shows the shortest call producing this output — the same rule the options
+ * panel already follows by reporting only what differs from a declared default.
+ * Without it, picking GBP and then picking USD back on en-US leaves an explicit
+ * "USD" that reads as a borrowed default in one place and an explicit choice in
+ * another.
+ */
+function normalizeCurrency() {
+  if (state.currency === null) return
+  if (!family().currencies.includes(state.currency) || state.currency === variant().defaultCurrency) {
+    state.currency = null
+  }
 }
 
 /** The options object the current call actually passes. */
@@ -186,7 +219,7 @@ function renderCurrency() {
       + `${escapeHtml(code)} — ${escapeHtml(name ?? code)}${isDefault ? ` (default of ${escapeHtml(item.code)})` : ''}</option>`
   }).join('')
 
-  const usingDefault = state.currency === null || state.currency === fallback
+  const usingDefault = borrowsRegionDefault()
   refineSummary(
     elements.currencySummary,
     `Naming <code>${escapeHtml(selected)}</code> — ${escapeHtml(state.manifest.currencies[selected] ?? selected)}`
@@ -368,8 +401,17 @@ function renderLocale() {
 
 // --------------------------------------------------------------- the output
 
+// Each panel below reads the selection, awaits a bundle, then paints. A cold
+// bundle can take long enough for a second selection to overtake the first —
+// switch language while one is downloading and the slower reply lands last,
+// leaving output that belongs to a language the picker no longer shows. Each
+// paint claims a ticket first and drops its result if a newer one exists.
+let outputRun = 0
+let compareRun = 0
+
 /** Convert and paint the output panel and the snippet. */
 async function run() {
+  const ticket = ++outputRun
   const item = variant()
   const input = value()
 
@@ -383,6 +425,7 @@ async function run() {
 
   try {
     const words = await convert(item.code, state.form, input, callOptions())
+    if (ticket !== outputRun) return
     elements.output.dataset.state = 'ok'
     elements.outputText.textContent = words
     elements.outputText.lang = item.code
@@ -394,6 +437,7 @@ async function run() {
     renderSnippet(words)
   }
   catch (error) {
+    if (ticket !== outputRun) return
     elements.output.dataset.state = 'error'
     elements.outputText.removeAttribute('dir')
     elements.outputText.textContent = describeError(error)
@@ -412,14 +456,18 @@ function renderSnippet(words) {
   const fn = FORM_FUNCTION[state.form]
   const call = `${fn}('${value()}'${formatOptions(callOptions())})`
 
-  elements.snippet.innerHTML = [
+  // The blank line separates the import from the call and is part of the
+  // snippet — only the result comment is conditional, so build the lines
+  // rather than filtering empties, which would drop the separator too.
+  const lines = [
     `<span class="kw">import</span> { ${fn} } <span class="kw">from</span> '${escapeHtml(specifier())}'`,
     '',
     escapeHtml(call),
-    words === null ? '' : `<span class="cm">// → '${escapeHtml(words)}'</span>`,
-  ].filter(line => line !== '').join('\n')
+  ]
+  if (words !== null) lines.push(`<span class="cm">// → '${escapeHtml(words)}'</span>`)
+  elements.snippet.innerHTML = lines.join('\n')
 
-  const borrowed = state.region === null && state.form === 'currency' && state.currency === null && family().entry
+  const borrowed = state.region === null && borrowsRegionDefault() && family().entry
   elements.snippetNote.hidden = !borrowed
   if (borrowed) {
     elements.snippetNote.innerHTML = `<code>${escapeHtml(variant().code)}</code>, not <code>${escapeHtml(family().entry)}</code>: `
@@ -431,6 +479,7 @@ function renderSnippet(words) {
 
 /** Convert the current value in one language after another. */
 async function renderCompare() {
+  const ticket = ++compareRun
   const families = state.showAll
     ? state.manifest.families
     : COMPARE_SAMPLE.map(primary => state.families.get(primary)).filter(Boolean)
@@ -453,6 +502,8 @@ async function renderCompare() {
       return { item, member, shown, text: describeError(error), empty: true }
     }
   }))
+
+  if (ticket !== compareRun) return
 
   elements.compare.innerHTML = results.map(({ item, member, shown, text, empty }) => `
     <article class="compare-item">
@@ -497,6 +548,19 @@ function readHash() {
   const raw = location.hash.slice(1)
   if (!raw) return
 
+  // A hand-edited or truncated fragment can hold a malformed escape ("100%"),
+  // and `decodeURIComponent` throws on one. That throw would reach `init`'s
+  // catch and replace the whole page with an error, so a bad escape falls back
+  // to the raw text: the value is the reader's to fix in the field.
+  const decode = (text) => {
+    try {
+      return decodeURIComponent(text)
+    }
+    catch {
+      return text
+    }
+  }
+
   const [path, query] = raw.split('?')
   const [target, form, encoded] = path.split('/')
 
@@ -510,7 +574,7 @@ function readHash() {
   }
 
   if (FORMS.includes(form) && variant().forms[form]) state.form = form
-  if (encoded !== undefined) elements.value.value = decodeURIComponent(encoded)
+  if (encoded !== undefined) elements.value.value = decode(encoded)
 
   const params = query ? Object.fromEntries(new URLSearchParams(query)) : {}
   // Assign rather than test: a hash typed over the current one must replace
@@ -536,8 +600,7 @@ function applyPendingOptions() {
 /** Re-render everything that depends on the language, region or form. */
 function refresh() {
   syncForms()
-  // A currency the new language has no words for is dropped, not carried.
-  if (state.currency !== null && !family().currencies.includes(state.currency)) state.currency = null
+  normalizeCurrency()
   renderCurrency()
   renderOptions()
   applyPendingOptions()
@@ -600,6 +663,7 @@ async function init() {
 
   elements.currency.addEventListener('change', () => {
     state.currency = elements.currency.value
+    normalizeCurrency()
     renderCurrency()
     run()
     writeHash()
