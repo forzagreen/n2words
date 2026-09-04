@@ -26,6 +26,13 @@ export function loadManifest() {
       if (!response.ok) throw new Error(`languages.json: HTTP ${response.status}`)
       return response.json()
     })
+    // Memoize the success, not the failure. A dropped request would otherwise
+    // be replayed to every later caller for the rest of the session, so one
+    // transient network blip would leave all three pages permanently broken.
+    .catch((error) => {
+      manifestPromise = undefined
+      throw error
+    })
   return manifestPromise
 }
 
@@ -42,7 +49,12 @@ const bundles = new Map()
 export function loadBundle(code, form) {
   const key = `${code}/${form}`
   if (!bundles.has(key)) {
-    bundles.set(key, import(new URL(`dist/${key}.js`, import.meta.url).href))
+    // Cached on success only — a failed import is dropped so the next
+    // keystroke retries it rather than replaying the same error forever.
+    bundles.set(key, import(new URL(`dist/${key}.js`, import.meta.url).href).catch((error) => {
+      bundles.delete(key)
+      throw error
+    }))
   }
   return bundles.get(key)
 }

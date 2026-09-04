@@ -146,7 +146,12 @@ function apply() {
     if (kind === 'no-alias') return family.entry === null
     if (kind === 'options') {
       const landing = variantsByCode.get(family.landing)
-      return Object.values(landing.forms).some(form => form.options.length > 0)
+      // `currency` is declared by every currency form, so counting it would
+      // match all 50 languages and filter nothing. What the reader means by
+      // "has options" is a knob this language has and others don't — the same
+      // set the demo's options panel shows, which excludes currency because it
+      // has its own control there.
+      return Object.values(landing.forms).some(form => form.options.some(option => option.name !== 'currency'))
     }
     return true
   })
@@ -192,10 +197,13 @@ async function init() {
   })
 
   // languages.html#en-KE opens English and scrolls to it, so deep links from
-  // LANGUAGES.md and from the demo keep landing.
+  // LANGUAGES.md and from the demo keep landing. A row's own id is its
+  // language (`#en`) — the browser's native fragment jump ran against an empty
+  // tbody long before `apply()` filled it — so both spellings resolve here.
   const target = location.hash.slice(1)
-  if (target && variantsByCode.has(target)) {
-    const primary = variantsByCode.get(target).primary
+  const primary = variantsByCode.get(target)?.primary
+    ?? (families.some(family => family.primary === target) ? target : null)
+  if (primary) {
     const button = rows.querySelector(`#${CSS.escape(primary)} .expand`)
     if (button) toggle(button, true)
     document.querySelector(`#${CSS.escape(primary)}`)?.scrollIntoView({ block: 'center' })
