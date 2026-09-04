@@ -12,7 +12,7 @@
  * - Gender agreement: uno/una, veintiuno/veintiuna, hundreds
  * - Special twenties: veinte, veintiuno, veintidós, ... veintinueve
  * - "y" conjunction: treinta y uno (only 30-99 with ones)
- * - "cien" for exact 100, "ciento/cienta" otherwise
+ * - "cien" for exact 100, "ciento" otherwise ("ciento" is invariable; only 200-900 agree)
  * - Irregular hundreds: quinientos, setecientos, novecientos
  * - "un" before millón (not "uno"), omit before mil
  */
@@ -42,7 +42,7 @@ const TENS = ['', '', '', 'treinta', 'cuarenta', 'cincuenta', 'sesenta', 'setent
 
 // Irregular hundreds
 const HUNDREDS_MASC = ['', 'ciento', 'doscientos', 'trescientos', 'cuatrocientos', 'quinientos', 'seiscientos', 'setecientos', 'ochocientos', 'novecientos']
-const HUNDREDS_FEM = ['', 'cienta', 'doscientas', 'trescientas', 'cuatrocientas', 'quinientas', 'seiscientas', 'setecientas', 'ochocientas', 'novecientas']
+const HUNDREDS_FEM = ['', 'ciento', 'doscientas', 'trescientas', 'cuatrocientas', 'quinientas', 'seiscientas', 'setecientas', 'ochocientas', 'novecientas']
 
 // Scale words (short scale - each scale is 10^3 apart)
 const SCALES = ['mil', 'millón', 'billón', 'trillón', 'cuatrillón', 'quintillón']

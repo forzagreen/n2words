@@ -50,7 +50,7 @@ export const cardinal = [
   [1, 'una', { gender: 'feminine' }],
   [21, 'veintiuna', { gender: 'feminine' }],
   [31, 'treinta y una', { gender: 'feminine' }],
-  [101, 'cienta una', { gender: 'feminine' }],
+  [101, 'ciento una', { gender: 'feminine' }],
   [201, 'doscientas una', { gender: 'feminine' }],
 ]
 
