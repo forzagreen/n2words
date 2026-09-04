@@ -87,6 +87,26 @@ export const cardinal = [
   [2_000_000_000_000_000_000_000_000n, 'dos cuatrillones'],
   [5_000_000_000_000_000_000_000_000n, 'cinco cuatrillones'],
 
+  // Apocopation: a segment ending in 1 that multiplies a scale word drops to
+  // "un"/"veintiún" — the scale word is the masculine noun it modifies.
+  [21_000, 'veintiún mil'],
+  [31_000, 'treinta y un mil'],
+  [101_000, 'ciento un mil'],
+  [121_000, 'ciento veintiún mil'],
+  [1_021_000, 'un millón veintiún mil'],
+  [21_000_001, 'veintiún millones uno'],
+  [21_000_000, 'veintiún millones'],
+  [101_000_000, 'ciento un millones'],
+  [21_000_000_000n, 'veintiún mil millones'],
+  [41_000_000_000n, 'cuarenta y un mil millones'],
+  [21_000_000_000_000n, 'veintiún billones'],
+  // ...but a numeral before "punto" is standalone and keeps the full form
+  // (as does a bare [21, 'veintiuno'], asserted above)
+  [21.21, 'veintiuno punto veintiuno'],
+  // Feminine never apocopates; the multiplier of "mil" is masculine either way
+  [21_000, 'veintiún mil', { gender: 'feminine' }],
+  [21_021, 'veintiún mil veintiuna', { gender: 'feminine' }],
+
   // Feminine gender tests
   [1, 'una', { gender: 'feminine' }],
   [21, 'veintiuna', { gender: 'feminine' }],
@@ -212,7 +232,9 @@ export const currency = [
   [1, 'un euro'],
   [2, 'dos euros'],
   [10, 'diez euros'],
-  [21, 'veintiuno euros'],
+  [21, 'veintiún euros'],
+  [31, 'treinta y un euros'],
+  [101, 'ciento un euros'],
   [100, 'cien euros'],
   [1000, 'mil euros'],
   [1000000, 'un millón euros'],
@@ -221,7 +243,7 @@ export const currency = [
   [0.01, 'un céntimo'],
   [0.02, 'dos céntimos'],
   [0.10, 'diez céntimos'],
-  [0.21, 'veintiuno céntimos'],
+  [0.21, 'veintiún céntimos'],
   [0.99, 'noventa y nueve céntimos'],
 
   // Euros and cents
@@ -231,6 +253,7 @@ export const currency = [
   [42.50, 'cuarenta y dos euros con cincuenta céntimos'],
   [100.99, 'cien euros con noventa y nueve céntimos'],
   [1234.56, 'mil doscientos treinta y cuatro euros con cincuenta y seis céntimos'],
+  [21.21, 'veintiún euros con veintiún céntimos'],
 
   // Without connector
   [42.50, 'cuarenta y dos euros cincuenta céntimos', { and: false }],

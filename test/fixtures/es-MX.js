@@ -189,7 +189,9 @@ export const currency = [
   [1, 'un peso'],
   [2, 'dos pesos'],
   [10, 'diez pesos'],
-  [21, 'veintiuno pesos'],
+  [21, 'veintiún pesos'],
+  [31, 'treinta y un pesos'],
+  [101, 'ciento un pesos'],
   [100, 'cien pesos'],
   [1000, 'mil pesos'],
   [1000000, 'un millón pesos'],
@@ -198,7 +200,7 @@ export const currency = [
   [0.01, 'un centavo'],
   [0.02, 'dos centavos'],
   [0.10, 'diez centavos'],
-  [0.21, 'veintiuno centavos'],
+  [0.21, 'veintiún centavos'],
   [0.99, 'noventa y nueve centavos'],
 
   // Pesos and centavos
