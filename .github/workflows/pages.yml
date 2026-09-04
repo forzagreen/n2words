@@ -14,19 +14,26 @@ env:
 #
 # Requires repository Settings -> Pages -> Source = "GitHub Actions".
 #
-# `release: published` is what redeploys after a release. release.yml commits
-# `chore(release): vX.Y.Z [skip ci]` and pushes it, and GitHub skips
+# `workflow_run` on Release is what redeploys after a release. release.yml
+# commits `chore(release): vX.Y.Z [skip ci]` and pushes it, and GitHub skips
 # push-triggered runs for a `[skip ci]` commit — so without this trigger the
 # site would keep serving the previous version's footer and bundles until some
-# unrelated push landed. The release is created with the release-bot App token,
-# not GITHUB_TOKEN, so the event does start a run; a release event checks out
-# the tag, which is that same chore(release) commit.
+# unrelated push landed.
+#
+# It has to be `workflow_run` and not `release: published`, which was tried
+# first and fails at the last step: the `github-pages` environment allows
+# deployments from `main` alone, and a release event runs against the tag, so
+# the site built for two minutes and was then rejected with "Tag v6.1.1 is not
+# allowed to deploy to github-pages". A `workflow_run` runs against the default
+# branch, which by then already carries the chore(release) commit the tag
+# points at — same tree, allowed ref.
 on:
   push:
     branches:
       - main
-  release:
-    types: [published]
+  workflow_run:
+    workflows: [Release]
+    types: [completed]
   workflow_dispatch:
 
 # Never cancel a deploy in progress; queue behind it instead.
@@ -42,6 +49,11 @@ jobs:
     name: Build site
     runs-on: ubuntu-latest
     timeout-minutes: 10
+
+    # A `workflow_run` fires on every Release outcome, including a failed one
+    # and the no-op "already at this version" skip. Only a successful release
+    # has anything new to publish; every other trigger runs unconditionally.
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
 
     # `actions/configure-pages` calls the Pages API (`GET /repos/{o}/{r}/pages`)
     # to resolve the site's base URL, and a workflow-level `permissions:` block
