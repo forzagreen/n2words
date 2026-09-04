@@ -14,7 +14,10 @@
  * - "y" conjunction: treinta y uno (only 30-99 with ones)
  * - "cien" for exact 100, "ciento" otherwise ("ciento" is invariable; only 200-900 agree)
  * - Irregular hundreds: quinientos, setecientos, novecientos
- * - "un" before millón (not "uno"), omit before mil
+ * - Apocopation: "uno" shortens to "un" before a masculine noun, and a scale
+ *   word or currency noun is exactly that — "veintiún mil", "treinta y un
+ *   millones", "veintiún dólares". A multiplier of exactly 1 is dropped before
+ *   "mil" ("mil", not "un mil") but kept before "millón" ("un millón").
  */
 
 import { parseCardinalValue } from './utils/parse-cardinal.js'
@@ -31,12 +34,16 @@ import { es as CURRENCY_VOCAB, assertCurrencyExponent } from './utils/currency-v
 
 const ONES_MASC = ['', 'uno', 'dos', 'tres', 'cuatro', 'cinco', 'seis', 'siete', 'ocho', 'nueve']
 const ONES_FEM = ['', 'una', 'dos', 'tres', 'cuatro', 'cinco', 'seis', 'siete', 'ocho', 'nueve']
+// Apocopated masculine: only the ones digit changes, and only before a noun.
+// The feminine forms never apocopate ("veintiuna casas", "treinta y una casas").
+const ONES_MASC_APOC = ['', 'un', 'dos', 'tres', 'cuatro', 'cinco', 'seis', 'siete', 'ocho', 'nueve']
 
 const TEENS = ['diez', 'once', 'doce', 'trece', 'catorce', 'quince', 'dieciseis', 'diecisiete', 'dieciocho', 'diecinueve']
 
 // 20-29 have special compound forms
 const TWENTIES_MASC = ['veinte', 'veintiuno', 'veintidós', 'veintitrés', 'veinticuatro', 'veinticinco', 'veintiséis', 'veintisiete', 'veintiocho', 'veintinueve']
 const TWENTIES_FEM = ['veinte', 'veintiuna', 'veintidós', 'veintitrés', 'veinticuatro', 'veinticinco', 'veintiséis', 'veintisiete', 'veintiocho', 'veintinueve']
+const TWENTIES_MASC_APOC = ['veinte', 'veintiún', 'veintidós', 'veintitrés', 'veinticuatro', 'veinticinco', 'veintiséis', 'veintisiete', 'veintiocho', 'veintinueve']
 
 const TENS = ['', '', '', 'treinta', 'cuarenta', 'cincuenta', 'sesenta', 'setenta', 'ochenta', 'noventa']
 
@@ -82,9 +89,12 @@ const CURRENCY_CONNECTOR = 'con'
  * Builds segment word for 0-999.
  * @param {number} n - Segment value
  * @param {boolean} feminine - Use feminine forms
+ * @param {boolean} [apocopate] - The segment is immediately followed by a
+ *   masculine noun (a scale word, a currency name), so a trailing "uno"
+ *   shortens to "un" and "veintiuno" to "veintiún". Ignored when feminine.
  * @returns {string} Spanish word
  */
-function buildSegment(n, feminine) {
+function buildSegment(n, feminine, apocopate = false) {
   if (n === 0) return ''
 
   // Special case: exact 100 is "cien" (no gender)
@@ -94,6 +104,9 @@ function buildSegment(n, feminine) {
   const tens = Math.trunc(n / 10) % 10
   const hundreds = Math.trunc(n / 100)
   const tensOnes = n % 100
+
+  const masculineOnes = apocopate ? ONES_MASC_APOC : ONES_MASC
+  const masculineTwenties = apocopate ? TWENTIES_MASC_APOC : TWENTIES_MASC
 
   const parts = []
 
@@ -109,7 +122,7 @@ function buildSegment(n, feminine) {
   }
   else if (tensOnes < 10) {
     // Single digit
-    const onesArr = feminine ? ONES_FEM : ONES_MASC
+    const onesArr = feminine ? ONES_FEM : masculineOnes
     parts.push(onesArr[tensOnes])
   }
   else if (tensOnes < 20) {
@@ -118,7 +131,7 @@ function buildSegment(n, feminine) {
   }
   else if (tensOnes < 30) {
     // 20-29: special twenties
-    const twentiesArr = feminine ? TWENTIES_FEM : TWENTIES_MASC
+    const twentiesArr = feminine ? TWENTIES_FEM : masculineTwenties
     parts.push(twentiesArr[ones])
   }
   else {
@@ -127,7 +140,7 @@ function buildSegment(n, feminine) {
       parts.push(TENS[tens])
     }
     else {
-      const onesArr = feminine ? ONES_FEM : ONES_MASC
+      const onesArr = feminine ? ONES_FEM : masculineOnes
       parts.push(TENS[tens] + ' y ' + onesArr[ones])
     }
   }
@@ -143,14 +156,17 @@ function buildSegment(n, feminine) {
  * Converts a non-negative integer to Spanish words (short scale).
  * @param {bigint} n - Non-negative integer to convert
  * @param {boolean} feminine - Use feminine forms
+ * @param {boolean} [beforeNoun] - The whole number is followed by a noun (a
+ *   currency name), so its trailing segment apocopates: "veintiún dólares".
+ *   A standalone numeral doesn't: toCardinal(21) is "veintiuno".
  * @returns {string} Spanish words
  */
-function integerToWords(n, feminine) {
+function integerToWords(n, feminine, beforeNoun = false) {
   if (n === 0n) return ZERO
 
   // Fast path: numbers < 1000
   if (n < 1000n) {
-    return buildSegment(Number(n), feminine)
+    return buildSegment(Number(n), feminine, beforeNoun)
   }
 
   // Extract segments using BigInt division
@@ -173,27 +189,30 @@ function integerToWords(n, feminine) {
 
     if (i === 0) {
       // Units segment - use requested gender
-      result += buildSegment(Number(segment), feminine)
+      result += buildSegment(Number(segment), feminine, beforeNoun)
     }
     else if (i === 1) {
-      // Thousands: "mil" not "uno mil"
+      // Thousands: "mil" not "un mil". Otherwise the multiplier treats "mil"
+      // as the masculine noun it is — masculine forms whatever gender was
+      // requested, and apocopated: "veintiún mil", "treinta y un mil".
       if (segment === 1n) {
         result += SCALES[0]
       }
       else {
-        result += buildSegment(Number(segment), false) + ' ' + SCALES[0]
+        result += buildSegment(Number(segment), false, true) + ' ' + SCALES[0]
       }
     }
     else {
-      // Millions and above: "un millón", "dos millones", etc.
+      // Millions and above: "un millón", "veintiún millones", "ciento un
+      // millones" — the multiplier is kept and apocopated.
       // Callers guard the magnitude (cardinalMax) so scaleIndex stays in range.
       const scaleIndex = i - 1 // SCALES[1] = millón, SCALES[2] = billón, etc.
+      const multiplier = buildSegment(Number(segment), false, true)
       if (segment === 1n) {
-        // "un millón" not "uno millón"
-        result += 'un ' + SCALES[scaleIndex]
+        result += multiplier + ' ' + SCALES[scaleIndex]
       }
       else {
-        result += buildSegment(Number(segment), false) + ' ' + SCALES_PLURAL[scaleIndex]
+        result += multiplier + ' ' + SCALES_PLURAL[scaleIndex]
       }
     }
   }
@@ -474,7 +493,7 @@ function toCurrency(value, options) {
       result += (majorFeminine ? 'una ' : 'un ') + major[0]
     }
     else {
-      result += integerToWords(dollars, majorFeminine) + ' ' + major[1]
+      result += integerToWords(dollars, majorFeminine, true) + ' ' + major[1]
     }
   }
 
@@ -487,7 +506,7 @@ function toCurrency(value, options) {
       result += (minorFeminine ? 'una ' : 'un ') + (/** @type {string[]} */ (minor))[0]
     }
     else {
-      result += integerToWords(centavos, minorFeminine) + ' ' + (/** @type {string[]} */ (minor))[1]
+      result += integerToWords(centavos, minorFeminine, true) + ' ' + (/** @type {string[]} */ (minor))[1]
     }
   }
 

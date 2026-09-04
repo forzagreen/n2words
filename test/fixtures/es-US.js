@@ -46,6 +46,23 @@ export const cardinal = [
   [1_000_000_000_000, 'un trillón'],
   [2_000_000_000_000, 'dos trillones'],
 
+  // Apocopation: a segment ending in 1 that multiplies a scale word drops to
+  // "un"/"veintiún" — the scale word is the masculine noun it modifies.
+  [21_000, 'veintiún mil'],
+  [31_000, 'treinta y un mil'],
+  [101_000, 'ciento un mil'],
+  [1_021_000, 'un millón veintiún mil'],
+  [21_000_000, 'veintiún millones'],
+  [101_000_000, 'ciento un millones'],
+  [21_000_000_000, 'veintiún billones'],
+  [41_000_000_000, 'cuarenta y un billones'],
+  // ...but a numeral before "punto" is standalone and keeps the full form
+  // (as does a bare [21, 'veintiuno'], asserted above)
+  [21.21, 'veintiuno punto veintiuno'],
+  // Feminine never apocopates; the multiplier of "mil" is masculine either way
+  [21_000, 'veintiún mil', { gender: 'feminine' }],
+  [21_021, 'veintiún mil veintiuna', { gender: 'feminine' }],
+
   // Feminine gender tests
   [1, 'una', { gender: 'feminine' }],
   [21, 'veintiuna', { gender: 'feminine' }],
@@ -89,7 +106,9 @@ export const currency = [
   [1, 'un dólar'],
   [2, 'dos dólares'],
   [10, 'diez dólares'],
-  [21, 'veintiuno dólares'],
+  [21, 'veintiún dólares'],
+  [31, 'treinta y un dólares'],
+  [101, 'ciento un dólares'],
   [100, 'cien dólares'],
   [1000, 'mil dólares'],
   [1000000, 'un millón dólares'],
@@ -98,7 +117,7 @@ export const currency = [
   [0.01, 'un centavo'],
   [0.02, 'dos centavos'],
   [0.10, 'diez centavos'],
-  [0.21, 'veintiuno centavos'],
+  [0.21, 'veintiún centavos'],
   [0.99, 'noventa y nueve centavos'],
 
   // Dollars and centavos
@@ -108,6 +127,7 @@ export const currency = [
   [42.50, 'cuarenta y dos dólares con cincuenta centavos'],
   [100.99, 'cien dólares con noventa y nueve centavos'],
   [1234.56, 'mil doscientos treinta y cuatro dólares con cincuenta y seis centavos'],
+  [21.21, 'veintiún dólares con veintiún centavos'],
 
   // Without connector
   [42.50, 'cuarenta y dos dólares cincuenta centavos', { and: false }],
