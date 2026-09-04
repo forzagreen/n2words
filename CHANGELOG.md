@@ -1,5 +1,12 @@
 # Changelog
 
+## [6.1.2](https://github.com/forzagreen/n2words/compare/v6.1.1...v6.1.2) (2026-09-04)
+
+
+### Bug Fixes
+
+* **es-ES,es-US:** apocopate "uno" before a noun — 21000 is "veintiún mil" ([#447](https://github.com/forzagreen/n2words/issues/447)) ([db113df](https://github.com/forzagreen/n2words/commit/db113df9cdf714b9c81b8042d94f200db84354c7))
+
 ## [6.1.1](https://github.com/forzagreen/n2words/compare/v6.1.0...v6.1.1) (2026-09-04)
 
 
