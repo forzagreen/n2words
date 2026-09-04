@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Docs — n2words</title>
-<meta name="description" content="Getting started with n2words: install, the three forms, entry points, options, currency, error behaviour, browser and CDN usage, TypeScript.">
+<meta name="description" content="Getting started with n2words: install, the CLI, the three forms, entry points, options, currency, error behaviour, browser and CDN usage, TypeScript.">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="styles.css">
 <script>
@@ -54,6 +54,51 @@ catch { /* private mode, blocked storage: fall back to the system theme */ }
     <h2>Install</h2>
     <pre><code>npm install n2words</code></pre>
     <p>Zero dependencies. Node.js 22+, or any browser with BigInt support.</p>
+
+    <h2 id="cli">Command line</h2>
+    <p>
+      The package ships an <code>n2words</code> command, so a number can be
+      spelled without writing any code. <code>npx</code> runs it without
+      installing anything first.
+    </p>
+    <pre><code>npx n2words 42 --lang en                   <span class="cm"># forty-two</span>
+npx n2words 42 -l fr-FR --ordinal          <span class="cm"># quarante-deuxième</span>
+npx n2words 42.50 -l en-US --currency EUR  <span class="cm"># forty-two euro and fifty cents</span></code></pre>
+    <p>
+      <code>--lang</code> takes any entry point this site lists — a bare tag
+      (<code>en</code>, <code>de</code>) or a region/script-qualified code
+      (<code>en-GB</code>, <code>zh-Hans-CN</code>), in any casing.
+      <code>--cardinal</code> (the default), <code>--ordinal</code> and
+      <code>--currency</code> pick the form; <code>--currency &lt;CODE&gt;</code>
+      names the currency and selects the form in one flag, while
+      <code>--form currency</code> keeps the locale's own default.
+    </p>
+    <p>
+      <strong>The options are the language's own.</strong> Every flag past the
+      built-ins is derived at runtime from the module you selected — from the
+      same <code>&lt;form&gt;Defaults</code> and <code>&lt;form&gt;Values</code>
+      declarations the demo builds its options panel from — so the CLI offers
+      exactly what that language and form accept, and nothing else:
+    </p>
+    <pre><code>npx n2words --list                <span class="cm"># every entry point and the forms it exports</span>
+npx n2words --help -l es-ES       <span class="cm"># es-ES's forms, their ceilings, and its options</span>
+npx n2words 101 -l es-ES --gender feminine
+npx n2words 1500 -l en --hundred-pairing</code></pre>
+    <p>
+      With no values it reads stdin, one per line, streaming — so it composes in
+      a pipeline. Values are read as text and passed through untouched, so
+      precision is never lost.
+    </p>
+    <pre><code>printf '1\n2\n3\n' | npx n2words -l de
+seq 1 100 | npx n2words -l fr --json &gt; numbers.jsonl</code></pre>
+    <p>
+      <code>--json</code> emits one record per line
+      (<code>{input, output, lang, form, options}</code>), with failures
+      reported as <code>{input, error}</code> rather than on stderr. Exit codes
+      are part of the contract: <code>0</code> success, <code>1</code> a usage
+      error, <code>2</code> at least one value the library refused. A bad line
+      in a pipe doesn't stop the rest.
+    </p>
 
     <h2>The three forms</h2>
     <p>
