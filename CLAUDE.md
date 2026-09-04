@@ -305,7 +305,7 @@ refused. `test/cli.test.js` spawns the real binary and pins all three.
 
 ## Commits
 
-Conventional Commits required. Scopes: BCP 47 codes — one (`en-US`), comma-separated (`az-AZ,tr-TR`), or a bare primary subtag for a variant family (`en`, `es`) — or project areas (`core`, `esm`, `umd`, `types`, `deps`). Family names like `slavic`/`turkic` are **not** valid scopes.
+Conventional Commits required. Scopes: BCP 47 codes — one (`en-US`), comma-separated (`az-AZ,tr-TR`), or a bare primary subtag for a variant family (`en`, `es`) — or project areas (`core`, `cli`, `site`, `scripts`, `esm`, `umd`, `types`, `bench`, `release`, `deps`, `deps-dev`). Family names like `slavic`/`turkic` are **not** valid scopes.
 
 ```bash
 feat(pt-BR): add Brazilian Portuguese

@@ -28,7 +28,7 @@ npm test
 - `refactor(core): simplify exports` — code refactoring
 - `docs: update README` — documentation
 
-Scopes use BCP 47 language codes — one (`en-US`), comma-separated (`az-AZ,tr-TR`), or a bare primary subtag for a variant family (`en`, `es`) — or project areas (`core`, `types`, `umd`). See [.commitlintrc.mjs](.commitlintrc.mjs) for details.
+Scopes use BCP 47 language codes — one (`en-US`), comma-separated (`az-AZ,tr-TR`), or a bare primary subtag for a variant family (`en`, `es`) — or project areas (`core`, `cli`, `site`, `scripts`, `types`, `umd`, ...). See [.commitlintrc.mjs](.commitlintrc.mjs) for details.
 
 ## Adding a New Language
 
@@ -56,6 +56,17 @@ Then:
 2. Add test cases to `test/fixtures/<code>.js`
 3. Run `npm test` — the suite's gates verify everything automatically and tell
    you exactly what's missing; green means done
+
+Nothing else needs editing. The shipped `n2words` CLI (`bin/`) and the demo site
+(`site/`) both derive their language lists, flags and options panels at runtime
+from the declarations your file exports, so a new language gets a CLI flag set
+and a site entry with no change in either place:
+
+```bash
+node bin/n2words.js 42 -l <code>       # the CLI, before publishing
+node bin/n2words.js --help -l <code>   # the flags your declarations produced
+npm run build && npm run site:build && npm run site:serve  # preview the site
+```
 
 ## Code Style
 

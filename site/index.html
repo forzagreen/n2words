@@ -148,7 +148,15 @@ catch { /* private mode, blocked storage: fall back to the system theme */ }
   <section aria-labelledby="install-heading">
     <h2 id="install-heading">Install</h2>
     <pre><code><span class="cm"># Node, bundlers, Deno, Bun</span>
-npm install n2words</code></pre>
+npm install n2words
+
+<span class="cm"># or spell a number without writing any code</span>
+npx n2words 42 --lang en  <span class="cm"># forty-two</span></code></pre>
+    <p>
+      The shipped <code>n2words</code> command derives its flags from whichever
+      language you name, so the options above are flags too —
+      <a href="docs.html#cli">the CLI section</a> has the details.
+    </p>
     <p>
       No build step? Load a single bundle straight from a CDN — the same file this
       page just used. See <a href="docs.html">the docs</a> for browser, UMD and
