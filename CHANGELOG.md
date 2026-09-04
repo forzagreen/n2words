@@ -1,5 +1,14 @@
 # Changelog
 
+## [6.1.1](https://github.com/forzagreen/n2words/compare/v6.1.0...v6.1.1) (2026-09-04)
+
+
+### Bug Fixes
+
+* **es-ES,es-US:** "ciento" is invariable, so 101 feminine is "ciento una" ([5483819](https://github.com/forzagreen/n2words/commit/54838190bdc0fbce554d9df1e9585438c5d42f58))
+* **scripts:** stage the site build, and stop two crashes in its tooling ([c3afca0](https://github.com/forzagreen/n2words/commit/c3afca0d3138db67a7ed15440254158abbeadfd1))
+* **site:** make the demo agree with itself across async and currency states ([5696999](https://github.com/forzagreen/n2words/commit/569699965eae7a2d9d811a5d6229f579116860c5))
+
 ## [6.1.0](https://github.com/forzagreen/n2words/compare/v6.0.1...v6.1.0) (2026-09-04)
 
 
