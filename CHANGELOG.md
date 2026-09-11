@@ -1,5 +1,16 @@
 # Changelog
 
+## [6.2.0](https://github.com/forzagreen/n2words/compare/v6.1.2...v6.2.0) (2026-09-11)
+
+
+### Features
+
+* **ar-SA:** rewrite the counted-noun engine and add case and hundredSpelling options ([#449](https://github.com/forzagreen/n2words/issues/449)) ([b0107e9](https://github.com/forzagreen/n2words/commit/b0107e9d1233af9742a60b9dbd1ace9f538a590c))
+
+### Bug Fixes
+
+* **deps-dev:** clear the npm audit failures in js-yaml and smol-toml ([#450](https://github.com/forzagreen/n2words/issues/450)) ([c08724a](https://github.com/forzagreen/n2words/commit/c08724a11532a1a960ef834c6f9b8163ccc06f89))
+
 ## [6.1.2](https://github.com/forzagreen/n2words/compare/v6.1.1...v6.1.2) (2026-09-04)
 
 
