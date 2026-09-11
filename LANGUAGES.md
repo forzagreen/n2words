@@ -310,12 +310,15 @@ own defaults.
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
 |`gender`|cardinal|'feminine' \| 'masculine'|`masculine`|Grammatical gender of the counted noun|
-|`case`|cardinal|'accusative' \| 'genitive' \| 'nominative'|`nominative`|Grammatical case: nominative (اثنان وعشرون) or accusative/genitive (اثنين وعشرين)|
+|`case`|cardinal|'accusative' \| 'genitive' \| 'nominative'|`nominative`|Grammatical case (الإعراب): nominative/مرفوع (اثنان وعشرون), accusative/منصوب or genitive/مجرور (اثنين وعشرين)|
+|`hundredSpelling`|cardinal|'مئة' \| 'مائة'|`مئة`|Spelling of 100: the academy-standard مئة or the traditional مائة, as on banknotes|
 |`negativeWord`|cardinal|`string`|`ناقص`|Custom word for negative numbers|
 |`gender`|ordinal|'feminine' \| 'masculine'|`masculine`|Grammatical gender of the ordinal|
-|`case`|ordinal|'accusative' \| 'genitive' \| 'nominative'|`nominative`|Grammatical case: nominative (الحادي والعشرون) or accusative/genitive (الحادي والعشرين)|
+|`case`|ordinal|'accusative' \| 'genitive' \| 'nominative'|`nominative`|Grammatical case (الإعراب): nominative/مرفوع (الحادي والعشرون), accusative/منصوب or genitive/مجرور (الحادي والعشرين)|
+|`hundredSpelling`|ordinal|'مئة' \| 'مائة'|`مئة`|Spelling of 100: the academy-standard مئة or the traditional مائة, as on banknotes|
 |`currency`|currency|'AED' \| 'BHD' \| 'DZD' \| 'EGP' \| 'IQD' \| 'JOD' \| 'KWD' \| 'LBP' \| 'LYD' \| 'MAD' \| 'OMR' \| 'QAR' \| 'SAR' \| 'SDG' \| 'SYP' \| 'TND' \| 'YER'|`SAR`|ISO 4217 currency code to name the amount in|
-|`case`|currency|'accusative' \| 'genitive' \| 'nominative'|`nominative`|Grammatical case: nominative (ريالان) or accusative/genitive (ريالين), as after مبلغ|
+|`case`|currency|'accusative' \| 'genitive' \| 'nominative'|`nominative`|Grammatical case (الإعراب): nominative/مرفوع (ريالان) or, as after مبلغ, accusative/منصوب or genitive/مجرور (ريالين)|
+|`hundredSpelling`|currency|'مئة' \| 'مائة'|`مئة`|Spelling of 100: the academy-standard مئة or the traditional مائة, as on banknotes|
 
 ### Australian English (`en-AU`)
 

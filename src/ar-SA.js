@@ -16,15 +16,17 @@
  *   tanwīn drops when that noun is itself a construct head, so 11,000
  *   riyals is "أحد عشر ألف ريال", never "ألفاً ريال".
  * - 100, 1000 and every larger scale word govern a singular genitive
- *   (إضافة): "مائة ريال", "ألف ريال". The dual loses its ن as a construct
+ *   (إضافة): "مئة ريال", "ألف ريال". The dual loses its ن as a construct
  *   head: "مئتا ألف", "ألفا ريال".
  * - A compound ending in 1 or 2 repeats the noun rather than fronting a
- *   bare numeral: "مائة ريال وريال واحد", as in "ألف ليلة وليلة".
+ *   bare numeral: "مئة ريال وريال واحد", as in "ألف ليلة وليلة".
  *
- * Case (إعراب) is an option: the nominative is the citation form, while the
- * accusative and genitive surface as ـين on duals and tens ("اثنين وعشرين",
- * "ألفين"). Ordinals are the classical definite forms — "الحادي عشر",
- * "الحادي والعشرون", "الحادي بعد المائة" — the scheme that numbers the
+ * Case (الإعراب) is an option: the nominative (مرفوع) is the citation form,
+ * while the accusative (منصوب) and genitive (مجرور) surface as ـين on duals
+ * and tens ("اثنين وعشرين", "ألفين"). So is the spelling of 100: the
+ * academy-standard مئة by default, or the traditional مائة that banknotes
+ * and older texts use. Ordinals are the classical definite forms — "الحادي
+ * عشر", "الحادي والعشرون", "الحادي بعد المئة" — the scheme that numbers the
  * nights of ألف ليلة وليلة.
  */
 
@@ -43,6 +45,15 @@ import { ar as CURRENCY_VOCAB, assertCurrencyExponent, minorUnitDigits } from '.
 /**
  * @typedef {('masculine'|'feminine')} Gender
  * @typedef {('nominative'|'accusative'|'genitive')} Case
+ * @typedef {('مئة'|'مائة')} HundredSpelling
+ */
+
+/**
+ * The option-driven choices every number word is rendered under, bundled so
+ * the builders take one argument instead of threading each separately.
+ * @typedef {object} Style
+ * @property {Case} grammaticalCase - Case of the number
+ * @property {HundredSpelling} hundred - Spelling of 100, which 200–900 inherit
  */
 
 // Units 1–19, indexed by value, in the form that agrees with a noun of the
@@ -60,14 +71,18 @@ const ONES_FEM = ['', 'واحدة', 'اثنتان', 'ثلاث', 'أربع', 'خ�
 const ONE_IN_COMPOUND = { masculine: 'واحد', feminine: 'إحدى' }
 const EIGHT_FEM_CONSTRUCT = 'ثماني'
 
+// The "ten" of 11–19 agrees with the noun in both cardinals (اثنا عشر /
+// اثنتا عشرة) and ordinals (الحادي عشر / الحادية عشرة).
+const TEEN_TEN = { masculine: 'عشر', feminine: 'عشرة' }
+
 // Tens 20–90 without their case ending: ـون nominative, ـين oblique.
 const TENS_STEM = ['', '', 'عشر', 'ثلاث', 'أربع', 'خمس', 'ست', 'سبع', 'ثمان', 'تسع']
 const TENS_ENDING = { nominative: 'ون', accusative: 'ين', genitive: 'ين' }
 
-// 300–900 are written as one word. 100 is invariable; 200 is the dual
-// مئتان (مئتين oblique, مئتا/مئتي as a construct head) and derived below.
-const HUNDREDS = ['', 'مائة', '', 'ثلاثمائة', 'أربعمائة', 'خمسمائة', 'ستمائة', 'سبعمائة', 'ثمانمائة', 'تسعمائة']
-const TWO_HUNDRED = 'مئتان'
+// 300–900 are one word: the unit fused to the hundred (ثلاثمئة / ثلاثمائة,
+// whichever spelling is in force). 200 is the dual of the hundred (مئتان /
+// مائتان; مئتين oblique; مئتا / مئتي as a construct head), derived below.
+const HUNDREDS_UNIT = ['', '', '', 'ثلاث', 'أربع', 'خمس', 'ست', 'سبع', 'ثمان', 'تسع']
 
 // Scale words above the units group, index 1 = 10^3. Every one is a
 // masculine noun; the singular and the plural counted by 3–10 are listed,
@@ -88,14 +103,14 @@ const AFTER = 'بعد'
 const DEFINITE = 'ال'
 
 // Ordinals 1–10 (index = value). "First" has a compound form, الحادي, used in
-// 11, 21 … and after مائة/ألف; الأول is only ever the standalone word.
+// 11, 21 … and after مئة/ألف; الأول is only ever the standalone word.
 const ORDINAL_MASC = ['', 'الأول', 'الثاني', 'الثالث', 'الرابع', 'الخامس', 'السادس', 'السابع', 'الثامن', 'التاسع', 'العاشر']
 const ORDINAL_FEM = ['', 'الأولى', 'الثانية', 'الثالثة', 'الرابعة', 'الخامسة', 'السادسة', 'السابعة', 'الثامنة', 'التاسعة', 'العاشرة']
 const ORDINAL_FIRST_COMPOUND = { masculine: 'الحادي', feminine: 'الحادية' }
 
-// The "ten" of 11–19 agrees with the noun in both cardinals (اثنا عشر /
-// اثنتا عشرة) and ordinals (الحادي عشر / الحادية عشرة).
-const TEEN_TEN = { masculine: 'عشر', feminine: 'عشرة' }
+// The enum sets every form shares.
+const CASE_VALUES = /** @type {const} */ (['nominative', 'accusative', 'genitive'])
+const HUNDRED_SPELLING_VALUES = /** @type {const} */ (['مئة', 'مائة'])
 
 // ============================================================================
 // Counted nouns
@@ -178,11 +193,12 @@ function nounForOne(noun) {
  * ["أحد عشر"]. The gender is the counted noun's; the tables carry polarity.
  * @param {number} r - Value in 1–99
  * @param {Gender} gender - Gender of the counted noun
- * @param {Case} grammaticalCase - Case of the number
+ * @param {Style} style - Case and spelling in force
  * @param {boolean} construct - Whether 3–10 heads a genitive plural (ثماني هللات)
  * @returns {string[]} The conjuncts
  */
-function tensAndOnes(r, gender, grammaticalCase, construct) {
+function tensAndOnes(r, gender, style, construct) {
+  const { grammaticalCase } = style
   const ones = gender === 'feminine' ? ONES_FEM : ONES_MASC
   const feminine = gender === 'feminine'
   const unit = r % 10
@@ -208,16 +224,21 @@ function tensAndOnes(r, gender, grammaticalCase, construct) {
 }
 
 /**
- * The hundreds word of a group: مائة, the dual مئتان (or its construct form
- * مئتا when it heads the following noun), or one of the fused 300–900.
+ * The hundreds word of a group: the hundred itself, its dual (or the dual's
+ * construct form when it heads the following noun: "مئتا ألف"), or one of
+ * the fused 300–900 — all in the spelling in force.
  * @param {number} h - Hundreds digit, 1–9
- * @param {Case} grammaticalCase - Case of the number
- * @param {boolean} construct - Whether the word directly heads its noun ("مئتا ألف")
+ * @param {Style} style - Case and spelling in force
+ * @param {boolean} construct - Whether the word directly heads its noun
  * @returns {string} The hundreds word
  */
-function hundredsWord(h, grammaticalCase, construct) {
-  if (h !== 2) return HUNDREDS[h]
-  return construct ? constructDual(TWO_HUNDRED, grammaticalCase) : inflectDual(TWO_HUNDRED, grammaticalCase)
+function hundredsWord(h, style, construct) {
+  const { grammaticalCase, hundred } = style
+  if (h === 1) return hundred
+  if (h !== 2) return HUNDREDS_UNIT[h] + hundred
+  // The dual replaces the ة: مئة → مئتان, مائة → مائتان.
+  const dual = hundred.slice(0, -1) + 'تان'
+  return construct ? constructDual(dual, grammaticalCase) : inflectDual(dual, grammaticalCase)
 }
 
 /**
@@ -225,14 +246,14 @@ function hundredsWord(h, grammaticalCase, construct) {
  * cardinal).
  * @param {number} g - Group value, 1–999
  * @param {Gender} gender - Gender the units agree with
- * @param {Case} grammaticalCase - Case of the number
+ * @param {Style} style - Case and spelling in force
  * @returns {string[]} The conjuncts
  */
-function groupWords(g, gender, grammaticalCase) {
+function groupWords(g, gender, style) {
   const h = Math.trunc(g / 100)
   const r = g % 100
-  const parts = h > 0 ? [hundredsWord(h, grammaticalCase, false)] : []
-  if (r > 0) parts.push(...tensAndOnes(r, gender, grammaticalCase, false))
+  const parts = h > 0 ? [hundredsWord(h, style, false)] : []
+  if (r > 0) parts.push(...tensAndOnes(r, gender, style, false))
   return parts
 }
 
@@ -243,22 +264,22 @@ function groupWords(g, gender, grammaticalCase) {
  * forms: the dual drops its ن and the tamyīz loses its tanwīn.
  * @param {number} g - Group value, 1–999
  * @param {Noun} noun - The counted noun
- * @param {Case} grammaticalCase - Case of the number
+ * @param {Style} style - Case and spelling in force
  * @param {boolean} construct - Whether the noun heads a following genitive
  * @returns {string[]} The conjuncts, the noun already attached
  */
-function groupWithNoun(g, noun, grammaticalCase, construct) {
+function groupWithNoun(g, noun, style, construct) {
   const h = Math.trunc(g / 100)
   const r = g % 100
-  const dual = construct ? constructDual(noun.dual, grammaticalCase) : inflectDual(noun.dual, grammaticalCase)
+  const dual = construct ? constructDual(noun.dual, style.grammaticalCase) : inflectDual(noun.dual, style.grammaticalCase)
 
   if (g === 1) return [nounForOne(noun)]
   if (g === 2) return [dual]
 
   // Exact hundreds, and hundreds followed by 1 or 2: the hundreds word heads
-  // the noun in the singular ("مائة ريال"), and a trailing one or two repeats
-  // the noun rather than fronting a bare numeral ("مائة ريال وريال واحد").
-  const hundredsOfNoun = h > 0 ? hundredsWord(h, grammaticalCase, true) + ' ' + noun.singular : ''
+  // the noun in the singular ("مئة ريال"), and a trailing one or two repeats
+  // the noun rather than fronting a bare numeral ("مئة ريال وريال واحد").
+  const hundredsOfNoun = h > 0 ? hundredsWord(h, style, true) + ' ' + noun.singular : ''
   if (r === 0) return [hundredsOfNoun]
   if (h > 0 && r === 1) return [hundredsOfNoun, nounForOne(noun)]
   if (h > 0 && r === 2) return [hundredsOfNoun, dual]
@@ -266,8 +287,8 @@ function groupWithNoun(g, noun, grammaticalCase, construct) {
   // 3–10 take the plural; 11–99 the singular accusative (tamyīz), whose
   // tanwīn a construct head sheds ("أحد عشر ألفاً" but "أحد عشر ألف ريال").
   const nounForm = r <= 10 ? noun.plural : (construct ? noun.singular : noun.tamyiz)
-  const parts = h > 0 ? [hundredsWord(h, grammaticalCase, false)] : []
-  parts.push(...tensAndOnes(r, noun.gender, grammaticalCase, r <= 10))
+  const parts = h > 0 ? [hundredsWord(h, style, false)] : []
+  parts.push(...tensAndOnes(r, noun.gender, style, r <= 10))
   parts[parts.length - 1] += ' ' + nounForm
   return parts
 }
@@ -279,11 +300,11 @@ function groupWithNoun(g, noun, grammaticalCase, construct) {
  * it when the units are 1 or 2 ("ألف ريال وريال واحد").
  * @param {bigint} n - Positive integer
  * @param {Gender} gender - Gender the units agree with when there is no noun
- * @param {Case} grammaticalCase - Case of the number
+ * @param {Style} style - Case and spelling in force
  * @param {Noun | null} noun - The counted noun, or null for a bare cardinal
  * @returns {string[]} The conjuncts
  */
-function integerToConjuncts(n, gender, grammaticalCase, noun) {
+function integerToConjuncts(n, gender, style, noun) {
   const groups = []
   for (let rest = n; rest > 0n; rest /= 1000n) groups.push(Number(rest % 1000n))
 
@@ -298,20 +319,20 @@ function integerToConjuncts(n, gender, grammaticalCase, noun) {
     const g = groups[level]
     if (g === 0) continue
     if (level === 0) {
-      if (noun === null) parts.push(...groupWords(g, gender, grammaticalCase))
-      else if (unitsRepeatNoun) parts.push(g === 1 ? nounForOne(noun) : inflectDual(noun.dual, grammaticalCase))
-      else parts.push(...groupWithNoun(g, noun, grammaticalCase, false))
+      if (noun === null) parts.push(...groupWords(g, gender, style))
+      else if (unitsRepeatNoun) parts.push(g === 1 ? nounForOne(noun) : inflectDual(noun.dual, style.grammaticalCase))
+      else parts.push(...groupWithNoun(g, noun, style, false))
       continue
     }
     const heads = level === headLevel
-    parts.push(...groupWithNoun(g, scaleNoun(level), grammaticalCase, heads))
+    parts.push(...groupWithNoun(g, scaleNoun(level), style, heads))
     if (heads) parts[parts.length - 1] += ' ' + /** @type {Noun} */ (noun).singular
   }
   return parts
 }
 
 /**
- * Join conjuncts with و, which attaches to the following word: "مائة وخمسة".
+ * Join conjuncts with و, which attaches to the following word: "مئة وخمسة".
  * @param {string[]} parts - The conjuncts
  * @returns {string} The joined phrase
  */
@@ -323,12 +344,12 @@ function joinConjuncts(parts) {
  * Convert a non-negative integer to Arabic words.
  * @param {bigint} n - The non-negative integer to convert
  * @param {Gender} gender - Gender the number agrees with
- * @param {Case} grammaticalCase - Case of the number
+ * @param {Style} style - Case and spelling in force
  * @returns {string} The number rendered as words
  */
-function integerToWords(n, gender, grammaticalCase) {
+function integerToWords(n, gender, style) {
   if (n === 0n) return ZERO
-  return joinConjuncts(integerToConjuncts(n, gender, grammaticalCase, null))
+  return joinConjuncts(integerToConjuncts(n, gender, style, null))
 }
 
 /**
@@ -336,10 +357,10 @@ function integerToWords(n, gender, grammaticalCase) {
  * digit by digit, then the remainder as one integer.
  * @param {string} decimalPart - The decimal digits (after the separator)
  * @param {Gender} gender - Gender the number agrees with
- * @param {Case} grammaticalCase - Case of the number
+ * @param {Style} style - Case and spelling in force
  * @returns {string} The decimal part rendered as words
  */
-function decimalPartToWords(decimalPart, gender, grammaticalCase) {
+function decimalPartToWords(decimalPart, gender, style) {
   const parts = []
   let i = 0
   while (i < decimalPart.length && decimalPart[i] === '0') {
@@ -347,7 +368,7 @@ function decimalPartToWords(decimalPart, gender, grammaticalCase) {
     i++
   }
   const remainder = decimalPart.slice(i)
-  if (remainder) parts.push(integerToWords(BigInt(remainder), gender, grammaticalCase))
+  if (remainder) parts.push(integerToWords(BigInt(remainder), gender, style))
   return parts.join(' ')
 }
 
@@ -358,15 +379,16 @@ function decimalPartToWords(decimalPart, gender, grammaticalCase) {
 /**
  * @typedef {object} CardinalOptions
  * @property {Gender} [gender] - Grammatical gender of the counted noun
- * @property {Case} [case] - Grammatical case: nominative (اثنان وعشرون) or accusative/genitive (اثنين وعشرين)
+ * @property {Case} [case] - Grammatical case (الإعراب): nominative/مرفوع (اثنان وعشرون), accusative/منصوب or genitive/مجرور (اثنين وعشرين)
+ * @property {HundredSpelling} [hundredSpelling] - Spelling of 100: the academy-standard مئة or the traditional مائة, as on banknotes
  * @property {string} [negativeWord] - Custom word for negative numbers
  */
 
 /** @type {Required<CardinalOptions>} */
-export const cardinalDefaults = { gender: 'masculine', case: 'nominative', negativeWord: NEGATIVE }
+export const cardinalDefaults = { gender: 'masculine', case: 'nominative', hundredSpelling: 'مئة', negativeWord: NEGATIVE }
 
-/** @type {{ gender: ReadonlyArray<Required<CardinalOptions>['gender']>, case: ReadonlyArray<Required<CardinalOptions>['case']> }} */
-export const cardinalValues = { gender: ['masculine', 'feminine'], case: ['nominative', 'accusative', 'genitive'] }
+/** @type {{ gender: ReadonlyArray<Required<CardinalOptions>['gender']>, case: ReadonlyArray<Required<CardinalOptions>['case']>, hundredSpelling: ReadonlyArray<Required<CardinalOptions>['hundredSpelling']> }} */
+export const cardinalValues = { gender: ['masculine', 'feminine'], case: CASE_VALUES, hundredSpelling: HUNDRED_SPELLING_VALUES }
 
 /**
  * Converts a numeric value to Arabic words.
@@ -374,21 +396,23 @@ export const cardinalValues = { gender: ['masculine', 'feminine'], case: ['nomin
  * @param {CardinalOptions} [options] - Optional configuration
  * @returns {string} The number in Arabic words
  * @example
- * toCardinal(1)                           // 'واحد'
- * toCardinal(1, { gender: 'feminine' })   // 'واحدة'
- * toCardinal(22, { case: 'genitive' })    // 'اثنين وعشرين'
+ * toCardinal(1)                                 // 'واحد'
+ * toCardinal(1, { gender: 'feminine' })         // 'واحدة'
+ * toCardinal(22, { case: 'genitive' })          // 'اثنين وعشرين'
+ * toCardinal(300, { hundredSpelling: 'مائة' })  // 'ثلاثمائة'
  */
 function toCardinal(value, options) {
   const { isNegative, integerPart, decimalPart } = parseCardinalValue(value)
   checkMax(integerPart, cardinalMax, decimalPart)
-  const { gender, case: grammaticalCase, negativeWord } = resolveOptions(options, cardinalDefaults, cardinalValues)
+  const { gender, case: grammaticalCase, hundredSpelling, negativeWord } = resolveOptions(options, cardinalDefaults, cardinalValues)
+  const style = { grammaticalCase, hundred: hundredSpelling }
 
   const parts = []
   if (isNegative) parts.push(negativeWord)
-  parts.push(integerToWords(integerPart, gender, grammaticalCase))
+  parts.push(integerToWords(integerPart, gender, style))
   if (decimalPart) {
     parts.push(DECIMAL_SEP)
-    parts.push(decimalPartToWords(decimalPart, gender, grammaticalCase))
+    parts.push(decimalPartToWords(decimalPart, gender, style))
   }
   return parts.join(' ')
 }
@@ -419,46 +443,47 @@ function smallOrdinal(r, gender, grammaticalCase, compound) {
 }
 
 /**
- * The definite cardinal ("المائة", "الألف والمائتين", "الثلاثة آلاف"): the
+ * The definite cardinal ("المئة", "الألف والمئتين", "الثلاثة آلاف"): the
  * article goes on the first word of every conjunct.
  * @param {bigint} n - Positive integer
- * @param {Case} grammaticalCase - Case of the number
+ * @param {Style} style - Case and spelling in force
  * @returns {string} The definite cardinal
  */
-function definiteCardinal(n, grammaticalCase) {
-  return joinConjuncts(integerToConjuncts(n, 'masculine', grammaticalCase, null).map(part => DEFINITE + part))
+function definiteCardinal(n, style) {
+  return joinConjuncts(integerToConjuncts(n, 'masculine', style, null).map(part => DEFINITE + part))
 }
 
 /**
  * Gets the Arabic ordinal for a positive integer. Past 99 Arabic has no
  * dedicated forms: an exact multiple of 100 is the definite cardinal
- * ("المائة", "الألفان"), and anything else is the ordinal of the last two
+ * ("المئة", "الألفان"), and anything else is the ordinal of the last two
  * digits followed by بعد and the genitive definite remainder — "الحادي
- * والعشرون بعد المائة", as the nights of ألف ليلة وليلة are numbered.
+ * والعشرون بعد المئة", as the nights of ألف ليلة وليلة are numbered.
  * @param {bigint} n - Positive integer to convert
  * @param {Gender} gender - Gender of the ordinal
- * @param {Case} grammaticalCase - Case of the ordinal
+ * @param {Style} style - Case and spelling in force
  * @returns {string} Arabic ordinal words
  */
-function integerToOrdinal(n, gender, grammaticalCase) {
+function integerToOrdinal(n, gender, style) {
   const r = Number(n % 100n)
   const base = n - BigInt(r)
-  if (base === 0n) return smallOrdinal(r, gender, grammaticalCase, false)
-  if (r === 0) return definiteCardinal(base, grammaticalCase)
-  return smallOrdinal(r, gender, grammaticalCase, true) + ' ' + AFTER + ' ' + definiteCardinal(base, 'genitive')
+  if (base === 0n) return smallOrdinal(r, gender, style.grammaticalCase, false)
+  if (r === 0) return definiteCardinal(base, style)
+  return smallOrdinal(r, gender, style.grammaticalCase, true) + ' ' + AFTER + ' ' + definiteCardinal(base, { ...style, grammaticalCase: 'genitive' })
 }
 
 /**
  * @typedef {object} OrdinalOptions
  * @property {Gender} [gender] - Grammatical gender of the ordinal
- * @property {Case} [case] - Grammatical case: nominative (الحادي والعشرون) or accusative/genitive (الحادي والعشرين)
+ * @property {Case} [case] - Grammatical case (الإعراب): nominative/مرفوع (الحادي والعشرون), accusative/منصوب or genitive/مجرور (الحادي والعشرين)
+ * @property {HundredSpelling} [hundredSpelling] - Spelling of 100: the academy-standard مئة or the traditional مائة, as on banknotes
  */
 
 /** @type {Required<OrdinalOptions>} */
-export const ordinalDefaults = { gender: 'masculine', case: 'nominative' }
+export const ordinalDefaults = { gender: 'masculine', case: 'nominative', hundredSpelling: 'مئة' }
 
-/** @type {{ gender: ReadonlyArray<Required<OrdinalOptions>['gender']>, case: ReadonlyArray<Required<OrdinalOptions>['case']> }} */
-export const ordinalValues = { gender: ['masculine', 'feminine'], case: ['nominative', 'accusative', 'genitive'] }
+/** @type {{ gender: ReadonlyArray<Required<OrdinalOptions>['gender']>, case: ReadonlyArray<Required<OrdinalOptions>['case']>, hundredSpelling: ReadonlyArray<Required<OrdinalOptions>['hundredSpelling']> }} */
+export const ordinalValues = { gender: ['masculine', 'feminine'], case: CASE_VALUES, hundredSpelling: HUNDRED_SPELLING_VALUES }
 
 /**
  * Converts a numeric value to Arabic ordinal words.
@@ -471,13 +496,13 @@ export const ordinalValues = { gender: ['masculine', 'feminine'], case: ['nomina
  * toOrdinal(1)                           // 'الأول'
  * toOrdinal(1, { gender: 'feminine' })   // 'الأولى'
  * toOrdinal(21)                          // 'الحادي والعشرون'
- * toOrdinal(101)                         // 'الحادي بعد المائة'
+ * toOrdinal(101)                         // 'الحادي بعد المئة'
  */
 function toOrdinal(value, options) {
   const integerPart = parseOrdinalValue(value)
   checkMax(integerPart, ordinalMax)
-  const { gender, case: grammaticalCase } = resolveOptions(options, ordinalDefaults, ordinalValues)
-  return integerToOrdinal(integerPart, gender, grammaticalCase)
+  const { gender, case: grammaticalCase, hundredSpelling } = resolveOptions(options, ordinalDefaults, ordinalValues)
+  return integerToOrdinal(integerPart, gender, { grammaticalCase, hundred: hundredSpelling })
 }
 
 // ============================================================================
@@ -487,16 +512,18 @@ function toOrdinal(value, options) {
 /**
  * @typedef {object} CurrencyOptions
  * @property {import('./utils/currency-vocab.js').ArCurrency} [currency] - ISO 4217 currency code to name the amount in
- * @property {Case} [case] - Grammatical case: nominative (ريالان) or accusative/genitive (ريالين), as after مبلغ
+ * @property {Case} [case] - Grammatical case (الإعراب): nominative/مرفوع (ريالان) or, as after مبلغ, accusative/منصوب or genitive/مجرور (ريالين)
+ * @property {HundredSpelling} [hundredSpelling] - Spelling of 100: the academy-standard مئة or the traditional مائة, as on banknotes
  */
 
 /** @type {Required<CurrencyOptions>} */
-export const currencyDefaults = { currency: 'SAR', case: 'nominative' }
+export const currencyDefaults = { currency: 'SAR', case: 'nominative', hundredSpelling: 'مئة' }
 
-/** @type {{ currency: ReadonlyArray<Required<CurrencyOptions>['currency']>, case: ReadonlyArray<Required<CurrencyOptions>['case']> }} */
+/** @type {{ currency: ReadonlyArray<Required<CurrencyOptions>['currency']>, case: ReadonlyArray<Required<CurrencyOptions>['case']>, hundredSpelling: ReadonlyArray<Required<CurrencyOptions>['hundredSpelling']> }} */
 export const currencyValues = {
   currency: /** @type {Required<CurrencyOptions>['currency'][]} */ (Object.keys(CURRENCY_VOCAB)),
-  case: ['nominative', 'accusative', 'genitive'],
+  case: CASE_VALUES,
+  hundredSpelling: HUNDRED_SPELLING_VALUES,
 }
 
 /**
@@ -516,11 +543,12 @@ function toCurrency(value, options) {
   // Options resolve first: the currency decides how many decimal digits the
   // parser keeps, and a 1000-subunit currency (TND, KWD, ...) read at the
   // default 2 would turn '1.500' into 50 minor units instead of 500.
-  const { currency, case: grammaticalCase } = resolveOptions(options, currencyDefaults, currencyValues)
+  const { currency, case: grammaticalCase, hundredSpelling } = resolveOptions(options, currencyDefaults, currencyValues)
   const { isNegative, dollars: majorCount, cents: minorCount } = parseCurrencyValue(value, minorUnitDigits(currency))
   checkMax(majorCount, currencyMax) // minor units are <= 999, safe
   assertCurrencyExponent(minorCount, currency)
   const { major, minor, majorGender, minorGender } = CURRENCY_VOCAB[currency]
+  const style = { grammaticalCase, hundred: hundredSpelling }
 
   const parts = []
   if (majorCount > 0n || minorCount === 0n) {
@@ -529,13 +557,13 @@ function toCurrency(value, options) {
     // languages); narrow the optional matrix fields.
     const noun = currencyNoun(major, /** @type {Gender} */ (majorGender))
     if (majorCount === 0n) parts.push(ZERO + ' ' + noun.singular)
-    else parts.push(...integerToConjuncts(majorCount, noun.gender, grammaticalCase, noun))
+    else parts.push(...integerToConjuncts(majorCount, noun.gender, style, noun))
   }
   if (minorCount > 0n) {
     // assertCurrencyExponent already guaranteed minorCount is 0n whenever
     // minor is null, so reaching this branch implies a real array.
     const noun = currencyNoun(/** @type {string[]} */ (minor), /** @type {Gender} */ (minorGender))
-    parts.push(...integerToConjuncts(minorCount, noun.gender, grammaticalCase, noun))
+    parts.push(...integerToConjuncts(minorCount, noun.gender, style, noun))
   }
 
   const words = joinConjuncts(parts)
