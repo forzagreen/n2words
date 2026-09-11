@@ -223,9 +223,11 @@ export const zhHans = { CNY: { major: ['圆', '元'], minor: ['角', '分'] } }
 /** @satisfies {Record<string, CurrencyWordForms>} */
 export const zhHant = { TWD: { major: ['圓', '元'], minor: ['角', '分'] } }
 
-// Arabic currency words: [singular, dual, plural (3-10), plural (11+)] —
-// ar's own getRiyalForm()/getHalalaForm() select the index. The 11+ slot is
-// the tamyīz form: masculine nouns take tanwīn (ريالاً, ديناراً), while a
+// Arabic currency words: [singular, dual (nominative), plural (3-10),
+// tamyīz (11-99)]. ar-SA's counted-noun engine selects the index and derives
+// what isn't listed: the oblique dual (ريالين) from the nominative one, and the
+// singular after 100/1000 ("مائة ريال") from slot 0. The tamyīz slot is the
+// singular accusative: masculine nouns take tanwīn (ريالاً, ديناراً), while a
 // feminine ة noun keeps its base form (هللة, بيسة).
 //
 // Arabic number words are the same across every Arabic variant — only the
@@ -233,27 +235,40 @@ export const zhHant = { TWD: { major: ['圓', '元'], minor: ['角', '分'] } }
 // whole Arab-world set rather than splitting it per (as yet unimplemented)
 // regional variant.
 //
-// Grammatical gender: every major unit named below (ريال، دينار، درهم) happens
-// to be masculine, so only minorGender is populated so far — see "Grammatical
-// gender" below and ar.js's own getRiyalForm()/getHalalaForm().
+// Grammatical gender drives agreement for both units (ثلاثة ريالات but ثلاث
+// ليرات) — see "Grammatical gender" below. The major units are masculine
+// except the ليرة of Lebanon and Syria.
 const AR_RIAL = ['ريال', 'ريالان', 'ريالات', 'ريالاً']
 const AR_DINAR = ['دينار', 'ديناران', 'دنانير', 'ديناراً']
 const AR_FILS = ['فلس', 'فلسان', 'فلوس', 'فلساً']
-// درهم is Libya's *minor* unit and Morocco's *major* one — same word, two roles.
+// درهم is a *minor* unit in Libya and Qatar and the *major* one in Morocco and
+// the UAE — same word, two roles.
 const AR_DIRHAM = ['درهم', 'درهمان', 'دراهم', 'درهماً']
+const AR_POUND = ['جنيه', 'جنيهان', 'جنيهات', 'جنيهاً']
+const AR_LIRA = ['ليرة', 'ليرتان', 'ليرات', 'ليرة']
+const AR_PIASTRE = ['قرش', 'قرشان', 'قروش', 'قرشاً']
+const AR_CENTIME = ['سنتيم', 'سنتيمان', 'سنتيمات', 'سنتيماً']
 
 /** @satisfies {Record<string, CurrencyWordForms>} */
 export const ar = {
-  SAR: { major: AR_RIAL, minor: ['هللة', 'هللتان', 'هللات', 'هللة'], minorGender: 'feminine' },
-  TND: { major: AR_DINAR, minor: ['مليم', 'مليمان', 'مليمات', 'مليماً'], minorGender: 'masculine' },
-  KWD: { major: AR_DINAR, minor: AR_FILS, minorGender: 'masculine' },
-  BHD: { major: AR_DINAR, minor: AR_FILS, minorGender: 'masculine' },
-  JOD: { major: AR_DINAR, minor: AR_FILS, minorGender: 'masculine' },
-  IQD: { major: AR_DINAR, minor: AR_FILS, minorGender: 'masculine' },
-  OMR: { major: AR_RIAL, minor: ['بيسة', 'بيستان', 'بيسات', 'بيسة'], minorGender: 'feminine' },
-  LYD: { major: AR_DINAR, minor: AR_DIRHAM, minorGender: 'masculine' },
-  // Morocco divides into 100 santim, not 1000 — no CURRENCY_EXPONENTS entry.
-  MAD: { major: AR_DIRHAM, minor: ['سنتيم', 'سنتيمان', 'سنتيمات', 'سنتيماً'], minorGender: 'masculine' },
+  SAR: { major: AR_RIAL, minor: ['هللة', 'هللتان', 'هللات', 'هللة'], majorGender: 'masculine', minorGender: 'feminine' },
+  TND: { major: AR_DINAR, minor: ['مليم', 'مليمان', 'مليمات', 'مليماً'], majorGender: 'masculine', minorGender: 'masculine' },
+  KWD: { major: AR_DINAR, minor: AR_FILS, majorGender: 'masculine', minorGender: 'masculine' },
+  BHD: { major: AR_DINAR, minor: AR_FILS, majorGender: 'masculine', minorGender: 'masculine' },
+  JOD: { major: AR_DINAR, minor: AR_FILS, majorGender: 'masculine', minorGender: 'masculine' },
+  IQD: { major: AR_DINAR, minor: AR_FILS, majorGender: 'masculine', minorGender: 'masculine' },
+  OMR: { major: AR_RIAL, minor: ['بيسة', 'بيستان', 'بيسات', 'بيسة'], majorGender: 'masculine', minorGender: 'feminine' },
+  LYD: { major: AR_DINAR, minor: AR_DIRHAM, majorGender: 'masculine', minorGender: 'masculine' },
+  // The rest divide into 100, not 1000 — no CURRENCY_EXPONENTS entry.
+  MAD: { major: AR_DIRHAM, minor: AR_CENTIME, majorGender: 'masculine', minorGender: 'masculine' },
+  DZD: { major: AR_DINAR, minor: AR_CENTIME, majorGender: 'masculine', minorGender: 'masculine' },
+  AED: { major: AR_DIRHAM, minor: AR_FILS, majorGender: 'masculine', minorGender: 'masculine' },
+  QAR: { major: AR_RIAL, minor: AR_DIRHAM, majorGender: 'masculine', minorGender: 'masculine' },
+  YER: { major: AR_RIAL, minor: AR_FILS, majorGender: 'masculine', minorGender: 'masculine' },
+  EGP: { major: AR_POUND, minor: AR_PIASTRE, majorGender: 'masculine', minorGender: 'masculine' },
+  SDG: { major: AR_POUND, minor: AR_PIASTRE, majorGender: 'masculine', minorGender: 'masculine' },
+  LBP: { major: AR_LIRA, minor: AR_PIASTRE, majorGender: 'feminine', minorGender: 'masculine' },
+  SYP: { major: AR_LIRA, minor: AR_PIASTRE, majorGender: 'feminine', minorGender: 'masculine' },
 }
 
 // hbo (Biblical Hebrew) and he (Modern Hebrew) share identical Shekel

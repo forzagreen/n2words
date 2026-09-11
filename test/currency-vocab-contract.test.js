@@ -87,16 +87,16 @@ for (const { code, mod, declaredCodes } of languages) {
     }
 
     // majorGender and minorGender are checked independently, not as a pair:
-    // ar's own toCurrency never reads majorGender from the matrix (every
-    // Arabic major unit it names — ريال، دينار، درهم — happens to be
-    // masculine, hardcoded directly), so only its minorGender is a matrix
-    // concern. A language "uses" a field if ANY entry it already ships sets
-    // it (see docs/currency-vocab.md's "Grammatical gender" section);
-    // English et al. use neither and aren't held to this. Once a language
-    // DOES use a field, every entry must carry it — a currency added
-    // without it would silently pass `undefined` as the gender argument to
-    // that language's cardinal builder, the exact bug this project hit for
-    // the currency a matrix merge first made a second entry reachable for.
+    // a language may read one and not the other (ar read only minorGender
+    // while every Arabic major unit it named happened to be masculine; it
+    // reads both now that ليرة is in the matrix). A language "uses" a field
+    // if ANY entry it already ships sets it (see docs/currency-vocab.md's
+    // "Grammatical gender" section); English et al. use neither and aren't
+    // held to this. Once a language DOES use a field, every entry must
+    // carry it — a currency added without it would silently pass
+    // `undefined` as the gender argument to that language's cardinal
+    // builder, the exact bug this project hit for the currency a matrix
+    // merge first made a second entry reachable for.
     const entries = Object.entries(langVocab ?? {})
     const usesMajorGender = entries.some(([, forms]) => forms.majorGender !== undefined)
     const usesMinorGender = entries.some(([, forms]) => forms.minorGender !== undefined)
