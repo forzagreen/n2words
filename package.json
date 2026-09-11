@@ -169,5 +169,8 @@
   "publishConfig": {
     "access": "public",
     "provenance": true
+  },
+  "overrides": {
+    "smol-toml": "^1.8.0"
   }
 }
