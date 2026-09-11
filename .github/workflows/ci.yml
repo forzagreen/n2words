@@ -38,10 +38,20 @@ jobs:
       # Installer URL and binary version are pinned to the same tag —
       # `main` is mutable and would defeat supply-chain immutability
       # even if the binary itself is pinned.
+      #
+      # The two `-ignore` patterns cover one known gap: release.yml passes
+      # `client-id` to actions/create-github-app-token@v3 (v3 deprecates
+      # `app-id` and warns on every run), but actionlint's bundled metadata
+      # for that action predates the input, so it reports `client-id` as
+      # unknown and `app-id` as missing. Both patterns name the action, so
+      # any other input mistake in any workflow still fails. Drop them once
+      # a pinned actionlint knows `client-id`.
       - name: Run actionlint
         run: |
           bash <(curl -sSfL https://raw.githubusercontent.com/rhysd/actionlint/v1.7.12/scripts/download-actionlint.bash) 1.7.12
-          ./actionlint -color
+          ./actionlint -color \
+            -ignore 'input "client-id" is not defined in action "actions/create-github-app-token@v3"' \
+            -ignore 'missing input "app-id" which is required by action "actions/create-github-app-token@v3"'
 
       - name: Setup Node.js
         uses: actions/setup-node@v7
