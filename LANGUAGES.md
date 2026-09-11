@@ -184,8 +184,8 @@ Each form column shows the largest value it converts (`10^N - 1`), `∞` when un
 
 ## Currency Coverage
 
-Which languages can name which currency. 72 variants name 50 distinct
-ISO 4217 currencies, across 462 language/currency pairs.
+Which languages can name which currency. 72 variants name 58 distinct
+ISO 4217 currencies, across 470 language/currency pairs.
 
 A language always names its own default currency; anything in the third column
 is opt-in via the `currency` option:
@@ -233,27 +233,35 @@ also listed per language under [Language Options](#language-options).
 |`ILS`|`hbo-IL`, `he-IL`|—|
 |`JPY`|`ja-JP`|`pt-BR`|
 |`RSD`|`sr-Cyrl-RS`, `sr-Latn-RS`|—|
+|`AED`|—|`ar`|
 |`AZN`|`az-AZ`|—|
 |`BRL`|`pt-BR`|—|
 |`CNY`|`zh-Hans-CN`|—|
 |`CZK`|`cs-CZ`|—|
 |`DKK`|`da-DK`|—|
+|`DZD`|—|`ar`|
+|`EGP`|—|`ar`|
 |`GEL`|`ka-GE`|—|
 |`HUF`|`hu-HU`|—|
 |`IDR`|`id-ID`|—|
 |`IRR`|`fa-IR`|—|
 |`KRW`|`ko-KR`|—|
+|`LBP`|—|`ar`|
 |`NOK`|`nb-NO`|—|
 |`PLN`|`pl-PL`|—|
+|`QAR`|—|`ar`|
 |`RON`|`ro-RO`|—|
 |`RUB`|`ru-RU`|—|
 |`SAR`|`ar-SA`|—|
+|`SDG`|—|`ar`|
 |`SEK`|`sv-SE`|—|
+|`SYP`|—|`ar`|
 |`THB`|`th-TH`|—|
 |`TRY`|`tr-TR`|—|
 |`TWD`|`zh-Hant-TW`|—|
 |`UAH`|`uk-UA`|—|
 |`VND`|`vi-VN`|—|
+|`YER`|—|`ar`|
 
 To teach a language a new currency, add its word forms to that language's export
 in [`src/utils/currency-vocab.js`](src/utils/currency-vocab.js) — see
@@ -301,10 +309,13 @@ own defaults.
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
-|`gender`|cardinal|'feminine' \| 'masculine'|`masculine`|Grammatical gender|
+|`gender`|cardinal|'feminine' \| 'masculine'|`masculine`|Grammatical gender of the counted noun|
+|`case`|cardinal|'accusative' \| 'genitive' \| 'nominative'|`nominative`|Grammatical case: nominative (اثنان وعشرون) or accusative/genitive (اثنين وعشرين)|
 |`negativeWord`|cardinal|`string`|`ناقص`|Custom word for negative numbers|
-|`gender`|ordinal|'feminine' \| 'masculine'|`masculine`|Grammatical gender|
-|`currency`|currency|'BHD' \| 'IQD' \| 'JOD' \| 'KWD' \| 'LYD' \| 'MAD' \| 'OMR' \| 'SAR' \| 'TND'|`SAR`|ISO 4217 currency code to name the amount in|
+|`gender`|ordinal|'feminine' \| 'masculine'|`masculine`|Grammatical gender of the ordinal|
+|`case`|ordinal|'accusative' \| 'genitive' \| 'nominative'|`nominative`|Grammatical case: nominative (الحادي والعشرون) or accusative/genitive (الحادي والعشرين)|
+|`currency`|currency|'AED' \| 'BHD' \| 'DZD' \| 'EGP' \| 'IQD' \| 'JOD' \| 'KWD' \| 'LBP' \| 'LYD' \| 'MAD' \| 'OMR' \| 'QAR' \| 'SAR' \| 'SDG' \| 'SYP' \| 'TND' \| 'YER'|`SAR`|ISO 4217 currency code to name the amount in|
+|`case`|currency|'accusative' \| 'genitive' \| 'nominative'|`nominative`|Grammatical case: nominative (ريالان) or accusative/genitive (ريالين), as after مبلغ|
 
 ### Australian English (`en-AU`)
 
