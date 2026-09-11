@@ -41,11 +41,13 @@ jobs:
         id: app-token
         uses: actions/create-github-app-token@v3
         with:
-          # `app-id` (the App's numeric ID), not `client-id`: both work
-          # in v3, but actionlint's bundled action metadata doesn't know
-          # `client-id` yet and fails the lint gate on it. Switch when
-          # the pinned actionlint recognizes it.
-          app-id: ${{ secrets.RELEASE_BOT_APP_ID }}
+          # `client-id` (the App's Client ID, from its settings page —
+          # `Iv23li…`), not the numeric `app-id`, which v3 deprecates and
+          # warns on every run. actionlint's bundled metadata for this
+          # action still predates `client-id`, so ci.yml's actionlint step
+          # carries two `-ignore` patterns scoped to exactly this action;
+          # drop them once a pinned actionlint knows the input.
+          client-id: ${{ secrets.RELEASE_BOT_CLIENT_ID }}
           private-key: ${{ secrets.RELEASE_BOT_PRIVATE_KEY }}
 
       - uses: actions/checkout@v7
