@@ -1,5 +1,13 @@
 # Changelog
 
+## [6.3.0](https://github.com/forzagreen/n2words/compare/v6.2.0...v6.3.0) (2026-09-30)
+
+
+### Features
+
+* **site:** show the equivalent CLI command beside the code snippet ([#457](https://github.com/forzagreen/n2words/issues/457)) ([599b74d](https://github.com/forzagreen/n2words/commit/599b74d9c23112a49887f5cc3cf87d0b811613c7))
+* **fr:** add hundredPairing option for 1100-1999 (dix-neuf cents) ([#455](https://github.com/forzagreen/n2words/issues/455)) ([bbfd40c](https://github.com/forzagreen/n2words/commit/bbfd40c8059f6558657b6134bac3adb4bdc22a4c))
+
 ## [6.2.0](https://github.com/forzagreen/n2words/compare/v6.1.2...v6.2.0) (2026-09-11)
 
 
