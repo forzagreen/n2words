@@ -16,6 +16,32 @@ export const cardinal = [
   [21_602, 'vingt-et-un-mille-six-cent-deux', { withHyphenSeparator: true }],
   [142.61, 'cent-quarante-deux-virgule-soixante-et-un', { withHyphenSeparator: true }],
 
+  // Hundred pairing: 1100-1999 counted in hundreds ("onze cents" ... "dix-neuf cents")
+  [1100, 'onze cents', { hundredPairing: true }],
+  [1101, 'onze cent un', { hundredPairing: true }],
+  [1121, 'onze cent vingt et un', { hundredPairing: true }],
+  [1200, 'douze cents', { hundredPairing: true }],
+  [1500, 'quinze cents', { hundredPairing: true }],
+  [1515, 'quinze cent quinze', { hundredPairing: true }],
+  [1789, 'dix-sept cent quatre-vingt-neuf', { hundredPairing: true }],
+  [1900, 'dix-neuf cents', { hundredPairing: true }],
+  [1980, 'dix-neuf cent quatre-vingts', { hundredPairing: true }],
+  [1984, 'dix-neuf cent quatre-vingt-quatre', { hundredPairing: true }],
+  [1999, 'dix-neuf cent quatre-vingt-dix-neuf', { hundredPairing: true }],
+  [-1900, 'moins dix-neuf cents', { hundredPairing: true }],
+  [1900.5, 'dix-neuf cents virgule cinq', { hundredPairing: true }],
+  [1900, 'dix-neuf-cents', { hundredPairing: true, withHyphenSeparator: true }],
+  [1984, 'dix-neuf-cent-quatre-vingt-quatre', { hundredPairing: true, withHyphenSeparator: true }],
+  // Outside 1100-1999 there's no hundred form: no "dix cents", no "vingt-trois cents"
+  [1000, 'mille', { hundredPairing: true }],
+  [1099, 'mille quatre-vingt-dix-neuf', { hundredPairing: true }],
+  [2000, 'deux mille', { hundredPairing: true }],
+  [2300, 'deux mille trois cents', { hundredPairing: true }],
+  [11_900, 'onze mille neuf cents', { hundredPairing: true }],
+  [1_001_900, 'un million mille neuf cents', { hundredPairing: true }],
+  // The decimal part is read as a plain number, like en-US's hundredPairing
+  [0.1234, 'zéro virgule mille deux cent trente-quatre', { hundredPairing: true }],
+
   [-17.42, 'moins dix-sept virgule quarante-deux'],
   [-1, 'moins un'],
   [-20, 'moins vingt'],

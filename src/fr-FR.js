@@ -9,6 +9,7 @@
  * - Pluralization: "cents" loses 's' when followed by more digits
  * - Long scale with -ard forms: milliard, billiard, trilliard
  * - Omit "un" before mille
+ * - Optional hundred pairing for 1100-1999: dix-neuf cents (1900), onze cent un (1101)
  */
 
 import { parseCardinalValue } from './utils/parse-cardinal.js'
@@ -201,15 +202,34 @@ function getScaleWord(scaleIndex, segment) {
  * Converts a non-negative integer to French words.
  * @param {bigint} n - Non-negative integer to convert
  * @param {boolean} withHyphen - Whether to use hyphen separators
+ * @param {boolean} hundredPairing - Count hundreds past ten for 1100-1999
  * @returns {string} French words
  */
-function integerToWords(n, withHyphen = false) {
+function integerToWords(n, withHyphen = false, hundredPairing = false) {
   if (n === 0n) return ZERO
 
   // Fast path: numbers < 1000
   if (n < 1000n) {
     const { word } = buildSegment(Number(n))
     return withHyphen ? word.replace(/ /g, '-') : word
+  }
+
+  // Hundred pairing: 1100-1999 counted in hundreds, "onze cents" to
+  // "dix-neuf cent quatre-vingt-dix-neuf". Only eleven to nineteen hundreds
+  // take this form: 1000-1099 has no "dix cents", and from 2000 on it's
+  // always "deux mille ...". "cent" follows its usual agreement: plural when
+  // it ends the number (dix-neuf cents), invariable when followed (dix-neuf cent un).
+  if (hundredPairing && n >= 1100n && n <= 1999n) {
+    const num = Number(n)
+    const tensOnes = num % 100
+    let result = TEENS[Math.trunc(num / 100) - 10] + ' ' + HUNDRED
+    if (tensOnes === 0) {
+      result += 's'
+    }
+    else {
+      result += ' ' + buildSegment(tensOnes).word
+    }
+    return withHyphen ? result.replace(/ /g, '-') : result
   }
 
   // Fast path: numbers < 1,000,000 (thousands)
@@ -354,10 +374,11 @@ function decimalPartToWords(decimalPart, withHyphen) {
 /**
  * @typedef {object} CardinalOptions
  * @property {boolean} [withHyphenSeparator] - Use hyphens between all words
+ * @property {boolean} [hundredPairing] - Count hundreds past ten for 1100-1999 (e.g., "dix-neuf cents" instead of "mille neuf cents")
  */
 
 /** @type {Required<CardinalOptions>} */
-export const cardinalDefaults = { withHyphenSeparator: false }
+export const cardinalDefaults = { withHyphenSeparator: false, hundredPairing: false }
 
 /**
  * Converts a numeric value to French words.
@@ -370,9 +391,11 @@ export const cardinalDefaults = { withHyphenSeparator: false }
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {Error} If value is not a valid number format
  * @example
- * toCardinal(21)           // 'vingt et un'
- * toCardinal(80)           // 'quatre-vingts'
- * toCardinal(1000000)      // 'un million'
+ * toCardinal(21)                             // 'vingt et un'
+ * toCardinal(80)                             // 'quatre-vingts'
+ * toCardinal(1000000)                        // 'un million'
+ * toCardinal(1900)                           // 'mille neuf cents'
+ * toCardinal(1900, { hundredPairing: true }) // 'dix-neuf cents'
  */
 function toCardinal(value, options) {
   const { isNegative, integerPart, decimalPart } = parseCardinalValue(value)
@@ -381,7 +404,7 @@ function toCardinal(value, options) {
   checkMax(integerPart, cardinalMax, decimalPart)
 
   // Apply option defaults
-  const { withHyphenSeparator } = resolveOptions(options, cardinalDefaults)
+  const { withHyphenSeparator, hundredPairing } = resolveOptions(options, cardinalDefaults)
 
   let result = ''
   const sep = withHyphenSeparator ? '-' : ' '
@@ -390,7 +413,7 @@ function toCardinal(value, options) {
     result = NEGATIVE + sep
   }
 
-  result += integerToWords(integerPart, withHyphenSeparator)
+  result += integerToWords(integerPart, withHyphenSeparator, hundredPairing)
 
   if (decimalPart) {
     result += sep + DECIMAL_SEP + sep + decimalPartToWords(decimalPart, withHyphenSeparator)
