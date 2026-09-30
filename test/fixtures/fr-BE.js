@@ -97,6 +97,18 @@ export const cardinal = [
   [142, 'cent-quarante-deux', { withHyphenSeparator: true }],
   [1243, 'mille-deux-cent-quarante-trois', { withHyphenSeparator: true }],
   [21_602, 'vingt-et-un-mille-six-cent-deux', { withHyphenSeparator: true }],
+
+  // Hundred pairing: 1100-1999 counted in hundreds ("onze cents" ... "dix-neuf cents")
+  [1100, 'onze cents', { hundredPairing: true }],
+  [1171, 'onze cent septante et un', { hundredPairing: true }],
+  [1500, 'quinze cents', { hundredPairing: true }],
+  [1900, 'dix-neuf cents', { hundredPairing: true }],
+  [1970, 'dix-neuf cent septante', { hundredPairing: true }],
+  [1980, 'dix-neuf cent quatre-vingts', { hundredPairing: true }],
+  [1999, 'dix-neuf cent nonante-neuf', { hundredPairing: true }],
+  [1990, 'dix-neuf-cent-nonante', { hundredPairing: true, withHyphenSeparator: true }],
+  [1099, 'mille nonante-neuf', { hundredPairing: true }],
+  [2000, 'deux mille', { hundredPairing: true }],
 ]
 
 /**

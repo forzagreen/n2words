@@ -534,6 +534,7 @@ own defaults.
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
 |`withHyphenSeparator`|cardinal|`boolean`|`false`|Use hyphens between words|
+|`hundredPairing`|cardinal|`boolean`|`false`|Count hundreds past ten for 1100-1999 (e.g., "dix-neuf cents" instead of "mille neuf cents")|
 |`and`|currency|`boolean`|`true`|Use "et" between euros and centimes|
 |`currency`|currency|'EUR' \| 'MAD' \| 'TND'|`EUR`|ISO 4217 currency code to name the amount in|
 
@@ -542,6 +543,7 @@ own defaults.
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
 |`withHyphenSeparator`|cardinal|`boolean`|`false`|Use hyphens between all words|
+|`hundredPairing`|cardinal|`boolean`|`false`|Count hundreds past ten for 1100-1999 (e.g., "dix-neuf cents" instead of "mille neuf cents")|
 |`and`|currency|`boolean`|`true`|Use "et" between euros and centimes|
 |`currency`|currency|'EUR' \| 'MAD' \| 'TND'|`EUR`|ISO 4217 currency code to name the amount in|
 

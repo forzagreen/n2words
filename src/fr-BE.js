@@ -8,6 +8,7 @@
  * - nonante (90) instead of quatre-vingt-dix
  * - Keeps quatre-vingts (80) like standard French
  * - Uses "septante et un" (71), "nonante et un" (91)
+ * - Optional hundred pairing for 1100-1999: dix-neuf cents (1900), dix-neuf cent septante (1970)
  */
 
 import { parseCardinalValue } from './utils/parse-cardinal.js'
@@ -192,14 +193,33 @@ function getScaleWord(scaleIndex, segment) {
  * Converts a non-negative integer to Belgian French cardinal words.
  * @param {bigint} n - Non-negative integer
  * @param {boolean} [withHyphen] - Use hyphens between words
+ * @param {boolean} [hundredPairing] - Count hundreds past ten for 1100-1999
  * @returns {string} The integer in Belgian French words
  */
-function integerToWords(n, withHyphen = false) {
+function integerToWords(n, withHyphen = false, hundredPairing = false) {
   if (n === 0n) return ZERO
 
   if (n < 1000n) {
     const { word } = buildSegment(Number(n))
     return withHyphen ? word.replace(/ /g, '-') : word
+  }
+
+  // Hundred pairing: 1100-1999 counted in hundreds, "onze cents" to
+  // "dix-neuf cent quatre-vingt-dix-neuf". Only eleven to nineteen hundreds
+  // take this form: 1000-1099 has no "dix cents", and from 2000 on it's
+  // always "deux mille ...". "cent" follows its usual agreement: plural when
+  // it ends the number (dix-neuf cents), invariable when followed (dix-neuf cent un).
+  if (hundredPairing && n >= 1100n && n <= 1999n) {
+    const num = Number(n)
+    const tensOnes = num % 100
+    let result = TEENS[Math.trunc(num / 100) - 10] + ' ' + HUNDRED
+    if (tensOnes === 0) {
+      result += 's'
+    }
+    else {
+      result += ' ' + buildSegment(tensOnes).word
+    }
+    return withHyphen ? result.replace(/ /g, '-') : result
   }
 
   if (n < 1_000_000n) {
@@ -332,10 +352,11 @@ function decimalPartToWords(decimalPart, withHyphen) {
 /**
  * @typedef {object} CardinalOptions
  * @property {boolean} [withHyphenSeparator] - Use hyphens between words
+ * @property {boolean} [hundredPairing] - Count hundreds past ten for 1100-1999 (e.g., "dix-neuf cents" instead of "mille neuf cents")
  */
 
 /** @type {Required<CardinalOptions>} */
-export const cardinalDefaults = { withHyphenSeparator: false }
+export const cardinalDefaults = { withHyphenSeparator: false, hundredPairing: false }
 
 /**
  * Converts a numeric value to Belgian French words.
@@ -350,7 +371,7 @@ function toCardinal(value, options) {
   checkMax(integerPart, cardinalMax, decimalPart)
 
   // Apply option defaults
-  const { withHyphenSeparator } = resolveOptions(options, cardinalDefaults)
+  const { withHyphenSeparator, hundredPairing } = resolveOptions(options, cardinalDefaults)
 
   let result = ''
   const sep = withHyphenSeparator ? '-' : ' '
@@ -359,7 +380,7 @@ function toCardinal(value, options) {
     result = NEGATIVE + sep
   }
 
-  result += integerToWords(integerPart, withHyphenSeparator)
+  result += integerToWords(integerPart, withHyphenSeparator, hundredPairing)
 
   if (decimalPart) {
     result += sep + DECIMAL_SEP + sep + decimalPartToWords(decimalPart, withHyphenSeparator)
