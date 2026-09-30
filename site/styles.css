@@ -514,6 +514,8 @@ pre .kw { color: var(--accent); }
 
 .snippet-head .legend { margin: 0; }
 
+.snippet pre + .snippet-head { margin-top: 1rem; }
+
 /* ------------------------------------------------------------ compare */
 
 .compare-grid {

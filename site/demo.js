@@ -32,6 +32,13 @@ const COMPARE_SAMPLE = ['en', 'es', 'fr', 'de', 'it', 'pt', 'ru', 'ar', 'hi', 'z
 
 const FORM_FUNCTION = { cardinal: 'toCardinal', ordinal: 'toOrdinal', currency: 'toCurrency' }
 
+/**
+ * Flags the `n2words` command owns (bin/lib/args.js BUILTIN_OPTIONS). A
+ * language option whose flag lands on one of these is reachable only through
+ * `--option key=value`, so the CLI snippet has to spell it that way.
+ */
+const CLI_BUILTINS = new Set(['lang', 'form', 'cardinal', 'ordinal', 'currency', 'option', 'json', 'list', 'help', 'version'])
+
 const $ = selector => document.querySelector(selector)
 
 const elements = {
@@ -51,6 +58,7 @@ const elements = {
   localeSummary: $('#locale-summary'),
   localeBody: $('#locale-body'),
   snippet: $('#snippet'),
+  cliSnippet: $('#cli-snippet'),
   snippetNote: $('#snippet-note'),
   compare: $('#compare'),
   compareToggle: $('#compare-toggle'),
@@ -467,12 +475,63 @@ function renderSnippet(words) {
   if (words !== null) lines.push(`<span class="cm">// → '${escapeHtml(words)}'</span>`)
   elements.snippet.innerHTML = lines.join('\n')
 
+  const command = escapeHtml(cliCommand())
+  elements.cliSnippet.innerHTML = words === null
+    ? command
+    : `${command}\n<span class="cm"># → ${escapeHtml(words)}</span>`
+
   const borrowed = state.region === null && borrowsRegionDefault() && family().entry
   elements.snippetNote.hidden = !borrowed
   if (borrowed) {
     elements.snippetNote.innerHTML = `<code>${escapeHtml(variant().code)}</code>, not <code>${escapeHtml(family().entry)}</code>: `
       + `you asked for a country's default currency, and only a country has one.`
   }
+}
+
+/**
+ * Quote one argument for a POSIX shell, leaving plain tokens bare so the common
+ * case (`42`, `en-US`, `feminine`) reads the way a person would type it.
+ *
+ * @param {string} text The argument
+ * @returns {string} The argument, single-quoted when it needs to be
+ */
+function shellQuote(text) {
+  return /^[\w.,+=:/@%-]+$/.test(text) ? text : `'${text.replaceAll('\'', `'\\''`)}'`
+}
+
+/**
+ * The `n2words` command equivalent to the call in the JavaScript snippet.
+ *
+ * The CLI derives its flags from the same `<form>Defaults` the options panel
+ * is built from — camelCase key to kebab-case flag, booleans as `--flag` /
+ * `--no-flag` — and `--lang` takes the same code the import names, so the two
+ * snippets can't disagree about which module runs.
+ *
+ * @returns {string} The command line, unescaped
+ */
+function cliCommand() {
+  const input = value()
+  // The CLI reads `-42` as a value, but anything else starting with a dash
+  // would parse as flags; `--` ends flag parsing for those.
+  const afterFlags = input.startsWith('-') && !/^-\d/.test(input)
+  const args = ['npx', 'n2words']
+  if (!afterFlags) args.push(shellQuote(input))
+  args.push('--lang', specifier().slice('n2words/'.length))
+
+  if (state.form === 'ordinal') args.push('--ordinal')
+  if (state.form === 'currency') {
+    args.push(...(state.currency === null ? ['--form', 'currency'] : ['--currency', state.currency]))
+  }
+
+  for (const [key, option] of Object.entries(state.options)) {
+    const flag = key.replace(/[A-Z]/g, char => `-${char.toLowerCase()}`)
+    if (CLI_BUILTINS.has(flag)) args.push('--option', shellQuote(`${key}=${option}`))
+    else if (typeof option === 'boolean') args.push(option ? `--${flag}` : `--no-${flag}`)
+    else args.push(`--${flag}`, shellQuote(option))
+  }
+
+  if (afterFlags) args.push('--', shellQuote(input))
+  return args.join(' ')
 }
 
 // -------------------------------------------------------------- the compare
@@ -699,6 +758,7 @@ async function init() {
   })
 
   wireCopy($('#copy-snippet'), () => elements.snippet.textContent)
+  wireCopy($('#copy-cli-snippet'), () => elements.cliSnippet.textContent)
 }
 
 init().catch((error) => {
