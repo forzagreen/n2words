@@ -136,6 +136,46 @@ unmapped code silently printing the raw ISO code as a word) is what this
 replaces. The default stays each file's current zero-config behavior; it's
 now an explicit literal rather than an implicit hardcoded word choice.
 
+## Passing the currency as an object: `toCurrencyIn`
+
+`toCurrency` takes a code, and the lookup that turns it into words
+(`CURRENCY_VOCAB[currency]`, plus the `Object.keys` behind `currencyValues`)
+keeps the whole language map in any bundle that uses it. That is the rule
+from "Why keyed by language" one level further down: a page that only ever
+spells dollars carries every English currency.
+
+English also exports `toCurrencyIn(value, currency, options?)`, which takes
+the currency as an object imported from `n2words/en/currencies`:
+
+```js
+import { toCurrencyIn } from 'n2words/en-US'
+import { GBP } from 'n2words/en/currencies'
+
+toCurrencyIn(42.50, GBP) // 'forty-two pounds and fifty pence'
+```
+
+Each currency there is its own binding, so a bundler keeps only the ones
+imported. The words aren't duplicated: `currency-vocab.js` gives each English
+currency an `EN_<CODE>` binding, the `en` map is built from those, and
+`src/en/currencies.js` re-exports each with its `code` added. The map itself
+stays without codes, since `toCurrency` already has the one it was passed and
+a `code` per entry would add bytes to every `toCurrency` bundle.
+
+Both functions share one builder, so `toCurrencyIn(value, GBP, options)`
+returns exactly what `toCurrency(value, { ...options, currency: 'GBP' })`
+does, errors included. `test/currency-in.test.js` checks that for every
+English entry point, currency and `and` setting, and bundles each entry point
+with one currency to confirm the others are gone.
+
+A currency object comes from the caller, so `assertCurrencyVocab` checks it
+before the builder sees it: a three-letter `code`, word lists for `major` and
+`minor`, and `minor: null` exactly when the code has no minor unit. Anything
+else throws `TypeError`, as malformed options do.
+
+The `dist/` bundles leave `toCurrencyIn` out (`rollup.config.js`): a CDN page
+has no way yet to import a single currency, so there it would be weight
+nobody can use.
+
 ## The guard: `assertCurrencyExponent`
 
 Most currencies have 2 decimal places; a few (JPY, KRW, VND, IRR, IDR — see
@@ -190,7 +230,10 @@ declaration, not a separate one to re-verify under a different name.
 ## Adding a currency to a language
 
 1. Add one ISO-4217-keyed entry to that language's export in
-   `src/utils/currency-vocab.js`.
+   `src/utils/currency-vocab.js`. For English, that's an `EN_<CODE>` binding
+   plus its entry in the `en` map, and a re-export with its code in
+   `src/en/currencies.js` (`test/currency-in.test.js` fails if the two
+   disagree).
 2. `currencyValues.currency` picks it up automatically (it's derived).
 3. Add a fixture case in `test/fixtures/{code}.js` exercising the new
    `currency` value.

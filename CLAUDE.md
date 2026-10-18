@@ -36,6 +36,7 @@ src/
 ├── {lang-code}.js       # Locale profiles (13): `export * from './{base}.js'` + `variantOf`,
 │                         #   overriding only currencyDefaults/toCurrency — see docs/language-layers.md
 ├── {primary-subtag}.js  # Bare-tag aliases (46): `export * from './{target}.js'` + `aliasOf`
+├── en/currencies.js     # English currencies as named exports, for toCurrencyIn (one ships, not all 24)
 └── utils/
     ├── parse-cardinal.js    # Cardinal form parsing (decimals, negatives)
     ├── parse-ordinal.js     # Ordinal form parsing (positive integers only)
@@ -43,7 +44,7 @@ src/
     ├── scale.js             # Pure *Max producers (western/myriad/indian/longScale/bounded/UNBOUNDED)
     ├── check-max.js         # checkMax: throws RangeError past a form's declared ceiling
     ├── resolve-options.js   # resolveOptions: applies a form's exported defaults, validates options
-    ├── currency-vocab.js    # Cross-language currency-name matrix (keyed by language) + assertCurrencyExponent
+    ├── currency-vocab.js    # Cross-language currency-name matrix (keyed by language) + assertCurrencyExponent/assertCurrencyVocab
     ├── expand-scientific.js # Scientific notation expansion
     └── is-plain-object.js   # Object type checking
 ```
@@ -229,6 +230,7 @@ A new language must clear these enforced gates (in `test/`):
 - **Range** (`range-contract.test.js`): every exported form **must** declare its `*Max` (helper-derived or `UNBOUNDED`) — a form without one fails — and uphold it: well-formed and injective across the range, throwing exactly at a finite ceiling.
 - **Options** (`options-contract.test.js`): every options-taking form **must** export its `<form>Defaults` (see Options Pattern) — declared defaults round-trip, malformed options throw `TypeError`, out-of-set enum values throw `RangeError`.
 - **Currency vocab** (`currency-vocab-contract.test.js`, currency-exporting languages only): a declared `currencyValues.currency` enum must have a matching entry in `src/utils/currency-vocab.js` for every code it lists (see `docs/currency-vocab.md`).
+- **toCurrencyIn** (`currency-in.test.js`, English only so far): `toCurrencyIn` must match `toCurrency` for every currency and option, reject a malformed currency object with `TypeError`, and bundle with only the currency it's given (see `docs/currency-vocab.md`).
 - **Bare-tag alias** (`bare-tag-contract.test.js`): a family with exactly one variant **must** have a matching alias file; every alias's re-exported bindings must be reference-identical to its target's (see `docs/bare-tag-aliases.md`).
 - **Variant profile** (`variant-profile-contract.test.js`, profile files only): `variantOf` must name a full implementation (not another profile or alias); `toCardinal`/`toOrdinal` must be reference-identical to the base's; `toCurrency` with no options must match calling the base explicitly with the profile's own default currency (see `docs/language-layers.md`).
 - **Coverage** (`conversions.test.js`): ≥5 fixture cases per form.

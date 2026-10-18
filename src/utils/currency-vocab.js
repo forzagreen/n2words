@@ -28,8 +28,14 @@
  * additional currency is a small, separately-reviewable addition to that
  * language's export — same growth model as LANGUAGE_NAME_OVERRIDES in
  * test/helpers/language-naming.js.
+ *
+ * English also gives each currency its own `EN_<CODE>` binding, which
+ * src/en/currencies.js re-exports with its code for `toCurrencyIn`: a page
+ * that imports one of those ships that currency's words and no others.
  * @module currency-vocab
  */
+
+import { isPlainObject } from './is-plain-object.js'
 
 /**
  * @typedef {object} CurrencyWordForms
@@ -37,6 +43,12 @@
  * @property {string[] | null} minor - Word forms for the minor unit, or null if the currency has none
  * @property {('masculine' | 'feminine')} [majorGender] - Grammatical gender of the major-unit noun, for a gender-sensitive language
  * @property {('masculine' | 'feminine')} [minorGender] - Grammatical gender of the minor-unit noun, for a gender-sensitive language
+ */
+
+/**
+ * A currency passed as an object rather than an ISO code: its word forms plus
+ * the code itself, which decides how many decimal digits an amount is read at.
+ * @typedef {CurrencyWordForms & { code: string }} CurrencyVocab
  */
 
 // Word-form data reused verbatim by more than one currency entry within a
@@ -58,6 +70,40 @@ const FR_DINAR_MILLIME = { major: ['dinar', 'dinars'], minor: ['millime', 'milli
 const EN_DIRHAM_CENTIME = { major: ['dirham', 'dirhams'], minor: ['centime', 'centimes'] }
 const FR_DIRHAM_CENTIME = { major: ['dirham', 'dirhams'], minor: ['centime', 'centimes'] }
 
+// English, one binding per currency rather than inline in the `en` map below:
+// src/en/currencies.js gives each its own public export for toCurrencyIn, and
+// a bundler drops an unused binding but never an unused property of an
+// object, so a page importing one currency ships only that one's words.
+// UPPER_SNAKE keeps these apart from the per-language maps.
+export const EN_USD = EN_DOLLAR
+export const EN_CAD = EN_DOLLAR
+export const EN_AUD = EN_DOLLAR
+export const EN_NZD = EN_DOLLAR
+export const EN_SGD = EN_DOLLAR
+export const EN_GBP = { major: ['pound', 'pounds'], minor: ['penny', 'pence'] }
+export const EN_EUR = { major: ['euro'], minor: ['cent', 'cents'] } // en-IE wording
+export const EN_BDT = { major: ['taka'], minor: ['paisa', 'paise'] }
+export const EN_GHS = { major: ['cedi', 'cedis'], minor: ['pesewa', 'pesewas'] }
+export const EN_INR = { major: ['rupee', 'rupees'], minor: ['paisa', 'paise'] }
+export const EN_KES = { major: ['shilling', 'shillings'], minor: ['cent', 'cents'] }
+export const EN_MYR = { major: ['ringgit'], minor: ['sen'] }
+export const EN_NGN = { major: ['naira'], minor: ['kobo'] }
+export const EN_PHP = { major: ['peso', 'pesos'], minor: ['centavo', 'centavos'] }
+export const EN_PKR = { major: ['rupee', 'rupees'], minor: ['paisa', 'paise'] }
+export const EN_ZAR = { major: ['rand'], minor: ['cent', 'cents'] }
+// 1000-subunit dinars, previously carried only by en-US. English is the
+// language these are most often quoted in outside their own countries.
+export const EN_TND = EN_DINAR_MILLIME
+export const EN_KWD = EN_DINAR_FILS
+export const EN_BHD = EN_DINAR_FILS
+export const EN_JOD = EN_DINAR_FILS
+export const EN_IQD = EN_DINAR_FILS
+export const EN_OMR = { major: ['rial', 'rials'], minor: ['baisa', 'baisas'] }
+export const EN_LYD = { major: ['dinar', 'dinars'], minor: ['dirham', 'dirhams'] }
+// Morocco divides into 100 centimes, so MAD is an ordinary 2-decimal
+// currency despite sitting among the dinars above.
+export const EN_MAD = EN_DIRHAM_CENTIME
+
 // English: every English-speaking locale's currency, in one map. Any English
 // entry point can now name any of these — en-AU can quote KES, en-KE can
 // quote GBP — because "which words" and "which country" are different axes
@@ -65,34 +111,30 @@ const FR_DIRHAM_CENTIME = { major: ['dirham', 'dirhams'], minor: ['centime', 'ce
 // code, so this merge is a pure union, not a judgment call.
 /** @satisfies {Record<string, CurrencyWordForms>} */
 export const en = {
-  USD: EN_DOLLAR,
-  CAD: EN_DOLLAR,
-  AUD: EN_DOLLAR,
-  NZD: EN_DOLLAR,
-  SGD: EN_DOLLAR,
-  GBP: { major: ['pound', 'pounds'], minor: ['penny', 'pence'] },
-  EUR: { major: ['euro'], minor: ['cent', 'cents'] }, // en-IE wording
-  BDT: { major: ['taka'], minor: ['paisa', 'paise'] },
-  GHS: { major: ['cedi', 'cedis'], minor: ['pesewa', 'pesewas'] },
-  INR: { major: ['rupee', 'rupees'], minor: ['paisa', 'paise'] },
-  KES: { major: ['shilling', 'shillings'], minor: ['cent', 'cents'] },
-  MYR: { major: ['ringgit'], minor: ['sen'] },
-  NGN: { major: ['naira'], minor: ['kobo'] },
-  PHP: { major: ['peso', 'pesos'], minor: ['centavo', 'centavos'] },
-  PKR: { major: ['rupee', 'rupees'], minor: ['paisa', 'paise'] },
-  ZAR: { major: ['rand'], minor: ['cent', 'cents'] },
-  // 1000-subunit dinars, previously carried only by en-US. English is the
-  // language these are most often quoted in outside their own countries.
-  TND: EN_DINAR_MILLIME,
-  KWD: EN_DINAR_FILS,
-  BHD: EN_DINAR_FILS,
-  JOD: EN_DINAR_FILS,
-  IQD: EN_DINAR_FILS,
-  OMR: { major: ['rial', 'rials'], minor: ['baisa', 'baisas'] },
-  LYD: { major: ['dinar', 'dinars'], minor: ['dirham', 'dirhams'] },
-  // Morocco divides into 100 centimes, so MAD is an ordinary 2-decimal
-  // currency despite sitting among the dinars above.
-  MAD: EN_DIRHAM_CENTIME,
+  USD: EN_USD,
+  CAD: EN_CAD,
+  AUD: EN_AUD,
+  NZD: EN_NZD,
+  SGD: EN_SGD,
+  GBP: EN_GBP,
+  EUR: EN_EUR,
+  BDT: EN_BDT,
+  GHS: EN_GHS,
+  INR: EN_INR,
+  KES: EN_KES,
+  MYR: EN_MYR,
+  NGN: EN_NGN,
+  PHP: EN_PHP,
+  PKR: EN_PKR,
+  ZAR: EN_ZAR,
+  TND: EN_TND,
+  KWD: EN_KWD,
+  BHD: EN_BHD,
+  JOD: EN_JOD,
+  IQD: EN_IQD,
+  OMR: EN_OMR,
+  LYD: EN_LYD,
+  MAD: EN_MAD,
 }
 
 // French names the Tunisian dinar (Tunisia is francophone) and the Moroccan
@@ -543,6 +585,39 @@ export function assertCurrencyExponent(cents, currencyCode) {
   if (cents !== 0n && CURRENCY_EXPONENTS[currencyCode] === 0) {
     throw new RangeError(`${currencyCode} has no minor unit — fractional amounts aren't representable`)
   }
+}
+
+/**
+ * Guards a currency passed to `toCurrencyIn` as an object. A code passed to
+ * `toCurrency` is checked against the language's own enum, so only its own
+ * well-formed entries are ever reached; an object comes from the caller and
+ * could be anything, so a malformed one throws `TypeError`, the same error a
+ * malformed options argument gets from resolveOptions, instead of reaching
+ * the builder.
+ *
+ * Checks what the builder relies on: a three-letter code, non-empty lists of
+ * trimmed, single-spaced words (anything else would leak into the output),
+ * and minor-unit words exactly when the code has a minor unit, the rule the
+ * matrix's own entries are held to (see CURRENCY_EXPONENTS). One short
+ * message for every failure: this ships in every bundle that uses
+ * toCurrencyIn, whose only reason to exist is a smaller bundle.
+ * @param {unknown} currency - The caller's currency argument
+ * @throws {TypeError} If currency is not a well-formed currency object
+ */
+export function assertCurrencyVocab(currency) {
+  const { code, major, minor } = isPlainObject(currency) ? /** @type {Record<string, unknown>} */ (currency) : {}
+  if (typeof code !== 'string' || !/^[A-Z]{3}$/.test(code) || !isWordList(major)
+    || (CURRENCY_EXPONENTS[code] === 0 ? minor !== null : !isWordList(minor))) {
+    throw new TypeError('Invalid currency: expected { code, major, minor }')
+  }
+}
+
+/**
+ * @param {unknown} forms - A candidate word list
+ * @returns {boolean} True for a non-empty array of words, each trimmed and single-spaced
+ */
+function isWordList(forms) {
+  return Array.isArray(forms) && forms.length > 0 && forms.every(word => typeof word === 'string' && /^\S+( \S+)*$/.test(word))
 }
 
 /**
