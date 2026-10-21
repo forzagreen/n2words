@@ -171,6 +171,7 @@
     "provenance": true
   },
   "overrides": {
+    "markdown-it": "^15.0.3",
     "smol-toml": "^1.8.0"
   },
   "allowScripts": {
