@@ -105,6 +105,22 @@ and free-string options have no such set, so they have no `Values` entry.
 [LANGUAGES.md](LANGUAGES.md#language-options) lists every option, type and default per
 language.
 
+`toCurrency` looks its currency up by code, so a bundle that uses it carries every
+currency the language can name, even on a page that only ever spells one. English also
+exports `toCurrencyIn`, which takes the currency as an import instead, so a bundler keeps
+only the currencies you import:
+
+```js
+import { toCurrencyIn } from 'n2words/en-GB'
+import { KES } from 'n2words/en/currencies'
+
+toCurrencyIn(42.50, KES)                 // 'forty-two shillings and fifty cents'
+toCurrencyIn(42.50, KES, { and: false }) // 'forty-two shillings fifty cents'
+```
+
+The output is the same as `toCurrency(42.50, { currency: 'KES' })`. It's for bundler
+users: the `dist/` files keep `toCurrency` only.
+
 Each language implements one or more of these forms — see [LANGUAGES.md](LANGUAGES.md) for per-language coverage.
 
 > **Range:** each form spells values up to the largest scale word it knows, then throws a `RangeError` rather than inventing vocabulary — and the ceiling varies by language *and* form (e.g. `es-ES` cardinals reach 10^30 − 1, ordinals only 10^9 − 1). Cardinal and currency accept negatives and decimals; ordinal is positive integers only.
@@ -177,10 +193,10 @@ of the currencies English has words for, not just USD.
 
 |`en-US`|bytes|
 |-------|-----|
-|`dist/en-US.js` (all three forms)|9,227|
+|`dist/en-US.js` (all three forms)|9,258|
 |`dist/en-US/cardinal.js`|4,293|
 |`dist/en-US/ordinal.js`|3,815|
-|`dist/en-US/currency.js`|5,258|
+|`dist/en-US/currency.js`|5,290|
 
 This is for CDN consumers only. If you install from npm and use a bundler,
 `import { toCurrency } from 'n2words/en-US'` already drops the forms you don't

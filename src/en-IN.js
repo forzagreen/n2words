@@ -16,7 +16,7 @@ import { parseOrdinalValue } from './utils/parse-ordinal.js'
 import { checkMax } from './utils/check-max.js'
 import { indian } from './utils/scale.js'
 import { resolveOptions } from './utils/resolve-options.js'
-import { en as CURRENCY_VOCAB, assertCurrencyExponent, minorUnitDigits } from './utils/currency-vocab.js'
+import { en as CURRENCY_VOCAB, assertCurrencyExponent, assertCurrencyVocab, minorUnitDigits } from './utils/currency-vocab.js'
 
 // ============================================================================
 // Vocabulary (module-level constants)
@@ -370,7 +370,7 @@ function toOrdinal(value) {
 }
 
 // ============================================================================
-// CURRENCY: toCurrency(value, options?)
+// CURRENCY: toCurrency(value, options?), toCurrencyIn(value, currency, options?)
 // ============================================================================
 
 /**
@@ -384,6 +384,12 @@ export const currencyDefaults = { and: true, currency: 'INR' }
 
 /** @type {{ currency: ReadonlyArray<Required<CurrencyOptions>['currency']> }} */
 export const currencyValues = { currency: /** @type {Required<CurrencyOptions>['currency'][]} */ (Object.keys(CURRENCY_VOCAB)) }
+
+/** @typedef {Omit<CurrencyOptions, 'currency'>} CurrencyInOptions */
+
+// toCurrencyIn takes every currency option but `currency`, with the same defaults.
+/** @type {Required<CurrencyInOptions>} */
+const CURRENCY_IN_DEFAULTS = { and: currencyDefaults.and }
 
 /**
  * Converts a numeric value to Indian English currency words.
@@ -400,16 +406,51 @@ export const currencyValues = { currency: /** @type {Required<CurrencyOptions>['
  * toCurrency(42.50, { and: false })    // 'forty-two rupees fifty paise'
  */
 function toCurrency(value, options) {
-  // Options resolve first: the currency decides how many decimal digits the
-  // parser keeps, and a 1000-subunit currency (TND, KWD, ...) read at the
-  // default 2 would turn '1.500' into 50 minor units instead of 500. Every
-  // English entry point can name one via the shared `en` matrix, not just
-  // en-US, so this applies here too.
   const { and: useAnd, currency } = resolveOptions(options, currencyDefaults, currencyValues)
-  const { isNegative, dollars: rupees, cents: paise } = parseCurrencyValue(value, minorUnitDigits(currency))
+  return currencyToWords(value, currency, CURRENCY_VOCAB[currency], useAnd)
+}
+
+/**
+ * Converts a numeric value to Indian English currency words, in a currency
+ * imported from `n2words/en/currencies`.
+ *
+ * The output is the same as `toCurrency(value, { ...options, currency: currency.code })`.
+ * What differs is the bundle: `toCurrency` looks its code up in a map of every
+ * English currency, and a bundler can't drop a map's unused entries, so every
+ * currency ships. This takes the currency as an import, so only that one does.
+ * @param {number | string | bigint} value - The currency amount to convert
+ * @param {import('./utils/currency-vocab.js').CurrencyVocab} currency - The currency to name the amount in, from `n2words/en/currencies`
+ * @param {CurrencyInOptions} [options] - Optional configuration
+ * @returns {string} The amount in Indian English currency words
+ * @throws {TypeError} If value is not a valid numeric type, or currency is not a currency object
+ * @throws {Error} If value is not a valid number format
+ * @example
+ * import { GBP } from 'n2words/en/currencies'
+ * toCurrencyIn(42.50, GBP)                  // 'forty-two pounds and fifty pence'
+ * toCurrencyIn(42.50, GBP, { and: false })  // 'forty-two pounds fifty pence'
+ */
+function toCurrencyIn(value, currency, options) {
+  const { and: useAnd } = resolveOptions(options, CURRENCY_IN_DEFAULTS)
+  assertCurrencyVocab(currency)
+  return currencyToWords(value, currency.code, currency, useAnd)
+}
+
+/**
+ * Spells an amount in an already-validated currency, for both entry points above.
+ * @param {number | string | bigint} value - The currency amount to convert
+ * @param {string} code - The currency's ISO 4217 code
+ * @param {import('./utils/currency-vocab.js').CurrencyWordForms} forms - The currency's word forms
+ * @param {boolean} useAnd - Whether to join the major and minor units with "and"
+ * @returns {string} The amount in Indian English currency words
+ */
+function currencyToWords(value, code, { major, minor }, useAnd) {
+  // The currency decides how many decimal digits the parser keeps, and a
+  // 1000-subunit currency (TND, KWD, ...) read at the default 2 would turn
+  // '1.500' into 50 minor units instead of 500. Every English entry point can
+  // name one via the shared `en` matrix, not just en-US.
+  const { isNegative, dollars: rupees, cents: paise } = parseCurrencyValue(value, minorUnitDigits(code))
   checkMax(rupees, currencyMax) // paise are <= 999, safe
-  assertCurrencyExponent(paise, currency)
-  const { major, minor } = CURRENCY_VOCAB[currency]
+  assertCurrencyExponent(paise, code)
 
   // Build result
   let result = ''
@@ -442,4 +483,4 @@ function toCurrency(value, options) {
 // Public API
 // ============================================================================
 
-export { toCardinal, toOrdinal, toCurrency }
+export { toCardinal, toOrdinal, toCurrency, toCurrencyIn }
