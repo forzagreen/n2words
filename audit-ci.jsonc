@@ -1,0 +1,18 @@
+// audit-ci fails CI on any high or critical `npm audit` advisory (the Security
+// audit step in .github/workflows/ci.yml). npm audit itself can't set an
+// advisory aside, so each exception lives here with its reason and an expiry:
+// once the date passes the advisory fails the gate again, and the exception is
+// re-checked or dropped.
+{
+  "$schema": "https://github.com/IBM/audit-ci/raw/main/docs/schema.json",
+  "high": true,
+  "allowlist": [
+    {
+      "GHSA-vfj7-8cjw-p6xm": {
+        "active": true,
+        "notes": "braces <= 3.0.3 has no patched release. It is reached only through dev tools (ava, markdownlint-cli2), where every pattern it parses comes from this repo's own config or a file path we staged. n2words ships no dependencies, so users never install it.",
+        "expiry": "2027-01-20"
+      }
+    }
+  ]
+}

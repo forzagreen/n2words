@@ -59,11 +59,17 @@ jobs:
           node-version: '26'
           cache: 'npm'
 
+      # audit-ci runs `npm audit` at high severity and sets aside only the
+      # advisories listed in audit-ci.jsonc, each with its reason and expiry.
+      # It reads just the lockfile, so it runs before `npm ci` and no
+      # dependency's install script runs ahead of the audit; that is also why
+      # it comes through npx rather than as a devDependency. The version is
+      # pinned, but its own dependencies resolve fresh on each run.
+      - name: Security audit
+        run: npx --yes audit-ci@7.1.0 --config ./audit-ci.jsonc
+
       - name: Install dependencies
         run: npm ci --prefer-offline
-
-      - name: Security audit
-        run: npm audit --audit-level=high
 
       - name: Lint
         run: npm run lint
