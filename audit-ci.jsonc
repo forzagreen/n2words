@@ -6,13 +6,5 @@
 {
   "$schema": "https://github.com/IBM/audit-ci/raw/main/docs/schema.json",
   "high": true,
-  "allowlist": [
-    {
-      "GHSA-vfj7-8cjw-p6xm": {
-        "active": true,
-        "notes": "braces <= 3.0.3 has no patched release. It is reached only through dev tools (ava, markdownlint-cli2), where every pattern it parses comes from this repo's own config or a file path we staged. n2words ships no dependencies, so users never install it.",
-        "expiry": "2027-01-20"
-      }
-    }
-  ]
+  "allowlist": []
 }
