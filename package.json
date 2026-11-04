@@ -172,6 +172,7 @@
   },
   "overrides": {
     "markdown-it": "^15.0.3",
+    "re2js": "^2.8.7",
     "smol-toml": "^1.8.0"
   },
   "allowScripts": {
