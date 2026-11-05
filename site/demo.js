@@ -349,8 +349,8 @@ function readOptions() {
  * Render the region disclosure — the demoted axis.
  *
  * Regions are grouped by measured spelling rather than listed flat, so the
- * sixteen Englishes read as the four spellings they actually are, and the
- * eleven that differ only in their default currency say exactly that.
+ * sixteen Englishes read as the three spellings they actually are, and the
+ * twelve that differ only in their default currency say exactly that.
  */
 function renderLocale() {
   const item = family()
