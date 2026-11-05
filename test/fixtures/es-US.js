@@ -22,7 +22,10 @@ export const cardinal = [
   [2, 'dos'],
   [10, 'diez'],
   [11, 'once'],
-  [16, 'dieciseis'],
+  [16, 'dieciséis'],
+  [116, 'ciento dieciséis'],
+  [16_000, 'dieciséis mil'],
+  [0.16, 'cero punto dieciséis'],
   [20, 'veinte'],
   [21, 'veintiuno'],
   [30, 'treinta'],
@@ -83,17 +86,26 @@ export const ordinal = [
   [2, 'segundo'],
   [3, 'tercero'],
   [10, 'décimo'],
-  [11, 'décimo primero'],
+  [11, 'undécimo'],
+  [12, 'duodécimo'],
+  [16, 'decimosexto'],
   [20, 'vigésimo'],
-  [21, 'vigésimo primero'],
+  [21, 'vigesimoprimero'],
+  [31, 'trigésimo primero'],
   [100, 'centésimo'],
+  [500, 'quingentésimo'],
+  [900, 'noningentésimo'],
   [1000, 'milésimo'],
+  [2000, 'dosmilésimo'],
+  [21000, 'veintiunmilésimo'],
   [1000000, 'millonésimo'],
+  [2000000, 'dosmillonésimo'],
 
   // Feminine
   [1, 'primera', { gender: 'feminine' }],
   [10, 'décima', { gender: 'feminine' }],
-  [21, 'vigésima primera', { gender: 'feminine' }],
+  [21, 'vigesimoprimera', { gender: 'feminine' }],
+  [31, 'trigésima primera', { gender: 'feminine' }],
 ]
 
 /**
@@ -106,12 +118,15 @@ export const currency = [
   [1, 'un dólar'],
   [2, 'dos dólares'],
   [10, 'diez dólares'],
+  [16, 'dieciséis dólares'],
   [21, 'veintiún dólares'],
   [31, 'treinta y un dólares'],
   [101, 'ciento un dólares'],
   [100, 'cien dólares'],
   [1000, 'mil dólares'],
-  [1000000, 'un millón dólares'],
+  [1000000, 'un millón de dólares'],
+  [2000000, 'dos millones de dólares'],
+  [1200000, 'un millón doscientos mil dólares'],
 
   // Centavos only
   [0.01, 'un centavo'],
@@ -139,6 +154,6 @@ export const currency = [
   [-42.50, 'menos cuarenta y dos dólares con cincuenta centavos'],
 
   // Large amounts (short scale)
-  [1000000000, 'un billón dólares'],
-  [1000000000000, 'un trillón dólares'],
+  [1000000000, 'un billón de dólares'],
+  [1000000000000, 'un trillón de dólares'],
 ]

@@ -38,7 +38,7 @@ const ONES_FEM = ['', 'una', 'dos', 'tres', 'cuatro', 'cinco', 'seis', 'siete', 
 // The feminine forms never apocopate ("veintiuna casas", "treinta y una casas").
 const ONES_MASC_APOC = ['', 'un', 'dos', 'tres', 'cuatro', 'cinco', 'seis', 'siete', 'ocho', 'nueve']
 
-const TEENS = ['diez', 'once', 'doce', 'trece', 'catorce', 'quince', 'dieciseis', 'diecisiete', 'dieciocho', 'diecinueve']
+const TEENS = ['diez', 'once', 'doce', 'trece', 'catorce', 'quince', 'dieciséis', 'diecisiete', 'dieciocho', 'diecinueve']
 
 // 20-29 have special compound forms
 const TWENTIES_MASC = ['veinte', 'veintiuno', 'veintidós', 'veintitrés', 'veinticuatro', 'veinticinco', 'veintiséis', 'veintisiete', 'veintiocho', 'veintinueve']
@@ -58,7 +58,8 @@ const SCALES_PLURAL = ['mil', 'millones', 'billones', 'trillones', 'cuatrillones
 // Supported magnitude ceilings (checked at the public entry points). Short
 // scale: SCALES covers 10^3..10^18, plus the units group, so cardinals span at
 // most SCALES.length + 1 groups of 3 digits (below 10^21). Ordinals are bounded
-// lower: the millions multiplier uses buildOrdinalSegment (0-999), so n < 10^9.
+// lower: the millions multiplier is a single fused segment (0-999,
+// dosmillonésimo), so n < 10^9.
 export const cardinalMax = western(SCALES.length)
 export const ordinalMax = bounded(9)
 export const currencyMax = western(SCALES.length)
@@ -67,13 +68,25 @@ const ZERO = 'cero'
 const NEGATIVE = 'menos'
 const DECIMAL_SEP = 'punto'
 
-// Ordinal vocabulary (identical across Spanish regions)
+// Ordinal vocabulary (identical across Spanish regions), as the RAE writes it
+// (Ortografía 2010, DPD "ordinales"). 11-29 are single words in which only the
+// last element inflects (decimosexta, vigesimoprimera); from 30 on, tens and
+// units are separate words that both inflect (trigésima primera).
 const ORDINAL_ONES_MASC = ['', 'primero', 'segundo', 'tercero', 'cuarto', 'quinto', 'sexto', 'séptimo', 'octavo', 'noveno']
 const ORDINAL_ONES_FEM = ['', 'primera', 'segunda', 'tercera', 'cuarta', 'quinta', 'sexta', 'séptima', 'octava', 'novena']
+const ORDINAL_TEENS_MASC = ['décimo', 'undécimo', 'duodécimo', 'decimotercero', 'decimocuarto', 'decimoquinto', 'decimosexto', 'decimoséptimo', 'decimoctavo', 'decimonoveno']
+const ORDINAL_TEENS_FEM = ['décima', 'undécima', 'duodécima', 'decimotercera', 'decimocuarta', 'decimoquinta', 'decimosexta', 'decimoséptima', 'decimoctava', 'decimonovena']
+const ORDINAL_TWENTIES_MASC = ['vigésimo', 'vigesimoprimero', 'vigesimosegundo', 'vigesimotercero', 'vigesimocuarto', 'vigesimoquinto', 'vigesimosexto', 'vigesimoséptimo', 'vigesimoctavo', 'vigesimonoveno']
+const ORDINAL_TWENTIES_FEM = ['vigésima', 'vigesimoprimera', 'vigesimosegunda', 'vigesimotercera', 'vigesimocuarta', 'vigesimoquinta', 'vigesimosexta', 'vigesimoséptima', 'vigesimoctava', 'vigesimonovena']
 const ORDINAL_TENS_MASC = ['', 'décimo', 'vigésimo', 'trigésimo', 'cuadragésimo', 'quincuagésimo', 'sexagésimo', 'septuagésimo', 'octogésimo', 'nonagésimo']
 const ORDINAL_TENS_FEM = ['', 'décima', 'vigésima', 'trigésima', 'cuadragésima', 'quincuagésima', 'sexagésima', 'septuagésima', 'octogésima', 'nonagésima']
-const ORDINAL_HUNDRED_MASC = 'centésimo'
-const ORDINAL_HUNDRED_FEM = 'centésima'
+const ORDINAL_HUNDREDS_MASC = ['', 'centésimo', 'ducentésimo', 'tricentésimo', 'cuadringentésimo', 'quingentésimo', 'sexcentésimo', 'septingentésimo', 'octingentésimo', 'noningentésimo']
+const ORDINAL_HUNDREDS_FEM = ['', 'centésima', 'ducentésima', 'tricentésima', 'cuadringentésima', 'quingentésima', 'sexcentésima', 'septingentésima', 'octingentésima', 'noningentésima']
+// Cardinal multipliers fused into "milésimo"/"millonésimo" (dosmilésimo,
+// veintidosmilésimo): masculine, apocopated, and without written accents.
+const FUSED_ONES = ['', 'un', 'dos', 'tres', 'cuatro', 'cinco', 'seis', 'siete', 'ocho', 'nueve']
+const FUSED_TEENS = ['diez', 'once', 'doce', 'trece', 'catorce', 'quince', 'dieciseis', 'diecisiete', 'dieciocho', 'diecinueve']
+const FUSED_TWENTIES = ['veinte', 'veintiun', 'veintidos', 'veintitres', 'veinticuatro', 'veinticinco', 'veintiseis', 'veintisiete', 'veintiocho', 'veintinueve']
 const ORDINAL_THOUSAND_MASC = 'milésimo'
 const ORDINAL_THOUSAND_FEM = 'milésima'
 const ORDINAL_MILLION_MASC = 'millonésimo'
@@ -301,6 +314,10 @@ function toCardinal(value, options) {
 
 /**
  * Builds ordinal word for a 0-999 segment.
+ *
+ * - 11th = "undécimo", 16th = "decimosexto", 21st = "vigesimoprimero"
+ * - 31st = "trigésimo primero"
+ * - 500th = "quingentésimo", 501st = "quingentésimo primero"
  * @param {number} n - Segment value 0-999
  * @param {boolean} feminine - Use feminine forms
  * @returns {string} Spanish ordinal word
@@ -312,34 +329,60 @@ function buildOrdinalSegment(n, feminine) {
   const tens = Math.trunc(n / 10) % 10
   const hundreds = Math.trunc(n / 100)
 
-  const onesArr = feminine ? ORDINAL_ONES_FEM : ORDINAL_ONES_MASC
-  const tensArr = feminine ? ORDINAL_TENS_FEM : ORDINAL_TENS_MASC
-  const hundredWord = feminine ? ORDINAL_HUNDRED_FEM : ORDINAL_HUNDRED_MASC
-
   const parts = []
 
-  // Hundreds
   if (hundreds > 0) {
-    if (hundreds === 1) {
-      parts.push(hundredWord)
-    }
-    else {
-      const prefixes = ['', '', 'du', 'tri', 'cuadri', 'quin', 'sex', 'septi', 'octi', 'noni']
-      parts.push(prefixes[hundreds] + hundredWord)
-    }
+    parts.push((feminine ? ORDINAL_HUNDREDS_FEM : ORDINAL_HUNDREDS_MASC)[hundreds])
   }
 
-  // Tens
-  if (tens > 0) {
-    parts.push(tensArr[tens])
+  if (tens === 1) {
+    parts.push((feminine ? ORDINAL_TEENS_FEM : ORDINAL_TEENS_MASC)[ones])
   }
-
-  // Ones
-  if (ones > 0) {
-    parts.push(onesArr[ones])
+  else if (tens === 2) {
+    parts.push((feminine ? ORDINAL_TWENTIES_FEM : ORDINAL_TWENTIES_MASC)[ones])
+  }
+  else {
+    if (tens > 0) {
+      parts.push((feminine ? ORDINAL_TENS_FEM : ORDINAL_TENS_MASC)[tens])
+    }
+    if (ones > 0) {
+      parts.push((feminine ? ORDINAL_ONES_FEM : ORDINAL_ONES_MASC)[ones])
+    }
   }
 
   return parts.join(' ')
+}
+
+/**
+ * Builds the cardinal multiplier of a fused "milésimo"/"millonésimo" ordinal.
+ *
+ * The compound is one word stressed on its last element, so the multiplier
+ * loses its spaces and written accents, and "y" becomes "i" as in one-word
+ * cardinals: dosmilésimo, veintidosmilésimo, treintaiunmilésimo.
+ * @param {number} n - Multiplier 2-999
+ * @returns {string} Multiplier, ready to prefix the scale ordinal
+ */
+function fusedMultiplier(n) {
+  if (n === 100) return 'cien'
+
+  const tensOnes = n % 100
+  let result = HUNDREDS_MASC[Math.trunc(n / 100)]
+
+  if (tensOnes < 10) {
+    result += FUSED_ONES[tensOnes]
+  }
+  else if (tensOnes < 20) {
+    result += FUSED_TEENS[tensOnes - 10]
+  }
+  else if (tensOnes < 30) {
+    result += FUSED_TWENTIES[tensOnes - 20]
+  }
+  else {
+    result += TENS[Math.trunc(tensOnes / 10)]
+    if (tensOnes % 10 > 0) result += 'i' + FUSED_ONES[tensOnes % 10]
+  }
+
+  return result
 }
 
 /**
@@ -368,7 +411,7 @@ function integerToOrdinal(n, feminine) {
       result = thousandWord
     }
     else {
-      result = buildOrdinalSegment(thousands, feminine) + ' ' + thousandWord
+      result = fusedMultiplier(thousands) + thousandWord
     }
 
     if (remainder > 0) {
@@ -388,7 +431,7 @@ function integerToOrdinal(n, feminine) {
     result = millionWord
   }
   else {
-    result = buildOrdinalSegment(millions, feminine) + ' ' + millionWord
+    result = fusedMultiplier(millions) + millionWord
   }
 
   if (remainder > 0n) {
@@ -419,7 +462,8 @@ export const ordinalValues = { gender: ['masculine', 'feminine'] }
  * @example
  * toOrdinal(1)                          // 'primero'
  * toOrdinal(1, { gender: 'feminine' })  // 'primera'
- * toOrdinal(21)                         // 'vigésimo primero'
+ * toOrdinal(21)                         // 'vigesimoprimero'
+ * toOrdinal(2000)                       // 'dosmilésimo'
  */
 function toOrdinal(value, options) {
   const integerPart = parseOrdinalValue(value)
@@ -493,7 +537,10 @@ function toCurrency(value, options) {
       result += (majorFeminine ? 'una ' : 'un ') + major[0]
     }
     else {
-      result += integerToWords(dollars, majorFeminine, true) + ' ' + major[1]
+      // Millón and its multiples are nouns, so a round amount of them takes
+      // "de" before what it counts: "un millón de dólares", "mil millones de dólares".
+      const preposition = dollars >= 1_000_000n && dollars % 1_000_000n === 0n ? ' de ' : ' '
+      result += integerToWords(dollars, majorFeminine, true) + preposition + major[1]
     }
   }
 

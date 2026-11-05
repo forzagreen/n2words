@@ -27,7 +27,7 @@ export const cardinal = [
   [3, 'tres'],
   [11, 'once'],
   [12, 'doce'],
-  [16, 'dieciseis'],
+  [16, 'dieciséis'],
   [19, 'diecinueve'],
   [20, 'veinte'],
   [21, 'veintiuno'],
@@ -84,7 +84,8 @@ export const cardinal = [
   [1_000_000_000, 'mil millones'],
   [2_000_000_000, 'dos mil millones'],
   [5_000_000_000, 'cinco mil millones'],
-  [1_234_567_890, 'mil millones doscientos treinta y cuatro millones quinientos sesenta y siete mil ochocientos noventa'],
+  [1_234_567_890, 'mil doscientos treinta y cuatro millones quinientos sesenta y siete mil ochocientos noventa'],
+  [2_500_000_000, 'dos mil quinientos millones'],
 
   // Trillions - LONG SCALE (same as es-ES)
   // 10¹² = un billón
@@ -150,10 +151,11 @@ export const ordinal = [
   [10, 'décima', { gender: 'feminine' }],
 
   // Teens and tens
-  [11, 'décimo primero'],
-  [12, 'décimo segundo'],
+  [11, 'undécimo'],
+  [12, 'duodécimo'],
+  [16, 'decimosexto'],
   [20, 'vigésimo'],
-  [21, 'vigésimo primero'],
+  [21, 'vigesimoprimero'],
   [30, 'trigésimo'],
   [40, 'cuadragésimo'],
   [50, 'quincuagésimo'],
@@ -163,20 +165,24 @@ export const ordinal = [
   [100, 'centésimo'],
   [101, 'centésimo primero'],
   [200, 'ducentésimo'],
-  [500, 'quincentésimo'],
+  [500, 'quingentésimo'],
+  [800, 'octingentésimo'],
 
   // Thousands
   [1000, 'milésimo'],
   [1001, 'milésimo primero'],
-  [2000, 'segundo milésimo'],
+  [2000, 'dosmilésimo'],
+  [21000, 'veintiunmilésimo'],
 
   // Millions
   [1000000, 'millonésimo'],
+  [2000000, 'dosmillonésimo'],
 
   // Feminine
   [100, 'centésima', { gender: 'feminine' }],
   [1000, 'milésima', { gender: 'feminine' }],
-  [21, 'vigésima primera', { gender: 'feminine' }],
+  [21, 'vigesimoprimera', { gender: 'feminine' }],
+  [31, 'trigésima primera', { gender: 'feminine' }],
 ]
 
 /**
@@ -189,12 +195,14 @@ export const currency = [
   [1, 'un peso'],
   [2, 'dos pesos'],
   [10, 'diez pesos'],
+  [16, 'dieciséis pesos'],
   [21, 'veintiún pesos'],
   [31, 'treinta y un pesos'],
   [101, 'ciento un pesos'],
   [100, 'cien pesos'],
   [1000, 'mil pesos'],
-  [1000000, 'un millón pesos'],
+  [1000000, 'un millón de pesos'],
+  [1200000, 'un millón doscientos mil pesos'],
 
   // Centavos only
   [0.01, 'un centavo'],
@@ -221,6 +229,6 @@ export const currency = [
   [-42.50, 'menos cuarenta y dos pesos con cincuenta centavos'],
 
   // Large amounts (long scale)
-  [1000000000, 'mil millones pesos'],
-  [1000000000000, 'un billón pesos'],
+  [1000000000, 'mil millones de pesos'],
+  [1000000000000, 'un billón de pesos'],
 ]
