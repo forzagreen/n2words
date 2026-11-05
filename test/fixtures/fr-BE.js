@@ -178,6 +178,10 @@ export const ordinal = [
   [1_000_001, 'un million unième'],
   [2_000_000, 'deux millionième'],
   [1_000_000_000, 'milliardième'],
+
+  // Feminine: only "première" differs
+  [1, 'première', { gender: 'feminine' }],
+  [71, 'septante et unième', { gender: 'feminine' }],
 ]
 
 /**
