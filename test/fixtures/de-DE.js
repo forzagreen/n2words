@@ -66,6 +66,10 @@ export const cardinal = [
   [7232, 'siebentausendzweihundertzweiunddreißig'],
   [8569, 'achttausendfünfhundertneunundsechzig'],
   [9539, 'neuntausendfünfhundertneununddreißig'],
+  [101_000, 'einhunderteintausend'],
+  [201_000, 'zweihunderteintausend'],
+  [301_005, 'dreihunderteintausendfünf'],
+  [1_201_000, 'eine Million zweihunderteintausend'],
   [1_000_000, 'eine Million'],
   [1_000_001, 'eine Million eins'],
   [4_000_000, 'vier Millionen'],
@@ -150,16 +154,26 @@ export const ordinal = [
   [10000, 'zehntausendste'],
   [12345, 'zwölftausenddreihundertfünfundvierzigste'],
   [99999, 'neunundneunzigtausendneunhundertneunundneunzigste'],
+  [201_000, 'zweihunderteintausendste'],
 
-  // Larger scales
-  [1_000_000, 'eine Millionste'],
+  // Larger scales: a final million+ scale word is one lowercase word with
+  // its multiplier, which drops "ein" only when the scale word stands alone
+  [1_000_000, 'millionste'],
   [1_000_001, 'eine Million erste'],
-  [2_000_000, 'zwei Millionenste'],
-  [1_000_000_000, 'eine Milliardeste'],
-  [1_000_000_000_000, 'eine Billionste'],
+  [1_000_100, 'eine Million einhundertste'],
+  [2_000_000, 'zweimillionste'],
+  [21_000_000, 'einundzwanzigmillionste'],
+  [200_000_000, 'zweihundertmillionste'],
+  [201_000_000, 'zweihunderteinmillionste'],
+  [1_000_000_000, 'milliardste'],
+  [3_000_000_000, 'dreimilliardste'],
+  [1_001_000_000, 'eine Milliarde einmillionste'],
+  [1_002_000_000, 'eine Milliarde zweimillionste'],
+  [1_000_000_000_000, 'billionste'],
+  [1_000_000_000_000_000, 'billiardste'],
 
   // BigInt support
-  [1_000_000_000_000_000_000n, 'eine Trillionste'],
+  [1_000_000_000_000_000_000n, 'trillionste'],
 ]
 
 /**
@@ -178,6 +192,13 @@ export const currency = [
   [100, 'einhundert Euro'],
   [1000, 'eintausend Euro'],
   [1000000, 'eine Million Euro'],
+
+  // A count ending in 01 takes "ein" before the noun, like 1
+  [101, 'einhundertein Euro'],
+  [1001, 'eintausendein Euro'],
+  [201000, 'zweihunderteintausend Euro'],
+  [1000001, 'eine Million ein Euro'],
+  [101.01, 'einhundertein Euro und ein Cent'],
 
   // Cents only
   [0.01, 'ein Cent'],
