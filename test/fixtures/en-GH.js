@@ -28,7 +28,7 @@ export const ordinal = [
   [21, 'twenty-first'],
   [42, 'forty-second'],
   [100, 'one hundredth'],
-  [101, 'one hundred first'],
+  [101, 'one hundred and first'],
   [1000, 'one thousandth'],
 ]
 

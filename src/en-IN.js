@@ -273,7 +273,7 @@ function buildOrdinalSegment(n) {
   // Hundreds place
   if (hundreds > 0) {
     if (tensOnesOrdinal) {
-      return ONES[hundreds] + ' ' + HUNDRED + ' ' + tensOnesOrdinal
+      return ONES[hundreds] + ' ' + HUNDRED + ' and ' + tensOnesOrdinal
     }
     else {
       return ONES[hundreds] + ' hundredth'
@@ -317,7 +317,7 @@ function integerToOrdinal(n) {
   }
 
   // Build result (most-significant to least)
-  const words = []
+  let result = ''
 
   for (let i = segments.length - 1; i >= 0; i--) {
     const segment = segments[i]
@@ -325,31 +325,33 @@ function integerToOrdinal(n) {
 
     const isLowestSegment = (i === lowestNonZeroIdx)
 
+    // "and" before a final units segment below 100, as in the cardinal:
+    // "one lakh and first"
+    if (result) result += isLowestSegment && i === 0 && segment < 100 ? ' and ' : ' '
+
     if (isLowestSegment) {
       // Final non-zero segment gets ordinal treatment
       if (i === 0) {
         // Units position: use ordinal segment
-        words.push(buildOrdinalSegment(segment))
+        result += buildOrdinalSegment(segment)
       }
       else {
         // Scale position with no remainder below: "one lakhth"
-        words.push(buildSmallSegment(segment))
-        words.push(SCALES[i - 1] + 'th')
+        result += buildSmallSegment(segment) + ' ' + SCALES[i - 1] + 'th'
       }
     }
     else {
       // Non-final segments are cardinal
       if (i === 0) {
-        words.push(buildSegment(segment).word)
+        result += buildSegment(segment).word
       }
       else {
-        words.push(buildSmallSegment(segment))
-        words.push(SCALES[i - 1])
+        result += buildSmallSegment(segment) + ' ' + SCALES[i - 1]
       }
     }
   }
 
-  return words.join(' ')
+  return result
 }
 
 /**
@@ -361,7 +363,8 @@ function integerToOrdinal(n) {
  * @example
  * toOrdinal(1)       // 'first'
  * toOrdinal(100000)  // 'one lakhth'
- * toOrdinal(100001)  // 'one lakh first'
+ * toOrdinal(100001)  // 'one lakh and first'
+ * toOrdinal(101)     // 'one hundred and first'
  */
 function toOrdinal(value) {
   const integerPart = parseOrdinalValue(value)

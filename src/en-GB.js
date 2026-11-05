@@ -263,7 +263,7 @@ function toCardinal(value) {
 
 /**
  * Builds ordinal words for a 0-999 segment (final segment only).
- * Returns ordinal form: "first", "twenty-third", "one hundred forty-fifth"
+ * Returns ordinal form: "first", "twenty-third", "one hundred and forty-fifth"
  * @param {number} n - Number 0-999
  * @returns {string} Ordinal words for this segment
  */
@@ -296,8 +296,8 @@ function buildOrdinalSegment(n) {
   // Hundreds place
   if (hundreds > 0) {
     if (tensOnesOrdinal) {
-      // "one hundred twenty-first"
-      return ONES[hundreds] + ' ' + HUNDRED + ' ' + tensOnesOrdinal
+      // "one hundred and twenty-first"
+      return ONES[hundreds] + ' ' + HUNDRED + ' and ' + tensOnesOrdinal
     }
     else {
       // "one hundredth", "two hundredth", etc.
@@ -330,9 +330,10 @@ function integerToOrdinal(n) {
       return buildSegment(thousands).word + ' ' + SCALES[0] + 'th'
     }
 
-    // Has remainder: cardinal thousands + ordinal remainder
+    // Has remainder: cardinal thousands + ordinal remainder, with "and" before
+    // a remainder below 100, as in the cardinal: "one thousand and first"
     const { word: thousandsWord } = buildSegment(thousands)
-    return thousandsWord + ' ' + SCALES[0] + ' ' + buildOrdinalSegment(remainder)
+    return thousandsWord + ' ' + SCALES[0] + (remainder < 100 ? ' and ' : ' ') + buildOrdinalSegment(remainder)
   }
 
   // For numbers >= 1,000,000, use scale decomposition
@@ -372,7 +373,9 @@ function buildLargeOrdinal(n) {
 
     const isLowestSegment = (i === lowestNonZeroIdx)
 
-    if (result) result += ' '
+    // "and" before a final segment below 100, as in the cardinal:
+    // "one million and first"
+    if (result) result += isLowestSegment && segment < 100 ? ' and ' : ' '
 
     if (isLowestSegment) {
       // Final non-zero segment gets ordinal treatment
@@ -410,7 +413,8 @@ function buildLargeOrdinal(n) {
  * toOrdinal(21)   // 'twenty-first'
  * toOrdinal(42)   // 'forty-second'
  * toOrdinal(100)  // 'one hundredth'
- * toOrdinal(101)  // 'one hundred first'
+ * toOrdinal(101)  // 'one hundred and first'
+ * toOrdinal(1001) // 'one thousand and first'
  * toOrdinal(1000) // 'one thousandth'
  */
 function toOrdinal(value) {
