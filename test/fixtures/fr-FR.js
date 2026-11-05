@@ -200,15 +200,17 @@ export const ordinal = [
   [21000, 'vingt et un millième'],
   [99999, 'quatre-vingt-dix-neuf mille neuf cent quatre-vingt-dix-neuvième'],
 
-  // Larger scales
-  [1_000_000, 'un millionième'],
+  // Larger scales: the rank drops the "un" of a lone scale word, as "mille"
+  // gives "millième" ("un millionième" is the fraction)
+  [1_000_000, 'millionième'],
   [1_000_001, 'un million unième'],
+  [1_200_000, 'un million deux cent millième'],
   [2_000_000, 'deux millionième'],
-  [1_000_000_000, 'un milliardième'],
-  [1_000_000_000_000, 'un billionième'],
+  [1_000_000_000, 'milliardième'],
+  [1_000_000_000_000, 'billionième'],
 
   // BigInt support
-  [1_000_000_000_000_000_000n, 'un trillionième'],
+  [1_000_000_000_000_000_000n, 'trillionième'],
 ]
 
 /**
@@ -227,7 +229,12 @@ export const currency = [
   [80, 'quatre-vingts euros'],
   [100, 'cent euros'],
   [1000, 'mille euros'],
-  [1000000, 'un million euros'],
+  // A round amount of millions takes "de", elided before a vowel
+  [1000000, 'un million d\'euros'],
+  [2000000, 'deux millions d\'euros'],
+  [1500000000, 'un milliard cinq cents millions d\'euros'],
+  [1200000, 'un million deux cent mille euros'],
+  [1000001, 'un million un euros'],
 
   // Centimes only
   [0.01, 'un centime'],
@@ -247,7 +254,7 @@ export const currency = [
   [80.80, 'quatre-vingts euros et quatre-vingts centimes'],
   [100.99, 'cent euros et quatre-vingt-dix-neuf centimes'],
   [1000.01, 'mille euros et un centime'],
-  [1000000.01, 'un million euros et un centime'],
+  [1000000.01, 'un million d\'euros et un centime'],
 
   // Negative amounts
   [-1, 'moins un euro'],
@@ -266,13 +273,14 @@ export const currency = [
   ['42.50', 'quarante-deux euros et cinquante centimes'],
 
   // BigInt (whole euros only)
-  [1000000000000n, 'un billion euros'],
+  [1000000000000n, 'un billion d\'euros'],
 
   // Tunisian dinar: 1000 millimes, so the third decimal is significant.
   ['1.500', 'un dinar et cinq cents millimes', { currency: 'TND' }],
   ['1.050', 'un dinar et cinquante millimes', { currency: 'TND' }],
   ['0.001', 'un millime', { currency: 'TND' }],
   ['42.750', 'quarante-deux dinars et sept cent cinquante millimes', { currency: 'TND' }],
+  [2000000000, 'deux milliards de dinars', { currency: 'TND' }],
   ['1.500', 'un euro et cinquante centimes', { currency: 'EUR' }],
 
   // Moroccan dirham: 100 centimes, so it parses at two digits.
@@ -280,4 +288,5 @@ export const currency = [
   [42.50, 'quarante-deux dirhams et cinquante centimes', { currency: 'MAD' }],
   [0.01, 'un centime', { currency: 'MAD' }],
   [100, 'cent dirhams', { currency: 'MAD' }],
+  [1000000, 'un million de dirhams', { currency: 'MAD' }],
 ]

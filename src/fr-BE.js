@@ -452,6 +452,14 @@ function integerToOrdinal(n) {
 
   // Get cardinal form and convert to ordinal
   const cardinalWord = integerToWords(n, false)
+
+  // "un million" is a count; the rank drops the "un", as "mille" gives
+  // "millième": "millionième", "milliardième" (Académie française). With
+  // anything after the scale word the "un" stays: "un million unième".
+  if (cardinalWord.startsWith('un ') && !cardinalWord.includes(' ', 3)) {
+    return cardinalToOrdinal(cardinalWord.slice(3))
+  }
+
   return cardinalToOrdinal(cardinalWord)
 }
 
@@ -524,7 +532,17 @@ function toCurrency(value, options) {
   if (euros > 0n || centimes === 0n) {
     result += integerToWords(euros, false)
     // In French, 0 and 1 are singular: "zéro euro", "un euro"
-    result += ' ' + (euros <= 1n ? major[0] : major[1])
+    const unit = euros <= 1n ? major[0] : major[1]
+    // Million, milliard and the scale words above them are nouns, so a round
+    // amount of them takes "de" before what it counts, elided before a vowel:
+    // "un million d'euros", "deux milliards de dinars".
+    if (euros >= 1_000_000n && euros % 1_000_000n === 0n) {
+      result += /^[aeiouéèê]/.test(unit) ? ' d\'' : ' de '
+    }
+    else {
+      result += ' '
+    }
+    result += unit
   }
 
   // Centimes part
