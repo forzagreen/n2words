@@ -161,38 +161,39 @@ export const ordinal = [
 
   // Hundreds
   [100, 'one hundredth'],
-  [101, 'one hundred first'],
-  [110, 'one hundred tenth'],
-  [121, 'one hundred twenty-first'],
+  [101, 'one hundred and first'],
+  [110, 'one hundred and tenth'],
+  [121, 'one hundred and twenty-first'],
   [200, 'two hundredth'],
-  [999, 'nine hundred ninety-ninth'],
+  [999, 'nine hundred and ninety-ninth'],
 
   // Thousands
   [1000, 'one thousandth'],
-  [1001, 'one thousand first'],
+  [1001, 'one thousand and first'],
   [1100, 'one thousand one hundredth'],
   [2000, 'two thousandth'],
   [10000, 'ten thousandth'],
-  [99999, 'ninety-nine thousand nine hundred ninety-ninth'],
+  [99999, 'ninety-nine thousand nine hundred and ninety-ninth'],
 
   // Lakhs
   [100000, 'one lakhth'],
-  [100001, 'one lakh first'],
+  [100001, 'one lakh and first'],
   [100100, 'one lakh one hundredth'],
   [200000, 'two lakhth'],
 
   // Ten lakhs
   [1000000, 'ten lakhth'],
-  [1000001, 'ten lakh first'],
+  [1000001, 'ten lakh and first'],
 
   // Crores
   [10000000, 'one croreth'],
-  [10000001, 'one crore first'],
+  [10000001, 'one crore and first'],
   [10100000, 'one crore one lakhth'],
 
   // Arabs
   [1000000000, 'one arabth'],
-  [1000000001, 'one arab first'],
+  [1000000001, 'one arab and first'],
+  [100121, 'one lakh one hundred and twenty-first'],
 ]
 
 /**

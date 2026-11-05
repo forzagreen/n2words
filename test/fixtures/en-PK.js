@@ -60,10 +60,10 @@ export const ordinal = [
   [21, 'twenty-first'],
   [42, 'forty-second'],
   [100, 'one hundredth'],
-  [101, 'one hundred first'],
+  [101, 'one hundred and first'],
   [1000, 'one thousandth'],
   [100000, 'one lakhth'],
-  [100001, 'one lakh first'],
+  [100001, 'one lakh and first'],
   [10000000, 'one croreth'],
   [1000000000, 'one arabth'],
 ]
