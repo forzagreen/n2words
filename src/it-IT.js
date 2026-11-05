@@ -165,7 +165,20 @@ function buildThousands(n) {
   // Build segment and append "mila"
   // Note: elision of segment ending vowel + 'mila' not needed (mila starts with 'm')
   // But we need to handle cases like "ottomila" (no double-o issue since we build directly)
-  return buildSegment(n) + THOUSAND_PLURAL_SUFFIX
+  return buildSegmentUnaccented(n) + THOUSAND_PLURAL_SUFFIX
+}
+
+/**
+ * Builds a 1-999 segment that another word is joined to. Only a word stressed
+ * on its last syllable carries the written accent: "ventitré", but
+ * "ventitremila", "ventitremilionesimo".
+ * @param {number} n - Number 1-999
+ * @returns {string} Segment word, with a final "tré" written "tre"
+ */
+function buildSegmentUnaccented(n) {
+  const word = buildSegment(n)
+  // buildSegment writes "tré" for a final 3 in every compound (not 3 or 13)
+  return n % 10 === 3 && n !== 3 && n % 100 !== 13 ? word.slice(0, -1) + 'e' : word
 }
 
 // ============================================================================
@@ -226,8 +239,9 @@ function integerToWords(n) {
       return buildThousands(thousands)
     }
 
-    // Concatenate thousands + remainder
-    return buildThousands(thousands) + buildSegment(remainder)
+    // Concatenate thousands + remainder; a final "tre" joined to them takes
+    // the accent like any compound: "milletré", "duemilatré"
+    return buildThousands(thousands) + (remainder === 3 ? 'tré' : buildSegment(remainder))
   }
 
   // For numbers >= 1,000,000, use scale decomposition
@@ -390,6 +404,11 @@ function cardinalToOrdinal(cardinalWord) {
     return cardinalWord.slice(0, -1) + 'e' + ORDINAL_SUFFIX
   }
 
+  // "sei" keeps its final vowel: ventisei → ventiseiesimo
+  if (cardinalWord.endsWith('sei')) {
+    return cardinalWord + ORDINAL_SUFFIX
+  }
+
   // Handle "mila" ending (duemila → duemillesimo, not duemilesimo)
   // The ordinal of thousand is "millesimo" (from mille), not "milesimo"
   if (cardinalWord.endsWith('mila')) {
@@ -399,12 +418,6 @@ function cardinalToOrdinal(cardinalWord) {
   // Handle "mille" ending (mille → millesimo)
   if (cardinalWord.endsWith('mille')) {
     return cardinalWord.slice(0, -1) + ORDINAL_SUFFIX
-  }
-
-  // Handle -ardo/-ardi endings (miliardo → miliardiesimo)
-  // These scale words get -iesimo not -esimo
-  if (cardinalWord.endsWith('ardo') || cardinalWord.endsWith('ardi')) {
-    return cardinalWord.slice(0, -1) + 'i' + ORDINAL_SUFFIX
   }
 
   // Drop final regular vowel before adding -esimo
@@ -428,9 +441,38 @@ function integerToOrdinal(n) {
     return ORDINAL_ONES[Number(n)]
   }
 
+  if (n % 1_000_000n === 0n) {
+    return buildScaleOrdinal(n)
+  }
+
   // For 11+, convert cardinal and apply -esimo
   const cardinalWord = integerToWords(n)
   return cardinalToOrdinal(cardinalWord)
+}
+
+/**
+ * Builds the ordinal of a number ending in a million+ scale word. That scale
+ * word forms one word with its multiplier, which drops "un" as "mille" never
+ * takes it: milionesimo, duemilionesimo, miliardesimo.
+ * @param {bigint} n - Positive multiple of 1,000,000
+ * @returns {string} Italian ordinal words (masculine form)
+ */
+function buildScaleOrdinal(n) {
+  // Lowest non-zero group (scaleIndex 2 = milione, 3 = miliardo, ...)
+  let scaleIndex = 2
+  let divisor = 1_000_000n
+  while ((n / divisor) % 1000n === 0n) {
+    divisor *= 1000n
+    scaleIndex++
+  }
+  const segment = Number((n / divisor) % 1000n)
+  const higher = n - BigInt(segment) * divisor
+
+  const multiplier = segment === 1 ? '' : buildSegmentUnaccented(segment)
+  // milione → milion-esimo, miliardo → miliard-esimo
+  const ordinal = multiplier + getScaleWordSingular(scaleIndex).slice(0, -1) + ORDINAL_SUFFIX
+
+  return higher === 0n ? ordinal : integerToWords(higher) + ' ' + ordinal
 }
 
 /**
@@ -449,6 +491,7 @@ function integerToOrdinal(n) {
  * toOrdinal(21)   // 'ventunesimo'
  * toOrdinal(100)  // 'centesimo'
  * toOrdinal(1000) // 'millesimo'
+ * toOrdinal(1000000) // 'milionesimo'
  */
 function toOrdinal(value) {
   const integerPart = parseOrdinalValue(value)
@@ -483,6 +526,7 @@ export const currencyValues = { currency: /** @type {Required<CurrencyOptions>['
  * @example
  * toCurrency(42.50)                 // 'quarantadue euro e cinquanta centesimi'
  * toCurrency(1)                     // 'un euro'
+ * toCurrency(1000000)               // 'un milione di euro'
  * toCurrency(0.99)                  // 'novantanove centesimi'
  * toCurrency(0.01)                  // 'un centesimo'
  * toCurrency(42.50, { and: false }) // 'quarantadue euro cinquanta centesimi'
@@ -507,8 +551,11 @@ function toCurrency(value, options) {
     else {
       result += integerToWords(euros)
     }
+    // A round amount of millions takes "di" before the currency, as
+    // milione and miliardo are nouns: "un milione di euro"
+    result += euros >= 1_000_000n && euros % 1_000_000n === 0n ? ' di ' : ' '
     // Euro is invariable (doesn't change for plural in Italian)
-    result += ' ' + major[0]
+    result += major[0]
   }
 
   // Centesimi part
