@@ -143,13 +143,11 @@ const PROBE_VALUES = [
  * This is the distinction the site has to make legible. `en-AU` and `en-GB`
  * spell every number the same way; `en-US` is the one that says "one hundred
  * one"; `en-IN` groups in lakh and crore. Grouping by measured output says
- * that in one number ("16 regions, 4 spellings") where a flat list of 16 codes
+ * that in one number ("16 regions, 3 spellings") where a flat list of 16 codes
  * says nothing. `variantOf` in the source marks deliberate clones, but not
- * every identical pair is a declared clone — en-AU is a full implementation
- * that happens to agree with en-GB — so this probes the real functions rather
- * than trusting the declaration. It earns that: en-CA lands in a group of its
- * own because it takes British cardinals ("one hundred and one") with American
- * ordinals ("...seven hundred eighty-ninth"), which no declaration records.
+ * every identical pair is a declared clone — en-CA is a full implementation
+ * (it has options en-GB lacks) whose default output agrees with en-GB's — so
+ * this probes the real functions rather than trusting the declaration.
  *
  * Currency is excluded on purpose: a differing default currency is exactly
  * what we want to report separately from differing words.
@@ -188,9 +186,10 @@ function spellingSignature(mod) {
  * widely-shared spelling outranks a one-off.
  *
  * A group's representative is the family default when it's in the group, else
- * the member that is a full implementation rather than a locale profile — the
- * base its siblings were cloned from. That's why the eleven-strong English
- * group is represented by `en-GB` and not by `en-AU`, which merely sorts first.
+ * the member its locale profiles name in `variantOf` — the base its siblings
+ * were cloned from — else its first full implementation. That's why the
+ * twelve-strong English group is represented by `en-GB` and not by `en-AU`, a
+ * profile, or `en-CA`, a full implementation that merely sorts first.
  *
  * @param {string[]} codes The family's variant codes
  * @param {Map<string, string>} signatures Code -> spelling signature
@@ -210,7 +209,8 @@ function spellingGroups(codes, signatures, profileOf, defaultCode) {
     .map(group => ({
       representative: group.includes(defaultCode)
         ? defaultCode
-        : group.find(code => profileOf.get(code) === null) ?? group[0],
+        : group.find(code => group.some(member => profileOf.get(member) === code))
+          ?? group.find(code => profileOf.get(code) === null) ?? group[0],
       codes: group,
     }))
     .sort((a, b) => {
@@ -260,7 +260,7 @@ function groupSample(groups, mods) {
   if (best === null) return null
 
   // Two groups can render the chosen value identically and still be different
-  // spellings — en-GB and en-CA agree on every cardinal and part company only
+  // spellings — two variants that agree on every cardinal and part company only
   // in ordinals. Flag those so the UI can say so instead of showing two
   // identical lines and looking wrong.
   const counts = new Map()

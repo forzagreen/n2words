@@ -68,9 +68,16 @@ export const ordinal = [
   [21, 'twenty-first'],
   [42, 'forty-second'],
   [100, 'one hundredth'],
-  [101, 'one hundred first'],
+  [101, 'one hundred and first'],
   [1000, 'one thousandth'],
+  [1001, 'one thousand and first'],
   [1000000, 'one millionth'],
+  [1000001, 'one million and first'],
+
+  // "and" option off: American-style ordinals
+  [101, 'one hundred first', { and: false }],
+  [1001, 'one thousand first', { and: false }],
+  [1000001, 'one million first', { and: false }],
 ]
 
 /**

@@ -314,16 +314,17 @@ function toCardinal(value, options) {
 }
 
 // ============================================================================
-// ORDINAL: toOrdinal(value)
+// ORDINAL: toOrdinal(value, options?)
 // ============================================================================
 
 /**
  * Builds ordinal words for a 0-999 segment (final segment only).
  * Returns ordinal form: "first", "twenty-third", "one hundred forty-fifth"
  * @param {number} n - Number 0-999
+ * @param {boolean} useAnd - Use "and" after hundreds
  * @returns {string} Ordinal words for this segment
  */
-function buildOrdinalSegment(n) {
+function buildOrdinalSegment(n, useAnd) {
   const ones = n % 10
   const tens = Math.trunc(n / 10) % 10
   const hundreds = Math.trunc(n / 100)
@@ -352,8 +353,8 @@ function buildOrdinalSegment(n) {
   // Hundreds place
   if (hundreds > 0) {
     if (tensOnesOrdinal) {
-      // "one hundred twenty-first"
-      return ONES[hundreds] + ' ' + HUNDRED + ' ' + tensOnesOrdinal
+      // "one hundred twenty-first", or "one hundred and twenty-first"
+      return ONES[hundreds] + ' ' + HUNDRED + (useAnd ? ' and ' : ' ') + tensOnesOrdinal
     }
     else {
       // "one hundredth", "two hundredth", etc.
@@ -368,12 +369,13 @@ function buildOrdinalSegment(n) {
  * Converts a positive integer to ordinal words.
  * Generates ordinals directly without string manipulation.
  * @param {bigint} n - Positive integer to convert
+ * @param {boolean} useAnd - Place "and" where the cardinal would
  * @returns {string} Ordinal English words
  */
-function integerToOrdinal(n) {
+function integerToOrdinal(n, useAnd) {
   // Fast path: numbers < 1000
   if (n < 1000n) {
-    return buildOrdinalSegment(Number(n))
+    return buildOrdinalSegment(Number(n), useAnd)
   }
 
   // Fast path: numbers < 1,000,000
@@ -383,25 +385,27 @@ function integerToOrdinal(n) {
 
     if (remainder === 0) {
       // Exact thousands: "one thousandth", "five thousandth"
-      return buildSegment(thousands, false).word + ' ' + SCALES[0] + 'th'
+      return buildSegment(thousands, useAnd).word + ' ' + SCALES[0] + 'th'
     }
 
-    // Has remainder: cardinal thousands + ordinal remainder
-    const { word: thousandsWord } = buildSegment(thousands, false)
-    return thousandsWord + ' ' + SCALES[0] + ' ' + buildOrdinalSegment(remainder)
+    // Has remainder: cardinal thousands + ordinal remainder, with "and" before
+    // a remainder below 100 when the cardinal has one: "one thousand and first"
+    const { word: thousandsWord } = buildSegment(thousands, useAnd)
+    return thousandsWord + ' ' + SCALES[0] + (useAnd && remainder < 100 ? ' and ' : ' ') + buildOrdinalSegment(remainder, useAnd)
   }
 
   // For numbers >= 1,000,000, use scale decomposition
-  return buildLargeOrdinal(n)
+  return buildLargeOrdinal(n, useAnd)
 }
 
 /**
  * Builds ordinal words for numbers >= 1,000,000.
  * All segments except the final one are cardinal; final segment is ordinal.
  * @param {bigint} n - Number >= 1,000,000
+ * @param {boolean} useAnd - Place "and" where the cardinal would
  * @returns {string} Ordinal English words
  */
-function buildLargeOrdinal(n) {
+function buildLargeOrdinal(n, useAnd) {
   // Extract segments (least-significant first)
   const segments = []
   let temp = n
@@ -428,22 +432,24 @@ function buildLargeOrdinal(n) {
 
     const isLowestSegment = (i === lowestNonZeroIdx)
 
-    if (result) result += ' '
+    // "and" before a final segment below 100, when the cardinal has one:
+    // "one million and first"
+    if (result) result += useAnd && isLowestSegment && segment < 100 ? ' and ' : ' '
 
     if (isLowestSegment) {
       // Final non-zero segment gets ordinal treatment
       if (i === 0) {
         // Units position: use ordinal segment
-        result += buildOrdinalSegment(segment)
+        result += buildOrdinalSegment(segment, useAnd)
       }
       else {
         // Scale position with no remainder below: "one millionth"
-        result += buildSegment(segment, false).word + ' ' + SCALES[i - 1] + 'th'
+        result += buildSegment(segment, useAnd).word + ' ' + SCALES[i - 1] + 'th'
       }
     }
     else {
       // Non-final segments are cardinal
-      result += buildSegment(segment, false).word
+      result += buildSegment(segment, useAnd).word
       if (i > 0) {
         result += ' ' + SCALES[i - 1]
       }
@@ -454,8 +460,17 @@ function buildLargeOrdinal(n) {
 }
 
 /**
+ * @typedef {object} OrdinalOptions
+ * @property {boolean} [and] - Use "and" where the cardinal does (e.g., "one hundred and first" instead of "one hundred first")
+ */
+
+/** @type {Required<OrdinalOptions>} */
+export const ordinalDefaults = { and: true }
+
+/**
  * Converts a numeric value to Canadian English ordinal words.
  * @param {number | string | bigint} value - The numeric value to convert (must be a positive integer)
+ * @param {OrdinalOptions} [options] - Optional configuration
  * @returns {string} The number as ordinal words (e.g., "first", "forty-second")
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {RangeError} If value is negative, zero, or has a decimal part
@@ -466,13 +481,15 @@ function buildLargeOrdinal(n) {
  * toOrdinal(21)   // 'twenty-first'
  * toOrdinal(42)   // 'forty-second'
  * toOrdinal(100)  // 'one hundredth'
- * toOrdinal(101)  // 'one hundred first'
+ * toOrdinal(101)  // 'one hundred and first'
+ * toOrdinal(101, { and: false }) // 'one hundred first'
  * toOrdinal(1000) // 'one thousandth'
  */
-function toOrdinal(value) {
+function toOrdinal(value, options) {
   const integerPart = parseOrdinalValue(value)
   checkMax(integerPart, ordinalMax)
-  return integerToOrdinal(integerPart)
+  const { and: useAnd } = resolveOptions(options, ordinalDefaults)
+  return integerToOrdinal(integerPart, useAnd)
 }
 
 // ============================================================================
