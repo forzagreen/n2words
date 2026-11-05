@@ -151,6 +151,16 @@ async function benchmarkLanguage(converter, functionsToRun) {
       continue
     }
 
+    // A value past a form's declared ceiling (e.g. es-ES toOrdinal stops at
+    // 10^9) throws RangeError; there is nothing to time, so report it instead.
+    try {
+      fn(value)
+    }
+    catch (error) {
+      fnResults[fnName] = { error }
+      continue
+    }
+
     // Run performance benchmark
     const perfResult = await runPerfBenchmark(fn, converter.name, fnName)
 
@@ -278,6 +288,11 @@ function printResultLine(result, displayFunctions) {
 
     // Function name (e.g., toCardinal, toOrdinal)
     const fnCol = chalk.cyan(fnName.padEnd(12))
+
+    if (fnResult.error) {
+      console.log(`${langCol} │ ${fnCol} │ ${chalk.yellow(`skipped: ${fnResult.error.name}`)}`)
+      continue
+    }
 
     // ops/sec
     const hz = formatOps(fnResult.hz)
