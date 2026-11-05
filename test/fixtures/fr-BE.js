@@ -173,9 +173,11 @@ export const ordinal = [
   [1001, 'mille unième'],
   [2000, 'deux millième'],
 
-  // Larger numbers
-  [1_000_000, 'un millionième'],
+  // Larger numbers: the rank drops the "un" of a lone scale word
+  [1_000_000, 'millionième'],
+  [1_000_001, 'un million unième'],
   [2_000_000, 'deux millionième'],
+  [1_000_000_000, 'milliardième'],
 ]
 
 /**
@@ -192,7 +194,10 @@ export const currency = [
   [21, 'vingt et un euros'],
   [100, 'cent euros'],
   [1000, 'mille euros'],
-  [1_000_000, 'un million euros'],
+  // A round amount of millions takes "de", elided before a vowel
+  [1_000_000, 'un million d\'euros'],
+  [2_000_000_000, 'deux milliards d\'euros'],
+  [1_200_000, 'un million deux cent mille euros'],
 
   // Centimes only (singular/plural)
   [0.01, 'un centime'],
@@ -237,4 +242,5 @@ export const currency = [
   [1, 'un dirham', { currency: 'MAD' }],
   [42.50, 'quarante-deux dirhams et cinquante centimes', { currency: 'MAD' }],
   [71, 'septante et un dirhams', { currency: 'MAD' }],
+  [1_000_000, 'un million de dirhams', { currency: 'MAD' }],
 ]
