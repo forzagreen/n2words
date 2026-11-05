@@ -187,6 +187,18 @@ export const ordinal = [
   // BigInt support
   [1_000_000_000_000_000_000n, 'trilionesimo'],
 
+  // Feminine: the final -o becomes -a
+  [1, 'prima', { gender: 'feminine' }],
+  [2, 'seconda', { gender: 'feminine' }],
+  [3, 'terza', { gender: 'feminine' }],
+  [10, 'decima', { gender: 'feminine' }],
+  [21, 'ventunesima', { gender: 'feminine' }],
+  [23, 'ventitreesima', { gender: 'feminine' }],
+  [100, 'centesima', { gender: 'feminine' }],
+  [1003, 'milletreesima', { gender: 'feminine' }],
+  [2_000_000, 'duemilionesima', { gender: 'feminine' }],
+  [1, 'primo', { gender: 'masculine' }],
+
 ]
 
 /**
