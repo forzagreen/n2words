@@ -350,8 +350,11 @@ function buildOrdinalSegment(n) {
 }
 
 /**
- * Builds ordinal words for large numbers.
- * @param {bigint} n - Non-negative integer
+ * Builds ordinal words for numbers >= 1000. From 2000 on, the first numeral is
+ * a cardinal and every later one an ordinal ("dois milésimo tricentésimo
+ * quadragésimo quinto"); a round number keeps an ordinal multiplier
+ * ("segundo milésimo", "décimo milésimo").
+ * @param {bigint} n - Integer >= 1000
  * @returns {string} Portuguese ordinal words
  */
 function buildLargeOrdinal(n) {
@@ -363,60 +366,29 @@ function buildLargeOrdinal(n) {
     temp = temp / 1000n
   }
 
-  // Find the lowest non-zero segment (index 0 = units, lowest scale)
-  let lowestNonZeroIdx = 0
-  for (let i = 0; i < segments.length; i++) {
-    if (segments[i] !== 0) {
-      lowestNonZeroIdx = i
-      break
-    }
+  let lowest = 0
+  while (segments[lowest] === 0) lowest++
+
+  const top = segments.length - 1
+  const first = segments[top]
+
+  if (top === lowest) {
+    return first === 1 ? SCALE_ORDINAL[top] : buildOrdinalSegment(first) + ' ' + SCALE_ORDINAL[top]
   }
 
-  let result = ''
+  let result = SCALE_ORDINAL[top]
+  if (first !== 1) {
+    result = buildSegment(first).word + ' ' + result
+  }
 
-  for (let i = segments.length - 1; i >= 0; i--) {
+  for (let i = top - 1; i >= lowest; i--) {
     const segment = segments[i]
     if (segment === 0) continue
-
-    if (result) result += ' '
-
-    if (i === lowestNonZeroIdx) {
-      // Last non-zero segment gets ordinal form
-      if (i === 0) {
-        // Units: just ordinal
-        result += buildOrdinalSegment(segment)
-      }
-      else if (segment === 1 && i > 0) {
-        // Exact scale: "milésimo", "milionésimo", etc.
-        result += SCALE_ORDINAL[i]
-      }
-      else {
-        // Segment + scale ordinal
-        result += buildOrdinalSegment(segment) + ' ' + SCALE_ORDINAL[i]
-      }
+    if (i === 0) {
+      result += ' ' + buildOrdinalSegment(segment)
     }
     else {
-      // Higher segments use cardinal form
-      if (i === 0) {
-        result += buildSegment(segment).word
-      }
-      else if (i === 1) {
-        if (segment === 1) {
-          result += THOUSAND
-        }
-        else {
-          result += buildSegment(segment).word + ' ' + THOUSAND
-        }
-      }
-      else {
-        const scaleWord = segment === 1 ? SCALE_WORDS_SINGULAR[i] : SCALE_WORDS_PLURAL[i]
-        if (segment === 1) {
-          result += 'um ' + scaleWord
-        }
-        else {
-          result += buildSegment(segment).word + ' ' + scaleWord
-        }
-      }
+      result += ' ' + (segment === 1 ? SCALE_ORDINAL[i] : buildOrdinalSegment(segment) + ' ' + SCALE_ORDINAL[i])
     }
   }
 
@@ -427,6 +399,9 @@ function buildLargeOrdinal(n) {
  * Converts a number to Portuguese ordinal words.
  * @param {number | string | bigint} value - The number to convert
  * @returns {string} Portuguese ordinal words
+ * @example
+ * toOrdinal(1)                           // 'primeiro'
+ * toOrdinal(2345)                        // 'dois milésimo tricentésimo quadragésimo quinto'
  */
 function toOrdinal(value) {
   const n = parseOrdinalValue(value)
@@ -511,7 +486,11 @@ function toCurrency(value, options) {
   if (hasMajor) {
     const majorText = integerToWords(majorUnits)
     const majorUnit = majorUnits === 1n ? currencyWords.major[0] : currencyWords.major[1]
-    result += majorText + ' ' + majorUnit
+    // Milhão and the scale words above it are nouns: a round number of them
+    // takes "de" before what it counts ("um milhão de reais"), unlike
+    // "um milhão e quinhentos mil reais".
+    const preposition = majorUnits >= 1_000_000n && majorUnits % 1_000_000n === 0n ? ' de ' : ' '
+    result += majorText + preposition + majorUnit
   }
 
   // Parte decimal (Centavos...) — assertCurrencyExponent already guarantees
