@@ -141,23 +141,29 @@ export const ordinal = [
   [500, 'quingentésimo'],
   [999, 'nongentésimo nonagésimo nono'],
 
-  // Thousands
+  // Thousands: from 2000 on the first numeral is a cardinal, the rest ordinals
   [1000, 'milésimo'],
-  [1001, 'mil primeiro'],
-  [1010, 'mil décimo'],
-  [1100, 'mil centésimo'],
-  [1111, 'mil centésimo décimo primeiro'],
+  [1001, 'milésimo primeiro'],
+  [1010, 'milésimo décimo'],
+  [1100, 'milésimo centésimo'],
+  [1111, 'milésimo centésimo décimo primeiro'],
+  [2345, 'dois milésimo tricentésimo quadragésimo quinto'],
+  [12345, 'doze milésimo tricentésimo quadragésimo quinto'],
+  [99999, 'noventa e nove milésimo nongentésimo nonagésimo nono'],
+
+  // Round numbers keep an ordinal multiplier
   [2000, 'segundo milésimo'],
   [5000, 'quinto milésimo'],
   [10000, 'décimo milésimo'],
-  [12345, 'doze mil tricentésimo quadragésimo quinto'],
-  [99999, 'noventa e nove mil nongentésimo nonagésimo nono'],
+  [21000, 'vigésimo primeiro milésimo'],
 
   // Larger scales (short scale for pt-BR)
   [1_000_000, 'milionésimo'],
-  [1_000_001, 'um milhão primeiro'],
+  [1_000_001, 'milionésimo primeiro'],
   [2_000_000, 'segundo milionésimo'],
+  [1_234_567, 'milionésimo ducentésimo trigésimo quarto milésimo quingentésimo sexagésimo sétimo'],
   [1_000_000_000, 'bilionésimo'],
+  [2_500_000_000, 'dois bilionésimo quingentésimo milionésimo'],
   [1_000_000_000_000, 'trilionésimo'],
 
   // BigInt support
@@ -179,7 +185,10 @@ export const currency = [
   [21, 'vinte e um reais'],
   [100, 'cem reais'],
   [1000, 'mil reais'],
-  [1000000, 'um milhão reais'],
+  [1000000, 'um milhão de reais'],
+  [2_000_000_000, 'dois bilhões de reais'],
+  [1_500_000, 'um milhão e quinhentos mil reais'],
+  [1_000_003, 'um milhão e três reais'],
 
   // Centavos only
   [0.01, 'um centavo'],
@@ -197,7 +206,7 @@ export const currency = [
   [42.50, 'quarenta e dois reais e cinquenta centavos'],
   [100.99, 'cem reais e noventa e nove centavos'],
   [1000.01, 'mil reais e um centavo'],
-  [1000000.01, 'um milhão reais e um centavo'],
+  [1000000.01, 'um milhão de reais e um centavo'],
 
   // Negative amounts
   [-1, 'menos um real'],
@@ -228,5 +237,5 @@ export const currency = [
   // every language by test/options-contract.test.js's enum probe.
 
   // BigInt (whole reais only)
-  [1_000_000_000_000n, 'um trilhão reais'],
+  [1_000_000_000_000n, 'um trilhão de reais'],
 ]

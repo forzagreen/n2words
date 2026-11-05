@@ -42,8 +42,8 @@ much vocabulary differs:
   the caller. No alias.
 - **Different core numbering grammar.** `pt-BR` vs `pt-PT` — diffing the
   source shows more than vocabulary drift: short scale (`bilhão` = 10⁹) vs
-  long scale (`bilião` = 10¹², `mil milhões` = 10⁹), different teen words
-  (`dezesseis` vs `dezasseis`), different "e"-insertion rules. This is a
+  long scale (`bilião` = 10¹², `mil milhões` = 10⁹) and different teen words
+  (`dezesseis` vs `dezasseis`). This is a
   different numbering system, not a dialect difference — the same category
   as a script split, even though currency (BRL vs EUR) also differs. No
   alias, and it would stay excluded even if the two used the same currency.

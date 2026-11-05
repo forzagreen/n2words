@@ -8,14 +8,14 @@
  * - "cem" for exact 100, "cento" for 100+ remainder
  * - Irregular hundreds: duzentos, trezentos, quatrocentos, etc.
  * - Long scale: milhão (10^6), mil milhões (10^9), bilião (10^12)
- * - Omit "um" before "mil"
+ * - Omit "um" before "mil", including "mil milhões"
  */
 
 import { parseCardinalValue } from './utils/parse-cardinal.js'
 import { parseCurrencyValue } from './utils/parse-currency.js'
 import { parseOrdinalValue } from './utils/parse-ordinal.js'
 import { checkMax } from './utils/check-max.js'
-import { western } from './utils/scale.js'
+import { longScale, western } from './utils/scale.js'
 import { resolveOptions } from './utils/resolve-options.js'
 import { ptPT as CURRENCY_VOCAB, assertCurrencyExponent } from './utils/currency-vocab.js'
 
@@ -96,44 +96,24 @@ function buildSegment(n) {
 // Scale Word Lookup
 // ============================================================================
 
-// Precompute scale words for singular and plural forms
-// Index 1 = thousands, 2 = millions, 3 = billions (mil milhões), etc.
-const SCALE_WORDS_SINGULAR = [
-  '', // 0 unused
-  THOUSAND, // 1: mil
-  'milhão', // 2: 10^6
-  'mil milhões', // 3: 10^9 (compound)
-  'bilião', // 4: 10^12
-  'mil biliões', // 5: 10^15 (compound)
-  'trilião', // 6: 10^18
-  'mil triliões', // 7: 10^21 (compound)
-  'quatrilião', // 8: 10^24
-]
+// Long scale: each word is a million times the previous one, so the number in
+// front of it runs up to 999 999 ("mil e quinhentos milhões" for 1.5 × 10^9).
+// Index 0 = 10^6, 1 = 10^12, 2 = 10^18, 3 = 10^24.
+const SCALES_SINGULAR = ['milhão', 'bilião', 'trilião', 'quatrilião']
+const SCALES_PLURAL = ['milhões', 'biliões', 'triliões', 'quatriliões']
 
-const SCALE_WORDS_PLURAL = [
-  '', // 0 unused
-  THOUSAND, // 1: mil (same)
-  'milhões', // 2: 10^6
-  'mil milhões', // 3: 10^9 (compound, same)
-  'biliões', // 4: 10^12
-  'mil biliões', // 5: 10^15 (compound, same)
-  'triliões', // 6: 10^18
-  'mil triliões', // 7: 10^21 (compound, same)
-  'quatriliões', // 8: 10^24
-]
-
-// Scale ordinal words (long scale for pt-PT). Module-scope so its length can
-// derive the ordinal ceiling and so it isn't rebuilt on every call.
+// Scale ordinal words by 3-digit group (long scale for pt-PT). Module-scope so
+// its length can derive the ordinal ceiling and so it isn't rebuilt on every call.
 const SCALE_ORDINAL = ['', 'milésimo', 'milionésimo', 'mil milionésimo', 'bilionésimo', 'mil bilionésimo', 'trilionésimo']
 
-// Supported magnitude ceilings (checked at the public entry points). Cardinal
-// scale words reach index SCALE_WORDS_SINGULAR.length-1 (quatrilião, 10^24), so
-// cardinals/currency must stay below 10^27. The ordinal of a number whose
+// Supported magnitude ceilings (checked at the public entry points). The last
+// scale word (quatrilião, 10^24) takes a multiplier up to 999 999, so
+// cardinals/currency must stay below 10^30. The ordinal of a number whose
 // lowest non-zero group is a scale group uses SCALE_ORDINAL, which is shorter,
 // so ordinals must stay below 10^(SCALE_ORDINAL.length * 3).
-export const cardinalMax = western(SCALE_WORDS_SINGULAR.length - 1)
+export const cardinalMax = longScale(SCALES_SINGULAR.length)
 export const ordinalMax = western(SCALE_ORDINAL.length - 1)
-export const currencyMax = western(SCALE_WORDS_SINGULAR.length - 1)
+export const currencyMax = longScale(SCALES_SINGULAR.length)
 
 // ============================================================================
 // Conversion Functions
@@ -147,37 +127,9 @@ export const currencyMax = western(SCALE_WORDS_SINGULAR.length - 1)
 function integerToWords(n) {
   if (n === 0n) return ZERO
 
-  // Fast path: numbers < 1000
-  if (n < 1000n) {
-    return buildSegment(Number(n)).word
-  }
-
-  // Fast path: numbers < 1,000,000 (thousands)
+  // Fast path: numbers < 1,000,000
   if (n < 1_000_000n) {
-    const thousands = Number(n / 1000n)
-    const remainder = Number(n % 1000n)
-
-    let result
-    if (thousands === 1) {
-      // "mil" not "um mil"
-      result = THOUSAND
-    }
-    else {
-      result = buildSegment(thousands).word + ' ' + THOUSAND
-    }
-
-    if (remainder > 0) {
-      const remainderResult = buildSegment(remainder)
-      // Insert "e" before remainder if it doesn't start with hundreds (< 100)
-      if (!remainderResult.startsWithHundreds) {
-        result += ' e ' + remainderResult.word
-      }
-      else {
-        result += ' ' + remainderResult.word
-      }
-    }
-
-    return result
+    return buildGroup(Number(n))
   }
 
   // For numbers >= 1,000,000, use scale decomposition
@@ -185,73 +137,77 @@ function integerToWords(n) {
 }
 
 /**
+ * Builds words for 1-999 999, the multiplier in front of a scale word.
+ * @param {number} n - Number 1-999 999
+ * @returns {string} Portuguese words
+ */
+function buildGroup(n) {
+  if (n < 1000) {
+    return buildSegment(n).word
+  }
+
+  const thousands = Math.trunc(n / 1000)
+  const remainder = n % 1000
+
+  // "mil" not "um mil"
+  let result = thousands === 1 ? THOUSAND : buildSegment(thousands).word + ' ' + THOUSAND
+
+  if (remainder > 0) {
+    const remainderResult = buildSegment(remainder)
+    // "e" before a remainder below 100 or a round hundred: "mil e um", "mil e oitocentos"
+    if (!remainderResult.startsWithHundreds || remainderResult.isExactHundred) {
+      result += ' e ' + remainderResult.word
+    }
+    else {
+      result += ' ' + remainderResult.word
+    }
+  }
+
+  return result
+}
+
+/**
  * Builds words for numbers >= 1,000,000.
- * Uses BigInt division for faster segment extraction.
+ * Uses BigInt division for faster group extraction.
  * @param {bigint} n - Number >= 1,000,000
  * @returns {string} Portuguese words
  */
 function buildLargeNumberWords(n) {
-  // Extract segments using BigInt division
-  // Segments stored least-significant first (index 0 = ones, 1 = thousands, etc.)
-  const segments = []
+  // 6-digit groups, least significant first (index 0 = below a million,
+  // 1 = milhões, 2 = biliões, etc.)
+  const groups = []
   let temp = n
   while (temp > 0n) {
-    segments.push(Number(temp % 1000n))
-    temp = temp / 1000n
+    groups.push(Number(temp % 1_000_000n))
+    temp = temp / 1_000_000n
   }
 
-  // Find the first non-zero segment index (lowest scale with value)
-  let firstNonZeroIdx = 0
-  for (let i = 0; i < segments.length; i++) {
-    if (segments[i] !== 0) {
-      firstNonZeroIdx = i
-      break
-    }
-  }
+  let lowest = 0
+  while (groups[lowest] === 0) lowest++
 
-  // Build result string directly
   let result = ''
-  let prevWasScale = false
 
-  for (let i = segments.length - 1; i >= 0; i--) {
-    const segment = segments[i]
-    if (segment === 0) continue
+  for (let i = groups.length - 1; i >= lowest; i--) {
+    const group = groups[i]
+    if (group === 0) continue
 
-    const segmentResult = buildSegment(segment)
-    const isLastSegment = (i === firstNonZeroIdx)
-
-    // Add "e" before final segment if previous was scale and this doesn't start with hundreds
-    if (result && isLastSegment && prevWasScale && !segmentResult.startsWithHundreds) {
-      result += ' e'
+    if (result) {
+      // "e" before the last group when its only non-zero 3 digits are below
+      // 100 or a round hundred: "um milhão e quinhentos mil", "mil milhões e cem"
+      const upper = Math.trunc(group / 1000)
+      const lower = group % 1000
+      const single = upper === 0 ? lower : lower === 0 ? upper : 0
+      result += i === lowest && single > 0 && (single < 100 || single % 100 === 0) ? ' e ' : ' '
     }
-
-    if (result) result += ' '
 
     if (i === 0) {
-      // Units segment
-      result += segmentResult.word
-      prevWasScale = false
+      result += buildGroup(group)
     }
-    else if (i === 1) {
-      // Thousands
-      if (segment === 1) {
-        result += THOUSAND
-      }
-      else {
-        result += segmentResult.word + ' ' + THOUSAND
-      }
-      prevWasScale = true
+    else if (group === 1) {
+      result += 'um ' + SCALES_SINGULAR[i - 1]
     }
     else {
-      // Million and above - use scale arrays
-      const scaleWord = segment === 1 ? SCALE_WORDS_SINGULAR[i] : SCALE_WORDS_PLURAL[i]
-      if (segment === 1) {
-        result += 'um ' + scaleWord
-      }
-      else {
-        result += segmentResult.word + ' ' + scaleWord
-      }
-      prevWasScale = true
+      result += buildGroup(group) + ' ' + SCALES_PLURAL[i - 1]
     }
   }
 
@@ -361,8 +317,25 @@ function buildOrdinalSegment(n) {
 }
 
 /**
- * Builds ordinal words for large numbers.
- * @param {bigint} n - Non-negative integer
+ * Builds ordinal words for 1-999 999 after another ordinal: "milésimo centésimo".
+ * @param {number} n - Number 1-999 999
+ * @returns {string} Portuguese ordinal words
+ */
+function buildOrdinalGroup(n) {
+  if (n < 1000) return buildOrdinalSegment(n)
+
+  const thousands = Math.trunc(n / 1000)
+  const remainder = n % 1000
+  const words = thousands === 1 ? SCALE_ORDINAL[1] : buildOrdinalSegment(thousands) + ' ' + SCALE_ORDINAL[1]
+  return remainder === 0 ? words : words + ' ' + buildOrdinalSegment(remainder)
+}
+
+/**
+ * Builds ordinal words for numbers >= 1000. From 2000 on, the first numeral is
+ * a cardinal and every later one an ordinal ("dois milésimo tricentésimo
+ * quadragésimo quinto"); a round number keeps an ordinal multiplier
+ * ("segundo milésimo", "décimo milésimo").
+ * @param {bigint} n - Integer >= 1000
  * @returns {string} Portuguese ordinal words
  */
 function buildLargeOrdinal(n) {
@@ -374,60 +347,40 @@ function buildLargeOrdinal(n) {
     temp = temp / 1000n
   }
 
-  // Find the lowest non-zero segment (index 0 = units, lowest scale)
-  let lowestNonZeroIdx = 0
-  for (let i = 0; i < segments.length; i++) {
-    if (segments[i] !== 0) {
-      lowestNonZeroIdx = i
-      break
-    }
+  let lowest = 0
+  while (segments[lowest] === 0) lowest++
+
+  // A "mil" group of the long scale (odd index from 3: mil milhões, mil
+  // biliões) joins the group below it, as in the cardinal: 1.5 × 10^9 is
+  // "mil e quinhentos milionésimo".
+  let i = segments.length - 1
+  let first = segments[i]
+  if (i >= 3 && i % 2 === 1 && segments[i - 1] !== 0) {
+    first = first * 1000 + segments[--i]
+  }
+  else if (i === lowest) {
+    return first === 1 ? SCALE_ORDINAL[i] : buildOrdinalSegment(first) + ' ' + SCALE_ORDINAL[i]
   }
 
-  let result = ''
+  let result = SCALE_ORDINAL[i]
+  if (first !== 1) {
+    result = buildGroup(first) + ' ' + result
+  }
 
-  for (let i = segments.length - 1; i >= 0; i--) {
-    const segment = segments[i]
-    if (segment === 0) continue
-
-    if (result) result += ' '
-
-    if (i === lowestNonZeroIdx) {
-      // Last non-zero segment gets ordinal form
-      if (i === 0) {
-        // Units: just ordinal
-        result += buildOrdinalSegment(segment)
-      }
-      else if (segment === 1 && i > 0) {
-        // Exact scale: "milésimo", "milionésimo", etc.
-        result += SCALE_ORDINAL[i]
-      }
-      else {
-        // Segment + scale ordinal
-        result += buildOrdinalSegment(segment) + ' ' + SCALE_ORDINAL[i]
-      }
+  // After the first numeral, a "mil" group always reads with the group below
+  // it, as an ordinal of thousands: "bilionésimo milésimo milionésimo",
+  // "bilionésimo milésimo quingentésimo milionésimo".
+  for (i--; i >= lowest; i--) {
+    let value = segments[i]
+    if (i >= 3 && i % 2 === 1) {
+      value = value * 1000 + segments[--i]
+    }
+    if (value === 0) continue
+    if (i === 0) {
+      result += ' ' + buildOrdinalSegment(value)
     }
     else {
-      // Higher segments use cardinal form
-      if (i === 0) {
-        result += buildSegment(segment).word
-      }
-      else if (i === 1) {
-        if (segment === 1) {
-          result += THOUSAND
-        }
-        else {
-          result += buildSegment(segment).word + ' ' + THOUSAND
-        }
-      }
-      else {
-        const scaleWord = segment === 1 ? SCALE_WORDS_SINGULAR[i] : SCALE_WORDS_PLURAL[i]
-        if (segment === 1) {
-          result += 'um ' + scaleWord
-        }
-        else {
-          result += buildSegment(segment).word + ' ' + scaleWord
-        }
-      }
+      result += ' ' + (value === 1 ? SCALE_ORDINAL[i] : buildOrdinalGroup(value) + ' ' + SCALE_ORDINAL[i])
     }
   }
 
@@ -439,9 +392,9 @@ function buildLargeOrdinal(n) {
  * @param {number | string | bigint} value - The number to convert
  * @returns {string} Portuguese ordinal words
  * @example
- * toOrdinal(1)     // 'primeiro'
- * toOrdinal(21)    // 'vigésimo primeiro'
- * toOrdinal(100)   // 'centésimo'
+ * toOrdinal(1)                           // 'primeiro'
+ * toOrdinal(21)                          // 'vigésimo primeiro'
+ * toOrdinal(2345)                        // 'dois milésimo tricentésimo quadragésimo quinto'
  */
 function toOrdinal(value) {
   const n = parseOrdinalValue(value)
@@ -525,7 +478,11 @@ function toCurrency(value, options) {
   if (hasEuros) {
     const euroWords = integerToWords(euros)
     const euroUnit = euros === 1n ? major[0] : major[1]
-    result += euroWords + ' ' + euroUnit
+    // Milhão and the scale words above it are nouns: a round number of them
+    // takes "de" before what it counts ("um milhão de euros"), unlike
+    // "um milhão e quinhentos mil euros".
+    const preposition = euros >= 1_000_000n && euros % 1_000_000n === 0n ? ' de ' : ' '
+    result += euroWords + preposition + euroUnit
   }
 
   if (hasCents) {

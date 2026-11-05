@@ -160,7 +160,7 @@ reference.
 |`pa-IN`|Punjabi (India)|10^19 - 1|10^19 - 1|10^19 - 1 [*](#punjabi-india-pa-in)|
 |`pl-PL`|Polish (Poland)|10^33 - 1 [*](#polish-poland-pl-pl)|10^24 - 1|10^33 - 1 [*](#polish-poland-pl-pl)|
 |`pt-BR`|Brazilian Portuguese|10^27 - 1|10^24 - 1|10^27 - 1 [*](#brazilian-portuguese-pt-br)|
-|`pt-PT`|European Portuguese|10^27 - 1|10^21 - 1|10^27 - 1 [*](#european-portuguese-pt-pt)|
+|`pt-PT`|European Portuguese|10^30 - 1|10^21 - 1|10^30 - 1 [*](#european-portuguese-pt-pt)|
 |`ro-RO`|Romanian (Romania)|10^30 - 1 [*](#romanian-romania-ro-ro)|10^9 - 1|10^30 - 1 [*](#romanian-romania-ro-ro)|
 |`ru-RU`|Russian (Russia)|10^33 - 1 [*](#russian-russia-ru-ru)|10^33 - 1|10^33 - 1 [*](#russian-russia-ru-ru)|
 |`sr-Cyrl-RS`|Serbian (Cyrillic, Serbia)|10^30 - 1 [*](#serbian-cyrillic-serbia-sr-cyrl-rs)|10^30 - 1|10^30 - 1 [*](#serbian-cyrillic-serbia-sr-cyrl-rs)|

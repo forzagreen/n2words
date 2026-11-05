@@ -56,7 +56,11 @@ export const cardinal = [
   [1000, 'mil'],
   [1001, 'mil e um'],
   [1097, 'mil e noventa e sete'],
+  [1100, 'mil e cem'],
   [1104, 'mil cento e quatro'],
+  [1800, 'mil e oitocentos'],
+  [1801, 'mil oitocentos e um'],
+  [5500, 'cinco mil e quinhentos'],
   [1243, 'mil duzentos e quarenta e três'],
   [2385, 'dois mil trezentos e oitenta e cinco'],
   [3766, 'três mil setecentos e sessenta e seis'],
@@ -68,10 +72,25 @@ export const cardinal = [
   [9539, 'nove mil quinhentos e trinta e nove'],
   [1_000_000, 'um milhão'],
   [1_000_001, 'um milhão e um'],
+  [1_001_000, 'um milhão e mil'],
+  [1_001_500, 'um milhão mil e quinhentos'],
+  [1_250_000, 'um milhão duzentos e cinquenta mil'],
+  [1_500_000, 'um milhão e quinhentos mil'],
   [4_000_000, 'quatro milhões'],
+
+  // Long scale: the number in front of each scale word runs up to 999 999
+  [1_000_000_000, 'mil milhões'],
+  [1_000_000_500, 'mil milhões e quinhentos'],
+  [1_001_000_000, 'mil e um milhões'],
+  [1_500_000_000, 'mil e quinhentos milhões'],
+  [21_000_000_000, 'vinte e um mil milhões'],
+  [12_345_678_901, 'doze mil trezentos e quarenta e cinco milhões seiscentos e setenta e oito mil novecentos e um'],
+  [2_000_300_000_000, 'dois biliões e trezentos milhões'],
   [10_000_000_000_000, 'dez biliões'],
   [100_000_000_000_000, 'cem biliões'],
+  [1_000_000_000_000_000, 'mil biliões'],
   [1_000_000_000_000_000_000n, 'um trilião'],
+  [1_000_000_000_000_000_000_000_000_000n, 'mil quatriliões'],
 ]
 
 /**
@@ -136,24 +155,33 @@ export const ordinal = [
   [500, 'quingentésimo'],
   [999, 'nongentésimo nonagésimo nono'],
 
-  // Thousands
+  // Thousands: from 2000 on the first numeral is a cardinal, the rest ordinals
   [1000, 'milésimo'],
-  [1001, 'mil primeiro'],
-  [1010, 'mil décimo'],
-  [1100, 'mil centésimo'],
-  [1111, 'mil centésimo décimo primeiro'],
+  [1001, 'milésimo primeiro'],
+  [1010, 'milésimo décimo'],
+  [1100, 'milésimo centésimo'],
+  [1111, 'milésimo centésimo décimo primeiro'],
+  [2345, 'dois milésimo tricentésimo quadragésimo quinto'],
+  [12345, 'doze milésimo tricentésimo quadragésimo quinto'],
+  [99999, 'noventa e nove milésimo nongentésimo nonagésimo nono'],
+
+  // Round numbers keep an ordinal multiplier
   [2000, 'segundo milésimo'],
   [5000, 'quinto milésimo'],
   [10000, 'décimo milésimo'],
-  [12345, 'doze mil tricentésimo quadragésimo quinto'],
-  [99999, 'noventa e nove mil nongentésimo nonagésimo nono'],
+  [21000, 'vigésimo primeiro milésimo'],
 
   // Larger scales
   [1_000_000, 'milionésimo'],
-  [1_000_001, 'um milhão primeiro'],
+  [1_000_001, 'milionésimo primeiro'],
   [2_000_000, 'segundo milionésimo'],
+  [1_234_567, 'milionésimo ducentésimo trigésimo quarto milésimo quingentésimo sexagésimo sétimo'],
   [1_000_000_000, 'mil milionésimo'],
+  [1_500_000_000, 'mil e quinhentos milionésimo'],
   [1_000_000_000_000, 'bilionésimo'],
+  [1_001_000_000_000n, 'bilionésimo milésimo milionésimo'],
+  [1_001_500_000_000n, 'bilionésimo milésimo quingentésimo milionésimo'],
+  [2_002_000_000_000n, 'dois bilionésimo segundo milésimo milionésimo'],
 
   // BigInt support
   [1_000_000_000_000_000_000n, 'trilionésimo'],
@@ -174,7 +202,10 @@ export const currency = [
   [21, 'vinte e um euros'],
   [100, 'cem euros'],
   [1000, 'mil euros'],
-  [1000000, 'um milhão euros'],
+  [1000000, 'um milhão de euros'],
+  [1_000_000_000, 'mil milhões de euros'],
+  [1_500_000, 'um milhão e quinhentos mil euros'],
+  [1_000_003, 'um milhão e três euros'],
 
   // Cents only
   [0.01, 'um cêntimo'],
@@ -192,7 +223,7 @@ export const currency = [
   [42.50, 'quarenta e dois euros e cinquenta cêntimos'],
   [100.99, 'cem euros e noventa e nove cêntimos'],
   [1000.01, 'mil euros e um cêntimo'],
-  [1000000.01, 'um milhão euros e um cêntimo'],
+  [1000000.01, 'um milhão de euros e um cêntimo'],
 
   // Negative amounts
   [-1, 'menos um euro'],
@@ -211,5 +242,5 @@ export const currency = [
   ['42.50', 'quarenta e dois euros e cinquenta cêntimos'],
 
   // BigInt (whole euros only)
-  [1000000000000n, 'um bilião euros'],
+  [1000000000000n, 'um bilião de euros'],
 ]
