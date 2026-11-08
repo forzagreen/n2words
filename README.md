@@ -12,6 +12,10 @@
 **[Try it live →](https://forzagreen.github.io/n2words/)** — an interactive demo
 running this library in your browser.
 
+**Using Rust?** [n2words-rs](https://github.com/forzagreen/n2words-rs) is the Rust port —
+same languages, same words ([crates.io](https://crates.io/crates/n2words) ·
+[docs.rs](https://docs.rs/n2words)). See [Rust](#rust).
+
 ## Why n2words?
 
 - **Pure Functions** — Each language exports standalone functions. No classes, no configuration, no side effects.
@@ -247,6 +251,25 @@ Highlights: Arabic, Chinese (Simplified/Traditional), English, French, German, H
 - **Runtimes**: Deno, Bun, Cloudflare Workers
 
 Requires BigInt support (cannot be polyfilled).
+
+## Rust
+
+[n2words-rs](https://github.com/forzagreen/n2words-rs) brings the same 50 languages, the same
+words and the same contracts to Rust, with typed per-language option structs and `Result`
+instead of exceptions:
+
+```bash
+cargo add n2words
+```
+
+```rust
+use n2words::{en, es};
+
+assert_eq!(en::to_cardinal(42)?, "forty-two");
+assert_eq!(es::to_cardinal(42)?, "cuarenta y dos");
+```
+
+It ships a CLI too: `cargo install n2words`.
 
 ## Performance
 

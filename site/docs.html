@@ -54,6 +54,11 @@ catch { /* private mode, blocked storage: fall back to the system theme */ }
     <h2>Install</h2>
     <pre><code>npm install n2words</code></pre>
     <p>Zero dependencies. Node.js 22+, or any browser with BigInt support.</p>
+    <p>
+      For Rust, <a href="https://github.com/forzagreen/n2words-rs">n2words-rs</a> is the
+      port of this library — same languages and words — installed with
+      <code>cargo add n2words</code> (<a href="https://docs.rs/n2words">docs.rs</a>).
+    </p>
 
     <h2 id="cli">Command line</h2>
     <p>
@@ -283,6 +288,7 @@ toCurrency(42.50, { currency: 'XYZ' })  <span class="cm">// compile error</span>
       <li><a href="https://github.com/forzagreen/n2words/blob/main/docs/range-contract.md">docs/range-contract.md</a> — how ceilings are derived and enforced</li>
       <li><a href="https://github.com/forzagreen/n2words/blob/main/docs/currency-vocab.md">docs/currency-vocab.md</a> — the cross-language currency matrix</li>
       <li><a href="https://github.com/forzagreen/n2words/blob/main/CONTRIBUTING.md">CONTRIBUTING.md</a> — adding a language</li>
+      <li><a href="https://github.com/forzagreen/n2words-rs">n2words-rs</a> — the Rust port, on <a href="https://crates.io/crates/n2words">crates.io</a></li>
       <li><a href="https://github.com/forzagreen/n2words/issues">Issues</a> — bugs, wrong words, missing languages</li>
     </ul>
 
@@ -295,7 +301,8 @@ toCurrency(42.50, { currency: 'XYZ' })  <span class="cm">// compile error</span>
     <span>
       <a href="https://github.com/forzagreen/n2words">GitHub</a> ·
       <a href="https://www.npmjs.com/package/n2words">npm</a> ·
-      <a href="https://github.com/forzagreen/n2words/blob/main/CHANGELOG.md">Changelog</a>
+      <a href="https://github.com/forzagreen/n2words/blob/main/CHANGELOG.md">Changelog</a> ·
+      <a href="https://github.com/forzagreen/n2words-rs">Rust port</a>
     </span>
   </div>
 </footer>
