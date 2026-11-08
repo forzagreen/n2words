@@ -156,7 +156,10 @@ catch { /* private mode, blocked storage: fall back to the system theme */ }
 npm install n2words
 
 <span class="cm"># or spell a number without writing any code</span>
-npx n2words 42 --lang en  <span class="cm"># forty-two</span></code></pre>
+npx n2words 42 --lang en  <span class="cm"># forty-two</span>
+
+<span class="cm"># Rust: the same languages and words, as a crate</span>
+cargo add n2words</code></pre>
     <p>
       The shipped <code>n2words</code> command derives its flags from whichever
       language you name, so the options above are flags too —
@@ -166,6 +169,12 @@ npx n2words 42 --lang en  <span class="cm"># forty-two</span></code></pre>
       No build step? Load a single bundle straight from a CDN — the same file this
       page just used. See <a href="docs.html">the docs</a> for browser, UMD and
       TypeScript usage, or browse <a href="languages.html">all 50 languages</a>.
+    </p>
+    <p>
+      Writing Rust? <a href="https://github.com/forzagreen/n2words-rs">n2words-rs</a> is
+      the Rust port — same languages, same words, same range contracts — on
+      <a href="https://crates.io/crates/n2words">crates.io</a> with docs on
+      <a href="https://docs.rs/n2words">docs.rs</a>.
     </p>
   </section>
 
@@ -177,7 +186,8 @@ npx n2words 42 --lang en  <span class="cm"># forty-two</span></code></pre>
     <span>
       <a href="https://github.com/forzagreen/n2words">GitHub</a> ·
       <a href="https://www.npmjs.com/package/n2words">npm</a> ·
-      <a href="https://github.com/forzagreen/n2words/blob/main/CHANGELOG.md">Changelog</a>
+      <a href="https://github.com/forzagreen/n2words/blob/main/CHANGELOG.md">Changelog</a> ·
+      <a href="https://github.com/forzagreen/n2words-rs">Rust port</a>
     </span>
   </div>
 </footer>
