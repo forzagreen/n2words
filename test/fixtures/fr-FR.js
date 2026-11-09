@@ -211,6 +211,12 @@ export const ordinal = [
 
   // BigInt support
   [1_000_000_000_000_000_000n, 'trillionième'],
+
+  // Feminine: only "première" differs
+  [1, 'première', { gender: 'feminine' }],
+  [2, 'deuxième', { gender: 'feminine' }],
+  [21, 'vingt et unième', { gender: 'feminine' }],
+  [1_000_000, 'millionième', { gender: 'feminine' }],
 ]
 
 /**

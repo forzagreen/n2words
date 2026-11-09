@@ -55,6 +55,7 @@ const ORDINAL_SUFFIX = 'ième'
 
 // Special ordinals
 const PREMIER = 'premier'
+const PREMIERE = 'première'
 
 // ============================================================================
 // Segment Building
@@ -442,12 +443,13 @@ function cardinalToOrdinal(cardinalWord) {
 /**
  * Converts a positive integer to Belgian French ordinal words.
  * @param {bigint} n - Positive integer
+ * @param {boolean} feminine - Use the feminine form (only "première" differs)
  * @returns {string} Belgian French ordinal words
  */
-function integerToOrdinal(n) {
-  // Special case: 1 → premier
+function integerToOrdinal(n, feminine) {
+  // Special case: 1 → premier, première
   if (n === 1n) {
-    return PREMIER
+    return feminine ? PREMIERE : PREMIER
   }
 
   // Get cardinal form and convert to ordinal
@@ -464,24 +466,40 @@ function integerToOrdinal(n) {
 }
 
 /**
+ * @typedef {object} OrdinalOptions
+ * @property {('masculine'|'feminine')} [gender] - Grammatical gender
+ */
+
+/** @type {Required<OrdinalOptions>} */
+export const ordinalDefaults = { gender: 'masculine' }
+
+/** @type {{ gender: ReadonlyArray<Required<OrdinalOptions>['gender']> }} */
+export const ordinalValues = { gender: ['masculine', 'feminine'] }
+
+/**
  * Converts a numeric value to Belgian French ordinal words.
  *
  * Belgian French ordinals: premier (1st), then cardinal + ième.
  * Special rules: quatre→quatrième, cinq→cinquième, neuf→neuvième.
+ * Only "premier"/"première" agrees in gender; every other ordinal is
+ * invariable ("vingt et unième").
  * @param {number | string | bigint} value - The numeric value to convert (positive integer)
+ * @param {OrdinalOptions} [options] - Optional configuration
  * @returns {string} The number as ordinal words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {RangeError} If value is negative, zero, or has a decimal part
  * @example
  * toOrdinal(1)    // 'premier'
+ * toOrdinal(1, { gender: 'feminine' }) // 'première'
  * toOrdinal(2)    // 'deuxième'
  * toOrdinal(70)   // 'septantième'
  * toOrdinal(90)   // 'nonantième'
  */
-function toOrdinal(value) {
+function toOrdinal(value, options) {
   const integerPart = parseOrdinalValue(value)
   checkMax(integerPart, ordinalMax)
-  return integerToOrdinal(integerPart)
+  const { gender } = resolveOptions(options, ordinalDefaults, ordinalValues)
+  return integerToOrdinal(integerPart, gender === 'feminine')
 }
 
 // ============================================================================

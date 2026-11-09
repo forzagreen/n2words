@@ -136,8 +136,8 @@ reference.
 |`fa-IR`|Persian (Iran)|∞|∞|∞ [*](#persian-iran-fa-ir)|
 |`fi-FI`|Finnish (Finland)|10^18 - 1|10^18 - 1|10^18 - 1 [*](#finnish-finland-fi-fi)|
 |`fil-PH`|Filipino (Philippines)|10^15 - 1|10^15 - 1|10^15 - 1 [*](#filipino-philippines-fil-ph)|
-|`fr-BE`|French (Belgium)|10^30 - 1 [*](#french-belgium-fr-be)|10^30 - 1|10^30 - 1 [*](#french-belgium-fr-be)|
-|`fr-FR`|French (France)|10^30 - 1 [*](#french-france-fr-fr)|10^30 - 1|10^30 - 1 [*](#french-france-fr-fr)|
+|`fr-BE`|French (Belgium)|10^30 - 1 [*](#french-belgium-fr-be)|10^30 - 1 [*](#french-belgium-fr-be)|10^30 - 1 [*](#french-belgium-fr-be)|
+|`fr-FR`|French (France)|10^30 - 1 [*](#french-france-fr-fr)|10^30 - 1 [*](#french-france-fr-fr)|10^30 - 1 [*](#french-france-fr-fr)|
 |`gu-IN`|Gujarati (India)|10^19 - 1|10^19 - 1|10^19 - 1 [*](#gujarati-india-gu-in)|
 |`ha-NG`|Hausa (Nigeria)|10^12 - 1|10^12 - 1|10^12 - 1 [*](#hausa-nigeria-ha-ng)|
 |`hbo-IL`|Biblical Hebrew (Israel)|10^21 - 1 [*](#biblical-hebrew-israel-hbo-il)|10^9 - 1|10^21 - 1 [*](#biblical-hebrew-israel-hbo-il)|
@@ -535,6 +535,7 @@ own defaults.
 |------|----|----|-------|-----------|
 |`withHyphenSeparator`|cardinal|`boolean`|`false`|Use hyphens between words|
 |`hundredPairing`|cardinal|`boolean`|`false`|Count hundreds past ten for 1100-1999 (e.g., "dix-neuf cents" instead of "mille neuf cents")|
+|`gender`|ordinal|'feminine' \| 'masculine'|`masculine`|Grammatical gender|
 |`and`|currency|`boolean`|`true`|Use "et" between euros and centimes|
 |`currency`|currency|'EUR' \| 'MAD' \| 'TND'|`EUR`|ISO 4217 currency code to name the amount in|
 
@@ -544,6 +545,7 @@ own defaults.
 |------|----|----|-------|-----------|
 |`withHyphenSeparator`|cardinal|`boolean`|`false`|Use hyphens between all words|
 |`hundredPairing`|cardinal|`boolean`|`false`|Count hundreds past ten for 1100-1999 (e.g., "dix-neuf cents" instead of "mille neuf cents")|
+|`gender`|ordinal|'feminine' \| 'masculine'|`masculine`|Grammatical gender|
 |`and`|currency|`boolean`|`true`|Use "et" between euros and centimes|
 |`currency`|currency|'EUR' \| 'MAD' \| 'TND'|`EUR`|ISO 4217 currency code to name the amount in|
 
