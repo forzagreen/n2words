@@ -390,7 +390,7 @@ function toCardinal(value) {
 }
 
 // ============================================================================
-// ORDINAL: toOrdinal(value)
+// ORDINAL: toOrdinal(value, options?)
 // ============================================================================
 
 /**
@@ -476,12 +476,24 @@ function buildScaleOrdinal(n) {
 }
 
 /**
+ * @typedef {object} OrdinalOptions
+ * @property {('masculine'|'feminine')} [gender] - Grammatical gender of the ordinal
+ */
+
+/** @type {Required<OrdinalOptions>} */
+export const ordinalDefaults = { gender: 'masculine' }
+
+/** @type {{ gender: ReadonlyArray<Required<OrdinalOptions>['gender']> }} */
+export const ordinalValues = { gender: ['masculine', 'feminine'] }
+
+/**
  * Converts a numeric value to Italian ordinal words.
  *
  * Italian ordinals: primo, secondo, terzo... (1-10 irregular)
  * For 11+: cardinal word (drop final vowel) + -esimo
  * @param {number | string | bigint} value - The numeric value to convert (positive integer)
- * @returns {string} The number as ordinal words (masculine form)
+ * @param {OrdinalOptions} [options] - Optional configuration
+ * @returns {string} The number as ordinal words
  * @throws {TypeError} If value is not a valid numeric type
  * @throws {RangeError} If value is negative, zero, or has a decimal part
  * @example
@@ -492,12 +504,17 @@ function buildScaleOrdinal(n) {
  * toOrdinal(100)  // 'centesimo'
  * toOrdinal(1000) // 'millesimo'
  * toOrdinal(1000000) // 'milionesimo'
+ * toOrdinal(1, { gender: 'feminine' })  // 'prima'
+ * toOrdinal(21, { gender: 'feminine' }) // 'ventunesima'
  */
-function toOrdinal(value) {
+function toOrdinal(value, options) {
   const integerPart = parseOrdinalValue(value)
   // Ordinals are derived from the cardinal speller, so they share its ceiling.
   checkMax(integerPart, ordinalMax)
-  return integerToOrdinal(integerPart)
+  const { gender } = resolveOptions(options, ordinalDefaults, ordinalValues)
+  const masculine = integerToOrdinal(integerPart)
+  // Every masculine ordinal ends in -o; the feminine ends in -a
+  return gender === 'feminine' ? masculine.slice(0, -1) + 'a' : masculine
 }
 
 // ============================================================================
