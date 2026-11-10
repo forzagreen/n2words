@@ -42,6 +42,11 @@ jobs:
       # build provenance before it runs, so a replaced asset fails here
       # instead of running. Bump VERSION and SHA256 together, from the
       # release's checksums file.
+      #
+      # `gh attestation verify` prints nothing when it passes, so the step
+      # reads its JSON report rather than trusting the exit status: at least
+      # one SLSA provenance attestation, each naming this tarball at the
+      # pinned digest.
       - name: Run actionlint
         env:
           GH_TOKEN: ${{ github.token }}
@@ -51,7 +56,13 @@ jobs:
           tarball="actionlint_${VERSION}_linux_amd64.tar.gz"
           curl -sSfL -o "$tarball" "https://github.com/kjanat/actionlint/releases/download/v${VERSION}/${tarball}"
           echo "${SHA256}  ${tarball}" | sha256sum -c -
-          gh attestation verify "$tarball" --repo kjanat/actionlint --source-ref "refs/tags/v${VERSION}"
+          gh attestation verify "$tarball" --repo kjanat/actionlint --source-ref "refs/tags/v${VERSION}" \
+            --format json > "$RUNNER_TEMP/attestation.json"
+          jq -e --arg name "$tarball" --arg sha "$SHA256" '
+            length > 0 and all(.[].verificationResult.statement;
+              .predicateType == "https://slsa.dev/provenance/v1" and
+              any(.subject[]; .name == $name and .digest.sha256 == $sha))
+          ' "$RUNNER_TEMP/attestation.json"
           tar -xzf "$tarball" actionlint
           ./actionlint -color
 
