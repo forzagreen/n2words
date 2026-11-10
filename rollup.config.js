@@ -83,17 +83,39 @@ const individualTerserConfig = terser({
 // Individual Language Bundle Configurations
 // ============================================================================
 
-// Generate individual ESM language bundle configurations
-// ESM bundles directly use source files - they already export toCardinal
-const languageEsmConfigs = languageCodes.map(langCode => ({
-  input: `./src/${langCode}.js`,
-  output: {
-    file: `dist/${langCode}.js`,
-    format: 'es',
-    banner: `/*! n2words/${langCode} v${pkg.version} | MIT License | github.com/forzagreen/n2words */`,
-  },
-  plugins: [individualTerserConfig],
-}))
+// Exports a dist bundle leaves out. toCurrencyIn's saving is for bundler users,
+// who import one currency from n2words/en/currencies. A CDN page can't do that
+// yet, since src/en/currencies.js pulls in the whole currency-vocab matrix, so
+// in a dist bundle it would be weight nobody can use.
+const DIST_EXCLUDED_EXPORTS = new Set(['toCurrencyIn'])
+
+/**
+ * Build the ESM config for one language: every export but the excluded ones.
+ *
+ * A virtual entry names the kept exports, so Rollup drops whatever only the
+ * excluded ones reach. A language with nothing to exclude bundles straight
+ * from its source file, as it always has.
+ * @param {string} langCode - A language code (e.g. 'en-US')
+ * @param {string[]} exportNames - The module's export names
+ * @returns {import('rollup').RollupOptions} Config for dist/{langCode}.js
+ */
+function languageEsmConfig(langCode, exportNames) {
+  const kept = exportNames.filter(name => !DIST_EXCLUDED_EXPORTS.has(name))
+  const virtualEntryId = `\0virtual:lang:${langCode}`
+  const filtered = kept.length < exportNames.length
+  return {
+    input: filtered ? virtualEntryId : `./src/${langCode}.js`,
+    output: {
+      file: `dist/${langCode}.js`,
+      format: 'es',
+      banner: `/*! n2words/${langCode} v${pkg.version} | MIT License | github.com/forzagreen/n2words */`,
+    },
+    plugins: [
+      ...(filtered ? [virtual({ [virtualEntryId]: `export { ${kept.join(', ')} } from './src/${langCode}.js';\n` })] : []),
+      individualTerserConfig,
+    ],
+  }
+}
 
 /**
  * Build the ESM config for one (language, form) pair.
@@ -174,6 +196,10 @@ function umdConfig(langCode, forms) {
 export default async () => {
   const formsByCode = await Promise.all(
     languageCodes.map(async langCode => /** @type {const} */ ([langCode, await getExportedForms(langCode)])),
+  )
+
+  const languageEsmConfigs = await Promise.all(
+    languageCodes.map(async langCode => languageEsmConfig(langCode, Object.keys(await import(`./src/${langCode}.js`)))),
   )
 
   const languageUmdConfigs = formsByCode.map(([langCode, forms]) => umdConfig(langCode, forms))

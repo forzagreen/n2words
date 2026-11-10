@@ -69,7 +69,7 @@ for (const [primary, variants] of byPrimary) {
 // wraps toCurrency to require an explicit `currency` and strips that key from
 // its defaults. Both are asserted separately below.
 const REEXPORTED_KEYS = [
-  'toCardinal', 'toOrdinal',
+  'toCardinal', 'toOrdinal', 'toCurrencyIn',
   'cardinalMax', 'ordinalMax', 'currencyMax',
   'cardinalDefaults', 'ordinalDefaults',
   'cardinalValues', 'ordinalValues', 'currencyValues',

@@ -229,9 +229,11 @@ for (const { code, mod, declaredCodes } of languages) {
 
 test('a currency has minor-unit words if and only if its exponent is nonzero', (t) => {
   for (const [exportName, entry] of Object.entries(vocab)) {
-    // Skip the non-matrix exports (CURRENCY_EXPONENTS, assertCurrencyExponent).
+    // Skip the non-matrix exports: the functions, CURRENCY_EXPONENTS, and the
+    // EN_<CODE> bindings the `en` map is built from (checked through that
+    // map). A per-language map's name is the only kind that starts lowercase.
     if (typeof entry !== 'object' || entry === null) continue
-    if (exportName === 'CURRENCY_EXPONENTS') continue
+    if (!/^[a-z]/.test(exportName)) continue
 
     for (const [isoCode, forms] of Object.entries(entry)) {
       const hasMinorWords = forms.minor !== null
