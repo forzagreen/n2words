@@ -39,18 +39,15 @@ jobs:
       # published npm version with no tag or commit on main.
       - name: Mint release-bot token
         id: app-token
-        uses: actions/create-github-app-token@v3
+        uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
         with:
           # `client-id` (the App's Client ID, from its settings page —
           # `Iv23li…`), not the numeric `app-id`, which v3 deprecates and
-          # warns on every run. actionlint's bundled metadata for this
-          # action still predates `client-id`, so ci.yml's actionlint step
-          # carries two `-ignore` patterns scoped to exactly this action;
-          # drop them once a pinned actionlint knows the input.
+          # warns on every run.
           client-id: ${{ secrets.RELEASE_BOT_CLIENT_ID }}
           private-key: ${{ secrets.RELEASE_BOT_PRIVATE_KEY }}
 
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
           # Persisted as the push credential for "Tag and push to
@@ -73,7 +70,7 @@ jobs:
           fi
 
       - name: Setup Node.js
-        uses: actions/setup-node@v7
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: ${{ env.NODE_VERSION }}
           registry-url: 'https://registry.npmjs.org'
@@ -88,7 +85,7 @@ jobs:
         run: |
           HASH=$(jq -S '{dependencies,devDependencies,optionalDependencies,peerDependencies}' package.json | sha256sum | cut -c1-16)
           echo "key=npm-${{ runner.os }}-node${{ env.NODE_VERSION }}-${HASH}" >> "$GITHUB_OUTPUT"
-      - uses: actions/cache@v6
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ~/.npm
           key: ${{ steps.cache-key.outputs.key }}
@@ -102,9 +99,12 @@ jobs:
         run: npm test
 
       - name: Install git-cliff
-        uses: taiki-e/install-action@v2
+        uses: taiki-e/install-action@cfdb7ed4ccc7c7dce37759eae89dc5674b469b39 # v2.90.3
         with:
-          tool: git-cliff
+          # An exact version, so the next version and the changelog a release
+          # derives change only when this line does. install-action verifies
+          # the download's SHA-256.
+          tool: git-cliff@2.14.2
 
       - name: Configure git
         run: |
@@ -245,7 +245,7 @@ jobs:
 
       - name: Create GitHub Release
         if: steps.version.outputs.skip != 'true'
-        uses: softprops/action-gh-release@v3
+        uses: softprops/action-gh-release@8a0cd651e5b2365bd640854a3fa5dfc70e4875f3 # v3.0.4
         with:
           token: ${{ steps.app-token.outputs.token }}
           tag_name: ${{ steps.version.outputs.tag }}
