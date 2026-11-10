@@ -19,22 +19,20 @@ concurrency:
 permissions:
   contents: read
 
+# One job per check, so a red check names what failed. A job's name is the
+# check name a ruleset requires, so renaming one is a protection change.
 jobs:
-  lint:
-    name: Lint & Security
+  actionlint:
+    name: Actionlint
     runs-on: ubuntu-latest
-    # The job's own work (actionlint, audit, eslint, tsc) runs in well under a
-    # minute; the budget exists for `npm ci`, which is unpredictable whenever a
-    # lockfile change invalidates the setup-node cache. 10 matches the test jobs.
-    timeout-minutes: 10
+    # Downloads one binary and lints the workflows; there is no `npm ci`.
+    timeout-minutes: 5
 
     steps:
       - uses: actions/checkout@v7
         with:
           persist-credentials: false
 
-      # actionlint runs before npm-dependent steps so a workflow-YAML
-      # bug fails fast without paying the ~30s `npm ci` cost.
       # Installer URL and binary version are pinned to the same tag —
       # `main` is mutable and would defeat supply-chain immutability
       # even if the binary itself is pinned.
@@ -53,20 +51,53 @@ jobs:
             -ignore 'input "client-id" is not defined in action "actions/create-github-app-token@v3"' \
             -ignore 'missing input "app-id" which is required by action "actions/create-github-app-token@v3"'
 
+  audit:
+    name: Audit
+    runs-on: ubuntu-latest
+    # Fetches audit-ci and reads the lockfile; there is no `npm ci`.
+    timeout-minutes: 5
+
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      # No `cache: 'npm'`. setup-node saves the cache under the lockfile's key
+      # when the job ends, and the first job to finish wins the key: this one,
+      # holding only audit-ci, would leave every other job restoring a cache
+      # without the dependencies until the lockfile next changes.
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: '26'
+
+      # audit-ci runs `npm audit` at high severity and sets aside only the
+      # advisories listed in audit-ci.jsonc, each with its reason and expiry.
+      # It reads just the lockfile, so no dependency's install script runs
+      # ahead of the audit; that is also why it comes through npx rather than
+      # as a devDependency. The version is pinned, but its own dependencies
+      # resolve fresh on each run.
+      - name: Security audit
+        run: npx --yes audit-ci@7.1.0 --config ./audit-ci.jsonc
+
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    # Linting runs in well under a minute; the budget exists for `npm ci`,
+    # which is unpredictable whenever a lockfile change invalidates the
+    # setup-node cache. 10 matches the test jobs.
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
       - name: Setup Node.js
         uses: actions/setup-node@v7
         with:
           node-version: '26'
           cache: 'npm'
-
-      # audit-ci runs `npm audit` at high severity and sets aside only the
-      # advisories listed in audit-ci.jsonc, each with its reason and expiry.
-      # It reads just the lockfile, so it runs before `npm ci` and no
-      # dependency's install script runs ahead of the audit; that is also why
-      # it comes through npx rather than as a devDependency. The version is
-      # pinned, but its own dependencies resolve fresh on each run.
-      - name: Security audit
-        run: npx --yes audit-ci@7.1.0 --config ./audit-ci.jsonc
 
       - name: Install dependencies
         run: npm ci --prefer-offline
@@ -74,12 +105,51 @@ jobs:
       - name: Lint
         run: npm run lint
 
-      # Strict checkJs over src (tsconfig.build.json, noEmit) — fast type
-      # gate that fails in the cheap lint job before the test matrix. The
-      # shipped declarations are independently gated by build:types
-      # (checkJs + noEmitOnError) in the test job and prepack.
+  typecheck:
+    name: Typecheck
+    runs-on: ubuntu-latest
+    # Same budget as Lint, for `npm ci`.
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: '26'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci --prefer-offline
+
+      # Strict checkJs over src (tsconfig.build.json, noEmit). The shipped
+      # declarations are independently gated by build:types (checkJs +
+      # noEmitOnError) in the test jobs and prepack.
       - name: Typecheck
         run: npm run typecheck
+
+  site-data:
+    name: Site Data
+    runs-on: ubuntu-latest
+    # Same budget as Lint, for `npm ci`.
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: '26'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci --prefer-offline
 
       # The demo site's manifest is generated from src/ at deploy time, and
       # pages.yml only runs on main — so a language whose shape the generator
@@ -94,7 +164,6 @@ jobs:
   test:
     name: Test (Node ${{ matrix.node }}${{ matrix.coverage && ' + Coverage' || '' }})
     runs-on: ubuntu-latest
-    needs: lint
     timeout-minutes: 10
 
     strategy:
@@ -176,8 +245,6 @@ jobs:
   build:
     name: Build & Package
     runs-on: ubuntu-latest
-    needs: lint
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     timeout-minutes: 5
 
     steps:
