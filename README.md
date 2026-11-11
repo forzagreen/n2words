@@ -181,9 +181,9 @@ of the currencies English has words for, not just USD.
 
 |`en-US`|bytes|
 |-------|-----|
-|`dist/en-US.js` (all three forms)|9,227|
+|`dist/en-US.js` (all three forms)|9,369|
 |`dist/en-US/cardinal.js`|4,293|
-|`dist/en-US/ordinal.js`|3,815|
+|`dist/en-US/ordinal.js`|4,534|
 |`dist/en-US/currency.js`|5,258|
 
 This is for CDN consumers only. If you install from npm and use a bundler,

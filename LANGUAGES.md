@@ -116,7 +116,7 @@ reference.
 |`el-GR`|Greek (Greece)|10^15 - 1|10^9 - 1|10^15 - 1 [*](#greek-greece-el-gr)|
 |`en-AU`|Australian English|10^66 - 1|10^66 - 1|10^66 - 1 [*](#australian-english-en-au)|
 |`en-BD`|English (Bangladesh)|10^19 - 1|10^19 - 1|10^19 - 1 [*](#english-bangladesh-en-bd)|
-|`en-CA`|Canadian English|10^66 - 1 [*](#canadian-english-en-ca)|10^66 - 1|10^66 - 1 [*](#canadian-english-en-ca)|
+|`en-CA`|Canadian English|10^66 - 1 [*](#canadian-english-en-ca)|10^66 - 1 [*](#canadian-english-en-ca)|10^66 - 1 [*](#canadian-english-en-ca)|
 |`en-GB`|British English|10^66 - 1|10^66 - 1|10^66 - 1 [*](#british-english-en-gb)|
 |`en-GH`|English (Ghana)|10^66 - 1|10^66 - 1|10^66 - 1 [*](#english-ghana-en-gh)|
 |`en-IE`|English (Ireland)|10^66 - 1|10^66 - 1|10^66 - 1 [*](#english-ireland-en-ie)|
@@ -128,7 +128,7 @@ reference.
 |`en-PH`|English (Philippines)|10^66 - 1|10^66 - 1|10^66 - 1 [*](#english-philippines-en-ph)|
 |`en-PK`|English (Pakistan)|10^19 - 1|10^19 - 1|10^19 - 1 [*](#english-pakistan-en-pk)|
 |`en-SG`|English (Singapore)|10^66 - 1|10^66 - 1|10^66 - 1 [*](#english-singapore-en-sg)|
-|`en-US`|American English|10^66 - 1 [*](#american-english-en-us)|10^66 - 1|10^66 - 1 [*](#american-english-en-us)|
+|`en-US`|American English|10^66 - 1 [*](#american-english-en-us)|10^66 - 1 [*](#american-english-en-us)|10^66 - 1 [*](#american-english-en-us)|
 |`en-ZA`|English (South Africa)|10^66 - 1|10^66 - 1|10^66 - 1 [*](#english-south-africa-en-za)|
 |`es-ES`|European Spanish|10^30 - 1 [*](#european-spanish-es-es)|10^9 - 1 [*](#european-spanish-es-es)|10^30 - 1 [*](#european-spanish-es-es)|
 |`es-MX`|Mexican Spanish|10^30 - 1|10^9 - 1|10^30 - 1 [*](#mexican-spanish-es-mx)|
@@ -290,6 +290,7 @@ own defaults.
 |------|----|----|-------|-----------|
 |`hundredPairing`|cardinal|`boolean`|`false`|Use hundred-pairing for 1100-9999 (e.g., "fifteen hundred" instead of "one thousand five hundred")|
 |`and`|cardinal|`boolean`|`false`|Use "and" after hundreds and before final small numbers (e.g., "one hundred and one" instead of "one hundred one")|
+|`and`|ordinal|`boolean`|`false`|Use "and" where the cardinal does (e.g., "one hundred and first" instead of "one hundred first")|
 |`and`|currency|`boolean`|`true`|Use "and" between dollars and cents (e.g., "one dollar and fifty cents")|
 |`currency`|currency|'AUD' \| 'BDT' \| 'BHD' \| 'CAD' \| 'EUR' \| 'GBP' \| 'GHS' \| 'INR' \| 'IQD' \| 'JOD' \| 'KES' \| 'KWD' \| 'LYD' \| 'MAD' \| 'MYR' \| 'NGN' \| 'NZD' \| 'OMR' \| 'PHP' \| 'PKR' \| 'SGD' \| 'TND' \| 'USD' \| 'ZAR'|`USD`|ISO 4217 currency code to name the amount in|
 
@@ -367,6 +368,7 @@ own defaults.
 |------|----|----|-------|-----------|
 |`hundredPairing`|cardinal|`boolean`|`false`|Use hundred-pairing for 1100-9999 (e.g., "fifteen hundred" instead of "one thousand five hundred")|
 |`and`|cardinal|`boolean`|`true`|Use "and" after hundreds and before final small numbers (default: true, Canadian/British style)|
+|`and`|ordinal|`boolean`|`true`|Use "and" where the cardinal does (e.g., "one hundred and first" instead of "one hundred first")|
 |`and`|currency|`boolean`|`true`|Use "and" between dollars and cents (e.g., "one dollar and fifty cents")|
 |`currency`|currency|'AUD' \| 'BDT' \| 'BHD' \| 'CAD' \| 'EUR' \| 'GBP' \| 'GHS' \| 'INR' \| 'IQD' \| 'JOD' \| 'KES' \| 'KWD' \| 'LYD' \| 'MAD' \| 'MYR' \| 'NGN' \| 'NZD' \| 'OMR' \| 'PHP' \| 'PKR' \| 'SGD' \| 'TND' \| 'USD' \| 'ZAR'|`CAD`|ISO 4217 currency code to name the amount in|
 
