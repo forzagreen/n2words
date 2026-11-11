@@ -9,51 +9,47 @@ on:
   workflow_dispatch:
     inputs:
       bump:
-        description: "Version bump (use 'auto' to detect from commits)"
-        required: false
+        description: "The step from the last release: auto lets the commits decide; patch, minor or major overrides them"
         type: choice
-        options: ["auto", "major", "minor", "patch"]
-        default: "auto"
+        options: [auto, patch, minor, major]
+        default: auto
+        required: true
+      dry-run:
+        description: "Decide the version, preview the changelog and run the gate; write nothing"
+        type: boolean
+        default: false
+        required: false
 
 concurrency:
   group: release
   cancel-in-progress: false
 
+permissions:
+  contents: read
+
+# Two jobs, so the publishing credential is reachable only once the package
+# exists. Build decides the version, runs the tests, writes the changelog and
+# packs the tarball once; a dry run stops there, having written nothing.
+# Publish declares the npm environment, so it waits for a reviewer, and then
+# sends that one tarball to npm and to the GitHub release.
 jobs:
-  release:
-    name: Release
+  build:
+    name: Build
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    permissions:
-      contents: write
-      id-token: write
-    environment: npm
+    outputs:
+      skip: ${{ steps.version.outputs.skip }}
+      version: ${{ steps.version.outputs.version }}
+      tag: ${{ steps.version.outputs.tag }}
+      head: ${{ steps.version.outputs.head }}
+      tarball: ${{ steps.pack.outputs.tarball }}
+      sha256: ${{ steps.pack.outputs.sha256 }}
 
     steps:
-      # Mint a short-lived installation token from the release-bot
-      # GitHub App. The App is a bypass actor on the `main` branch
-      # ruleset, so the chore(release) commit pushed below is exempt
-      # from the "require a pull request" rule. The default
-      # GITHUB_TOKEN / github-actions[bot] is NOT a bypass actor —
-      # pushing with it is what the ruleset rejected, leaving a
-      # published npm version with no tag or commit on main.
-      - name: Mint release-bot token
-        id: app-token
-        uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
-        with:
-          # `client-id` (the App's Client ID, from its settings page —
-          # `Iv23li…`), not the numeric `app-id`, which v3 deprecates and
-          # warns on every run.
-          client-id: ${{ secrets.RELEASE_BOT_CLIENT_ID }}
-          private-key: ${{ secrets.RELEASE_BOT_PRIVATE_KEY }}
-
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
-          # Persisted as the push credential for "Tag and push to
-          # origin" below — that push then authenticates as the App
-          # (the bypass actor), not github-actions[bot].
-          token: ${{ steps.app-token.outputs.token }}
+          persist-credentials: false
 
       - name: Verify NODE_VERSION satisfies engines.node
         # engines.node lists the supported LTS lines (e.g.
@@ -73,7 +69,6 @@ jobs:
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: ${{ env.NODE_VERSION }}
-          registry-url: 'https://registry.npmjs.org'
 
       # Cache key derived from package.json's deps fields ONLY, not the
       # full lockfile. The release workflow rewrites package-lock.json's
@@ -106,19 +101,16 @@ jobs:
           # the download's SHA-256.
           tool: git-cliff@2.14.2
 
-      - name: Configure git
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-
       - name: Determine next version
         id: version
+        env:
+          BUMP: ${{ inputs.bump }}
         run: |
           CURRENT=$(node -p "require('./package.json').version")
-          if [ "${{ inputs.bump }}" = "auto" ]; then
+          if [ "$BUMP" = "auto" ]; then
             TAG=$(git-cliff --bumped-version)
           else
-            TAG=$(git-cliff --bump ${{ inputs.bump }} --bumped-version)
+            TAG=$(git-cliff --bump "$BUMP" --bumped-version)
           fi
           BARE="${TAG#v}"
           if [ "$BARE" = "$CURRENT" ]; then
@@ -127,39 +119,27 @@ jobs:
           else
             echo "skip=false" >> "$GITHUB_OUTPUT"
           fi
-          echo "version=$BARE" >> "$GITHUB_OUTPUT"
-          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          {
+            echo "version=$BARE"
+            echo "tag=$TAG"
+            echo "head=$(git rev-parse HEAD)"
+          } >> "$GITHUB_OUTPUT"
           echo "Next version: $TAG (current: $CURRENT)"
 
-          # Defend against the "previous run pushed the tag but failed
-          # before npm publish" case. package.json's CURRENT may not
-          # reflect what's actually tagged in git.
+          # Defend against the "previous run tagged but did not finish" case.
+          # package.json's CURRENT may not reflect what's actually tagged in
+          # git. The tag ruleset refuses deletion, so the way past is
+          # forward.
           if git rev-parse --verify "refs/tags/$TAG" >/dev/null 2>&1; then
-            echo "::error::Tag $TAG already exists in git. A previous release run probably partially completed. Manually delete the tag (git push --delete origin $TAG) or bump past it before retrying."
+            echo "::error::Tag $TAG already exists in git. A previous release run probably partially completed. Finish that release by hand, or bump past it before retrying."
             exit 1
           fi
 
       - name: Bump package.json
         if: steps.version.outputs.skip != 'true'
-        run: npm version ${{ steps.version.outputs.version }} --no-git-tag-version
-
-      # `npm publish --dry-run` runs the prepack script (node --run build), which
-      # builds dist/ + type declarations and leaves them on disk for the steps
-      # that follow (Verify below, the real Publish, Create release archive).
-      # A failing build fails the dry run, gating the release before any commit,
-      # tag, or publish happens.
-      - name: Dry-run publish
-        if: steps.version.outputs.skip != 'true'
-        run: npm publish --dry-run
-
-      - name: Verify build artifacts
-        if: steps.version.outputs.skip != 'true'
-        run: |
-          echo "dist/:"
-          ls -lh dist/
-          echo ""
-          echo "Type declarations:"
-          find src -name "*.d.ts" -type f
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: npm version "$VERSION" --no-git-tag-version
 
       # `--unreleased --prepend` adds ONLY the new version's section to
       # the top of the existing CHANGELOG.md. The old `--output`
@@ -167,91 +147,58 @@ jobs:
       # cliff.toml) would flatten every prior release — including the
       # hand-written 3.0.0 migration tables — into tool-generated text.
       # RELEASE_NOTES.md is the same new section with the title stripped,
-      # for the GitHub Release body.
+      # for the GitHub Release body. Written before the pack, so the
+      # tarball ships the changelog that names it.
       - name: Generate changelog
         if: steps.version.outputs.skip != 'true'
+        env:
+          BUMP: ${{ inputs.bump }}
         run: |
-          if [ "${{ inputs.bump }}" = "auto" ]; then
+          if [ "$BUMP" = "auto" ]; then
             git-cliff --bump --unreleased --prepend CHANGELOG.md
             git-cliff --bump --unreleased --strip header --output RELEASE_NOTES.md
           else
-            git-cliff --bump ${{ inputs.bump }} --unreleased --prepend CHANGELOG.md
-            git-cliff --bump ${{ inputs.bump }} --unreleased --strip header --output RELEASE_NOTES.md
+            git-cliff --bump "$BUMP" --unreleased --prepend CHANGELOG.md
+            git-cliff --bump "$BUMP" --unreleased --strip header --output RELEASE_NOTES.md
           fi
 
-      # Commit locally only — defer the push until AFTER `npm publish`
-      # succeeds (see "Tag and push to origin" below). `[skip ci]` keeps
-      # the eventual push from re-triggering ci.yml on main, which would
-      # waste a billing minute re-running checks that already passed on
-      # the parent PR. The bump commit goes onto whatever the runner
-      # checked out; origin only learns about it after the artifact is
-      # durable on npm.
-      - name: Commit chore(release) locally
-        if: steps.version.outputs.skip != 'true'
-        run: |
-          git add package.json package-lock.json CHANGELOG.md
-          git commit -m "chore(release): ${{ steps.version.outputs.tag }} [skip ci]"
-
-      - name: Publish to npm
+      # The one build. `npm pack` runs the prepack script (node --run build),
+      # so a failing build fails here, before anything is written. Every
+      # channel then receives this file: npm, and the GitHub release beside
+      # its attestation, so a copy from either can be hashed against the other.
+      - name: Pack
+        id: pack
         if: steps.version.outputs.skip != 'true'
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: npm publish --provenance
-
-      # Tag + push deferred until AFTER `npm publish` lands the
-      # artifact. Prior shape pushed first; an npm-publish failure (OIDC
-      # expiry, registry hiccup, etc.) left the tag on origin pointing
-      # at a version that wasn't on npm, and the next run tripped the
-      # "tag exists" guard. Now: tag on origin ⇒ artifact on npm.
-      #
-      # Annotated tag (`-a`) — `--follow-tags` only pushes annotated
-      # tags; lightweight ones are silently skipped. `--atomic` makes
-      # the main + tag advance server-side all-or-nothing, closing the
-      # narrower "commit lands but tag doesn't" anomaly.
-      #
-      # Do NOT rebase onto origin/main before pushing. The npm package
-      # was already published from THIS chore(release) commit's tree.
-      # A rebase would replay that commit onto any PR that merged during
-      # the build, so the tag's tree would include source the published
-      # package was never built from (tag/artifact mismatch), and the
-      # merged PR would sink below the tag where the next
-      # `git-cliff --bumped-version` walk skips it — silently dropped
-      # from the changelog. Let the race fail loud instead: a PR landing
-      # on origin/main mid-build makes this a non-fast-forward push and
-      # `--atomic` rejects both main and the tag. That is recoverable —
-      # the package is already on npm; once main is stable, re-run the
-      # release or push the chore(release) commit + tag by hand.
-      - name: Tag and push to origin
-        if: steps.version.outputs.skip != 'true'
+          VERSION: ${{ steps.version.outputs.version }}
         run: |
-          git tag -a ${{ steps.version.outputs.tag }} -m "Release ${{ steps.version.outputs.tag }}"
-          git push origin main --atomic --follow-tags
+          npm pack
+          TARBALL="$(node -p "require('./package.json').name")-${VERSION}.tgz"
+          test -f "$TARBALL"
+          echo "tarball=$TARBALL" >> "$GITHUB_OUTPUT"
+          echo "sha256=$(sha256sum "$TARBALL" | cut -d' ' -f1)" >> "$GITHUB_OUTPUT"
 
-      - name: Create release archive
+      # Given the tarball rather than the folder, npm sends the file as it is
+      # and does not run prepack again. The dry run checks it against the
+      # registry, which refuses a version already published.
+      - name: Dry-run publish
         if: steps.version.outputs.skip != 'true'
-        run: |
-          VERSION=${{ steps.version.outputs.version }}
-          mkdir -p n2words-${VERSION}/{src,dist,bin}
-          # Recursive copy so the zip mirrors the npm package's src/ tree —
-          # a flat `src/*.js src/*.d.ts` glob silently drops src/utils/ (its
-          # .js + .d.ts), which the package's `src/**/*.js` + `src/**/*.d.ts`
-          # files globs ship. Same reason bin/ is copied recursively: the CLI
-          # is a shipped entry point (package.json `bin`), and bin/lib/ would
-          # be dropped by a flat glob.
-          cp -r src/. n2words-${VERSION}/src/
-          cp -r bin/. n2words-${VERSION}/bin/
-          cp dist/*.js n2words-${VERSION}/dist/
-          zip -r n2words-${VERSION}.zip n2words-${VERSION}/
+        env:
+          TARBALL: ${{ steps.pack.outputs.tarball }}
+        run: npm publish --dry-run "./${TARBALL}"
 
-      - name: Create GitHub Release
-        if: steps.version.outputs.skip != 'true'
-        uses: softprops/action-gh-release@8a0cd651e5b2365bd640854a3fa5dfc70e4875f3 # v3.0.4
+      - name: Upload the release files
+        if: steps.version.outputs.skip != 'true' && !inputs.dry-run
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
-          token: ${{ steps.app-token.outputs.token }}
-          tag_name: ${{ steps.version.outputs.tag }}
-          name: ${{ steps.version.outputs.tag }}
-          body_path: RELEASE_NOTES.md
-          files: n2words-*.zip
+          name: release
+          path: |
+            ${{ steps.pack.outputs.tarball }}
+            package.json
+            package-lock.json
+            CHANGELOG.md
+            RELEASE_NOTES.md
+          if-no-files-found: error
 
       - name: Generate job summary
         if: always()
@@ -260,10 +207,10 @@ jobs:
           TAG: ${{ steps.version.outputs.tag }}
           SKIP: ${{ steps.version.outputs.skip }}
           BUMP: ${{ inputs.bump }}
+          DRY_RUN: ${{ inputs.dry-run }}
         run: |
-          PKG_NAME=$(node -p "require('./package.json').name")
           {
-            echo "## Release Summary"
+            echo "## Release Build"
             echo ""
             if [ "$SKIP" = "true" ]; then
               echo "> **Skipped** — no version change detected (already at v${VERSION})"
@@ -273,9 +220,190 @@ jobs:
               echo "| **Version** | v${VERSION} |"
               echo "| **Tag** | \`${TAG}\` |"
               echo "| **Bump** | ${BUMP} |"
-              echo ""
-              echo "- **npm**: https://www.npmjs.com/package/${PKG_NAME}/v/${VERSION}"
-              echo "- **unpkg**: https://unpkg.com/${PKG_NAME}@${VERSION}/"
-              echo "- **jsDelivr**: https://cdn.jsdelivr.net/npm/${PKG_NAME}@${VERSION}/"
+              echo "| **Dry run** | ${DRY_RUN} |"
+              if [ -f RELEASE_NOTES.md ]; then
+                echo ""
+                echo "### Release notes"
+                echo ""
+                cat RELEASE_NOTES.md
+              fi
             fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  publish:
+    name: Publish
+    needs: build
+    if: needs.build.outputs.skip != 'true' && !inputs.dry-run
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: npm
+    permissions:
+      contents: read
+      id-token: write
+      attestations: write
+    env:
+      VERSION: ${{ needs.build.outputs.version }}
+      TAG: ${{ needs.build.outputs.tag }}
+      TARBALL: ${{ needs.build.outputs.tarball }}
+      GH_REPO: ${{ github.repository }}
+
+    steps:
+      - name: Download the release files
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: release
+          path: release
+
+      - name: Check the tarball is the one Build packed
+        env:
+          SHA256: ${{ needs.build.outputs.sha256 }}
+        run: echo "${SHA256}  release/${TARBALL}" | sha256sum -c -
+
+      # Mint a short-lived installation token from the release-bot
+      # GitHub App. The App is a bypass actor on the `main` branch
+      # ruleset, so the chore(release) commit it asks for below is exempt
+      # from the "require a pull request" rule. The default GITHUB_TOKEN /
+      # github-actions[bot] is NOT a bypass actor. Minted before the
+      # publish, so a failure here stops the run with nothing written.
+      - name: Mint release-bot token
+        id: app-token
+        uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
+        with:
+          # `client-id` (the App's Client ID, from its settings page —
+          # `Iv23li…`), not the numeric `app-id`, which v3 deprecates and
+          # warns on every run.
+          client-id: ${{ secrets.RELEASE_BOT_CLIENT_ID }}
+          private-key: ${{ secrets.RELEASE_BOT_PRIVATE_KEY }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          registry-url: 'https://registry.npmjs.org'
+
+      # Publication comes first because it is the step that cannot be taken
+      # back. The commit, the tag and the release that announce it follow,
+      # so a failed publish leaves nothing claiming a version npm lacks.
+      - name: Publish to npm
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: npm publish --provenance "./release/${TARBALL}"
+
+      # The version and the changelog land on main as a commit GitHub
+      # builds and signs. A commit pushed from the runner would arrive
+      # unsigned whatever token sent it; one asked for through
+      # createCommitOnBranch, with no author or committer supplied, is
+      # signed by GitHub.
+      #
+      # expectedHeadOid is the commit Build checked out and packed from.
+      # A pull request merged during the run moves main, and the mutation
+      # then refuses rather than landing the release commit on a tree the
+      # package was never built from, where the merged change would also
+      # sink below the tag and drop out of the next changelog. Let that
+      # race fail loud. It is recoverable: the package is on npm already,
+      # so what remains is the record — the commit, the tag and the
+      # release — made by hand once main is stable.
+      - name: Commit the release to main
+        id: commit
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          HEAD_OID: ${{ needs.build.outputs.head }}
+        run: |
+          for f in package.json package-lock.json CHANGELOG.md; do
+            base64 -w0 "release/$f" > "$RUNNER_TEMP/$f.b64"
+          done
+          jq -n \
+            --arg repo "$GH_REPO" \
+            --arg head "$HEAD_OID" \
+            --arg headline "chore(release): ${TAG}" \
+            --rawfile pkg "$RUNNER_TEMP/package.json.b64" \
+            --rawfile lock "$RUNNER_TEMP/package-lock.json.b64" \
+            --rawfile changelog "$RUNNER_TEMP/CHANGELOG.md.b64" \
+            '{
+              query: "mutation($input: CreateCommitOnBranchInput!) { createCommitOnBranch(input: $input) { commit { oid } } }",
+              variables: { input: {
+                branch: { repositoryNameWithOwner: $repo, branchName: "main" },
+                expectedHeadOid: $head,
+                message: { headline: $headline },
+                fileChanges: { additions: [
+                  { path: "package.json", contents: $pkg },
+                  { path: "package-lock.json", contents: $lock },
+                  { path: "CHANGELOG.md", contents: $changelog }
+                ] }
+              } }
+            }' > "$RUNNER_TEMP/commit.json"
+          OID=$(gh api graphql --input "$RUNNER_TEMP/commit.json" --jq '.data.createCommitOnBranch.commit.oid')
+          if ! [[ "$OID" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "::error::createCommitOnBranch returned no commit."
+            exit 1
+          fi
+          echo "oid=$OID" >> "$GITHUB_OUTPUT"
+
+      # An annotated tag on that commit, made through the API too, since
+      # this job has no clone to push from. A tag GitHub makes is unsigned,
+      # as one pushed from the runner was, and it carries the tagger the
+      # earlier release tags carry.
+      - name: Tag the release commit
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          OID: ${{ steps.commit.outputs.oid }}
+        run: |
+          TAG_OBJECT=$(gh api "repos/${GH_REPO}/git/tags" \
+            -f tag="$TAG" \
+            -f message="Release $TAG" \
+            -f object="$OID" \
+            -f type=commit \
+            -f 'tagger[name]=github-actions[bot]' \
+            -f 'tagger[email]=github-actions[bot]@users.noreply.github.com' \
+            --jq .sha)
+          gh api "repos/${GH_REPO}/git/refs" -f ref="refs/tags/${TAG}" -f sha="$TAG_OBJECT" > /dev/null
+
+      - name: Attest the tarball
+        uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4.2.2
+        with:
+          subject-path: release/${{ env.TARBALL }}
+
+      # Drafted, given its file, then published: publication is where an
+      # immutable release freezes its tag and its assets, so everything is
+      # attached before it.
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        run: |
+          gh release create "$TAG" "release/${TARBALL}" \
+            --draft \
+            --verify-tag \
+            --title "$TAG" \
+            --notes-file release/RELEASE_NOTES.md
+          gh release edit "$TAG" --draft=false
+
+      # Last, so a commit that came back unsigned fails the run loudly
+      # without leaving the release half-made.
+      - name: Check the release commit is signed
+        env:
+          GH_TOKEN: ${{ github.token }}
+          OID: ${{ steps.commit.outputs.oid }}
+        run: |
+          VERIFIED=$(gh api "repos/${GH_REPO}/commits/${OID}" --jq '.commit.verification.verified')
+          echo "Release commit ${OID} verified: ${VERIFIED}"
+          if [ "$VERIFIED" != "true" ]; then
+            echo "::error::The release commit is not signed."
+            exit 1
+          fi
+
+      - name: Generate job summary
+        run: |
+          PKG_NAME=$(jq -r .name release/package.json)
+          {
+            echo "## Release Published"
+            echo ""
+            echo "| Item | Value |"
+            echo "|------|-------|"
+            echo "| **Version** | v${VERSION} |"
+            echo "| **Tag** | \`${TAG}\` |"
+            echo ""
+            echo "- **npm**: https://www.npmjs.com/package/${PKG_NAME}/v/${VERSION}"
+            echo "- **GitHub**: https://github.com/${GH_REPO}/releases/tag/${TAG}"
+            echo "- **unpkg**: https://unpkg.com/${PKG_NAME}@${VERSION}/"
+            echo "- **jsDelivr**: https://cdn.jsdelivr.net/npm/${PKG_NAME}@${VERSION}/"
           } >> "$GITHUB_STEP_SUMMARY"
