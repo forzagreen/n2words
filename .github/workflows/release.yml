@@ -119,9 +119,11 @@ jobs:
           else
             echo "skip=false" >> "$GITHUB_OUTPUT"
           fi
-          echo "version=$BARE" >> "$GITHUB_OUTPUT"
-          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
-          echo "head=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+          {
+            echo "version=$BARE"
+            echo "tag=$TAG"
+            echo "head=$(git rev-parse HEAD)"
+          } >> "$GITHUB_OUTPUT"
           echo "Next version: $TAG (current: $CURRENT)"
 
           # Defend against the "previous run tagged but did not finish" case.
