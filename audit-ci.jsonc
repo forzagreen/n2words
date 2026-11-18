@@ -6,5 +6,13 @@
 {
   "$schema": "https://github.com/IBM/audit-ci/raw/main/docs/schema.json",
   "high": true,
-  "allowlist": []
+  "allowlist": [
+    {
+      "GHSA-fc5q-39xc-vjpf": {
+        "active": true,
+        "notes": "picomatch <= 4.0.7 has no patched release; the fix, micromatch/picomatch#194, is unmerged. It is reached only through dev tools (eslint and its plugins, ava, rollup's plugin utilities, lint-staged, markdownlint-cli2). The ReDoS needs a pattern with a single-branch repeated extglob, and every pattern those tools parse comes from this repo's own config, which has none. n2words ships no dependencies, so users never install it.",
+        "expiry": "2027-02-17"
+      }
+    }
+  ]
 }
