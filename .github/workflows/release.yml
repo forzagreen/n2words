@@ -281,6 +281,28 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           registry-url: 'https://registry.npmjs.org'
 
+      # Publish waits for a reviewer, and a pull request merged during that
+      # wait moves main past the commit Build packed from. The release
+      # commit below would then be refused after npm already had the
+      # version, leaving a published release with no record of it. So main
+      # is read again here, just before anything is written, and a run
+      # whose main has moved stops with nothing published. Running the
+      # release again builds from the new main.
+      - name: Check main is still the commit Build packed from
+        env:
+          GH_TOKEN: ${{ github.token }}
+          HEAD_OID: ${{ needs.build.outputs.head }}
+        run: |
+          MAIN_OID=$(gh api "repos/${GH_REPO}/git/ref/heads/main" --jq .object.sha)
+          if ! [[ "$MAIN_OID" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "::error::Could not read main's commit."
+            exit 1
+          fi
+          if [ "$MAIN_OID" != "$HEAD_OID" ]; then
+            echo "::error::main is at ${MAIN_OID}, not ${HEAD_OID}, the commit Build packed from. Nothing was published; run the release again."
+            exit 1
+          fi
+
       # Publication comes first because it is the step that cannot be taken
       # back. The commit, the tag and the release that announce it follow,
       # so a failed publish leaves nothing claiming a version npm lacks.
@@ -296,13 +318,14 @@ jobs:
       # signed by GitHub.
       #
       # expectedHeadOid is the commit Build checked out and packed from.
-      # A pull request merged during the run moves main, and the mutation
-      # then refuses rather than landing the release commit on a tree the
+      # The check before the publish catches a merge during the wait for a
+      # reviewer; this catches one in the seconds since. The mutation then
+      # refuses rather than landing the release commit on a tree the
       # package was never built from, where the merged change would also
-      # sink below the tag and drop out of the next changelog. Let that
-      # race fail loud. It is recoverable: the package is on npm already,
-      # so what remains is the record — the commit, the tag and the
-      # release — made by hand once main is stable.
+      # sink below the tag and drop out of the next changelog. That race
+      # fails loud and is recoverable by hand: the package is on npm
+      # already, so what remains is the record — the commit, the tag and
+      # the release — made once main is stable.
       - name: Commit the release to main
         id: commit
         env:
