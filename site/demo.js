@@ -20,8 +20,15 @@
  */
 
 import {
-  FORMS, convert, escapeHtml, formatOptions,
-  initTheme, loadBundle, loadManifest, markCurrentPage, wireCopy,
+  FORMS,
+  convert,
+  escapeHtml,
+  formatOptions,
+  initTheme,
+  loadBundle,
+  loadManifest,
+  markCurrentPage,
+  wireCopy,
 } from './app.js'
 
 /**
@@ -374,9 +381,12 @@ function renderLocale() {
     </label>`
 
   const none = item.entry
-    ? radio('', `<strong>No region</strong> — the language itself`,
+    ? radio(
+        '',
+        `<strong>No region</strong> — the language itself`,
         `imports <code>n2words/${escapeHtml(item.entry)}</code> · spells like ${escapeHtml(item.landing)} · toCurrency needs an explicit currency`,
-        state.region === null)
+        state.region === null,
+      )
     : `<p class="loc-note">${escapeHtml(item.name)} has no bare tag — its variants differ in script or core numbering, so naming a region is required.</p>`
 
   const groups = spellings.map((group) => {
@@ -394,9 +404,12 @@ function renderLocale() {
       const member = state.variants.get(code)
       const clone = member.variantOf ? ` · same words as ${escapeHtml(member.variantOf)}` : ''
       const isDefault = code === item.default ? ` · what <code>${escapeHtml(item.entry)}</code> resolves to` : ''
-      return radio(code, escapeHtml(member.name),
+      return radio(
+        code,
+        escapeHtml(member.name),
         `default currency ${escapeHtml(member.defaultCurrency ?? '—')}${clone}${isDefault}`,
-        state.region === code)
+        state.region === code,
+      )
     }).join('')
 
     return heading + rows

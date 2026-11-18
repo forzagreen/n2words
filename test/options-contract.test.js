@@ -72,8 +72,7 @@ for (const file of readdirSync('./src').filter(f => f.endsWith('.js') && !f.star
   const mod = await import('../src/' + file)
   if (mod.aliasOf !== undefined) continue
   const relevant = FORMS.filter(([form, fnName]) =>
-    (typeof mod[fnName] === 'function' && mod[fnName].length >= 2) || mod[`${form}Defaults`] !== undefined,
-  )
+    (typeof mod[fnName] === 'function' && mod[fnName].length >= 2) || mod[`${form}Defaults`] !== undefined)
   if (relevant.length > 0) languages.push({ code: file.replace('.js', ''), mod, relevant })
 }
 

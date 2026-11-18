@@ -30,7 +30,13 @@ const ONES = ['không', 'một', 'hai', 'ba', 'bốn', 'năm', 'sáu', 'bảy', 
 // and not firmly fixed, so the table stops at that scale word rather than invent
 // more; the ceiling then falls where the next one would be needed (see below).
 const SCALES = [
-  '', 'nghìn', 'triệu', 'tỷ', 'nghìn tỷ', 'triệu tỷ', 'tỷ tỷ',
+  '',
+  'nghìn',
+  'triệu',
+  'tỷ',
+  'nghìn tỷ',
+  'triệu tỷ',
+  'tỷ tỷ',
 ]
 
 // 3-digit grouping with SCALES[0] = '' (units); the highest scale word is

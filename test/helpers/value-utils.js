@@ -28,8 +28,7 @@ export function safeStringify(value) {
   }
   if (typeof value === 'object' && value !== null) {
     return JSON.stringify(value, (_key, val) =>
-      typeof val === 'bigint' ? val.toString() + 'n' : val,
-    )
+      typeof val === 'bigint' ? val.toString() + 'n' : val)
   }
   return JSON.stringify(value)
 }

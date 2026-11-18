@@ -33,7 +33,10 @@ let variantsByCode = new Map()
 function haystack(family) {
   const members = family.variants.map(code => variantsByCode.get(code))
   return [
-    family.primary, family.name, family.native, family.entry,
+    family.primary,
+    family.name,
+    family.native,
+    family.entry,
     ...members.flatMap(member => [member.code, member.name, member.native, member.defaultCurrency]),
     ...family.currencies,
   ].filter(Boolean).join(' ').toLowerCase()

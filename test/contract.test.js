@@ -92,7 +92,8 @@ for (const { code, mod } of languages) {
     if (typeof toCardinal === 'function') {
       // Cardinal — any integer magnitude (negatives, zero, far past the ceiling).
       checks.push([`${code} toCardinal (integer)`, fc.property(
-        fc.bigInt({ min: -WIDE, max: WIDE }), n => upholdsContract(toCardinal, n),
+        fc.bigInt({ min: -WIDE, max: WIDE }),
+        n => upholdsContract(toCardinal, n),
       )])
 
       // Cardinal — decimal strings with a full (possibly huge, possibly negative)
@@ -139,14 +140,16 @@ for (const { code, mod } of languages) {
     if (typeof toOrdinal === 'function') {
       // Ordinal — positive integers only.
       checks.push([`${code} toOrdinal`, fc.property(
-        fc.bigInt({ min: 1n, max: WIDE }), n => upholdsContract(toOrdinal, n),
+        fc.bigInt({ min: 1n, max: WIDE }),
+        n => upholdsContract(toOrdinal, n),
       )])
     }
 
     if (typeof toCurrency === 'function') {
       // Currency — any integer amount.
       checks.push([`${code} toCurrency`, fc.property(
-        fc.bigInt({ min: -WIDE, max: WIDE }), n => upholdsContract(toCurrency, n),
+        fc.bigInt({ min: -WIDE, max: WIDE }),
+        n => upholdsContract(toCurrency, n),
       )])
     }
 
