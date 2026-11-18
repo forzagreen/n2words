@@ -493,8 +493,7 @@ async function main() {
       if (withFn.length > 0) {
         const fastest = withFn.reduce((max, r) => r.functions[fnName].hz > max.functions[fnName].hz ? r : max)
         const lowestMem = withFn.reduce((min, r) =>
-          r.functions[fnName].memoryPerIter < min.functions[fnName].memoryPerIter ? r : min,
-        )
+          r.functions[fnName].memoryPerIter < min.functions[fnName].memoryPerIter ? r : min)
         console.log(chalk.green(`${fnName}: fastest ${fastest.name}, lowest mem ${lowestMem.name}`))
       }
     }

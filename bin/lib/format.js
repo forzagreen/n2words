@@ -189,8 +189,11 @@ export function renderLanguageHelp(code, mod) {
   }
 
   if (forms.includes('currency') && mod.currencyDefaults?.currency === undefined) {
-    lines.push('', `A bare tag names a language, not a country, so ${code} has no default`,
-      'currency: pass --currency <CODE>, or use a region-qualified --lang.')
+    lines.push(
+      '',
+      `A bare tag names a language, not a country, so ${code} has no default`,
+      'currency: pass --currency <CODE>, or use a region-qualified --lang.',
+    )
   }
 
   return lines.join('\n')

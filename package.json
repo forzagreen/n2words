@@ -140,7 +140,7 @@
     "@eslint/js": "^10.0.1",
     "@rollup/plugin-terser": "^1.0.2",
     "@rollup/plugin-virtual": "^3.0.3",
-    "@stylistic/eslint-plugin": "^5.10.0",
+    "@stylistic/eslint-plugin": "^6.0.1",
     "@types/node": "^26.6.6",
     "ava": "^8.4.0",
     "browserslist": "^4.29.6",

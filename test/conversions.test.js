@@ -219,11 +219,9 @@ function runTestCases(t, fn, testCases, form) {
     try {
       const actual = options ? fn(input, options) : fn(input)
 
-      t.is(actual, expected,
-        `${form} case ${i + 1}/${testCases.length}: ${safeStringify(input)}${
-          options ? ` with ${safeStringify(options)}` : ''
-        }`,
-      )
+      t.is(actual, expected, `${form} case ${i + 1}/${testCases.length}: ${safeStringify(input)}${
+        options ? ` with ${safeStringify(options)}` : ''
+      }`)
     }
     catch (error) {
       t.fail(
@@ -355,8 +353,7 @@ for (const file of fixtureFiles) {
     // offending forms first, then assert in a loop (not an if) so the rule does
     // not flag the assertion.
     const exportsWithoutFixtures = Object.entries(FORMS).filter(([formName, config]) =>
-      typeof languageModule[config.functionName] === 'function' && !fixtureModule[formName],
-    )
+      typeof languageModule[config.functionName] === 'function' && !fixtureModule[formName])
     for (const [formName, config] of exportsWithoutFixtures) {
       t.fail(`${languageCode} exports ${config.functionName} but fixture is missing ${formName} test cases`)
     }

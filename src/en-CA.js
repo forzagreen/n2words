@@ -36,10 +36,26 @@ const ONES = ['', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight'
 const TEENS = ['ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen']
 const TENS = ['', '', 'twenty', 'thirty', 'forty', 'fifty', 'sixty', 'seventy', 'eighty', 'ninety']
 const SCALES = [
-  'thousand', 'million', 'billion', 'trillion', 'quadrillion',
-  'quintillion', 'sextillion', 'septillion', 'octillion', 'nonillion',
-  'decillion', 'undecillion', 'duodecillion', 'tredecillion', 'quattuordecillion',
-  'quindecillion', 'sexdecillion', 'septendecillion', 'octodecillion', 'novemdecillion',
+  'thousand',
+  'million',
+  'billion',
+  'trillion',
+  'quadrillion',
+  'quintillion',
+  'sextillion',
+  'septillion',
+  'octillion',
+  'nonillion',
+  'decillion',
+  'undecillion',
+  'duodecillion',
+  'tredecillion',
+  'quattuordecillion',
+  'quindecillion',
+  'sexdecillion',
+  'septendecillion',
+  'octodecillion',
+  'novemdecillion',
   'vigintillion',
 ]
 
