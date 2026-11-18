@@ -3,7 +3,13 @@ name: Release
 env:
   HUSKY: 0
   CI: true
-  NODE_VERSION: "26"
+  # The exact Node a release builds with, never a range. Node compresses the
+  # tarball, and two Node versions can compress the same files to different
+  # bytes, so a release rebuilt from its tag matches what was published only
+  # with the Node named here. npm ships inside Node, so this names npm too.
+  # The attestation records the workflow and the commit, not which Node ran,
+  # and a run's log expires, so this line is the record. Raised by hand.
+  NODE_VERSION: "26.13.1"
 
 on:
   workflow_dispatch:
@@ -51,17 +57,21 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
-      - name: Verify NODE_VERSION satisfies engines.node
+      - name: Verify NODE_VERSION is exact and satisfies engines.node
         # engines.node lists the supported LTS lines (e.g.
         # "^22 || ^24 || ^26"); the regex pulls the lowest major as a floor.
-        # The runner's Node major must clear it — otherwise we'd publish a
+        # NODE_VERSION's major must clear it — otherwise we'd publish a
         # package whose engines field contradicts the toolchain that built it.
         run: |
+          if ! [[ "$NODE_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::NODE_VERSION ($NODE_VERSION) is not an exact version such as 26.13.1."
+            exit 1
+          fi
           ENGINES_MIN=$(node -p "require('./package.json').engines.node.match(/\d+/)[0]")
-          ENV_VERSION="${{ env.NODE_VERSION }}"
-          echo "Node check: NODE_VERSION=$ENV_VERSION  engines.node>=$ENGINES_MIN"
-          if [ "$ENV_VERSION" -lt "$ENGINES_MIN" ]; then
-            echo "::error::NODE_VERSION ($ENV_VERSION) is below engines.node minimum ($ENGINES_MIN). Bump NODE_VERSION in release.yml."
+          NODE_MAJOR="${NODE_VERSION%%.*}"
+          echo "Node check: NODE_VERSION=$NODE_VERSION  engines.node>=$ENGINES_MIN"
+          if [ "$NODE_MAJOR" -lt "$ENGINES_MIN" ]; then
+            echo "::error::NODE_VERSION ($NODE_VERSION) is below engines.node minimum ($ENGINES_MIN). Raise NODE_VERSION in release.yml."
             exit 1
           fi
 
@@ -69,6 +79,15 @@ jobs:
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: ${{ env.NODE_VERSION }}
+
+      - name: Check Node is the version named
+        run: |
+          ACTUAL=$(node --version)
+          if [ "$ACTUAL" != "v${NODE_VERSION}" ]; then
+            echo "::error::Node is ${ACTUAL}, not the v${NODE_VERSION} NODE_VERSION names."
+            exit 1
+          fi
+          echo "Node ${ACTUAL}, npm $(npm --version)"
 
       # Cache key derived from package.json's deps fields ONLY, not the
       # full lockfile. The release workflow rewrites package-lock.json's
