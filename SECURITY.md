@@ -79,6 +79,110 @@ n2words does not use `eval()`, `Function()` constructor, or any dynamic code exe
 
 n2words has zero runtime dependencies, minimizing supply chain risks.
 
+## Verifying a Release
+
+Each release is one tarball, `n2words-X.Y.Z.tgz`, packed once by
+[`release.yml`](.github/workflows/release.yml) and published unchanged to npm
+and to the GitHub release. Beside it on the release is
+`n2words-X.Y.Z.tgz.sigstore.json`, the attestation of where it was built,
+signed by that workflow running on `main`. Releases whose asset is a `.zip`
+came before the bundle, and every 6.x release among them carries npm's
+provenance instead (below).
+
+### Check where it was built
+
+Download the tarball and its bundle from the release. The tarball from npm
+(`npm pack n2words@X.Y.Z`) is the same file.
+
+```sh
+gh release download vX.Y.Z --repo forzagreen/n2words --pattern 'n2words-X.Y.Z.tgz*'
+
+gh attestation verify n2words-X.Y.Z.tgz \
+  --bundle n2words-X.Y.Z.tgz.sigstore.json \
+  --repo forzagreen/n2words \
+  --signer-workflow forzagreen/n2words/.github/workflows/release.yml \
+  --source-ref refs/heads/main
+```
+
+Keep `--signer-workflow` and `--source-ref`: with `--repo` alone, an
+attestation from any workflow in the repository, run from any branch, passes.
+
+In a terminal, a pass lists the policy it enforced and ends:
+
+```text
+✓ Verification succeeded!
+
+The following 1 attestation matched the policy criteria
+
+- Attestation #1
+  - Build repo:..... forzagreen/n2words
+  - Build workflow:. .github/workflows/release.yml@refs/heads/main
+  - Signer repo:.... forzagreen/n2words
+  - Signer workflow: .github/workflows/release.yml@refs/heads/main
+```
+
+A failure exits non-zero, and its message may not say which check failed.
+Run from a script, a pass prints nothing, so a script asks for the signer and
+compares it, rather than trusting the exit status alone:
+
+```sh
+gh attestation verify n2words-X.Y.Z.tgz \
+  --bundle n2words-X.Y.Z.tgz.sigstore.json \
+  --repo forzagreen/n2words \
+  --signer-workflow forzagreen/n2words/.github/workflows/release.yml \
+  --source-ref refs/heads/main \
+  --format json \
+  --jq '.[].verificationResult.signature.certificate.subjectAlternativeName'
+```
+
+which prints, for a release:
+
+```text
+https://github.com/forzagreen/n2words/.github/workflows/release.yml@refs/heads/main
+```
+
+The release workflow runs this same check on each bundle before attaching it.
+
+**With no network:** fetch the trusted root while online, then add
+`--custom-trusted-root trusted_root.jsonl` to the command above.
+
+```sh
+gh attestation trusted-root > trusted_root.jsonl
+```
+
+**Without the bundle:** leave out `--bundle`, and gh fetches the attestation
+from GitHub instead. That also confirms the attestation belongs to the
+repository that holds the name today, which a bundle on disk cannot.
+
+**Through npm:** `npm audit signatures`, run in a project that has installed
+n2words, checks npm's registry signature and its provenance attestation, which
+the same release run makes. n2words is counted among the packages with "a
+verified attestation".
+
+### Rebuild it
+
+The tag holds everything the tarball is built from, and `NODE_VERSION` in the
+tag's `release.yml` names the Node it was built with. Built with that Node,
+the tarball comes out byte for byte the same:
+
+```sh
+git clone --branch vX.Y.Z --depth 1 https://github.com/forzagreen/n2words.git
+cd n2words
+grep 'NODE_VERSION:' .github/workflows/release.yml   # put this Node on PATH
+npm ci
+npm pack
+sha256sum n2words-X.Y.Z.tgz   # the digest of the tarball on npm and on the release
+```
+
+The 6.x releases made before `NODE_VERSION` named an exact version were built
+with these, as each release run's log records:
+
+| Release | Node |
+| --- | --- |
+| v6.3.0 | 26.10.0 |
+| v6.2.0 | 26.8.2 |
+| v6.0.0 to v6.1.2 | 26.8.1 |
+
 ## Security Update Process
 
 1. **Private Fix**: Security issues are fixed in a private fork
@@ -116,4 +220,4 @@ For questions about this policy or n2words security:
 
 ---
 
-**Last Updated**: 2026-01-23
+**Last Updated**: 2026-11-17

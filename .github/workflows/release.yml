@@ -401,18 +401,45 @@ jobs:
           gh api "repos/${GH_REPO}/git/refs" -f ref="refs/tags/${TAG}" -f sha="$TAG_OBJECT" > /dev/null
 
       - name: Attest the tarball
+        id: attest
         uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4.2.2
         with:
           subject-path: release/${{ env.TARBALL }}
 
-      # Drafted, given its file, then published: publication is where an
+      # The attestation bundle goes up beside the tarball. GitHub's own copy
+      # of an attestation can be deleted, and a check that looks it up then
+      # fails; the asset lasts as long as the release, and verifies with no
+      # network. Before it goes up it is verified the way SECURITY.md tells
+      # a reader to, and the step passes on the signer the verifier names,
+      # since gh prints nothing on success when no terminal is attached.
+      - name: Check the bundle verifies as SECURITY.md says
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BUNDLE: ${{ steps.attest.outputs.bundle-path }}
+        run: |
+          cp "$BUNDLE" "release/${TARBALL}.sigstore.json"
+          SIGNER=$(gh attestation verify "release/${TARBALL}" \
+            --bundle "release/${TARBALL}.sigstore.json" \
+            --repo "$GH_REPO" \
+            --signer-workflow "${GH_REPO}/.github/workflows/release.yml" \
+            --source-ref refs/heads/main \
+            --format json \
+            --jq '.[].verificationResult.signature.certificate.subjectAlternativeName')
+          EXPECTED="https://github.com/${GH_REPO}/.github/workflows/release.yml@refs/heads/main"
+          if [ "$SIGNER" != "$EXPECTED" ]; then
+            echo "::error::The bundle names the signer '${SIGNER}', not ${EXPECTED}."
+            exit 1
+          fi
+          echo "Bundle verified, signed by ${SIGNER}"
+
+      # Drafted, given its files, then published: publication is where an
       # immutable release freezes its tag and its assets, so everything is
       # attached before it.
       - name: Create GitHub Release
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
         run: |
-          gh release create "$TAG" "release/${TARBALL}" \
+          gh release create "$TAG" "release/${TARBALL}" "release/${TARBALL}.sigstore.json" \
             --draft \
             --verify-tag \
             --title "$TAG" \
