@@ -201,7 +201,13 @@ jobs:
           node-version: ${{ matrix.node }}
           cache: 'npm'
 
+      # Node 22 ships npm 10, which predates allowScripts and the .npmrc
+      # settings that hold to it, so it would run any dependency's install
+      # script. Scripts stay off there instead; nothing this tree installs on
+      # Linux has one.
       - name: Install dependencies
+        env:
+          npm_config_ignore_scripts: ${{ matrix.node == '22' }}
         run: npm ci --prefer-offline
 
       - name: Run tests

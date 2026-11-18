@@ -171,6 +171,6 @@
     "provenance": true
   },
   "allowScripts": {
-    "unrs-resolver": false
+    "fsevents": false
   }
 }
