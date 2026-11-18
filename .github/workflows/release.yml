@@ -325,9 +325,14 @@ jobs:
       # Publication comes first because it is the step that cannot be taken
       # back. The commit, the tag and the release that announce it follow,
       # so a failed publish leaves nothing claiming a version npm lacks.
+      #
+      # No token: n2words publishes by npm's trusted publishing. Run in
+      # GitHub Actions, npm publish trades this job's OIDC token (the
+      # id-token: write above) for a short-lived npm token, which npm grants
+      # only to the workflow the package's trusted publisher names, and uses
+      # it in place of any token configured. If the trade fails, so does the
+      # publish.
       - name: Publish to npm
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: npm publish --provenance "./release/${TARBALL}"
 
       # The version and the changelog land on main as a commit GitHub
