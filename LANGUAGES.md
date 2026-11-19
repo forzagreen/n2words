@@ -146,7 +146,7 @@ reference.
 |`hr-HR`|Croatian (Croatia)|10^30 - 1 [*](#croatian-croatia-hr-hr)|10^15 - 1|10^30 - 1 [*](#croatian-croatia-hr-hr)|
 |`hu-HU`|Hungarian (Hungary)|∞|∞|∞ [*](#hungarian-hungary-hu-hu)|
 |`id-ID`|Indonesian (Indonesia)|10^36 - 1|10^36 - 1|10^36 - 1 [*](#indonesian-indonesia-id-id)|
-|`it-IT`|Italian (Italy)|10^66 - 1|10^66 - 1|10^66 - 1 [*](#italian-italy-it-it)|
+|`it-IT`|Italian (Italy)|10^66 - 1|10^66 - 1 [*](#italian-italy-it-it)|10^66 - 1 [*](#italian-italy-it-it)|
 |`ja-JP`|Japanese (Japan)|10^72 - 1|10^72 - 1|10^72 - 1 [*](#japanese-japan-ja-jp)|
 |`ka-GE`|Georgian (Georgia)|10^24 - 1|10^24 - 1|10^24 - 1 [*](#georgian-georgia-ka-ge)|
 |`kn-IN`|Kannada (India)|10^19 - 1|10^19 - 1|10^19 - 1 [*](#kannada-india-kn-in)|
@@ -607,6 +607,7 @@ own defaults.
 
 |Option|Form|Type|Default|Description|
 |------|----|----|-------|-----------|
+|`gender`|ordinal|'feminine' \| 'masculine'|`masculine`|Grammatical gender of the ordinal|
 |`and`|currency|`boolean`|`true`|Use "e" between euros and centesimi|
 |`currency`|currency|`'EUR'`|`EUR`|ISO 4217 currency code to name the amount in|
 
