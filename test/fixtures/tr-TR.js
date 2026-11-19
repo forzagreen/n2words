@@ -137,13 +137,24 @@ export const ordinal = [
 
   // Regular forms (cardinal + suffix with vowel harmony)
   [11, 'onbirinci'],
-  [12, 'onikiinci'],
+  [12, 'onikinci'],
   [19, 'ondokuzuncu'],
-  [20, 'yirmiinci'],
+  [20, 'yirminci'],
   [21, 'yirmibirinci'],
   [30, 'otuzuncu'],
-  [42, 'kırkikiinci'],
+  [42, 'kırkikinci'],
   [99, 'doksandokuzuncu'],
+
+  // A vowel-final word drops the suffix's own vowel: iki → ikinci, elli → ellinci
+  [16, 'onaltıncı'],
+  [17, 'onyedinci'],
+  [50, 'ellinci'],
+  [1002, 'binikinci'],
+
+  // dört softens to dörd before the suffix, as in dördüncü
+  [14, 'ondördüncü'],
+  [24, 'yirmidördüncü'],
+  [104, 'yüzdördüncü'],
 
   // Hundreds
   [100, 'yüzüncü'],

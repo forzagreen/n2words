@@ -132,16 +132,19 @@ export const ordinal = [
 
   // Teens (vowel harmony)
   [11, 'onbirinci'],
-  [12, 'onikiinci'],
+  [12, 'onikinci'],
   [15, 'onbeşinci'],
+  [16, 'onaltıncı'],
+  [17, 'onyeddinci'],
   [19, 'ondoqquzuncu'],
 
   // Tens
-  [20, 'iyirmiinci'],
+  [20, 'iyirminci'],
   [21, 'iyirmibirinci'],
+  [22, 'iyirmiikinci'],
   [30, 'otuzuncu'],
   [40, 'qırxıncı'],
-  [50, 'əlliinci'],
+  [50, 'əllinci'],
   [60, 'altmışıncı'],
   [70, 'yetmişinci'],
   [80, 'səksəninci'],
@@ -155,6 +158,7 @@ export const ordinal = [
   // Thousands
   [1000, 'mininci'],
   [1001, 'minbirinci'],
+  [1002, 'minikinci'],
 ]
 
 /**
