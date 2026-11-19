@@ -280,11 +280,56 @@ function toCardinal(value) {
 // ============================================================================
 
 /**
+ * @typedef {object} OrdinalWords
+ * @property {string[]} ones - Ordinals 0-9
+ * @property {string[]} teens - Ordinals 10-19
+ * @property {string[]} tens - Ordinals of the tens, by tens digit
+ * @property {string[]} hundreds - Ordinals of the hundreds, by hundreds digit
+ * @property {string[]} scale - Ordinals of the scale words, by 3-digit group
+ */
+
+/**
+ * Turns every masculine ordinal word into its feminine: "décimo primeiro" → "décima primeira".
+ * @param {string} words - Masculine ordinal words
+ * @returns {string} Feminine ordinal words
+ */
+function feminineOrdinal(words) {
+  return words.replace(/o(?= |$)/g, 'a')
+}
+
+/** @type {OrdinalWords} */
+const MASCULINE_ORDINALS = { ones: ORDINAL_ONES, teens: ORDINAL_TEENS, tens: ORDINAL_TENS, hundreds: ORDINAL_HUNDREDS, scale: SCALE_ORDINAL }
+
+/** @type {OrdinalWords} */
+const FEMININE_ORDINALS = {
+  ones: /* @__PURE__ */ ORDINAL_ONES.map(feminineOrdinal),
+  teens: /* @__PURE__ */ ORDINAL_TEENS.map(feminineOrdinal),
+  tens: /* @__PURE__ */ ORDINAL_TENS.map(feminineOrdinal),
+  hundreds: /* @__PURE__ */ ORDINAL_HUNDREDS.map(feminineOrdinal),
+  scale: /* @__PURE__ */ SCALE_ORDINAL.map(feminineOrdinal),
+}
+
+/**
+ * Makes cardinal words agree with a feminine noun: "um" → "uma", "dois" → "duas",
+ * "duzentos" → "duzentas".
+ * @param {string} words - Masculine cardinal words
+ * @returns {string} Feminine cardinal words
+ */
+function feminineCardinal(words) {
+  return words.split(' ').map((word) => {
+    if (word === 'um') return 'uma'
+    if (word === 'dois') return 'duas'
+    return word.endsWith('entos') ? word.slice(0, -2) + 'as' : word
+  }).join(' ')
+}
+
+/**
  * Builds ordinal words for 0-999.
  * @param {number} n - Number 0-999
+ * @param {OrdinalWords} t - Ordinal words of the requested gender
  * @returns {string} Portuguese ordinal words
  */
-function buildOrdinalSegment(n) {
+function buildOrdinalSegment(n, t) {
   if (n === 0) return ''
 
   const ones = n % 10
@@ -295,22 +340,22 @@ function buildOrdinalSegment(n) {
 
   // Hundreds ordinal
   if (hundreds > 0) {
-    parts.push(ORDINAL_HUNDREDS[hundreds])
+    parts.push(t.hundreds[hundreds])
   }
 
   // Tens and ones
   if (tens === 1) {
     // 10-19: use teens array (décimo, décimo primeiro, etc.)
-    parts.push(ORDINAL_TEENS[ones])
+    parts.push(t.teens[ones])
   }
   else if (tens >= 2) {
-    parts.push(ORDINAL_TENS[tens])
+    parts.push(t.tens[tens])
     if (ones > 0) {
-      parts.push(ORDINAL_ONES[ones])
+      parts.push(t.ones[ones])
     }
   }
   else if (ones > 0) {
-    parts.push(ORDINAL_ONES[ones])
+    parts.push(t.ones[ones])
   }
 
   return parts.join(' ')
@@ -319,15 +364,16 @@ function buildOrdinalSegment(n) {
 /**
  * Builds ordinal words for 1-999 999 after another ordinal: "milésimo centésimo".
  * @param {number} n - Number 1-999 999
+ * @param {OrdinalWords} t - Ordinal words of the requested gender
  * @returns {string} Portuguese ordinal words
  */
-function buildOrdinalGroup(n) {
-  if (n < 1000) return buildOrdinalSegment(n)
+function buildOrdinalGroup(n, t) {
+  if (n < 1000) return buildOrdinalSegment(n, t)
 
   const thousands = Math.trunc(n / 1000)
   const remainder = n % 1000
-  const words = thousands === 1 ? SCALE_ORDINAL[1] : buildOrdinalSegment(thousands) + ' ' + SCALE_ORDINAL[1]
-  return remainder === 0 ? words : words + ' ' + buildOrdinalSegment(remainder)
+  const words = thousands === 1 ? t.scale[1] : buildOrdinalSegment(thousands, t) + ' ' + t.scale[1]
+  return remainder === 0 ? words : words + ' ' + buildOrdinalSegment(remainder, t)
 }
 
 /**
@@ -336,9 +382,11 @@ function buildOrdinalGroup(n) {
  * quadragésimo quinto"); a round number keeps an ordinal multiplier
  * ("segundo milésimo", "décimo milésimo").
  * @param {bigint} n - Integer >= 1000
+ * @param {OrdinalWords} t - Ordinal words of the requested gender
+ * @param {boolean} feminine - Whether the leading cardinal agrees with a feminine noun
  * @returns {string} Portuguese ordinal words
  */
-function buildLargeOrdinal(n) {
+function buildLargeOrdinal(n, t, feminine) {
   // Extract segments
   const segments = []
   let temp = n
@@ -359,12 +407,13 @@ function buildLargeOrdinal(n) {
     first = first * 1000 + segments[--i]
   }
   else if (i === lowest) {
-    return first === 1 ? SCALE_ORDINAL[i] : buildOrdinalSegment(first) + ' ' + SCALE_ORDINAL[i]
+    return first === 1 ? t.scale[i] : buildOrdinalSegment(first, t) + ' ' + t.scale[i]
   }
 
-  let result = SCALE_ORDINAL[i]
+  let result = t.scale[i]
   if (first !== 1) {
-    result = buildGroup(first) + ' ' + result
+    const multiplier = buildGroup(first)
+    result = (feminine ? feminineCardinal(multiplier) : multiplier) + ' ' + result
   }
 
   // After the first numeral, a "mil" group always reads with the group below
@@ -377,10 +426,10 @@ function buildLargeOrdinal(n) {
     }
     if (value === 0) continue
     if (i === 0) {
-      result += ' ' + buildOrdinalSegment(value)
+      result += ' ' + buildOrdinalSegment(value, t)
     }
     else {
-      result += ' ' + (value === 1 ? SCALE_ORDINAL[i] : buildOrdinalGroup(value) + ' ' + SCALE_ORDINAL[i])
+      result += ' ' + (value === 1 ? t.scale[i] : buildOrdinalGroup(value, t) + ' ' + t.scale[i])
     }
   }
 
@@ -388,26 +437,42 @@ function buildLargeOrdinal(n) {
 }
 
 /**
+ * @typedef {object} OrdinalOptions
+ * @property {('masculine'|'feminine')} [gender] - Grammatical gender of the ordinal
+ */
+
+/** @type {Required<OrdinalOptions>} */
+export const ordinalDefaults = { gender: 'masculine' }
+
+/** @type {{ gender: ReadonlyArray<Required<OrdinalOptions>['gender']> }} */
+export const ordinalValues = { gender: ['masculine', 'feminine'] }
+
+/**
  * Converts a number to Portuguese ordinal words.
  * @param {number | string | bigint} value - The number to convert
+ * @param {OrdinalOptions} [options] - Ordinal options
  * @returns {string} Portuguese ordinal words
  * @example
  * toOrdinal(1)                           // 'primeiro'
  * toOrdinal(21)                          // 'vigésimo primeiro'
  * toOrdinal(2345)                        // 'dois milésimo tricentésimo quadragésimo quinto'
+ * toOrdinal(21, { gender: 'feminine' })  // 'vigésima primeira'
  */
-function toOrdinal(value) {
+function toOrdinal(value, options) {
   const n = parseOrdinalValue(value)
   checkMax(n, ordinalMax)
+  const { gender } = resolveOptions(options, ordinalDefaults, ordinalValues)
+  const feminine = gender === 'feminine'
+  const t = feminine ? FEMININE_ORDINALS : MASCULINE_ORDINALS
 
   // Fast path: 1-9
   if (n < 10n) {
-    return ORDINAL_ONES[Number(n)]
+    return t.ones[Number(n)]
   }
 
   // Fast path: 10-19
   if (n < 20n) {
-    return ORDINAL_TEENS[Number(n) - 10]
+    return t.teens[Number(n) - 10]
   }
 
   // Fast path: 20-99
@@ -415,18 +480,18 @@ function toOrdinal(value) {
     const ones = Number(n % 10n)
     const tens = Number(n / 10n)
     if (ones === 0) {
-      return ORDINAL_TENS[tens]
+      return t.tens[tens]
     }
-    return ORDINAL_TENS[tens] + ' ' + ORDINAL_ONES[ones]
+    return t.tens[tens] + ' ' + t.ones[ones]
   }
 
   // Fast path: 100-999
   if (n < 1000n) {
-    return buildOrdinalSegment(Number(n))
+    return buildOrdinalSegment(Number(n), t)
   }
 
   // Large numbers
-  return buildLargeOrdinal(n)
+  return buildLargeOrdinal(n, t, feminine)
 }
 
 // ============================================================================
