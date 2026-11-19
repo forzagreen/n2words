@@ -346,9 +346,13 @@ function integerToOrdinal(n) {
   }
 
   // For numbers > 10, add appropriate suffix to cardinal (dropSpaces=true)
-  const cardinal = integerToWords(n, true)
+  let cardinal = integerToWords(n, true)
+  // dört softens its final t before the suffix, as in ORDINAL_SPECIAL[4]: dördüncü
+  if (cardinal.endsWith('dört')) cardinal = cardinal.slice(0, -1) + 'd'
   const suffix = getOrdinalSuffix(cardinal)
-  return cardinal + suffix
+  // The suffix is -(I)ncI: its first vowel drops after a vowel-final word
+  // (iki → ikinci, yirmi → yirminci), as in ORDINAL_SPECIAL's 2, 6 and 7
+  return cardinal + (/[aıoueiöü]$/.test(cardinal) ? suffix.slice(1) : suffix)
 }
 
 /**

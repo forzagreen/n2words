@@ -273,7 +273,9 @@ function integerToOrdinal(n) {
   // For numbers > 10, get cardinal without spaces and add appropriate suffix
   const cardinal = integerToWords(n).replace(/ /g, '')
   const suffix = getOrdinalSuffix(cardinal)
-  return cardinal + suffix
+  // The suffix is -(I)ncI: its first vowel drops after a vowel-final word
+  // (iki → ikinci, iyirmi → iyirminci), as in ORDINAL_SPECIAL's 2, 6 and 7
+  return cardinal + (/[aıouəeiöü]$/.test(cardinal) ? suffix.slice(1) : suffix)
 }
 
 /**
