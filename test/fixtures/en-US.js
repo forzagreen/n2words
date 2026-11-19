@@ -288,4 +288,15 @@ export const ordinal = [
   // BigInt support
   [1_000_000_000_000_000_000n, 'one quintillionth'],
   [1_000_000_000_000_000_000_000n, 'one sextillionth'],
+
+  // "and" option: placed where the cardinal would place it
+  [101, 'one hundred and first', { and: true }],
+  [121, 'one hundred and twenty-first', { and: true }],
+  [1001, 'one thousand and first', { and: true }],
+  [1100, 'one thousand one hundredth', { and: true }],
+  [1101, 'one thousand one hundred and first', { and: true }],
+  [2020, 'two thousand and twentieth', { and: true }],
+  [101_000, 'one hundred and one thousandth', { and: true }],
+  [1_000_001, 'one million and first', { and: true }],
+  [101, 'one hundred first', { and: false }],
 ]
