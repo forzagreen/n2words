@@ -54,7 +54,7 @@ export const currencyDefaults = baseDefaultsWithoutCurrency
  * @returns {string} The amount in Ukrainian currency words
  * @throws {TypeError} If `currency` is omitted, or options are malformed
  * @example
- * toCurrency(42.50, { currency: 'UAH' }) // 'сорок двi гривнi п\'ятдесят копiйок'
+ * toCurrency(42.50, { currency: 'UAH' }) // 'сорок дві гривні п\'ятдесят копійок'
  */
 function toCurrency(value, options) {
   // Run uk-UA's own options contract first so a malformed argument reports

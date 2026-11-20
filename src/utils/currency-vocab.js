@@ -329,10 +329,10 @@ export const ru = {
 
 // Ukrainian Hryvnia/Kopiyka: [singular, few, many] — uk's own pluralize()
 // selects the index. гривня is feminine (unlike Russian's masculine рубль),
-// копiйка is feminine.
+// копійка is feminine.
 /** @satisfies {Record<string, CurrencyWordForms>} */
 export const uk = {
-  UAH: { major: ['гривня', 'гривнi', 'гривень'], minor: ['копiйка', 'копiйки', 'копiйок'], majorGender: 'feminine', minorGender: 'feminine' },
+  UAH: { major: ['гривня', 'гривні', 'гривень'], minor: ['копійка', 'копійки', 'копійок'], majorGender: 'feminine', minorGender: 'feminine' },
 }
 
 // Danish Krone/Øre: [singular, plural] for krone; øre is invariable (same
