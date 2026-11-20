@@ -199,7 +199,7 @@ When contributing code, ensure:
 - [ ] Input validation for all user-provided values
 - [ ] No use of `eval()`, `Function()`, or dynamic code execution
 - [ ] No hardcoded credentials or sensitive data
-- [ ] Dependencies are up to date and pass CI's security audit (audit-ci; any advisory set aside is listed in `audit-ci.jsonc` with its reason)
+- [ ] Dependencies are up to date and pass CI's security audit (audit-ci, which `npx audit-ci --config ./audit-ci.jsonc` runs locally; any advisory set aside is listed in `audit-ci.jsonc` with its reason)
 - [ ] No new dependencies without justification
 - [ ] Consider DoS implications for large inputs
 - [ ] Sanitize outputs if used in HTML contexts (though n2words outputs plain text)
@@ -220,4 +220,4 @@ For questions about this policy or n2words security:
 
 ---
 
-**Last Updated**: 2026-11-17
+**Last Updated**: 2026-11-18

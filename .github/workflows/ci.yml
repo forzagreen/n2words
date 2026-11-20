@@ -69,31 +69,30 @@ jobs:
   audit:
     name: Audit
     runs-on: ubuntu-latest
-    # Fetches audit-ci and reads the lockfile; there is no `npm ci`.
-    timeout-minutes: 5
+    # The audit runs in seconds; the budget exists for `npm ci`, as in Lint.
+    timeout-minutes: 10
 
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
 
-      # No `cache: 'npm'`. setup-node saves the cache under the lockfile's key
-      # when the job ends, and the first job to finish wins the key: this one,
-      # holding only audit-ci, would leave every other job restoring a cache
-      # without the dependencies until the lockfile next changes.
       - name: Setup Node.js
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: '26'
+          cache: 'npm'
+
+      # audit-ci is a devDependency, so the lockfile holds it and everything it
+      # runs, and a local run uses the same tree. Scripts stay off, so no
+      # dependency's code runs ahead of the audit.
+      - name: Install dependencies
+        run: npm ci --ignore-scripts --prefer-offline
 
       # audit-ci runs `npm audit` at high severity and sets aside only the
       # advisories listed in audit-ci.jsonc, each with its reason and expiry.
-      # It reads just the lockfile, so no dependency's install script runs
-      # ahead of the audit; that is also why it comes through npx rather than
-      # as a devDependency. The version is pinned, but its own dependencies
-      # resolve fresh on each run.
       - name: Security audit
-        run: npx --yes audit-ci@7.1.0 --config ./audit-ci.jsonc
+        run: npx --no-install audit-ci --config ./audit-ci.jsonc
 
   lint:
     name: Lint
