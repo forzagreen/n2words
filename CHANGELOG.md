@@ -1,5 +1,19 @@
 # Changelog
 
+## [6.3.1](https://github.com/forzagreen/n2words/compare/v6.3.0...v6.3.1) (2026-11-20)
+
+
+### Bug Fixes
+
+* **az-AZ,tr-TR:** drop the suffix vowel after a vowel-final number in ordinals ([#500](https://github.com/forzagreen/n2words/issues/500)) ([8f21d31](https://github.com/forzagreen/n2words/commit/8f21d31aeef62b4e69245ad7d3be5085afd0fc7c))
+* **pt:** align numbers, ordinals and amounts with Ciberdúvidas ([#473](https://github.com/forzagreen/n2words/issues/473)) ([6e110d6](https://github.com/forzagreen/n2words/commit/6e110d69eee830b847c6dfda56259f038a8c33c2))
+* **it:** align million ordinals, "tre" and amounts with Treccani ([#472](https://github.com/forzagreen/n2words/issues/472)) ([7f93b76](https://github.com/forzagreen/n2words/commit/7f93b76814e93594bed56560ecd70a0415b5a2f1))
+* **de:** write million ordinals as one word and "ein" before nouns ([#471](https://github.com/forzagreen/n2words/issues/471)) ([7b851db](https://github.com/forzagreen/n2words/commit/7b851db6fcaf1902031b11fcd91a6104db9e7130))
+* **en:** put "and" in en-GB and en-IN ordinals as in their cardinals ([#470](https://github.com/forzagreen/n2words/issues/470)) ([2f3bd1f](https://github.com/forzagreen/n2words/commit/2f3bd1f3f1acfffb95e71e3001ee00cf97d3b63a))
+* **fr:** drop "un" in million ordinals and add "de" before the currency ([#469](https://github.com/forzagreen/n2words/issues/469)) ([fe09c45](https://github.com/forzagreen/n2words/commit/fe09c4535dcd7d01e70a595034a7578480bf196f))
+* **es:** align Spanish numbers, ordinals and amounts with the RAE ([#468](https://github.com/forzagreen/n2words/issues/468)) ([eb079a3](https://github.com/forzagreen/n2words/commit/eb079a3c00678f107870fc3806a2a2a195815d83))
+* **bench:** report forms that refuse the bench value instead of crashing ([#467](https://github.com/forzagreen/n2words/issues/467)) ([e0c22f3](https://github.com/forzagreen/n2words/commit/e0c22f3893e0d2bc59a158c3ea0a035dc69dbd36))
+
 ## [6.3.0](https://github.com/forzagreen/n2words/compare/v6.2.0...v6.3.0) (2026-09-30)
 
 
