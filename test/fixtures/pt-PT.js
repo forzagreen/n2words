@@ -185,6 +185,17 @@ export const ordinal = [
 
   // BigInt support
   [1_000_000_000_000_000_000n, 'trilionésimo'],
+
+  // Feminine: ordinals end in -a, and a leading cardinal agrees too
+  [1, 'primeira', { gender: 'feminine' }],
+  [2, 'segunda', { gender: 'feminine' }],
+  [21, 'vigésima primeira', { gender: 'feminine' }],
+  [100, 'centésima', { gender: 'feminine' }],
+  [2000, 'segunda milésima', { gender: 'feminine' }],
+  [2345, 'duas milésima tricentésima quadragésima quinta', { gender: 'feminine' }],
+  [221345, 'duzentas e vinte e uma milésima tricentésima quadragésima quinta', { gender: 'feminine' }],
+  [1_000_000_000, 'mil milionésima', { gender: 'feminine' }],
+  [2_002_000_000_000n, 'duas bilionésima segunda milésima milionésima', { gender: 'feminine' }],
 ]
 
 /**
