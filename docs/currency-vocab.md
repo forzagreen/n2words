@@ -259,7 +259,7 @@ right form of "one"/"two"/... (`два рубля` vs `две гривны`). Op
 ```js
 export const ru = {
   RUB: { major: ['рубль', 'рубля', 'рублей'], minor: ['копейка', 'копейки', 'копеек'], majorGender: 'masculine', minorGender: 'feminine' },
-  UAH: { major: ['гривня', 'гривнi', 'гривень'], minor: [...], majorGender: 'feminine', minorGender: 'feminine' },
+  UAH: { major: ['гривня', 'гривні', 'гривень'], minor: [...], majorGender: 'feminine', minorGender: 'feminine' },
 }
 ```
 

@@ -33,11 +33,16 @@ export function safeStringify(value) {
   return JSON.stringify(value)
 }
 
+// A Latin letter touching a Cyrillic or Greek one: a word typed with a
+// look-alike letter from the wrong script (Latin i for Ukrainian і).
+const MIXED_SCRIPT = /\p{Script=Latin}[\p{Script=Cyrillic}\p{Script=Greek}]|[\p{Script=Cyrillic}\p{Script=Greek}]\p{Script=Latin}/u
+
 /**
  * A conversion result the contract permits: a non-empty, tidily spaced string
- * with no sign of a missing lookup. Shared by the gates that assert output
- * shape (contract.test.js's fuzz sweep, currency-vocab-contract.test.js's
- * per-currency sweep) so "well-formed" means one thing across the suite.
+ * with no sign of a missing lookup and no word that mixes scripts. Shared by
+ * the gates that assert output shape (contract.test.js's fuzz sweep,
+ * currency-vocab-contract.test.js's per-currency sweep) so "well-formed" means
+ * one thing across the suite.
  * @param {*} value Conversion result to check
  * @returns {boolean} True if the value is a well-formed conversion result
  */
@@ -47,6 +52,7 @@ export function isWellFormed(value) {
     && value === value.trim()
     && !/\s{2,}/.test(value)
     && !/undefined|NaN|\[object/.test(value)
+    && !MIXED_SCRIPT.test(value)
 }
 
 /**
